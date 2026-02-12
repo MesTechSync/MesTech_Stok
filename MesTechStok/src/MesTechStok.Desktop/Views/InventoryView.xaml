@@ -1,0 +1,391 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.InventoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:components="clr-namespace:MesTechStok.Desktop.Components"
+             xmlns:local="clr-namespace:MesTechStok.Desktop.Converters"
+             mc:Ignorable="d"
+              Background="{StaticResource BackgroundLightBrush}"
+              UseLayoutRounding="True"
+              SnapsToDevicePixels="True"
+              TextOptions.TextFormattingMode="Display"
+              TextOptions.TextRenderingMode="ClearType">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <!-- Stock Status Color Converter -->
+        <local:StockStatusToColorConverter x:Key="StockStatusToColorConverter"/>
+        
+        <!-- Real-time Update Animation -->
+        <Storyboard x:Key="StockUpdateAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                           From="1" To="1.1" Duration="0:0:0.15" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                           From="1" To="1.1" Duration="0:0:0.15" AutoReverse="True"/>
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 🎨 BRAVO TİMİ - Modern Header -->
+        <Border Grid.Row="0" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="📊" FontSize="28" VerticalAlignment="Center" Margin="0,0,10,0" 
+                              Foreground="{StaticResource PrimaryBlueBrush}"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Stok Takip ve Yönetimi" Style="{StaticResource HeaderLargeStyle}"/>
+                        <TextBlock Text="Gerçek zamanlı stok izleme ve hareket takibi" Style="{StaticResource BodyTextSecondaryStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="🔄 Yenile" Style="{StaticResource ModernButtonStyle}" 
+                            Click="RefreshInventory_Click" Margin="0,0,10,0"/>
+                    <Button Content="📊 Rapor Al" Style="{StaticResource ModernWarningButtonStyle}" 
+                            Click="GenerateReport_Click"
+                            Visibility="{Binding CanExportInventory, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- 🎨 BRAVO TİMİ - KPI Dashboard -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Total Inventory Value -->
+            <components:KPIWidget Grid.Column="0" 
+                                 Title="Toplam Stok Değeri"
+                                 Value="{Binding TotalInventoryValue, FallbackValue='₺0'}"
+                                 Icon="💰"
+                                 Description="Tüm stoklarin toplam değeri"
+                                 ShowTrend="True"
+                                 TrendText="+8.5%"
+                                 IsPositiveTrend="True"/>
+            
+            <!-- Low Stock Alert -->
+            <components:KPIWidget Grid.Column="1" 
+                                 Title="Düşük Stok Uyarısı"
+                                 Value="{Binding LowStockCount, FallbackValue='0'}"
+                                 Icon="⚠️"
+                                 Description="Kritik seviyedeki ürünler"
+                                 ShowTrend="True"
+                                 TrendText="-12%"
+                                 IsPositiveTrend="False"/>
+            
+            <!-- Today's Movements -->
+            <components:KPIWidget Grid.Column="2" 
+                                 Title="Günlük Hareket"
+                                 Value="{Binding TodayMovements, FallbackValue='0'}"
+                                 Icon="📈"
+                                 Description="Bugünkü stok hareketleri"
+                                 ShowTrend="True"
+                                 TrendText="+25%"
+                                 IsPositiveTrend="True"/>
+            
+            <!-- Stock Accuracy -->
+            <components:KPIWidget Grid.Column="3" 
+                                 Title="Stok Doğruluğu"
+                                 Value="{Binding StockAccuracy, FallbackValue='98.5%'}"
+                                 Icon="✅"
+                                 Description="Sistem doğruluk oranı"
+                                 ShowTrend="False"/>
+        </Grid>
+        
+        <!-- 🎨 BRAVO TİMİ - Main Content Area -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left Panel - Stock Monitor -->
+            <Border Grid.Column="0" Style="{StaticResource ModernCardStyle}" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Monitor Header -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="📱" FontSize="20" Margin="0,0,8,0" 
+                                  Foreground="{StaticResource AccentGreenBrush}"/>
+                        <TextBlock Text="Stok Monitor" Style="{StaticResource HeaderSmallStyle}" Margin="0"/>
+                        
+                        <!-- Real-time Indicator -->
+                        <Ellipse Width="12" Height="12" Fill="{StaticResource AccentGreenBrush}" 
+                                Margin="16,0,8,0" VerticalAlignment="Center">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                           From="1" To="0.3" Duration="0:0:1" AutoReverse="True"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+                        <TextBlock Text="Canlı" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center"
+                                  Foreground="{StaticResource AccentGreenBrush}"/>
+                    </StackPanel>
+                    
+                    <!-- Search and Filter Toolbar -->
+                    <Border Grid.Row="1" Background="{StaticResource BackgroundLightBrush}" 
+                           CornerRadius="6" Padding="16" Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0" Text="🔍" FontSize="16" VerticalAlignment="Center" 
+                                      Margin="0,0,8,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBox Grid.Column="1" x:Name="InventorySearchBox" 
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                    TextChanged="InventorySearch_TextChanged"
+                                    Tag="Ürün ara..."/>
+                            
+                            <ComboBox Grid.Column="2" x:Name="StockStatusFilter" 
+                                     Style="{StaticResource ModernComboBoxStyle}"
+                                     Width="140" Margin="12,0,0,0"
+                                     SelectionChanged="StockStatusFilter_Changed">
+                                <ComboBoxItem Content="🗂️ Tüm Durumlar"/>
+                                <ComboBoxItem Content="✅ Normal Stok"/>
+                                <ComboBoxItem Content="⚠️ Düşük Stok"/>
+                                <ComboBoxItem Content="❌ Kritik Stok"/>
+                                <ComboBoxItem Content="📊 Stok Yok"/>
+                            </ComboBox>
+                            
+                            <Button Grid.Column="3" Content="📲 Barkod Tara" 
+                                   Style="{StaticResource ModernSuccessButtonStyle}"
+                                   Click="ScanBarcode_Click" Margin="12,0,0,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Stock Items DataGrid -->
+                    <DataGrid Grid.Row="2" 
+                             x:Name="InventoryDataGrid" 
+                             Style="{StaticResource ModernDataGridStyle}"
+                             AutoGenerateColumns="False" 
+                             IsReadOnly="True" 
+                             SelectionMode="Single" 
+                             SelectionChanged="InventoryDataGrid_SelectionChanged"
+                             ColumnHeaderStyle="{StaticResource ModernColumnHeaderStyle}"
+                              RowStyle="{StaticResource ModernRowStyle}"
+                              SnapsToDevicePixels="True"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              EnableRowVirtualization="True"
+                              EnableColumnVirtualization="True">
+                        <DataGrid.Resources>
+                            <!-- Enhanced Pagination for Inventory -->
+                            <components:PaginationComponent x:Key="InventoryPagination"/>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="🔴 Durum" Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Ellipse Width="12" Height="12" 
+                                                Fill="{Binding StockStatus, Converter={StaticResource StockStatusToColorConverter}}"
+                                                Margin="8,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="🏷️ Barkod" Binding="{Binding Barcode}" Width="140"/>
+                            <DataGridTextColumn Header="📦 Ürün Adı" Binding="{Binding ProductName}" Width="*"/>
+                            <DataGridTextColumn Header="📂 Kategori" Binding="{Binding Category}" Width="120"/>
+                            <DataGridTextColumn Header="📊 Mevcut Stok" Binding="{Binding CurrentStock}" Width="100"/>
+                            <DataGridTextColumn Header="⚠️ Min. Stok" Binding="{Binding MinimumStock}" Width="100"/>
+                            <DataGridTextColumn Header="📍 Konum" Binding="{Binding Location}" Width="100"/>
+                            <DataGridTextColumn Header="📅 Son Hareket" Binding="{Binding LastMovement, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120"/>
+                        </DataGrid.Columns>
+                        
+                        <!-- Loading Animation -->
+                        <DataGrid.RenderTransform>
+                            <TranslateTransform X="0" Y="0"/>
+                        </DataGrid.RenderTransform>
+                        
+                        <DataGrid.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                       From="20" To="0" Duration="0:0:0.4">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                       From="0" To="1" Duration="0:0:0.4"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </DataGrid.Triggers>
+                    </DataGrid>
+                </Grid>
+            </Border>
+            
+            <!-- Right Panel - Actions & Details -->
+            <!-- Sağ panel yüksek ekranda taşmasını engellemek için ScrollViewer eklendi -->
+            <ScrollViewer Grid.Column="1" Margin="10,0,0,10" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                
+                <!-- Barcode Scanner Panel -->
+                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <TextBlock Text="📱" FontSize="20" Margin="0,0,8,0" 
+                                      Foreground="{StaticResource WarningOrangeBrush}"/>
+                            <TextBlock Text="Barkod Tarayıcı" Style="{StaticResource HeaderSmallStyle}" Margin="0"/>
+                        </StackPanel>
+                        
+                        <Border Background="{StaticResource BackgroundLightBrush}" CornerRadius="6" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBox x:Name="BarcodeInputBox" 
+                                        Style="{StaticResource ModernTextBoxStyle}"
+                                        Text="{Binding ScannedBarcode, UpdateSourceTrigger=PropertyChanged}"
+                                        TextChanged="BarcodeInput_TextChanged"
+                                        KeyDown="BarcodeInput_KeyDown"
+                                        Tag="Barkod tarayın veya yazın..."/>
+                                
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="Status: " Style="{StaticResource CaptionStyle}"/>
+                                    <TextBlock x:Name="ScannerStatusText" Text="Hazır" 
+                                              Style="{StaticResource CaptionStyle}"
+                                              Foreground="{StaticResource AccentGreenBrush}"/>
+                                </StackPanel>
+
+                                <!-- Donanım barkod dinleme -->
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <CheckBox x:Name="ChkBarcodeListenInv" Content="Barkod Dinle" Checked="ChkBarcodeListenInv_Checked" Unchecked="ChkBarcodeListenInv_Unchecked"/>
+                                    <TextBlock Text="  " Width="8"/>
+                                    <Ellipse x:Name="BarcodeListenDot" Width="10" Height="10" Fill="#BDBDBD" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="BarcodeListenText" Text="Kapalı" Style="{StaticResource CaptionStyle}" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Button Content="📲 Manuel Tarama" 
+                               Style="{StaticResource ModernButtonStyle}"
+                               Click="ManualScan_Click" 
+                               HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="🔧 Tarayıcı Ayarları" 
+                               Style="{StaticResource ModernWarningButtonStyle}"
+                               Click="ScannerSettings_Click" 
+                               HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Quick Actions -->
+                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <TextBlock Text="⚡" FontSize="20" Margin="0,0,8,0" 
+                                      Foreground="{StaticResource PrimaryBlueBrush}"/>
+                            <TextBlock Text="Hızlı İşlemler" Style="{StaticResource HeaderSmallStyle}" Margin="0"/>
+                        </StackPanel>
+                        
+                        <Button Content="➕ Stok Girişi" 
+                               Style="{StaticResource ModernSuccessButtonStyle}"
+                                Click="AddStock_Click" 
+                                Visibility="{Binding CanAddStock, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"
+                               HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="➖ Stok Çıkışı" 
+                               Style="{StaticResource ModernErrorButtonStyle}"
+                                Click="RemoveStock_Click" 
+                                Visibility="{Binding CanRemoveStock, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"
+                               HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="🔄 Stok Transferi" 
+                               Style="{StaticResource ModernWarningButtonStyle}"
+                                Click="TransferStock_Click" 
+                                Visibility="{Binding CanTransferStock, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"
+                               HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="📋 Stok Sayımı" 
+                               Style="{StaticResource ModernButtonStyle}"
+                               Click="StockCount_Click" 
+                               HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Recent Stock Movements -->
+                <Border Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <TextBlock Text="📈" FontSize="20" Margin="0,0,8,0" 
+                                      Foreground="{StaticResource AccentGreenBrush}"/>
+                            <TextBlock Text="Son Hareketler" Style="{StaticResource HeaderSmallStyle}" Margin="0"/>
+                        </StackPanel>
+                        
+                        <ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="RecentMovementsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BackgroundLightBrush}" 
+                                               CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <TextBlock Grid.Column="0" 
+                                                          Text="{Binding MovementIcon}" 
+                                                          FontSize="16" 
+                                                          VerticalAlignment="Center" 
+                                                          Margin="0,0,8,0"/>
+                                                
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding ProductName}" 
+                                                              Style="{StaticResource CaptionStyle}" 
+                                                              FontWeight="Medium"/>
+                                                    <TextBlock Text="{Binding MovementDescription}" 
+                                                              Style="{StaticResource CaptionStyle}"/>
+                                                </StackPanel>
+                                                
+                                                <TextBlock Grid.Column="2" 
+                                                          Text="{Binding Quantity, StringFormat='{}{0:+#;-#;0}'}" 
+                                                          Style="{StaticResource CaptionStyle}"
+                                                          FontWeight="Bold"
+                                                          VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        
+                        <Button Content="📋 Tüm Hareketleri Gör" 
+                               Style="{StaticResource ModernButtonStyle}"
+                               Click="ViewAllMovements_Click" 
+                               HorizontalAlignment="Stretch" 
+                               Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+            </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl> 

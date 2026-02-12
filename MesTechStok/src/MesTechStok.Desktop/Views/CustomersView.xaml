@@ -1,0 +1,346 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.CustomersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="clr-namespace:MesTechStok.Desktop.Components">
+    
+    <UserControl.Resources>
+        <!-- Modern Card Style -->
+        <Style x:Key="CustomerCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#F8F9FA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Button Styles -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#DC3545"/>
+        </Style>
+
+        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Setter Property="Foreground" Value="#212529"/>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- DataGrid Style -->
+        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F3F4"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F7FA">
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Border Grid.Row="0" Style="{StaticResource CustomerCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="👥" FontSize="28" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <TextBlock Text="Müşteri Yönetimi" 
+                                      FontSize="24" 
+                                      FontWeight="Bold" 
+                                      Foreground="#2C3E50"/>
+                            <TextBlock Text="Müşteri bilgileri, geçmiş ve iletişim yönetimi" 
+                                      FontSize="13" 
+                                      Foreground="#6C757D"
+                                      Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="👤 Yeni Müşteri" 
+                               Style="{StaticResource SuccessButton}"
+                               Click="AddCustomer_Click"
+                               Margin="5,0"/>
+                        <Button Content="📤 Dışa Aktar" 
+                               Style="{StaticResource PrimaryButton}"
+                               Click="ExportCustomers_Click"
+                               Margin="5,0"/>
+                        <Button Content="🔄 Yenile" 
+                               Style="{StaticResource PrimaryButton}"
+                               Click="RefreshCustomers_Click"
+                               Margin="5,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Statistics and Filters -->
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Statistics Cards -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Style="{StaticResource CustomerCard}" Margin="0,0,5,0">
+                        <StackPanel Width="140">
+                            <TextBlock Text="Toplam Müşteri" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="TotalCustomersText" Text="247" FontSize="24" FontWeight="Bold" Foreground="#007ACC"/>
+                            <TextBlock Text="+12 bu ay" FontSize="10" Foreground="#28A745"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource CustomerCard}" Margin="0,0,5,0">
+                        <StackPanel Width="140">
+                            <TextBlock Text="Aktif Müşteri" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="ActiveCustomersText" Text="189" FontSize="24" FontWeight="Bold" Foreground="#28A745"/>
+                            <TextBlock Text="76% oran" FontSize="10" Foreground="#6C757D"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource CustomerCard}" Margin="0,0,5,0">
+                        <StackPanel Width="140">
+                            <TextBlock Text="VIP Müşteri" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="VipCustomersText" Text="34" FontSize="24" FontWeight="Bold" Foreground="#FFC107"/>
+                            <TextBlock Text="Gold seviye" FontSize="10" Foreground="#FFC107"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource CustomerCard}">
+                        <StackPanel Width="140">
+                            <TextBlock Text="Ortalama Alışveriş" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="AverageSpendingText" Text="₺437" FontSize="24" FontWeight="Bold" Foreground="#17A2B8"/>
+                            <TextBlock Text="aylık" FontSize="10" Foreground="#6C757D"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                
+                <!-- Search and Filter Panel -->
+                <Border Grid.Column="2" Style="{StaticResource CustomerCard}">
+                    <StackPanel>
+                        <TextBlock Text="🔍 Arama ve Filtreler" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBox Grid.Row="0" x:Name="SearchTextBox" 
+                                    Text="" 
+                                    Style="{StaticResource ModernTextBox}"
+                                    TextChanged="SearchTextBox_TextChanged"/>
+                            
+                            <ComboBox Grid.Row="2" x:Name="CategoryFilterComboBox" 
+                                     Style="{StaticResource ModernComboBox}"
+                                     SelectionChanged="CategoryFilter_SelectionChanged">
+                                <ComboBoxItem Content="Tüm Müşteriler" IsSelected="True"/>
+                                <ComboBoxItem Content="VIP Müşteriler"/>
+                                <ComboBoxItem Content="Aktif Müşteriler"/>
+                                <ComboBoxItem Content="Pasif Müşteriler"/>
+                                <ComboBoxItem Content="Yeni Müşteriler"/>
+                            </ComboBox>
+                            
+                            <ComboBox Grid.Row="4" x:Name="CityFilterComboBox" 
+                                     Style="{StaticResource ModernComboBox}">
+                                <ComboBoxItem Content="Tüm Şehirler" IsSelected="True"/>
+                                <ComboBoxItem Content="İstanbul"/>
+                                <ComboBoxItem Content="Ankara"/>
+                                <ComboBoxItem Content="İzmir"/>
+                                <ComboBoxItem Content="Bursa"/>
+                                <ComboBoxItem Content="Antalya"/>
+                            </ComboBox>
+                            
+                            <Button Grid.Row="6" Content="🗑️ Filtreleri Temizle" 
+                                   Style="{StaticResource WarningButton}"
+                                   FontSize="11"
+                                   Click="ClearFilters_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            
+            <!-- Customer List -->
+            <Border Grid.Row="2" Style="{StaticResource CustomerCard}" Margin="0,10,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="📋" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Müşteri Listesi" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <TextBlock x:Name="CustomerCountText" Text="(247 müşteri)" FontSize="13" Foreground="#6C757D" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Loading Indicator -->
+                    <Border Grid.Row="1" x:Name="LoadingBorder" 
+                           Background="White" 
+                           Opacity="0.8" 
+                           Visibility="Collapsed"
+                           Panel.ZIndex="999">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform CenterX="16" CenterY="16"/>
+                                </TextBlock.RenderTransform>
+                                <TextBlock.Triggers>
+                                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                               From="0" To="360" Duration="0:0:2"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </TextBlock.Triggers>
+                            </TextBlock>
+                            <TextBlock Text="Müşteriler yükleniyor..." FontSize="14" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="1" x:Name="CustomersDataGrid" 
+                             Style="{StaticResource ModernDataGrid}"
+                             SelectionChanged="CustomersDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Ad Soyad" Binding="{Binding FullName}" Width="180" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Telefon" Binding="{Binding PhoneNumber}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="E-posta" Binding="{Binding Email}" Width="200" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Şirket" Binding="{Binding Company}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Müşteri Tipi" Binding="{Binding CustomerType}" Width="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Kayıt Tarihi" Binding="{Binding FormattedRegistrationDate}" Width="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Son Alışveriş" Binding="{Binding FormattedLastOrderDate}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Toplam Harcama" Binding="{Binding FormattedTotalPurchases}" Width="130" IsReadOnly="True"/>
+                            
+                            <DataGridTemplateColumn Header="Durum" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding StatusIcon}" FontSize="12" Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding StatusText}" FontSize="11"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            
+                            <DataGridTemplateColumn Header="İşlemler" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="👁️" ToolTip="Görüntüle" 
+                                                   Style="{StaticResource PrimaryButton}"
+                                                   FontSize="10" Padding="6,4" Margin="2"
+                                                   Click="ViewCustomer_Click"/>
+                                            <Button Content="✏️" ToolTip="Düzenle" 
+                                                   Style="{StaticResource WarningButton}"
+                                                   FontSize="10" Padding="6,4" Margin="2"
+                                                   Click="EditCustomer_Click"/>
+                                            <Button Content="🗑️" ToolTip="Sil" 
+                                                   Style="{StaticResource DangerButton}"
+                                                   FontSize="10" Padding="6,4" Margin="2"
+                                                   Click="DeleteCustomer_Click"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    
+                    <!-- Enhanced Pagination Component -->
+                    <components:PaginationComponent Grid.Row="2" 
+                                                  x:Name="CustomersPaginationComponent"
+                                                  Margin="0,20,0,0"
+                                                  PageChanged="CustomersPagination_PageChanged"
+                                                  PageSizeChanged="CustomersPagination_PageSizeChanged"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl> 

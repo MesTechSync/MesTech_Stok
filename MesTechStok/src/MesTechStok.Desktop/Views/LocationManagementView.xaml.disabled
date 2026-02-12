@@ -1,0 +1,261 @@
+<Window x:Class="MesTechStok.Desktop.Views.LocationManagementView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Stok Yerleşim Sistemi" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="20,15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🏭" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                <TextBlock Text="STOK YERLEŞİM SİSTEMİ" FontSize="20" FontWeight="Bold" 
+                           Foreground="White" VerticalAlignment="Center"/>
+                <TextBlock Text="v2.0" FontSize="14" Foreground="#E3F2FD" 
+                           VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel - Depo Organizasyonu -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" 
+                    Padding="15" Margin="0,0,15,0" Effect="{DynamicResource MaterialDesignElevationShadow2}">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock Text="🏗️ DEPO ORGANİZASYONU" FontSize="16" FontWeight="Bold" 
+                                   Margin="0,0,0,15" Foreground="#1976D2"/>
+
+                        <!-- Depo Bölümleri -->
+                        <Expander Header="📍 Bölümler (Zones)" IsExpanded="True" Margin="0,0,0,10">
+                            <StackPanel Margin="10,0,0,0">
+                                <Button Content="➕ Yeni Bölüm Ekle" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Margin="0,0,0,10" Padding="10,5"/>
+                                <ListView x:Name="ZonesListView" Height="120" BorderThickness="1" 
+                                          BorderBrush="#E0E0E0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBlock Text="🏭" FontSize="16"/>
+                                                <TextBlock Text="{Binding Name}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Raf Sistemleri -->
+                        <Expander Header="📚 Raftar (Racks)" IsExpanded="True" Margin="0,0,0,10">
+                            <StackPanel Margin="10,0,0,0">
+                                <Button Content="➕ Yeni Raf Ekle" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Margin="0,0,0,10" Padding="10,5"/>
+                                <ListView x:Name="RacksListView" Height="120" BorderThickness="1" 
+                                          BorderBrush="#E0E0E0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBlock Text="📚" FontSize="16"/>
+                                                <TextBlock Text="{Binding Name}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Raf Seviyeleri -->
+                        <Expander Header="📊 Seviyeler (Shelves)" IsExpanded="True" Margin="0,0,0,10">
+                            <StackPanel Margin="10,0,0,0">
+                                <Button Content="➕ Yeni Seviye Ekle" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Margin="0,0,0,10" Padding="10,5"/>
+                                <ListView x:Name="ShelvesListView" Height="120" BorderThickness="1" 
+                                          BorderBrush="#E0E0E0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBlock Text="📊" FontSize="16"/>
+                                                <TextBlock Text="{Binding Name}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Raf Gözleri -->
+                        <Expander Header="📦 Gözler (Bins)" IsExpanded="True" Margin="0,0,0,10">
+                            <StackPanel Margin="10,0,0,0">
+                                <Button Content="➕ Yeni Göz Ekle" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Margin="0,0,0,10" Padding="10,5"/>
+                                <ListView x:Name="BinsListView" Height="120" BorderThickness="1" 
+                                          BorderBrush="#E0E0E0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBlock Text="📦" FontSize="16"/>
+                                                <TextBlock Text="{Binding Name}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Hızlı İşlemler -->
+                        <Expander Header="⚡ Hızlı İşlemler" IsExpanded="True" Margin="0,0,0,10">
+                            <StackPanel Margin="10,0,0,0">
+                                <Button Content="🔍 Konum Ara" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Margin="0,0,0,8" Padding="10,5" Background="#4CAF50" Foreground="White"/>
+                                <Button Content="📱 QR Kod Oluştur" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Margin="0,0,0,8" Padding="10,5" Background="#FF9800" Foreground="White"/>
+                                <Button Content="📊 Rapor Oluştur" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Margin="0,0,0,8" Padding="10,5" Background="#9C27B0" Foreground="White"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel - Depo Haritası ve Konum Yönetimi -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Toolbar -->
+                <Border Grid.Row="0" Background="White" CornerRadius="8" 
+                        Padding="15" Margin="0,0,0,15" Effect="{DynamicResource MaterialDesignElevationShadow2}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗺️ DEPO HARİTASI" FontSize="16" FontWeight="Bold" 
+                                   VerticalAlignment="Center" Foreground="#1976D2"/>
+                        
+                        <Separator Style="{DynamicResource {x:Static ToolBar.SeparatorStyleKey}}" 
+                                   Margin="20,0" VerticalAlignment="Center"/>
+                        
+                        <Button Content="🔍 Yakınlaştır" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                Margin="0,0,10,0" Padding="10,5"/>
+                        <Button Content="🔍 Uzaklaştır" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                Margin="0,0,10,0" Padding="10,5"/>
+                        <Button Content="🔄 Yenile" Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                Margin="0,0,10,0" Padding="10,5"/>
+                        
+                        <Separator Style="{DynamicResource {x:Static ToolBar.SeparatorStyleKey}}" 
+                                   Margin="20,0" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Text="Görünüm:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="ViewModeCombo" Width="120" SelectedIndex="0">
+                            <ComboBoxItem Content="2D Harita"/>
+                            <ComboBoxItem Content="3D Görünüm"/>
+                            <ComboBoxItem Content="Liste Görünümü"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Depo Haritası -->
+                <Border Grid.Row="1" Background="White" CornerRadius="8" 
+                        Padding="15" Margin="0,0,0,15" Effect="{DynamicResource MaterialDesignElevationShadow2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Harita Başlığı -->
+                        <TextBlock Grid.Row="0" Text="📍 DEPO ZEMİN PLANI" FontSize="14" FontWeight="Bold" 
+                                   Margin="0,0,0,15" Foreground="#424242"/>
+
+                        <!-- Harita İçeriği -->
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <Canvas x:Name="WarehouseCanvas" Width="800" Height="600" Background="#FAFAFA">
+                                <!-- Depo Bölümleri burada çizilecek -->
+                                <Rectangle Canvas.Left="50" Canvas.Top="50" Width="200" Height="150" 
+                                           Fill="#E3F2FD" Stroke="#2196F3" StrokeThickness="2" RadiusX="5" RadiusY="5"/>
+                                <TextBlock Canvas.Left="60" Canvas.Top="60" Text="A BÖLÜMÜ" FontWeight="Bold" Foreground="#1976D2"/>
+                                
+                                <Rectangle Canvas.Left="300" Canvas.Top="50" Width="200" Height="150" 
+                                           Fill="#F3E5F5" Stroke="#9C27B0" StrokeThickness="2" RadiusX="5" RadiusY="5"/>
+                                <TextBlock Canvas.Left="310" Canvas.Top="60" Text="B BÖLÜMÜ" FontWeight="Bold" Foreground="#7B1FA2"/>
+                                
+                                <Rectangle Canvas.Left="550" Canvas.Top="50" Width="200" Height="150" 
+                                           Fill="#E8F5E8" Stroke="#4CAF50" StrokeThickness="2" RadiusX="5" RadiusY="5"/>
+                                <TextBlock Canvas.Left="560" Canvas.Top="60" Text="C BÖLÜMÜ" FontWeight="Bold" Foreground="#388E3C"/>
+                                
+                                <!-- Raf Sistemleri -->
+                                <Rectangle Canvas.Left="70" Canvas.Top="120" Width="160" Height="60" 
+                                           Fill="#FFF3E0" Stroke="#FF9800" StrokeThickness="1" RadiusX="3" RadiusY="3"/>
+                                <TextBlock Canvas.Left="80" Canvas.Top="130" Text="A-01 Raf" FontSize="10" Foreground="#E65100"/>
+                                
+                                <Rectangle Canvas.Left="320" Canvas.Top="120" Width="160" Height="60" 
+                                           Fill="#FFF3E0" Stroke="#FF9800" StrokeThickness="1" RadiusX="3" RadiusY="3"/>
+                                <TextBlock Canvas.Left="330" Canvas.Top="130" Text="B-01 Raf" FontSize="10" Foreground="#E65100"/>
+                                
+                                <Rectangle Canvas.Left="570" Canvas.Top="120" Width="160" Height="60" 
+                                           Fill="#FFF3E0" Stroke="#FF9800" StrokeThickness="1" RadiusX="3" RadiusY="3"/>
+                                <TextBlock Canvas.Left="580" Canvas.Top="130" Text="C-01 Raf" FontSize="10" Foreground="#E65100"/>
+                            </Canvas>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Alt Panel - Konum Bilgileri -->
+                <Border Grid.Row="2" Background="White" CornerRadius="8" 
+                        Padding="15" Effect="{DynamicResource MaterialDesignElevationShadow2}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Seçili Konum Bilgileri -->
+                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Text="📍 SEÇİLİ KONUM" FontSize="12" FontWeight="Bold" 
+                                       Margin="0,0,0,8" Foreground="#424242"/>
+                            <TextBlock x:Name="SelectedLocationText" Text="Konum seçilmedi" 
+                                       FontSize="11" Foreground="#666"/>
+                        </StackPanel>
+
+                        <!-- Ürün Bilgileri -->
+                        <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                            <TextBlock Text="📦 KONUMDAKİ ÜRÜNLER" FontSize="12" FontWeight="Bold" 
+                                       Margin="0,0,0,8" Foreground="#424242"/>
+                            <TextBlock x:Name="ProductsInLocationText" Text="0 ürün" 
+                                       FontSize="11" Foreground="#666"/>
+                        </StackPanel>
+
+                        <!-- Hızlı İşlemler -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="⚡ HIZLI İŞLEMLER" FontSize="12" FontWeight="Bold" 
+                                       Margin="0,0,0,8" Foreground="#424242"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="➕ Ekle" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Width="60" Height="25" FontSize="10" Margin="0,0,5,0" 
+                                        Background="#4CAF50" Foreground="White"/>
+                                <Button Content="➖ Çıkar" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Width="60" Height="25" FontSize="10" Margin="0,0,5,0" 
+                                        Background="#F44336" Foreground="White"/>
+                                <Button Content="🔄 Taşı" Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Width="60" Height="25" FontSize="10" 
+                                        Background="#2196F3" Foreground="White"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

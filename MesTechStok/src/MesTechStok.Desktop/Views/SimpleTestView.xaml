@@ -1,0 +1,53 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.SimpleTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Grid Background="#F8FAFC" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="🎯 MESCHAIN STOK YÖNETİMİ 2.0" 
+                   FontSize="28" FontWeight="Bold" 
+                   Foreground="#1E293B" Margin="0,0,0,20"/>
+
+        <!-- Test Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+            <Button Name="TestDbButton" Content="🔌 DB Bağlantısını Test Et" 
+                    Click="TestDbButton_Click" Padding="15,10" Margin="0,0,10,0"
+                    Background="#10B981" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+            
+            <Button Name="CreateDbButton" Content="📂 Veritabanı Oluştur" 
+                    Click="CreateDbButton_Click" Padding="15,10" Margin="0,0,10,0"
+                    Background="#3B82F6" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+            
+            <Button Name="SeedDataButton" Content="🌱 Örnek Veri Ekle" 
+                    Click="SeedDataButton_Click" Padding="15,10" Margin="0,0,10,0"
+                    Background="#8B5CF6" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+        </StackPanel>
+
+        <!-- Status -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E6ED" BorderThickness="1" 
+                CornerRadius="8" Padding="15" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="📊" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Name="StatusText" Grid.Column="1" Text="Sistem hazır" 
+                           FontSize="14" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Results -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <TextBlock Name="ResultsText" FontFamily="Consolas" FontSize="12" 
+                       Background="#F1F5F9" Padding="15" Text="Test sonuçları burada görünecek..."/>
+        </ScrollViewer>
+    </Grid>
+</UserControl> 

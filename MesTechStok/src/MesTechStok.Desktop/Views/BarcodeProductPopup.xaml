@@ -1,0 +1,252 @@
+<Window x:Class="MesTechStok.Desktop.Views.BarcodeProductPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Ürün Detayları" 
+        Height="700" Width="500"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True">
+    
+    <Border CornerRadius="15" Background="White" BorderBrush="#0078D4" BorderThickness="2">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+        </Border.Effect>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="300"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Başlık Alanı -->
+            <Border Grid.Row="0" Background="#0078D4" CornerRadius="13,13,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="🔍 BARKOD İLE BULUNAN ÜRÜN" 
+                               FontSize="18" FontWeight="Bold" 
+                               Foreground="White" 
+                               VerticalAlignment="Center" 
+                               Margin="20,0,0,0"/>
+                    
+                    <Button Grid.Column="1" Content="✕" 
+                            FontSize="20" FontWeight="Bold"
+                            Background="Transparent" 
+                            Foreground="White" 
+                            BorderThickness="0"
+                            Width="50" Height="50"
+                            Cursor="Hand"
+                            Click="CloseButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FF5252"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- Ürün Resmi Alanı -->
+            <Border Grid.Row="1" Margin="20,20,20,10" CornerRadius="10" 
+                    Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="1">
+                <Grid>
+                    <Image x:Name="ProductImage" 
+                           Stretch="Uniform" 
+                           Margin="10"
+                           Source="/Images/default-product.png"/>
+                    
+                    <TextBlock x:Name="NoImageText" 
+                               Text="Ürün resmi bulunamadı" 
+                               FontSize="16" 
+                               Foreground="#666666"
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+            
+            <!-- Ürün Bilgileri -->
+            <ScrollViewer Grid.Row="2" Margin="20,0,20,10" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Ürün Adı -->
+                    <TextBlock x:Name="ProductName" 
+                               FontSize="22" 
+                               FontWeight="Bold" 
+                               Foreground="#333333"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,10"/>
+                    
+                    <!-- Barkod ve SKU -->
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="BARKOD" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                            <TextBlock x:Name="BarcodeText" FontSize="14" Foreground="#0078D4" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="SKU" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                            <TextBlock x:Name="SkuText" FontSize="14" Foreground="#333333"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Fiyat Bilgileri -->
+                    <Border Background="#F0F8FF" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="ALIŞ FİYATI" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                                <TextBlock x:Name="PurchasePrice" FontSize="18" Foreground="#FF6B6B" FontWeight="Bold"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="SATIŞ FİYATI" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                                <TextBlock x:Name="SalePrice" FontSize="18" Foreground="#4CAF50" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Stok Durumu -->
+                    <Border x:Name="StockBorder" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Text="STOK:" FontSize="14" FontWeight="Bold" 
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="StockText" Grid.Column="1" 
+                                       FontSize="24" FontWeight="Bold" 
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Kategori ve Marka -->
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="KATEGORİ" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                            <TextBlock x:Name="CategoryText" FontSize="14" Foreground="#333333"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="MARKA" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+                            <TextBlock x:Name="BrandText" FontSize="14" Foreground="#333333"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Açıklama -->
+                    <TextBlock Text="AÇIKLAMA" FontSize="10" Foreground="#666666" FontWeight="Bold" 
+                               Margin="0,10,0,5" x:Name="DescriptionLabel" Visibility="Collapsed"/>
+                    <TextBlock x:Name="DescriptionText" FontSize="14" Foreground="#333333" 
+                               TextWrapping="Wrap" Visibility="Collapsed"/>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Alt Butonlar -->
+            <Border Grid.Row="3" Background="#F5F5F5" CornerRadius="0,0,13,13">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="📝 Düzenle" 
+                            Height="40" Margin="10,0,5,0"
+                            Background="#0078D4" Foreground="White"
+                            FontSize="16" FontWeight="Bold"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="EditButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#005A9E"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Grid.Column="1" Content="✔️ Tamam" 
+                            Height="40" Margin="5,0,10,0"
+                            Background="#4CAF50" Foreground="White"
+                            FontSize="16" FontWeight="Bold"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="OkButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#388E3C"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

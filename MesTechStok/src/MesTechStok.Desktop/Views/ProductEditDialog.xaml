@@ -1,0 +1,136 @@
+<Window x:Class="MesTechStok.Desktop.Views.ProductEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ürün Bilgileri" Height="680" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F8F9FA">
+    <Window.Resources>
+        <!-- Safe fallback styles if StaticResource fails -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+        
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+        
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#007BFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style x:Key="ModernSuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+        
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="Foreground" Value="#495057"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Ürün Adı -->
+        <TextBlock Grid.Row="0" Text="Ürün Adı" Style="{StaticResource LabelStyle}"/>
+        <TextBox Grid.Row="1" x:Name="NameTextBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+        
+        <!-- Barkod -->
+        <TextBlock Grid.Row="2" Text="Barkod" Style="{StaticResource LabelStyle}"/>
+        <TextBox Grid.Row="3" x:Name="BarcodeTextBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+        
+        <!-- SKU -->
+        <TextBlock Grid.Row="4" Text="SKU" Style="{StaticResource LabelStyle}"/>
+        <TextBox Grid.Row="5" x:Name="SkuTextBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+
+        <!-- Kategori ve Fiyat/Stok -->
+        <Grid Grid.Row="6" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Kategori" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="1" Grid.Column="0" x:Name="CategoryComboBox" Style="{StaticResource ModernComboBox}">
+                <ComboBoxItem Content="Elektronik"/>
+                <ComboBoxItem Content="Gıda"/>
+                <ComboBoxItem Content="İçecek"/>
+                <ComboBoxItem Content="Kozmetik"/>
+                <ComboBoxItem Content="Spor"/>
+                <ComboBoxItem Content="Oyuncak"/>
+                <ComboBoxItem Content="Atıştırmalık"/>
+            </ComboBox>
+        </Grid>
+        
+        <!-- Fiyat ve Stok -->
+        <Grid Grid.Row="7" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Fiyat (₺)" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Row="1" Grid.Column="0" x:Name="PriceTextBox" Style="{StaticResource ModernTextBox}"/>
+            
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Stok" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Row="1" Grid.Column="2" x:Name="StockTextBox" Style="{StaticResource ModernTextBox}"/>
+        </Grid>
+        
+        <!-- Görsel Yolu -->
+        <TextBlock Grid.Row="8" Text="Ürün Görseli (dosya yolu veya URL)" Style="{StaticResource LabelStyle}"/>
+        <DockPanel Grid.Row="9" LastChildFill="True" Margin="0,0,0,10">
+            <Button Content="Dosya Seç" Width="110" Height="32" Margin="0,0,10,0" Click="SelectImage_Click"/>
+            <TextBox x:Name="ImageTextBox" Style="{StaticResource ModernTextBox}"/>
+        </DockPanel>
+
+        <!-- Ek Görseller -->
+        <TextBlock Grid.Row="10" Text="Ek Görseller (virgül veya noktalı virgül ile)" Style="{StaticResource LabelStyle}"/>
+        <TextBox Grid.Row="11" x:Name="AdditionalImagesTextBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
+
+        <!-- Butonlar -->
+        <StackPanel Grid.Row="12" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="SaveButton" Content="✅ Kaydet" Style="{StaticResource ModernSuccessButtonStyle}" Width="120" Height="36" Margin="0,0,10,0" Click="SaveButton_Click"/>
+            <Button x:Name="CancelButton" Content="❌ İptal" Style="{StaticResource ModernButtonStyle}" Background="#6C757D" Width="120" Height="36" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window> 

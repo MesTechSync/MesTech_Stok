@@ -1,0 +1,137 @@
+<Window x:Class="MesTechStok.Desktop.Views.CustomerEditPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Müşteri" WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize" Background="#F7F7F9" KeyDown="Window_KeyDown">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,8">
+            <TextBlock Text="👤 Müşteri" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="Kapat (ESC)" Margin="8,0,0,0" Click="Close_Click"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel>
+                <Border Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Temel Bilgiler" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Ad"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtName" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Kod"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="TxtCode" Margin="6,0,0,0"/>
+
+                        <TextBlock Grid.Row="2" Text="E-posta"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtEmail" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Telefon"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TxtPhone" Margin="6,0,0,0"/>
+
+                        <TextBlock Grid.Row="3" Text="Tip"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="CmbType" Margin="6,0,0,0" Width="180">
+                            <ComboBoxItem Content="INDIVIDUAL" IsSelected="True"/>
+                            <ComboBoxItem Content="CORPORATE"/>
+                            <ComboBoxItem Content="VIP"/>
+                        </ComboBox>
+                        <CheckBox Grid.Row="3" Grid.Column="2" x:Name="ChkVip" Content="VIP"/>
+
+                        <TextBlock Grid.Row="4" Text="Adres (Fatura)"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtBilling" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" Text="Adres (Sevkiyat)"/>
+                        <TextBox Grid.Row="4" Grid.Column="2" x:Name="TxtShipping" Margin="6,0,0,0"/>
+
+                        <TextBlock Grid.Row="5" Text="Şehir"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="TxtCity" Margin="6,0,0,0"/>
+                        <Button Grid.Row="5" Grid.Column="2" Content="Fatura → Sevkiyat Kopyala" Click="CopyBillingToShipping_Click"/>
+
+                        <TextBlock Grid.Row="6" Text="İl/İlçe"/>
+                        <TextBox Grid.Row="6" Grid.Column="1" x:Name="TxtState" Margin="6,0,0,0"/>
+                        <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="Posta Kodu" VerticalAlignment="Center"/>
+                            <TextBox x:Name="TxtPostalCode" Width="120" Margin="6,0,0,0"/>
+                            <TextBlock Text="Ülke" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="TxtCountry" Width="140" Margin="6,0,0,0" Text="Türkiye"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Background="White" CornerRadius="8" Padding="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Finans ve Tercihler" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Kredi Limiti"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtCreditLimit" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="İskonto (%)"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="TxtDiscount" Margin="6,0,0,0"/>
+
+                        <TextBlock Grid.Row="2" Text="Ödeme Vadesi (gün)"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtPaymentTerm" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Para Birimi"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TxtCurrency" Text="TRY" Margin="6,0,0,0"/>
+
+                        <!-- Belgeler / Ekler -->
+                        <Border Grid.Row="3" Grid.ColumnSpan="3" Background="#FAFAFA" CornerRadius="6" Padding="10" Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Belgeler / Ekler" FontWeight="Bold"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,6">
+                                    <Button Content="Dosya Ekle" Margin="0,0,6,0" Click="AddDocs_Click"/>
+                                    <Button Content="Seçileni Sil" Margin="0,0,6,0" Click="RemoveDoc_Click"/>
+                                    <Button Content="Aç" Margin="0,0,6,0" Click="OpenDoc_Click"/>
+                                    <Button Content="Klasörü Aç" Click="OpenDocFolder_Click"/>
+                                </StackPanel>
+                                <ListBox Grid.Row="2" x:Name="DocsList" Height="140"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,4,0,0">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="İptal" Click="Close_Click" Margin="0,8,8,0"/>
+                <Button Content="Kaydet" Click="SaveAndClose_Click" Margin="0,8,0,0"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>
+
+

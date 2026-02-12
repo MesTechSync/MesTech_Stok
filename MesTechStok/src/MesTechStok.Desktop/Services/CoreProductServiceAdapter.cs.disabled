@@ -1,0 +1,472 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MesTechStok.Core.Services.Abstract;
+using MesTechStok.Core.Data.Models;
+using MesTechStok.Desktop.Models;
+using System.Linq; // Added for .Select()
+
+namespace MesTechStok.Desktop.Services
+{
+    /// <summary>
+    /// Core IProductService'i Desktop IProductDataService'e adapte eden sınıf
+    /// </summary>
+    public class CoreProductServiceAdapter : IProductDataService
+    {
+        private readonly IProductService _coreProductService;
+
+        public CoreProductServiceAdapter(IProductService coreProductService)
+        {
+            _coreProductService = coreProductService ?? throw new ArgumentNullException(nameof(coreProductService));
+        }
+
+        public async Task<IEnumerable<ProductItem>> GetAllProductsAsync()
+        {
+            try
+            {
+                var coreProducts = await _coreProductService.GetAllProductsAsync();
+                return ConvertToProductItems(coreProducts);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return empty collection
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetAllProductsAsync error: {ex.Message}");
+                return new List<ProductItem>();
+            }
+        }
+
+        public async Task<ProductItem?> GetProductByIdAsync(int id)
+        {
+            try
+            {
+                var coreProduct = await _coreProductService.GetProductByIdAsync(id);
+                return coreProduct != null ? ConvertToProductItem(coreProduct) : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductByIdAsync error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<PagedResult<ProductItem>> GetProductsPagedAsync(int page, int pageSize, string? searchTerm, string? categoryFilter, ProductSortOrder sortOrder)
+        {
+            try
+            {
+                var coreProducts = await _coreProductService.GetProductsPagedAsync(page, pageSize, searchTerm, categoryFilter, sortOrder.ToString(), false);
+                var productItems = ConvertToProductItems(coreProducts.Items);
+                return new PagedResult<ProductItem>
+                {
+                    Items = productItems,
+                    TotalCount = coreProducts.TotalCount,
+                    Page = coreProducts.Page,
+                    PageSize = coreProducts.PageSize
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductsPagedAsync error: {ex.Message}");
+                return new PagedResult<ProductItem>
+                {
+                    Items = new List<ProductItem>(),
+                    TotalCount = 0,
+                    Page = page,
+                    PageSize = pageSize
+                };
+            }
+        }
+
+        public async Task<ProductItem?> GetProductByBarcodeAsync(string barcode)
+        {
+            try
+            {
+                var coreProduct = await _coreProductService.GetProductByBarcodeAsync(barcode);
+                return coreProduct != null ? ConvertToProductItem(coreProduct) : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductByBarcodeAsync error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<ProductItem?> GetProductBySkuAsync(string sku)
+        {
+            try
+            {
+                var coreProduct = await _coreProductService.GetProductBySkuAsync(sku);
+                return coreProduct != null ? ConvertToProductItem(coreProduct) : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductBySkuAsync error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<ProductItem>> SearchProductsByNameAsync(string searchTerm)
+        {
+            try
+            {
+                var coreProducts = await _coreProductService.SearchProductsByNameAsync(searchTerm);
+                return ConvertToProductItems(coreProducts);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.SearchProductsByNameAsync error: {ex.Message}");
+                return new List<ProductItem>();
+            }
+        }
+
+        public async Task<IEnumerable<ProductItem>> GetProductsByCategoryAsync(string category)
+        {
+            try
+            {
+                var coreProducts = await _coreProductService.GetProductsByCategoryAsync(category);
+                return ConvertToProductItems(coreProducts);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductsByCategoryAsync error: {ex.Message}");
+                return new List<ProductItem>();
+            }
+        }
+
+        public async Task<IEnumerable<ProductItem>> GetLowStockProductsAsync()
+        {
+            try
+            {
+                var coreProducts = await _coreProductService.GetLowStockProductsAsync();
+                return ConvertToProductItems(coreProducts);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetLowStockProductsAsync error: {ex.Message}");
+                return new List<ProductItem>();
+            }
+        }
+
+        public async Task<ProductItem> CreateProductAsync(ProductItem product)
+        {
+            try
+            {
+                var coreProduct = ConvertToCoreProduct(product);
+                var createdCoreProduct = await _coreProductService.CreateProductAsync(coreProduct);
+                return ConvertToProductItem(createdCoreProduct);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.CreateProductAsync error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<bool> UpdateProductAsync(ProductItem product)
+        {
+            try
+            {
+                var coreProduct = ConvertToCoreProduct(product);
+                var updatedCoreProduct = await _coreProductService.UpdateProductAsync(coreProduct);
+                return updatedCoreProduct != null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.UpdateProductAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeactivateProductAsync(int id)
+        {
+            try
+            {
+                return await _coreProductService.DeactivateProductAsync(id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.DeactivateProductAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> ActivateProductAsync(int id)
+        {
+            try
+            {
+                return await _coreProductService.ActivateProductAsync(id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.ActivateProductAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateStockQuantityAsync(int productId, int newQuantity, string? notes = null)
+        {
+            try
+            {
+                return await _coreProductService.UpdateStockQuantityAsync(productId, newQuantity, notes);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.UpdateStockQuantityAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProductPriceAsync(int productId, decimal newPrice)
+        {
+            try
+            {
+                return await _coreProductService.UpdateProductPriceAsync(productId, newPrice);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.UpdateProductPriceAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> IsBarcodeUniqueAsync(string barcode, int? excludeProductId = null)
+        {
+            try
+            {
+                return await _coreProductService.IsBarcodeUniqueAsync(barcode, excludeProductId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.IsBarcodeUniqueAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> IsSkuUniqueAsync(string sku, int? excludeProductId = null)
+        {
+            try
+            {
+                return await _coreProductService.IsSkuUniqueAsync(sku, excludeProductId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.IsSkuUniqueAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<IEnumerable<StockMovement>> GetProductStockHistoryAsync(int productId)
+        {
+            try
+            {
+                return await _coreProductService.GetProductStockHistoryAsync(productId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetProductStockHistoryAsync error: {ex.Message}");
+                return new List<StockMovement>();
+            }
+        }
+
+        public async Task<bool> BulkUpdateProductsAsync(IEnumerable<ProductItem> products)
+        {
+            try
+            {
+                var coreProducts = products.Select(ConvertToCoreProduct);
+                return await _coreProductService.BulkUpdateProductsAsync(coreProducts);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.BulkUpdateProductsAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> AddProductAsync(ProductItem product)
+        {
+            try
+            {
+                var coreProduct = ConvertToCoreProduct(product);
+                var createdCoreProduct = await _coreProductService.CreateProductAsync(coreProduct);
+                return createdCoreProduct != null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.AddProductAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateFinanceAsync(int productId, decimal? purchasePrice = null, decimal? salePrice = null, decimal? discountRate = null)
+        {
+            try
+            {
+                var product = await _coreProductService.GetProductByIdAsync(productId);
+                if (product == null) return false;
+
+                if (purchasePrice.HasValue) product.PurchasePrice = purchasePrice.Value;
+                if (salePrice.HasValue) product.SalePrice = salePrice.Value;
+                if (discountRate.HasValue) product.DiscountRate = discountRate.Value;
+
+                await _coreProductService.UpdateProductAsync(product);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.UpdateFinanceAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            try
+            {
+                return await _coreProductService.DeactivateProductAsync(id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.DeleteProductAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateStockAsync(int productId, int newStock)
+        {
+            try
+            {
+                return await _coreProductService.UpdateStockQuantityAsync(productId, newStock);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.UpdateStockAsync error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<ProductStatistics> GetStatisticsAsync()
+        {
+            try
+            {
+                var products = await _coreProductService.GetAllProductsAsync();
+                var activeProducts = products.Where(p => p.IsActive).ToList();
+                
+                return new ProductStatistics
+                {
+                    TotalProducts = activeProducts.Count,
+                    LowStockProducts = activeProducts.Count(p => p.Stock <= p.MinimumStock),
+                    OutOfStockProducts = activeProducts.Count(p => p.Stock == 0),
+                    TotalValue = activeProducts.Sum(p => p.Stock * p.PurchasePrice)
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetStatisticsAsync error: {ex.Message}");
+                return new ProductStatistics();
+            }
+        }
+
+        public async Task<List<string>> GetCategoriesAsync()
+        {
+            try
+            {
+                // TODO: Implement when IProductService has category methods
+                return new List<string> { "Genel" };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.GetCategoriesAsync error: {ex.Message}");
+                return new List<string>();
+            }
+        }
+
+        public async Task<List<string>> SearchCategoriesAsync(string term, int take = 100)
+        {
+            try
+            {
+                // TODO: Implement when IProductService has category methods
+                var categories = await GetCategoriesAsync();
+                return categories.Where(c => c.Contains(term, StringComparison.OrdinalIgnoreCase)).Take(take).ToList();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CoreProductServiceAdapter.SearchCategoriesAsync error: {ex.Message}");
+                return new List<string>();
+            }
+        }
+
+        #region Conversion Methods
+
+        private ProductItem ConvertToProductItem(Product coreProduct)
+        {
+            return new ProductItem
+            {
+                Id = coreProduct.Id,
+                Name = coreProduct.Name ?? "",
+                SKU = coreProduct.SKU ?? "",
+                Barcode = coreProduct.Barcode ?? "",
+                Description = coreProduct.Description ?? "",
+                PurchasePrice = coreProduct.PurchasePrice,
+                SalePrice = coreProduct.SalePrice,
+                Stock = coreProduct.Stock,
+                MinimumStock = coreProduct.MinimumStock,
+                Location = coreProduct.Location ?? "",
+                ImageUrl = coreProduct.ImageUrl ?? "",
+                DiscountRate = coreProduct.DiscountRate,
+                Brand = coreProduct.Brand ?? "",
+                Model = coreProduct.Model ?? "",
+                Color = coreProduct.Color ?? "",
+                Size = coreProduct.Size ?? "",
+                Origin = coreProduct.Origin ?? "",
+                Material = coreProduct.Material ?? "",
+                VolumeText = coreProduct.VolumeText ?? "",
+                Desi = coreProduct.Desi,
+                LeadTimeDays = coreProduct.LeadTimeDays,
+                Notes = coreProduct.Notes ?? "",
+                Tags = coreProduct.Tags ?? "",
+                IsActive = coreProduct.IsActive,
+                CreatedDate = coreProduct.CreatedDate,
+                ModifiedDate = coreProduct.ModifiedDate
+            };
+        }
+
+        private Product ConvertToCoreProduct(ProductItem desktopProduct)
+        {
+            return new Product
+            {
+                Id = desktopProduct.Id,
+                Name = desktopProduct.Name,
+                SKU = desktopProduct.SKU,
+                Barcode = desktopProduct.Barcode,
+                Description = desktopProduct.Description,
+                PurchasePrice = desktopProduct.PurchasePrice,
+                SalePrice = desktopProduct.SalePrice,
+                Stock = desktopProduct.Stock,
+                MinimumStock = desktopProduct.MinimumStock,
+                Location = desktopProduct.Location,
+                ImageUrl = desktopProduct.ImageUrl,
+                DiscountRate = desktopProduct.DiscountRate,
+                Brand = desktopProduct.Brand,
+                Model = desktopProduct.Model,
+                Color = desktopProduct.Color,
+                Size = desktopProduct.Size,
+                Origin = desktopProduct.Origin,
+                Material = desktopProduct.Material,
+                VolumeText = desktopProduct.VolumeText,
+                Desi = desktopProduct.Desi,
+                LeadTimeDays = desktopProduct.LeadTimeDays,
+                Notes = desktopProduct.Notes,
+                Tags = desktopProduct.Tags,
+                IsActive = desktopProduct.IsActive,
+                CreatedDate = desktopProduct.CreatedDate,
+                ModifiedDate = desktopProduct.ModifiedDate
+            };
+        }
+
+        private IEnumerable<ProductItem> ConvertToProductItems(IEnumerable<Product> coreProducts)
+        {
+            return coreProducts.Select(ConvertToProductItem);
+        }
+
+        #endregion
+    }
+}

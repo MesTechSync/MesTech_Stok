@@ -1,0 +1,80 @@
+# MesTech_Stok - Büyük Dosya ve Klasör Filtreleme
+
+# Büyük Executable Dosyalar
+*.exe
+*.dll
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+
+# Publish Klasörleri
+**/bin/
+**/obj/
+**/publish/
+**/publish_sdk_default_fix/
+
+# RAR ve Büyük Arşiv Dosyaları
+*.rar
+*.zip
+*.7z
+*.tar.gz
+
+# Enhanced Development Clean Klasörü
+Enhanced_Development_Clean/
+**/Enhanced_Development_Clean/
+
+# Backup ve Eski Proje Klasörleri
+Backups/
+Eski_*/
+**/Backups/
+**/Eski_*/
+
+# Log Dosyaları
+*.log
+Logs/
+**/Logs/
+
+# VS Code ve IDE Dosyaları
+.vscode/
+*.code-workspace
+**/.vscode/
+
+# Geçici Dosyalar
+*.tmp
+*.temp
+*.bak
+
+# Büyük Binary Dosyalar
+**/runtimes/
+**/native/
+**/win-x64/
+**/win-x86/
+
+# Kullanıcı Ayarları
+appsettings.user.json
+
+# Büyük Media Dosyaları
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.mp4
+*.avi
+*.mov
+*.wmv
+
+# Büyük Database Dosyaları
+*.mdf
+*.ldf
+*.ndf
+*.bak
+*.trn
+
+# Büyük Log Dosyaları
+*.log
+*.txt
+*.csv
+*.xml
+*.json

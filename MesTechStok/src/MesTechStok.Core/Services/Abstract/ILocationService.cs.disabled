@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MesTechStok.Core.Data.Models;
+
+namespace MesTechStok.Core.Services.Abstract
+{
+    /// <summary>
+    /// Stok Yerleşim Sistemi için konum yönetimi servisi
+    /// </summary>
+    public interface ILocationService
+    {
+        // Konum Yönetimi
+        Task<WarehouseBin> GetBinByCodeAsync(string binCode);
+        Task<ProductLocation> PlaceProductAsync(int productId, int binId, int quantity, string notes);
+        Task<ProductLocation> MoveProductAsync(int productId, int fromBinId, int toBinId, int quantity);
+        Task<ProductLocation> RemoveProductAsync(int productId, int binId, int quantity);
+        
+        // Konum Arama
+        Task<List<WarehouseBin>> FindAvailableBinsAsync(Product product, int quantity);
+        Task<List<WarehouseBin>> FindBinsByProductAsync(int productId);
+        Task<List<ProductLocation>> GetProductLocationsAsync(int productId);
+        
+        // Optimizasyon
+        Task<WarehouseBin> GetOptimalBinAsync(Product product, int quantity);
+        Task<List<WarehouseBin>> GetNearbyBinsAsync(int binId, int radius);
+        
+        // Raporlama
+        Task<LocationReport> GetLocationReportAsync(int warehouseId);
+        Task<BinUtilizationReport> GetBinUtilizationReportAsync(int warehouseId);
+        
+        // Depo Organizasyonu
+        Task<List<WarehouseZone>> GetWarehouseZonesAsync(int warehouseId);
+        Task<List<WarehouseRack>> GetRacksByZoneAsync(int zoneId);
+        Task<List<WarehouseShelf>> GetShelvesByRackAsync(int rackId);
+        Task<List<WarehouseBin>> GetBinsByShelfAsync(int shelfId);
+    }
+
+    /// <summary>
+    /// Konum raporu modeli
+    /// </summary>
+    public class LocationReport
+    {
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
+        
+        // Genel İstatistikler
+        public int TotalZones { get; set; }
+        public int TotalRacks { get; set; }
+        public int TotalShelves { get; set; }
+        public int TotalBins { get; set; }
+        
+        // Doluluk Oranları
+        public decimal ZoneUtilization { get; set; }
+        public decimal RackUtilization { get; set; }
+        public decimal ShelfUtilization { get; set; }
+        public decimal BinUtilization { get; set; }
+        
+        // Konum Analizi
+        public List<ZoneUtilization> ZoneUtilizations { get; set; } = new();
+        public List<RackUtilization> RackUtilizations { get; set; } = new();
+        public List<BinUtilization> BinUtilizations { get; set; } = new();
+        
+        // Optimizasyon Önerileri
+        public List<OptimizationSuggestion> Suggestions { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Bölüm doluluk raporu
+    /// </summary>
+    public class ZoneUtilization
+    {
+        public int ZoneId { get; set; }
+        public string ZoneName { get; set; } = string.Empty;
+        public decimal UtilizationPercentage { get; set; }
+        public int TotalBins { get; set; }
+        public int OccupiedBins { get; set; }
+        public decimal TotalArea { get; set; }
+        public decimal UsedArea { get; set; }
+    }
+
+    /// <summary>
+    /// Raf doluluk raporu
+    /// </summary>
+    public class RackUtilization
+    {
+        public int RackId { get; set; }
+        public string RackName { get; set; } = string.Empty;
+        public decimal UtilizationPercentage { get; set; }
+        public int TotalShelves { get; set; }
+        public int OccupiedShelves { get; set; }
+        public decimal TotalWeight { get; set; }
+        public decimal UsedWeight { get; set; }
+    }
+
+    /// <summary>
+    /// Göz doluluk raporu
+    /// </summary>
+    public class BinUtilization
+    {
+        public int BinId { get; set; }
+        public string BinName { get; set; } = string.Empty;
+        public decimal UtilizationPercentage { get; set; }
+        public int TotalProducts { get; set; }
+        public decimal TotalVolume { get; set; }
+        public decimal UsedVolume { get; set; }
+        public decimal TotalWeight { get; set; }
+        public decimal UsedWeight { get; set; }
+    }
+
+    /// <summary>
+    /// Optimizasyon önerisi
+    /// </summary>
+    public class OptimizationSuggestion
+    {
+        public string Type { get; set; } = string.Empty; // "REORGANIZE", "EXPAND", "CONSOLIDATE"
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal PotentialSavings { get; set; }
+        public int EstimatedTime { get; set; } // dakika
+        public string Priority { get; set; } = string.Empty; // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+    }
+}

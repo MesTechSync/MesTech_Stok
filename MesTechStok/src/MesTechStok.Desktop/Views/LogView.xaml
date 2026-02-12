@@ -1,0 +1,286 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.LogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MesTechStok.Desktop.Views">
+
+    <!-- Resources must be defined BEFORE StaticResource usage -->
+    <UserControl.Resources>
+        <Style TargetType="Grid">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="800">
+                    <Setter Property="Margin" Value="5"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!-- Sanallaştırılan log satırı şablonu (converter kullanmadan) -->
+        <DataTemplate x:Key="LogItemTemplate">
+            <Border Background="{Binding LightBackground}"
+                    BorderBrush="{Binding BorderBrush}"
+                    BorderThickness="3,0,0,0" Margin="2" Padding="8" CornerRadius="3">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat=HH:mm:ss}" FontSize="10" Foreground="Gray"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Level}" FontSize="12" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="2" Text="{Binding EventType}" FontSize="10" Padding="6,2" Foreground="White">
+                        <TextBlock.Background>
+                            <SolidColorBrush Color="#AA2196F3"/>
+                        </TextBlock.Background>
+                    </TextBlock>
+                    <TextBlock Grid.Column="3" Text="{Binding Source}" FontSize="10" Foreground="DarkBlue"/>
+                    <TextBlock Grid.Column="4" Text="{Binding Message}" FontSize="11" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="#F8F9FA" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2196F3" CornerRadius="8,8,0,0" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="🔍" FontSize="20" Margin="0,0,10,0"/>
+                    <TextBlock Text="HATA TAKİP SİSTEMİ" FontSize="16" FontWeight="Bold" 
+                               Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="LogCountText" Text="(0 log)" FontSize="12" 
+                               Foreground="#E3F2FD" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <Button Grid.Column="1" Content="🔄 Yenile" 
+                        Background="#1976D2" Foreground="White" 
+                        BorderThickness="0" Padding="10,5" Margin="5,0"
+                        Click="RefreshLogs_Click"/>
+                
+                <Button Grid.Column="2" Content="🗑️ Temizle" 
+                        Background="#D32F2F" Foreground="White" 
+                        BorderThickness="0" Padding="10,5" Margin="5,0"
+                        Click="ClearLogs_Click"/>
+                
+                <Button Grid.Column="3" Content="💾 Kaydet" 
+                        Background="#388E3C" Foreground="White" 
+                        BorderThickness="0" Padding="10,5" Margin="5,0"
+                        Click="SaveLogs_Click"/>
+
+                <Button Grid.Column="4" Content="📄 CSV" 
+                        Background="#00796B" Foreground="White" 
+                        BorderThickness="0" Padding="10,5" Margin="5,0"
+                        Click="SaveLogsCsv_Click"/>
+
+                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="❗ Hatalar" Background="#C62828" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickErrors_Click"/>
+                    <Button Content="� Corr Test" Background="#5D4037" Foreground="White" Padding="10,5" Margin="5,0" Click="CorrelationSelfTest_Click"/>
+                    <Button Content="🧯 Güvenli Temizle" Background="#8D6E63" Foreground="White" Padding="10,5" Margin="5,0" Click="SafePurge_Click"/>
+                    <Button Content="�📦 PRODUCT" Background="#2E7D32" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickProduct_Click"/>
+                    <Button Content="💰 PRICE" Background="#00897B" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickPrice_Click"/>
+                    <Button Content="📊 STOCK" Background="#7B1FA2" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickStock_Click"/>
+                    <Button Content="⬇️ IMPORT" Background="#6A1B9A" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickImport_Click"/>
+                    <Button Content="⬆️ EXPORT" Background="#283593" Foreground="White" Padding="10,5" Margin="5,0" Click="QuickExport_Click"/>
+                    <Button Content="📂 Klasörü Aç" Background="#455A64" Foreground="White" Padding="10,5" Margin="5,0" Click="OpenLogsFolder_Click"/>
+                    <TextBlock Text=" ℹ️" Foreground="White" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock.ToolTip>
+                            <StackPanel>
+                                <TextBlock Text="Seviye Efsanesi" FontWeight="Bold" Margin="0,0,0,4"/>
+                                <TextBlock Text="🔴 Hata  – kritik olay"/>
+                                <TextBlock Text="⚠️ Uyarı – dikkat gerektirir"/>
+                                <TextBlock Text="ℹ️ Bilgi – genel bilgi"/>
+                                <TextBlock Text="🐛 Debug – geliştirme detayları"/>
+                            </StackPanel>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Log Content -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Filter Options -->
+                <Border Grid.Row="0" Background="#F5F5F5" Padding="10" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                        <TextBlock Text="Filtre:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        
+                        <ComboBox x:Name="LogLevelFilter" Width="160" Margin="0,0,10,0" SelectionChanged="LogLevelFilter_Changed">
+                            <ComboBoxItem Content="Tümü" IsSelected="True"/>
+                            <ComboBoxItem Content="🔴 Hata"/>
+                            <ComboBoxItem Content="⚠️ Uyarı"/>
+                            <ComboBoxItem Content="ℹ️ Bilgi"/>
+                            <ComboBoxItem Content="🐛 Debug"/>
+                        </ComboBox>
+                        
+                        <TextBlock Text="Olay Türü:" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                        <ComboBox x:Name="EventTypeFilter" Width="200" Margin="0,0,10,0" SelectionChanged="EventTypeFilter_Changed">
+                            <ComboBoxItem Content="Tümü" IsSelected="True"/>
+                            <ComboBoxItem Content="STARTUP"/>
+                            <ComboBoxItem Content="SCREEN"/>
+                            <ComboBoxItem Content="NAVIGATION"/>
+                            <ComboBoxItem Content="SETTINGS"/>
+                            <ComboBoxItem Content="AUTH"/>
+                            <ComboBoxItem Content="BARCODE"/>
+                            <ComboBoxItem Content="CAMERA"/>
+                            <ComboBoxItem Content="DB"/>
+                            <ComboBoxItem Content="API"/>
+                            <ComboBoxItem Content="EXPORT"/>
+                            <ComboBoxItem Content="IMPORT"/>
+                            <ComboBoxItem Content="INVENTORY"/>
+                            <ComboBoxItem Content="ORDERS"/>
+                            <ComboBoxItem Content="PRODUCT"/>
+                            <ComboBoxItem Content="PRICE"/>
+                            <ComboBoxItem Content="STOCK"/>
+                            <ComboBoxItem Content="CUSTOMERS"/>
+                            <ComboBoxItem Content="SYSTEM_RESOURCES"/>
+                            <ComboBoxItem Content="CHANGELOG"/>
+                        </ComboBox>
+
+                        <TextBox x:Name="SearchBox" Width="220" Margin="0,0,10,0" 
+                                 Text="Arama..." Padding="5" 
+                                 GotFocus="SearchBox_GotFocus" 
+                                 LostFocus="SearchBox_LostFocus"
+                                 TextChanged="SearchBox_TextChanged"/>
+
+                        <TextBlock Text="CorrId:" VerticalAlignment="Center" Margin="10,0,6,0"/>
+                        <TextBox x:Name="CorrelationFilter" Width="200" Margin="0,0,10,0" Padding="5"
+                                 ToolTip="CorrelationId ile filtrele" TextChanged="CorrelationFilter_TextChanged"/>
+                        <CheckBox x:Name="AuditOnlyCheck" Content="Sadece AUDIT" Margin="0,0,10,0" VerticalAlignment="Center" Checked="AuditOnlyCheck_Changed" Unchecked="AuditOnlyCheck_Changed"/>
+                        
+                         <CheckBox x:Name="AutoScrollCheck" Content="Otomatik Kaydır" 
+                                   IsChecked="True" VerticalAlignment="Center" Margin="10,0"/>
+                         <CheckBox x:Name="LivePauseCheck" Content="Canlı Akış" 
+                                   IsChecked="True" VerticalAlignment="Center" Margin="10,0"
+                                   Checked="LivePauseCheck_Changed" Unchecked="LivePauseCheck_Changed"/>
+
+                        <TextBlock Text="Gösterim:" VerticalAlignment="Center" Margin="10,0,6,0"/>
+                        <ComboBox x:Name="DisplayLimitCombo" Width="80" SelectionChanged="DisplayLimitCombo_SelectionChanged">
+                            <ComboBoxItem Content="50"/>
+                            <ComboBoxItem Content="100"/>
+                            <ComboBoxItem Content="200" IsSelected="True"/>
+                        </ComboBox>
+
+                        <Button Content="📜 Değişiklik Günlüğü" Margin="10,0,0,0" Padding="10,5" Click="ChangelogFilter_Click"/>
+                        <Button Content="🔎 Barkod" Margin="6,0,0,0" Padding="10,5" Click="QuickBarcode_Click"/>
+                        <Button Content="🗄️ DB" Margin="6,0,0,0" Padding="10,5" Click="QuickDb_Click"/>
+                        <Button Content="🧹 Filtreleri Sıfırla" Margin="6,0,0,0" Padding="10,5" Click="ResetFilters_Click"/>
+                        <Button Content="📂 Günlük Yükle" Margin="10,0,0,0" Padding="10,5" Click="LoadFileLogs_Click"/>
+                    </StackPanel>
+                    </ScrollViewer>
+                </Border>
+                
+                <!-- Log List -->
+                <ListBox Grid.Row="1" x:Name="LogListBox" Margin="5"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{Binding LightBackground}"
+                                    BorderBrush="{Binding BorderBrush}"
+                                    BorderThickness="3,0,0,0" Margin="2" Padding="8" CornerRadius="3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat=HH:mm:ss}" FontSize="10" Foreground="Gray"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Level}" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding EventType}" FontSize="10" Padding="6,2" Foreground="White">
+                                        <TextBlock.Background>
+                                            <SolidColorBrush Color="#AA2196F3"/>
+                                        </TextBlock.Background>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="3" Text="{Binding Source}" FontSize="10" Foreground="DarkBlue"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Message}" FontSize="11" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Barkod Logları (DB) -->
+                <Border Grid.Row="2" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="8,10">
+                    <Expander Header="Barkod Logları (DB)" IsExpanded="False">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="Kayıt Sayısı:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox x:Name="DbCountCombo" Width="80" SelectedIndex="0">
+                                    <ComboBoxItem Content="10"/>
+                                    <ComboBoxItem Content="30"/>
+                                    <ComboBoxItem Content="50"/>
+                                    <ComboBoxItem Content="100"/>
+                                </ComboBox>
+
+                                <TextBlock Text=" Başlangıç:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                                <DatePicker x:Name="DbStartDate" Width="140"/>
+
+                                <TextBlock Text=" Bitiş:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                                <DatePicker x:Name="DbEndDate" Width="140"/>
+
+                                <TextBlock Text=" Barkod:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                                <TextBox x:Name="DbBarcodeFilter" Width="200"/>
+
+                                <Button Content="Yükle" Margin="12,0,0,0" Padding="10,5" Click="DbLoad_Click"/>
+                                <Button Content="CSV" Margin="6,0,0,0" Padding="10,5" Click="DbExport_Click"/>
+                            </StackPanel>
+
+                             <DataGrid x:Name="DbLogGrid" AutoGenerateColumns="True" IsReadOnly="True"
+                                       Height="220" MinHeight="160" />
+                        </StackPanel>
+                    </Expander>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#ECEFF1" CornerRadius="0,0,8,8" Padding="10,8" BorderBrush="#E0E0E0" BorderThickness="1,0,1,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock x:Name="StatusText" Text="Log sistemi hazır" 
+                           FontSize="11" VerticalAlignment="Center"/>
+                
+                <TextBlock Grid.Column="1" x:Name="LastUpdateText" 
+                           Text="Son güncelleme: Henüz yok" 
+                           FontSize="11" VerticalAlignment="Center" 
+                           Foreground="#666" Margin="10,0"/>
+                
+                <TextBlock Grid.Column="2" x:Name="ErrorCountText" 
+                           Text="🔴 0 hata" 
+                           FontSize="11" VerticalAlignment="Center" 
+                           Foreground="#D32F2F" FontWeight="Bold"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl> 

@@ -1,0 +1,117 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.TelemetryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:MesTechStok.Desktop.Converters"
+             mc:Ignorable="d" d:DesignHeight="700" d:DesignWidth="1100">
+    <UserControl.Resources>
+        <converters:UtcToLocalTimeConverter x:Key="UtcToLocalConverter"/>
+        <converters:SuccessToDisplayConverter x:Key="SuccessToDisplayConverter"/>
+        <converters:StatusCodeToDisplayConverter x:Key="StatusCodeToDisplayConverter"/>
+        <Style x:Key="SuccessRowStyle" TargetType="DataGridRow">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Success}" Value="True">
+                    <Setter Property="Background" Value="#F0FFF4"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Success}" Value="False">
+                    <Setter Property="Background" Value="#FFF5F5"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="📡 API Çağrı Telemetry Paneli" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"/>
+        
+        <!-- Filters -->
+        <Border Grid.Row="1" Background="#F8F9FA" Padding="12" CornerRadius="6" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Filtreler" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <WrapPanel>
+                    <TextBox Width="220" Margin="0,0,8,0" Text="{Binding EndpointFilter, UpdateSourceTrigger=PropertyChanged}" 
+                             ToolTip="Endpoint içerik filtresi (örn: /api/products)">
+                        <TextBox.Tag>
+                            <TextBlock Text="Endpoint filtre" Foreground="Gray" IsHitTestVisible="False"/>
+                        </TextBox.Tag>
+                    </TextBox>
+                    <TextBox Width="160" Margin="0,0,8,0" Text="{Binding CategoryFilter, UpdateSourceTrigger=PropertyChanged}" 
+                             ToolTip="Hata kategorisi filtresi">
+                        <TextBox.Tag>
+                            <TextBlock Text="Kategori" Foreground="Gray" IsHitTestVisible="False"/>
+                        </TextBox.Tag>
+                    </TextBox>
+                    <ComboBox Width="140" Margin="0,0,8,0" SelectedValue="{Binding SuccessFilter}" SelectedValuePath="Tag">
+                        <ComboBoxItem Content="🔍 Tüm Durumlar" Tag="{x:Null}"/>
+                        <ComboBoxItem Content="✅ Yalnız Başarılı" Tag="True"/>
+                        <ComboBoxItem Content="❌ Yalnız Hatalı" Tag="False"/>
+                    </ComboBox>
+                    <Button Content="🔄 Yenile" Margin="0,0,8,0" Command="{Binding RefreshCommand}" Padding="8,4"/>
+                    <Button Content="🧹 Temizle" Margin="0,0,8,0" Command="{Binding ClearFiltersCommand}" Padding="8,4"/>
+                </WrapPanel>
+                <TextBlock Margin="0,8,0,0" Text="{Binding Logs.Count, StringFormat=📊 Toplam Kayıt: {0}}" 
+                           FontWeight="Medium" Foreground="#6C757D"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Data Grid -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Logs}" AutoGenerateColumns="False" IsReadOnly="True" 
+                  CanUserAddRows="False" EnableRowVirtualization="True" GridLinesVisibility="Horizontal" 
+                  HeadersVisibility="Column" RowStyle="{StaticResource SuccessRowStyle}" AlternatingRowBackground="#FAFBFC">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="🕐 Zaman (Yerel)" Width="160" 
+                                    Binding="{Binding TimestampUtc, Converter={StaticResource UtcToLocalConverter}, ConverterParameter=G}"/>
+                <DataGridTextColumn Header="🌐 Endpoint" Width="*" Binding="{Binding Endpoint}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                            <Setter Property="FontSize" Value="11"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="📋 Method" Width="80" Binding="{Binding Method}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="✅ Durum" Width="100" 
+                                    Binding="{Binding Success, Converter={StaticResource SuccessToDisplayConverter}}"/>
+                <DataGridTextColumn Header="📊 HTTP Kod" Width="130" 
+                                    Binding="{Binding StatusCode, Converter={StaticResource StatusCodeToDisplayConverter}}"/>
+                <DataGridTextColumn Header="🏷️ Kategori" Width="120" Binding="{Binding Category}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontStyle" Value="Italic"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="⏱️ Süre (ms)" Width="90" Binding="{Binding DurationMs}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="🔗 Correlation ID" Width="180" Binding="{Binding CorrelationId}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                            <Setter Property="FontSize" Value="10"/>
+                            <Setter Property="Foreground" Value="#6C757D"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

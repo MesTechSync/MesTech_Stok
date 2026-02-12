@@ -1,0 +1,190 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.SystemResourcesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#1976D2" Padding="20,15">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚡" FontSize="24" Foreground="White" Margin="0,0,10,0"/>
+                    <TextBlock Text="Sistem Kaynakları İzleme" 
+                              FontSize="20" 
+                              FontWeight="Bold" 
+                              Foreground="White"/>
+                </StackPanel>
+                <TextBlock Text="Gerçek zamanlı sistem performansı ve MesTech uygulamaları izleme" 
+                          FontSize="12" 
+                          Foreground="#E3F2FD" 
+                          Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Performance Cards -->
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- System Performance -->
+                    <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="20" Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="💻 Sistem Performansı" FontSize="16" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,15"/>
+                            
+                            <!-- CPU -->
+                            <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="CPU Kullanımı" FontWeight="Bold" FontSize="12"/>
+                                        <ProgressBar x:Name="CpuProgressBar" Value="0" Maximum="100" Height="8" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" x:Name="CpuUsageText" Text="0.0%" FontWeight="Bold" FontSize="16" Foreground="#E91E63" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- RAM -->
+                            <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="RAM Kullanımı" FontWeight="Bold" FontSize="12"/>
+                                        <ProgressBar x:Name="RamProgressBar" Value="0" Maximum="100" Height="8" Margin="0,5,0,0"/>
+                                        <TextBlock x:Name="RamDetailsText" Text="Kullanılan: 0 GB / 0 GB" FontSize="10" Foreground="#666666" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" x:Name="RamUsageText" Text="0.0%" FontWeight="Bold" FontSize="16" Foreground="#2196F3" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- System Info -->
+                            <Border Background="White" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="ℹ️ Sistem Bilgileri" FontWeight="Bold" FontSize="12" Foreground="#FF9800" Margin="0,0,0,5"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <TextBlock Text="Aktif Süreç: " FontSize="11"/>
+                                        <TextBlock x:Name="ProcessCountText" Text="0" FontWeight="Bold" FontSize="11" Foreground="#FF9800"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <TextBlock Text="Uptime: " FontSize="11"/>
+                                        <TextBlock x:Name="UptimeText" Text="0h 0m" FontWeight="Bold" FontSize="11" Foreground="#FF9800"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <TextBlock Text="Son Güncelleme: " FontSize="11"/>
+                                        <TextBlock x:Name="LastUpdateText" Text="--:--:--" FontWeight="Bold" FontSize="11" Foreground="#FF9800"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- MesTech Performance -->
+                    <Border Grid.Column="1" Background="#E8F5E8" CornerRadius="10" Padding="20" Margin="10,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="🏢 MesTech Uygulamaları" FontSize="16" FontWeight="Bold" Foreground="#4CAF50" Margin="0,0,0,15"/>
+                            
+                            <!-- MesTech RAM Usage -->
+                            <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="MesTech RAM" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="Toplam bellek kullanımı" FontSize="10" Foreground="#666666"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" x:Name="MesTechMemoryText" Text="0 MB" FontWeight="Bold" FontSize="16" Foreground="#4CAF50" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- MesTech CPU Usage -->
+                            <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="MesTech CPU" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="Yaklaşık CPU kullanımı" FontSize="10" Foreground="#666666"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" x:Name="MesTechCpuText" Text="0.0%" FontWeight="Bold" FontSize="16" Foreground="#4CAF50" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- MesTech Status -->
+                            <Border Background="White" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="✅ Durum" FontWeight="Bold" FontSize="12" Foreground="#4CAF50" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Tüm MesTech modülleri optimize edildi" FontSize="11" Foreground="#4CAF50"/>
+                                    <TextBlock x:Name="StatusText" Text="Sistem izleme aktif" FontSize="11" Foreground="#4CAF50" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                
+                <!-- Control Buttons -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <Button x:Name="StartMonitoringBtn" 
+                            Content="⚡ İzlemeyi Başlat" 
+                            Width="150" 
+                            Height="40" 
+                            Background="#4CAF50" 
+                            Foreground="White" 
+                            FontWeight="Bold"
+                            Margin="0,0,10,0"
+                            Click="StartMonitoringBtn_Click"/>
+                    
+                    <Button x:Name="StopMonitoringBtn" 
+                            Content="⏹️ İzlemeyi Durdur" 
+                            Width="150" 
+                            Height="40" 
+                            Background="#F44336" 
+                            Foreground="White" 
+                            FontWeight="Bold"
+                            Margin="10,0,0,0"
+                            Click="StopMonitoringBtn_Click"/>
+                </StackPanel>
+                
+                <!-- Performance Chart Area -->
+                <Border Grid.Row="2" Background="#FAFAFA" CornerRadius="10" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="📈 Performans Grafiği" FontSize="16" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,15"/>
+                        <TextBlock Text="Gerçek zamanlı performans grafiği buraya gelecek" 
+                                  FontSize="14" 
+                                  Foreground="#666666" 
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Margin="0,50,0,50"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl> 

@@ -1,0 +1,87 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MesTechStok.Core.Data.Models
+{
+    /// <summary>
+    /// Depo rafı (Rack) - Bölüm içi raf sistemi
+    /// Örnek: A-01, B-02, Palet Rafı, Askı Rafı
+    /// </summary>
+    [Table("WarehouseRacks")]
+    public class WarehouseRack
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty; // "A-01", "B-02"
+
+        [Required]
+        [StringLength(20)]
+        public string Code { get; set; } = string.Empty; // "A01", "B02"
+
+        [Required]
+        public int ZoneId { get; set; }
+
+        [ForeignKey("ZoneId")]
+        public virtual WarehouseZone? Zone { get; set; }
+
+        // Fiziksel Özellikler
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal? Width { get; set; } // cm
+
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal? Depth { get; set; } // cm
+
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal? Height { get; set; } // cm
+
+        public int ShelfCount { get; set; } = 1; // Raf seviyesi sayısı
+
+        public int BinCount { get; set; } = 1; // Göz sayısı
+
+        // Konum Bilgileri
+        public int? RowNumber { get; set; } // Sıra numarası
+
+        public int? ColumnNumber { get; set; } // Sütun numarası
+
+        [StringLength(20)]
+        public string? Orientation { get; set; } // "North", "South", "East", "West"
+
+        // Özellikler
+        [StringLength(50)]
+        public string? RackType { get; set; } // "Pallet", "Shelf", "Hanging", "Mobile"
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? MaxWeight { get; set; } // kg
+
+        public bool IsMovable { get; set; } = false;
+
+        public bool IsActive { get; set; } = true;
+
+        // Audit Fields
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [StringLength(100)]
+        public string? CreatedBy { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        [StringLength(100)]
+        public string? UpdatedBy { get; set; }
+
+        // Navigation Properties
+        public virtual ICollection<WarehouseShelf> Shelves { get; set; } = new List<WarehouseShelf>();
+
+        // Computed Properties
+        [NotMapped]
+        public string FullRackPath => $"{Zone?.FullZonePath ?? "Bilinmeyen Bölüm"} → {Name}";
+
+        [NotMapped]
+        public string RackSummary => $"{Code} - {Name} ({ShelfCount} seviye, {BinCount} göz)";
+
+        [NotMapped]
+        public decimal? TotalVolume => Width * Depth * Height; // cm³
+    }
+}

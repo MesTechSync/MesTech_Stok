@@ -1,0 +1,86 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MesTechStok.Core.Data.Models
+{
+    /// <summary>
+    /// Depo bölümü (Zone) - Depo içi ana bölümler
+    /// Örnek: A Bölümü, B Bölümü, Soğuk Hava Deposu, Tehlikeli Madde Deposu
+    /// </summary>
+    [Table("WarehouseZones")]
+    public class WarehouseZone
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty; // "A Bölümü", "B Bölümü"
+
+        [Required]
+        [StringLength(10)]
+        public string Code { get; set; } = string.Empty; // "A", "B", "C"
+
+        [Required]
+        public int WarehouseId { get; set; }
+
+        [ForeignKey("WarehouseId")]
+        public virtual Warehouse? Warehouse { get; set; }
+
+        // Fiziksel Özellikler
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Width { get; set; } // metre
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Length { get; set; } // metre
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Height { get; set; } // metre
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Area { get; set; } // m²
+
+        // Konum Bilgileri
+        public int? FloorNumber { get; set; } // Kat numarası
+
+        [StringLength(50)]
+        public string? BuildingSection { get; set; } // "Doğu", "Batı", "Kuzey", "Güney"
+
+        // Özellikler
+        public bool HasClimateControl { get; set; } = false;
+
+        public bool HasSecurity { get; set; } = false;
+
+        [StringLength(50)]
+        public string? TemperatureRange { get; set; } // "18-22°C"
+
+        [StringLength(50)]
+        public string? HumidityRange { get; set; } // "40-60%"
+
+        // Organizasyon
+        public int DisplayOrder { get; set; } = 0;
+
+        public bool IsActive { get; set; } = true;
+
+        // Audit Fields
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [StringLength(100)]
+        public string? CreatedBy { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        [StringLength(100)]
+        public string? UpdatedBy { get; set; }
+
+        // Navigation Properties
+        public virtual ICollection<WarehouseRack> Racks { get; set; } = new List<WarehouseRack>();
+
+        // Computed Properties
+        [NotMapped]
+        public string FullZonePath => $"{Warehouse?.Name ?? "Bilinmeyen Depo"} → {Name}";
+
+        [NotMapped]
+        public string ZoneSummary => $"{Code} - {Name} ({Area?.ToString("F1") ?? "N/A"} m²)";
+    }
+}

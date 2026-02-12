@@ -1,0 +1,112 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationDefinition>App.xaml</ApplicationDefinition>
+    <!-- CHARLIE TEAM: Suppress NU1701 warnings for legacy packages -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    
+    <!-- ✅ RUNTIME FIX: Self-contained deployment settings -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- Prevent .NET runtime installation requests -->
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <!-- Configuration Files - ALPHA TEAM CRITICAL FIX -->
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <!-- Entegrasyon düzeltmesi: Orders/Reports XAML yeniden etkin -->
+
+  <!-- SQL-backed inventory data service files zaten implicit olarak eklenir; ekstra Include kaldırıldı -->
+
+  
+
+  <!-- Assets: mark logos as WPF Resource so pack://application works -->
+  <ItemGroup>
+    <Resource Include="Assets\Logos\**\*.png" />
+  </ItemGroup>
+
+  <!-- Core project reference - ALPHA TEAM FIXED -->
+  <ItemGroup>
+    <ProjectReference Include="..\MesTechStok.Core\MesTechStok.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    
+    <!-- CHARLIE TEAM: Modern Barcode & Camera Packages -->
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.12" />
+    <PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.9.0.20240103" />
+    
+    <!-- CHARLIE TEAM: Legacy AForge packages with warning suppression -->
+    <PackageReference Include="AForge" Version="2.2.5">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    <PackageReference Include="AForge.Video" Version="2.2.5">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    <PackageReference Include="AForge.Video.DirectShow" Version="2.2.5">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    
+    <!-- CHARLIE TEAM: HTTP Client for OpenCart Integration -->
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.Json" Version="9.0.6" />
+    <PackageReference Include="Polly" Version="8.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.0" />
+    
+    <!-- CRITICAL FIX: Missing system packages -->
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    
+    <!-- CHARLIE TEAM: Real Excel and PDF export packages -->
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.4.6" />
+    
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+    <PackageReference Include="Npgsql" Version="9.0.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+    <PackageReference Include="Serilog" Version="4.0.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <!-- Modern Icon Packs for high-quality vector icons -->
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="6.0.0" />
+  </ItemGroup>
+
+  <!-- Core project reference - DUPLICATE REMOVED -->
+
+  <!-- Assets: mark logos as WPF Resource -->
+  <ItemGroup>
+    <Resource Include="Assets\Logos\**\*.png" />
+    <Resource Include="Assets\Logos\**\*.svg" />
+  </ItemGroup>
+
+  <!-- DÜZELTME: Panelleri derleme dışı bırakan tüm bölüm kaldırıldı. -->
+</Project>

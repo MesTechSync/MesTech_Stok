@@ -1,0 +1,634 @@
+<Window x:Class="MesTechStok.Desktop.Views.ProductUploadPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:MesTechStok.Desktop.Views"
+        Title="🚀 MesTech Ürün Yönetimi - Gelişmiş Arayüz" WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize"
+        KeyDown="Window_KeyDown">
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0"/>
+            <GradientStop Color="#764ba2" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
+        <Window.Resources>
+        <views:IndexEqualsVisibilityConverter x:Key="IndexEqualsVisibilityConverter"/>
+        
+        <!-- Modern Glass Card Style -->
+        <Style x:Key="GlassCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="White" Opacity="0.95"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#E0E7FF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.1" BlurRadius="20" ShadowDepth="8" Direction="270"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern Button Styles -->
+        <Style x:Key="ModernPrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="4,2"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#3B82F6" Opacity="0.3" BlurRadius="12" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="ModernSecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4,2"/>
+        </Style>
+
+        <!-- Okunabilirlik: Tüm metinlerde daha koyu renk ve daha büyük puntolar -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxStyle}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="#3B82F6"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#3B82F6" Opacity="0.2" BlurRadius="8" ShadowDepth="0"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="20" AllowDrop="True" DragOver="Root_DragOver" Drop="Root_Drop">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Modern Header -->
+        <Border Grid.Row="0" Style="{StaticResource GlassCard}" Margin="0,0,0,16" Padding="20">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#3B82F6" CornerRadius="10" Width="40" Height="40" Margin="0,0,12,0">
+                        <TextBlock Text="🧾" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="MesTech Ürün Yönetimi" FontSize="22" FontWeight="Bold" Foreground="#111827"/>
+                        <TextBlock Text="Gelişmiş ürün kayıt ve düzenleme sistemi" FontSize="14" Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <!-- Barcode Status Card -->
+                    <Border Background="#ECFDF5" BorderBrush="#10B981" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📱" FontSize="16" Margin="0,0,6,0"/>
+                            <CheckBox x:Name="ChkBarcodeListen" Content="Barkod Dinleme Aktif" FontWeight="Medium" Foreground="#065F46" Checked="ChkBarcodeListen_Checked" Unchecked="ChkBarcodeListen_Unchecked"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Last Barcode Display -->
+                    <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Son Barkod:" FontWeight="Medium" Foreground="#92400E"/>
+                            <TextBlock x:Name="LblLastBarcode" Text="-" FontWeight="Bold" Margin="8,0,0,0" Foreground="#92400E"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Button Content="✖ Kapat (ESC)" Style="{StaticResource ModernPrimaryButton}" Background="#EF4444" Click="Close_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Modern Sidebar -->
+            <StackPanel Grid.Column="0">
+                <!-- Progress Card -->
+                <Border Style="{StaticResource GlassCard}" Margin="0,0,0,16" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="📊 Tamamlanma Durumu" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
+                        <ProgressBar x:Name="FillRateProgress" Height="8" Background="#E5E7EB" Foreground="#3B82F6" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="FillRateText" Text="Başlangıç (%0)" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        
+                        <!-- Metrics Grid -->
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="10" Height="10" Fill="#10B981" VerticalAlignment="Center"/>
+                                <TextBlock Text="Görseller" Margin="8,0,0,0" FontWeight="Medium"/>
+                            </StackPanel>
+                            <Border Grid.Row="0" Grid.Column="1" Background="#10B981" CornerRadius="8" Padding="6,2">
+                                <TextBlock x:Name="FillImgBadge" Text="0" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="10" Height="10" Fill="#3B82F6" VerticalAlignment="Center"/>
+                                <TextBlock Text="Özellikler" Margin="8,0,0,0" FontWeight="Medium"/>
+                            </StackPanel>
+                            <Border Grid.Row="1" Grid.Column="1" Background="#3B82F6" CornerRadius="8" Padding="6,2">
+                                <TextBlock x:Name="FillAttrBadge" Text="0/5" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="10" Height="10" Fill="#F59E0B" VerticalAlignment="Center"/>
+                                <TextBlock Text="Açıklama" Margin="8,0,0,0" FontWeight="Medium"/>
+                            </StackPanel>
+                            <Border Grid.Row="2" Grid.Column="1" Background="#F59E0B" CornerRadius="8" Padding="6,2">
+                                <TextBlock x:Name="FillDescBadge" Text="0" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Navigation Menu -->
+                <Border Style="{StaticResource GlassCard}" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="🗂️ Bölümler" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
+                        <Button Content="📝 Ürün Bilgileri" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_UrunBilgileri_Click"/>
+                        <Button Content="💰 Satış Bilgileri" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_SatisBilgileri_Click"/>
+                        <Button Content="🔧 Ürün Özellikleri" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_UrunOzellikleri_Click"/>
+                        <Button Content="🚚 Kargo &amp; Teslimat" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_Kargo_Click"/>
+                        <Button Content="📄 Ürün Açıklaması" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_Aciklama_Click"/>
+                        <Button Content="🔍 Denetim Bilgileri" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_Denetim_Click"/>
+                        <Button Content="📊 Ürün Geçmişi" Style="{StaticResource ModernSecondaryButton}" HorizontalAlignment="Stretch" Click="Nav_Gecmis_Click"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Modern Main Content -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Product Information Card -->
+                    <Border x:Name="Sec_UrunBilgileri" Style="{StaticResource GlassCard}" Margin="0,0,0,16" Padding="20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <TextBlock Text="📝" FontSize="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ürün Bilgileri" FontWeight="Bold" FontSize="18"/>
+                            </StackPanel>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="16"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="16"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Row 1: Name, Barcode, SKU -->
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="Ürün Adı *" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TxtName" TextChanged="AnyField_Changed"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="2">
+                                    <TextBlock Text="Barkod *" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TxtBarcode" TextChanged="AnyField_Changed"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="4">
+                                    <TextBlock Text="Model Kodu (SKU)" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TxtSku" TextChanged="AnyField_Changed"/>
+                                </StackPanel>
+
+                                <!-- Row 2: Category, Brand, Status -->
+                                <StackPanel Grid.Row="2" Grid.Column="0">
+                                    <TextBlock Text="Kategori" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="CmbCategory" SelectionChanged="AnyField_Changed"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="2">
+                                    <TextBlock Text="Marka" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TxtBrand" TextChanged="AnyField_Changed"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="4">
+                                    <TextBlock Text="Onay Durumu" FontWeight="Medium" Margin="0,0,0,4"/>
+                                    <TextBox IsReadOnly="True" Text="✅ Onaylı" Background="#F0FDF4" BorderBrush="#BBF7D0"/>
+                                </StackPanel>
+
+                                <!-- Recent Entries -->
+                                <StackPanel Grid.Row="4" Grid.ColumnSpan="5">
+                                    <TextBlock Text="📋 Son Girilen Bilgiler" FontWeight="SemiBold" FontSize="16" Margin="0,8,0,8"/>
+                                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="12" MaxHeight="100">
+                                        <ListBox x:Name="EnteredList" BorderThickness="0" Background="Transparent"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Images Card -->
+                    <Border x:Name="Sec_Gorseller" Style="{StaticResource GlassCard}" Margin="0,0,0,16" Padding="20">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🖼️" FontSize="20" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Ürün Görselleri" FontWeight="Bold" FontSize="18"/>
+                                    <TextBlock x:Name="ImageCountText" Text=" (0)" Foreground="#3B82F6" FontWeight="SemiBold" FontSize="14" Margin="8,0,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="📁 Dosya Seç" Style="{StaticResource ModernSecondaryButton}" Click="AddImages_Click"/>
+                                    <Button Content="🔗 URL Ekle" Style="{StaticResource ModernSecondaryButton}" Click="AddImageFromLink_Click"/>
+                                    <Button Content="🧹 Temizle" Style="{StaticResource ModernPrimaryButton}" Background="#EF4444" Click="RemoveAllImages_Click"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Image Drop Zone -->
+                            <Border Background="#F0F9FF" BorderBrush="#3B82F6" BorderThickness="2" CornerRadius="12" 
+                                    Padding="32" AllowDrop="True" DragOver="Root_DragOver" Drop="Root_Drop" MinHeight="120">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="🎯" FontSize="48" HorizontalAlignment="Center" Opacity="0.6"/>
+                                    <TextBlock Text="Görselleri buraya sürükleyip bırakın" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Center" Foreground="#1E40AF"/>
+                                    <TextBlock Text="ya da yukarıdaki butonları kullanın" FontSize="14" HorizontalAlignment="Center" Opacity="0.8" Margin="0,4"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                        <TextBlock Text="📋 Desteklenen:" FontSize="12" Opacity="0.7"/>
+                                        <TextBlock Text="JPG, PNG, WebP, BMP, GIF, TIFF" FontWeight="Medium" FontSize="12" Margin="4,0"/>
+                                    </StackPanel>
+                                    <TextBlock Text="📏 Maksimum boyut: 50MB" FontSize="12" HorizontalAlignment="Center" Opacity="0.7"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Image Gallery -->
+                            <WrapPanel Margin="0,16,0,0">
+                                <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Margin="6" Width="140" Height="140" Background="#E8F5E9">
+                                    <Button Content="🖼 Yeni Görsel&#x0a;Yükle" Background="#2E7D32" Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="AddImages_Click"/>
+                                </Border>
+                                <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Margin="6" Width="140" Height="140" Background="#E3F2FD">
+                                    <Button Content="🎬 Yeni Video&#x0a;Yükle" Background="#1976D2" Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="AddVideo_Click"/>
+                                </Border>
+                            </WrapPanel>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <TextBlock Text="Videolar" FontWeight="Bold"/>
+                                <Button Content="Linkten Ekle" Style="{StaticResource ModernSecondaryButton}" Margin="12,0,0,0" Click="AddVideoFromLink_Click"/>
+                        </StackPanel>
+                        <ListBox x:Name="VideoList" Margin="0,6,0,0" BorderThickness="0" Background="Transparent">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                            <Button Content="Oynat" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="PlayVideo_Click"/>
+                                            <Button Content="Sil" Style="{StaticResource ModernErrorButtonStyle}" Margin="6,0,0,0" Click="RemoveVideo_Click"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Grid>
+                            <ListBox x:Name="ImageList" Margin="0,6,0,0" AlternationCount="10000" SelectionMode="Extended" BorderThickness="0" Background="Transparent" KeyDown="ImageList_KeyDown">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="2"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="#E3F2FD"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="6" Margin="6" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6"
+                                                AllowDrop="True"
+                                                PreviewMouseLeftButtonDown="ImageItem_PreviewMouseLeftButtonDown"
+                                                MouseMove="ImageItem_MouseMove"
+                                                DragOver="ImageItem_DragOver"
+                                                 Drop="ImageItem_Drop"
+                                                 MouseLeftButtonUp="ImageItem_MouseLeftButtonUp">
+                                            <Grid>
+                                                <Image Source="{Binding}" Width="128" Height="128" Stretch="UniformToFill" MouseLeftButtonDown="Image_MouseDoubleClick" RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                                                    <Image.ToolTip>
+                                                        <Image Source="{Binding}" Width="300" Height="300" Stretch="UniformToFill"/>
+                                                    </Image.ToolTip>
+                                                </Image>
+                                                <Border Background="#CC2196F3" CornerRadius="4" Padding="4,2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4">
+                                                    <TextBlock Text="Kapak" Foreground="White" FontSize="10">
+                                                        <TextBlock.Visibility>
+                                                            <MultiBinding Converter="{StaticResource IndexEqualsVisibilityConverter}">
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=ContentPresenter}" Path="(ItemsControl.AlternationIndex)"/>
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=Window}" Path="CoverIndex"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Visibility>
+                                                    </TextBlock>
+                                                </Border>
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Content="Kapak" Style="{StaticResource ModernButtonStyle}" Click="MakeCover_Click" Margin="0,4,4,0"/>
+                                                        <Button Content="Sil" Style="{StaticResource ModernErrorButtonStyle}" Click="RemoveImage_Click" Margin="0,4,0,0"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Content="⬆" Style="{StaticResource ModernButtonStyle}" ToolTip="Ctrl+Yukarı: Seçilileri yukarı taşı" Click="MoveUp_Click" Margin="0,4,4,0" Width="30"/>
+                                                        <Button Content="⬇" Style="{StaticResource ModernButtonStyle}" ToolTip="Ctrl+Aşağı: Seçilileri aşağı taşı" Click="MoveDown_Click" Margin="0,4,0,0" Width="30"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <!-- Boş durum ipucu -->
+                            <TextBlock x:Name="NoImagesHint" Text="Henüz görsel yok. 'Dosyadan Ekle' veya 'Linkten Ekle' ile ekleyin." Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center" FontStyle="Italic">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=ImageList, Path=HasItems}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <Button Content="Dosyadan Ekle" Style="{StaticResource ModernButtonStyle}" Click="AddImages_Click"/>
+                            <Button Content="Linkten Ekle" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="AddImageFromLink_Click"/>
+                            <Button Content="Önizleme" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="Preview_Click"/>
+                            <Button Content="Seçileni Kapak Yap" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="MakeSelectedCover_Click"/>
+                            <Button Content="Seçiliyi Kaldır" Style="{StaticResource ModernWarningButtonStyle}" Margin="6,0,0,0" Click="RemoveSelectedImages_Click"/>
+                            <Button Content="Tümünü Kaldır" Style="{StaticResource ModernErrorButtonStyle}" Margin="6,0,0,0" Click="RemoveAllImages_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Satış Bilgileri -->
+                <Border x:Name="Sec_SatisBilgileri" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Satış Bilgileri" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Satış Fiyatı"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtSale" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="TxtSale_TextChanged"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Alış Fiyatı"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="TxtPurchase" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="TxtDiscount_TextChanged"/>
+                        <TextBlock Grid.Row="2" Text="% İskonto"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtDiscount" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="TxtDiscount_TextChanged"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Stok"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TxtStock" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" TextAlignment="Right" PreviewTextInput="Integer_PreviewTextInput" DataObject.Pasting="Integer_Paste" TextChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="3" Text="KDV"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="CmbVat" Style="{StaticResource ModernComboBoxStyle}" Margin="6,0,0,0" Width="120" SelectionChanged="CmbVat_SelectionChanged">
+                            <ComboBoxItem Content="%0"/>
+                            <ComboBoxItem Content="%1"/>
+                            <ComboBoxItem Content="%10"/>
+                            <ComboBoxItem Content="%20"/>
+                        </ComboBox>
+                        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Vertical">
+                            <TextBlock x:Name="CommissionText" Text="KDV: ₺0,00 · Komisyon: ₺0,00"/>
+                            <TextBlock x:Name="NetSummaryText" Text="Net: ₺0,00 · Marj: ₺0,00 (%0)"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="4" Text="Min Stok"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtMinStock" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" TextAlignment="Right" PreviewTextInput="Integer_PreviewTextInput" DataObject.Pasting="Integer_Paste" TextChanged="AnyField_Changed"/>
+                    </Grid>
+                </Border>
+
+                <!-- Ürün Özellikleri -->
+                <Border x:Name="Sec_UrunOzellikleri" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Ürün Özellikleri" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Menşei"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CmbOrigin" Style="{StaticResource ModernComboBoxStyle}" Margin="6,0,0,0" Width="220" SelectionChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Renk"/>
+                        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="6,0,0,0">
+                            <ComboBox x:Name="CmbColor" Style="{StaticResource ModernComboBoxStyle}" Width="160" SelectionChanged="AnyField_Changed"/>
+                            <Button Content="🎨" Style="{StaticResource ModernButtonStyle}" Width="36" Margin="6,0,0,0" ToolTip="Renk kartelası görseli oluştur" Click="GenerateColorSwatch_Click"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="Materyal"/>
+                        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbMaterial" Style="{StaticResource ModernComboBoxStyle}" Margin="6,0,0,0" Width="220" SelectionChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Hacim"/>
+                        <ComboBox Grid.Row="2" Grid.Column="2" x:Name="CmbVolume" Style="{StaticResource ModernComboBoxStyle}" Margin="6,0,0,0" Width="220" SelectionChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="3" Text="Bedenler"/>
+                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="6,0,0,0">
+                            <CheckBox Content="Tümü" x:Name="ChkAllSizes" Margin="0,0,12,0" Checked="Sizes_All_Toggled" Unchecked="Sizes_All_Toggled"/>
+                            <CheckBox Content="2S" x:Name="Chk2S" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="S" x:Name="ChkS" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="M" x:Name="ChkM" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="L" x:Name="ChkL" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="XL" x:Name="ChkXL" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="2XL" x:Name="Chk2XL" Margin="0,0,6,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                            <CheckBox Content="3XL" x:Name="Chk3XL" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="WHL (cm)"/>
+                        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Margin="70,0,0,0">
+                            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                                <TextBlock Text="Boy"/>
+                                <TextBox x:Name="TxtLength" Style="{StaticResource ModernTextBoxStyle}" Width="70" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="AnyField_Changed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                                <TextBlock Text="En"/>
+                                <TextBox x:Name="TxtWidth" Style="{StaticResource ModernTextBoxStyle}" Width="70" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="AnyField_Changed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                                <TextBlock Text="Yük"/>
+                                <TextBox x:Name="TxtHeight" Style="{StaticResource ModernTextBoxStyle}" Width="70" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="AnyField_Changed"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Kargo & Teslimat Bilgileri -->
+                <Border x:Name="Sec_Kargo" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Kargo &amp; Teslimat Bilgileri" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Desi"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtDesi" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" Width="120" TextAlignment="Right" PreviewTextInput="Decimal_PreviewTextInput" DataObject.Pasting="Decimal_Paste" TextChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Termin (gün)"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="TxtLeadTime" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0" Width="120" TextAlignment="Right" PreviewTextInput="Integer_PreviewTextInput" DataObject.Pasting="Integer_Paste" TextChanged="AnyField_Changed"/>
+                        <TextBlock Grid.Row="2" Text="Sevkiyat Adresi"/>
+                        <Grid Grid.Row="2" Grid.Column="1" Margin="6,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtShipAddress" Style="{StaticResource ModernTextBoxStyle}" TextChanged="AnyField_Changed"/>
+                            <Button Grid.Column="1" Content="Seç" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="ShipAddress_Select_Click"/>
+                        </Grid>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="İade Adresi"/>
+                        <Grid Grid.Row="2" Grid.Column="2" Margin="6,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtReturnAddress" Style="{StaticResource ModernTextBoxStyle}" TextChanged="AnyField_Changed"/>
+                            <Button Grid.Column="1" Content="Seç" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="ReturnAddress_Select_Click"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Denetim Bilgileri -->
+                <Border x:Name="Sec_Denetim" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Denetim Bilgileri" FontWeight="Bold" Grid.ColumnSpan="3"/>
+                        <TextBlock Grid.Row="1" Text="Kullanım Talimatı"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtUsage" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="2" Text="İthalatçı/Temsilci/İfa"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtImporter" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Üretici"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TxtManufacturer" Style="{StaticResource ModernTextBoxStyle}" Margin="6,0,0,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- Ürün Geçmişi -->
+                <Border x:Name="Sec_Gecmis" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <StackPanel Margin="12">
+                        <TextBlock Text="Ürün Geçmişi" FontWeight="Bold"/>
+                        <ListBox x:Name="AuditList" Margin="0,6,0,0" BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Time}" Foreground="#666" Width="110"/>
+                                        <TextBlock Text="{Binding Event}" FontWeight="SemiBold" Width="140"/>
+                                        <TextBlock Text="{Binding Message}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Açıklama -->
+                <Border x:Name="Sec_Aciklama" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,12">
+                    <StackPanel Margin="12">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                            <TextBlock Text="Ürün Açıklaması" FontWeight="Bold"/>
+                            <CheckBox x:Name="ChkHtmlPreview" Content="HTML Göster" Style="{StaticResource ModernCheckBoxStyle}" Margin="12,0,0,0" Checked="ChkHtmlPreview_Checked" Unchecked="ChkHtmlPreview_Unchecked"/>
+                            <CheckBox x:Name="ChkMarkdownPreview" Content="Markdown Önizleme" Style="{StaticResource ModernCheckBoxStyle}" Margin="12,0,0,0" Checked="ChkMarkdownPreview_Checked" Unchecked="ChkMarkdownPreview_Unchecked"/>
+                        </StackPanel>
+                        <TextBox x:Name="TxtDescription" Style="{StaticResource ModernTextBoxStyle}" AcceptsReturn="True" Height="140" TextChanged="TxtDescription_TextChanged"/>
+                        <WebBrowser x:Name="DescPreview" Height="140" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,4,0,0">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                <Button Content="Ürünü Arşive Al" Style="{StaticResource ModernButtonStyle}" Margin="0,8,8,0" Click="Archive_Click"/>
+                <Button Content="Ürün Kopyala" Style="{StaticResource ModernButtonStyle}" Margin="0,8,8,0" Click="CopyProduct_Click"/>
+                <Button Content="Dropshipping’e Gönder" Style="{StaticResource ModernSuccessButtonStyle}" Margin="0,8,8,0" Click="OpenDropshipping_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="İptal" Style="{StaticResource ModernButtonStyle}" Click="Close_Click" Margin="0,8,8,0"/>
+                <Button Content="Taslak Kaydet" Style="{StaticResource ModernWarningButtonStyle}" Click="SaveDraft_Click" Margin="0,8,8,0"/>
+                <Button Content="Kaydet &amp; Kapat" Style="{StaticResource ModernSuccessButtonStyle}" ToolTip="Ctrl+S veya Ctrl+Enter" Click="SaveAndClose_Click" Margin="0,8,0,0"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Busy overlay -->
+        <Border x:Name="BusyOverlay" Background="#66000000" Visibility="Collapsed">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFFFFFF" Padding="16" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock x:Name="BusyText" Text="İşlem yapılıyor…" FontSize="14" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="220" Height="6"/>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>
+

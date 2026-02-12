@@ -1,0 +1,928 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.ProductsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:components="clr-namespace:MesTechStok.Desktop.Components"
+              xmlns:views="clr-namespace:MesTechStok.Desktop.Views"
+             mc:Ignorable="d"
+             Background="{StaticResource BackgroundLightBrush}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <views:MarginToBrushConverter x:Key="MarginToBrush"/>
+    <!-- Shared shadow effect used by sidebar panel -->
+    <DropShadowEffect x:Key="DropShadowEffect"
+              Color="#22000000"
+              BlurRadius="16"
+              ShadowDepth="4"
+              Opacity="0.35"/>
+    <!-- Local fallback brushes (used throughout this view) -->
+    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F7F9FC"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#E0E6EF"/>
+    <SolidColorBrush x:Key="PrimaryBlueBrush" Color="#1976D2"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#666666"/>
+    <SolidColorBrush x:Key="SurfaceWhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WarningOrangeBrush" Color="#F57C00"/>
+    <SolidColorBrush x:Key="ErrorRedBrush" Color="#D32F2F"/>
+        <!-- Local fallback: Some themes may not provide this style globally -->
+        <Style x:Key="ModernScrollViewerStyle" TargetType="ScrollViewer">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CanContentScroll" Value="True"/>
+        </Style>
+        <Style x:Key="ChipButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,4,6,0"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Background" Value="#E8F0FE"/>
+            <Setter Property="Foreground" Value="#1A73E8"/>
+        </Style>
+
+        <!-- Neural Component Styles - Temporarily disabled 
+        <Style x:Key="NeuralButtonStyle" TargetType="components:NeuralButton">
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Background" Value="#007AFF"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#0056CC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="NeuralGlowColor" Value="#007AFF"/>
+            <Setter Property="NeuralGlowRadius" Value="5"/>
+        </Style>
+        -->
+        
+        <!-- Local fallback modern styles (if app-level resources are missing) -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Background" Value="#EEF2F7"/>
+            <Setter Property="Foreground" Value="#222"/>
+            <Setter Property="BorderBrush" Value="#D5DDE5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="ModernSuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#E6F4EA"/>
+            <Setter Property="Foreground" Value="#137333"/>
+            <Setter Property="BorderBrush" Value="#C8E6C9"/>
+        </Style>
+        <Style x:Key="ModernDangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#FDECEA"/>
+            <Setter Property="Foreground" Value="#B00020"/>
+            <Setter Property="BorderBrush" Value="#F5C6CB"/>
+        </Style>
+        <Style x:Key="ModernWarningButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#FFF8E1"/>
+            <Setter Property="Foreground" Value="#8E6100"/>
+            <Setter Property="BorderBrush" Value="#FFE0B2"/>
+        </Style>
+        <Style x:Key="ModernErrorButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#FFEBEE"/>
+            <Setter Property="Foreground" Value="#B71C1C"/>
+            <Setter Property="BorderBrush" Value="#EF9A9A"/>
+        </Style>
+        <!-- Neural TextBox Style - Temporarily disabled
+        <Style x:Key="NeuralTextBoxStyle" TargetType="components:NeuralTextBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="BorderBrush" Value="#007AFF"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="NeuralGlowColor" Value="#007AFF"/>
+            <Setter Property="NeuralGlowRadius" Value="3"/>
+            <Setter Property="NeuralValidationEnabled" Value="True"/>
+        </Style>
+        -->
+        
+        <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="BorderBrush" Value="#D5DDE5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFFFFFF"/>
+        </Style>
+
+        <!-- Neural DataGrid Style - TEMPORARILY DISABLED FOR COMPILATION -->
+        <!-- RESTORATION GUIDE: When Neural components are available, uncomment this style -->
+        <!-- ORIGINAL CODE PRESERVED: NeuralDataGrid with glow effects and AI intelligence -->
+        <!--
+        <Style x:Key="NeuralDataGridStyle" TargetType="components:NeuralDataGrid">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#007AFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="RowBackground" Value="#2D2D2D"/>
+            <Setter Property="AlternatingRowBackground" Value="#333333"/>
+            <Setter Property="HeaderBackground" Value="#007AFF"/>
+            <Setter Property="HeaderForeground" Value="#FFFFFF"/>
+            <Setter Property="NeuralGlowColor" Value="#007AFF"/>
+            <Setter Property="NeuralGlowRadius" Value="2"/>
+            <Setter Property="NeuralIntelligenceEnabled" Value="True"/>
+        </Style>
+        -->
+        
+        <!-- Typography styles -->
+        <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#222"/>
+        </Style>
+        <Style x:Key="BodyTextSecondaryStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="Foreground" Value="#666"/>
+        </Style>
+        <Style x:Key="NumberDisplayStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="HeaderLargeStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Card and container styles -->
+        <Style x:Key="ModernCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceWhiteBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- DataGrid compact styles -->
+        <Style x:Key="CompactDataGridStyle" TargetType="DataGrid">
+            <Setter Property="RowHeight" Value="32"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+        </Style>
+        <Style x:Key="CompactRowStyle" TargetType="DataGridRow">
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+        <Style x:Key="CompactCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style x:Key="CompactTextCellElementStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="6,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="CompactRightTextCellElementStyle" TargetType="TextBlock" BasedOn="{StaticResource CompactTextCellElementStyle}">
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="ModernColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F5F7FA"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+
+        <!-- Context menu styles -->
+        <Style x:Key="ModernContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="ModernMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+
+		<!-- Satır hover-card: görsel + temel bilgiler -->
+			<Style x:Key="RowHoverCardStyle" TargetType="DataGridRow" BasedOn="{StaticResource CompactRowStyle}">
+			<Setter Property="ToolTip">
+				<Setter.Value>
+						<Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8">
+							<StackPanel Orientation="Horizontal" Margin="10">
+							<Border Width="96" Height="96" Background="#F5F5F5" CornerRadius="6">
+								<Image Source="{Binding PreviewSource}" Stretch="UniformToFill"/>
+							</Border>
+								<StackPanel Margin="12,0,0,0">
+									<TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+									<TextBlock Text="{Binding Barcode}" Foreground="#666" Margin="0,2,0,0"/>
+									<TextBlock Text="{Binding Category}" Foreground="#666"/>
+									<TextBlock>
+										<Run Text="Satış: "/>
+										<Run Text="{Binding SalePrice, StringFormat=₺{0:N2}}"/>
+										<Run Text="   Stok: "/>
+										<Run Text="{Binding Stock}"/>
+										<Run Text="   Marj: "/>
+										<Run Text="{Binding MarginPercentDisplay, Mode=OneWay}"/>
+									</TextBlock>
+									<TextBlock>
+										<Run Text="Menşei: "/>
+										<Run Text="{Binding Origin}"/>
+										<Run Text="   Materyal: "/>
+										<Run Text="{Binding Material}"/>
+									</TextBlock>
+									<StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+										<Border Background="#F0F2F5" CornerRadius="6" Width="90" Height="8">
+											<Border Background="#29B46F" CornerRadius="6" Width="{Binding FillRatePercent}" Height="8">
+												<Border.RenderTransform>
+													<ScaleTransform ScaleX="0.7"/>
+												</Border.RenderTransform>
+											</Border>
+										</Border>
+										<TextBlock Text="  "/>
+										<TextBlock Text="{Binding FillRateLabel}"/>
+									</StackPanel>
+								</StackPanel>
+						</StackPanel>
+					</Border>
+				</Setter.Value>
+			</Setter>
+		</Style>
+    </UserControl.Resources>
+    <Grid x:Name="RootGrid" Margin="12" KeyDown="RootGrid_KeyDown">
+        <!-- Grid Definitions -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 📦 Ürün ve Stok Yönetimi - Sıkışık, web benzeri üst bar (yüksekliği küçültüldü) -->
+		<Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1" Padding="8,6" Margin="0,0,0,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="📦" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                    <TextBlock Text="Ürün ve Stok Yönetimi" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+				<StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Neural buttons temporarily disabled - will be restored after XAML namespace issues resolved
+                    <components:NeuralButton Content="🧾 Ürün Yükle" Style="{StaticResource NeuralButtonStyle}" Click="OpenProductUploadPopup_Click" Margin="0,0,6,0" NeuralIntelligenceEnabled="True"/>
+                    <components:NeuralButton Content="➕ Yeni" Style="{StaticResource NeuralButtonStyle}" Click="AddProduct_Click" Margin="0,0,6,0" Visibility="{Binding CanCreateProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}" NeuralIntelligenceEnabled="True"/>
+                    <components:NeuralButton Content="🔄" Style="{StaticResource NeuralButtonStyle}" Click="RefreshProducts_Click" Margin="0,0,6,0" NeuralIntelligenceEnabled="True"/>
+					<components:NeuralButton Content="↕ Panel" Style="{StaticResource NeuralButtonStyle}" Click="ToggleSummary_Click" Margin="0,0,6,0" NeuralIntelligenceEnabled="True"/>
+                    -->
+                    <!-- Temporary replacement buttons -->
+                    <Button Content="🧾 Ürün Yükle" Click="OpenProductUploadPopup_Click" Margin="0,0,6,0"/>
+                    <Button Content="➕ Yeni" Click="AddProduct_Click" Margin="0,0,6,0" Visibility="{Binding CanCreateProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="🔄" Click="RefreshProducts_Click" Margin="0,0,6,0"/>
+					<Button Content="↕ Panel" Click="ToggleSummary_Click" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="DbStatusText" Text="DB: kontrol" VerticalAlignment="Center" Style="{StaticResource BodyTextSecondaryStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Üst Özet/İşlemler Şeridi (daha kompakt) -->
+		<Border x:Name="SummaryPanel" Grid.Row="1" Style="{StaticResource ModernCardStyle}" Margin="0,0,0,6" Padding="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Padding="8,6" CornerRadius="6" Background="#F5F7FA" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Toplam" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="TotalProductsText" Text="0" Style="{StaticResource NumberDisplayStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Padding="8,6" CornerRadius="6" Background="#F5F7FA" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Değer" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="TotalValueText" Text="₺0" Style="{StaticResource NumberDisplayStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Padding="8,6" CornerRadius="6" Background="#FFF8E1" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Düşük" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="LowStockText" Text="0" Foreground="{StaticResource WarningOrangeBrush}" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Padding="8,6" CornerRadius="6" Background="#FFEBEE" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Kritik" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="CriticalStockText" Text="0" Foreground="{StaticResource ErrorRedBrush}" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Padding="8,6" CornerRadius="6" Background="#F5F7FA" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Ort. Fiyat" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="AveragePriceText" Text="₺0.00" Style="{StaticResource NumberDisplayStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="SelectedProductPanel" Visibility="Collapsed" Padding="10,6" CornerRadius="6" Background="#E8F5E9">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📝" Margin="0,0,8,0"/>
+                                <StackPanel>
+                                    <TextBlock x:Name="SelectedProductName" Style="{StaticResource BodyTextStyle}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="SelectedProductBarcode" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="SelectedProductCategory" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="SelectedProductPrice" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="SelectedProductStock" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="SelectedProductNet" Style="{StaticResource BodyTextSecondaryStyle}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="SelectedProductMargin" Style="{StaticResource BodyTextSecondaryStyle}"/>
+                                    </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="👁 Görsel" Style="{StaticResource ModernButtonStyle}" Click="SelectedOpenImage_Click" Margin="0,0,6,0"/>
+                                <Button Content="📁 Klasör" Style="{StaticResource ModernButtonStyle}" Click="SelectedOpenFolder_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel x:Name="ProductDetailsPanel" Orientation="Horizontal" Visibility="Collapsed">
+                        <Button Content="➕ Yeni Ürün Ekle" Style="{StaticResource ModernSuccessButtonStyle}" Click="AddProduct_Click" Margin="0,0,8,0"
+                                Visibility="{Binding CanCreateProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="📲 Barkodla Ekle" Style="{StaticResource ModernButtonStyle}" Click="AddWithBarcode_Click" Margin="0,0,8,0"
+                            Visibility="{Binding CanCreateProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="✏️ Düzenle" Style="{StaticResource ModernWarningButtonStyle}" Click="EditProduct_Click" Margin="0,0,8,0"
+                                Visibility="{Binding CanEditProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="🔄 Stok" Style="{StaticResource ModernButtonStyle}" Click="UpdateStock_Click" Margin="0,0,8,0"
+                                Visibility="{Binding CanUpdateStock, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="💰 Fiyat" Style="{StaticResource ModernButtonStyle}" Click="UpdatePrice_Click" Margin="0,0,8,0"
+                                Visibility="{Binding CanUpdatePrice, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="❌ Sil" Style="{StaticResource ModernErrorButtonStyle}" Click="DeleteProduct_Click"
+                                Visibility="{Binding CanDeleteProducts, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                    <Button Content="📥 Excel'den İçe Aktar" Style="{StaticResource ModernSuccessButtonStyle}" Click="ImportFromExcel_Click" Margin="10,0,8,0"/>
+                    <Button Content="📤 Excel'e Dışa Aktar" Style="{StaticResource ModernButtonStyle}" Click="ExportToExcel_Click" Margin="0,0,8,0"/>
+                    <Button Content="🧪 Demo Yükle" Style="{StaticResource ModernButtonStyle}" Click="ForceSeed_Click" Margin="0,0,8,0" Visibility="Collapsed"/>
+                    <Button Content="➕ 40 Ürün (Manuel)" Style="{StaticResource ModernSuccessButtonStyle}" Click="ForceCreate40_Click" Margin="0,0,8,0" Visibility="Collapsed"/>
+                    <!-- Excel işlemleri artık burada görünür -->
+                    <!-- Kolonlar: ürünlerin yanında görünür kalsın -->
+                    <Button x:Name="BtnColumns" Content="⚙️ Kolonlar" Style="{StaticResource ModernButtonStyle}" Click="ColumnsMenu_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 🎨 BRAVO TİMİ - Modern Main Content -->
+		<Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ModernCardStyle}" Background="{StaticResource BackgroundLightBrush}" Padding="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Modern Toolbar (tek satıra daha fazla sığdır) -->
+                <Border Grid.Row="0" Background="{StaticResource BackgroundLightBrush}" 
+                        CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                            <TextBlock Text="🔍" FontSize="16" VerticalAlignment="Center" 
+                                      Margin="0,0,8,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBox x:Name="SearchTextBox" 
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Width="280" 
+                                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                    TextChanged="SearchTextBox_TextChanged" 
+                                    GotFocus="SearchTextBox_GotFocus" 
+                                    LostFocus="SearchTextBox_LostFocus">
+                                <TextBox.Resources>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxStyle}">
+                                        <Style.Triggers>
+                                            <Trigger Property="Text" Value="">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <VisualBrush Opacity="0.5" Stretch="None">
+                                                            <VisualBrush.Visual>
+                                                                <TextBlock Text="Ürün ara..." 
+                                                                          FontStyle="Italic"
+                                                                          Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                            </VisualBrush.Visual>
+                                                        </VisualBrush>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Resources>
+                            </TextBox>
+                        </StackPanel>
+                        
+                <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="6,0,0,0">
+                            <CheckBox x:Name="ChipOutOfStock" Content="Stok=0" Margin="0,0,6,0" Checked="QuickFilter_Changed" Unchecked="QuickFilter_Changed"/>
+                            <CheckBox x:Name="ChipLowStock" Content="Düşük Stok" Margin="0,0,6,0" Checked="QuickFilter_Changed" Unchecked="QuickFilter_Changed"/>
+                            <CheckBox x:Name="ChipDiscounted" Content="İndirimli" Margin="0,0,6,0" Checked="QuickFilter_Changed" Unchecked="QuickFilter_Changed"/>
+                    <CheckBox x:Name="ChkLargeImages" Content="🖼 Büyük Görsel" Margin="0,0,10,0" IsChecked="True" Checked="ChkLargeImages_Checked" Unchecked="ChkLargeImages_Unchecked"/>
+                            <ComboBox x:Name="OriginFilter" Width="100" SelectionChanged="AdvancedQuickFilter_Changed" Margin="4,0,0,0">
+                                <ComboBoxItem Content="Menşei" IsSelected="True"/>
+                                <ComboBoxItem Content="TR"/>
+                                <ComboBoxItem Content="CN"/>
+                                <ComboBoxItem Content="EU"/>
+                                <ComboBoxItem Content="US"/>
+                            </ComboBox>
+                            <ComboBox x:Name="MaterialFilter" Width="110" SelectionChanged="AdvancedQuickFilter_Changed" Margin="4,0,0,0">
+                                <ComboBoxItem Content="Materyal" IsSelected="True"/>
+                                <ComboBoxItem Content="Porselen"/>
+                                <ComboBoxItem Content="Cam"/>
+                                <ComboBoxItem Content="Plastik"/>
+                                <ComboBoxItem Content="Metal"/>
+                            </ComboBox>
+                            <ComboBox x:Name="SizeFilter" Width="100" SelectionChanged="AdvancedQuickFilter_Changed" Margin="4,0,0,0">
+                                <ComboBoxItem Content="Beden" IsSelected="True"/>
+                                <ComboBoxItem Content="2S"/>
+                                <ComboBoxItem Content="S"/>
+                                <ComboBoxItem Content="M"/>
+                                <ComboBoxItem Content="L"/>
+                                <ComboBoxItem Content="XL"/>
+                                <ComboBoxItem Content="2XL"/>
+                                <ComboBoxItem Content="3XL"/>
+                            </ComboBox>
+                            <Button Content="🧹 Sıfırla" Style="{StaticResource ModernButtonStyle}" Click="ResetFilters_Click" Margin="0,0,6,0"/>
+                            <TextBox x:Name="PriceMinText" Width="60" Margin="8,0,4,0" Style="{StaticResource ModernTextBoxStyle}" LostFocus="PriceRange_Changed" KeyDown="PriceRange_KeyDown"/>
+                            <TextBox x:Name="PriceMaxText" Width="60" Margin="4,0,8,0" Style="{StaticResource ModernTextBoxStyle}" LostFocus="PriceRange_Changed" KeyDown="PriceRange_KeyDown"/>
+                            <!-- Kategori ComboBox kaldırıldı - sadece sidebar butonuyla yönetim -->
+                            <TextBlock x:Name="SelectedCategoryDisplay" Text="🗂️ Tüm Kategoriler" 
+                                     Style="{StaticResource BodyTextStyle}" 
+                                     Foreground="#666666" 
+                                     VerticalAlignment="Center" 
+                                     Margin="8,0,8,0" 
+                                     Background="White" 
+                                     Padding="8,6"/>
+                            <Button Content="💾 Filtreyi Kaydet" Style="{StaticResource ModernButtonStyle}" Click="SaveFilters_Click" Margin="8,0,6,0" Visibility="Collapsed"/>
+                            <Button Content="📂 Filtre Yükle" Style="{StaticResource ModernButtonStyle}" Click="LoadFilters_Click" Visibility="Collapsed"/>
+                            <Button Content="🗂️ Kategoriler" Style="{StaticResource ModernButtonStyle}" Margin="8,0,0,0" Click="ToggleCategorySidebar_Click"/>
+                            <Button x:Name="BtnAdvancedFilters" Content="⚙️ Gelişmiş" Style="{StaticResource ModernButtonStyle}" Margin="8,0,0,0" Click="BtnAdvancedFilters_Click"/>
+							<ComboBox x:Name="ColumnProfilesCombo" Width="180" Margin="10,0,0,0" SelectionChanged="ColumnProfilesCombo_SelectionChanged" DropDownOpened="ColumnProfilesCombo_DropDownOpened">
+								<ComboBoxItem Content="Kolon Profili Seç" IsSelected="True"/>
+							</ComboBox>
+							<Button Content="💾 Profil Kaydet" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="SaveColumnsProfileQuick_Click"/>
+
+                            <!-- Barkod Dinleme Kontrolleri (ürün ve stok yönetimi sayfasında) -->
+                            <TextBlock Text="  " Width="8"/>
+                            <Separator Width="1" Margin="6,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="ChkBarcodeListen" Content="Barkod Dinle" Margin="10,0,6,0" Checked="ChkBarcodeListen_Checked" Unchecked="ChkBarcodeListen_Unchecked"/>
+                            <ComboBox x:Name="ScanModeCombo" Width="150" Margin="0,0,6,0" SelectedIndex="0">
+                                <ComboBoxItem Content="Listeyi Filtrele"/>
+                                <ComboBoxItem Content="Yeni Ürün Aç"/>
+                        </ComboBox>
+                            <TextBlock Text="Son:" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="LblLastBarcodePV" Text="-" FontWeight="SemiBold" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="BarcodeStatusDot" Width="10" Height="10" Fill="#BDBDBD" VerticalAlignment="Center" Margin="10,0,4,0"/>
+                            <TextBlock x:Name="BarcodeStatusText" Text="Kapalı" VerticalAlignment="Center" Style="{StaticResource BodyTextSecondaryStyle}"/>
+                        </StackPanel>
+
+                        <!-- Aktif Filtre Chip'leri -->
+                        <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" x:Name="ActiveChipsPanel" Margin="0,12,0,0" Visibility="Collapsed"/>
+
+                        <!-- Gelişmiş Filtreler Popup -->
+                        <Popup x:Name="AdvancedFiltersPopup" PlacementTarget="{Binding ElementName=BtnAdvancedFilters}" Placement="Bottom" StaysOpen="False">
+                            <Border Background="{StaticResource SurfaceWhiteBrush}" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" CornerRadius="8" Padding="16" >
+                                <StackPanel>
+                                    <TextBlock Text="Gelişmiş Filtreler" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- Menşei -->
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Menşei" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                            <CheckBox x:Name="AdvOriginTR" Content="TR"/>
+                                            <CheckBox x:Name="AdvOriginCN" Content="CN"/>
+                                            <CheckBox x:Name="AdvOriginEU" Content="EU"/>
+                                            <CheckBox x:Name="AdvOriginUS" Content="US"/>
+                                        </StackPanel>
+                                        <!-- Materyal -->
+                                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                            <TextBlock Text="Materyal" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                            <CheckBox x:Name="AdvMatPorselen" Content="Porselen"/>
+                                            <CheckBox x:Name="AdvMatCam" Content="Cam"/>
+                                            <CheckBox x:Name="AdvMatPlastik" Content="Plastik"/>
+                                            <CheckBox x:Name="AdvMatMetal" Content="Metal"/>
+                                        </StackPanel>
+                                        <!-- Beden -->
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Beden" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                            <WrapPanel>
+                                                <CheckBox x:Name="AdvSz2S" Content="2S" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSzS" Content="S" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSzM" Content="M" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSzL" Content="L" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSzXL" Content="XL" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSz2XL" Content="2XL" Margin="0,0,6,6"/>
+                                                <CheckBox x:Name="AdvSz3XL" Content="3XL" Margin="0,0,6,6"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Sıfırla" Style="{StaticResource ModernButtonStyle}" Click="AdvancedFilters_Reset_Click"/>
+                                        <Button Content="Uygula" Style="{StaticResource ModernSuccessButtonStyle}" Click="AdvancedFilters_Apply_Click"/>
+                                    </StackPanel>
+
+                                    <!-- Son kullanılan filtre setleri -->
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="Son kullanılanlar" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                        <WrapPanel x:Name="RecentFiltersWrap"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+
+                        <!-- Kolon Yöneticisi Popup -->
+                        <Popup x:Name="ColumnsPopup" PlacementTarget="{Binding ElementName=BtnColumns}" Placement="Bottom" StaysOpen="False">
+                            <Border Background="{StaticResource SurfaceWhiteBrush}" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+                                <Grid Width="520">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- Header -->
+                                    <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,0,0,8">
+                                        <TextBlock Text="🧩 Kolon Yöneticisi" FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock Text="Görünmesini istediğiniz sütunları seçin. Arama ile hızlı filtreleyin." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    </StackPanel>
+                                    <!-- Search / Quick actions -->
+                                    <Grid Grid.Row="1" Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ColumnsSearchBox" Grid.Column="0" Style="{StaticResource ModernTextBoxStyle}" Width="auto" TextChanged="ColumnsSearch_TextChanged">
+                                            <TextBox.Resources>
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxStyle}">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="Text" Value="">
+                                                            <Setter Property="Background">
+                                                                <Setter.Value>
+                                                                    <VisualBrush Opacity="0.5" Stretch="None">
+                                                                        <VisualBrush.Visual>
+                                                                            <TextBlock Text="Ara..." FontStyle="Italic" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                                        </VisualBrush.Visual>
+                                                                    </VisualBrush>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Resources>
+                                        </TextBox>
+                                        <Button Grid.Column="1" Content="Tümünü Seç" Style="{StaticResource ModernButtonStyle}" Margin="8,0,0,0" Click="ColumnsSelectAll_Click"/>
+                                        <Button Grid.Column="2" Content="Hiçbiri" Style="{StaticResource ModernButtonStyle}" Margin="6,0,0,0" Click="ColumnsSelectNone_Click"/>
+                                    </Grid>
+                                    <!-- Columns list -->
+                                    <ScrollViewer Grid.Row="2" Height="300">
+                                        <WrapPanel x:Name="ColumnsPopupPanel"/>
+                                    </ScrollViewer>
+                                    <!-- Footer -->
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                                        <Button Content="↺ Varsayılan" Style="{StaticResource ModernButtonStyle}" Click="ColumnsPopup_Reset_Click" Margin="0,0,6,0"/>
+                                        <Button Content="💾 Kaydet" Style="{StaticResource ModernSuccessButtonStyle}" Click="ColumnsPopup_Save_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </Border>
+                
+                <!-- Modern Products DataGrid (daha ferah satır yüksekliği ve hover büyük görsel) -->
+                <DataGrid Grid.Row="1" 
+                         x:Name="ProductsDataGrid" 
+                         Style="{StaticResource CompactDataGridStyle}"
+                         AutoGenerateColumns="False" 
+                          IsReadOnly="False"
+                         SelectionMode="Single" 
+                         SelectionChanged="ProductsDataGrid_SelectionChanged"
+                          Sorting="ProductsDataGrid_Sorting"
+                         ColumnHeaderStyle="{StaticResource ModernColumnHeaderStyle}"
+                       RowStyle="{StaticResource RowHoverCardStyle}"
+                       RowHeight="128"
+						   CellStyle="{StaticResource CompactCellStyle}"
+                           CanUserSortColumns="True"
+                           EnableRowVirtualization="True"
+                           EnableColumnVirtualization="True"
+                           VirtualizingPanel.IsVirtualizing="True"
+                           VirtualizingPanel.VirtualizationMode="Recycling"
+                           ScrollViewer.CanContentScroll="True"
+                            RowDetailsVisibilityMode="VisibleWhenSelected"
+                            ColumnReordered="ProductsDataGrid_ColumnChanged"
+                            ColumnDisplayIndexChanged="ProductsDataGrid_ColumnChanged"
+                           MouseDoubleClick="ProductsDataGrid_MouseDoubleClick">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Style="{StaticResource ModernContextMenuStyle}">
+                            <MenuItem x:Name="MenuEdit" Header="✏️ Düzenle" Click="RowEdit_Click" Style="{StaticResource ModernMenuItemStyle}"/>
+                            <MenuItem x:Name="MenuStock" Header="🔄 Stok Güncelle" Click="RowUpdateStock_Click" Style="{StaticResource ModernMenuItemStyle}"/>
+                            <MenuItem x:Name="MenuPrice" Header="💰 Fiyat Güncelle" Click="RowUpdatePrice_Click" Style="{StaticResource ModernMenuItemStyle}"/>
+                            <Separator/>
+                            <MenuItem x:Name="MenuDelete" Header="❌ Sil" Click="RowDelete_Click" Style="{StaticResource ModernMenuItemStyle}"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn x:Name="colImage" Header="📷 Görsel" Width="180" IsReadOnly="True" SortMemberPath="ImageUrl">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Width="160" Height="160" CornerRadius="8" Background="#F3F4F6">
+                                        <Image Source="{Binding ThumbnailSource}" Stretch="UniformToFill" MouseDown="ThumbCell_MouseDown" SnapsToDevicePixels="True" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="HighQuality">
+                                            <Image.ToolTip>
+                                                <Border Padding="8" Background="#FFF">
+                                                    <Border Width="400" Height="600" Background="#F9FAFB" CornerRadius="6">
+                                                        <Image Source="{Binding PreviewSource}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                </Border>
+                                            </Image.ToolTip>
+                                        </Image>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="colId" Header="ID" Binding="{Binding Id}" Width="60" IsReadOnly="True" SortMemberPath="Id" ElementStyle="{StaticResource CompactTextCellElementStyle}"/>
+                        <DataGridTextColumn x:Name="colBarcode" Header="🏷️ Barkod" Binding="{Binding Barcode}" Width="140" IsReadOnly="True" SortMemberPath="Barcode" ElementStyle="{StaticResource CompactTextCellElementStyle}"/>
+                        <DataGridTextColumn x:Name="colSku" Header="SKU" Binding="{Binding Sku}" Width="120" IsReadOnly="True" SortMemberPath="Sku" ElementStyle="{StaticResource CompactTextCellElementStyle}"/>
+                        <DataGridTextColumn x:Name="colName" Header="📦 Ürün Adı" Binding="{Binding Name}" Width="*" IsReadOnly="True" SortMemberPath="Name" ElementStyle="{StaticResource CompactTextCellElementStyle}"/>
+                        <DataGridTextColumn x:Name="colCategory" Header="📂 Kategori" Binding="{Binding Category}" Width="120" IsReadOnly="True" SortMemberPath="Category" ElementStyle="{StaticResource CompactTextCellElementStyle}"/>
+                        <DataGridTextColumn x:Name="colOrigin" Header="Menşei" Binding="{Binding Origin}" Width="90" IsReadOnly="True" Visibility="Collapsed"/>
+                        <DataGridTextColumn x:Name="colMaterial" Header="Materyal" Binding="{Binding Material}" Width="120" IsReadOnly="True" Visibility="Collapsed"/>
+                        <DataGridTextColumn x:Name="colVolume" Header="Hacim" Binding="{Binding VolumeText}" Width="90" IsReadOnly="True" Visibility="Collapsed"/>
+                        <DataGridTemplateColumn x:Name="colStatus" Header="Durum" Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding StatusIcon}" FontSize="14" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding Status}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="📉" ToolTip="Düşük stok" Visibility="{Binding IsLowStock, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="💥" ToolTip="Kritik stok" Visibility="{Binding IsCriticalStock, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="🏷️" ToolTip="İndirim aktif" Visibility="{Binding DiscountActive, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="🖼️✖" ToolTip="Görsel yok" Visibility="{Binding MissingImage, Converter={StaticResource BoolToVis}}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn x:Name="colSale" Header="💰 Satış" Width="120" SortMemberPath="SalePrice">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding SalePrice, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Width="100" HorizontalContentAlignment="Right" Padding="4,2" LostFocus="PriceTextBox_LostFocus" KeyDown="PriceTextBox_KeyDown" PreviewTextInput="Decimal_PreviewTextInput"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn x:Name="colPurchase" Header="🧾 Alış" Width="110" SortMemberPath="PurchasePrice">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Width="90" HorizontalContentAlignment="Right" Padding="4,2" LostFocus="PriceTextBox_LostFocus" KeyDown="PriceTextBox_KeyDown" PreviewTextInput="Decimal_PreviewTextInput"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn x:Name="colDiscount" Header="% İskonto" Width="110" SortMemberPath="DiscountRate">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding DiscountRate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Width="90" HorizontalContentAlignment="Right" Padding="4,2" LostFocus="PriceTextBox_LostFocus" KeyDown="PriceTextBox_KeyDown" PreviewTextInput="Decimal_PreviewTextInput"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="colNet" Header="Net" Binding="{Binding FormattedFinalPrice}" Width="100" IsReadOnly="True" SortMemberPath="FinalPrice" ElementStyle="{StaticResource CompactRightTextCellElementStyle}"/>
+                        <DataGridTemplateColumn x:Name="colMargin" Header="Marj" Width="100" SortMemberPath="MarginAmount">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding MarginAmountDisplay}" Foreground="{Binding MarginAmount, Converter={StaticResource MarginToBrush}}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="colMarginPct" Header="%Marj" Binding="{Binding MarginPercentDisplay, Mode=OneWay}" Width="80" IsReadOnly="True" SortMemberPath="MarginPercent" ElementStyle="{StaticResource CompactRightTextCellElementStyle}"/>
+                        <DataGridTemplateColumn x:Name="colStock" Header="📊 Stok" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Stock, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Width="80" HorizontalContentAlignment="Right" Padding="4,2" LostFocus="StockTextBox_LostFocus" KeyDown="StockTextBox_KeyDown" PreviewTextInput="Integer_PreviewTextInput"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn x:Name="colFill" Header="Doluluk" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Border Background="#F0F2F5" CornerRadius="6" Width="70" Height="8">
+                                            <Border Background="#29B46F" CornerRadius="6" Width="{Binding FillRatePercent}" Height="8">
+                                                <Border.RenderTransform>
+                                                    <ScaleTransform ScaleX="0.7"/>
+                                                </Border.RenderTransform>
+                                            </Border>
+                                        </Border>
+                                        <TextBlock Text="  " Width="4"/>
+                                        <TextBlock Text="{Binding FillRateLabel}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="colCommission" Header="Komisyon" Binding="{Binding CommissionDisplay}" Width="80"/>
+                        <DataGridTextColumn x:Name="colDesi" Header="Desi" Binding="{Binding Desi}" Width="70" IsReadOnly="True" Visibility="Collapsed"/>
+                        <DataGridTextColumn x:Name="colLead" Header="Termin" Binding="{Binding LeadTimeDays}" Width="70" IsReadOnly="True" Visibility="Collapsed"/>
+                         <DataGridTemplateColumn x:Name="colActions" Header="İşlemler" Width="170" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                         <Button Content="📁 Klasör" Padding="10,4" Click="RowOpenFolder_Click" Margin="0,0,6,0"/>
+                                        <Button Content="İşlemler" Padding="10,4" Click="RowActions_Open">
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="✏️ Düzenle" Click="RowEdit_Click"/>
+                                                    <MenuItem Header="🔄 Stok Güncelle" Click="RowUpdateStock_Click"/>
+                                                    <MenuItem Header="💰 Fiyat Güncelle" Click="RowUpdatePrice_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="👁️ Görseli Aç" Click="RowOpenImage_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="❌ Sil" Click="RowDelete_Click"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+
+                    <!-- Satır detayları: seçili satır altında büyük görsel ve özet bilgileri dikey olarak göster -->
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate>
+                            <Border Background="White" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,4,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+								<Border Width="360" Height="360" Background="#F5F5F5" CornerRadius="8">
+                                        <Image Source="{Binding PreviewSource}" Stretch="Uniform"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                            <TextBlock Text="Barkod: " Foreground="#666"/>
+                                            <TextBlock Text="{Binding Barcode}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <TextBlock Text="Kategori: " Foreground="#666"/>
+                                            <TextBlock Text="{Binding Category}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <TextBlock Text="Satış: " Foreground="#666"/>
+                                            <TextBlock Text="{Binding SalePrice, StringFormat=₺{0:N2}}"/>
+                                            <TextBlock Text="   Stok: " Foreground="#666" Margin="10,0,0,0"/>
+                                            <TextBlock Text="{Binding Stock}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
+                    
+                    <!-- Row Animation -->
+                    <DataGrid.RenderTransform>
+                        <TranslateTransform X="0" Y="0"/>
+                    </DataGrid.RenderTransform>
+                    
+                    <DataGrid.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                   From="20" To="0" Duration="0:0:0.4">
+                                        <DoubleAnimation.EasingFunction>
+                                            <QuadraticEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                   From="0" To="1" Duration="0:0:0.4"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </DataGrid.Triggers>
+                </DataGrid>
+
+                <!-- Empty state overlay -->
+                <Border x:Name="EmptyStatePanel" Grid.Row="1" Background="#00FFFFFF" Visibility="Collapsed">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Ürün bulunamadı" Style="{StaticResource HeaderLargeStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Filtreleri temizleyin" Style="{StaticResource BodyTextSecondaryStyle}" HorizontalAlignment="Center" Margin="0,6,0,12"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="🧹 Filtreleri Sıfırla" Style="{StaticResource ModernButtonStyle}" Click="ResetFilters_Click" Margin="0,0,8,0"/>
+                            <Button Content="🧪 Demo Yükle" Style="{StaticResource ModernSuccessButtonStyle}" Click="ForceSeed_Click" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Modern Enhanced Pagination Component -->
+                <components:PaginationComponent Grid.Row="2" 
+                                              x:Name="ProductPagination"
+                                              Margin="0,20,0,0"
+                                              PageChanged="ProductPagination_PageChanged"
+                                              PageSizeChanged="ProductPagination_PageSizeChanged"/>
+            </Grid>
+        </Border>
+
+        <!-- 🗂️ Kategori Sidebar Panel - Modern Tasarım -->
+        <Border x:Name="CategorySidebarPanel" Grid.Row="2" Grid.Column="1" 
+                Width="340" Background="White" BorderBrush="{StaticResource BorderLightBrush}" 
+                BorderThickness="1,0,0,0" Visibility="Collapsed" Margin="0,0,0,0"
+                Effect="{StaticResource DropShadowEffect}">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Header -->
+                <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8" Padding="12" Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗂️" FontSize="20" Margin="0,0,8,0"/>
+            <TextBlock Text="Kategori Yönetimi" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <Button x:Name="CloseSidebarBtn" Content="✕" Width="28" Height="28" 
+                Style="{StaticResource ModernButtonStyle}" Margin="8,0,0,0" HorizontalAlignment="Right"
+                Click="CloseSidebar_Click" Background="#FF4757" Foreground="White"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Active Category Display -->
+                <Border Grid.Row="1" Background="#E8F4FD" BorderBrush="#1976D2" BorderThickness="1" 
+                        CornerRadius="6" Padding="12" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="Aktif Filtre:" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
+                        <TextBlock x:Name="SidebarActiveCategory" Text="Tüm Kategoriler" FontWeight="SemiBold" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Search -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                    <TextBlock Text="🔍 Kategori Ara:" Margin="0,0,0,8" FontWeight="Medium"/>
+                    <TextBox x:Name="SidebarCategorySearch" 
+                             Style="{StaticResource ModernTextBoxStyle}"
+                             TextChanged="SidebarCategorySearch_TextChanged"
+                             Height="36"/>
+                </StackPanel>
+                
+                <!-- Categories List -->
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" 
+                              Style="{StaticResource ModernScrollViewerStyle}">
+                    <StackPanel x:Name="SidebarCategoriesList">
+                        <!-- Kategoriler buraya dinamik olarak yüklenecek -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="12" Margin="0,0,0,4"
+                                MouseLeftButtonUp="SelectAllCategories_Click" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🏠" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Tüm Kategoriler" FontWeight="Medium"/>
+                                <TextBlock x:Name="AllCategoriesCount" Text="(0)" Foreground="#666" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+                
+                <!-- Action Buttons -->
+                <StackPanel Grid.Row="4" Margin="0,16,0,0" Orientation="Vertical">
+                    <Button Content="➕ Yeni Kategori" Height="40" Margin="0,0,0,8"
+                            Style="{StaticResource ModernSuccessButtonStyle}"
+                            Click="SidebarAddCategory_Click"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="✏️ Düzenle" Width="100" Height="36" Margin="0,0,4,0"
+                                Style="{StaticResource ModernButtonStyle}"
+                                Click="SidebarEditCategory_Click"/>
+                        <Button Content="🗑️ Sil" Width="100" Height="36" Margin="4,0,0,0"
+                                Style="{StaticResource ModernDangerButtonStyle}"
+                                Click="SidebarDeleteCategory_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Busy overlay for long operations on ProductsView -->
+        <Border x:Name="BusyOverlay" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#66000000" Visibility="Collapsed">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFFFFFF" Padding="16" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="İşlem yapılıyor…" FontSize="14" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="220" Height="6"/>
+                </StackPanel>
+            </Border>
+            </Border>
+
+    </Grid>
+</UserControl> 

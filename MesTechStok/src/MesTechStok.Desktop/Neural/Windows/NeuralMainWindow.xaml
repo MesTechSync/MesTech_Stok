@@ -1,0 +1,229 @@
+<Window x:Class="MesTechStok.Desktop.Neural.Windows.NeuralMainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="🧠 MesTech Neural - Enterprise Stock Management"
+        Width="1400" Height="900"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E1E"
+        AllowsTransparency="True">
+
+    <Window.Resources>
+        <!-- 🎨 Neural Theme Resources -->
+        <SolidColorBrush x:Key="NeuralBlue" Color="#007AFF"/>
+        <SolidColorBrush x:Key="DeepDark" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="DarkGray" Color="#333333"/>
+        <SolidColorBrush x:Key="ElevatedDark" Color="#2D2D2D"/>
+        <SolidColorBrush x:Key="BorderGray" Color="#464646"/>
+        <SolidColorBrush x:Key="PureWhite" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="LightGray" Color="#CCCCCC"/>
+        <SolidColorBrush x:Key="Success" Color="#00FF88"/>
+        <SolidColorBrush x:Key="Warning" Color="#FFAA00"/>
+        <SolidColorBrush x:Key="Error" Color="#FF0044"/>
+
+        <!-- 🎭 Neural Button Style -->
+        <Style x:Key="NeuralButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource DarkGray}"/>
+            <Setter Property="Foreground" Value="{StaticResource PureWhite}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="{Binding Source={StaticResource NeuralBlue}, Path=Color}" 
+                                      Direction="315" ShadowDepth="0" BlurRadius="5" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Effect="{TemplateBinding Effect}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource NeuralBlue}"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="{Binding Source={StaticResource NeuralBlue}, Path=Color}" 
+                                                          Direction="315" ShadowDepth="0" BlurRadius="10" Opacity="0.6"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#005CBF"/>
+                                <Setter Property="Effect" Value="{x:Null}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 📝 Neural TextBox Style -->
+        <Style x:Key="NeuralTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource ElevatedDark}"/>
+            <Setter Property="Foreground" Value="{StaticResource PureWhite}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderGray}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource NeuralBlue}"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="{Binding Source={StaticResource NeuralBlue}, Path=Color}" 
+                                                          Direction="315" ShadowDepth="0" BlurRadius="5" Opacity="0.4"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 🃏 Neural Card Style -->
+        <Style x:Key="NeuralCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource ElevatedDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderGray}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="{Binding Source={StaticResource DeepDark}, Path=Color}" 
+                                      Direction="315" ShadowDepth="2" BlurRadius="5" Opacity="0.5"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 📊 Neural DataGrid Style -->
+        <Style x:Key="NeuralDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="{StaticResource ElevatedDark}"/>
+            <Setter Property="Foreground" Value="{StaticResource PureWhite}"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderGray}"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+
+        <!-- 🎯 Neural Tab Control Style -->
+        <Style x:Key="NeuralTabControlStyle" TargetType="TabControl">
+            <Setter Property="Background" Value="{StaticResource DeepDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="NeuralTabItemStyle" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource LightGray}"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" 
+                                Background="{StaticResource DarkGray}"
+                                BorderThickness="0"
+                                CornerRadius="8,8,0,0"
+                                Margin="2,0">
+                            <ContentPresenter x:Name="ContentSite"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            ContentSource="Header"
+                                            Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource NeuralBlue}"/>
+                                <Setter Property="Foreground" Value="{StaticResource PureWhite}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource ElevatedDark}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- 🎨 Main Window Effect -->
+    <Window.Effect>
+        <DropShadowEffect Color="{Binding Source={StaticResource NeuralBlue}, Path=Color}" 
+                          Direction="315" ShadowDepth="0" BlurRadius="20" Opacity="0.4"/>
+    </Window.Effect>
+
+    <!-- 🖼️ Main Content Grid -->
+    <Grid>
+        <!-- Window content will be dynamically built in code-behind -->
+        <!-- This provides the base structure and styling resources -->
+        
+        <!-- 🎯 Loading Overlay (Initially Visible) -->
+        <Border Name="LoadingOverlay" 
+                Background="#AA000000" 
+                Visibility="Visible"
+                Panel.ZIndex="1000">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- Neural Loading Animation -->
+                <Ellipse Width="60" Height="60" 
+                        Fill="{StaticResource NeuralBlue}" 
+                        Opacity="0.8">
+                    <Ellipse.Effect>
+                        <DropShadowEffect Color="{Binding Source={StaticResource NeuralBlue}, Path=Color}" 
+                                          Direction="315" ShadowDepth="0" BlurRadius="15" Opacity="0.8"/>
+                    </Ellipse.Effect>
+                    <Ellipse.RenderTransform>
+                        <RotateTransform x:Name="LoadingRotation" CenterX="30" CenterY="30"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation Storyboard.TargetName="LoadingRotation"
+                                                   Storyboard.TargetProperty="Angle"
+                                                   From="0" To="360" Duration="0:0:2"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Ellipse.Triggers>
+                </Ellipse>
+                
+                <TextBlock Text="🧠 Neural Sistem Yükleniyor..." 
+                          Foreground="{StaticResource NeuralBlue}"
+                          FontSize="16" FontWeight="Bold"
+                          HorizontalAlignment="Center"
+                          Margin="0,20,0,0"/>
+                          
+                <TextBlock Text="AI çekirdeği başlatılıyor..." 
+                          Foreground="{StaticResource LightGray}"
+                          FontSize="12"
+                          HorizontalAlignment="Center"
+                          Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

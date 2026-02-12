@@ -1,0 +1,116 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.NewProductsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Grid Background="#F8F9FA" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" CornerRadius="15" Padding="20" Margin="10">
+            <StackPanel>
+                <TextBlock Text="📦 Ürün Yönetimi" FontSize="24" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Demo ürün listesi yüklendi!" FontSize="14" Foreground="#6C757D" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Content -->
+        <Border Grid.Row="2" Background="White" CornerRadius="15" Padding="20" Margin="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Search -->
+                <Grid Grid.Row="0" Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox Grid.Column="0" x:Name="SearchTextBox" 
+                            Text="Ürün ara..." Padding="8" Margin="0,0,10,0"/>
+                    
+                    <ComboBox Grid.Column="1" x:Name="CategoryFilterComboBox">
+                        <ComboBoxItem Content="Tüm Kategoriler" IsSelected="True"/>
+                        <ComboBoxItem Content="Elektronik"/>
+                        <ComboBoxItem Content="İçecek"/>
+                        <ComboBoxItem Content="Atıştırmalık"/>
+                        <ComboBoxItem Content="Kozmetik"/>
+                        <ComboBoxItem Content="Spor"/>
+                        <ComboBoxItem Content="Gıda"/>
+                        <ComboBoxItem Content="Oyuncak"/>
+                    </ComboBox>
+                </Grid>
+                
+                <!-- DataGrid -->
+                <DataGrid Grid.Row="1" x:Name="ProductsDataGrid" 
+                         AutoGenerateColumns="False" 
+                         Background="White"
+                         GridLinesVisibility="Horizontal"
+                         HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                        <DataGridTextColumn Header="Barkod" Binding="{Binding Barcode}" Width="120"/>
+                        <DataGridTextColumn Header="Ürün Adı" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="100"/>
+                        <DataGridTextColumn Header="Fiyat" Binding="{Binding Price, StringFormat=₺{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="60"/>
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                
+                <!-- Stats -->
+                <Grid Grid.Row="2" Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="TotalProductsText" Text="0" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Toplam Ürün" FontSize="10"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1">
+                        <TextBlock x:Name="LowStockText" Text="0" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Düşük Stok" FontSize="10"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock x:Name="TotalValueText" Text="₺0" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Toplam Değer" FontSize="10"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3">
+                        <TextBlock x:Name="AveragePriceText" Text="₺0" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Ortalama Fiyat" FontSize="10"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="4">
+                        <TextBlock x:Name="CriticalStockText" Text="0" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Kritik Stok" FontSize="10"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+        
+        <!-- Hidden elements for code compatibility -->
+        <StackPanel x:Name="SelectedProductPanel" Visibility="Collapsed"/>
+        <StackPanel x:Name="ProductDetailsPanel" Visibility="Collapsed">
+            <TextBlock x:Name="SelectedProductName"/>
+            <TextBlock x:Name="SelectedProductBarcode"/>
+            <TextBlock x:Name="SelectedProductCategory"/>
+            <TextBlock x:Name="SelectedProductPrice"/>
+            <TextBlock x:Name="SelectedProductStock"/>
+        </StackPanel>
+    </Grid>
+</UserControl> 

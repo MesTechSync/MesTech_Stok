@@ -1,0 +1,581 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.OpenCartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <UserControl.Resources>
+        <!-- Modern Card Style -->
+        <Style x:Key="OpenCartCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#F8F9FA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Button Styles -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#DC3545"/>
+        </Style>
+
+        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Setter Property="Foreground" Value="#212529"/>
+        </Style>
+
+        <Style x:Key="InfoButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#17A2B8"/>
+        </Style>
+
+        <!-- Large Action Button Style -->
+        <Style x:Key="ActionButtonLarge" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="25,15"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinHeight" Value="80"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="10" 
+                                Padding="{TemplateBinding Padding}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock x:Name="IconText" Text="{TemplateBinding Tag}" FontSize="24" HorizontalAlignment="Center"/>
+                                <ContentPresenter HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- DataGrid Style -->
+        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F3F4"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- ProgressBar Style -->
+        <Style x:Key="ModernProgressBar" TargetType="ProgressBar">
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Background" Value="#E9ECEF"/>
+            <Setter Property="Foreground" Value="#007ACC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F7FA">
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Border Grid.Row="0" Style="{StaticResource OpenCartCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="🌐" FontSize="28" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <TextBlock Text="OpenCart Entegrasyonu" 
+                                      FontSize="24" 
+                                      FontWeight="Bold" 
+                                      Foreground="#2C3E50"/>
+                            <TextBlock Text="E-ticaret platformu senkronizasyonu ve otomatik veri aktarımı" 
+                                      FontSize="13" 
+                                      Foreground="#6C757D"
+                                      Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Border x:Name="ConnectionStatusBorder" Background="#D4EDDA" CornerRadius="6" Padding="8,4" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="ConnectionStatusText" Text="🔗 Bağlı" FontSize="11" Foreground="#155724" FontWeight="Bold"/>
+                                <TextBlock Text="  |  " FontSize="11" Foreground="#155724"/>
+                                <TextBlock x:Name="ConsecutiveFailuresText" Text="Fail: 0" FontSize="11" Foreground="#155724"/>
+                            </StackPanel>
+                        </Border>
+                        <Button Content="🔄 Sync Başlat" 
+                               Style="{StaticResource SuccessButton}"
+                               Click="StartSync_Click"
+                               Margin="5,0"/>
+                        <Button Content="⚙️ API Test" 
+                               Style="{StaticResource InfoButton}"
+                               Click="TestAPI_Click"
+                               Margin="5,0"/>
+                        <Button Content="📊 İstatistikler" 
+                               Style="{StaticResource PrimaryButton}"
+                               Click="ShowStats_Click"
+                               Margin="5,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Quick Actions -->
+            <Border Grid.Row="1" Style="{StaticResource OpenCartCard}" Margin="0,10,0,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="⚡" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Hızlı İşlemler" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                    </StackPanel>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button Grid.Column="0" Tag="📦" Content="Ürün Sync" 
+                               Style="{StaticResource ActionButtonLarge}"
+                               Background="#28A745"
+                               Click="SyncProducts_Click"/>
+                        
+                        <Button Grid.Column="1" Tag="📊" Content="Stok Güncelle" 
+                               Style="{StaticResource ActionButtonLarge}"
+                               Background="#17A2B8"
+                               Click="UpdateStock_Click"/>
+                        
+                        <Button Grid.Column="2" Tag="🛒" Content="Sipariş Çek" 
+                               Style="{StaticResource ActionButtonLarge}"
+                               Background="#FFC107"
+                               Foreground="#212529"
+                               Click="PullOrders_Click"/>
+                        
+                        <Button Grid.Column="3" Tag="🏷️" Content="Kategori Sync" 
+                               Style="{StaticResource ActionButtonLarge}"
+                               Background="#6F42C1"
+                               Click="SyncCategories_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- Main Content -->
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Configuration and Sync Management -->
+                <StackPanel Grid.Column="0">
+                    <!-- API Configuration -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="🔑" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="API Konfigürasyonu" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Store URL:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" x:Name="StoreUrlTextBox" 
+                                        Style="{StaticResource ModernTextBox}"
+                                        Text="https://demo.mestechstore.com/api/"/>
+                                <Button Grid.Row="0" Grid.Column="3" Content="🔗 Test" 
+                                       Style="{StaticResource InfoButton}" FontSize="11" Padding="8,6"
+                                       Click="TestUrl_Click"/>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" x:Name="ApiKeyTextBox" 
+                                        Style="{StaticResource ModernTextBox}"
+                                        Text="mst_demo_key_123456789abcdef"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="👁️ Göster" 
+                                       Style="{StaticResource WarningButton}" FontSize="11" Padding="8,6"
+                                       Click="ShowApiKey_Click"/>
+                                
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Timeout:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
+                                <ComboBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutComboBox" 
+                                         Style="{StaticResource ModernComboBox}">
+                                    <ComboBoxItem Content="30 saniye"/>
+                                    <ComboBoxItem Content="60 saniye" IsSelected="True"/>
+                                    <ComboBoxItem Content="120 saniye"/>
+                                    <ComboBoxItem Content="300 saniye"/>
+                                </ComboBox>
+                                <Button Grid.Row="4" Grid.Column="3" Content="💾 Kaydet" 
+                                       Style="{StaticResource SuccessButton}" FontSize="11" Padding="8,6"
+                                       Click="SaveConfig_Click"/>
+                                
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Store ID:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
+                                <ComboBox Grid.Row="6" Grid.Column="1" x:Name="StoreIdComboBox" 
+                                         Style="{StaticResource ModernComboBox}">
+                                    <ComboBoxItem Content="Store 1 (Varsayılan)" IsSelected="True"/>
+                                    <ComboBoxItem Content="Store 2 (Şube)"/>
+                                    <ComboBoxItem Content="Store 3 (Outlet)"/>
+                                </ComboBox>
+                                
+                                <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="🔄 Bağlantı Test Et" 
+                                           Style="{StaticResource PrimaryButton}"
+                                           Margin="0,0,10,0"
+                                           Click="TestConnection_Click"/>
+                                    <Button Content="📋 Konfigürasyonu Kopyala" 
+                                           Style="{StaticResource InfoButton}"
+                                           Click="CopyConfig_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sync Settings -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="⚙️" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Senkronizasyon Ayarları" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="🔄 Otomatik Senkronizasyon" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    
+                                    <CheckBox Content="Ürün senkronizasyonu" x:Name="AutoSyncProductsCheckBox" IsChecked="True" Margin="0,3"/>
+                                    <CheckBox Content="Stok güncellemesi" x:Name="AutoSyncStockCheckBox" IsChecked="True" Margin="0,3"/>
+                                    <CheckBox Content="Fiyat güncellemesi" x:Name="AutoSyncPricesCheckBox" IsChecked="False" Margin="0,3"/>
+                                    <CheckBox Content="Kategori senkronizasyonu" x:Name="AutoSyncCategoriesCheckBox" IsChecked="True" Margin="0,3"/>
+                                    
+                                    <TextBlock Text="📅 Sync Sıklığı" FontSize="13" FontWeight="Bold" Margin="0,10,0,8"/>
+                                    <ComboBox x:Name="SyncFrequencyComboBox" Style="{StaticResource ModernComboBox}">
+                                        <ComboBoxItem Content="Her 15 dakikada"/>
+                                        <ComboBoxItem Content="Her 30 dakikada" IsSelected="True"/>
+                                        <ComboBoxItem Content="Her saatte"/>
+                                        <ComboBoxItem Content="Her 6 saatte"/>
+                                        <ComboBoxItem Content="Günde bir"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="🚨 Bildirim Ayarları" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    
+                                    <CheckBox Content="Sync hatası bildirimi" x:Name="NotifyErrorsCheckBox" IsChecked="True" Margin="0,3"/>
+                                    <CheckBox Content="Başarılı sync bildirimi" x:Name="NotifySuccessCheckBox" IsChecked="False" Margin="0,3"/>
+                                    <CheckBox Content="E-posta bildirimleri" x:Name="EmailNotificationsCheckBox" IsChecked="True" Margin="0,3"/>
+                                    <CheckBox Content="Sistem tepsisi bildirimi" x:Name="TrayNotificationsCheckBox" IsChecked="True" Margin="0,3"/>
+                                    
+                                    <TextBlock Text="📊 Log Ayarları" FontSize="13" FontWeight="Bold" Margin="0,10,0,8"/>
+                                    <ComboBox x:Name="LogLevelComboBox" Style="{StaticResource ModernComboBox}">
+                                        <ComboBoxItem Content="Hata (Error)"/>
+                                        <ComboBoxItem Content="Uyarı (Warning)"/>
+                                        <ComboBoxItem Content="Bilgi (Info)" IsSelected="True"/>
+                                        <ComboBoxItem Content="Debug"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                                <Button Content="💾 Ayarları Kaydet" 
+                                       Style="{StaticResource SuccessButton}"
+                                       Margin="0,0,10,0"
+                                       Click="SaveSettings_Click"/>
+                                <Button Content="🔄 Varsayılanlara Dön" 
+                                       Style="{StaticResource WarningButton}"
+                                       Click="ResetSettings_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sync History -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="📜" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Senkronizasyon Geçmişi" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <DataGrid x:Name="SyncHistoryDataGrid" 
+                                     Style="{StaticResource ModernDataGrid}"
+                                     Height="200">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy HH:mm}" Width="120" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="İşlem" Binding="{Binding Operation}" Width="100" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Kayıt Sayısı" Binding="{Binding RecordCount}" Width="90" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Süre" Binding="{Binding Duration}" Width="70" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Detay" Binding="{Binding Details}" Width="*" IsReadOnly="True"/>
+                                    <DataGridTemplateColumn Header="🔽" Width="40">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="📄" ToolTip="Detayları Göster" 
+                                                       FontSize="10" Padding="3"
+                                                       Click="ViewSyncDetails_Click"
+                                                       Style="{StaticResource InfoButton}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                
+                <!-- Status and Statistics -->
+                <StackPanel Grid.Column="2">
+                    <!-- Connection Status -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="🔗" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Bağlantı Durumu" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="API Durumu" FontSize="11" Foreground="#6C757D"/>
+                                    <Border Background="#D4EDDA" CornerRadius="4" Padding="4,2">
+                                        <TextBlock Text="✅ Aktif" FontSize="9" Foreground="#155724" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Son Ping" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="LastPingText" Text="2ms" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Store Sürümü" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock Text="4.0.2.3" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Son Sync" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="LastSyncText" Text="5 dk önce" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sync Statistics -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="📊" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Sync İstatistikleri" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Bugün" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="TodaySyncText" Text="12" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Bu Hafta" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="WeekSyncText" Text="84" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Başarı Oranı" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="SuccessRateText" Text="98.5%" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Toplam Ürün" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="TotalProductsText" Text="1,247" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Current Sync Progress -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="⏳" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Mevcut İşlem" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <StackPanel>
+                                <TextBlock x:Name="CurrentOperationText" Text="Ürün senkronizasyonu..." FontSize="12" Margin="0,0,0,8"/>
+                                <ProgressBar x:Name="SyncProgressBar" Style="{StaticResource ModernProgressBar}" Value="65" Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ProgressText" Text="325 / 500 ürün" FontSize="11" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="ProgressPercentText" Text="65%" FontSize="11" FontWeight="Bold"/>
+                                </Grid>
+                                
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                                    <Button Content="⏸️ Duraklat" 
+                                           Style="{StaticResource WarningButton}" FontSize="10" Padding="8,4"
+                                           Margin="0,0,5,0"
+                                           Click="PauseSync_Click"/>
+                                    <Button Content="⏹️ Durdur" 
+                                           Style="{StaticResource DangerButton}" FontSize="10" Padding="8,4"
+                                           Click="StopSync_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Quick Info -->
+                    <Border Style="{StaticResource OpenCartCard}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="💡" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Hızlı Bilgiler" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                            
+                            <StackPanel>
+                                <TextBlock Text="• API Rate Limit: 1000/saat" FontSize="11" Margin="0,2"/>
+                                <TextBlock Text="• Son Güncelleme: 2 dk önce" FontSize="11" Margin="0,2"/>
+                                <TextBlock Text="• Bekleyen İşlem: 3" FontSize="11" Margin="0,2"/>
+                                <TextBlock Text="• Hata Sayısı: 0" FontSize="11" Margin="0,2"/>
+                                <TextBlock Text="• Ortalama Sync Süresi: 45s" FontSize="11" Margin="0,2"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

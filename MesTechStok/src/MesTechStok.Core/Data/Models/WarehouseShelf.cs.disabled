@@ -1,0 +1,82 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MesTechStok.Core.Data.Models
+{
+    /// <summary>
+    /// Raf seviyesi (Shelf) - Raf içi seviye sistemi
+    /// Örnek: A-01-01, B-02-03 (Bölüm-Raf-Seviye)
+    /// </summary>
+    [Table("WarehouseShelves")]
+    public class WarehouseShelf
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty; // "A-01-01", "B-02-03"
+
+        [Required]
+        [StringLength(20)]
+        public string Code { get; set; } = string.Empty; // "A0101", "B0203"
+
+        [Required]
+        public int RackId { get; set; }
+
+        [ForeignKey("RackId")]
+        public virtual WarehouseRack? Rack { get; set; }
+
+        // Fiziksel Özellikler
+        [Required]
+        public int LevelNumber { get; set; } // 1, 2, 3 (alttan yukarı)
+
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal? Height { get; set; } // cm
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? MaxWeight { get; set; } // kg
+
+        // Konum Bilgileri
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal? DistanceFromGround { get; set; } // cm
+
+        [StringLength(20)]
+        public string? Accessibility { get; set; } // "Easy", "Medium", "Hard"
+
+        // Özellikler
+        public bool IsActive { get; set; } = true;
+
+        public bool IsAccessible { get; set; } = true;
+
+        // Audit Fields
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [StringLength(100)]
+        public string? CreatedBy { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        [StringLength(100)]
+        public string? UpdatedBy { get; set; }
+
+        // Navigation Properties
+        public virtual ICollection<WarehouseBin> Bins { get; set; } = new List<WarehouseBin>();
+
+        // Computed Properties
+        [NotMapped]
+        public string FullShelfPath => $"{Rack?.FullRackPath ?? "Bilinmeyen Raf"} → Seviye {LevelNumber}";
+
+        [NotMapped]
+        public string ShelfSummary => $"{Code} - Seviye {LevelNumber} ({Height?.ToString("F1") ?? "N/A"} cm)";
+
+        [NotMapped]
+        public string AccessibilityInfo => Accessibility switch
+        {
+            "Easy" => "Kolay Erişim",
+            "Medium" => "Orta Erişim",
+            "Hard" => "Zor Erişim",
+            _ => "Bilinmeyen"
+        };
+    }
+}

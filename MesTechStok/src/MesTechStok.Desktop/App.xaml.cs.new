@@ -1,0 +1,386 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows;
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Threading;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
+using System.Threading.Tasks;
+using MesTechStok.Desktop.Services;
+using MesTechStok.Desktop.ViewModels;
+using MesTechStok.Desktop.Views;
+
+namespace MesTechStok.Desktop;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// Simplified version for compilation success
+/// </summary>
+public partial class App : Application
+{
+    private IHost? _host;
+    public static IServiceProvider? ServiceProvider { get; private set; }
+    public static WelcomeWindow? WelcomeWindowInstance { get; set; }
+    private static Mutex? _singleInstanceMutex;
+    private static EventWaitHandle? _activateEvent;
+
+    // Win32 helpers to reliably bring window to foreground
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    private const int SW_RESTORE = 9;
+
+    private static void BringAppToForeground()
+    {
+        try
+        {
+            // Prefer WelcomeWindow if available, else MainWindow, else any visible window
+            var target = (Window?)WelcomeWindowInstance ?? Application.Current.MainWindow ?? Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsVisible);
+            if (target == null)
+                return;
+
+            if (target.WindowState == WindowState.Minimized)
+                target.WindowState = WindowState.Normal;
+
+            // Ensure handle and use Win32 to foreground
+            var handle = new WindowInteropHelper(target).EnsureHandle();
+            ShowWindow(handle, SW_RESTORE);
+            // Topmost toggle helps on some shells
+            var oldTopMost = target.Topmost;
+            target.Topmost = true;
+            target.Topmost = oldTopMost;
+            target.Show();
+            target.Activate();
+            target.Focus();
+            SetForegroundWindow(handle);
+        }
+        catch { /* ignore */ }
+    }
+
+    private static void StartActivationListener()
+    {
+        try
+        {
+            _activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, "Global\\MesTechStok.Desktop.Activate");
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        _activateEvent!.WaitOne();
+                        Application.Current?.Dispatcher?.Invoke(BringAppToForeground);
+                    }
+                }
+                catch { /* exit loop on dispose */ }
+            })
+            { IsBackground = true, Name = "ActivationListener" };
+            thread.Start();
+        }
+        catch { /* ignore */ }
+    }
+    
+    private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+    {
+        Log.Error(e.Exception, "Unhandled dispatcher exception");
+        if (GlobalLogger.Instance != null)
+        {
+            GlobalLogger.Instance.LogError($"Kritik arayüz hatası: {e.Exception.Message}", "Dispatcher");
+        }
+        e.Handled = true; // Prevent app crash
+    }
+
+    private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        var ex = e.ExceptionObject as Exception;
+        Log.Fatal(ex, "Unhandled domain exception. IsTerminating: {IsTerminating}", e.IsTerminating);
+        if (GlobalLogger.Instance != null)
+        {
+            GlobalLogger.Instance.LogError($"Kritik genel hata: {ex?.Message}", "AppDomain");
+        }
+    }
+
+    private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Register basic services
+        services.AddSingleton<GlobalLogger>();
+        
+        // Register other services as they become available
+        // TODO: Add service registrations when services are implemented
+    }
+
+    private async Task InitializeDatabaseAsync()
+    {
+        // TODO: Database initialization when DbContext is available
+        await Task.CompletedTask;
+    }
+
+    private void InitializeMonitoringServices()
+    {
+        try
+        {
+            if (GlobalLogger.Instance != null)
+            {
+                GlobalLogger.Instance.LogInfo("Monitoring services initialized.", "Monitoring");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (GlobalLogger.Instance != null)
+            {
+                GlobalLogger.Instance.LogError($"İzleme servisleri başlatılamadı: {ex.Message}", "Monitoring");
+            }
+        }
+    }
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        // Global Exception Handlers
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        
+        // Prevent multiple instances
+        var createdNew = false;
+        try
+        {
+            _singleInstanceMutex = new Mutex(true, "Global\\MesTechStok.Desktop.SingleInstance", out createdNew);
+        }
+        catch { /* ignore and proceed */ }
+        
+        if (!createdNew)
+        {
+            // Signal running instance to bring itself to foreground, then exit silently
+            try
+            {
+                var evt = EventWaitHandle.OpenExisting("Global\\MesTechStok.Desktop.Activate");
+                evt.Set();
+            }
+            catch
+            {
+                // Fallback: try to bring any existing process main window to front
+                try
+                {
+                    var current = Process.GetCurrentProcess();
+                    var procs = Process.GetProcessesByName(current.ProcessName)
+                        .Where(p => p.Id != current.Id);
+                    foreach (var p in procs)
+                    {
+                        var h = p.MainWindowHandle;
+                        if (h != IntPtr.Zero)
+                        {
+                            ShowWindow(h, SW_RESTORE);
+                            SetForegroundWindow(h);
+                            break;
+                        }
+                    }
+                }
+                catch { }
+            }
+            Shutdown(0);
+            return;
+        }
+        
+        // Configure Serilog
+        var logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+        Directory.CreateDirectory(logDir);
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.File(Path.Combine(logDir, "mestech-.log"), 
+                rollingInterval: Serilog.RollingInterval.Day, 
+                retainedFileCountLimit: 30,
+                encoding: System.Text.Encoding.UTF8)
+            .CreateLogger();
+
+        try
+        {
+            // Set working directory to application directory
+            var appDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (!string.IsNullOrEmpty(appDir))
+            {
+                Directory.SetCurrentDirectory(appDir);
+            }
+
+            // Initialize GlobalLogger
+            if (GlobalLogger.Instance != null)
+            {
+                GlobalLogger.Instance.LogInfo("🚀 MesTech Stok Takip Sistemi başlatıldı", "Application");
+                GlobalLogger.Instance.LogInfo($"📂 Çalışma dizini: {Directory.GetCurrentDirectory()}", "Application");
+                GlobalLogger.Instance.LogInfo("🔧 Sistem hazırlığı başlatılıyor...", "Application");
+            }
+
+            // Log diagnostic info
+            try
+            {
+                var exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "<unknown>";
+                var pid = Process.GetCurrentProcess().Id;
+                Log.Information("Startup EXE: {ExePath} (PID={Pid})", exePath, pid);
+                if (GlobalLogger.Instance != null)
+                {
+                    GlobalLogger.Instance.LogInfo($"🆔 EXE: {exePath} | PID: {pid}", "Application");
+                }
+            }
+            catch { }
+
+            // Clean old log files (30 days)
+            try
+            {
+                var logFiles = Directory.GetFiles(logDir, "mestech-*.log");
+                var threshold = DateTime.Now.AddDays(-30);
+                foreach (var lf in logFiles)
+                {
+                    try
+                    {
+                        var fi = new FileInfo(lf);
+                        if (fi.LastWriteTime < threshold) fi.Delete();
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            // Build the host
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    // Make appsettings.json optional with fallback
+                    var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                    Log.Information($"Looking for configuration at: {appSettingsPath}");
+                    
+                    if (File.Exists(appSettingsPath))
+                    {
+                        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                        config.AddJsonFile("appsettings.user.json", optional: true, reloadOnChange: true);
+                        Log.Information("Configuration files loaded");
+                    }
+                    else
+                    {
+                        Log.Warning("appsettings.json not found, using default configuration");
+                        // Add minimal in-memory configuration as fallback
+                        config.AddInMemoryCollection(new Dictionary<string, string?>
+                        {
+                            ["ConnectionStrings:DefaultConnection"] = "Server=(localdb)\\MSSQLLocalDB;Database=MesTechStok;Integrated Security=true;",
+                            ["Logging:LogLevel:Default"] = "Information",
+                            ["Application:Name"] = "MesTech Stok Takip Sistemi",
+                            ["Application:Version"] = "2.0 Professional"
+                        });
+                        config.AddJsonFile("appsettings.user.json", optional: true, reloadOnChange: true);
+                    }
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    ConfigureServices(services, context.Configuration);
+                })
+                .UseSerilog()
+                .Build();
+
+            ServiceProvider = _host.Services;
+
+            // Initialize database
+            InitializeDatabaseAsync().GetAwaiter().GetResult();
+
+            // Initialize monitoring services
+            InitializeMonitoringServices();
+
+            // Check command line arguments
+            var args = e.Args;
+            string? targetModule = null;
+            
+            foreach (var arg in args)
+            {
+                if (arg.StartsWith("--module=", StringComparison.OrdinalIgnoreCase))
+                {
+                    targetModule = arg.Substring(9).ToLowerInvariant();
+                    break;
+                }
+            }
+            
+            // Start listener to handle second-instance activation requests
+            StartActivationListener();
+
+            // Check if login should be skipped
+            var skipLogin = _host.Services.GetRequiredService<IConfiguration>()
+                ?.GetSection("Authentication")?.GetValue<bool>("SkipLogin") ?? false;
+
+            if (skipLogin)
+            {
+                // Go directly to welcome/main screen
+                WelcomeWindowInstance ??= new Views.WelcomeWindow(targetModule);
+                var welcomeWindow = WelcomeWindowInstance;
+                if (!welcomeWindow.IsVisible) 
+                    welcomeWindow.Show();
+                else 
+                    welcomeWindow.Activate();
+                welcomeWindow.Focus();
+
+#if DEBUG
+                try
+                {
+                    var exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                    var suffix = string.IsNullOrWhiteSpace(exePath) ? " [DEBUG]" : $" [DEBUG] {exePath}";
+                    welcomeWindow.Title = (welcomeWindow.Title ?? string.Empty) + suffix;
+                }
+                catch { }
+#endif
+            }
+            else
+            {
+                // Start with login screen
+                var loginWindow = new Views.LoginWindow();
+                loginWindow.Show();
+                loginWindow.Activate();
+                loginWindow.Focus();
+
+#if DEBUG
+                try
+                {
+                    var exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                    var suffix = string.IsNullOrWhiteSpace(exePath) ? " [DEBUG]" : $" [DEBUG] {exePath}";
+                    loginWindow.Title = (loginWindow.Title ?? string.Empty) + suffix;
+                }
+                catch { }
+#endif
+                
+                // Set target module after login
+                if (!string.IsNullOrEmpty(targetModule))
+                {
+                    loginWindow.TargetModule = targetModule;
+                }
+            }
+
+            base.OnStartup(e);
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Application startup failed");
+            MessageBox.Show($"Uygulama başlatılamadı: {ex.Message}", "Kritik Hata", 
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(-1);
+        }
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        try
+        {
+            try { _activateEvent?.Dispose(); } catch { }
+            try { _singleInstanceMutex?.ReleaseMutex(); _singleInstanceMutex?.Dispose(); } catch { }
+            _host?.Dispose();
+            Log.CloseAndFlush();
+        }
+        finally
+        {
+            base.OnExit(e);
+        }
+    }
+}

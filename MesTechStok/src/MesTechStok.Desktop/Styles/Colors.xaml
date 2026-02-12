@@ -1,0 +1,68 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- 🎨 MesTech Corporate Color Palette - BRAVO TİMİ -->
+    
+    <!-- Primary Colors -->
+    <SolidColorBrush x:Key="PrimaryBlueBrush" Color="#2196F3"/>
+    <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#1976D2"/>
+    <SolidColorBrush x:Key="AccentGreenBrush" Color="#4CAF50"/>
+    <SolidColorBrush x:Key="WarningOrangeBrush" Color="#FF9800"/>
+    <SolidColorBrush x:Key="ErrorRedBrush" Color="#F44336"/>
+
+    <!-- Orange Theme (Primary) -->
+    <Color x:Key="OrangePrimaryColor">#FB8C00</Color>
+    <Color x:Key="OrangeHoverColor">#F57C00</Color>
+    <Color x:Key="OrangeDarkColor">#EF6C00</Color>
+    <SolidColorBrush x:Key="OrangePrimaryBrush" Color="{StaticResource OrangePrimaryColor}"/>
+    <SolidColorBrush x:Key="OrangeHoverBrush" Color="{StaticResource OrangeHoverColor}"/>
+    <SolidColorBrush x:Key="OrangeDarkBrush" Color="{StaticResource OrangeDarkColor}"/>
+    
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#212121"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#757575"/>
+    
+    <!-- Background Colors -->
+    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F5F7FA"/>
+    <SolidColorBrush x:Key="SurfaceWhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#E0E0E0"/>
+    
+    <!-- Gradient Brushes -->
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#2196F3" Offset="0"/>
+        <GradientStop Color="#1976D2" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Orange Gradient Brushes -->
+    <LinearGradientBrush x:Key="OrangeGradientBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource OrangePrimaryColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource OrangeDarkColor}" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="OrangeHoverGradientBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource OrangePrimaryColor}" Offset="0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="SuccessGradientBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#4CAF50" Offset="0"/>
+        <GradientStop Color="#388E3C" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Hover States -->
+    <SolidColorBrush x:Key="PrimaryBlueHoverBrush" Color="#1565C0"/>
+    <SolidColorBrush x:Key="AccentGreenHoverBrush" Color="#388E3C"/>
+    <SolidColorBrush x:Key="WarningOrangeHoverBrush" Color="#F57C00"/>
+    
+    <!-- Color Values for Code -->
+    <Color x:Key="PrimaryBlueColor">#2196F3</Color>
+    <Color x:Key="SecondaryBlueColor">#1976D2</Color>
+    <Color x:Key="AccentGreenColor">#4CAF50</Color>
+    <Color x:Key="WarningOrangeColor">#FF9800</Color>
+    <Color x:Key="ErrorRedColor">#F44336</Color>
+    <Color x:Key="TextPrimaryColor">#212121</Color>
+    <Color x:Key="TextSecondaryColor">#757575</Color>
+    <Color x:Key="BackgroundLightColor">#F5F7FA</Color>
+    <Color x:Key="SurfaceWhiteColor">#FFFFFF</Color>
+    <Color x:Key="BorderLightColor">#E0E0E0</Color>
+    
+</ResourceDictionary> 

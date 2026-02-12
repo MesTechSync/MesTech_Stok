@@ -1,0 +1,103 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.LogMonitoringView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Background="#f8f9fa" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="🚨 ACİL LOG SİSTEMİ MONİTÖRÜ" FontSize="16" FontWeight="Bold" 
+                      Foreground="#dc3545" Margin="10" VerticalAlignment="Center"/>
+            <Button Content="YENİLE" Name="BtnRefresh" Click="Refresh_Click" 
+                   Background="#007bff" Foreground="White" Margin="5" Padding="10,5"/>
+            <TextBlock Name="TxtLastUpdate" Text="Son güncelleme: --" 
+                      Margin="10" VerticalAlignment="Center" FontSize="12"/>
+        </StackPanel>
+        
+        <!-- İstatistikler -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Toplam Kritik Hatalar -->
+            <Border Grid.Column="0" Background="#dc3545" CornerRadius="5" Margin="2">
+                <StackPanel Margin="10" HorizontalAlignment="Center">
+                    <TextBlock Text="KRİTİK HATALAR" Foreground="White" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Name="TxtTotalErrors" Text="0" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- OfflineQueue Hataları -->
+            <Border Grid.Column="1" Background="#fd7e14" CornerRadius="5" Margin="2">
+                <StackPanel Margin="10" HorizontalAlignment="Center">
+                    <TextBlock Text="OFFLINE QUEUE" Foreground="White" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Name="TxtOfflineErrors" Text="0" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Image Storage Hataları -->
+            <Border Grid.Column="2" Background="#ffc107" CornerRadius="5" Margin="2">
+                <StackPanel Margin="10" HorizontalAlignment="Center">
+                    <TextBlock Text="IMAGE STORAGE" Foreground="White" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Name="TxtImageErrors" Text="0" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Encoding Hataları -->
+            <Border Grid.Column="3" Background="#6f42c1" CornerRadius="5" Margin="2">
+                <StackPanel Margin="10" HorizontalAlignment="Center">
+                    <TextBlock Text="ENCODING" Foreground="White" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Name="TxtEncodingErrors" Text="0" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Path Injection -->
+            <Border Grid.Column="4" Background="#e83e8c" CornerRadius="5" Margin="2">
+                <StackPanel Margin="10" HorizontalAlignment="Center">
+                    <TextBlock Text="GÜVENLİK" Foreground="White" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Name="TxtSecurityErrors" Text="0" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        
+        <!-- Kritik Log Listesi -->
+        <Border Grid.Row="2" BorderBrush="#dee2e6" BorderThickness="1" Margin="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="Son Kritik Hatalar (24 Saat)" 
+                          FontWeight="Bold" Margin="10,5" Background="#f8f9fa" Padding="5"/>
+                
+                <DataGrid Grid.Row="1" Name="DgCriticalErrors" 
+                         AutoGenerateColumns="False" 
+                         CanUserAddRows="False" 
+                         CanUserDeleteRows="False"
+                         GridLinesVisibility="Horizontal"
+                         RowHeaderWidth="0"
+                         Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Zaman" Binding="{Binding Timestamp, StringFormat='dd.MM.yyyy HH:mm:ss'}" Width="140"/>
+                        <DataGridTextColumn Header="Seviye" Binding="{Binding Level}" Width="60"/>
+                        <DataGridTextColumn Header="Mesaj" Binding="{Binding Message}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

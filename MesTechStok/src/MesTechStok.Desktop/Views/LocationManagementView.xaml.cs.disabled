@@ -1,0 +1,561 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MesTechStok.Core.Services.Abstract;
+using MesTechStok.Core.Data.Models;
+
+namespace MesTechStok.Desktop.Views
+{
+    /// <summary>
+    /// Stok Yerleşim Sistemi ana view'ı
+    /// </summary>
+    public partial class LocationManagementView : Window
+    {
+        private readonly ILocationService _locationService;
+        private readonly IQRCodeService _qrCodeService;
+        private readonly ILogger<LocationManagementView> _logger;
+
+        // UI State
+        private List<WarehouseZone> _zones = new();
+        private List<WarehouseRack> _racks = new();
+        private List<WarehouseShelf> _shelves = new();
+        private List<WarehouseBin> _bins = new();
+        private WarehouseBin _selectedBin;
+
+        public LocationManagementView()
+        {
+            InitializeComponent();
+            
+            // Services
+            var serviceProvider = App.ServiceProvider;
+            _locationService = serviceProvider.GetRequiredService<ILocationService>();
+            _qrCodeService = serviceProvider.GetRequiredService<IQRCodeService>();
+            _logger = serviceProvider.GetRequiredService<ILogger<LocationManagementView>>();
+
+            // Event handlers
+            Loaded += LocationManagementView_Loaded;
+            
+            // Initialize UI
+            InitializeUI();
+        }
+
+        #region Initialization
+
+        private void InitializeUI()
+        {
+            try
+            {
+                _logger.LogInformation("Initializing Location Management UI");
+
+                // View mode combo
+                ViewModeCombo.SelectionChanged += ViewModeCombo_SelectionChanged;
+
+                // Canvas events
+                WarehouseCanvas.MouseLeftButtonDown += WarehouseCanvas_MouseLeftButtonDown;
+                WarehouseCanvas.MouseMove += WarehouseCanvas_MouseMove;
+
+                _logger.LogInformation("Location Management UI initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error initializing Location Management UI");
+                MessageBox.Show($"UI başlatılırken hata oluştu: {ex.Message}", "Hata", 
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void LocationManagementView_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _logger.LogInformation("Loading location management data");
+
+                // Load initial data
+                await LoadWarehouseDataAsync();
+                
+                // Draw warehouse map
+                DrawWarehouseMap();
+
+                _logger.LogInformation("Location management data loaded successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading location management data");
+                MessageBox.Show($"Veri yüklenirken hata oluştu: {ex.Message}", "Hata", 
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Data Loading
+
+        private async Task LoadWarehouseDataAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Loading warehouse data");
+
+                // Load zones
+                _zones = await _locationService.GetWarehouseZonesAsync(1); // Default warehouse ID
+                ZonesListView.ItemsSource = _zones;
+
+                // Load racks for first zone if exists
+                if (_zones.Any())
+                {
+                    _racks = await _locationService.GetRacksByZoneAsync(_zones.First().Id);
+                    RacksListView.ItemsSource = _racks;
+
+                    // Load shelves for first rack if exists
+                    if (_racks.Any())
+                    {
+                        _shelves = await _locationService.GetShelvesByRackAsync(_racks.First().Id);
+                        ShelvesListView.ItemsSource = _shelves;
+
+                        // Load bins for first shelf if exists
+                        if (_shelves.Any())
+                        {
+                            _bins = await _locationService.GetBinsByShelfAsync(_shelves.First().Id);
+                            BinsListView.ItemsSource = _bins;
+                        }
+                    }
+                }
+
+                _logger.LogInformation($"Loaded {_zones.Count} zones, {_racks.Count} racks, {_shelves.Count} shelves, {_bins.Count} bins");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading warehouse data");
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Warehouse Map Drawing
+
+        private void DrawWarehouseMap()
+        {
+            try
+            {
+                _logger.LogInformation("Drawing warehouse map");
+
+                // Clear existing elements
+                WarehouseCanvas.Children.Clear();
+
+                // Draw zones
+                DrawZones();
+
+                // Draw racks
+                DrawRacks();
+
+                // Draw shelves
+                DrawShelves();
+
+                // Draw bins
+                DrawBins();
+
+                _logger.LogInformation("Warehouse map drawn successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error drawing warehouse map");
+            }
+        }
+
+        private void DrawZones()
+        {
+            if (!_zones.Any()) return;
+
+            var zoneWidth = 200;
+            var zoneHeight = 150;
+            var startX = 50;
+            var startY = 50;
+            var spacing = 50;
+
+            for (int i = 0; i < _zones.Count; i++)
+            {
+                var zone = _zones[i];
+                var x = startX + (i * (zoneWidth + spacing));
+                var y = startY;
+
+                // Zone rectangle
+                var zoneRect = new Rectangle
+                {
+                    Width = zoneWidth,
+                    Height = zoneHeight,
+                    Fill = GetZoneColor(i),
+                    Stroke = GetZoneStrokeColor(i),
+                    StrokeThickness = 2,
+                    RadiusX = 5,
+                    RadiusY = 5
+                };
+
+                Canvas.SetLeft(zoneRect, x);
+                Canvas.SetTop(zoneRect, y);
+                WarehouseCanvas.Children.Add(zoneRect);
+
+                // Zone name
+                var zoneText = new TextBlock
+                {
+                    Text = zone.Name,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = GetZoneStrokeColor(i),
+                    FontSize = 14
+                };
+
+                Canvas.SetLeft(zoneText, x + 10);
+                Canvas.SetTop(zoneText, y + 10);
+                WarehouseCanvas.Children.Add(zoneText);
+
+                // Zone code
+                var codeText = new TextBlock
+                {
+                    Text = $"Kod: {zone.Code}",
+                    FontSize = 10,
+                    Foreground = Colors.Gray
+                };
+
+                Canvas.SetLeft(codeText, x + 10);
+                Canvas.SetTop(codeText, y + 30);
+                WarehouseCanvas.Children.Add(codeText);
+            }
+        }
+
+        private void DrawRacks()
+        {
+            if (!_racks.Any()) return;
+
+            var rackWidth = 160;
+            var rackHeight = 60;
+            var startX = 70;
+            var startY = 120;
+            var spacing = 50;
+
+            for (int i = 0; i < _racks.Count; i++)
+            {
+                var rack = _racks[i];
+                var x = startX + (i * (rackWidth + spacing));
+                var y = startY;
+
+                // Rack rectangle
+                var rackRect = new Rectangle
+                {
+                    Width = rackWidth,
+                    Height = rackHeight,
+                    Fill = Brushes.Orange,
+                    Stroke = Brushes.DarkOrange,
+                    StrokeThickness = 1,
+                    RadiusX = 3,
+                    RadiusY = 3
+                };
+
+                Canvas.SetLeft(rackRect, x);
+                Canvas.SetTop(rackRect, y);
+                WarehouseCanvas.Children.Add(rackRect);
+
+                // Rack name
+                var rackText = new TextBlock
+                {
+                    Text = rack.Name,
+                    FontSize = 10,
+                    Foreground = Colors.DarkOrange
+                };
+
+                Canvas.SetLeft(rackText, x + 10);
+                Canvas.SetTop(rackText, y + 10);
+                WarehouseCanvas.Children.Add(rackText);
+            }
+        }
+
+        private void DrawShelves()
+        {
+            if (!_shelves.Any()) return;
+
+            var shelfWidth = 140;
+            var shelfHeight = 40;
+            var startX = 80;
+            var startY = 190;
+            var spacing = 50;
+
+            for (int i = 0; i < _shelves.Count; i++)
+            {
+                var shelf = _shelves[i];
+                var x = startX + (i * (shelfWidth + spacing));
+                var y = startY;
+
+                // Shelf rectangle
+                var shelfRect = new Rectangle
+                {
+                    Width = shelfWidth,
+                    Height = shelfHeight,
+                    Fill = Brushes.LightBlue,
+                    Stroke = Brushes.Blue,
+                    StrokeThickness = 1,
+                    RadiusX = 2,
+                    RadiusY = 2
+                };
+
+                Canvas.SetLeft(shelfRect, x);
+                Canvas.SetTop(shelfRect, y);
+                WarehouseCanvas.Children.Add(shelfRect);
+
+                // Shelf name
+                var shelfText = new TextBlock
+                {
+                    Text = shelf.Name,
+                    FontSize = 9,
+                    Foreground = Colors.DarkBlue
+                };
+
+                Canvas.SetLeft(shelfText, x + 5);
+                Canvas.SetTop(shelfText, y + 5);
+                WarehouseCanvas.Children.Add(shelfText);
+            }
+        }
+
+        private void DrawBins()
+        {
+            if (!_bins.Any()) return;
+
+            var binWidth = 30;
+            var binHeight = 30;
+            var startX = 90;
+            var startY = 250;
+            var spacing = 35;
+
+            for (int i = 0; i < _bins.Count; i++)
+            {
+                var bin = _bins[i];
+                var x = startX + (i * spacing);
+                var y = startY;
+
+                // Bin rectangle
+                var binRect = new Rectangle
+                {
+                    Width = binWidth,
+                    Height = binHeight,
+                    Fill = Brushes.LightGreen,
+                    Stroke = Brushes.Green,
+                    StrokeThickness = 1,
+                    RadiusX = 2,
+                    RadiusY = 2
+                };
+
+                Canvas.SetLeft(binRect, x);
+                Canvas.SetTop(binRect, y);
+                WarehouseCanvas.Children.Add(binRect);
+
+                // Bin number
+                var binText = new TextBlock
+                {
+                    Text = bin.BinNumber.ToString(),
+                    FontSize = 8,
+                    Foreground = Colors.DarkGreen,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                Canvas.SetLeft(binText, x + 5);
+                Canvas.SetTop(binText, y + 5);
+                WarehouseCanvas.Children.Add(binText);
+            }
+        }
+
+        private Brush GetZoneColor(int index)
+        {
+            var colors = new[]
+            {
+                new SolidColorBrush(Color.FromRgb(227, 242, 253)), // Light Blue
+                new SolidColorBrush(Color.FromRgb(243, 229, 245)), // Light Purple
+                new SolidColorBrush(Color.FromRgb(232, 245, 232)), // Light Green
+                new SolidColorBrush(Color.FromRgb(255, 243, 224)), // Light Orange
+                new SolidColorBrush(Color.FromRgb(255, 235, 238))  // Light Red
+            };
+
+            return colors[index % colors.Length];
+        }
+
+        private Brush GetZoneStrokeColor(int index)
+        {
+            var colors = new[]
+            {
+                new SolidColorBrush(Color.FromRgb(33, 150, 243)),   // Blue
+                new SolidColorBrush(Color.FromRgb(156, 39, 176)),   // Purple
+                new SolidColorBrush(Color.FromRgb(76, 175, 80)),    // Green
+                new SolidColorBrush(Color.FromRgb(255, 152, 0)),    // Orange
+                new SolidColorBrush(Color.FromRgb(244, 67, 54))     // Red
+            };
+
+            return colors[index % colors.Length];
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void ViewModeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var selectedIndex = ViewModeCombo.SelectedIndex;
+                _logger.LogInformation($"View mode changed to index: {selectedIndex}");
+
+                switch (selectedIndex)
+                {
+                    case 0: // 2D Harita
+                        Show2DMap();
+                        break;
+                    case 1: // 3D Görünüm
+                        Show3DView();
+                        break;
+                    case 2: // Liste Görünümü
+                        ShowListView();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling view mode change");
+            }
+        }
+
+        private void WarehouseCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                var position = e.GetPosition(WarehouseCanvas);
+                _logger.LogInformation($"Canvas clicked at position: {position}");
+
+                // TODO: Implement location selection logic
+                // Find which zone/rack/shelf/bin was clicked
+                // Update selected location info
+                UpdateSelectedLocationInfo("A-01-01-01"); // Placeholder
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling canvas click");
+            }
+        }
+
+        private void WarehouseCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                var position = e.GetPosition(WarehouseCanvas);
+                
+                // TODO: Implement hover effects
+                // Show tooltips for locations
+                // Highlight hovered elements
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling canvas mouse move");
+            }
+        }
+
+        #endregion
+
+        #region View Mode Methods
+
+        private void Show2DMap()
+        {
+            try
+            {
+                _logger.LogInformation("Switching to 2D map view");
+                
+                // Show canvas
+                WarehouseCanvas.Visibility = Visibility.Visible;
+                
+                // TODO: Hide other view elements
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error switching to 2D map view");
+            }
+        }
+
+        private void Show3DView()
+        {
+            try
+            {
+                _logger.LogInformation("Switching to 3D view");
+                
+                // Hide canvas
+                WarehouseCanvas.Visibility = Visibility.Collapsed;
+                
+                // TODO: Show 3D view elements
+                MessageBox.Show("3D görünüm henüz geliştirilmedi.", "Bilgi", 
+                              MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error switching to 3D view");
+            }
+        }
+
+        private void ShowListView()
+        {
+            try
+            {
+                _logger.LogInformation("Switching to list view");
+                
+                // Hide canvas
+                WarehouseCanvas.Visibility = Visibility.Collapsed;
+                
+                // TODO: Show list view elements
+                MessageBox.Show("Liste görünümü henüz geliştirilmedi.", "Bilgi", 
+                              MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error switching to list view");
+            }
+        }
+
+        #endregion
+
+        #region UI Updates
+
+        private void UpdateSelectedLocationInfo(string locationCode)
+        {
+            try
+            {
+                _logger.LogInformation($"Updating selected location info: {locationCode}");
+
+                SelectedLocationText.Text = locationCode;
+                
+                // TODO: Load actual product count for this location
+                ProductsInLocationText.Text = "5 ürün"; // Placeholder
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating selected location info");
+            }
+        }
+
+        #endregion
+
+        #region Utility Methods
+
+        private void LogInfo(string message)
+        {
+            _logger.LogInformation(message);
+        }
+
+        private void LogError(Exception ex, string message)
+        {
+            _logger.LogError(ex, message);
+        }
+
+        #endregion
+    }
+}

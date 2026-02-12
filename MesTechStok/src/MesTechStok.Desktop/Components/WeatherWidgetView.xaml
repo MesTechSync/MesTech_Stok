@@ -1,0 +1,186 @@
+<UserControl x:Class="MesTechStok.Desktop.Components.WeatherWidgetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <UserControl.Resources>
+        <!-- Weather Card Style -->
+        <Style x:Key="WeatherCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.25">
+                        <GradientStop Color="#87CEEB" Offset="0"/>
+                        <GradientStop Color="#4682B4" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#60FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="12" ShadowDepth="3" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Temperature Text Style -->
+        <Style x:Key="TemperatureStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI Light"/>
+            <Setter Property="FontSize" Value="42"/>
+            <Setter Property="FontWeight" Value="Light"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="6" ShadowDepth="2" Opacity="0.6"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- City Text Style -->
+        <Style x:Key="CityStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Description Text Style -->
+        <Style x:Key="DescriptionStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="#E0FFFFFF"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="3" ShadowDepth="1" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Weather Icon Style -->
+        <Style x:Key="WeatherIconStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Loading Animation -->
+        <Storyboard x:Key="LoadingAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="LoadingIcon" 
+                           Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                           From="0" To="360" Duration="0:0:2"/>
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <Border x:Name="WeatherContainer" 
+            Style="{StaticResource WeatherCard}"
+            Width="180" Height="140"
+            Margin="10">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- City Name -->
+            <TextBlock x:Name="CityTextBlock" 
+                       Grid.Row="0"
+                       Style="{StaticResource CityStyle}"
+                       Text="İstanbul"
+                       Margin="0,8,0,0"/>
+            
+            <!-- Weather Icon and Temperature -->
+            <Grid Grid.Row="1" Margin="0,5,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Weather Icon -->
+                <TextBlock x:Name="WeatherIcon" 
+                           Grid.Column="0"
+                           Style="{StaticResource WeatherIconStyle}"
+                           Text="☀"
+                           Margin="5,0,5,0"/>
+                
+                <!-- Temperature -->
+                <TextBlock x:Name="TemperatureTextBlock" 
+                           Grid.Column="1"
+                           Style="{StaticResource TemperatureStyle}"
+                           Text="22°"
+                           Margin="0,-5,0,0"/>
+            </Grid>
+            
+            <!-- Weather Description -->
+            <TextBlock x:Name="DescriptionTextBlock" 
+                       Grid.Row="2"
+                       Style="{StaticResource DescriptionStyle}"
+                       Text="Güneşli"
+                       Margin="5,0,5,5"/>
+            
+            <!-- Additional Info -->
+            <Grid Grid.Row="3" Margin="5,0,5,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0"
+                           FontSize="10"
+                           Foreground="#C0FFFFFF"
+                           HorizontalAlignment="Left"
+                           Text="💨 15 km/h"/>
+                
+                <TextBlock Grid.Column="1"
+                           FontSize="10"
+                           Foreground="#C0FFFFFF"
+                           HorizontalAlignment="Right"
+                           Text="💧 %45"/>
+            </Grid>
+            
+            <!-- Last Updated -->
+            <TextBlock x:Name="LastUpdatedTextBlock" 
+                       Grid.Row="4"
+                       FontSize="8"
+                       Foreground="#A0FFFFFF"
+                       HorizontalAlignment="Center"
+                       Text="Son güncelleme: 12:30"
+                       Margin="0,0,0,5"/>
+            
+            <!-- Loading Indicator -->
+            <Grid x:Name="LoadingPanel" Grid.RowSpan="5" 
+                  Background="#80000000" 
+                  Visibility="Collapsed">
+                <TextBlock x:Name="LoadingIcon"
+                           Style="{StaticResource WeatherIconStyle}"
+                           Text="⟳"
+                           FontSize="32"
+                           RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl> 

@@ -1,0 +1,38 @@
+<Window x:Class="MesTechStok.Desktop.TestWidgetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="clr-namespace:MesTechStok.Desktop.Components"
+        Title="🧪 MesTech Widget Test" 
+        Height="600" Width="800"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        ShowInTaskbar="True"
+        Background="#FF1e3c72">
+    
+    <Grid>
+        <!-- Arka Plan -->
+        <components:LiveBackgroundView/>
+        
+        <!-- Widget Test -->
+        <Canvas>
+            <!-- Sol alt köşede widget -->
+            <components:FlurryClockComponent Canvas.Left="20" 
+                                            Canvas.Bottom="20" 
+                                            x:Name="TestWidget"/>
+        </Canvas>
+        
+        <!-- Test Bilgisi -->
+        <Border Background="#80000000" 
+                VerticalAlignment="Top" 
+                HorizontalAlignment="Center"
+                CornerRadius="10" 
+                Padding="20,10"
+                Margin="20">
+            <TextBlock Foreground="White" 
+                       FontSize="16" 
+                       FontWeight="Bold"
+                       Text="🧪 MesTech Widget Test - Sol alt köşede flu saat ve sağ sıcaklık sistemi görünmelidir"/>
+        </Border>
+    </Grid>
+</Window> 

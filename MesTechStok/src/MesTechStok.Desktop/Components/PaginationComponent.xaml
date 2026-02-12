@@ -1,0 +1,146 @@
+<UserControl x:Class="MesTechStok.Desktop.Components.PaginationComponent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <UserControl.Resources>
+        <!-- Modern Pagination Styles -->
+        <Style x:Key="ModernPaginationButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryDarkBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ActivePageButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernPaginationButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource ModernCardStyle}" Padding="16">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Page Size Selector -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
+                <TextBlock Text="Sayfa başına:" Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="PageSizeComboBox" 
+                         Style="{StaticResource ModernComboBoxStyle}"
+                         Width="100"
+                         SelectedIndex="2"
+                         SelectionChanged="PageSizeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="10" Tag="10"/>
+                    <ComboBoxItem Content="20" Tag="20"/>
+                    <ComboBoxItem Content="50" Tag="50"/>
+                    <ComboBoxItem Content="100" Tag="100"/>
+                    <ComboBoxItem Content="250" Tag="250"/>
+                    <ComboBoxItem Content="Tümü" Tag="10000"/>
+                </ComboBox>
+                
+                <TextBlock x:Name="ItemInfoText" 
+                          Text="Toplam: 0 öğe"
+                          Style="{StaticResource BodyTextSecondaryStyle}" 
+                          VerticalAlignment="Center" 
+                          Margin="16,0,0,0"/>
+            </StackPanel>
+            
+            <!-- Pagination Controls -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left: Page Info -->
+                <TextBlock Grid.Column="0" 
+                          x:Name="PageInfoText" 
+                          Text="Sayfa 1 / 1"
+                          Style="{StaticResource BodyTextSecondaryStyle}"
+                          VerticalAlignment="Center"/>
+                
+                <!-- Center: Navigation Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- First Page -->
+                    <Button x:Name="FirstPageButton"
+                           Content="⏪" 
+                           Style="{StaticResource ModernPaginationButtonStyle}"
+                           Click="FirstPage_Click"
+                           ToolTip="İlk sayfa"/>
+                    
+                    <!-- Previous Page -->
+                    <Button x:Name="PreviousPageButton"
+                           Content="◀" 
+                           Style="{StaticResource ModernPaginationButtonStyle}"
+                           Click="PreviousPage_Click"
+                           ToolTip="Önceki sayfa"/>
+                    
+                    <!-- Page Numbers -->
+                    <StackPanel x:Name="PageNumbersPanel" Orientation="Horizontal"/>
+                    
+                    <!-- Next Page -->
+                    <Button x:Name="NextPageButton"
+                           Content="▶" 
+                           Style="{StaticResource ModernPaginationButtonStyle}"
+                           Click="NextPage_Click"
+                           ToolTip="Sonraki sayfa"/>
+                    
+                    <!-- Last Page -->
+                    <Button x:Name="LastPageButton"
+                           Content="⏩" 
+                           Style="{StaticResource ModernPaginationButtonStyle}"
+                           Click="LastPage_Click"
+                           ToolTip="Son sayfa"/>
+                </StackPanel>
+                
+                <!-- Right: Quick Jump -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Git:" Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox x:Name="JumpToPageTextBox" 
+                            Style="{StaticResource ModernTextBoxStyle}"
+                            Width="60"
+                            Text="{Binding CurrentPage, UpdateSourceTrigger=PropertyChanged}"
+                            KeyDown="JumpToPage_KeyDown"
+                            ToolTip="Sayfa numarası girin"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl> 
