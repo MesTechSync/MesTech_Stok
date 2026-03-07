@@ -13,11 +13,13 @@ using Polly.Retry;
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// Trendyol platform adaptoru — mevcut TrendyolApiClient mantigi korunarak
-/// IIntegratorAdapter + IWebhookCapableAdapter implement edildi.
+/// Trendyol platform adaptoru — TAM entegrasyon.
+/// IIntegratorAdapter + IWebhookCapableAdapter + IOrderCapableAdapter
+/// + IInvoiceCapableAdapter + IClaimCapableAdapter + ISettlementCapableAdapter
 /// Rate limiting, Polly retry, Basic Auth mevcut koddan alinmistir.
 /// </summary>
-public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
+public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
+    IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolAdapter> _logger;
@@ -173,7 +175,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         barcode = product.Barcode ?? product.SKU,
                         title = product.Name,
                         productMainId = product.SKU,
-                        brandId = product.BrandId ?? 1,
+                        brandId = product.BrandId ?? Guid.Empty,
                         categoryId = product.CategoryId,
                         quantity = product.Stock,
                         stockCode = product.SKU,
@@ -270,7 +272,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         return products.AsReadOnly();
     }
 
-    public async Task<bool> PushStockUpdateAsync(int productId, int newStock, CancellationToken ct = default)
+    public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
@@ -312,7 +314,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
     }
 
-    public async Task<bool> PushPriceUpdateAsync(int productId, decimal newPrice, CancellationToken ct = default)
+    public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
@@ -354,14 +356,602 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
     }
 
+    // ═══════════════════════════════════════════
+    // IOrderCapableAdapter — Siparis Entegrasyonu
+    // ═══════════════════════════════════════════
+
+    public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.PullOrdersAsync since={Since}", since);
+
+        var orders = new List<ExternalOrderDto>();
+        var page = 0;
+        const int pageSize = 50;
+
+        try
+        {
+            bool hasMore = true;
+            while (hasMore)
+            {
+                await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+                var url = $"/sapigw/suppliers/{_supplierId}/orders?page={page}&size={pageSize}&orderByField=CreatedDate&orderByDirection=DESC";
+                if (since.HasValue)
+                {
+                    var epoch = new DateTimeOffset(since.Value).ToUnixTimeMilliseconds();
+                    url += $"&startDate={epoch}";
+                }
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode) break;
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                var totalPages = doc.RootElement.TryGetProperty("totalPages", out var tp) ? tp.GetInt32() : 0;
+
+                if (doc.RootElement.TryGetProperty("content", out var contentArr))
+                {
+                    foreach (var item in contentArr.EnumerateArray())
+                    {
+                        var orderNumber = item.TryGetProperty("orderNumber", out var onProp) ? onProp.GetString() ?? "" : "";
+
+                        var order = new ExternalOrderDto
+                        {
+                            PlatformCode = PlatformCode,
+                            PlatformOrderId = orderNumber,
+                            OrderNumber = orderNumber,
+                            Status = item.TryGetProperty("status", out var st) ? st.GetString() ?? "" : "",
+                            CustomerName = BuildTrendyolCustomerName(item),
+                            TotalAmount = item.TryGetProperty("totalPrice", out var tp2) ? tp2.GetDecimal() : 0,
+                            OrderDate = item.TryGetProperty("orderDate", out var od) ? DateTimeOffset.FromUnixTimeMilliseconds(od.GetInt64()).UtcDateTime : DateTime.UtcNow
+                        };
+
+                        // Siparis satir detaylari
+                        if (item.TryGetProperty("lines", out var lines))
+                        {
+                            foreach (var line in lines.EnumerateArray())
+                            {
+                                order.Lines.Add(new ExternalOrderLineDto
+                                {
+                                    PlatformLineId = line.TryGetProperty("id", out var lid) ? lid.GetInt64().ToString() : null,
+                                    SKU = line.TryGetProperty("merchantSku", out var sku) ? sku.GetString() : null,
+                                    Barcode = line.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
+                                    ProductName = line.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
+                                    Quantity = line.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
+                                    UnitPrice = line.TryGetProperty("price", out var up) ? up.GetDecimal() : 0,
+                                    DiscountAmount = line.TryGetProperty("discount", out var disc) ? disc.GetDecimal() : null,
+                                    LineTotal = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0
+                                });
+                            }
+                        }
+
+                        // Kargo bilgisi
+                        if (item.TryGetProperty("shipmentPackageId", out var spId))
+                            order.ShipmentPackageId = spId.GetInt64().ToString();
+                        if (item.TryGetProperty("cargoProviderName", out var cpn))
+                            order.CargoProviderName = cpn.GetString();
+                        if (item.TryGetProperty("cargoTrackingNumber", out var ctn))
+                            order.CargoTrackingNumber = ctn.GetString();
+
+                        orders.Add(order);
+                    }
+                }
+
+                page++;
+                hasMore = page < totalPages;
+            }
+
+            _logger.LogInformation("Trendyol PullOrders: {Count} orders retrieved", orders.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol PullOrders failed at page {Page}", page);
+        }
+
+        return orders.AsReadOnly();
+    }
+
+    public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.UpdateOrderStatusAsync: Package={PackageId} Status={Status}", packageId, status);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new { status, lines = Array.Empty<object>() };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/sapigw/suppliers/{_supplierId}/orders/shipment-packages/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol UpdateOrderStatus failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol UpdateOrderStatus exception: {PackageId}", packageId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    public async Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.SendInvoiceLinkAsync: Package={PackageId}", shipmentPackageId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            if (!long.TryParse(shipmentPackageId, out var packageIdLong))
+            {
+                _logger.LogError("SendInvoiceLink: Invalid shipmentPackageId '{Id}'", shipmentPackageId);
+                return false;
+            }
+
+            var payload = new { shipmentPackageId = packageIdLong, invoiceLink = invoiceUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PostAsync(
+                        new Uri($"/sapigw/suppliers/{_supplierId}/orders/invoiceLinks", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol SendInvoiceLink failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol SendInvoiceLink exception: {PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
+
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName}", shipmentPackageId, fileName);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            using var formContent = new MultipartFormDataContent();
+            formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
+            formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.PostAsync(
+                    new Uri($"/sapigw/suppliers/{_supplierId}/orders/invoice-file", UriKind.Relative), formContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol SendInvoiceFile failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol SendInvoiceFile exception: {PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade Entegrasyonu
+    // ═══════════════════════════════════════════
+
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+        var page = 0;
+        const int pageSize = 50;
+
+        try
+        {
+            bool hasMore = true;
+            while (hasMore)
+            {
+                await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+                var url = $"/sapigw/suppliers/{_supplierId}/claims?page={page}&size={pageSize}";
+                if (since.HasValue)
+                {
+                    var epoch = new DateTimeOffset(since.Value).ToUnixTimeMilliseconds();
+                    url += $"&claimDate={epoch}";
+                }
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode) break;
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                var totalPages = doc.RootElement.TryGetProperty("totalPages", out var tp) ? tp.GetInt32() : 0;
+
+                if (doc.RootElement.TryGetProperty("content", out var contentArr))
+                {
+                    foreach (var item in contentArr.EnumerateArray())
+                    {
+                        var claim = new ExternalClaimDto
+                        {
+                            PlatformCode = PlatformCode,
+                            PlatformClaimId = item.TryGetProperty("id", out var cid) ? cid.GetInt64().ToString() : "",
+                            OrderNumber = item.TryGetProperty("orderNumber", out var on) ? on.GetString() ?? "" : "",
+                            Status = item.TryGetProperty("status", out var st) ? st.GetString() ?? "" : "",
+                            Reason = item.TryGetProperty("reason", out var r) ? r.GetString() ?? "" : "",
+                            ReasonDetail = item.TryGetProperty("reasonDetail", out var rd) ? rd.GetString() : null,
+                            CustomerName = item.TryGetProperty("customerFirstName", out var fn) ? fn.GetString() ?? "" : "",
+                            ClaimDate = item.TryGetProperty("claimDate", out var cd) ? DateTimeOffset.FromUnixTimeMilliseconds(cd.GetInt64()).UtcDateTime : DateTime.UtcNow
+                        };
+
+                        if (item.TryGetProperty("items", out var claimItems))
+                        {
+                            foreach (var ci in claimItems.EnumerateArray())
+                            {
+                                claim.Lines.Add(new ExternalClaimLineDto
+                                {
+                                    Barcode = ci.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
+                                    ProductName = ci.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
+                                    Quantity = ci.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
+                                    UnitPrice = ci.TryGetProperty("price", out var up) ? up.GetDecimal() : 0
+                                });
+                            }
+                        }
+
+                        claims.Add(claim);
+                    }
+                }
+
+                page++;
+                hasMore = page < totalPages;
+            }
+
+            _logger.LogInformation("Trendyol PullClaims: {Count} claims retrieved", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol PullClaims failed at page {Page}", page);
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.ApproveClaimAsync: ClaimId={ClaimId}", claimId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    return await _httpClient.PostAsync(
+                        new Uri($"/sapigw/suppliers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol ApproveClaim failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol ApproveClaim exception: {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.RejectClaimAsync: ClaimId={ClaimId}", claimId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new { claimIssueReasonId = reason };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PostAsync(
+                        new Uri($"/sapigw/suppliers/{_supplierId}/claims/{claimId}/issue", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol RejectClaim failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol RejectClaim exception: {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter — Muhasebe & Finans
+    // ═══════════════════════════════════════════
+
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetSettlementAsync: {Start} - {End}", startDate, endDate);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
+            var endEpoch = new DateTimeOffset(endDate).ToUnixTimeMilliseconds();
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri($"/sapigw/suppliers/{_supplierId}/settlement?startDate={startEpoch}&endDate={endEpoch}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol GetSettlement failed: {Status} - {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = PlatformCode,
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            if (doc.RootElement.TryGetProperty("totalSales", out var ts)) settlement.TotalSales = ts.GetDecimal();
+            if (doc.RootElement.TryGetProperty("totalCommission", out var tc)) settlement.TotalCommission = tc.GetDecimal();
+            if (doc.RootElement.TryGetProperty("totalShippingCost", out var tsc)) settlement.TotalShippingCost = tsc.GetDecimal();
+            if (doc.RootElement.TryGetProperty("totalReturnDeduction", out var trd)) settlement.TotalReturnDeduction = trd.GetDecimal();
+            if (doc.RootElement.TryGetProperty("netAmount", out var na)) settlement.NetAmount = na.GetDecimal();
+
+            _logger.LogInformation("Trendyol GetSettlement: Net={NetAmount} TRY", settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol GetSettlement exception");
+            return null;
+        }
+    }
+
+    public async Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetCargoInvoicesAsync since={StartDate}", startDate);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri($"/sapigw/suppliers/{_supplierId}/cargo-invoices?startDate={startEpoch}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol GetCargoInvoices failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<CargoInvoiceDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var invoices = JsonSerializer.Deserialize<List<CargoInvoiceDto>>(content, _jsonOptions) ?? new();
+
+            _logger.LogInformation("Trendyol GetCargoInvoices: {Count} invoices", invoices.Count);
+            return invoices.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol GetCargoInvoices exception");
+            return Array.Empty<CargoInvoiceDto>();
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Katalog Servisleri (Ek metotlar)
+    // ═══════════════════════════════════════════
+
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetCategoriesAsync");
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri("/sapigw/product-categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode) return Array.Empty<CategoryDto>();
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var categories = new List<CategoryDto>();
+            if (doc.RootElement.TryGetProperty("categories", out var cats))
+            {
+                foreach (var cat in cats.EnumerateArray())
+                {
+                    categories.Add(ParseCategory(cat));
+                }
+            }
+
+            _logger.LogInformation("Trendyol GetCategories: {Count} top-level categories", categories.Count);
+            return categories.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol GetCategories exception");
+            return Array.Empty<CategoryDto>();
+        }
+    }
+
+    public async Task<IReadOnlyList<BrandDto>> GetBrandsAsync(string namePrefix, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetBrandsAsync prefix={Prefix}", namePrefix);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri($"/sapigw/brands?name={Uri.EscapeDataString(namePrefix)}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode) return Array.Empty<BrandDto>();
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var brands = new List<BrandDto>();
+            if (doc.RootElement.TryGetProperty("brands", out var brandArr))
+            {
+                foreach (var b in brandArr.EnumerateArray())
+                {
+                    brands.Add(new BrandDto
+                    {
+                        PlatformBrandId = b.TryGetProperty("id", out var id) ? id.GetInt32() : 0,
+                        Name = b.TryGetProperty("name", out var n) ? n.GetString() ?? "" : ""
+                    });
+                }
+            }
+
+            return brands.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol GetBrands exception");
+            return Array.Empty<BrandDto>();
+        }
+    }
+
+    public async Task<PlatformHealthDto> CheckHealthAsync(CancellationToken ct = default)
+    {
+        var sw = Stopwatch.StartNew();
+        var result = new PlatformHealthDto { PlatformCode = PlatformCode };
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                new Uri("/sapigw/api-status", UriKind.Relative), ct).ConfigureAwait(false);
+
+            sw.Stop();
+            result.LatencyMs = (int)sw.ElapsedMilliseconds;
+            result.IsHealthy = response.IsSuccessStatusCode;
+
+            if (!response.IsSuccessStatusCode)
+                result.ErrorMessage = $"HTTP {(int)response.StatusCode}";
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            result.LatencyMs = (int)sw.ElapsedMilliseconds;
+            result.IsHealthy = false;
+            result.ErrorMessage = ex.Message;
+        }
+
+        return result;
+    }
+
+    // ═══════════════════════════════════════════
     // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
     public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
-        // Trendyol webhook kaydi — Supplier API uzerinden
-        await Task.CompletedTask;
-        return true;
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new { url = callbackUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PostAsync(
+                        new Uri($"/sapigw/suppliers/{_supplierId}/webhooks", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol RegisterWebhook exception");
+            return false;
+        }
     }
 
     public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
@@ -372,12 +962,46 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         return true;
     }
 
-    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        _logger.LogInformation("TrendyolAdapter.ProcessWebhookPayloadAsync: {Length} chars", payload.Length);
         using var doc = JsonDocument.Parse(payload);
-        // Webhook payload isleme — siparis, stok degisikligi vb.
-        await Task.CompletedTask;
+        var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+        var orderId = doc.RootElement.TryGetProperty("orderNumber", out var on) ? on.GetString() : null;
+
+        _logger.LogInformation(
+            "TrendyolAdapter webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
+            eventType, orderId, payload.Length);
+
+        return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // Yardimci Metotlar
+    // ═══════════════════════════════════════════
+
+    private static string BuildTrendyolCustomerName(JsonElement item)
+    {
+        var first = item.TryGetProperty("customerFirstName", out var fn) ? fn.GetString() ?? "" : "";
+        var last = item.TryGetProperty("customerLastName", out var ln) ? ln.GetString() ?? "" : "";
+        return $"{first} {last}".Trim();
+    }
+
+    private static CategoryDto ParseCategory(JsonElement el)
+    {
+        var cat = new CategoryDto
+        {
+            PlatformCategoryId = el.TryGetProperty("id", out var id) ? id.GetInt32() : 0,
+            Name = el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
+            ParentId = el.TryGetProperty("parentId", out var pid) ? pid.GetInt32() : null
+        };
+
+        if (el.TryGetProperty("subCategories", out var subs))
+        {
+            foreach (var sub in subs.EnumerateArray())
+                cat.SubCategories.Add(ParseCategory(sub));
+        }
+
+        return cat;
     }
 
     private void EnsureConfigured()

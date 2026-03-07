@@ -6,19 +6,22 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// OpenCart platform adaptoru — mevcut OpenCartClient (MesTechStok.Core) mantigi
-/// korunarak IIntegratorAdapter implement edildi.
+/// OpenCart platform adaptoru — IIntegratorAdapter + IOrderCapableAdapter.
+/// Polly retry pipeline, batch stok guncelleme ve siparis cekme destegi.
 /// OpenCart'ta kargo yonetimi yok (SupportsShipment = false).
 /// </summary>
-public class OpenCartAdapter : IIntegratorAdapter
+public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private string _apiToken = string.Empty;
     private bool _isConfigured;
@@ -33,6 +36,26 @@ public class OpenCartAdapter : IIntegratorAdapter
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                Delay = TimeSpan.FromSeconds(1),
+                BackoffType = DelayBackoffType.Exponential,
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500 || r.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(ex => !ex.CancellationToken.IsCancellationRequested),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("OpenCart retry #{Attempt} after {Delay}ms — Status: {Status}",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds,
+                        args.Outcome.Result?.StatusCode.ToString() ?? args.Outcome.Exception?.Message);
+                    return ValueTask.CompletedTask;
+                }
+            })
+            .Build();
     }
 
     public string PlatformCode => nameof(PlatformType.OpenCart);
@@ -76,8 +99,9 @@ public class OpenCartAdapter : IIntegratorAdapter
 
             ConfigureAuth(credentials);
 
-            var response = await _httpClient.GetAsync(
-                new Uri($"/api/rest/products?limit=1&token={_apiToken}", UriKind.Relative), ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri("/api/rest/products?limit=1", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -137,10 +161,14 @@ public class OpenCartAdapter : IIntegratorAdapter
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
-                new Uri($"/api/rest/products?token={_apiToken}", UriKind.Relative), content, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PostAsync(
+                        new Uri("/api/rest/products", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -173,8 +201,9 @@ public class OpenCartAdapter : IIntegratorAdapter
 
             while (hasMore)
             {
-                var response = await _httpClient.GetAsync(
-                    new Uri($"/api/rest/products?limit={limit}&page={page}&token={_apiToken}", UriKind.Relative), ct).ConfigureAwait(false);
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(
+                        new Uri($"/api/rest/products?limit={limit}&page={page}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode) break;
 
@@ -218,7 +247,7 @@ public class OpenCartAdapter : IIntegratorAdapter
         return products.AsReadOnly();
     }
 
-    public async Task<bool> PushStockUpdateAsync(int productId, int newStock, CancellationToken ct = default)
+    public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("OpenCartAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
@@ -227,10 +256,14 @@ public class OpenCartAdapter : IIntegratorAdapter
         {
             var payload = new { quantity = newStock };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PutAsync(
-                new Uri($"/api/rest/products/{productId}?token={_apiToken}", UriKind.Relative), content, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -248,7 +281,40 @@ public class OpenCartAdapter : IIntegratorAdapter
         }
     }
 
-    public async Task<bool> PushPriceUpdateAsync(int productId, decimal newPrice, CancellationToken ct = default)
+    /// <summary>
+    /// Toplu stok guncelleme — birden fazla urun icin batch islem.
+    /// Max 5 paralel istek.
+    /// </summary>
+    public async Task<int> PushBatchStockUpdateAsync(
+        IReadOnlyList<(Guid ProductId, int NewStock)> updates, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PushBatchStockUpdateAsync: {Count} items", updates.Count);
+
+        var successCount = 0;
+        var semaphore = new SemaphoreSlim(5, 5);
+
+        var tasks = updates.Select(async update =>
+        {
+            await semaphore.WaitAsync(ct).ConfigureAwait(false);
+            try
+            {
+                var ok = await PushStockUpdateAsync(update.ProductId, update.NewStock, ct).ConfigureAwait(false);
+                if (ok) Interlocked.Increment(ref successCount);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        _logger.LogInformation("OpenCart BatchStockUpdate: {Success}/{Total} succeeded", successCount, updates.Count);
+        return successCount;
+    }
+
+    public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("OpenCartAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
@@ -257,10 +323,14 @@ public class OpenCartAdapter : IIntegratorAdapter
         {
             var payload = new { price = newPrice };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PutAsync(
-                new Uri($"/api/rest/products/{productId}?token={_apiToken}", UriKind.Relative), content, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -278,10 +348,204 @@ public class OpenCartAdapter : IIntegratorAdapter
         }
     }
 
+    // ── IOrderCapableAdapter ──────────────────────────────────────────────
+
+    public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PullOrdersAsync since={Since}", since);
+
+        var orders = new List<ExternalOrderDto>();
+
+        try
+        {
+            var page = 1;
+            const int limit = 50;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"/api/rest/orders?limit={limit}&page={page}&sort=o.date_added&order=DESC";
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(
+                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode) break;
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var dataArr))
+                {
+                    hasMore = false;
+                    break;
+                }
+
+                var items = dataArr.EnumerateArray().ToList();
+                if (items.Count == 0) break;
+
+                foreach (var item in items)
+                {
+                    var orderDate = ParseOrderDate(item);
+
+                    if (since.HasValue && orderDate < since.Value)
+                    {
+                        hasMore = false;
+                        break;
+                    }
+
+                    var order = new ExternalOrderDto
+                    {
+                        PlatformCode = PlatformCode,
+                        PlatformOrderId = item.TryGetProperty("order_id", out var oid) ? oid.ToString() : "",
+                        OrderNumber = item.TryGetProperty("order_id", out var on) ? on.ToString() : "",
+                        Status = MapOpenCartOrderStatus(
+                            item.TryGetProperty("order_status_id", out var osid) ? osid.ToString() : "0"),
+                        CustomerName = BuildCustomerName(item),
+                        CustomerEmail = item.TryGetProperty("email", out var em) ? em.GetString() : null,
+                        CustomerPhone = item.TryGetProperty("telephone", out var tel) ? tel.GetString() : null,
+                        CustomerAddress = BuildAddress(item),
+                        CustomerCity = item.TryGetProperty("shipping_city", out var city) ? city.GetString() : null,
+                        TotalAmount = item.TryGetProperty("total", out var tot) && decimal.TryParse(tot.GetString(), out var tv) ? tv : 0,
+                        Currency = item.TryGetProperty("currency_code", out var cur) ? cur.GetString() ?? "TRY" : "TRY",
+                        OrderDate = orderDate
+                    };
+
+                    if (item.TryGetProperty("products", out var prods) && prods.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var line in prods.EnumerateArray())
+                        {
+                            order.Lines.Add(new ExternalOrderLineDto
+                            {
+                                PlatformLineId = line.TryGetProperty("order_product_id", out var lpid) ? lpid.ToString() : null,
+                                SKU = line.TryGetProperty("model", out var model) ? model.GetString() : null,
+                                ProductName = line.TryGetProperty("name", out var ln) ? ln.GetString() ?? "" : "",
+                                Quantity = line.TryGetProperty("quantity", out var lq) && int.TryParse(lq.GetString(), out var lqv) ? lqv : 1,
+                                UnitPrice = line.TryGetProperty("price", out var lp) && decimal.TryParse(lp.GetString(), out var lpv) ? lpv : 0,
+                                TaxRate = line.TryGetProperty("tax", out var ltax) && decimal.TryParse(ltax.GetString(), out var ltv) ? ltv : 0,
+                                LineTotal = line.TryGetProperty("total", out var lt) && decimal.TryParse(lt.GetString(), out var ltov) ? ltov : 0
+                            });
+                        }
+                    }
+
+                    orders.Add(order);
+                }
+
+                hasMore = items.Count == limit;
+                page++;
+            }
+
+            _logger.LogInformation("OpenCart PullOrders: {Count} orders retrieved", orders.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PullOrders failed");
+        }
+
+        return orders.AsReadOnly();
+    }
+
+    public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.UpdateOrderStatusAsync: OrderId={OrderId} status={Status}", packageId, status);
+
+        try
+        {
+            var statusId = MapStatusToOpenCartId(status);
+            var payload = new { order_status_id = statusId };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/orders/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("OpenCart UpdateOrderStatus failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("OpenCart UpdateOrderStatus success: OrderId={OrderId} Status={Status}", packageId, status);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart UpdateOrderStatus exception: {OrderId}", packageId);
+            return false;
+        }
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────
+
     private void EnsureConfigured()
     {
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "OpenCartAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
     }
+
+    private static DateTime ParseOrderDate(JsonElement item)
+    {
+        if (item.TryGetProperty("date_added", out var da))
+        {
+            var dateStr = da.GetString();
+            if (DateTime.TryParse(dateStr, out var parsed))
+                return DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+        }
+        return DateTime.MinValue;
+    }
+
+    private static string BuildCustomerName(JsonElement item)
+    {
+        var first = item.TryGetProperty("firstname", out var fn) ? fn.GetString() ?? "" : "";
+        var last = item.TryGetProperty("lastname", out var ln) ? ln.GetString() ?? "" : "";
+        return $"{first} {last}".Trim();
+    }
+
+    private static string? BuildAddress(JsonElement item)
+    {
+        var addr1 = item.TryGetProperty("shipping_address_1", out var a1) ? a1.GetString() ?? "" : "";
+        var addr2 = item.TryGetProperty("shipping_address_2", out var a2) ? a2.GetString() ?? "" : "";
+        var full = $"{addr1} {addr2}".Trim();
+        return string.IsNullOrEmpty(full) ? null : full;
+    }
+
+    private static string MapOpenCartOrderStatus(string statusId) => statusId switch
+    {
+        "1" => "Pending",
+        "2" => "Processing",
+        "3" => "Shipped",
+        "5" => "Complete",
+        "7" => "Canceled",
+        "8" => "Denied",
+        "9" => "Canceled Reversal",
+        "10" => "Failed",
+        "11" => "Refunded",
+        "12" => "Reversed",
+        "13" => "Chargeback",
+        "14" => "Expired",
+        "15" => "Processed",
+        "16" => "Voided",
+        _ => $"Unknown({statusId})"
+    };
+
+    private static int MapStatusToOpenCartId(string status) => status.ToLowerInvariant() switch
+    {
+        "pending" => 1,
+        "processing" => 2,
+        "shipped" => 3,
+        "complete" or "completed" => 5,
+        "canceled" or "cancelled" => 7,
+        "denied" => 8,
+        "refunded" => 11,
+        _ => 2
+    };
 }
