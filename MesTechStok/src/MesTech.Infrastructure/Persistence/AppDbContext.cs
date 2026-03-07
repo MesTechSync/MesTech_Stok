@@ -110,35 +110,56 @@ public class AppDbContext : DbContext
             }
         }
 
-        // Product
+        // ── TenantId Indexes — performans (Global Query Filter her sorguya TenantId ekler) ──
         modelBuilder.Entity<Product>(e =>
         {
+            e.HasIndex(p => p.TenantId).HasDatabaseName("IX_Products_TenantId");
             e.HasIndex(p => p.SKU).IsUnique();
             e.HasIndex(p => p.Barcode);
             e.HasIndex(p => p.IsActive);
             e.Property(p => p.RowVersion).IsRowVersion();
         });
 
-        // StockMovement
         modelBuilder.Entity<StockMovement>(e =>
         {
+            e.HasIndex(s => s.TenantId).HasDatabaseName("IX_StockMovements_TenantId");
             e.HasIndex(s => s.ProductId);
             e.HasIndex(s => s.Date);
             e.Property(s => s.RowVersion).IsRowVersion();
         });
 
-        // Order
         modelBuilder.Entity<Order>(e =>
         {
+            e.HasIndex(o => o.TenantId).HasDatabaseName("IX_Orders_TenantId");
             e.HasIndex(o => o.OrderNumber).IsUnique();
             e.HasIndex(o => o.CustomerId);
             e.Property(o => o.RowVersion).IsRowVersion();
         });
 
-        // Category
         modelBuilder.Entity<Category>(e =>
         {
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Categories_TenantId");
             e.HasIndex(c => c.Code).IsUnique();
+        });
+
+        modelBuilder.Entity<Customer>(e =>
+        {
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Customers_TenantId");
+        });
+
+        modelBuilder.Entity<Warehouse>(e =>
+        {
+            e.HasIndex(w => w.TenantId).HasDatabaseName("IX_Warehouses_TenantId");
+        });
+
+        modelBuilder.Entity<Supplier>(e =>
+        {
+            e.HasIndex(s => s.TenantId).HasDatabaseName("IX_Suppliers_TenantId");
+        });
+
+        modelBuilder.Entity<InventoryLot>(e =>
+        {
+            e.HasIndex(l => l.TenantId).HasDatabaseName("IX_InventoryLots_TenantId");
         });
 
         // User
