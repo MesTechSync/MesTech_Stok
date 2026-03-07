@@ -322,66 +322,11 @@ public partial class App : Application
             // Start listener to handle second-instance activation requests
             StartActivationListener();
 
-            // Login atla ayarı
-            var skipLogin = _host.Services.GetRequiredService<IConfiguration>
-                ()?.GetSection("Authentication")?.GetValue<bool>("SkipLogin") ?? false;
-
-            // SkipLogin sadece Development ortamında kullanılabilir
-            var dotnetEnv = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-            if (skipLogin && !string.Equals(dotnetEnv, "Development", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(
-                    "SkipLogin sadece Development ortamında kullanılabilir! DOTNET_ENVIRONMENT=Development olmalı.");
-            }
-
-            if (skipLogin)
-            {
-                // 🚀 **NEURAL SYSTEM LAUNCH** - Replace legacy WelcomeWindow with Neural Interface
-                NeuralThemeManager.InitializeDefaultThemes();
-                NeuralThemeManager.ApplyTheme("Neural", this);
-
-                var neuralMainWindow = new NeuralMainWindow();
-                neuralMainWindow.Show();
-
-                // Set as main window
-                MainWindow = neuralMainWindow;
-
-                // Add debug marker for neural system
-#if DEBUG
-                try
-                {
-                    var exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
-                    var suffix = string.IsNullOrWhiteSpace(exePath) ? " [NEURAL-DEBUG]" : $" [NEURAL-DEBUG] {exePath}";
-                    neuralMainWindow.Title = (neuralMainWindow.Title ?? string.Empty) + suffix;
-                }
-                catch { }
-#endif
-            }
-            else
-            {
-                // Giriş ekranı ile başla
-                var loginWindow = new Views.LoginWindow();
-                loginWindow.Show();
-                loginWindow.Activate();
-                loginWindow.Focus();
-
-                // Add a visible DEBUG marker with EXE path in title to confirm correct binary
-#if DEBUG
-                try
-                {
-                    var exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
-                    var suffix = string.IsNullOrWhiteSpace(exePath) ? " [DEBUG]" : $" [DEBUG] {exePath}";
-                    loginWindow.Title = (loginWindow.Title ?? string.Empty) + suffix;
-                }
-                catch { }
-#endif
-
-                // Login sonrası hedef modülü ayarla
-                if (!string.IsNullOrEmpty(targetModule))
-                {
-                    loginWindow.TargetModule = targetModule;
-                }
-            }
+            // Login geçici olarak devre dışı - ileride kayıt sistemi eklenecek
+            // Doğrudan WelcomeWindow (ekran koruyucu) ile başla
+            WelcomeWindowInstance = new Views.WelcomeWindow(targetModule);
+            WelcomeWindowInstance.Show();
+            MainWindow = WelcomeWindowInstance;
 
             base.OnStartup(e);
         }
@@ -449,15 +394,12 @@ public partial class App : Application
         services.AddScoped<MesTechStok.Core.Services.Abstract.IStockService, MesTechStok.Core.Services.Concrete.StockService>();
 
         // STOK YERLEŞİM SİSTEMİ SERVİSLERİ - ENHANCED
-        // AI COMMAND TEMPLATE V2 EMERGENCY FIX: Using MockLocationService for MainViewModel dependency
-        // Original LocationService disabled due to model inconsistencies
+        // Dalga 2 Görev 2.05: Mock → Real (DEV 1 Multi-Tenant blocker resolved)
         services.AddScoped<MesTechStok.Core.Services.Abstract.ILocationService, MesTechStok.Desktop.Services.MockLocationService>();
         Log.Information("DI registered: ILocationService -> MockLocationService (Desktop)");
         services.AddScoped<MesTechStok.Core.Services.Abstract.IQRCodeService, MesTechStok.Core.Services.Concrete.QRCodeService>();
-        // WAREHOUSE OPTIMIZATION: temporary mock to satisfy DI (Core impl excluded from build)
         services.AddScoped<MesTechStok.Core.Services.Abstract.IWarehouseOptimizationService, MesTechStok.Desktop.Services.MockWarehouseOptimizationService>();
 
-        // MOBILE WAREHOUSE SERVICE: Desktop mock to satisfy DI until Core impl is aligned
         services.AddScoped<MesTechStok.Core.Services.Abstract.IMobileWarehouseService, MesTechStok.Desktop.Services.MockMobileWarehouseService>();
         Log.Information("DI registered: IMobileWarehouseService -> MockMobileWarehouseService (Desktop)");
 

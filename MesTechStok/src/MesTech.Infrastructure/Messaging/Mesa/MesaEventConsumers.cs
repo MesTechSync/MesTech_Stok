@@ -1,4 +1,5 @@
 using MassTransit;
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
@@ -10,10 +11,14 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// </summary>
 public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 {
+    private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaAiContentConsumer> _logger;
 
-    public MesaAiContentConsumer(ILogger<MesaAiContentConsumer> logger)
+    public MesaAiContentConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaAiContentConsumer> logger)
     {
+        _monitor = monitor;
         _logger = logger;
     }
 
@@ -31,17 +36,23 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
                 string.Join(", ", msg.Metadata.Keys));
         }
 
-        // TODO Dalga 2: Product.Description guncelle, SEO metadata kaydet
+        _monitor.RecordConsume("ai.content.generated");
+
+        // TODO Dalga 3: Product.Description guncelle, SEO metadata kaydet
         return Task.CompletedTask;
     }
 }
 
 public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 {
+    private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaAiPriceConsumer> _logger;
 
-    public MesaAiPriceConsumer(ILogger<MesaAiPriceConsumer> logger)
+    public MesaAiPriceConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaAiPriceConsumer> logger)
     {
+        _monitor = monitor;
         _logger = logger;
     }
 
@@ -58,17 +69,23 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
                 "[MESA Consumer] Fiyat gerekce: {Reasoning}", msg.Reasoning);
         }
 
-        // TODO Dalga 2: Fiyat onerisi tablosuna kaydet, UI'da goster
+        _monitor.RecordConsume("ai.price.recommended");
+
+        // TODO Dalga 3: Fiyat onerisi tablosuna kaydet, UI'da goster
         return Task.CompletedTask;
     }
 }
 
 public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 {
+    private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaBotStatusConsumer> _logger;
 
-    public MesaBotStatusConsumer(ILogger<MesaBotStatusConsumer> logger)
+    public MesaBotStatusConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaBotStatusConsumer> logger)
     {
+        _monitor = monitor;
         _logger = logger;
     }
 
@@ -89,7 +106,9 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
                 msg.Channel, msg.ErrorMessage);
         }
 
-        // TODO Dalga 2: Bildirim durumunu audit log'a kaydet
+        _monitor.RecordConsume("bot.notification.sent");
+
+        // TODO Dalga 3: Bildirim durumunu audit log'a kaydet
         return Task.CompletedTask;
     }
 }

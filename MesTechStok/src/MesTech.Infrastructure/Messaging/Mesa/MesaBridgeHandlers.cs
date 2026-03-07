@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -13,15 +14,18 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 public class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ProductCreatedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<ProductCreatedBridgeHandler> _logger;
 
     public ProductCreatedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<ProductCreatedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -40,21 +44,25 @@ public class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotif
             e.OccurredAt);
 
         await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("product.created");
     }
 }
 
-public class StockChangedBridgeHandler : INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>
+public class LowStockBridgeHandler : INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
-    private readonly ILogger<StockChangedBridgeHandler> _logger;
+    private readonly ILogger<LowStockBridgeHandler> _logger;
 
-    public StockChangedBridgeHandler(
+    public LowStockBridgeHandler(
         IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
-        ILogger<StockChangedBridgeHandler> logger)
+        ILogger<LowStockBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -75,21 +83,25 @@ public class StockChangedBridgeHandler : INotificationHandler<DomainEventNotific
             e.OccurredAt);
 
         await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct);
+        _monitor.RecordPublish("stock.low");
     }
 }
 
 public class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotification<OrderPlacedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<OrderPlacedBridgeHandler> _logger;
 
     public OrderPlacedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<OrderPlacedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -108,21 +120,25 @@ public class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotifica
             e.OccurredAt);
 
         await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("order.placed");
     }
 }
 
 public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotification<PriceChangedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<PriceChangedBridgeHandler> _logger;
 
     public PriceChangedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<PriceChangedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -141,5 +157,6 @@ public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotific
             e.OccurredAt);
 
         await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("price.changed");
     }
 }

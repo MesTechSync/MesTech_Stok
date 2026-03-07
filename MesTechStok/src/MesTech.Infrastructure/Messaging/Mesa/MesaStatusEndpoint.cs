@@ -1,0 +1,103 @@
+using System.Net;
+using System.Text.Json;
+using MesTech.Application.Interfaces;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace MesTech.Infrastructure.Messaging.Mesa;
+
+/// <summary>
+/// MESA event monitoring HTTP endpoint.
+/// http://localhost:5101/api/mesa/status adresinde JSON formatinda
+/// event publish/consume istatistiklerini sunar.
+/// HealthCheckEndpoint pattern'ini kullanir (port 5101).
+/// </summary>
+public class MesaStatusEndpoint : BackgroundService
+{
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ILogger<MesaStatusEndpoint> _logger;
+    private readonly int _port;
+    private HttpListener? _listener;
+
+    public MesaStatusEndpoint(
+        IMesaEventMonitor monitor,
+        ILogger<MesaStatusEndpoint> logger,
+        int port = 5101)
+    {
+        _monitor = monitor;
+        _logger = logger;
+        _port = port;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _listener = new HttpListener();
+        _listener.Prefixes.Add($"http://+:{_port}/");
+
+        try
+        {
+            _listener.Start();
+            _logger.LogInformation(
+                "MESA status endpoint aktif: http://localhost:{Port}/api/mesa/status", _port);
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var context = await _listener.GetContextAsync();
+                _ = HandleRequestAsync(context);
+            }
+        }
+        catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "MESA status endpoint hatasi");
+        }
+        finally
+        {
+            _listener?.Stop();
+        }
+    }
+
+    private Task HandleRequestAsync(HttpListenerContext context)
+    {
+        var response = context.Response;
+
+        try
+        {
+            if (context.Request.Url?.AbsolutePath == "/api/mesa/status")
+            {
+                var status = _monitor.GetStatus();
+                var json = JsonSerializer.Serialize(status, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                });
+
+                response.StatusCode = 200;
+                response.ContentType = "application/json";
+                var buffer = System.Text.Encoding.UTF8.GetBytes(json);
+                response.ContentLength64 = buffer.Length;
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+            }
+            else
+            {
+                response.StatusCode = 404;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "MESA status request hatasi");
+            response.StatusCode = 500;
+        }
+        finally
+        {
+            response.Close();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public override void Dispose()
+    {
+        _listener?.Close();
+        base.Dispose();
+    }
+}

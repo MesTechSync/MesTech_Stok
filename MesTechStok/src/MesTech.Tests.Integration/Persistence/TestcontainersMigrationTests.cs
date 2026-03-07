@@ -29,6 +29,8 @@ public class TestcontainersMigrationTests : IClassFixture<PostgreSqlContainerFix
             {
                 npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
             })
+            .ConfigureWarnings(w => w.Ignore(
+                Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning))
             .Options;
 
         return new AppDbContext(options, new TestTenantProvider());
