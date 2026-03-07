@@ -123,6 +123,9 @@ public static class InfrastructureServiceRegistration
                 sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                 sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
 
+        // === Integration Layer (Adapters, Factory, Orchestrator) ===
+        services.AddIntegrationServices();
+
         return services;
     }
 }
