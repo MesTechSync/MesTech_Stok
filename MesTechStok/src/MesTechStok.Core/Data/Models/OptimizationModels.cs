@@ -87,7 +87,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class WarehouseEfficiencyReport
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string WarehouseName { get; set; } = string.Empty;
         public string ReportPeriod { get; set; } = string.Empty;
         public decimal OverallEfficiency { get; set; }
@@ -155,7 +155,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class CapacityPlanningReport
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string WarehouseName { get; set; } = string.Empty;
         public int CurrentCapacity { get; set; }
         public int UsedCapacity { get; set; }
@@ -172,7 +172,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class CapacityForecast
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string ForecastPeriod { get; set; } = string.Empty;
         public int CurrentUsage { get; set; }
         public int ProjectedUsage { get; set; }
@@ -189,7 +189,7 @@ namespace MesTechStok.Core.Data.Models
     public class CapacityAlert
     {
         public int Id { get; set; }
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public AlertType AlertType { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
@@ -209,7 +209,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class LocationHeatmapData
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public LocationHeatmapType HeatmapType { get; set; }
         public DateTime GeneratedDate { get; set; }
         public List<HeatmapPoint> HeatmapPoints { get; set; } = new List<HeatmapPoint>();
@@ -232,7 +232,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class MovementPatternAnalysis
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string AnalysisPeriod { get; set; } = string.Empty;
         public int TotalMovements { get; set; }
         public TimeSpan AverageMovementTime { get; set; }
@@ -256,7 +256,7 @@ namespace MesTechStok.Core.Data.Models
     /// </summary>
     public class SpaceUtilizationTrend
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string AnalysisPeriod { get; set; } = string.Empty;
         public decimal CurrentUtilization { get; set; }
         public TrendDirection TrendDirection { get; set; }

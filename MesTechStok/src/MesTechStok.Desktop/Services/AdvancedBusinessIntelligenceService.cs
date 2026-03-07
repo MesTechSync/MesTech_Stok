@@ -17,11 +17,11 @@ namespace MesTechStok.Desktop.Services.Analytics
         Task<BusinessDashboard> GetRealTimeDashboardAsync();
 
         // 📊 ANALYTICS MODÜL 2: Customer behavior analysis and segmentation
-        Task<CustomerAnalytics> AnalyzeCustomerBehaviorAsync(int customerId);
+        Task<CustomerAnalytics> AnalyzeCustomerBehaviorAsync(Guid customerId);
         Task<List<CustomerSegment>> GetCustomerSegmentsAsync();
 
         // 📊 ANALYTICS MODÜL 3: Product performance analytics with trend analysis
-        Task<ProductPerformanceReport> GetProductPerformanceAsync(int productId, TimeRange range);
+        Task<ProductPerformanceReport> GetProductPerformanceAsync(Guid productId, TimeRange range);
         Task<List<TrendAnalysis>> GetProductTrendsAsync();
 
         // 📊 ANALYTICS MODÜL 4: Financial analytics and profit optimization
@@ -71,7 +71,7 @@ namespace MesTechStok.Desktop.Services.Analytics
 
     public class CustomerAnalytics
     {
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public string CustomerSegment { get; set; } = string.Empty;
         public decimal LifetimeValue { get; set; }
         public double ChurnProbability { get; set; }
@@ -94,7 +94,7 @@ namespace MesTechStok.Desktop.Services.Analytics
 
     public class ProductPerformanceReport
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public SalesMetrics Sales { get; set; } = new();
         public ProfitabilityMetrics Profitability { get; set; } = new();

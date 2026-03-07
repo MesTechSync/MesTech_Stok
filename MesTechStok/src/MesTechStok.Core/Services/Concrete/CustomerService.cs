@@ -62,7 +62,7 @@ public class CustomerService : ICustomerService
         };
     }
 
-    public async Task<Customer?> GetCustomerByIdAsync(int id)
+    public async Task<Customer?> GetCustomerByIdAsync(Guid id)
     {
         return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
     }
@@ -113,7 +113,7 @@ public class CustomerService : ICustomerService
         return existing;
     }
 
-    public async Task<bool> DeleteCustomerAsync(int id)
+    public async Task<bool> DeleteCustomerAsync(Guid id)
     {
         var existing = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
         if (existing == null) return false;

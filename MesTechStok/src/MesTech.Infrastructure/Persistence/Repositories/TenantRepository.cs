@@ -13,7 +13,7 @@ public class TenantRepository : ITenantRepository
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<Tenant?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<Tenant?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Tenants.FirstOrDefaultAsync(t => t.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Tenant>> GetAllAsync(CancellationToken ct = default)

@@ -22,7 +22,7 @@ namespace MesTechStok.Desktop.Views
             public string Sku { get; set; } = string.Empty;
             public string ProductName { get; set; } = string.Empty;
             public string Status { get; set; } = string.Empty;
-            public int ProductId { get; set; }
+            public Guid ProductId { get; set; }
             public string FullPath { get; set; } = string.Empty;
         }
 
@@ -54,7 +54,7 @@ namespace MesTechStok.Desktop.Views
                 PreviewGrid.ItemsSource = null;
                 PreviewGrid.ItemsSource = _rows;
                 ApplyFilters();
-                SummaryText.Text = $"Bulunan: {files.Count}, Eşleşen: {_rows.Count(r => r.ProductId > 0)}";
+                SummaryText.Text = $"Bulunan: {files.Count}, Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)}";
                 try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] PREVIEW corr={_corr} files={files.Count}", nameof(ImageMapWizard)); } catch { }
             }
             catch (Exception ex)
@@ -88,11 +88,11 @@ namespace MesTechStok.Desktop.Views
                 }
                 else if (onlyMatched)
                 {
-                    view.Filter = o => o is Row r && r.ProductId > 0;
+                    view.Filter = o => o is Row r && r.ProductId != Guid.Empty;
                 }
                 else // onlyUnmatched
                 {
-                    view.Filter = o => o is Row r && r.ProductId <= 0;
+                    view.Filter = o => o is Row r && r.ProductId == Guid.Empty;
                 }
                 view.Refresh();
             }
@@ -143,7 +143,7 @@ namespace MesTechStok.Desktop.Views
                 var ctx = sp.GetService(typeof(MesTechStok.Core.Data.AppDbContext)) as MesTechStok.Core.Data.AppDbContext; if (ctx == null) return;
                 var storage = new MesTechStok.Desktop.Services.ImageStorageService();
                 int ok = 0, fail = 0;
-                foreach (var r in _rows.Where(r => r.ProductId > 0))
+                foreach (var r in _rows.Where(r => r.ProductId != Guid.Empty))
                 {
                     try
                     {
@@ -158,7 +158,7 @@ namespace MesTechStok.Desktop.Views
                     catch { fail++; r.Status = "Hata"; }
                 }
                 PreviewGrid.Items.Refresh();
-                SummaryText.Text = $"Eşleşen: {_rows.Count(r => r.ProductId > 0)} · Güncellendi={ok} · Hata={fail}";
+                SummaryText.Text = $"Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)} · Güncellendi={ok} · Hata={fail}";
                 try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] APPLY corr={_corr} ok={ok} fail={fail}", nameof(ImageMapWizard)); } catch { }
             }
             catch (Exception ex)

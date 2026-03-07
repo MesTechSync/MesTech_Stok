@@ -54,7 +54,7 @@ namespace MesTechStok.Desktop.Services
             return _allInventory.FirstOrDefault(i => i.Barcode == barcode);
         }
 
-        public async Task<bool> UpdateStockAsync(int inventoryId, int adjustment, string movementType, string? notes = null)
+        public async Task<bool> UpdateStockAsync(Guid inventoryId, int adjustment, string movementType, string? notes = null)
         {
             await Task.Delay(50);
 
@@ -179,8 +179,6 @@ namespace MesTechStok.Desktop.Services
                 ["Spor"] = new[] { "Adidas Spor Ayakkabı", "Nike Air Max", "Protein Tozu 1kg", "Yoga Matı", "Dumbbell 5kg", "Spor Çantası", "Koşu Bandı", "Fitness Eldiveni", "Su Matarası", "Spor T-Shirt", "Futbol Topu", "Tenis Raketi", "Basketbol", "Voleybol", "Ping Pong Raketi" }
             };
 
-            int idCounter = 1;
-
             // Her kategoriden ürünler ekle
             foreach (var category in categories)
             {
@@ -193,7 +191,7 @@ namespace MesTechStok.Desktop.Services
 
                     var inventoryItem = new InventoryItem
                     {
-                        Id = idCounter++,
+                        Id = Guid.NewGuid(),
                         Barcode = GenerateBarcode(),
                         ProductName = name,
                         Category = category,
@@ -221,7 +219,7 @@ namespace MesTechStok.Desktop.Services
 
                 var inventoryItem = new InventoryItem
                 {
-                    Id = idCounter++,
+                    Id = Guid.NewGuid(),
                     Barcode = GenerateBarcode(),
                     ProductName = $"{baseName} - Model {i + 1}",
                     Category = category,
@@ -309,7 +307,7 @@ namespace MesTechStok.Desktop.Services
 
     public class InventoryItem
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Barcode { get; set; } = "";
         public string ProductName { get; set; } = "";
         public string Category { get; set; } = "";

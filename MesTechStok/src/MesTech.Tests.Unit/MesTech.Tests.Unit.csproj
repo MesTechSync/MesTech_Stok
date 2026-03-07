@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
+    <ProjectReference Include="..\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

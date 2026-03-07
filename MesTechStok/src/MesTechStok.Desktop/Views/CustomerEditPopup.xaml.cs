@@ -14,7 +14,7 @@ namespace MesTechStok.Desktop.Views
     public partial class CustomerEditPopup : Window
     {
         private readonly MesTechStok.Core.Services.Abstract.ICustomerService _customerService;
-        private int? _editingCustomerId;
+        private Guid? _editingCustomerId;
 
         public CustomerEditPopup()
         {
@@ -74,7 +74,7 @@ namespace MesTechStok.Desktop.Views
 
                 var c = new MesTechStok.Core.Data.Models.Customer
                 {
-                    Id = _editingCustomerId ?? 0,
+                    Id = _editingCustomerId ?? Guid.Empty,
                     Name = name,
                     Code = (TxtCode.Text ?? string.Empty).Trim(),
                     Email = string.IsNullOrWhiteSpace(TxtEmail.Text) ? null : TxtEmail.Text.Trim(),
@@ -174,7 +174,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 var docSvc = new MesTechStok.Desktop.Services.DocumentStorageService();
-                var folder = docSvc.GetCustomerFolder(_editingCustomerId ?? 0);
+                var folder = docSvc.GetCustomerFolder(_editingCustomerId ?? Guid.Empty);
                 Directory.CreateDirectory(folder);
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }

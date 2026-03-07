@@ -10,7 +10,7 @@ public class WarehouseRepository : IWarehouseRepository
 
     public WarehouseRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Warehouse?> GetByIdAsync(int id)
+    public async Task<Warehouse?> GetByIdAsync(Guid id)
         => await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Warehouse>> GetAllAsync()
@@ -28,7 +28,7 @@ public class WarehouseRepository : IWarehouseRepository
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var wh = await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
         if (wh != null) _context.Warehouses.Remove(wh);

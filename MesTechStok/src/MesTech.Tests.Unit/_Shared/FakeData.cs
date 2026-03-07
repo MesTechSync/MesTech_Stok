@@ -18,7 +18,6 @@ public static class FakeData
         var faker = new Faker("tr");
         return new Product
         {
-            Id = faker.Random.Int(1, 10000),
             Name = faker.Commerce.ProductName(),
             SKU = sku ?? faker.Random.AlphaNumeric(10).ToUpperInvariant(),
             Barcode = barcode ?? faker.Random.Long(1000000000000, 9999999999999).ToString(),
@@ -28,21 +27,20 @@ public static class FakeData
             MinimumStock = minimumStock,
             MaximumStock = 1000,
             ReorderLevel = 10,
-            CategoryId = 1,
-            TenantId = 1,
+            CategoryId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
             IsActive = true,
         };
     }
 
     public static InventoryLot CreateLot(
-        int productId,
+        Guid productId,
         decimal receivedQty = 100,
         decimal remainingQty = 50,
         DateTime? expiryDate = null)
     {
         return new InventoryLot
         {
-            Id = new Faker().Random.Int(1, 10000),
             ProductId = productId,
             LotNumber = $"LOT-{Guid.NewGuid().ToString()[..8]}",
             ExpiryDate = expiryDate ?? DateTime.UtcNow.AddMonths(6),
@@ -57,18 +55,16 @@ public static class FakeData
         var faker = new Faker("tr");
         return new Tenant
         {
-            Id = faker.Random.Int(1, 100),
             Name = name ?? faker.Company.CompanyName(),
             TaxNumber = faker.Random.Long(1000000000, 9999999999).ToString(),
             IsActive = true,
         };
     }
 
-    public static Store CreateStore(int tenantId, PlatformType platform = PlatformType.Trendyol)
+    public static Store CreateStore(Guid tenantId, PlatformType platform = PlatformType.Trendyol)
     {
         return new Store
         {
-            Id = new Faker().Random.Int(1, 1000),
             TenantId = tenantId,
             PlatformType = platform,
             StoreName = $"{platform} Store",

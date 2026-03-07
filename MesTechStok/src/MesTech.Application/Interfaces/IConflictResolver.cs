@@ -10,7 +10,7 @@ public interface IConflictResolver
 
 public class SyncConflict
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string EntityType { get; set; } = string.Empty;
     public string EntityId { get; set; } = string.Empty;
     public string PlatformCode { get; set; } = string.Empty;

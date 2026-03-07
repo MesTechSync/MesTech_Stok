@@ -4,8 +4,8 @@ namespace MesTech.Application.DTOs;
 
 public class StoreDto
 {
-    public int Id { get; set; }
-    public int TenantId { get; set; }
+    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
     public PlatformType PlatformType { get; set; }
     public string StoreName { get; set; } = string.Empty;
     public string? ExternalStoreId { get; set; }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace MesTechStok.Desktop.Services
 {
+    [Obsolete("DI'da kullanilmiyor — gercek BarcodeHardwareService aktif. Dalga 2'de kaldirilacak.")]
     public class MockBarcodeService : IBarcodeService
     {
         public event EventHandler<BarcodeScannedEventArgs>? BarcodeScanned;

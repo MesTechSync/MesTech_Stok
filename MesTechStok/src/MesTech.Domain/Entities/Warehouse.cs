@@ -5,8 +5,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Depo Aggregate Root.
 /// </summary>
-public class Warehouse : BaseEntity
+public class Warehouse : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public string? Description { get; set; }

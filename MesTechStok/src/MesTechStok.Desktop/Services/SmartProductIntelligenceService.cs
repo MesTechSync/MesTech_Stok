@@ -78,7 +78,7 @@ namespace MesTechStok.Desktop.Services
 
     public class DemandForecast
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public List<DemandPrediction> Predictions { get; set; } = new();
         public double AccuracyScore { get; set; }
         public string ModelVersion { get; set; } = string.Empty;
@@ -97,7 +97,7 @@ namespace MesTechStok.Desktop.Services
 
     public class SmartInventoryAlert
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public AlertType Type { get; set; }
         public AlertPriority Priority { get; set; }
@@ -132,7 +132,7 @@ namespace MesTechStok.Desktop.Services
 
     public class VisualProductMatch
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public double SimilarityScore { get; set; }
         public string ImageUrl { get; set; } = string.Empty;

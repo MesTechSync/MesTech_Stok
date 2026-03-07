@@ -14,7 +14,7 @@ namespace MesTechStok.Desktop.Views
         private int _currentPage = 1;
         private int _pageSize = 50;
         private int _totalItems = 0;
-        private int _selectedId = 0;
+        private Guid _selectedId = Guid.Empty;
 
         public CategoryManagerDialog()
         {
@@ -94,7 +94,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                if (_selectedId <= 0) { MessageBox.Show("Seçim yapın."); return; }
+                if (_selectedId == Guid.Empty) { MessageBox.Show("Seçim yapın."); return; }
                 var name = (TxtCatName.Text ?? "").Trim();
                 var code = (TxtCatCode.Text ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(name)) { MessageBox.Show("Kategori adı gerekli."); return; }
@@ -122,7 +122,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                if (_selectedId <= 0) { MessageBox.Show("Seçim yapın."); return; }
+                if (_selectedId == Guid.Empty) { MessageBox.Show("Seçim yapın."); return; }
                 var cat = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == _selectedId);
                 if (cat == null) return;
                 if (cat.Products.Any())
@@ -150,7 +150,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                _selectedId = 0;
+                _selectedId = Guid.Empty;
                 TxtCatName.Text = string.Empty;
                 TxtCatCode.Text = string.Empty;
                 ChkActive.IsChecked = true;

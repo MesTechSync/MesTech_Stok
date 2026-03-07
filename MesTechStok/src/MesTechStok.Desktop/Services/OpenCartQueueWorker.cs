@@ -138,14 +138,14 @@ namespace MesTechStok.Desktop.Services
                 }
 
                 var doc = JsonSerializer.Deserialize<StockUpdatePayload>(item.Payload ?? "{}");
-                if (doc == null || doc.ProductId <= 0)
+                if (doc == null || doc.ProductId == Guid.Empty || doc.OpenCartProductId <= 0)
                 {
                     await queue.MarkFailedAsync(item.Id, "Invalid payload for stock update");
                     health?.OnFailure("Invalid stock payload");
                     return;
                 }
 
-                var ok = await client.UpdateProductStockAsync(doc.ProductId, doc.Quantity);
+                var ok = await client.UpdateProductStockAsync(doc.OpenCartProductId, doc.Quantity);
                 if (ok)
                 {
                     await queue.MarkSucceededAsync(item.Id);
@@ -176,7 +176,7 @@ namespace MesTechStok.Desktop.Services
                 }
 
                 var doc = JsonSerializer.Deserialize<ProductUpdatePayload>(item.Payload ?? "{}");
-                if (doc == null || doc.ProductId <= 0)
+                if (doc == null || doc.ProductId == Guid.Empty || doc.OpenCartProductId <= 0)
                 {
                     await queue.MarkFailedAsync(item.Id, "Invalid payload for product update");
                     health?.OnFailure("Invalid product payload");
@@ -184,7 +184,7 @@ namespace MesTechStok.Desktop.Services
                 }
 
                 // Şimdilik fiyat güncellemesini örnekleyelim
-                var ok = await client.UpdateProductPriceAsync(doc.ProductId, doc.Price);
+                var ok = await client.UpdateProductPriceAsync(doc.OpenCartProductId, doc.Price);
                 if (ok)
                 {
                     await queue.MarkSucceededAsync(item.Id);
@@ -205,13 +205,15 @@ namespace MesTechStok.Desktop.Services
 
         private class StockUpdatePayload
         {
-            public int ProductId { get; set; }
+            public Guid ProductId { get; set; }
+            public int OpenCartProductId { get; set; }
             public int Quantity { get; set; }
         }
 
         private class ProductUpdatePayload
         {
-            public int ProductId { get; set; }
+            public Guid ProductId { get; set; }
+            public int OpenCartProductId { get; set; }
             public decimal Price { get; set; }
         }
     }

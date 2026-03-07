@@ -4,7 +4,7 @@ namespace MesTech.Domain.Entities;
 
 public class Session : BaseEntity
 {
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
     public DateTime ExpiresAt { get; set; }
     public bool IsActive { get; set; } = true;
     public string? IpAddress { get; set; }

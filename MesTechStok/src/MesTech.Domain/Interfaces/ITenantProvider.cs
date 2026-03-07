@@ -6,5 +6,5 @@ namespace MesTech.Domain.Interfaces;
 /// </summary>
 public interface ITenantProvider
 {
-    int GetCurrentTenantId();
+    Guid GetCurrentTenantId();
 }

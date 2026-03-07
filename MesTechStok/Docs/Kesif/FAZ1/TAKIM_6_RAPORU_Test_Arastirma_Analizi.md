@@ -523,7 +523,7 @@ jobs:
 
 ### KIRMIZI ALARM (Acil Mudahale)
 
-1. **GUVENLIK:** `API_TEST_LABORATORY.js` ve `21_OZELLIK_TEST_SUITE/README.md` icinde Trendyol API key/secret acik metin olarak repoda! (`f4KhSfv7ihjXcJFlJiem`, `GLs2YLpJwPJtEX6dSPbi` vb.)
+1. **GUVENLIK:** `API_TEST_LABORATORY.js` ve `21_OZELLIK_TEST_SUITE/README.md` icinde Trendyol API key/secret acik metin olarak repoda! (`*** TRENDYOL_API_KEY ***`, `*** TRENDYOL_SECRET ***` vb.)
    - **Eylem:** Credential'lari HEMEN rotate edin, `.env` veya secret manager'a tasiyiniz
 
 2. **TEST BOŞLUGU:** 16 proje klasorunun sadece 1'inde (MesTech_Stok) calisir test var. Toplam sadece 8 xUnit testi mevcut.

@@ -80,8 +80,9 @@ namespace MesTechStok.Desktop.Services
 
                 _logger.LogInformation("[CHARLIE] Testing OpenCart API connection...");
 
-                var testEndpoint = $"{_apiUrl}/index.php?route=api/login&key={_apiKey}";
-                var response = await _httpClient.GetAsync(testEndpoint);
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_apiUrl}/index.php?route=api/login");
+                request.Headers.Add("X-OC-RESTADMIN-ID", _apiKey);
+                var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -109,8 +110,9 @@ namespace MesTechStok.Desktop.Services
 
                 _logger.LogInformation("[CHARLIE] Fetching products from OpenCart...");
 
-                var endpoint = $"{_apiUrl}/index.php?route=api/product&key={_apiKey}";
-                var response = await _httpClient.GetAsync(endpoint);
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_apiUrl}/index.php?route=api/product");
+                request.Headers.Add("X-OC-RESTADMIN-ID", _apiKey);
+                var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -172,8 +174,8 @@ namespace MesTechStok.Desktop.Services
             // CHARLIE TEAM: Simplified JSON parsing
             var products = new List<OpenCartProduct>
             {
-                new() { ProductId = 1, Name = "Test Product 1", Model = "TP001", Price = 100m, Quantity = 50 },
-                new() { ProductId = 2, Name = "Test Product 2", Model = "TP002", Price = 200m, Quantity = 30 }
+                new() { ProductId = Guid.NewGuid(), Name = "Test Product 1", Model = "TP001", Price = 100m, Quantity = 50 },
+                new() { ProductId = Guid.NewGuid(), Name = "Test Product 2", Model = "TP002", Price = 200m, Quantity = 30 }
             };
 
             return products;

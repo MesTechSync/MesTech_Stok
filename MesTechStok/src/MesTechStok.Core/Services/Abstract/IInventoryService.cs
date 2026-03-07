@@ -21,7 +21,7 @@ public interface IInventoryService
     /// <summary>
     /// Manuel stok girişi yapar
     /// </summary>
-    Task<StockMovement> AddStockAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> AddStockAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// Manuel stok girişi yapar ve gelen partinin birim maliyetini dikkate alarak ağırlıklı ortalama maliyeti günceller.
@@ -32,32 +32,32 @@ public interface IInventoryService
     /// <param name="DocumentNumber">Belge numarası (opsiyonel)</param>
     /// <param name="notes">Not (opsiyonel)</param>
     /// <param name="ProcessedBy">İşlemi yapan (opsiyonel)</param>
-    Task<StockMovement> AddStockAsync(int productId, int quantity, decimal unitCost, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> AddStockAsync(Guid productId, int quantity, decimal unitCost, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// Parti/Lot ile stok girişi (FEFO desteği için). Lot numarası ve opsiyonel SKT ile giriş.
     /// </summary>
-    Task<StockMovement> AddStockWithLotAsync(int productId, int quantity, decimal unitCost, string lotNumber, DateTime? expiryDate = null, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> AddStockWithLotAsync(Guid productId, int quantity, decimal unitCost, string lotNumber, DateTime? expiryDate = null, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// FEFO ile stok çıkışı: en erken SKT'li açık lotlardan karşılar; eşitlikte FIFO.
     /// </summary>
-    Task<StockMovement> RemoveStockFefoAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> RemoveStockFefoAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// Manuel stok çıkışı yapar
     /// </summary>
-    Task<StockMovement> RemoveStockAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> RemoveStockAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// Stok düzeltmesi yapar (fiziksel sayım sonrası)
     /// </summary>
-    Task<StockMovement> AdjustStockAsync(int productId, int newQuantity, string? notes = null, string? ProcessedBy = null);
+    Task<StockMovement> AdjustStockAsync(Guid productId, int newQuantity, string? notes = null, string? ProcessedBy = null);
 
     /// <summary>
     /// Ürünün mevcut stok seviyesini getirir
     /// </summary>
-    Task<int> GetCurrentStockAsync(int productId);
+    Task<int> GetCurrentStockAsync(Guid productId);
 
     /// <summary>
     /// Barkoda göre ürünün mevcut stok seviyesini getirir
@@ -72,7 +72,7 @@ public interface IInventoryService
     /// <summary>
     /// Belirli bir ürünün stok hareket geçmişini getirir
     /// </summary>
-    Task<IEnumerable<StockMovement>> GetProductStockMovementsAsync(int productId, DateTime? fromDate = null, DateTime? toDate = null);
+    Task<IEnumerable<StockMovement>> GetProductStockMovementsAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null);
 
     /// <summary>
     /// Stok seviyesi kritik olan ürünleri getirir
@@ -135,7 +135,7 @@ public class InventoryReport
 /// </summary>
 public class ProductStockSummary
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public string Barcode { get; set; } = string.Empty;
@@ -153,7 +153,7 @@ public class ProductStockSummary
 /// </summary>
 public class BulkStockUpdate
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
     public string? Barcode { get; set; }
     public int NewQuantity { get; set; }
     public StockMovementType MovementType { get; set; }

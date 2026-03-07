@@ -24,13 +24,13 @@ public enum OrderStatus
 public class Order
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(50)]
     public string OrderNumber { get; set; } = string.Empty;
 
-    public int CustomerId { get; set; }
+    public Guid CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = null!;
 
     public OrderStatus Status { get; set; } = OrderStatus.Pending;

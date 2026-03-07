@@ -281,7 +281,7 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Store URL:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
                                 <TextBox Grid.Row="0" Grid.Column="1" x:Name="StoreUrlTextBox" 
                                         Style="{StaticResource ModernTextBox}"
-                                        Text="https://demo.mestechstore.com/api/"/>
+                                        Text="" Tag="Store URL giriniz..."/>
                                 <Button Grid.Row="0" Grid.Column="3" Content="🔗 Test" 
                                        Style="{StaticResource InfoButton}" FontSize="11" Padding="8,6"
                                        Click="TestUrl_Click"/>
@@ -289,7 +289,7 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key:" FontSize="13" VerticalAlignment="Center" Foreground="#495057"/>
                                 <TextBox Grid.Row="2" Grid.Column="1" x:Name="ApiKeyTextBox" 
                                         Style="{StaticResource ModernTextBox}"
-                                        Text="mst_demo_key_123456789abcdef"/>
+                                        Text="" Tag="API Key giriniz..."/>
                                 <Button Grid.Row="2" Grid.Column="3" Content="👁️ Göster" 
                                        Style="{StaticResource WarningButton}" FontSize="11" Padding="8,6"
                                        Click="ShowApiKey_Click"/>

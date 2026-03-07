@@ -1,4 +1,5 @@
 using MassTransit;
+using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,16 +12,20 @@ public static class MassTransitConfig
         IConfiguration configuration)
     {
         var rabbitHost = configuration["RabbitMQ:Host"] ?? "localhost";
-        var rabbitUser = configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitPass = configuration["RabbitMQ:Password"] ?? "guest";
+        var rabbitUser = configuration["RabbitMQ:Username"]
+            ?? throw new InvalidOperationException("RabbitMQ:Username is not configured. Set it via appsettings or user-secrets.");
+        var rabbitPass = configuration["RabbitMQ:Password"]
+            ?? throw new InvalidOperationException("RabbitMQ:Password is not configured. Set it via appsettings or user-secrets.");
         ushort rabbitPort = 5672;
         if (ushort.TryParse(configuration["RabbitMQ:Port"], out var parsedPort))
             rabbitPort = parsedPort;
 
         services.AddMassTransit(bus =>
         {
-            // Consumer'lar buraya register edilecek
-            // bus.AddConsumer<StockChangedConsumer>();
+            // MESA OS Consumer'lar
+            bus.AddConsumer<MesaAiContentConsumer>();
+            bus.AddConsumer<MesaAiPriceConsumer>();
+            bus.AddConsumer<MesaBotStatusConsumer>();
 
             bus.UsingRabbitMq((context, cfg) =>
             {
@@ -30,7 +35,7 @@ public static class MassTransitConfig
                     h.Password(rabbitPass);
                 });
 
-                // Exchange isimlendirme
+                // Mevcut exchange'ler (DOKUNULMAZ)
                 cfg.Message<StockChangedIntegrationEvent>(x =>
                     x.SetEntityName("mestech.stock.changed"));
                 cfg.Message<PriceChangedIntegrationEvent>(x =>
@@ -39,6 +44,24 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.order.received"));
                 cfg.Message<InvoiceCreatedIntegrationEvent>(x =>
                     x.SetEntityName("mestech.invoice.created"));
+
+                // MESA OS exchange'ler — MesTech -> MESA
+                cfg.Message<MesaProductCreatedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.product.created"));
+                cfg.Message<MesaStockLowEvent>(x =>
+                    x.SetEntityName("mestech.mesa.stock.low"));
+                cfg.Message<MesaOrderReceivedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.order.received"));
+                cfg.Message<MesaPriceChangedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.price.changed"));
+
+                // MESA OS exchange'ler — MESA -> MesTech
+                cfg.Message<MesaAiContentGeneratedEvent>(x =>
+                    x.SetEntityName("mesa.ai.content.generated"));
+                cfg.Message<MesaAiPriceRecommendedEvent>(x =>
+                    x.SetEntityName("mesa.ai.price.recommended"));
+                cfg.Message<MesaBotNotificationSentEvent>(x =>
+                    x.SetEntityName("mesa.bot.notification.sent"));
 
                 cfg.ConfigureEndpoints(context);
             });

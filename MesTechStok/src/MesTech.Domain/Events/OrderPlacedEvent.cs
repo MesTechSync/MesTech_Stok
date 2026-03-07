@@ -3,9 +3,9 @@ using MesTech.Domain.Common;
 namespace MesTech.Domain.Events;
 
 public record OrderPlacedEvent(
-    int OrderId,
+    Guid OrderId,
     string OrderNumber,
-    int CustomerId,
+    Guid CustomerId,
     decimal TotalAmount,
     DateTime OccurredAt
 ) : IDomainEvent;

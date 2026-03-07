@@ -26,23 +26,24 @@ public abstract class IntegrationTestBase : IDisposable
         Context.Database.EnsureCreated();
     }
 
-    protected void SetCurrentTenant(int tenantId)
+    protected void SetCurrentTenant(Guid tenantId)
     {
         TenantProvider.SetTenant(tenantId);
     }
 
     /// <summary>
-    /// InMemory provider global query filter desteklemez.
-    /// Bu yuzden tenant filtresi manuel uygulanir.
+    /// Global query filter statik olarak context olusturulurken yakalanir.
+    /// IgnoreQueryFilters ile bypass edip, guncel tenant ID ile filtreliyoruz.
     /// </summary>
     protected IQueryable<T> ApplyTenantFilter<T>(IQueryable<T> query) where T : class
     {
+        var baseQuery = query.IgnoreQueryFilters();
         if (typeof(ITenantEntity).IsAssignableFrom(typeof(T)))
         {
             var tenantId = TenantProvider.GetCurrentTenantId();
-            return query.Where(e => ((ITenantEntity)e).TenantId == tenantId);
+            baseQuery = baseQuery.Where(e => ((ITenantEntity)e).TenantId == tenantId);
         }
-        return query;
+        return baseQuery;
     }
 
     public void Dispose()

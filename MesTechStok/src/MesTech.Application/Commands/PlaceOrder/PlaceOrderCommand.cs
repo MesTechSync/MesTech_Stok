@@ -3,7 +3,7 @@ using MediatR;
 namespace MesTech.Application.Commands.PlaceOrder;
 
 public record PlaceOrderCommand(
-    int CustomerId,
+    Guid CustomerId,
     string? CustomerName,
     string? CustomerEmail,
     string? Notes,
@@ -11,7 +11,7 @@ public record PlaceOrderCommand(
 ) : IRequest<PlaceOrderResult>;
 
 public record PlaceOrderItem(
-    int ProductId,
+    Guid ProductId,
     int Quantity,
     decimal UnitPrice,
     decimal TaxRate = 0.18m);
@@ -19,7 +19,7 @@ public record PlaceOrderItem(
 public class PlaceOrderResult
 {
     public bool IsSuccess { get; set; }
-    public int OrderId { get; set; }
+    public Guid OrderId { get; set; }
     public string? OrderNumber { get; set; }
     public string? ErrorMessage { get; set; }
 }

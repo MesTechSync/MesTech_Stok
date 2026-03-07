@@ -7,6 +7,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// <summary>
 /// Tenant entity koruma testleri.
 /// </summary>
+[Trait("Category", "Unit")]
 public class TenantTests
 {
     [Fact]

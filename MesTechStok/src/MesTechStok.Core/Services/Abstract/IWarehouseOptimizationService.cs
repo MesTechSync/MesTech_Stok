@@ -11,29 +11,29 @@ namespace MesTechStok.Core.Services.Abstract
     public interface IWarehouseOptimizationService
     {
         // Akıllı Konum Önerileri
-        Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(int productId, int quantity);
+        Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(Guid productId, int quantity);
         Task<List<SmartLocationSuggestion>> GetBulkLocationSuggestionsAsync(List<BulkLocationRequest> requests);
-        Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(int binId);
+        Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(Guid binId);
 
         // Depo Verimlilik Analizi
-        Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(int warehouseId);
+        Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(Guid warehouseId);
         Task<ZoneEfficiencyReport> GetZoneEfficiencyReportAsync(int zoneId);
         Task<RackEfficiencyReport> GetRackEfficiencyReportAsync(int rackId);
 
         // Optimizasyon Önerileri
-        Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(int warehouseId);
+        Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(Guid warehouseId);
         Task<OptimizationImpact> CalculateOptimizationImpactAsync(OptimizationAction action);
         Task<bool> ApplyOptimizationActionAsync(OptimizationAction action);
 
         // Depo Kapasite Planlaması
-        Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(int warehouseId);
-        Task<List<CapacityAlert>> GetCapacityAlertsAsync(int warehouseId);
-        Task<CapacityForecast> GetCapacityForecastAsync(int warehouseId, int monthsAhead);
+        Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(Guid warehouseId);
+        Task<List<CapacityAlert>> GetCapacityAlertsAsync(Guid warehouseId);
+        Task<CapacityForecast> GetCapacityForecastAsync(Guid warehouseId, int monthsAhead);
 
         // Konum Analizi
-        Task<LocationHeatmap> GetLocationHeatmapAsync(int warehouseId);
-        Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(int warehouseId, DateTime? fromDate = null, DateTime? toDate = null);
-        Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(int warehouseId, int monthsBack = 12);
+        Task<LocationHeatmap> GetLocationHeatmapAsync(Guid warehouseId);
+        Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(Guid warehouseId, int monthsBack = 12);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class BulkLocationRequest
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public int Quantity { get; set; }
         public string Priority { get; set; } = "MEDIUM"; // LOW, MEDIUM, HIGH, CRITICAL
         public List<string> PreferredZones { get; set; } = new();
@@ -74,7 +74,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class WarehouseEfficiencyReport
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string WarehouseName { get; set; } = string.Empty;
         public DateTime ReportDate { get; set; } = DateTime.Now;
         public decimal OverallEfficiency { get; set; } // 0-100 arası genel verimlilik
@@ -214,7 +214,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class CapacityPlanningReport
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public string WarehouseName { get; set; } = string.Empty;
         public DateTime ReportDate { get; set; } = DateTime.Now;
         public decimal CurrentUtilization { get; set; }
@@ -283,7 +283,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class LocationHeatmap
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public DateTime GeneratedDate { get; set; } = DateTime.Now;
         public List<HeatmapCell> Cells { get; set; } = new();
         public HeatmapLegend Legend { get; set; } = new();
@@ -329,7 +329,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class MovementPatternAnalysis
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public DateTime AnalysisDate { get; set; } = DateTime.Now;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
@@ -384,7 +384,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class SpaceUtilizationTrend
     {
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
         public DateTime AnalysisDate { get; set; } = DateTime.Now;
         public List<TrendDataPoint> DataPoints { get; set; } = new();
         public string OverallTrend { get; set; } = string.Empty; // INCREASING, DECREASING, STABLE

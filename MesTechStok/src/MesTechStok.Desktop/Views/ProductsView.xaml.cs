@@ -247,7 +247,7 @@ namespace MesTechStok.Desktop.Views
                             Style = FindResource("ModernButtonStyle") as Style
                         };
 
-                        categoryButton.Click += (s, e) => SidebarCategory_Click(0, category);
+                        categoryButton.Click += (s, e) => SidebarCategory_Click(Guid.Empty, category);
                         SidebarCategoriesList.Children.Add(categoryButton);
                     }
                 }
@@ -261,7 +261,7 @@ namespace MesTechStok.Desktop.Views
         private System.Threading.CancellationTokenSource? _catSearchCts;
 
         // Yeni Sidebar Event Handlers
-        private void SidebarCategory_Click(int categoryId, string categoryName)
+        private void SidebarCategory_Click(Guid categoryId, string categoryName)
         {
             try
             {
@@ -358,7 +358,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private void AddSidebarCategoryButton(int categoryId, string categoryName)
+        private void AddSidebarCategoryButton(Guid categoryId, string categoryName)
         {
             var categoryButton = new Button
             {
@@ -1573,7 +1573,7 @@ namespace MesTechStok.Desktop.Views
                 // Var olanları etkilemeden hızlı 40 ürün ekle
                 var rand = new Random();
                 var catId = await ctx.Categories.Select(c => c.Id).FirstOrDefaultAsync();
-                if (catId == 0)
+                if (catId == Guid.Empty)
                 {
                     ctx.Categories.Add(new MesTechStok.Core.Data.Models.Category { Name = "Genel", Code = "GENEL", IsActive = true, CreatedDate = DateTime.UtcNow });
                     await ctx.SaveChangesAsync();
@@ -1675,7 +1675,7 @@ namespace MesTechStok.Desktop.Views
                         {
                             r++;
                             int c = 1;
-                            ws.Cell(r, c++).Value = p.Id;
+                            ws.Cell(r, c++).Value = p.Id.ToString();
                             ws.Cell(r, c++).Value = p.Sku;
                             ws.Cell(r, c++).Value = p.Barcode;
                             ws.Cell(r, c++).Value = p.Name;

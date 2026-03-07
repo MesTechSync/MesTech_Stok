@@ -255,7 +255,7 @@ namespace MesTechStok.Desktop.Services
                         // ProductItem'a dönüştür
                         var productItem = new ProductItem
                         {
-                            Id = 0, // Yeni ürün
+                            Id = Guid.Empty, // Yeni ürün
                             Name = "",
                             Barcode = barcode,
                             Category = "",

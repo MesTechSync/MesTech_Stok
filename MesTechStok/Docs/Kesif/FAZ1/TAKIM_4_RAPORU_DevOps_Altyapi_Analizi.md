@@ -368,8 +368,8 @@ push to main → .NET build → test → publish → artifact upload
 - `.gitignore`'da `.env` pattern'i YOK (sadece genel pattern'ler var)
 - docker-compose.yml'de env var'lar varsayilan degerlerle tanimli:
   ```yaml
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-MesTech2026!Dev}
-  RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-MesTech2026!Dev}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-*** ENV_SIFRE ***}
+  RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-*** ENV_SIFRE ***}
   ```
 - OpenCart config.php'lerde DB sifreleri hardcoded: `root` / `1234`
 - BackupSystem config.json'da DB sifreleri hardcoded: `root` / `1234`
@@ -378,7 +378,7 @@ push to main → .NET build → test → publish → artifact upload
 **Sifreler Toplam Envanter:**
 | Konum | Sifre | Risk |
 |-------|-------|------|
-| docker-compose.yml | MesTech2026!Dev (varsayilan) | ORTA — env var ile override edilebilir |
+| docker-compose.yml | *** ENV_SIFRE *** (varsayilan) | ORTA — env var ile override edilebilir |
 | OpenCart config.php (x3) | root/1234 | YUKSEK — plaintext, root kullanici |
 | BackupSystem config.json | root/1234 | YUKSEK — plaintext, root kullanici |
 | web_interface.py | SECRET_KEY hardcoded | YUKSEK — session hijack riski |
@@ -543,7 +543,7 @@ MesTech/ (10 klasor — hedef)
 **Onemli Notlar:**
 - PostgreSQL 17 (pgvector dahil) — emirnamede 16 deniyor ama gercekte **17 + pgvector**
 - init-db.sql: `vector`, `uuid-ossp`, `pg_trgm`, `pg_stat_statements` extension'lari
-- Environment variable'lar varsayilan degerlerle: `${POSTGRES_PASSWORD:-MesTech2026!Dev}`
+- Environment variable'lar varsayilan degerlerle: `${POSTGRES_PASSWORD:-*** ENV_SIFRE ***}`
 - `restart: unless-stopped` — otomatik yeniden baslatma
 - Named volume'lar kullaniliyor (veri kaybi onlenir)
 

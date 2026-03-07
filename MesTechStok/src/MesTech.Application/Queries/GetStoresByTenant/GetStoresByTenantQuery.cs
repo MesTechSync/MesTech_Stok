@@ -3,4 +3,4 @@ using MesTech.Application.DTOs;
 
 namespace MesTech.Application.Queries.GetStoresByTenant;
 
-public record GetStoresByTenantQuery(int TenantId) : IRequest<IReadOnlyList<StoreDto>>;
+public record GetStoresByTenantQuery(Guid TenantId) : IRequest<IReadOnlyList<StoreDto>>;

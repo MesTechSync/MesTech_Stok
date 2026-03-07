@@ -7,6 +7,7 @@ using NetArchTest.Rules;
 
 namespace MesTech.Tests.Architecture;
 
+[Trait("Category", "Architecture")]
 public class CleanArchitectureTests
 {
     [Fact]

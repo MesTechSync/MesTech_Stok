@@ -1,3 +1,4 @@
+// TODO: [MVVM-CLEANUP] State'i ViewModel'e taşı — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
 using System;
 using System.Linq;
 using System.Threading.Tasks;

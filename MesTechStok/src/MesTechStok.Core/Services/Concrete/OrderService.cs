@@ -30,7 +30,7 @@ public class OrderService : IOrderService
             .ToListAsync();
     }
 
-    public async Task<Order?> GetOrderByIdAsync(int id)
+    public async Task<Order?> GetOrderByIdAsync(Guid id)
     {
         return await _context.Orders
             .AsNoTracking()
@@ -132,7 +132,7 @@ public class OrderService : IOrderService
         return order;
     }
 
-    public async Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus)
+    public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
     {
         var order = await GetOrderByIdAsync(orderId);
         if (order == null)
@@ -164,7 +164,7 @@ public class OrderService : IOrderService
         return true;
     }
 
-    public async Task<bool> DeleteOrderAsync(int id)
+    public async Task<bool> DeleteOrderAsync(Guid id)
     {
         var order = await GetOrderByIdAsync(id);
         if (order == null)
@@ -179,7 +179,7 @@ public class OrderService : IOrderService
         return true;
     }
 
-    public async Task<IEnumerable<OrderItem>> GetOrderItemsAsync(int orderId)
+    public async Task<IEnumerable<OrderItem>> GetOrderItemsAsync(Guid orderId)
     {
         return await _context.OrderItems
             .Include(oi => oi.Product)

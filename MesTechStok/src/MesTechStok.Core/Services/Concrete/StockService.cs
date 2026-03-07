@@ -94,7 +94,7 @@ namespace MesTechStok.Core.Services.Concrete
         /// <summary>
         /// Ürünün güncel stok miktarını döndürür
         /// </summary>
-        public async Task<int> GetProductStockAsync(int productId)
+        public async Task<int> GetProductStockAsync(Guid productId)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace MesTechStok.Core.Services.Concrete
         /// <summary>
         /// Ürünün stok durumunu günceller
         /// </summary>
-        public async Task<bool> UpdateProductStockAsync(int productId, int quantity, string reason = "Manuel güncelleme")
+        public async Task<bool> UpdateProductStockAsync(Guid productId, int quantity, string reason = "Manuel güncelleme")
         {
             try
             {
@@ -147,7 +147,7 @@ namespace MesTechStok.Core.Services.Concrete
         /// <summary>
         /// Stok seviyesi ayarlarını kontrol eder
         /// </summary>
-        public async Task<StockStatus> CheckStockLevelAsync(int productId)
+        public async Task<StockStatus> CheckStockLevelAsync(Guid productId)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace MesTechStok.Core.Services.Concrete
         /// <summary>
         /// Stok hareketlerini kaydeder
         /// </summary>
-        public async Task<bool> RecordStockMovementAsync(int productId, int changeAmount,
+        public async Task<bool> RecordStockMovementAsync(Guid productId, int changeAmount,
             StockMovementType movementType, string reason)
         {
             try

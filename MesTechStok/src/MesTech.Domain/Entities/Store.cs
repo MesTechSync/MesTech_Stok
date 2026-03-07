@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class Store : BaseEntity, ITenantEntity
 {
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
     public PlatformType PlatformType { get; set; }
     public string StoreName { get; set; } = string.Empty;
     public string? ExternalStoreId { get; set; }

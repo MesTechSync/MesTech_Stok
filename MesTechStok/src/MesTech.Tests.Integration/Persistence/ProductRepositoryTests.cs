@@ -9,8 +9,11 @@ namespace MesTech.Tests.Integration.Persistence;
 /// <summary>
 /// Product repository integration testleri (InMemory DB).
 /// </summary>
+[Trait("Category", "Integration")]
 public class ProductRepositoryTests : IntegrationTestBase
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private static readonly Guid TestCategoryId = Guid.NewGuid();
     private readonly ProductRepository _repo;
 
     public ProductRepositoryTests()
@@ -29,8 +32,8 @@ public class ProductRepositoryTests : IntegrationTestBase
             PurchasePrice = 50,
             SalePrice = 100,
             Stock = 25,
-            CategoryId = 1,
-            TenantId = 1
+            CategoryId = TestCategoryId,
+            TenantId = TestTenantId
         };
 
         await _repo.AddAsync(product);
@@ -49,8 +52,8 @@ public class ProductRepositoryTests : IntegrationTestBase
         {
             Name = "ById Test",
             SKU = "BID-001",
-            CategoryId = 1,
-            TenantId = 1
+            CategoryId = TestCategoryId,
+            TenantId = TestTenantId
         };
         Context.Products.Add(product);
         await Context.SaveChangesAsync();
@@ -68,8 +71,8 @@ public class ProductRepositoryTests : IntegrationTestBase
         {
             Name = "SKU Test",
             SKU = "SKUT-001",
-            CategoryId = 1,
-            TenantId = 1
+            CategoryId = TestCategoryId,
+            TenantId = TestTenantId
         });
         await Context.SaveChangesAsync();
 
@@ -94,8 +97,8 @@ public class ProductRepositoryTests : IntegrationTestBase
         {
             Name = "Before Update",
             SKU = "UPD-001",
-            CategoryId = 1,
-            TenantId = 1,
+            CategoryId = TestCategoryId,
+            TenantId = TestTenantId,
             SalePrice = 100
         };
         Context.Products.Add(product);
@@ -118,8 +121,8 @@ public class ProductRepositoryTests : IntegrationTestBase
         {
             Name = "Delete Test",
             SKU = "DEL-001",
-            CategoryId = 1,
-            TenantId = 1
+            CategoryId = TestCategoryId,
+            TenantId = TestTenantId
         };
         Context.Products.Add(product);
         await Context.SaveChangesAsync();
@@ -137,8 +140,8 @@ public class ProductRepositoryTests : IntegrationTestBase
     public async Task GetLowStockAsync_ShouldReturnLowStockProducts()
     {
         Context.Products.AddRange(
-            new Product { Name = "Low", SKU = "LOW-001", Stock = 2, MinimumStock = 5, CategoryId = 1, TenantId = 1 },
-            new Product { Name = "Normal", SKU = "NOR-001", Stock = 50, MinimumStock = 5, CategoryId = 1, TenantId = 1 }
+            new Product { Name = "Low", SKU = "LOW-001", Stock = 2, MinimumStock = 5, CategoryId = TestCategoryId, TenantId = TestTenantId },
+            new Product { Name = "Normal", SKU = "NOR-001", Stock = 50, MinimumStock = 5, CategoryId = TestCategoryId, TenantId = TestTenantId }
         );
         await Context.SaveChangesAsync();
 

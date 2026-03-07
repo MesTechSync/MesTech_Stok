@@ -5,8 +5,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Müşteri entity'si.
 /// </summary>
-public class Customer : BaseEntity
+public class Customer : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public string CustomerType { get; set; } = "INDIVIDUAL";

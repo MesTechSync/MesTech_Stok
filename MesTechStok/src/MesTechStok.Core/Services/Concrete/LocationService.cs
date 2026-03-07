@@ -48,7 +48,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<ProductLocation> PlaceProductAsync(int productId, int binId, int quantity, string notes)
+        public async Task<ProductLocation> PlaceProductAsync(Guid productId, Guid binId, int quantity, string notes)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<ProductLocation> MoveProductAsync(int productId, int fromBinId, int toBinId, int quantity)
+        public async Task<ProductLocation> MoveProductAsync(Guid productId, Guid fromBinId, Guid toBinId, int quantity)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<ProductLocation> RemoveProductAsync(int productId, int binId, int quantity)
+        public async Task<ProductLocation> RemoveProductAsync(Guid productId, Guid binId, int quantity)
         {
             try
             {
@@ -344,7 +344,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<bool> DeactivateBinAsync(int binId)
+        public async Task<bool> DeactivateBinAsync(Guid binId)
         {
             try
             {
@@ -365,7 +365,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Akıllı Konum Önerisi
 
-        public async Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(int productId, int quantity)
+        public async Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(Guid productId, int quantity)
         {
             try
             {
@@ -410,7 +410,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(int binId)
+        public async Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(Guid binId)
         {
             try
             {
@@ -490,7 +490,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Konum Geçmişi
 
-        public async Task<List<LocationMovement>> GetLocationHistoryAsync(int binId, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<List<LocationMovement>> GetLocationHistoryAsync(Guid binId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
@@ -531,7 +531,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<List<LocationMovement>> GetProductMovementHistoryAsync(int productId, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<List<LocationMovement>> GetProductMovementHistoryAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
@@ -600,7 +600,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<List<WarehouseBin>> FindBinsByProductAsync(int productId)
+        public async Task<List<WarehouseBin>> FindBinsByProductAsync(Guid productId)
         {
             try
             {
@@ -622,7 +622,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<List<ProductLocation>> GetProductLocationsAsync(int productId)
+        public async Task<List<ProductLocation>> GetProductLocationsAsync(Guid productId)
         {
             try
             {
@@ -680,7 +680,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<List<WarehouseBin>> GetNearbyBinsAsync(int binId, int radius)
+        public async Task<List<WarehouseBin>> GetNearbyBinsAsync(Guid binId, int radius)
         {
             try
             {
@@ -707,7 +707,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Raporlama
 
-        public async Task<LocationReport> GetLocationReportAsync(int warehouseId)
+        public async Task<LocationReport> GetLocationReportAsync(Guid warehouseId)
         {
             try
             {
@@ -737,7 +737,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<BinUtilizationReport> GetBinUtilizationReportAsync(int warehouseId)
+        public async Task<BinUtilizationReport> GetBinUtilizationReportAsync(Guid warehouseId)
         {
             try
             {
@@ -760,7 +760,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Depo Organizasyonu
 
-        public async Task<List<WarehouseZone>> GetWarehouseZonesAsync(int warehouseId)
+        public async Task<List<WarehouseZone>> GetWarehouseZonesAsync(Guid warehouseId)
         {
             try
             {

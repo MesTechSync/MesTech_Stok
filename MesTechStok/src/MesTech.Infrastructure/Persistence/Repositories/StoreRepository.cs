@@ -14,13 +14,13 @@ public class StoreRepository : IStoreRepository
         _context = context;
     }
 
-    public async Task<Store?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<Store?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Stores
             .Include(s => s.Credentials)
             .Include(s => s.ProductMappings)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 
-    public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(int tenantId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores
             .Include(s => s.ProductMappings)
             .Where(s => s.TenantId == tenantId && s.IsActive)

@@ -9,7 +9,7 @@ namespace MesTechStok.Core.Models
 {
     public class Product : INotifyPropertyChanged
     {
-        private int _id;
+        private Guid _id;
         private string _name = "";
         private string _barcode = "";
         private string _category = "";
@@ -27,7 +27,7 @@ namespace MesTechStok.Core.Models
         private string? _imageUrl;
         private ProductAIInsights? _aiInsights;
 
-        public int Id
+        public Guid Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
@@ -149,10 +149,10 @@ namespace MesTechStok.Core.Models
     public interface IProductRepository
     {
         Task<Product[]> GetAllAsync();
-        Task<Product?> GetByIdAsync(int id);
+        Task<Product?> GetByIdAsync(Guid id);
         Task<Product> AddAsync(Product product);
         Task<Product> UpdateAsync(Product product);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(Guid id);
         Task<Product[]> SearchAsync(string query);
     }
 }

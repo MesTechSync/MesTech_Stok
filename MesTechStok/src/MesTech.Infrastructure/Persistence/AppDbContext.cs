@@ -59,6 +59,10 @@ public class AppDbContext : DbContext
     public DbSet<BrandPlatformMapping> BrandPlatformMappings => Set<BrandPlatformMapping>();
     public DbSet<CategoryPlatformMapping> CategoryPlatformMappings => Set<CategoryPlatformMapping>();
 
+    // ── Fatura Entity'leri (Faz 1) ──
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -142,6 +146,52 @@ public class AppDbContext : DbContext
         {
             e.HasIndex(u => u.Username).IsUnique();
             e.HasIndex(u => u.Email).HasFilter("\"Email\" IS NOT NULL");
+        });
+
+        // Invoice
+        modelBuilder.Entity<Invoice>(e =>
+        {
+            e.HasIndex(i => i.InvoiceNumber).IsUnique();
+            e.HasIndex(i => i.OrderId);
+            e.HasIndex(i => i.Status);
+            e.Property(i => i.InvoiceNumber).HasMaxLength(50);
+            e.Property(i => i.CustomerName).HasMaxLength(300);
+            e.Property(i => i.CustomerTaxNumber).HasMaxLength(20);
+            e.Property(i => i.CustomerTaxOffice).HasMaxLength(100);
+            e.Property(i => i.CustomerAddress).HasMaxLength(500);
+            e.Property(i => i.Currency).HasMaxLength(5);
+            e.Property(i => i.PlatformCode).HasMaxLength(50);
+            e.Property(i => i.PlatformOrderId).HasMaxLength(100);
+            e.Property(i => i.GibInvoiceId).HasMaxLength(100);
+            e.Property(i => i.GibEnvelopeId).HasMaxLength(100);
+
+            e.HasMany(i => i.Lines)
+                .WithOne(l => l.Invoice)
+                .HasForeignKey(l => l.InvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(i => i.Order)
+                .WithMany()
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(i => i.Store)
+                .WithMany()
+                .HasForeignKey(i => i.StoreId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // InvoiceLine
+        modelBuilder.Entity<InvoiceLine>(e =>
+        {
+            e.Property(l => l.ProductName).HasMaxLength(300);
+            e.Property(l => l.SKU).HasMaxLength(100);
+            e.Property(l => l.Barcode).HasMaxLength(100);
+
+            e.HasOne(l => l.Product)
+                .WithMany()
+                .HasForeignKey(l => l.ProductId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 

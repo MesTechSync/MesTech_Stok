@@ -8,8 +8,8 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class CategoryPlatformMapping : BaseEntity
 {
-    public int CategoryId { get; set; }
-    public int StoreId { get; set; }
+    public Guid CategoryId { get; set; }
+    public Guid StoreId { get; set; }
     public PlatformType PlatformType { get; set; }
     public string? ExternalCategoryId { get; set; }
     public string? ExternalCategoryName { get; set; }

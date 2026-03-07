@@ -6,7 +6,7 @@ public class WarehouseZone : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
-    public int WarehouseId { get; set; }
+    public Guid WarehouseId { get; set; }
     public decimal? Width { get; set; }
     public decimal? Length { get; set; }
     public decimal? Height { get; set; }

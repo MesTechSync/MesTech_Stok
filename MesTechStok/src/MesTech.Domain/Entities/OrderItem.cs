@@ -5,10 +5,11 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Sipariş kalemi.
 /// </summary>
-public class OrderItem : BaseEntity
+public class OrderItem : BaseEntity, ITenantEntity
 {
-    public int OrderId { get; set; }
-    public int ProductId { get; set; }
+    public Guid TenantId { get; set; }
+    public Guid OrderId { get; set; }
+    public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string ProductSKU { get; set; } = string.Empty;
     public int Quantity { get; set; }

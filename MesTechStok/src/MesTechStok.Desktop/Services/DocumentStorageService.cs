@@ -16,14 +16,14 @@ namespace MesTechStok.Desktop.Services
             Directory.CreateDirectory(_baseFolder);
         }
 
-        public string GetCustomerFolder(int customerId)
+        public string GetCustomerFolder(Guid customerId)
         {
-            var dir = Path.Combine(_baseFolder, (customerId <= 0 ? "Temp" : customerId.ToString()));
+            var dir = Path.Combine(_baseFolder, (customerId == Guid.Empty ? "Temp" : customerId.ToString()));
             Directory.CreateDirectory(dir);
             return dir;
         }
 
-        public async Task<string?> SaveAsync(int customerId, string sourcePathOrUrl)
+        public async Task<string?> SaveAsync(Guid customerId, string sourcePathOrUrl)
         {
             try
             {

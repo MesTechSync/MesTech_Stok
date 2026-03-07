@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Domain.Common;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Services;
@@ -31,8 +32,13 @@ public class DomainEventDispatcher : IDomainEventDispatcher
                 domainEvent.GetType().Name,
                 domainEvent.OccurredAt);
 
-            // MediatR notification olarak yayınla (INotification implement eden handler'lar yakalar)
-            await _mediator.Publish((object)domainEvent, cancellationToken).ConfigureAwait(false);
+            // Domain event'i DomainEventNotification<T> ile sararak MediatR'a publish et.
+            // IDomainEvent, INotification implement etmez (Domain sifir NuGet kurali),
+            // wrapper sayesinde INotificationHandler<DomainEventNotification<T>> tetiklenir.
+            var notificationType = typeof(DomainEventNotification<>)
+                .MakeGenericType(domainEvent.GetType());
+            var notification = Activator.CreateInstance(notificationType, domainEvent)!;
+            await _mediator.Publish(notification, cancellationToken).ConfigureAwait(false);
         }
     }
 }

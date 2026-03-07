@@ -5,12 +5,13 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Ürün kategorisi.
 /// </summary>
-public class Category : BaseEntity
+public class Category : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Code { get; set; } = string.Empty;
-    public int? ParentCategoryId { get; set; }
+    public Guid? ParentCategoryId { get; set; }
     public string? ImageUrl { get; set; }
     public string? Color { get; set; }
     public string? Icon { get; set; }

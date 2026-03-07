@@ -6,7 +6,7 @@ public class WarehouseShelf : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
-    public int RackId { get; set; }
+    public Guid RackId { get; set; }
     public int LevelNumber { get; set; }
     public decimal? Height { get; set; }
     public decimal? MaxWeight { get; set; }

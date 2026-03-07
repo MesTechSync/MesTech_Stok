@@ -3,7 +3,7 @@ using MediatR;
 namespace MesTech.Application.Commands.AddStock;
 
 public record AddStockCommand(
-    int ProductId,
+    Guid ProductId,
     int Quantity,
     decimal UnitCost,
     string? BatchNumber = null,
@@ -17,6 +17,6 @@ public class AddStockResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }
-    public int MovementId { get; set; }
+    public Guid MovementId { get; set; }
     public string? ErrorMessage { get; set; }
 }

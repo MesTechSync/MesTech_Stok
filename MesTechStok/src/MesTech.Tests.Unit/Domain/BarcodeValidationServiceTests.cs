@@ -7,6 +7,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// Barkod dogrulama servisi koruma testleri.
 /// Bu testler kirilirsa = barkod validasyon mantigi bozulmus demektir.
 /// </summary>
+[Trait("Category", "Unit")]
 public class BarcodeValidationServiceTests
 {
     private readonly BarcodeValidationService _sut = new();

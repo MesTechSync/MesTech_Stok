@@ -2,7 +2,7 @@ namespace MesTech.Application.DTOs;
 
 public class ProductDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string SKU { get; set; } = string.Empty;
@@ -14,11 +14,11 @@ public class ProductDto
     public int Stock { get; set; }
     public int MinimumStock { get; set; }
     public int MaximumStock { get; set; }
-    public int CategoryId { get; set; }
+    public Guid CategoryId { get; set; }
     public string? CategoryName { get; set; }
-    public int? SupplierId { get; set; }
+    public Guid? SupplierId { get; set; }
     public string? SupplierName { get; set; }
-    public int? WarehouseId { get; set; }
+    public Guid? WarehouseId { get; set; }
     public string? WarehouseName { get; set; }
     public bool IsActive { get; set; }
     public string? ImageUrl { get; set; }

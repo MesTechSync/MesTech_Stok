@@ -8,14 +8,16 @@ namespace MesTech.Tests.Unit.Domain;
 /// <summary>
 /// Store entity koruma testleri.
 /// </summary>
+[Trait("Category", "Unit")]
 public class StoreTests
 {
     [Fact]
     public void CreateStore_ShouldSetPlatformType()
     {
-        var store = FakeData.CreateStore(1, PlatformType.Trendyol);
+        var tenantId = Guid.NewGuid();
+        var store = FakeData.CreateStore(tenantId, PlatformType.Trendyol);
 
-        store.TenantId.Should().Be(1);
+        store.TenantId.Should().Be(tenantId);
         store.PlatformType.Should().Be(PlatformType.Trendyol);
         store.IsActive.Should().BeTrue();
     }
@@ -23,9 +25,10 @@ public class StoreTests
     [Fact]
     public void Store_ShouldImplementITenantEntity()
     {
-        var store = new Store { TenantId = 42 };
+        var tenantId = Guid.NewGuid();
+        var store = new Store { TenantId = tenantId };
 
-        store.TenantId.Should().Be(42);
+        store.TenantId.Should().Be(tenantId);
     }
 
     [Fact]
@@ -34,7 +37,7 @@ public class StoreTests
         var store = new Store
         {
             StoreName = "Test Store",
-            TenantId = 1,
+            TenantId = Guid.NewGuid(),
             PlatformType = PlatformType.OpenCart
         };
 

@@ -6,6 +6,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// <summary>
 /// Fiyatlama domain servisi koruma testleri.
 /// </summary>
+[Trait("Category", "Unit")]
 public class PricingServiceTests
 {
     private readonly PricingService _sut = new();

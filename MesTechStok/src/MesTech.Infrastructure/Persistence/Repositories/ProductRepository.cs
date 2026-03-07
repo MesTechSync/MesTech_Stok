@@ -10,7 +10,7 @@ public class ProductRepository : IProductRepository
 
     public ProductRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Product?> GetByIdAsync(int id)
+    public async Task<Product?> GetByIdAsync(Guid id)
         => await _context.Products.FindAsync(id).ConfigureAwait(false);
 
     public async Task<Product?> GetBySKUAsync(string sku)
@@ -25,7 +25,7 @@ public class ProductRepository : IProductRepository
     public async Task<IReadOnlyList<Product>> GetLowStockAsync()
         => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).ToListAsync().ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Product>> GetByCategoryAsync(int categoryId)
+    public async Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId)
         => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> SearchAsync(string searchTerm)
@@ -45,7 +45,7 @@ public class ProductRepository : IProductRepository
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var product = await _context.Products.FindAsync(id).ConfigureAwait(false);
         if (product != null) _context.Products.Remove(product);

@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class CompanySettings : BaseEntity
+public class CompanySettings : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string CompanyName { get; set; } = string.Empty;
     public string? TaxNumber { get; set; }
     public string? Phone { get; set; }

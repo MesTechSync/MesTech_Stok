@@ -6,7 +6,7 @@ namespace MesTech.Domain.Interfaces;
 /// </summary>
 public interface ICurrentUserService
 {
-    int? UserId { get; }
+    Guid? UserId { get; }
     string? Username { get; }
     bool IsAuthenticated { get; }
 }

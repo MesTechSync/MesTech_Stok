@@ -16,7 +16,7 @@ public interface IProductService
     /// <summary>
     /// ID'ye göre ürün getirir
     /// </summary>
-    Task<Product?> GetProductByIdAsync(int id);
+    Task<Product?> GetProductByIdAsync(Guid id);
 
     /// <summary>
     /// Barkoda göre ürün arar - Barkod tarayıcı entegrasyonu için kritik
@@ -68,37 +68,37 @@ public interface IProductService
     /// <summary>
     /// Ürünü pasif yapar (fiziksel silme yapmaz)
     /// </summary>
-    Task<bool> DeactivateProductAsync(int id);
+    Task<bool> DeactivateProductAsync(Guid id);
 
     /// <summary>
     /// Ürünü aktif yapar
     /// </summary>
-    Task<bool> ActivateProductAsync(int id);
+    Task<bool> ActivateProductAsync(Guid id);
 
     /// <summary>
     /// Ürün stok seviyesini günceller
     /// </summary>
-    Task<bool> UpdateStockQuantityAsync(int productId, int newQuantity, string? notes = null);
+    Task<bool> UpdateStockQuantityAsync(Guid productId, int newQuantity, string? notes = null);
 
     /// <summary>
     /// Ürün fiyatını günceller
     /// </summary>
-    Task<bool> UpdateProductPriceAsync(int productId, decimal newPrice);
+    Task<bool> UpdateProductPriceAsync(Guid productId, decimal newPrice);
 
     /// <summary>
     /// Barkod benzersizliğini kontrol eder
     /// </summary>
-    Task<bool> IsBarcodeUniqueAsync(string barcode, int? excludeProductId = null);
+    Task<bool> IsBarcodeUniqueAsync(string barcode, Guid? excludeProductId = null);
 
     /// <summary>
     /// SKU benzersizliğini kontrol eder
     /// </summary>
-    Task<bool> IsSkuUniqueAsync(string sku, int? excludeProductId = null);
+    Task<bool> IsSkuUniqueAsync(string sku, Guid? excludeProductId = null);
 
     /// <summary>
     /// Ürünün stok hareket geçmişini getirir
     /// </summary>
-    Task<IEnumerable<StockMovement>> GetProductStockHistoryAsync(int productId);
+    Task<IEnumerable<StockMovement>> GetProductStockHistoryAsync(Guid productId);
 
     /// <summary>
     /// Toplu ürün güncelleme (Excel import vb. için)

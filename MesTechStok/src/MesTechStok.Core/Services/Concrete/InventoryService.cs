@@ -47,7 +47,7 @@ public class InventoryService : IInventoryService
         return await AddStockAsync(product.Id, quantity, DocumentNumber, notes, "Barkod Giriş");
     }
 
-    public async Task<StockMovement> AddStockAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> AddStockAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
     {
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null)
@@ -83,7 +83,7 @@ public class InventoryService : IInventoryService
     /// <summary>
     /// Maliyetli stok girişi (ağırlıklı ortalama). UnitCost parametresi zorunlu.
     /// </summary>
-    public async Task<StockMovement> AddStockAsync(int productId, int quantity, decimal unitCost, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> AddStockAsync(Guid productId, int quantity, decimal unitCost, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
     {
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null)
@@ -134,7 +134,7 @@ public class InventoryService : IInventoryService
     /// <summary>
     /// Lot ile stok girişi. WA maliyet günceller ve lot bakiyesini oluşturur.
     /// </summary>
-    public async Task<StockMovement> AddStockWithLotAsync(int productId, int quantity, decimal unitCost, string lotNumber, DateTime? expiryDate = null, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> AddStockWithLotAsync(Guid productId, int quantity, decimal unitCost, string lotNumber, DateTime? expiryDate = null, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
     {
         if (string.IsNullOrWhiteSpace(lotNumber)) throw new InvalidOperationException("Lot numarası zorunludur.");
         var movement = await AddStockAsync(productId, quantity, unitCost, DocumentNumber, notes, ProcessedBy);
@@ -159,7 +159,7 @@ public class InventoryService : IInventoryService
     /// FEFO ile stok çıkışı: en erken SKT'li açık lotlardan tahsis eder; eşitse oluşturulma tarihine göre FIFO.
     /// SKT geçmiş lotlar bloklanır.
     /// </summary>
-    public async Task<StockMovement> RemoveStockFefoAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> RemoveStockFefoAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
     {
         if (quantity <= 0) throw new InvalidOperationException("Çıkış miktarı pozitif olmalıdır.");
 
@@ -198,7 +198,7 @@ public class InventoryService : IInventoryService
         return movement;
     }
 
-    public async Task<StockMovement> RemoveStockAsync(int productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> RemoveStockAsync(Guid productId, int quantity, string? DocumentNumber = null, string? notes = null, string? ProcessedBy = null)
     {
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null)
@@ -236,7 +236,7 @@ public class InventoryService : IInventoryService
         return stockMovement;
     }
 
-    public async Task<StockMovement> AdjustStockAsync(int productId, int newQuantity, string? notes = null, string? ProcessedBy = null)
+    public async Task<StockMovement> AdjustStockAsync(Guid productId, int newQuantity, string? notes = null, string? ProcessedBy = null)
     {
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null)
@@ -268,7 +268,7 @@ public class InventoryService : IInventoryService
         return stockMovement;
     }
 
-    public async Task<int> GetCurrentStockAsync(int productId)
+    public async Task<int> GetCurrentStockAsync(Guid productId)
     {
         var product = await _productService.GetProductByIdAsync(productId);
         return product?.Stock ?? 0;
@@ -289,7 +289,7 @@ public class InventoryService : IInventoryService
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<StockMovement>> GetProductStockMovementsAsync(int productId, DateTime? fromDate = null, DateTime? toDate = null)
+    public async Task<IEnumerable<StockMovement>> GetProductStockMovementsAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null)
     {
         var query = _context.StockMovements
             .Include(sm => sm.Product)

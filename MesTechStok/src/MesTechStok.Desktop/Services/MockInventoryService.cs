@@ -6,9 +6,14 @@ using CoreModels = MesTechStok.Core.Data.Models;
 
 namespace MesTechStok.Desktop.Services
 {
+    [Obsolete("DI'da kullanilmiyor — gercek InventoryService (Core) aktif. Dalga 2'de kaldirilacak.")]
     public class MockInventoryService : IInventoryService
     {
         private readonly List<CoreModels.StockMovement> _stockMovements;
+
+        private static readonly Guid _mockProductId1 = Guid.Parse("00000001-0000-0000-0000-000000000001");
+        private static readonly Guid _mockProductId2 = Guid.Parse("00000002-0000-0000-0000-000000000002");
+        private static readonly Guid _mockProductId4 = Guid.Parse("00000004-0000-0000-0000-000000000004");
 
         public MockInventoryService()
         {
@@ -17,7 +22,7 @@ namespace MesTechStok.Desktop.Services
                 new CoreModels.StockMovement
                 {
                     Id = 1,
-                    ProductId = 1,
+                    ProductId = _mockProductId1,
                     Quantity = 50,
                     NewStockLevel = 50,
                     MovementType = "IN",
@@ -28,7 +33,7 @@ namespace MesTechStok.Desktop.Services
                 new CoreModels.StockMovement
                 {
                     Id = 2,
-                    ProductId = 2,
+                    ProductId = _mockProductId2,
                     Quantity = 30,
                     NewStockLevel = 30,
                     MovementType = "IN",
@@ -39,7 +44,7 @@ namespace MesTechStok.Desktop.Services
                 new CoreModels.StockMovement
                 {
                     Id = 3,
-                    ProductId = 1,
+                    ProductId = _mockProductId1,
                     Quantity = -5,
                     NewStockLevel = 45,
                     MovementType = "OUT",
@@ -50,7 +55,7 @@ namespace MesTechStok.Desktop.Services
                 new CoreModels.StockMovement
                 {
                     Id = 4,
-                    ProductId = 4,
+                    ProductId = _mockProductId4,
                     Quantity = -8,
                     NewStockLevel = 2,
                     MovementType = "OUT",
@@ -78,7 +83,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<int> GetStockAsync(int productId)
+        public async Task<int> GetStockAsync(Guid productId)
         {
             await Task.Delay(30);
 
@@ -90,7 +95,7 @@ namespace MesTechStok.Desktop.Services
             return latestMovement?.NewStockLevel ?? 0;
         }
 
-        public async Task<bool> UpdateStockAsync(int productId, int newStock, string reason)
+        public async Task<bool> UpdateStockAsync(Guid productId, int newStock, string reason)
         {
             await Task.Delay(50);
 
@@ -113,7 +118,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<IEnumerable<CoreModels.StockMovement>> GetStockMovementsByProductAsync(int productId)
+        public async Task<IEnumerable<CoreModels.StockMovement>> GetStockMovementsByProductAsync(Guid productId)
         {
             await Task.Delay(50);
             return _stockMovements

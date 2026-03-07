@@ -5,6 +5,8 @@ namespace MesTech.Domain.Enums;
 /// </summary>
 public enum StockMovementType
 {
+    None = 0,
+
     // === GİRİŞ HAREKETLERİ ===
     StockIn = 1,
     Purchase = 10,

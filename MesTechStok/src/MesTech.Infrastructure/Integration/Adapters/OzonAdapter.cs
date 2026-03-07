@@ -31,10 +31,10 @@ public class OzonAdapter : IIntegratorAdapter
     public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
         => throw new PlatformNotSupportedException("Ozon adapter FAZ 2'de implement edilecek — FBO/FBS modeli");
 
-    public Task<bool> PushStockUpdateAsync(int productId, int newStock, CancellationToken ct = default)
+    public Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
         => throw new PlatformNotSupportedException("Ozon adapter FAZ 2'de implement edilecek");
 
-    public Task<bool> PushPriceUpdateAsync(int productId, decimal newPrice, CancellationToken ct = default)
+    public Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
         => throw new PlatformNotSupportedException("Ozon adapter FAZ 2'de implement edilecek");
 
     public Task<ConnectionTestResultDto> TestConnectionAsync(Dictionary<string, string> credentials, CancellationToken ct = default)

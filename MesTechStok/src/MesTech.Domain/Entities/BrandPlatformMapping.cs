@@ -8,8 +8,8 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class BrandPlatformMapping : BaseEntity
 {
-    public int BrandId { get; set; }
-    public int StoreId { get; set; }
+    public Guid BrandId { get; set; }
+    public Guid StoreId { get; set; }
     public PlatformType PlatformType { get; set; }
     public string? ExternalBrandId { get; set; }
     public string? ExternalBrandName { get; set; }

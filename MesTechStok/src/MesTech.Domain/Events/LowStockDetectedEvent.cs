@@ -3,7 +3,7 @@ using MesTech.Domain.Common;
 namespace MesTech.Domain.Events;
 
 public record LowStockDetectedEvent(
-    int ProductId,
+    Guid ProductId,
     string SKU,
     int CurrentStock,
     int MinimumStock,

@@ -7,7 +7,7 @@ namespace MesTech.Domain.Events;
 /// Stok değiştiğinde fırlatılır — entegratörlere otomatik push tetikler.
 /// </summary>
 public record StockChangedEvent(
-    int ProductId,
+    Guid ProductId,
     string SKU,
     int PreviousQuantity,
     int NewQuantity,

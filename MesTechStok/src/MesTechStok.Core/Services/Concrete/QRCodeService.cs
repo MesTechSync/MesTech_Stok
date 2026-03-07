@@ -43,7 +43,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<byte[]> GenerateProductQRCodeAsync(int productId)
+        public async Task<byte[]> GenerateProductQRCodeAsync(Guid productId)
         {
             try
             {

@@ -21,7 +21,7 @@ namespace MesTechStok.Core.Data.Models
         public string Code { get; set; } = string.Empty;
 
         [Required]
-        public int WarehouseId { get; set; }
+        public Guid WarehouseId { get; set; }
 
         // Fiziksel Özellikler
         [Column(TypeName = "decimal(10,2)")]

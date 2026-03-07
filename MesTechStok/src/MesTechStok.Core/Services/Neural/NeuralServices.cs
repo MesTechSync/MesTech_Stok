@@ -16,7 +16,7 @@ namespace MesTechStok.Core.Services.Neural
         Task<NeuralServiceResponse<Product>> AddProductWithValidationAsync(Product product);
         Task<NeuralServiceResponse<Product>> UpdateProductWithOptimizationAsync(Product product);
         Task<AIProductRecommendation[]> GetPersonalizedRecommendationsAsync(string userId);
-        Task<ProductInsights> AnalyzeProductPerformanceAsync(int productId);
+        Task<ProductInsights> AnalyzeProductPerformanceAsync(Guid productId);
     }
 
     public class NeuralProductService : INeuralProductService
@@ -250,7 +250,7 @@ namespace MesTechStok.Core.Services.Neural
             // Mock recommendations based on AI insights
             recommendations.Add(new AIProductRecommendation
             {
-                ProductId = 1,
+                ProductId = Guid.NewGuid(),
                 ProductName = "Smart Widget Pro",
                 RecommendationReason = "Based on your purchase history and behavior pattern",
                 Confidence = 0.89,
@@ -260,7 +260,7 @@ namespace MesTechStok.Core.Services.Neural
 
             recommendations.Add(new AIProductRecommendation
             {
-                ProductId = 2,
+                ProductId = Guid.NewGuid(),
                 ProductName = "Advanced Component X",
                 RecommendationReason = "Users with similar profiles frequently purchase this",
                 Confidence = 0.76,
@@ -271,7 +271,7 @@ namespace MesTechStok.Core.Services.Neural
             return recommendations.ToArray();
         }
 
-        public async Task<ProductInsights> AnalyzeProductPerformanceAsync(int productId)
+        public async Task<ProductInsights> AnalyzeProductPerformanceAsync(Guid productId)
         {
             _logger.LogInformation("📊 Neural Product Service: Analyzing product performance for {ProductId}", productId);
 
@@ -568,7 +568,7 @@ namespace MesTechStok.Core.Services.Neural
 
     public class AIProductRecommendation
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public string RecommendationReason { get; set; } = string.Empty;
         public double Confidence { get; set; }
@@ -578,7 +578,7 @@ namespace MesTechStok.Core.Services.Neural
 
     public class ProductInsights
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public int PerformanceScore { get; set; }
         public double SalesVelocity { get; set; }
         public string TrendDirection { get; set; } = string.Empty;

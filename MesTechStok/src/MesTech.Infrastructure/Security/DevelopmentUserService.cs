@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Security;
 /// </summary>
 public class DevelopmentUserService : ICurrentUserService
 {
-    public int? UserId => 1;
+    public Guid? UserId => Guid.Parse("00000000-0000-0000-0000-000000000001");
     public string? Username => "dev-user";
     public bool IsAuthenticated => true;
 }

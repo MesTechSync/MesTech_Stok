@@ -12,25 +12,25 @@ namespace MesTechStok.Core.Services.Abstract
     {
         // Konum Yönetimi
         Task<WarehouseBin> GetBinByCodeAsync(string binCode);
-        Task<ProductLocation> PlaceProductAsync(int productId, int binId, int quantity, string notes);
-        Task<ProductLocation> MoveProductAsync(int productId, int fromBinId, int toBinId, int quantity);
-        Task<ProductLocation> RemoveProductAsync(int productId, int binId, int quantity);
+        Task<ProductLocation> PlaceProductAsync(Guid productId, Guid binId, int quantity, string notes);
+        Task<ProductLocation> MoveProductAsync(Guid productId, Guid fromBinId, Guid toBinId, int quantity);
+        Task<ProductLocation> RemoveProductAsync(Guid productId, Guid binId, int quantity);
 
         // Konum Arama
         Task<List<WarehouseBin>> FindAvailableBinsAsync(Product product, int quantity);
-        Task<List<WarehouseBin>> FindBinsByProductAsync(int productId);
-        Task<List<ProductLocation>> GetProductLocationsAsync(int productId);
+        Task<List<WarehouseBin>> FindBinsByProductAsync(Guid productId);
+        Task<List<ProductLocation>> GetProductLocationsAsync(Guid productId);
 
         // Optimizasyon
         Task<WarehouseBin> GetOptimalBinAsync(Product product, int quantity);
-        Task<List<WarehouseBin>> GetNearbyBinsAsync(int binId, int radius);
+        Task<List<WarehouseBin>> GetNearbyBinsAsync(Guid binId, int radius);
 
         // Raporlama
-        Task<LocationReport> GetLocationReportAsync(int warehouseId);
-        Task<BinUtilizationReport> GetBinUtilizationReportAsync(int warehouseId);
+        Task<LocationReport> GetLocationReportAsync(Guid warehouseId);
+        Task<BinUtilizationReport> GetBinUtilizationReportAsync(Guid warehouseId);
 
         // Depo Organizasyonu
-        Task<List<WarehouseZone>> GetWarehouseZonesAsync(int warehouseId);
+        Task<List<WarehouseZone>> GetWarehouseZonesAsync(Guid warehouseId);
         Task<List<WarehouseRack>> GetRacksByZoneAsync(int zoneId);
         Task<List<WarehouseShelf>> GetShelvesByRackAsync(int rackId);
         Task<List<WarehouseBin>> GetBinsByShelfAsync(int shelfId);
@@ -51,19 +51,19 @@ namespace MesTechStok.Core.Services.Abstract
         Task<bool> DeactivateZoneAsync(int zoneId);
         Task<bool> DeactivateRackAsync(int rackId);
         Task<bool> DeactivateShelfAsync(int shelfId);
-        Task<bool> DeactivateBinAsync(int binId);
+        Task<bool> DeactivateBinAsync(Guid binId);
 
         // Akıllı Konum Önerisi
-        Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(int productId, int quantity);
-        Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(int binId);
+        Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(Guid productId, int quantity);
+        Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(Guid binId);
 
         // Toplu İşlemler
         Task<bool> BulkMoveProductsAsync(List<BulkMoveRequest> requests);
         Task<bool> BulkPlaceProductsAsync(List<BulkPlaceRequest> requests);
 
         // Konum Geçmişi
-        Task<List<LocationMovement>> GetLocationHistoryAsync(int binId, DateTime? fromDate = null, DateTime? toDate = null);
-        Task<List<LocationMovement>> GetProductMovementHistoryAsync(int productId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<LocationMovement>> GetLocationHistoryAsync(Guid binId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<LocationMovement>> GetProductMovementHistoryAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null);
     }
 
     /// <summary>

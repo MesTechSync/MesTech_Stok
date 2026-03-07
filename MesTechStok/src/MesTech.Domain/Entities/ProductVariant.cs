@@ -7,8 +7,8 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class ProductVariant : BaseEntity, ITenantEntity
 {
-    public int TenantId { get; set; }
-    public int ProductId { get; set; }
+    public Guid TenantId { get; set; }
+    public Guid ProductId { get; set; }
     public string? Color { get; set; }
     public string? Size { get; set; }
     public string? VariantSKU { get; set; }

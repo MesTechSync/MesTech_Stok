@@ -3,6 +3,7 @@ using MesTech.Domain.ValueObjects;
 
 namespace MesTech.Tests.Unit.Domain;
 
+[Trait("Category", "Unit")]
 public class BarcodeValueObjectTests
 {
     [Theory]

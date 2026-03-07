@@ -11,7 +11,7 @@ using MesTechStok.Core.Data.Models;
 namespace MesTechStok.Desktop.ViewModels
 {
     /// <summary>
-    /// Depo Yönetimi ViewModel'i - Zone, Rack, Shelf, Bin yönetimi
+    /// Depo Yï¿½netimi ViewModel'i - Zone, Rack, Shelf, Bin yï¿½netimi
     /// </summary>
     public partial class WarehouseManagementViewModel : ObservableObject
     {
@@ -35,7 +35,7 @@ namespace MesTechStok.Desktop.ViewModels
         #region Observable Properties
 
         [ObservableProperty]
-        private string _statusMessage = "Depo yapýsý yükleniyor...";
+        private string _statusMessage = "Depo yapï¿½sï¿½ yï¿½kleniyor...";
 
         [ObservableProperty]
         private bool _isLoading = true;
@@ -97,15 +97,15 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 IsLoading = true;
-                StatusMessage = "Depo yapýsý yenileniyor...";
+                StatusMessage = "Depo yapï¿½sï¿½ yenileniyor...";
 
                 await LoadWarehouseStructureAsync();
 
-                StatusMessage = "Depo yapýsý baþarýyla yenilendi";
+                StatusMessage = "Depo yapï¿½sï¿½ baï¿½arï¿½yla yenilendi";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Depo yapýsý yenilenirken hata oluþtu");
+                _logger.LogError(ex, "Depo yapï¿½sï¿½ yenilenirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
             finally
@@ -119,13 +119,13 @@ namespace MesTechStok.Desktop.ViewModels
         {
             try
             {
-                StatusMessage = "Yeni bölüm ekleniyor...";
+                StatusMessage = "Yeni bï¿½lï¿½m ekleniyor...";
 
                 var newZone = new WarehouseZone
                 {
-                    Name = "Yeni Bölüm",
+                    Name = "Yeni Bï¿½lï¿½m",
                     Code = "NEW",
-                    WarehouseId = 1,
+                    WarehouseId = Guid.NewGuid(),
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
@@ -135,11 +135,11 @@ namespace MesTechStok.Desktop.ViewModels
                 // Refresh warehouse structure
                 await LoadWarehouseStructureAsync();
 
-                StatusMessage = "Bölüm baþarýyla eklendi";
+                StatusMessage = "Bï¿½lï¿½m baï¿½arï¿½yla eklendi";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Bölüm eklenirken hata oluþtu");
+                _logger.LogError(ex, "Bï¿½lï¿½m eklenirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -165,11 +165,11 @@ namespace MesTechStok.Desktop.ViewModels
                 // Refresh warehouse structure
                 await LoadWarehouseStructureAsync();
 
-                StatusMessage = "Raf baþarýyla eklendi";
+                StatusMessage = "Raf baï¿½arï¿½yla eklendi";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Raf eklenirken hata oluþtu");
+                _logger.LogError(ex, "Raf eklenirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -196,11 +196,11 @@ namespace MesTechStok.Desktop.ViewModels
                 // Refresh warehouse structure
                 await LoadWarehouseStructureAsync();
 
-                StatusMessage = "Seviye baþarýyla eklendi";
+                StatusMessage = "Seviye baï¿½arï¿½yla eklendi";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Seviye eklenirken hata oluþtu");
+                _logger.LogError(ex, "Seviye eklenirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -210,11 +210,11 @@ namespace MesTechStok.Desktop.ViewModels
         {
             try
             {
-                StatusMessage = "Yeni göz ekleniyor...";
+                StatusMessage = "Yeni gï¿½z ekleniyor...";
 
                 var newBin = new WarehouseBin
                 {
-                    Name = "Yeni Göz",
+                    Name = "Yeni Gï¿½z",
                     Code = "NEW",
                     ShelfId = 1,
                     BinNumber = 1,
@@ -227,11 +227,11 @@ namespace MesTechStok.Desktop.ViewModels
                 // Refresh warehouse structure
                 await LoadWarehouseStructureAsync();
 
-                StatusMessage = "Göz baþarýyla eklendi";
+                StatusMessage = "Gï¿½z baï¿½arï¿½yla eklendi";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Göz eklenirken hata oluþtu");
+                _logger.LogError(ex, "Gï¿½z eklenirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -242,7 +242,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 IsLoading = true;
-                StatusMessage = "Deðiþiklikler kaydediliyor...";
+                StatusMessage = "Deï¿½iï¿½iklikler kaydediliyor...";
 
                 bool success = false;
 
@@ -265,7 +265,7 @@ namespace MesTechStok.Desktop.ViewModels
 
                 if (success)
                 {
-                    StatusMessage = "Deðiþiklikler baþarýyla kaydedildi";
+                    StatusMessage = "Deï¿½iï¿½iklikler baï¿½arï¿½yla kaydedildi";
                     IsEditing = false;
 
                     // Refresh warehouse structure
@@ -273,12 +273,12 @@ namespace MesTechStok.Desktop.ViewModels
                 }
                 else
                 {
-                    StatusMessage = "Deðiþiklikler kaydedilemedi";
+                    StatusMessage = "Deï¿½iï¿½iklikler kaydedilemedi";
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Deðiþiklikler kaydedilirken hata oluþtu");
+                _logger.LogError(ex, "Deï¿½iï¿½iklikler kaydedilirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
             finally
@@ -293,14 +293,14 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 IsEditing = false;
-                StatusMessage = "Düzenleme iptal edildi";
+                StatusMessage = "Dï¿½zenleme iptal edildi";
 
                 // Reset selected items to original state
                 // TODO: Implement reset logic
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Düzenleme iptal edilirken hata oluþtu");
+                _logger.LogError(ex, "Dï¿½zenleme iptal edilirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -311,11 +311,11 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 IsEditing = true;
-                StatusMessage = "Düzenleme modu aktif";
+                StatusMessage = "Dï¿½zenleme modu aktif";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Düzenleme modu aktif edilirken hata oluþtu");
+                _logger.LogError(ex, "Dï¿½zenleme modu aktif edilirken hata oluï¿½tu");
                 StatusMessage = $"Hata: {ex.Message}";
             }
         }
@@ -328,12 +328,12 @@ namespace MesTechStok.Desktop.ViewModels
         {
             try
             {
-                _logger.LogInformation("Depo yapýsý yükleniyor...");
+                _logger.LogInformation("Depo yapï¿½sï¿½ yï¿½kleniyor...");
 
                 WarehouseStructure.Clear();
 
                 // Load zones
-                var zones = await _locationService.GetWarehouseZonesAsync(1);
+                var zones = await _locationService.GetWarehouseZonesAsync(Guid.Empty);
 
                 foreach (var zone in zones)
                 {
@@ -404,11 +404,11 @@ namespace MesTechStok.Desktop.ViewModels
                     WarehouseStructure.Add(zoneNode);
                 }
 
-                _logger.LogInformation($"Depo yapýsý yüklendi: {zones.Count} bölüm");
+                _logger.LogInformation($"Depo yapï¿½sï¿½ yï¿½klendi: {zones.Count} bï¿½lï¿½m");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Depo yapýsý yüklenirken hata oluþtu");
+                _logger.LogError(ex, "Depo yapï¿½sï¿½ yï¿½klenirken hata oluï¿½tu");
                 throw;
             }
         }
@@ -419,7 +419,7 @@ namespace MesTechStok.Desktop.ViewModels
     #region Supporting Classes
 
     /// <summary>
-    /// Depo yapýsý node'u (TreeView için)
+    /// Depo yapï¿½sï¿½ node'u (TreeView iï¿½in)
     /// </summary>
     public class WarehouseNode
     {
@@ -432,7 +432,7 @@ namespace MesTechStok.Desktop.ViewModels
     }
 
     /// <summary>
-    /// Depo node türü
+    /// Depo node tï¿½rï¿½
     /// </summary>
     public enum WarehouseNodeType
     {

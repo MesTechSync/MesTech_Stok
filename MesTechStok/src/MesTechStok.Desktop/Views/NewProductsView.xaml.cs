@@ -93,16 +93,16 @@ namespace MesTechStok.Desktop.Views
         {
             var demoProducts = new List<ProductItem>
             {
-                new() { Id = 1, Barcode = "1234567890123", Name = "Coca Cola 330ml", Category = "İçecek", Price = 5.50m, Stock = 25 },
-                new() { Id = 2, Barcode = "9876543210987", Name = "Doritos Nacho 150g", Category = "Atıştırmalık", Price = 12.75m, Stock = 18 },
-                new() { Id = 3, Barcode = "5555555555555", Name = "Samsung Galaxy S24", Category = "Elektronik", Price = 35000.00m, Stock = 3 },
-                new() { Id = 4, Barcode = "1111111111111", Name = "Nivea Krem 100ml", Category = "Kozmetik", Price = 25.90m, Stock = 42 },
-                new() { Id = 5, Barcode = "2222222222222", Name = "Adidas Spor Ayakkabı", Category = "Spor", Price = 850.00m, Stock = 7 },
-                new() { Id = 6, Barcode = "3333333333333", Name = "MacBook Pro 14\"", Category = "Elektronik", Price = 75000.00m, Stock = 1 },
-                new() { Id = 7, Barcode = "4444444444444", Name = "Nutella 750g", Category = "Gıda", Price = 89.90m, Stock = 33 },
-                new() { Id = 8, Barcode = "6666666666666", Name = "iPhone 15 Pro", Category = "Elektronik", Price = 55000.00m, Stock = 2 },
-                new() { Id = 9, Barcode = "7777777777777", Name = "Lego City Set", Category = "Oyuncak", Price = 299.99m, Stock = 12 },
-                new() { Id = 10, Barcode = "8888888888888", Name = "Sony WH-1000XM5", Category = "Elektronik", Price = 1200.00m, Stock = 8 }
+                new() { Id = Guid.NewGuid(), Barcode = "1234567890123", Name = "Coca Cola 330ml", Category = "İçecek", Price = 5.50m, Stock = 25 },
+                new() { Id = Guid.NewGuid(), Barcode = "9876543210987", Name = "Doritos Nacho 150g", Category = "Atıştırmalık", Price = 12.75m, Stock = 18 },
+                new() { Id = Guid.NewGuid(), Barcode = "5555555555555", Name = "Samsung Galaxy S24", Category = "Elektronik", Price = 35000.00m, Stock = 3 },
+                new() { Id = Guid.NewGuid(), Barcode = "1111111111111", Name = "Nivea Krem 100ml", Category = "Kozmetik", Price = 25.90m, Stock = 42 },
+                new() { Id = Guid.NewGuid(), Barcode = "2222222222222", Name = "Adidas Spor Ayakkabı", Category = "Spor", Price = 850.00m, Stock = 7 },
+                new() { Id = Guid.NewGuid(), Barcode = "3333333333333", Name = "MacBook Pro 14\"", Category = "Elektronik", Price = 75000.00m, Stock = 1 },
+                new() { Id = Guid.NewGuid(), Barcode = "4444444444444", Name = "Nutella 750g", Category = "Gıda", Price = 89.90m, Stock = 33 },
+                new() { Id = Guid.NewGuid(), Barcode = "6666666666666", Name = "iPhone 15 Pro", Category = "Elektronik", Price = 55000.00m, Stock = 2 },
+                new() { Id = Guid.NewGuid(), Barcode = "7777777777777", Name = "Lego City Set", Category = "Oyuncak", Price = 299.99m, Stock = 12 },
+                new() { Id = Guid.NewGuid(), Barcode = "8888888888888", Name = "Sony WH-1000XM5", Category = "Elektronik", Price = 1200.00m, Stock = 8 }
             };
 
             foreach (var product in demoProducts)
@@ -247,7 +247,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     var newProduct = new ProductItem
                     {
-                        Id = _allProducts.Any() ? _allProducts.Max(p => p.Id) + 1 : 1,
+                        Id = Guid.NewGuid(),
                         Name = dialog.ProductName,
                         Barcode = dialog.ProductBarcode,
                         Category = dialog.ProductCategory,
@@ -523,7 +523,7 @@ namespace MesTechStok.Desktop.Views
                     {
                         var newProduct = new ProductItem
                         {
-                            Id = _allProducts.Any() ? _allProducts.Max(p => p.Id) + 1 : 1,
+                            Id = Guid.NewGuid(),
                             Name = dialog.ProductName,
                             Barcode = dialog.ProductBarcode,
                             Category = dialog.ProductCategory,

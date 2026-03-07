@@ -29,7 +29,7 @@ public class TenantFilterBehavior<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         var tenantId = _tenantProvider.GetCurrentTenantId();
 
-        if (tenantId <= 0)
+        if (tenantId == Guid.Empty)
         {
             _logger.LogWarning("TenantId is not set for request {RequestType}. Using default tenant.", typeof(TRequest).Name);
         }

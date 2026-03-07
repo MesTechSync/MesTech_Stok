@@ -736,7 +736,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 LastModifiedAt = DateTime.Now,
                 OrderItems = openCartOrder.Products.Select(p => new OrderItem
                 {
-                    ProductId = p.ProductId,
+                    ProductId = ResolveOpenCartProductId(p.ProductId),
                     ProductName = p.Name,
                     Quantity = p.Quantity,
                     UnitPrice = p.SalePrice(),
@@ -745,6 +745,18 @@ namespace MesTechStok.Core.Integrations.OpenCart
             };
 
             await _orderService.CreateOrderAsync(newOrder);
+        }
+
+        /// <summary>
+        /// Resolves an OpenCart integer product ID to a deterministic Guid.
+        /// Uses a stable namespace-based conversion so the same OpenCart ID always maps to the same Guid.
+        /// </summary>
+        private static Guid ResolveOpenCartProductId(int openCartProductId)
+        {
+            // Create a deterministic Guid from the OpenCart product ID
+            var bytes = new byte[16];
+            BitConverter.GetBytes(openCartProductId).CopyTo(bytes, 0);
+            return new Guid(bytes);
         }
 
         private OrderStatus MapOpenCartOrderStatus(string openCartStatus)

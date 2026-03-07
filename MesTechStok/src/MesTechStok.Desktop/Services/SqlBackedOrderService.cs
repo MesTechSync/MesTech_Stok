@@ -88,7 +88,7 @@ namespace MesTechStok.Desktop.Services
             };
         }
 
-        public async Task<OrderItem?> GetOrderByIdAsync(int orderId)
+        public async Task<OrderItem?> GetOrderByIdAsync(Guid orderId)
         {
             var o = await _dbContext.Orders
                 .AsNoTracking()
@@ -99,7 +99,7 @@ namespace MesTechStok.Desktop.Services
             return o == null ? null : MapToOrderItem(o);
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus)
+        public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
         {
             var entity = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (entity == null) return false;

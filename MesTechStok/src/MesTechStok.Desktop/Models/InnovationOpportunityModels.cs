@@ -82,7 +82,7 @@ namespace MesTechStok.Desktop.Models
 
     public class CustomerIntelligence
     {
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public string CustomerName { get; set; }
         public CustomerSegment Segment { get; set; }
         public double LifetimeValue { get; set; }
@@ -156,7 +156,7 @@ namespace MesTechStok.Desktop.Models
 
     public class CategoryIntelligence
     {
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string ParentCategory { get; set; }
         public double PerformanceScore { get; set; }

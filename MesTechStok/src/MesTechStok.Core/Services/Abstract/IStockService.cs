@@ -37,7 +37,7 @@ namespace MesTechStok.Core.Services.Abstract
         /// </summary>
         /// <param name="productId">Ürün ID</param>
         /// <returns>Stok miktarı</returns>
-        Task<int> GetProductStockAsync(int productId);
+        Task<int> GetProductStockAsync(Guid productId);
 
         /// <summary>
         /// Ürünün stok durumunu günceller
@@ -46,14 +46,14 @@ namespace MesTechStok.Core.Services.Abstract
         /// <param name="quantity">Yeni stok miktarı</param>
         /// <param name="reason">Stok güncelleme nedeni</param>
         /// <returns>İşlem başarılı mı</returns>
-        Task<bool> UpdateProductStockAsync(int productId, int quantity, string reason = "Manuel güncelleme");
+        Task<bool> UpdateProductStockAsync(Guid productId, int quantity, string reason = "Manuel güncelleme");
 
         /// <summary>
         /// Stok seviyesi ayarlarını kontrol eder
         /// </summary>
         /// <param name="productId">Ürün ID</param>
         /// <returns>Stok durumu (Normal, Düşük, Kritik, Tükendi)</returns>
-        Task<StockStatus> CheckStockLevelAsync(int productId);
+        Task<StockStatus> CheckStockLevelAsync(Guid productId);
 
         /// <summary>
         /// Düşük stoklu ürünlerin listesini döndürür
@@ -70,7 +70,7 @@ namespace MesTechStok.Core.Services.Abstract
         /// <param name="movementType">Hareket tipi (Giriş, Çıkış, Düzeltme, vb.)</param>
         /// <param name="reason">Hareket nedeni</param>
         /// <returns>İşlem başarılı mı</returns>
-        Task<bool> RecordStockMovementAsync(int productId, int changeAmount, StockMovementType movementType, string reason);
+        Task<bool> RecordStockMovementAsync(Guid productId, int changeAmount, StockMovementType movementType, string reason);
 
         /// <summary>
         /// Son stok hareketlerini getirir

@@ -10,7 +10,7 @@ namespace MesTech.Domain.Entities;
 public class Product : BaseEntity, ITenantEntity
 {
     // Multi-tenant
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     // Temel bilgiler
     public string Name { get; set; } = string.Empty;
@@ -34,9 +34,9 @@ public class Product : BaseEntity, ITenantEntity
     public int ReorderQuantity { get; set; } = 50;
 
     // İlişkiler (FK)
-    public int CategoryId { get; set; }
-    public int? SupplierId { get; set; }
-    public int? WarehouseId { get; set; }
+    public Guid CategoryId { get; set; }
+    public Guid? SupplierId { get; set; }
+    public Guid? WarehouseId { get; set; }
 
     // Fiziksel özellikler
     public decimal? Weight { get; set; }
@@ -64,7 +64,7 @@ public class Product : BaseEntity, ITenantEntity
     public DateTime? LastStockUpdate { get; set; }
 
     // Marka/Model/Varyant
-    public int? BrandId { get; set; }
+    public Guid? BrandId { get; set; }
     public string CurrencyCode { get; set; } = "TRY";
     public bool HasVariants { get; set; } = false;
     public string? Brand { get; set; }

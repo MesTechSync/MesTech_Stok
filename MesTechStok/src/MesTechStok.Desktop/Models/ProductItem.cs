@@ -9,7 +9,7 @@ namespace MesTechStok.Desktop.Models
 {
     public class ProductItem : INotifyPropertyChanged
     {
-        private int _id;
+        private Guid _id;
         private string _name = "";
         private string _barcode = "";
         private string _category = "";
@@ -47,7 +47,7 @@ namespace MesTechStok.Desktop.Models
 
         #region Properties
 
-        public int Id
+        public Guid Id
         {
             get => _id;
             set => SetField(ref _id, value);

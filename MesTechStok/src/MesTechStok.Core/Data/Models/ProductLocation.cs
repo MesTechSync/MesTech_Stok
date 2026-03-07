@@ -13,7 +13,7 @@ namespace MesTechStok.Core.Data.Models
         public int Id { get; set; }
 
         [Required]
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
 
         [Required]
         public int BinId { get; set; }

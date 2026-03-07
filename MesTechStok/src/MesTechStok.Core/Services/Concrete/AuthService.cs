@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 using MesTechStok.Core.Data;
 using MesTechStok.Core.Data.Models;
 using MesTechStok.Core.Services.Abstract;
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace MesTechStok.Core.Services.Concrete;
 
@@ -134,15 +133,11 @@ public class AuthService : IAuthService
 
     public string HashPassword(string password)
     {
-        // Simple hash for demo - in production use BCrypt or similar
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "SALT"));
-        return Convert.ToBase64String(hashedBytes);
+        return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
     }
 
     public bool VerifyPassword(string password, string hashedPassword)
     {
-        var hashOfInput = HashPassword(password);
-        return hashOfInput == hashedPassword;
+        return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
     }
 }

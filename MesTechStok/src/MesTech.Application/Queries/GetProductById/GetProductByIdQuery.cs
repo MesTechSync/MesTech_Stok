@@ -3,4 +3,4 @@ using MesTech.Application.DTOs;
 
 namespace MesTech.Application.Queries.GetProductById;
 
-public record GetProductByIdQuery(int ProductId) : IRequest<ProductDto?>;
+public record GetProductByIdQuery(Guid ProductId) : IRequest<ProductDto?>;

@@ -3,7 +3,7 @@ using MesTech.Domain.Common;
 namespace MesTech.Domain.Events;
 
 public record ProductCreatedEvent(
-    int ProductId,
+    Guid ProductId,
     string SKU,
     string Name,
     decimal SalePrice,

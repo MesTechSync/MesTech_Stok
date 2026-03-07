@@ -130,7 +130,7 @@ Test-Check "Redis SET/GET calisiyor" {
 Write-Host ""
 Write-Host "[ADIM 5] RabbitMQ Kontrolleri" -ForegroundColor Yellow
 Test-Check "RabbitMQ node calisiyor" {
-    docker exec mestech-rabbitmq rabbitmq-diagnostics check_running 2>$null | Select-Object -First 1
+    $result = docker exec mestech-rabbitmq rabbitmq-diagnostics check_running 2>&1 | Out-String
 }
 Test-Check "RabbitMQ vhost 'mestech' mevcut" {
     $result = docker exec mestech-rabbitmq rabbitmqctl list_vhosts --formatter json 2>$null | ConvertFrom-Json

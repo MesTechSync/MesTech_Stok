@@ -7,10 +7,11 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Sipariş Aggregate Root.
 /// </summary>
-public class Order : BaseEntity
+public class Order : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
-    public int CustomerId { get; set; }
+    public Guid CustomerId { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public string Type { get; set; } = "SALE";
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;

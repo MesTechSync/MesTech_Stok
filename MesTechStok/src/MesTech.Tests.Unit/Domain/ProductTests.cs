@@ -5,6 +5,7 @@ using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.Domain;
 
+[Trait("Category", "Unit")]
 public class ProductTests
 {
     [Fact]
@@ -90,9 +91,10 @@ public class ProductTests
     public void Product_ShouldImplementITenantEntity()
     {
         var product = FakeData.CreateProduct();
-        product.TenantId = 42;
+        var tenantId = Guid.NewGuid();
+        product.TenantId = tenantId;
 
-        product.TenantId.Should().Be(42);
+        product.TenantId.Should().Be(tenantId);
     }
 
     [Fact]

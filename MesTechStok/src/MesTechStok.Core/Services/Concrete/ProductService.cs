@@ -43,7 +43,7 @@ public partial class ProductService : IProductService
             .ToListAsync();
     }
 
-    public async Task<Product?> GetProductByIdAsync(int id)
+    public async Task<Product?> GetProductByIdAsync(Guid id)
     {
         return await _context.Products
             .Include(p => p.StockMovements)
@@ -194,7 +194,7 @@ public partial class ProductService : IProductService
             }
 
             // Kategori zorunluluğunu güvenceye al (Genel kategorisi yoksa oluştur)
-            if (product.CategoryId <= 0)
+            if (product.CategoryId == Guid.Empty)
             {
                 product.CategoryId = await EnsureGeneralCategoryIdAsync();
                 if (_loggingService != null)
@@ -322,7 +322,7 @@ public partial class ProductService : IProductService
 
         if (string.IsNullOrWhiteSpace(product.Name)) product.Name = product.Barcode;
         if (string.IsNullOrWhiteSpace(product.SKU)) product.SKU = $"SKU-{product.Barcode}";
-        if (product.CategoryId <= 0) product.CategoryId = await EnsureGeneralCategoryIdAsync();
+        if (product.CategoryId == Guid.Empty) product.CategoryId = await EnsureGeneralCategoryIdAsync();
 
         var conflict = await _context.Products.FirstOrDefaultAsync(p => p.Barcode == product.Barcode && p.Id != product.Id);
         if (conflict != null)
@@ -367,7 +367,7 @@ public partial class ProductService : IProductService
         return product;
     }
 
-    public async Task<bool> DeactivateProductAsync(int id)
+    public async Task<bool> DeactivateProductAsync(Guid id)
     {
         var product = await GetProductByIdAsync(id);
         if (product == null) return false;
@@ -378,7 +378,7 @@ public partial class ProductService : IProductService
         return true;
     }
 
-    public async Task<bool> ActivateProductAsync(int id)
+    public async Task<bool> ActivateProductAsync(Guid id)
     {
         var product = await GetProductByIdAsync(id);
         if (product == null) return false;
@@ -389,7 +389,7 @@ public partial class ProductService : IProductService
         return true;
     }
 
-    public async Task<bool> UpdateStockQuantityAsync(int productId, int newQuantity, string? notes = null)
+    public async Task<bool> UpdateStockQuantityAsync(Guid productId, int newQuantity, string? notes = null)
     {
         var stopwatch = Stopwatch.StartNew();
 
@@ -476,7 +476,7 @@ public partial class ProductService : IProductService
         }
     }
 
-    public async Task<bool> UpdateProductPriceAsync(int productId, decimal newPrice)
+    public async Task<bool> UpdateProductPriceAsync(Guid productId, decimal newPrice)
     {
         var product = await GetProductByIdAsync(productId);
         if (product == null) return false;
@@ -487,7 +487,7 @@ public partial class ProductService : IProductService
         return true;
     }
 
-    public async Task<bool> IsBarcodeUniqueAsync(string barcode, int? excludeProductId = null)
+    public async Task<bool> IsBarcodeUniqueAsync(string barcode, Guid? excludeProductId = null)
     {
         var query = _context.Products.Where(p => p.Barcode == barcode);
         if (excludeProductId.HasValue)
@@ -496,7 +496,7 @@ public partial class ProductService : IProductService
         return !await query.AnyAsync();
     }
 
-    public async Task<bool> IsSkuUniqueAsync(string sku, int? excludeProductId = null)
+    public async Task<bool> IsSkuUniqueAsync(string sku, Guid? excludeProductId = null)
     {
         var query = _context.Products.Where(p => p.SKU == sku);
         if (excludeProductId.HasValue)
@@ -505,7 +505,7 @@ public partial class ProductService : IProductService
         return !await query.AnyAsync();
     }
 
-    public async Task<IEnumerable<StockMovement>> GetProductStockHistoryAsync(int productId)
+    public async Task<IEnumerable<StockMovement>> GetProductStockHistoryAsync(Guid productId)
     {
         return await _context.StockMovements
             .Where(sm => sm.ProductId == productId)
@@ -555,7 +555,7 @@ public partial class ProductService : IProductService
 
 public partial class ProductService
 {
-    private async Task<int> EnsureGeneralCategoryIdAsync()
+    private async Task<Guid> EnsureGeneralCategoryIdAsync()
     {
         var cat = await _context.Categories.FirstOrDefaultAsync(c => c.Name == "Genel");
         if (cat != null) return cat.Id;

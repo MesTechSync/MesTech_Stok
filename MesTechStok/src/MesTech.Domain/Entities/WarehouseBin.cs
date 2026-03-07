@@ -6,7 +6,7 @@ public class WarehouseBin : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
-    public int ShelfId { get; set; }
+    public Guid ShelfId { get; set; }
     public int BinNumber { get; set; }
     public decimal? Width { get; set; }
     public decimal? Depth { get; set; }

@@ -73,16 +73,16 @@ namespace MesTechStok.Desktop.Views
             // Demo ürün veritabanı
             _demoProducts = new Dictionary<string, ProductInfo>
             {
-                { "1234567890123", new ProductInfo { Id = 1, Name = "Coca Cola 330ml", SKU = "CC-330", Price = 5.50m, Stock = 25, Category = "İçecek", Brand = "Coca Cola", ImagePath = "/Images/coca-cola.jpg" } },
-                { "9876543210987", new ProductInfo { Id = 2, Name = "Doritos Nacho 150g", SKU = "DOR-150", Price = 12.75m, Stock = 18, Category = "Atıştırmalık", Brand = "Doritos", ImagePath = "/Images/doritos.jpg" } },
-                { "5555555555555", new ProductInfo { Id = 3, Name = "Samsung Galaxy S24", SKU = "SAM-S24", Price = 35000.00m, Stock = 3, Category = "Elektronik", Brand = "Samsung", ImagePath = "/Images/samsung-s24.jpg", Description = "En son teknoloji akıllı telefon" } },
-                { "1111111111111", new ProductInfo { Id = 4, Name = "Nivea Krem 100ml", SKU = "NIV-100", Price = 25.90m, Stock = 42, Category = "Kozmetik", Brand = "Nivea", ImagePath = "/Images/nivea.jpg" } },
-                { "2222222222222", new ProductInfo { Id = 5, Name = "Adidas Spor Ayakkabı", SKU = "ADI-SPR", Price = 850.00m, Stock = 7, Category = "Spor", Brand = "Adidas", ImagePath = "/Images/adidas.jpg" } },
-                { "3333333333333", new ProductInfo { Id = 6, Name = "MacBook Pro 14\"", SKU = "MAC-PRO14", Price = 75000.00m, Stock = 1, Category = "Elektronik", Brand = "Apple", ImagePath = "/Images/macbook.jpg", Description = "M3 işlemcili profesyonel laptop" } },
-                { "4444444444444", new ProductInfo { Id = 7, Name = "Nutella 750g", SKU = "NUT-750", Price = 89.90m, Stock = 33, Category = "Gıda", Brand = "Nutella", ImagePath = "/Images/nutella.jpg" } },
-                { "6666666666666", new ProductInfo { Id = 8, Name = "iPhone 15 Pro", SKU = "IPH-15P", Price = 55000.00m, Stock = 2, Category = "Elektronik", Brand = "Apple", ImagePath = "/Images/iphone.jpg", Description = "En yeni iPhone modeli" } },
-                { "7777777777777", new ProductInfo { Id = 9, Name = "Lego City Set", SKU = "LEG-CTY", Price = 299.99m, Stock = 12, Category = "Oyuncak", Brand = "Lego", ImagePath = "/Images/lego.jpg" } },
-                { "8888888888888", new ProductInfo { Id = 10, Name = "Sony WH-1000XM5", SKU = "SON-WH5", Price = 1200.00m, Stock = 8, Category = "Elektronik", Brand = "Sony", ImagePath = "/Images/sony-headphone.jpg", Description = "Gürültü önleyici kulaklık" } }
+                { "1234567890123", new ProductInfo { Id = Guid.NewGuid(), Name = "Coca Cola 330ml", SKU = "CC-330", Price = 5.50m, Stock = 25, Category = "İçecek", Brand = "Coca Cola", ImagePath = "/Images/coca-cola.jpg" } },
+                { "9876543210987", new ProductInfo { Id = Guid.NewGuid(), Name = "Doritos Nacho 150g", SKU = "DOR-150", Price = 12.75m, Stock = 18, Category = "Atıştırmalık", Brand = "Doritos", ImagePath = "/Images/doritos.jpg" } },
+                { "5555555555555", new ProductInfo { Id = Guid.NewGuid(), Name = "Samsung Galaxy S24", SKU = "SAM-S24", Price = 35000.00m, Stock = 3, Category = "Elektronik", Brand = "Samsung", ImagePath = "/Images/samsung-s24.jpg", Description = "En son teknoloji akıllı telefon" } },
+                { "1111111111111", new ProductInfo { Id = Guid.NewGuid(), Name = "Nivea Krem 100ml", SKU = "NIV-100", Price = 25.90m, Stock = 42, Category = "Kozmetik", Brand = "Nivea", ImagePath = "/Images/nivea.jpg" } },
+                { "2222222222222", new ProductInfo { Id = Guid.NewGuid(), Name = "Adidas Spor Ayakkabı", SKU = "ADI-SPR", Price = 850.00m, Stock = 7, Category = "Spor", Brand = "Adidas", ImagePath = "/Images/adidas.jpg" } },
+                { "3333333333333", new ProductInfo { Id = Guid.NewGuid(), Name = "MacBook Pro 14\"", SKU = "MAC-PRO14", Price = 75000.00m, Stock = 1, Category = "Elektronik", Brand = "Apple", ImagePath = "/Images/macbook.jpg", Description = "M3 işlemcili profesyonel laptop" } },
+                { "4444444444444", new ProductInfo { Id = Guid.NewGuid(), Name = "Nutella 750g", SKU = "NUT-750", Price = 89.90m, Stock = 33, Category = "Gıda", Brand = "Nutella", ImagePath = "/Images/nutella.jpg" } },
+                { "6666666666666", new ProductInfo { Id = Guid.NewGuid(), Name = "iPhone 15 Pro", SKU = "IPH-15P", Price = 55000.00m, Stock = 2, Category = "Elektronik", Brand = "Apple", ImagePath = "/Images/iphone.jpg", Description = "En yeni iPhone modeli" } },
+                { "7777777777777", new ProductInfo { Id = Guid.NewGuid(), Name = "Lego City Set", SKU = "LEG-CTY", Price = 299.99m, Stock = 12, Category = "Oyuncak", Brand = "Lego", ImagePath = "/Images/lego.jpg" } },
+                { "8888888888888", new ProductInfo { Id = Guid.NewGuid(), Name = "Sony WH-1000XM5", SKU = "SON-WH5", Price = 1200.00m, Stock = 8, Category = "Elektronik", Brand = "Sony", ImagePath = "/Images/sony-headphone.jpg", Description = "Gürültü önleyici kulaklık" } }
             };
 
             // Initialize ZXing Barcode Reader
@@ -1826,7 +1826,7 @@ namespace MesTechStok.Desktop.Views
     // Helper classes
     public class ProductInfo
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public string SKU { get; set; } = "";
         public string Description { get; set; } = "";

@@ -11,7 +11,7 @@ namespace MesTechStok.Core.Services.Abstract
     {
         // QR Kod Oluşturma
         Task<byte[]> GenerateLocationQRCodeAsync(string binCode);
-        Task<byte[]> GenerateProductQRCodeAsync(int productId);
+        Task<byte[]> GenerateProductQRCodeAsync(Guid productId);
         Task<byte[]> GenerateMovementQRCodeAsync(int movementId);
 
         // QR Kod Okuma

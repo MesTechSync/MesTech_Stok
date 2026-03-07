@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class Brand : BaseEntity, ITenantEntity
 {
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? LogoUrl { get; set; }
     public bool IsActive { get; set; } = true;

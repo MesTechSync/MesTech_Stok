@@ -10,6 +10,7 @@ namespace MesTech.Tests.Integration.Adapters;
 /// OpenCart API adapter contract testleri.
 /// WireMock ile OpenCart REST API davranisi simule edilir.
 /// </summary>
+[Trait("Category", "Integration")]
 public class OpenCartAdapterContractTests : IClassFixture<WireMockFixture>, IDisposable
 {
     private readonly WireMockServer _mockServer;

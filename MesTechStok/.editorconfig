@@ -37,6 +37,38 @@ dotnet_style_qualification_for_event = false:suggestion
 
 dotnet_diagnostic.IDE0055.severity = error
 
+# ── Domain Layer: EF Core entity patterns are intentional ──
+[src/MesTech.Domain/**.cs]
+dotnet_diagnostic.NX0002.severity = none       # null! on EF Core navigation properties
+dotnet_diagnostic.CA2227.severity = none       # Collection property setters needed by EF Core
+dotnet_diagnostic.CA1822.severity = none       # Domain methods are instance by design (may use state later)
+dotnet_diagnostic.CA1032.severity = none       # Domain exceptions: only needed constructors
+dotnet_diagnostic.CA1056.severity = none       # URI as string in domain entities
+dotnet_diagnostic.CA1054.severity = none       # URI parameters as string
+dotnet_diagnostic.CA1062.severity = none       # EF Core entity internals don't validate args
+dotnet_diagnostic.CA1819.severity = none       # Array properties in domain models
+dotnet_diagnostic.CA1805.severity = none       # Default value initialization for clarity
+dotnet_diagnostic.CA1716.severity = none       # Identifier names matching keywords (intentional)
+dotnet_diagnostic.CA1711.severity = none       # Suffix naming conventions (domain-specific)
+dotnet_diagnostic.CA1069.severity = none       # Duplicate enum values (backward compat aliases)
+dotnet_diagnostic.CA1030.severity = none       # Raise/Fire method naming is intentional
+dotnet_diagnostic.CA1024.severity = none       # Methods over properties for domain operations
+dotnet_diagnostic.MA0006.severity = none       # String equality: domain layer uses simple ==
+
+# ── Application Layer: CQRS + DTO patterns ──
+[src/MesTech.Application/**.cs]
+dotnet_diagnostic.MA0048.severity = none       # CQRS: Command + Handler in same file
+dotnet_diagnostic.MA0016.severity = none       # List<T> in DTOs (serialization)
+dotnet_diagnostic.CA1002.severity = none       # Generic lists in DTOs
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait not needed in app layer
+dotnet_diagnostic.CA2007.severity = none       # ConfigureAwait not needed in app layer
+dotnet_diagnostic.CA2227.severity = none       # DTO collection property setters
+dotnet_diagnostic.CA1056.severity = none       # URI as string in DTOs
+dotnet_diagnostic.CA1054.severity = none       # URI parameters as string
+dotnet_diagnostic.CA1062.severity = none       # MediatR handlers: DI-injected, non-null
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates (premature optimization)
+dotnet_diagnostic.CA1716.severity = none       # Identifier naming (intentional)
+
 [*.{csproj,props,targets}]
 indent_style = space
 indent_size = 2

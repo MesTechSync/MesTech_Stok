@@ -94,7 +94,7 @@ namespace MesTechStok.Desktop.Services
             };
         }
 
-        public async Task<bool> UpdateStockAsync(int inventoryId, int adjustment, string movementType, string? notes = null)
+        public async Task<bool> UpdateStockAsync(Guid inventoryId, int adjustment, string movementType, string? notes = null)
         {
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == inventoryId);
             if (product == null) return false;

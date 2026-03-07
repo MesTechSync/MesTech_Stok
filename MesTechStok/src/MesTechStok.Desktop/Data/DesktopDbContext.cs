@@ -13,7 +13,7 @@ namespace MesTechStok.Desktop.Data
     public class Product
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(200)]
@@ -48,7 +48,7 @@ namespace MesTechStok.Desktop.Data
         public int ReorderLevel { get; set; } = 10;
         public int ReorderQuantity { get; set; } = 50;
 
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public virtual Category Category { get; set; } = null!;
 
         public int? SupplierId { get; set; }
@@ -243,7 +243,7 @@ namespace MesTechStok.Desktop.Data
     public class Category
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(100)]
@@ -255,7 +255,7 @@ namespace MesTechStok.Desktop.Data
         [MaxLength(500)]
         public string Description { get; set; } = string.Empty;
 
-        public int? ParentCategoryId { get; set; }
+        public Guid? ParentCategoryId { get; set; }
         public virtual Category? ParentCategory { get; set; }
         public virtual ICollection<Category> SubCategories { get; set; } = new List<Category>();
 
@@ -276,9 +276,9 @@ namespace MesTechStok.Desktop.Data
     public class StockMovement
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public virtual Product Product { get; set; } = null!;
 
         public int Quantity { get; set; }
@@ -387,13 +387,24 @@ namespace MesTechStok.Desktop.Data
             SeedData(modelBuilder);
         }
 
+        // Deterministic seed GUIDs
+        private static readonly Guid SeedCat1 = new("A0000000-0000-0000-0000-000000000001");
+        private static readonly Guid SeedCat2 = new("A0000000-0000-0000-0000-000000000002");
+        private static readonly Guid SeedCat3 = new("A0000000-0000-0000-0000-000000000003");
+        private static readonly Guid SeedCat4 = new("A0000000-0000-0000-0000-000000000004");
+        private static readonly Guid SeedProd1 = new("B0000000-0000-0000-0000-000000000001");
+        private static readonly Guid SeedProd2 = new("B0000000-0000-0000-0000-000000000002");
+        private static readonly Guid SeedProd3 = new("B0000000-0000-0000-0000-000000000003");
+        private static readonly Guid SeedProd4 = new("B0000000-0000-0000-0000-000000000004");
+        private static readonly Guid SeedProd5 = new("B0000000-0000-0000-0000-000000000005");
+
         private void SeedData(ModelBuilder modelBuilder)
         {
             // Seed Categories
             modelBuilder.Entity<Category>().HasData(
                 new Category
                 {
-                    Id = 1,
+                    Id = SeedCat1,
                     Name = "Elektronik",
                     Code = "ELEK",
                     Description = "Elektronik ürünler",
@@ -404,11 +415,11 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Category
                 {
-                    Id = 2,
+                    Id = SeedCat2,
                     Name = "Telefon",
                     Code = "TEL",
                     Description = "Akıllı telefonlar",
-                    ParentCategoryId = 1,
+                    ParentCategoryId = SeedCat1,
                     Color = "#4CAF50",
                     Icon = "📱",
                     IsActive = true,
@@ -416,11 +427,11 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Category
                 {
-                    Id = 3,
+                    Id = SeedCat3,
                     Name = "Bilgisayar",
                     Code = "PC",
                     Description = "Bilgisayar ve aksesuarları",
-                    ParentCategoryId = 1,
+                    ParentCategoryId = SeedCat1,
                     Color = "#FF9800",
                     Icon = "💻",
                     IsActive = true,
@@ -428,11 +439,11 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Category
                 {
-                    Id = 4,
+                    Id = SeedCat4,
                     Name = "Aksesuarlar",
                     Code = "AKS",
                     Description = "Elektronik aksesuarları",
-                    ParentCategoryId = 1,
+                    ParentCategoryId = SeedCat1,
                     Color = "#9C27B0",
                     Icon = "🎧",
                     IsActive = true,
@@ -444,12 +455,12 @@ namespace MesTechStok.Desktop.Data
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
-                    Id = 1,
+                    Id = SeedProd1,
                     Name = "Samsung Galaxy S23",
                     SKU = "SAM-GS23-128",
                     Barcode = "1234567890123",
                     Description = "Samsung Galaxy S23 128GB Akıllı Telefon",
-                    CategoryId = 2,
+                    CategoryId = SeedCat2,
                     PurchasePrice = 20000m,
                     SalePrice = 25000m,
                     TaxRate = 0.18m,
@@ -466,12 +477,12 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Product
                 {
-                    Id = 2,
+                    Id = SeedProd2,
                     Name = "iPhone 15 Pro",
                     SKU = "APL-IP15P-256",
                     Barcode = "2345678901234",
                     Description = "Apple iPhone 15 Pro 256GB",
-                    CategoryId = 2,
+                    CategoryId = SeedCat2,
                     PurchasePrice = 30000m,
                     SalePrice = 35000m,
                     TaxRate = 0.18m,
@@ -488,12 +499,12 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Product
                 {
-                    Id = 3,
+                    Id = SeedProd3,
                     Name = "MacBook Air M2",
                     SKU = "APL-MBA-M2-512",
                     Barcode = "3456789012345",
                     Description = "Apple MacBook Air M2 512GB",
-                    CategoryId = 3,
+                    CategoryId = SeedCat3,
                     PurchasePrice = 25000m,
                     SalePrice = 28000m,
                     TaxRate = 0.18m,
@@ -510,12 +521,12 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Product
                 {
-                    Id = 4,
+                    Id = SeedProd4,
                     Name = "Dell XPS 13",
                     SKU = "DEL-XPS13-1TB",
                     Barcode = "4567890123456",
                     Description = "Dell XPS 13 1TB SSD Ultrabook",
-                    CategoryId = 3,
+                    CategoryId = SeedCat3,
                     PurchasePrice = 18000m,
                     SalePrice = 22000m,
                     TaxRate = 0.18m,
@@ -532,12 +543,12 @@ namespace MesTechStok.Desktop.Data
                 },
                 new Product
                 {
-                    Id = 5,
+                    Id = SeedProd5,
                     Name = "Sony WH-1000XM5",
                     SKU = "SON-WH1000XM5",
                     Barcode = "5678901234567",
                     Description = "Sony WH-1000XM5 Noise Cancelling Kulaklık",
-                    CategoryId = 4,
+                    CategoryId = SeedCat4,
                     PurchasePrice = 7000m,
                     SalePrice = 8500m,
                     TaxRate = 0.18m,

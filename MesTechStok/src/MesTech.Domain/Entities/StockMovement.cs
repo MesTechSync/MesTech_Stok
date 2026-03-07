@@ -6,9 +6,10 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Stok hareketi entity'si.
 /// </summary>
-public class StockMovement : BaseEntity
+public class StockMovement : BaseEntity, ITenantEntity
 {
-    public int ProductId { get; set; }
+    public Guid TenantId { get; set; }
+    public Guid ProductId { get; set; }
     public int Quantity { get; set; }
     public int PreviousStock { get; set; }
     public int NewStock { get; set; }
@@ -20,11 +21,11 @@ public class StockMovement : BaseEntity
     public decimal? TotalCost { get; set; }
 
     // İlişkiler
-    public int? OrderId { get; set; }
-    public int? SupplierId { get; set; }
-    public int? CustomerId { get; set; }
-    public int? FromWarehouseId { get; set; }
-    public int? ToWarehouseId { get; set; }
+    public Guid? OrderId { get; set; }
+    public Guid? SupplierId { get; set; }
+    public Guid? CustomerId { get; set; }
+    public Guid? FromWarehouseId { get; set; }
+    public Guid? ToWarehouseId { get; set; }
     public string? FromLocation { get; set; }
     public string? ToLocation { get; set; }
 
@@ -41,7 +42,7 @@ public class StockMovement : BaseEntity
 
     // Geri alma
     public bool IsReversed { get; set; }
-    public int? ReversalMovementId { get; set; }
+    public Guid? ReversalMovementId { get; set; }
 
     // Lot/Seri takibi
     public string? BatchNumber { get; set; }

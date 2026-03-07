@@ -6,9 +6,10 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Envanter lot'u — FEFO (First Expire First Out) yönetimi.
 /// </summary>
-public class InventoryLot : BaseEntity
+public class InventoryLot : BaseEntity, ITenantEntity
 {
-    public int ProductId { get; set; }
+    public Guid TenantId { get; set; }
+    public Guid ProductId { get; set; }
     public string LotNumber { get; set; } = string.Empty;
     public DateTime? ExpiryDate { get; set; }
     public decimal ReceivedQty { get; set; }

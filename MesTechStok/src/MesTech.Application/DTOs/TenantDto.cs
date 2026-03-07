@@ -2,7 +2,7 @@ namespace MesTech.Application.DTOs;
 
 public class TenantDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? TaxNumber { get; set; }
     public bool IsActive { get; set; }

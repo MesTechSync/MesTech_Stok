@@ -128,7 +128,7 @@ namespace MesTechStok.Desktop.Services
             };
         }
 
-        public async Task<ProductItem?> GetProductByIdAsync(int id)
+        public async Task<ProductItem?> GetProductByIdAsync(Guid id)
         {
             // ⚠️ KRITIK: Sadece aktif ürünleri göster (silinen ürünleri gizle)
             var p = await _db.Products.AsNoTracking().Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
@@ -450,7 +450,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> UpdateFinanceAsync(int productId, decimal? purchasePrice = null, decimal? salePrice = null, decimal? discountRate = null)
+        public async Task<bool> UpdateFinanceAsync(Guid productId, decimal? purchasePrice = null, decimal? salePrice = null, decimal? discountRate = null)
         {
             var p = await _db.Products.FirstOrDefaultAsync(x => x.Id == productId);
             if (p == null) return false;
@@ -476,7 +476,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(Guid id)
         {
             var p = await _db.Products.FirstOrDefaultAsync(x => x.Id == id);
             if (p == null) return false;
@@ -487,7 +487,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> UpdateStockAsync(int productId, int newStock)
+        public async Task<bool> UpdateStockAsync(Guid productId, int newStock)
         {
             var p = await _db.Products.FirstOrDefaultAsync(x => x.Id == productId);
             if (p == null) return false;
@@ -547,7 +547,7 @@ namespace MesTechStok.Desktop.Services
             return await query.OrderBy(c => c.Name).Take(take).Select(c => c.Name).ToListAsync();
         }
 
-        private async Task<int> ResolveCategoryIdAsync(string? categoryName)
+        private async Task<Guid> ResolveCategoryIdAsync(string? categoryName)
         {
             if (string.IsNullOrWhiteSpace(categoryName))
             {

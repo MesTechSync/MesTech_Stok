@@ -10,7 +10,7 @@ public class OrderRepository : IOrderRepository
 
     public OrderRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Order?> GetByIdAsync(int id)
+    public async Task<Order?> GetByIdAsync(Guid id)
         => await _context.Orders
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.Id == id).ConfigureAwait(false);
@@ -20,7 +20,7 @@ public class OrderRepository : IOrderRepository
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(int customerId)
+    public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId)
         => await _context.Orders
             .Where(o => o.CustomerId == customerId)
             .OrderByDescending(o => o.OrderDate)

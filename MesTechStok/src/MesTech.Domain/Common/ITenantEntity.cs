@@ -6,5 +6,5 @@ namespace MesTech.Domain.Common;
 /// </summary>
 public interface ITenantEntity
 {
-    int TenantId { get; set; }
+    Guid TenantId { get; set; }
 }

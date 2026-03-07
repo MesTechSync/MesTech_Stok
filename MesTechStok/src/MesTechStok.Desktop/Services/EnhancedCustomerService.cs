@@ -131,7 +131,7 @@ namespace MesTechStok.Desktop.Services
 
                 var customer = new CustomerItem
                 {
-                    Id = i,
+                    Id = Guid.NewGuid(),
                     FullName = $"{firstName} {lastName}",
                     Email = $"{firstName.ToLower()}.{lastName.ToLower()}@email.com",
                     PhoneNumber = $"0{_random.Next(500, 600)} {_random.Next(100, 999)} {_random.Next(10, 99)} {_random.Next(10, 99)}",
@@ -156,7 +156,7 @@ namespace MesTechStok.Desktop.Services
 
     public class CustomerItem
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string FullName { get; set; } = "";
         public string Email { get; set; } = "";
         public string PhoneNumber { get; set; } = "";

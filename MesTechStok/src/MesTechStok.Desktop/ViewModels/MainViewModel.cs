@@ -97,7 +97,7 @@ namespace MesTechStok.Desktop.ViewModels
         // Widget test data - Gerçek servisler bağlandığında kaldırılacak
         private MesTechStok.Core.Data.Models.Product testProduct = new MesTechStok.Core.Data.Models.Product
         {
-            Id = 1,
+            Id = Guid.NewGuid(),
             Name = "Test Ürün",
             SKU = "TEST-001",
             Barcode = "1234567890123",
@@ -122,10 +122,10 @@ namespace MesTechStok.Desktop.ViewModels
         private MesTechStok.Core.Data.Models.Product? selectedProduct;
 
         [ObservableProperty]
-        private string openCartUrl = "https://example.com/api";
+        private string openCartUrl = "";
 
         [ObservableProperty]
-        private string openCartApiKey = "your_api_key_here";
+        private string openCartApiKey = "";
 
         [ObservableProperty]
         private object? _currentView;
@@ -380,12 +380,12 @@ namespace MesTechStok.Desktop.ViewModels
         {
             // Test ürünleri ekle
             Products.Add(testProduct);
-            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = 2, Name = "Test Ürün 2", SKU = "TEST-002", Stock = 5, MinimumStock = 10, PurchasePrice = 200.00m });
-            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = 3, Name = "Test Ürün 3", SKU = "TEST-003", Stock = 50, MinimumStock = 10, PurchasePrice = 75.00m });
+            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = Guid.NewGuid(), Name = "Test Ürün 2", SKU = "TEST-002", Stock = 5, MinimumStock = 10, PurchasePrice = 200.00m });
+            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = Guid.NewGuid(), Name = "Test Ürün 3", SKU = "TEST-003", Stock = 50, MinimumStock = 10, PurchasePrice = 75.00m });
 
             // Test stok hareketleri
-            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { Id = 1, ProductId = 1, Quantity = 10, MovementType = "IN", Date = DateTime.Now.AddHours(-1) });
-            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { Id = 2, ProductId = 2, Quantity = -2, MovementType = "OUT", Date = DateTime.Now.AddHours(-2) });
+            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { ProductId = testProduct.Id, Quantity = 10, MovementType = "IN", Date = DateTime.Now.AddHours(-1) });
+            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { ProductId = Products[1].Id, Quantity = -2, MovementType = "OUT", Date = DateTime.Now.AddHours(-2) });
         }
 
         private void UpdateStatistics()
@@ -1287,7 +1287,7 @@ namespace MesTechStok.Desktop.ViewModels
                     try
                     {
                         // Örnek ürün ID ile test (gerçek implementasyonda kullanıcı seçimi olacak)
-                        var suggestions = await _warehouseOptimizationService.GetOptimalLocationSuggestionsAsync(1, 10);
+                        var suggestions = await _warehouseOptimizationService.GetOptimalLocationSuggestionsAsync(Guid.Empty, 10);
 
                         if (suggestions != null && suggestions.Count > 0)
                         {

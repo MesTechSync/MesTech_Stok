@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Entegrasyon senkronizasyon log'u.
 /// </summary>
-public class SyncLog : BaseEntity
+public class SyncLog : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string PlatformCode { get; set; } = string.Empty;
     public SyncDirection Direction { get; set; }
     public SyncStatus SyncStatus { get; set; } = SyncStatus.NotSynced;

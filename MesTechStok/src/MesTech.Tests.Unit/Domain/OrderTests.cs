@@ -8,6 +8,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// Order entity domain logic koruma testleri.
 /// Bu testler kirilirsa = siparis mantigi bozulmus demektir.
 /// </summary>
+[Trait("Category", "Unit")]
 public class OrderTests
 {
     [Fact]
@@ -15,9 +16,8 @@ public class OrderTests
     {
         var order = new Order
         {
-            Id = 1,
             OrderNumber = "ORD-001",
-            CustomerId = 1,
+            CustomerId = Guid.NewGuid(),
             Status = OrderStatus.Pending
         };
 
@@ -31,9 +31,8 @@ public class OrderTests
     {
         var order = new Order
         {
-            Id = 1,
             OrderNumber = "ORD-002",
-            CustomerId = 1
+            CustomerId = Guid.NewGuid()
         };
 
         order.Place();

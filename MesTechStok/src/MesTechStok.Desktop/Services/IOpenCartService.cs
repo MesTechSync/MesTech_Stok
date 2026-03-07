@@ -16,7 +16,7 @@ namespace MesTechStok.Desktop.Services
 
     public class OpenCartProduct
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Model { get; set; } = string.Empty;
         public decimal Price { get; set; }

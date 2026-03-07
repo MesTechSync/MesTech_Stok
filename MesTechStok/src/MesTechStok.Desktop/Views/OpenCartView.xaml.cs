@@ -470,25 +470,31 @@ namespace MesTechStok.Desktop.Views
 
             await Task.Delay(1500);
 
-            if (url.Contains("demo.mestechstore.com"))
+            if (string.IsNullOrWhiteSpace(url))
             {
-                MessageBox.Show("✅ URL erişilebilir!\n\n" +
-                              "• Bağlantı süresi: 245ms\n" +
-                              "• SSL sertifikası: Geçerli\n" +
-                              "• API endpoint: Aktif",
-                              "URL Test Başarılı",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show("❌ URL'ye erişilemedi!\n\n" +
-                              "• Bağlantı zaman aşımı\n" +
-                              "• SSL hatası olabilir\n" +
-                              "• URL'yi kontrol edin",
+                MessageBox.Show("❌ Lütfen bir URL giriniz.",
                               "URL Test Başarısız",
                               MessageBoxButton.OK,
                               MessageBoxImage.Warning);
+            }
+            else
+            {
+                try
+                {
+                    using var httpClient = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+                    var response = await httpClient.GetAsync(url);
+                    MessageBox.Show($"✅ URL erişilebilir!\n\n• Durum kodu: {(int)response.StatusCode}",
+                                  "URL Test Başarılı",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"❌ URL'ye erişilemedi!\n\n• Hata: {ex.Message}",
+                                  "URL Test Başarısız",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Warning);
+                }
             }
         }
 
@@ -498,12 +504,17 @@ namespace MesTechStok.Desktop.Views
 
             if (currentType == "visible")
             {
-                ApiKeyTextBox.Text = "mst_demo_key_*****************";
+                var key = ApiKeyTextBox.Text;
+                if (key.Length > 6)
+                    ApiKeyTextBox.Text = key.Substring(0, 6) + new string('*', key.Length - 6);
+                ApiKeyTextBox.Tag = key;
                 ((Button)sender).Content = "👁️ Göster";
             }
             else
             {
-                ApiKeyTextBox.Text = "mst_demo_key_123456789abcdef";
+                var originalKey = ApiKeyTextBox.Tag as string;
+                if (!string.IsNullOrEmpty(originalKey))
+                    ApiKeyTextBox.Text = originalKey;
                 ((Button)sender).Content = "🙈 Gizle";
             }
         }

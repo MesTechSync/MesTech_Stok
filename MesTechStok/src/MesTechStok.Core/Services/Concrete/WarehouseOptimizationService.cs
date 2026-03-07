@@ -21,7 +21,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Akıllı Konum Önerileri
 
-        public async Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(int productId, int quantity)
+        public async Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(Guid productId, int quantity)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(int binId)
+        public async Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(Guid binId)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Depo Verimlilik Analizi
 
-        public async Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(int warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
@@ -224,7 +224,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Optimizasyon Önerileri
 
-        public async Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(int warehouseId, OptimizationCriteria criteria)
+        public async Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(Guid warehouseId, OptimizationCriteria criteria)
         {
             try
             {
@@ -309,7 +309,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Kapasite Planlaması
 
-        public async Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(int warehouseId)
+        public async Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(Guid warehouseId)
         {
             try
             {
@@ -339,7 +339,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<List<CapacityAlert>> GetCapacityAlertsAsync(int warehouseId)
+        public async Task<List<CapacityAlert>> GetCapacityAlertsAsync(Guid warehouseId)
         {
             try
             {
@@ -373,7 +373,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<CapacityForecast> GetCapacityForecastAsync(int warehouseId, int monthsAhead)
+        public async Task<CapacityForecast> GetCapacityForecastAsync(Guid warehouseId, int monthsAhead)
         {
             try
             {
@@ -406,7 +406,7 @@ namespace MesTechStok.Core.Services.Concrete
 
         #region Konum Analizi
 
-        public async Task<LocationHeatmapData> GetLocationHeatmapAsync(int warehouseId, LocationHeatmapType type)
+        public async Task<LocationHeatmapData> GetLocationHeatmapAsync(Guid warehouseId, LocationHeatmapType type)
         {
             try
             {
@@ -435,7 +435,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(int warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
@@ -462,7 +462,7 @@ namespace MesTechStok.Core.Services.Concrete
             }
         }
 
-        public async Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(int warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {

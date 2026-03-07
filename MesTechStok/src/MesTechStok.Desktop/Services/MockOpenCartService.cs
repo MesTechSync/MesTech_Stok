@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace MesTechStok.Desktop.Services
 {
+    [Obsolete("DI'da kullanilmiyor — gercek OpenCartSyncService (Core) aktif. Dalga 2'de kaldirilacak.")]
     public class MockOpenCartService : IOpenCartService
     {
         private bool _isConnected = false;
@@ -14,9 +15,9 @@ namespace MesTechStok.Desktop.Services
 
         private readonly List<OpenCartProduct> _openCartProducts = new()
         {
-            new OpenCartProduct { ProductId = 101, Name = "Samsung Galaxy S23", Model = "SM-S911", Price = 25000, Quantity = 10 },
-            new OpenCartProduct { ProductId = 102, Name = "iPhone 15 Pro", Model = "A3108", Price = 45000, Quantity = 5 },
-            new OpenCartProduct { ProductId = 103, Name = "Sony WH-1000XM5", Model = "WH1000XM5", Price = 8500, Quantity = 20 }
+            new OpenCartProduct { ProductId = Guid.NewGuid(), Name = "Samsung Galaxy S23", Model = "SM-S911", Price = 25000, Quantity = 10 },
+            new OpenCartProduct { ProductId = Guid.NewGuid(), Name = "iPhone 15 Pro", Model = "A3108", Price = 45000, Quantity = 5 },
+            new OpenCartProduct { ProductId = Guid.NewGuid(), Name = "Sony WH-1000XM5", Model = "WH1000XM5", Price = 8500, Quantity = 20 }
         };
 
         public Task<bool> ConnectAsync(string apiUrl, string apiKey)

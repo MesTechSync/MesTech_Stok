@@ -15,7 +15,7 @@ public interface IOrderService
     /// <summary>
     /// ID'ye göre sipariş getirir
     /// </summary>
-    Task<Order?> GetOrderByIdAsync(int id);
+    Task<Order?> GetOrderByIdAsync(Guid id);
 
     /// <summary>
     /// Sipariş numarasına göre sipariş getirir
@@ -45,17 +45,17 @@ public interface IOrderService
     /// <summary>
     /// Sipariş durumunu günceller
     /// </summary>
-    Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus);
+    Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus);
 
     /// <summary>
     /// Sipariş siler
     /// </summary>
-    Task<bool> DeleteOrderAsync(int id);
+    Task<bool> DeleteOrderAsync(Guid id);
 
     /// <summary>
     /// Sipariş kalemlerini getirir
     /// </summary>
-    Task<IEnumerable<OrderItem>> GetOrderItemsAsync(int orderId);
+    Task<IEnumerable<OrderItem>> GetOrderItemsAsync(Guid orderId);
 
     /// <summary>
     /// Toplam sipariş sayısını getirir

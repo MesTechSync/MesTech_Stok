@@ -326,6 +326,14 @@ public partial class App : Application
             var skipLogin = _host.Services.GetRequiredService<IConfiguration>
                 ()?.GetSection("Authentication")?.GetValue<bool>("SkipLogin") ?? false;
 
+            // SkipLogin sadece Development ortamında kullanılabilir
+            var dotnetEnv = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+            if (skipLogin && !string.Equals(dotnetEnv, "Development", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "SkipLogin sadece Development ortamında kullanılabilir! DOTNET_ENVIRONMENT=Development olmalı.");
+            }
+
             if (skipLogin)
             {
                 // 🚀 **NEURAL SYSTEM LAUNCH** - Replace legacy WelcomeWindow with Neural Interface
@@ -401,7 +409,7 @@ public partial class App : Application
         {
             var provider = configuration.GetValue<string>("Database:Provider") ?? "PostgreSQL";
             var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=MesTech2026!Dev;";
+                ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection yapılandırılmamış. dotnet user-secrets veya appsettings.json kullanın.");
 
             if (provider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
             {
@@ -426,8 +434,8 @@ public partial class App : Application
             options.EnableDetailedErrors(true);
 
             // FAZ 0: AuditInterceptor — otomatik audit alanları + soft delete
-            options.AddInterceptors(new MesTechStok.Core.Data.AuditInterceptor(
-                new MesTechStok.Core.Services.DevelopmentUserService()));
+            options.AddInterceptors(new MesTech.Infrastructure.Persistence.AuditInterceptor(
+                new MesTech.Infrastructure.Security.DevelopmentUserService()));
         }, ServiceLifetime.Scoped);
 
 
@@ -517,8 +525,51 @@ public partial class App : Application
         // services.AddScoped<MesTechStok.Core.Services.Abstract.IMobileWarehouseService, MesTechStok.Core.Services.Concrete.MobileWarehouseService>();
 
         // FAZ 0: Unified Entegratör Altyapı Servisleri
-        services.AddScoped<MesTech.Domain.Interfaces.ICurrentUserService, MesTechStok.Core.Services.DevelopmentUserService>();
-        services.AddScoped<MesTech.Domain.Interfaces.IEventPublisher, MesTechStok.Core.Services.InMemoryEventPublisher>();
+        services.AddScoped<MesTech.Domain.Interfaces.ICurrentUserService, MesTech.Infrastructure.Security.DevelopmentUserService>();
+        services.AddScoped<MesTech.Domain.Interfaces.IEventPublisher, MesTech.Infrastructure.Messaging.InMemoryEventPublisher>();
+
+        // === DALGA 1 GÖREV 2.03: Clean Architecture DI Entegrasyonu ===
+
+        // MediatR — Application CQRS handlers (11 handler)
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(
+                typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+
+        // Infrastructure AppDbContext (Clean Architecture — Core AppDbContext ile birlikte çalışır)
+        services.AddScoped<MesTech.Infrastructure.Persistence.AuditInterceptor>();
+        var infraConnectionString = configuration.GetConnectionString("PostgreSQL")
+            ?? configuration.GetConnectionString("DefaultConnection");
+        services.AddDbContext<MesTech.Infrastructure.Persistence.AppDbContext>((sp, options) =>
+        {
+            options.UseNpgsql(infraConnectionString!, npgsql =>
+            {
+                npgsql.MigrationsAssembly(typeof(MesTech.Infrastructure.Persistence.AppDbContext).Assembly.FullName);
+                npgsql.EnableRetryOnFailure(3);
+            });
+            options.AddInterceptors(sp.GetRequiredService<MesTech.Infrastructure.Persistence.AuditInterceptor>());
+        });
+
+        // Clean Architecture Repositories
+        services.AddScoped<MesTech.Domain.Interfaces.IProductRepository, MesTech.Infrastructure.Persistence.Repositories.ProductRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IStockMovementRepository, MesTech.Infrastructure.Persistence.Repositories.StockMovementRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IWarehouseRepository, MesTech.Infrastructure.Persistence.Repositories.WarehouseRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IOrderRepository, MesTech.Infrastructure.Persistence.Repositories.OrderRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.ITenantRepository, MesTech.Infrastructure.Persistence.Repositories.TenantRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IStoreRepository, MesTech.Infrastructure.Persistence.Repositories.StoreRepository>();
+
+        // UnitOfWork + Domain Events
+        services.AddScoped<MesTech.Domain.Interfaces.IDomainEventDispatcher, MesTech.Infrastructure.Services.DomainEventDispatcher>();
+        services.AddScoped<MesTech.Domain.Interfaces.IUnitOfWork, MesTech.Infrastructure.Persistence.UnitOfWork>();
+
+        // Domain Services (saf iş kuralları — dış bağımlılığı yok)
+        services.AddSingleton<MesTech.Domain.Services.StockCalculationService>();
+        services.AddSingleton<MesTech.Domain.Services.PricingService>();
+        services.AddSingleton<MesTech.Domain.Services.BarcodeValidationService>();
+
+        // Tenant Provider
+        services.AddSingleton<MesTech.Domain.Interfaces.ITenantProvider, MesTech.Infrastructure.Security.DevelopmentTenantProvider>();
+
+        // NOT: Redis, RabbitMQ, Hangfire, HealthChecks → Dalga 2'de aktifleştirilecek (dış bağımlılık gerektirir)
 
         // ALPHA TEAM: ViewModels
         services.AddTransient<MainViewModel>();

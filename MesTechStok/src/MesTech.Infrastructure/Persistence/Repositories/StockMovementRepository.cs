@@ -10,10 +10,10 @@ public class StockMovementRepository : IStockMovementRepository
 
     public StockMovementRepository(AppDbContext context) => _context = context;
 
-    public async Task<StockMovement?> GetByIdAsync(int id)
+    public async Task<StockMovement?> GetByIdAsync(Guid id)
         => await _context.StockMovements.FindAsync(id);
 
-    public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(int productId)
+    public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId)
         => await _context.StockMovements
             .Where(m => m.ProductId == productId)
             .OrderByDescending(m => m.Date)

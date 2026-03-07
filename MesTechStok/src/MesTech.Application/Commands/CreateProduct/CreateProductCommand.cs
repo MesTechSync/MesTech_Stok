@@ -8,9 +8,9 @@ public record CreateProductCommand(
     string? Barcode,
     decimal PurchasePrice,
     decimal SalePrice,
-    int CategoryId,
-    int? SupplierId = null,
-    int? WarehouseId = null,
+    Guid CategoryId,
+    Guid? SupplierId = null,
+    Guid? WarehouseId = null,
     string? Description = null,
     int MinimumStock = 5,
     int MaximumStock = 1000,
@@ -23,6 +23,6 @@ public record CreateProductCommand(
 public class CreateProductResult
 {
     public bool IsSuccess { get; set; }
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
     public string? ErrorMessage { get; set; }
 }

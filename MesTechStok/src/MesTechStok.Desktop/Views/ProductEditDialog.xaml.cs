@@ -145,7 +145,7 @@ namespace MesTechStok.Desktop.Views
                     {
                         var storage = new ImageStorageService();
                         // Geçici olarak 0 id; gerçek kayıttan sonra güncellenebilir. Düzenle modunda Id var.
-                        int id = 0;
+                        Guid id = Guid.Empty;
                         if (Owner is MainWindow mw && mw.DataContext is object) { }
                         // Not: Kaydetten sonra servis id'yi verdiğinde tekrar üretim yapılabilir.
                         await storage.SaveAsync(id, ProductImageUrl);

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MesTechStok.Core.Services.Abstract;
-// Intentionally avoid MesTechStok.Core.Data.Models to prevent type ambiguity
 
 namespace MesTechStok.Desktop.Services
 {
@@ -19,8 +18,7 @@ namespace MesTechStok.Desktop.Services
             _logger = logger;
         }
 
-        // Smart location suggestions
-        public Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(int productId, int quantity)
+        public Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(Guid productId, int quantity)
         {
             _logger.LogWarning("[Mock] GetOptimalLocationSuggestionsAsync called for Product {ProductId}, Qty {Qty}", productId, quantity);
             var list = new List<SmartLocationSuggestion>
@@ -50,12 +48,12 @@ namespace MesTechStok.Desktop.Services
             return results;
         }
 
-        public Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(int binId)
+        public Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(Guid binId)
         {
             _logger.LogWarning("[Mock] CalculateLocationOptimizationScoreAsync for Bin {BinId}", binId);
             var score = new LocationOptimizationScore
             {
-                BinId = binId,
+                BinId = 1,
                 BinCode = $"BIN-{binId}",
                 OverallScore = 75,
                 SpaceEfficiency = 70,
@@ -70,10 +68,9 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(score);
         }
 
-        // Efficiency analysis
-        public Task<MesTechStok.Core.Services.Abstract.WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(int warehouseId)
+        public Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(Guid warehouseId)
         {
-            var rep = new MesTechStok.Core.Services.Abstract.WarehouseEfficiencyReport
+            var rep = new WarehouseEfficiencyReport
             {
                 WarehouseId = warehouseId,
                 WarehouseName = $"Warehouse-{warehouseId}",
@@ -87,9 +84,9 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(rep);
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.ZoneEfficiencyReport> GetZoneEfficiencyReportAsync(int zoneId)
+        public Task<ZoneEfficiencyReport> GetZoneEfficiencyReportAsync(int zoneId)
         {
-            var rep = new MesTechStok.Core.Services.Abstract.ZoneEfficiencyReport
+            var rep = new ZoneEfficiencyReport
             {
                 ZoneId = zoneId,
                 ZoneName = $"Zone-{zoneId}",
@@ -102,9 +99,9 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(rep);
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.RackEfficiencyReport> GetRackEfficiencyReportAsync(int rackId)
+        public Task<RackEfficiencyReport> GetRackEfficiencyReportAsync(int rackId)
         {
-            var rep = new MesTechStok.Core.Services.Abstract.RackEfficiencyReport
+            var rep = new RackEfficiencyReport
             {
                 RackId = rackId,
                 RackName = $"Rack-{rackId}",
@@ -118,12 +115,11 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(rep);
         }
 
-        // Optimization recommendations
-        public Task<List<MesTechStok.Core.Services.Abstract.OptimizationRecommendation>> GetOptimizationRecommendationsAsync(int warehouseId)
+        public Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(Guid warehouseId)
         {
-            var list = new List<MesTechStok.Core.Services.Abstract.OptimizationRecommendation>
+            var list = new List<OptimizationRecommendation>
             {
-                new MesTechStok.Core.Services.Abstract.OptimizationRecommendation
+                new OptimizationRecommendation
                 {
                     Type = "REORGANIZE",
                     Title = "Mock reorganize",
@@ -138,9 +134,9 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(list);
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.OptimizationImpact> CalculateOptimizationImpactAsync(MesTechStok.Core.Services.Abstract.OptimizationAction action)
+        public Task<OptimizationImpact> CalculateOptimizationImpactAsync(OptimizationAction action)
         {
-            var impact = new MesTechStok.Core.Services.Abstract.OptimizationImpact
+            var impact = new OptimizationImpact
             {
                 ActionId = action?.Id ?? Guid.NewGuid().ToString(),
                 SpaceEfficiencyImprovement = 1,
@@ -153,16 +149,15 @@ namespace MesTechStok.Desktop.Services
             return Task.FromResult(impact);
         }
 
-        public Task<bool> ApplyOptimizationActionAsync(MesTechStok.Core.Services.Abstract.OptimizationAction action)
+        public Task<bool> ApplyOptimizationActionAsync(OptimizationAction action)
         {
             _logger.LogWarning("[Mock] ApplyOptimizationActionAsync called for {Action}", action?.Type);
             return Task.FromResult(true);
         }
 
-        // Capacity planning
-        public Task<MesTechStok.Core.Services.Abstract.CapacityPlanningReport> GetCapacityPlanningReportAsync(int warehouseId)
+        public Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(Guid warehouseId)
         {
-            var rep = new MesTechStok.Core.Services.Abstract.CapacityPlanningReport
+            var rep = new CapacityPlanningReport
             {
                 WarehouseId = warehouseId,
                 WarehouseName = $"Warehouse-{warehouseId}",
@@ -170,51 +165,50 @@ namespace MesTechStok.Desktop.Services
                 ProjectedUtilization = 65,
                 PeakUtilization = 80,
                 PeakDate = DateTime.Now.AddMonths(2),
-                Alerts = new List<MesTechStok.Core.Services.Abstract.CapacityAlert>(),
-                Forecasts = new List<MesTechStok.Core.Services.Abstract.CapacityForecast>(),
-                Recommendations = new List<MesTechStok.Core.Services.Abstract.CapacityRecommendation>()
+                Alerts = new List<CapacityAlert>(),
+                Forecasts = new List<CapacityForecast>(),
+                Recommendations = new List<CapacityRecommendation>()
             };
             return Task.FromResult(rep);
         }
 
-        public Task<List<MesTechStok.Core.Services.Abstract.CapacityAlert>> GetCapacityAlertsAsync(int warehouseId)
+        public Task<List<CapacityAlert>> GetCapacityAlertsAsync(Guid warehouseId)
         {
-            return Task.FromResult(new List<MesTechStok.Core.Services.Abstract.CapacityAlert>());
+            return Task.FromResult(new List<CapacityAlert>());
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.CapacityForecast> GetCapacityForecastAsync(int warehouseId, int monthsAhead)
+        public Task<CapacityForecast> GetCapacityForecastAsync(Guid warehouseId, int monthsAhead)
         {
-            var f = new MesTechStok.Core.Services.Abstract.CapacityForecast
+            var f = new CapacityForecast
             {
                 ForecastDate = DateTime.Now.AddMonths(monthsAhead),
                 PredictedUtilization = 65,
                 ConfidenceLevel = 50,
-                ContributingFactors = new List<MesTechStok.Core.Services.Abstract.CapacityFactor>(),
+                ContributingFactors = new List<CapacityFactor>(),
                 Trend = "STABLE"
             };
             return Task.FromResult(f);
         }
 
-        // Location analytics
-        public Task<MesTechStok.Core.Services.Abstract.LocationHeatmap> GetLocationHeatmapAsync(int warehouseId)
+        public Task<LocationHeatmap> GetLocationHeatmapAsync(Guid warehouseId)
         {
-            var heatmap = new MesTechStok.Core.Services.Abstract.LocationHeatmap
+            var heatmap = new LocationHeatmap
             {
                 WarehouseId = warehouseId,
-                Cells = new List<MesTechStok.Core.Services.Abstract.HeatmapCell>()
+                Cells = new List<HeatmapCell>()
             };
             return Task.FromResult(heatmap);
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.MovementPatternAnalysis> GetMovementPatternAnalysisAsync(int warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
+        public Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            var m = new MesTechStok.Core.Services.Abstract.MovementPatternAnalysis { WarehouseId = warehouseId };
+            var m = new MovementPatternAnalysis { WarehouseId = warehouseId };
             return Task.FromResult(m);
         }
 
-        public Task<MesTechStok.Core.Services.Abstract.SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(int warehouseId, int monthsBack = 12)
+        public Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(Guid warehouseId, int monthsBack = 12)
         {
-            var t = new MesTechStok.Core.Services.Abstract.SpaceUtilizationTrend { WarehouseId = warehouseId };
+            var t = new SpaceUtilizationTrend { WarehouseId = warehouseId };
             return Task.FromResult(t);
         }
     }

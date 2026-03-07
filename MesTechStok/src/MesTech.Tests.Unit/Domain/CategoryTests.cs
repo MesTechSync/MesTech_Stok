@@ -7,6 +7,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// <summary>
 /// Category entity koruma testleri.
 /// </summary>
+[Trait("Category", "Unit")]
 public class CategoryTests
 {
     [Fact]
@@ -14,20 +15,18 @@ public class CategoryTests
     {
         var parent = new Category
         {
-            Id = 1,
             Name = "Elektronik",
             Code = "ELEC"
         };
 
         var child = new Category
         {
-            Id = 2,
             Name = "Telefon",
             Code = "PHONE",
             ParentCategoryId = parent.Id
         };
 
-        child.ParentCategoryId.Should().Be(1);
+        child.ParentCategoryId.Should().Be(parent.Id);
         child.Name.Should().Be("Telefon");
     }
 

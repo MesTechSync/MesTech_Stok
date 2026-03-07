@@ -8,9 +8,9 @@ namespace MesTech.Tests.Integration._Shared;
 /// </summary>
 public class TestTenantProvider : ITenantProvider
 {
-    private int _tenantId = 1;
+    private Guid _tenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-    public int GetCurrentTenantId() => _tenantId;
+    public Guid GetCurrentTenantId() => _tenantId;
 
-    public void SetTenant(int tenantId) => _tenantId = tenantId;
+    public void SetTenant(Guid tenantId) => _tenantId = tenantId;
 }

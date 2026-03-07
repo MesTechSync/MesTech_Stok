@@ -12,7 +12,7 @@ namespace MesTechStok.Core.Data.Models;
 public class Product
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -64,7 +64,7 @@ public class Product
     public int ReorderQuantity { get; set; } = 50;
 
     // Category & Classification
-    public int CategoryId { get; set; }
+    public Guid CategoryId { get; set; }
     public virtual Category Category { get; set; } = null!;
 
     public int? SupplierId { get; set; }

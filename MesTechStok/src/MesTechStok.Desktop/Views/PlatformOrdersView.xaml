@@ -1,0 +1,163 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.PlatformOrdersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PrimaryBtn" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SuccessBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+        <Style x:Key="WarningBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Setter Property="Foreground" Value="#212529"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Platform Siparisleri" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock Text="Trendyol ve OpenCart siparislerini merkezi olarak yonetin" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Siparisleri Yenile" Style="{StaticResource PrimaryBtn}" Click="RefreshOrders_Click" Margin="0,0,8,0"/>
+                    <Button Content="Secili Faturala" Style="{StaticResource SuccessBtn}" Click="InvoiceSelected_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Filters -->
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Platform:" VerticalAlignment="Center" FontSize="12" Margin="0,0,6,0" Foreground="#495057"/>
+                <ComboBox x:Name="PlatformFilterCombo" Width="130" SelectedIndex="0" SelectionChanged="FilterChanged">
+                    <ComboBoxItem Content="Tumu"/>
+                    <ComboBoxItem Content="Trendyol"/>
+                    <ComboBoxItem Content="OpenCart"/>
+                </ComboBox>
+
+                <TextBlock Text="Durum:" VerticalAlignment="Center" FontSize="12" Margin="16,0,6,0" Foreground="#495057"/>
+                <ComboBox x:Name="StatusFilterCombo" Width="140" SelectedIndex="0" SelectionChanged="FilterChanged">
+                    <ComboBoxItem Content="Tumu"/>
+                    <ComboBoxItem Content="Yeni"/>
+                    <ComboBoxItem Content="Hazirlaniyor"/>
+                    <ComboBoxItem Content="Faturalanmis"/>
+                    <ComboBoxItem Content="Kargoda"/>
+                    <ComboBoxItem Content="Teslim Edildi"/>
+                    <ComboBoxItem Content="Iptal"/>
+                </ComboBox>
+
+                <TextBlock Text="Tarih:" VerticalAlignment="Center" FontSize="12" Margin="16,0,6,0" Foreground="#495057"/>
+                <DatePicker x:Name="StartDatePicker" Width="120" Margin="0,0,4,0"/>
+                <TextBlock Text="-" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <DatePicker x:Name="EndDatePicker" Width="120"/>
+
+                <TextBox x:Name="SearchTextBox" Width="180" Margin="16,0,0,0" Padding="6" FontSize="12" Tag="Siparis no veya musteri ara..." TextChanged="SearchChanged"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Orders DataGrid -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="0" Margin="8,4">
+            <DataGrid x:Name="OrdersGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserSortColumns="True" SelectionMode="Extended"
+                      GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                      BorderThickness="0" FontSize="12"
+                      RowHeight="36" ColumnHeaderHeight="38"
+                      SelectionChanged="OrdersGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Width="36"/>
+                    <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="130"/>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="90"/>
+                    <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="180"/>
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
+                    <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" Width="100"/>
+                    <DataGridTextColumn Header="Urun Adedi" Binding="{Binding ItemCount}" Width="80"/>
+                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110"/>
+                    <DataGridTextColumn Header="Fatura" Binding="{Binding InvoiceStatus}" Width="100"/>
+                    <DataGridTextColumn Header="Kargo" Binding="{Binding CargoStatus}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Footer Stats -->
+        <Border Grid.Row="3" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4,8,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="Toplam" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TotalOrdersText" Text="0" FontSize="20" FontWeight="Bold" Foreground="#212529" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Yeni" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="NewOrdersText" Text="0" FontSize="20" FontWeight="Bold" Foreground="#FF6000" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="Hazirlaniyor" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="PreparingOrdersText" Text="0" FontSize="20" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                    <TextBlock Text="Kargoda" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="ShippedOrdersText" Text="0" FontSize="20" FontWeight="Bold" Foreground="#007ACC" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                    <TextBlock Text="Teslim" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="DeliveredOrdersText" Text="0" FontSize="20" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

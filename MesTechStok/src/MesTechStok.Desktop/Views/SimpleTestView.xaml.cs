@@ -120,7 +120,7 @@ namespace MesTechStok.Desktop.Views
                     SKU = "TEST-001",
                     Barcode = "1111111111111",
                     Description = "Test için oluşturulan ürün",
-                    CategoryId = 1,
+                    CategoryId = Guid.NewGuid(),
                     PurchasePrice = 100m,
                     SalePrice = 150m,
                     Stock = 50,

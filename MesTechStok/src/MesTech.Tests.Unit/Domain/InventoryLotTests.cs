@@ -8,12 +8,13 @@ namespace MesTech.Tests.Unit.Domain;
 /// <summary>
 /// InventoryLot FEFO domain logic koruma testleri.
 /// </summary>
+[Trait("Category", "Unit")]
 public class InventoryLotTests
 {
     [Fact]
     public void Consume_ShouldDecreaseRemainingQty()
     {
-        var lot = FakeData.CreateLot(1, 100, 50);
+        var lot = FakeData.CreateLot(Guid.NewGuid(), 100, 50);
 
         lot.Consume(20);
 
@@ -24,7 +25,7 @@ public class InventoryLotTests
     [Fact]
     public void Consume_AllRemaining_ShouldCloseLot()
     {
-        var lot = FakeData.CreateLot(1, 100, 30);
+        var lot = FakeData.CreateLot(Guid.NewGuid(), 100, 30);
 
         lot.Consume(30);
 
@@ -36,7 +37,7 @@ public class InventoryLotTests
     [Fact]
     public void Consume_MoreThanRemaining_ShouldThrow()
     {
-        var lot = FakeData.CreateLot(1, 100, 20);
+        var lot = FakeData.CreateLot(Guid.NewGuid(), 100, 20);
 
         var act = () => lot.Consume(50);
 
@@ -59,7 +60,7 @@ public class InventoryLotTests
     [Fact]
     public void IsExpired_WhenFutureExpiryDate_ShouldReturnFalse()
     {
-        var lot = FakeData.CreateLot(1, expiryDate: DateTime.UtcNow.AddMonths(6));
+        var lot = FakeData.CreateLot(Guid.NewGuid(), expiryDate: DateTime.UtcNow.AddMonths(6));
 
         lot.IsExpired.Should().BeFalse();
     }

@@ -11,6 +11,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// WAC maliyet hesaplama ve stok yonetimi koruma testleri.
 /// Bu testler kirilirsa = maliyet hesaplama mantigi bozulmus demektir.
 /// </summary>
+[Trait("Category", "Unit")]
 public class StockCalculationServiceTests
 {
     private readonly StockCalculationService _sut = new();
@@ -84,9 +85,9 @@ public class StockCalculationServiceTests
     {
         var lots = new List<InventoryLot>
         {
-            FakeData.CreateLot(1, 100, 50, DateTime.UtcNow.AddMonths(6)),
-            FakeData.CreateLot(1, 100, 50, DateTime.UtcNow.AddMonths(1)),  // en yakin SKT
-            FakeData.CreateLot(1, 100, 50, DateTime.UtcNow.AddMonths(12))
+            FakeData.CreateLot(Guid.NewGuid(), 100, 50, DateTime.UtcNow.AddMonths(6)),
+            FakeData.CreateLot(Guid.NewGuid(), 100, 50, DateTime.UtcNow.AddMonths(1)),  // en yakin SKT
+            FakeData.CreateLot(Guid.NewGuid(), 100, 50, DateTime.UtcNow.AddMonths(12))
         };
 
         var selected = _sut.SelectLotsForConsumption(lots, 30);
@@ -101,9 +102,9 @@ public class StockCalculationServiceTests
     {
         var lots = new List<InventoryLot>
         {
-            FakeData.CreateLot(1, 30, 30, DateTime.UtcNow.AddDays(10)),
-            FakeData.CreateLot(1, 50, 50, DateTime.UtcNow.AddDays(20)),
-            FakeData.CreateLot(1, 100, 100, DateTime.UtcNow.AddDays(30))
+            FakeData.CreateLot(Guid.NewGuid(), 30, 30, DateTime.UtcNow.AddDays(10)),
+            FakeData.CreateLot(Guid.NewGuid(), 50, 50, DateTime.UtcNow.AddDays(20)),
+            FakeData.CreateLot(Guid.NewGuid(), 100, 100, DateTime.UtcNow.AddDays(30))
         };
 
         var selected = _sut.SelectLotsForConsumption(lots, 60);
@@ -114,10 +115,10 @@ public class StockCalculationServiceTests
     [Fact]
     public void SelectLotsForConsumption_ShouldSkipClosedLots()
     {
-        var closedLot = FakeData.CreateLot(1, 100, 0, DateTime.UtcNow.AddDays(5));
+        var closedLot = FakeData.CreateLot(Guid.NewGuid(), 100, 0, DateTime.UtcNow.AddDays(5));
         closedLot.Status = LotStatus.Closed;
 
-        var openLot = FakeData.CreateLot(1, 100, 50, DateTime.UtcNow.AddDays(30));
+        var openLot = FakeData.CreateLot(Guid.NewGuid(), 100, 50, DateTime.UtcNow.AddDays(30));
 
         var selected = _sut.SelectLotsForConsumption(new[] { closedLot, openLot }, 30);
 

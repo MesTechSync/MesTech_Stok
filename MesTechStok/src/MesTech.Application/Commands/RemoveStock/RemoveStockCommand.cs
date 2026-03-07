@@ -3,7 +3,7 @@ using MediatR;
 namespace MesTech.Application.Commands.RemoveStock;
 
 public record RemoveStockCommand(
-    int ProductId,
+    Guid ProductId,
     int Quantity,
     string? Reason = null,
     string? DocumentNumber = null,
@@ -14,6 +14,6 @@ public class RemoveStockResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }
-    public int MovementId { get; set; }
+    public Guid MovementId { get; set; }
     public string? ErrorMessage { get; set; }
 }

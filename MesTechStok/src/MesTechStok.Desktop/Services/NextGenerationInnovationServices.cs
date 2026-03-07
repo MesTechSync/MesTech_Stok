@@ -238,7 +238,7 @@ namespace MesTechStok.Desktop.Services
 
                 var intelligence = new CustomerIntelligence
                 {
-                    CustomerId = customerId,
+                    CustomerId = new Guid(customerId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
                     CustomerName = $"Customer_{customerId}",
                     Segment = await PredictCustomerSegmentAsync(customerId),
                     LifetimeValue = Math.Round(5000 + new Random().NextDouble() * 45000, 2),
@@ -447,7 +447,7 @@ namespace MesTechStok.Desktop.Services
 
                 return new CategoryIntelligence
                 {
-                    CategoryId = categoryId,
+                    CategoryId = new Guid(categoryId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
                     CategoryName = $"Smart_Category_{categoryId}",
                     ParentCategory = "Electronics",
                     PerformanceScore = Math.Round(75 + new Random().NextDouble() * 20, 2),

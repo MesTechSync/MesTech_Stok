@@ -48,13 +48,13 @@ namespace MesTechStok.Desktop.Services
             };
         }
 
-        public async Task<OrderItem?> GetOrderByIdAsync(int orderId)
+        public async Task<OrderItem?> GetOrderByIdAsync(Guid orderId)
         {
             await Task.Delay(25);
             return _allOrders.FirstOrDefault(o => o.Id == orderId);
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus)
+        public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
         {
             await Task.Delay(50);
 
@@ -145,7 +145,7 @@ namespace MesTechStok.Desktop.Services
 
                 var order = new OrderItem
                 {
-                    Id = i,
+                    Id = Guid.NewGuid(),
                     CustomerName = customerNames[_random.Next(customerNames.Length)],
                     OrderDate = orderDate,
                     Status = status,
@@ -178,7 +178,7 @@ namespace MesTechStok.Desktop.Services
 
     public class OrderItem
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string OrderNumber { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public DateTime OrderDate { get; set; }

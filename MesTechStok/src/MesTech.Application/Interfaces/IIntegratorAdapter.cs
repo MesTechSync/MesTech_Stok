@@ -15,7 +15,7 @@ public interface IIntegratorAdapter
 
     Task<bool> PushProductAsync(Product product, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default);
-    Task<bool> PushStockUpdateAsync(int productId, int newStock, CancellationToken ct = default);
-    Task<bool> PushPriceUpdateAsync(int productId, decimal newPrice, CancellationToken ct = default);
+    Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default);
+    Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default);
     Task<ConnectionTestResultDto> TestConnectionAsync(Dictionary<string, string> credentials, CancellationToken ct = default);
 }

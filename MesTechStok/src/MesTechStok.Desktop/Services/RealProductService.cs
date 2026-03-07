@@ -11,17 +11,17 @@ namespace MesTechStok.Desktop.Services
     public interface IRealProductService
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<Product?> GetProductByIdAsync(int id);
+        Task<Product?> GetProductByIdAsync(Guid id);
         Task<Product?> GetProductByBarcodeAsync(string barcode);
         Task<Product?> GetProductBySkuAsync(string sku);
         Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm);
-        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<Product>> GetProductsByCategoryAsync(Guid categoryId);
         Task<IEnumerable<Product>> GetLowStockProductsAsync();
         Task<Product> AddProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
-        Task<bool> DeleteProductAsync(int id);
-        Task<bool> UpdateStockAsync(int productId, int newStock, string reason = "Manual Update");
-        Task<bool> AdjustStockAsync(int productId, int adjustment, string reason = "Stock Adjustment");
+        Task<bool> DeleteProductAsync(Guid id);
+        Task<bool> UpdateStockAsync(Guid productId, int newStock, string reason = "Manual Update");
+        Task<bool> AdjustStockAsync(Guid productId, int adjustment, string reason = "Stock Adjustment");
     }
 
     public class RealProductService : IRealProductService
@@ -42,7 +42,7 @@ namespace MesTechStok.Desktop.Services
                 .ToListAsync();
         }
 
-        public async Task<Product?> GetProductByIdAsync(int id)
+        public async Task<Product?> GetProductByIdAsync(Guid id)
         {
             return await _context.Products
                 .Include(p => p.Category)
@@ -84,7 +84,7 @@ namespace MesTechStok.Desktop.Services
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(Guid categoryId)
         {
             return await _context.Products
                 .Include(p => p.Category)
@@ -118,7 +118,7 @@ namespace MesTechStok.Desktop.Services
             return product;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(Guid id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return false;
@@ -130,7 +130,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> UpdateStockAsync(int productId, int newStock, string reason = "Manual Update")
+        public async Task<bool> UpdateStockAsync(Guid productId, int newStock, string reason = "Manual Update")
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return false;
@@ -162,13 +162,13 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> AdjustStockAsync(int productId, int adjustment, string reason = "Stock Adjustment")
+        public async Task<bool> AdjustStockAsync(Guid productId, int adjustment, string reason = "Stock Adjustment")
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return false;
 
             // Stock adjustment ile satış simülasyonu
-            if (product.Id % 4 == 0) // Her 4. ürün için adjustment
+            if (product.Id != Guid.Empty) // Geçerli ürün ID'si varsa adjustment uygula
             {
                 var newStock = Math.Max(0, product.Stock + adjustment);
                 await UpdateStockAsync(product.Id, newStock, "Otomatik ayarlama");

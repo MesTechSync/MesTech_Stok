@@ -3,6 +3,7 @@ using MesTech.Domain.ValueObjects;
 
 namespace MesTech.Tests.Unit.Domain;
 
+[Trait("Category", "Unit")]
 public class StockLevelTests
 {
     // StockLevel(Current, Minimum, Maximum, ReorderLevel, ReorderQuantity)

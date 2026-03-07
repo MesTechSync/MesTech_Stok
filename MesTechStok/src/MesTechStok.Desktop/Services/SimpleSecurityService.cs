@@ -2,21 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using MesTechStok.Core.Services.Abstract;
 
 namespace MesTechStok.Desktop.Services
 {
     /// <summary>
-    /// Basit güvenlik sistemi - Mevcut Core User modeli ile uyumlu
+    /// Basit güvenlik sistemi - IAuthService'e delege eder
     /// </summary>
     public class SimpleSecurityService
     {
         private readonly ILogger<SimpleSecurityService> _logger;
+        private readonly IAuthService _authService;
         private static readonly Dictionary<string, UserSession> _activeSessions = new();
         private static readonly object _lockObject = new object();
 
-        public SimpleSecurityService(ILogger<SimpleSecurityService> logger)
+        public SimpleSecurityService(ILogger<SimpleSecurityService> logger, IAuthService authService)
         {
             _logger = logger;
+            _authService = authService;
         }
 
         /// <summary>
@@ -167,20 +170,12 @@ namespace MesTechStok.Desktop.Services
         }
 
         /// <summary>
-        /// Basit kullanıcı doğrulama (demo)
+        /// Kullanıcı doğrulama — IAuthService'e delege eder
         /// </summary>
         private bool IsValidUser(string username, string password)
         {
-            // Demo kullanıcılar + Database admin user
-            var validUsers = new Dictionary<string, string>
-            {
-                { "admin", "Admin123!" },  // Database ile uyumlu şifre
-                { "user", "user123" },
-                { "demo", "demo123" }
-            };
-
-            return validUsers.TryGetValue(username, out var validPassword) &&
-                   validPassword == password;
+            var result = _authService.LoginAsync(username, password).GetAwaiter().GetResult();
+            return result.IsSuccess;
         }
     }
 

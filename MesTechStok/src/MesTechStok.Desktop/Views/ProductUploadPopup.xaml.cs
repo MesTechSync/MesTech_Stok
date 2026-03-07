@@ -31,7 +31,7 @@ namespace MesTechStok.Desktop.Views
         private readonly List<string> _imageFiles = new();
         private readonly List<string> _videoFiles = new();
         private int _coverIndex = -1;
-        private int? _editingProductId = null;
+        private Guid? _editingProductId = null;
         private bool _isDirty = false;
 
         // 🔥 A++++ THREAD SAFETY: Helper method to get fresh service per operation  
@@ -176,7 +176,7 @@ namespace MesTechStok.Desktop.Views
             finally { Busy(); }
         }
 
-        private async Task ReloadExistingImagesAsync(int productId)
+        private async Task ReloadExistingImagesAsync(Guid productId)
         {
             try
             {
@@ -1182,7 +1182,7 @@ namespace MesTechStok.Desktop.Views
                 var existing = await GetProductService().GetProductByBarcodeAsync(barcode);
                 if (existing == null) { MesTechStok.Desktop.Utils.ToastManager.ShowWarning("Kaydedilmiş ürün bulunamadı", "Ürün"); return; }
                 var clone = existing.Clone();
-                clone.Id = 0;
+                clone.Id = Guid.Empty;
                 clone.Barcode = barcode + "-COPY";
                 await GetProductService().AddProductAsync(clone);
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Ürün kopyalandı", "Ürün");

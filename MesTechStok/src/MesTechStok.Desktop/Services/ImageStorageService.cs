@@ -39,10 +39,10 @@ namespace MesTechStok.Desktop.Services
 
         public string GetBaseFolder() => _baseFolder;
 
-        public string GetProductFolder(int productId)
+        public string GetProductFolder(Guid productId)
         {
-            // SECURITY: Validate product ID range
-            if (productId <= 0 || productId > 2000000000) // Realistic max product ID
+            // SECURITY: Validate product ID
+            if (productId == Guid.Empty)
             {
                 throw new ArgumentException($"Invalid product ID: {productId}");
             }
@@ -138,7 +138,7 @@ namespace MesTechStok.Desktop.Services
             return $"img_{hashString}{ext}";
         }
 
-        public async Task<ImageSaveResult> SaveAsync(int productId, string sourcePathOrUrl)
+        public async Task<ImageSaveResult> SaveAsync(Guid productId, string sourcePathOrUrl)
         {
             var folder = GetProductFolder(productId);
             var secureFileName = GenerateSecureFileName($"product_{productId}_original.jpg");

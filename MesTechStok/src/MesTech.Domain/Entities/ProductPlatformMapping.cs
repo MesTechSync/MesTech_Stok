@@ -9,9 +9,9 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class ProductPlatformMapping : BaseEntity
 {
-    public int ProductId { get; set; }
-    public int? ProductVariantId { get; set; }
-    public int StoreId { get; set; }
+    public Guid ProductId { get; set; }
+    public Guid? ProductVariantId { get; set; }
+    public Guid StoreId { get; set; }
     public PlatformType PlatformType { get; set; }
     public string? ExternalProductId { get; set; }
     public string? ExternalCategoryId { get; set; }

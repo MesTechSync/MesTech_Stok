@@ -1,9 +1,12 @@
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
+using MesTech.Infrastructure.AI;
 using MesTech.Infrastructure.Caching;
 using MesTech.Infrastructure.HealthChecks;
 using MesTech.Infrastructure.Jobs;
 using MesTech.Infrastructure.Messaging;
+using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
 using MesTech.Infrastructure.Security;
@@ -82,6 +85,11 @@ public static class InfrastructureServiceRegistration
         // RabbitMQ MassTransit Event Bus
         services.AddMesTechMessaging(configuration);
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
+
+        // === MESA OS Bridge (Dalga 1: Mock) ===
+        services.AddScoped<IMesaAIService, MockMesaAIService>();
+        services.AddScoped<IMesaBotService, MockMesaBotService>();
+        services.AddScoped<IMesaEventPublisher, MesaEventPublisher>();
 
         // Hangfire Background Jobs
         services.AddMesTechHangfire(configuration);

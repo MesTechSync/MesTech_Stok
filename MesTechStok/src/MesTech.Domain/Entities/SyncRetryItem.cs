@@ -1,8 +1,9 @@
+using MesTech.Domain.Common;
+
 namespace MesTech.Domain.Entities;
 
-public class SyncRetryItem
+public class SyncRetryItem : BaseEntity
 {
-    public long Id { get; set; }
     public string SyncType { get; set; } = string.Empty;
     public string ItemId { get; set; } = string.Empty;
     public string ItemType { get; set; } = string.Empty;

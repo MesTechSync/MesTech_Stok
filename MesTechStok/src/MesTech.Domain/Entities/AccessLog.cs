@@ -4,7 +4,7 @@ namespace MesTech.Domain.Entities;
 
 public class AccessLog : BaseEntity
 {
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
     public string Action { get; set; } = string.Empty;
     public string Resource { get; set; } = string.Empty;
     public bool IsAllowed { get; set; }

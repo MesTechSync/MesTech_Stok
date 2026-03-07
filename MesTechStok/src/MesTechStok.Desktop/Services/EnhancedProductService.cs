@@ -59,7 +59,7 @@ namespace MesTechStok.Desktop.Services
             };
         }
 
-        public async Task<ProductItem?> GetProductByIdAsync(int id)
+        public async Task<ProductItem?> GetProductByIdAsync(Guid id)
         {
             await Task.Delay(25);
             return _allProducts.FirstOrDefault(p => p.Id == id);
@@ -110,7 +110,7 @@ namespace MesTechStok.Desktop.Services
                 }
 
                 // Assign new ID
-                product.Id = _allProducts.Max(p => p.Id) + 1;
+                product.Id = Guid.NewGuid();
                 product.CreatedDate = DateTime.Now;
                 product.LastUpdated = DateTime.Now;
 
@@ -180,7 +180,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(Guid id)
         {
             await Task.Delay(100);
 
@@ -191,7 +191,7 @@ namespace MesTechStok.Desktop.Services
             return true;
         }
 
-        public async Task<bool> UpdateStockAsync(int productId, int newStock)
+        public async Task<bool> UpdateStockAsync(Guid productId, int newStock)
         {
             await Task.Delay(50);
 
@@ -242,7 +242,7 @@ namespace MesTechStok.Desktop.Services
             }
             return q.OrderBy(c => c).Take(Math.Max(1, take)).ToList();
         }
-        public async Task<bool> UpdateFinanceAsync(int productId, decimal? purchasePrice = null, decimal? salePrice = null, decimal? discountRate = null)
+        public async Task<bool> UpdateFinanceAsync(Guid productId, decimal? purchasePrice = null, decimal? salePrice = null, decimal? discountRate = null)
         {
             await Task.Delay(25);
             var p = _allProducts.FirstOrDefault(x => x.Id == productId);
@@ -318,8 +318,6 @@ namespace MesTechStok.Desktop.Services
                 ["Sağlık"] = new[] { "Vitamin C", "Omega 3", "Aspirin", "Termometre", "İlk Yardım Çantası", "Kan Basıncı Aleti", "Maske", "Dezenfektan", "Bandaj", "Antiseptik" }
             };
 
-            int idCounter = 1;
-
             foreach (var category in categories)
             {
                 var names = productNames[category];
@@ -327,7 +325,7 @@ namespace MesTechStok.Desktop.Services
                 {
                     var product = new ProductItem
                     {
-                        Id = idCounter++,
+                        Id = Guid.NewGuid(),
                         Name = name,
                         Barcode = GenerateBarcode(),
                         Category = category,
@@ -351,7 +349,7 @@ namespace MesTechStok.Desktop.Services
                 var baseNames = productNames[category];
                 var product = new ProductItem
                 {
-                    Id = idCounter++,
+                    Id = Guid.NewGuid(),
                     Name = $"{baseNames[i % baseNames.Length]} - Varyant {i + 1}",
                     Barcode = GenerateBarcode(),
                     Category = category,
