@@ -1187,9 +1187,128 @@
                                     
                                 </Button>
                                 
+                                <!-- PLATFORM ENTEGRASYONLARI -->
                                 <Separator Margin="16,10" Background="#E0E0E0"/>
-                                
-                                <Button x:Name="NavLogs" 
+
+                                <Button x:Name="NavTrendyolConnection"
+                                       Style="{StaticResource NavMenuItemStyle}"
+                                       Click="NavTrendyolConnection_Click"
+                                       ToolTipService.Placement="Right"
+                                       ToolTip="Trendyol Bağlantı">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="ShoppingOutline" Width="20" Height="20" Foreground="#F57C00" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Trendyol Bağlantı" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                </Button>
+
+                                <Button x:Name="NavPlatformOrders"
+                                       Style="{StaticResource NavMenuItemStyle}"
+                                       Click="NavPlatformOrders_Click"
+                                       ToolTipService.Placement="Right"
+                                       ToolTip="Platform Siparişleri">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="ClipboardTextOutline" Width="20" Height="20" Foreground="#F57C00" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Siparişler" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                </Button>
+
+                                <Button x:Name="NavInvoiceManagement"
+                                       Style="{StaticResource NavMenuItemStyle}"
+                                       Click="NavInvoiceManagement_Click"
+                                       ToolTipService.Placement="Right"
+                                       ToolTip="Fatura Yönetimi">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="ReceiptTextOutline" Width="20" Height="20" Foreground="#F57C00" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Fatura Yönetimi" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                </Button>
+
+                                <Button x:Name="NavApiHealthDashboard"
+                                       Style="{StaticResource NavMenuItemStyle}"
+                                       Click="NavApiHealthDashboard_Click"
+                                       ToolTipService.Placement="Right"
+                                       ToolTip="API Sağlık Durumu">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="HeartPulse" Width="20" Height="20" Foreground="#F57C00" Margin="0,0,12,0"/>
+                                        <TextBlock Text="API Sağlık" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                </Button>
+
+                                <Button x:Name="NavPlatformSyncStatus"
+                                       Style="{StaticResource NavMenuItemStyle}"
+                                       Click="NavPlatformSyncStatus_Click"
+                                       ToolTipService.Placement="Right"
+                                       ToolTip="Sync Durumu">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="SyncCircle" Width="20" Height="20" Foreground="#F57C00" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Sync Durumu" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                </Button>
+
+                                <!-- SİSTEM & AYARLAR -->
+                                <Separator Margin="16,10" Background="#E0E0E0"/>
+
+                                <Button x:Name="NavLogs"
                                        Style="{StaticResource NavMenuItemStyle}"
                                        Click="NavLogs_Click"
                                        ToolTipService.Placement="Right"

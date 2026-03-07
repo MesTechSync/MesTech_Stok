@@ -25,9 +25,6 @@ using MesTechStok.Core.Integrations.OpenCart;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Core.Interfaces;
 
-// 🧠 NEURAL SYSTEM INTEGRATION
-using MesTechStok.Desktop.Neural.Windows;
-using MesTechStok.Desktop.Neural.Themes;
 using MesTechStok.Desktop.ViewModels;
 using MesTechStok.Desktop.Views; // Other views
 using GlobalLogger = MesTechStok.Desktop.Utils.GlobalLogger;

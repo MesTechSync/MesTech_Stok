@@ -1340,7 +1340,7 @@ namespace MesTechStok.Desktop.ViewModels
 
                 /* Mobile warehouse service disabled - full implementation needed
                 var activeDevices = await _mobileWarehouseService.GetActiveDevicesAsync();
-                
+
                 if (activeDevices != null && activeDevices.Count > 0)
                 {
                     var onlineDevices = activeDevices.Count(d => d.IsOnline);
@@ -1361,6 +1361,126 @@ namespace MesTechStok.Desktop.ViewModels
                 StatusMessage = $"❌ Mobil depo hatası: {ex.Message}";
                 GlobalLogger.Instance.LogError($"Mobil depo durumu hatası: {ex.Message}", "MainViewModel");
                 ToastManager.ShowError($"Mobil depo hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        [RelayCommand]
+        private void ShowTrendyolConnection()
+        {
+            NavigationTimingService.Instance.StartTiming("Trendyol Bağlantı");
+            try
+            {
+                CurrentView = new Views.TrendyolConnectionView();
+                CurrentModule = "Trendyol Bağlantı";
+                StatusMessage = "🛒 Trendyol Bağlantı yüklendi";
+                GlobalLogger.Instance.LogInfo("Trendyol bağlantı ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Trendyol Bağlantı");
+                ToastManager.ShowSuccess("Trendyol bağlantı modülü aktif!", "Trendyol");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Trendyol bağlantı yüklenemedi";
+                GlobalLogger.Instance.LogError($"Trendyol bağlantı yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Trendyol Bağlantı");
+                ToastManager.ShowError("Trendyol bağlantı yüklenemedi!", "Hata");
+                MessageBox.Show($"Trendyol bağlantı yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowPlatformOrders()
+        {
+            NavigationTimingService.Instance.StartTiming("Platform Siparişleri");
+            try
+            {
+                CurrentView = new Views.PlatformOrdersView();
+                CurrentModule = "Platform Siparişleri";
+                StatusMessage = "📋 Platform Siparişleri yüklendi";
+                GlobalLogger.Instance.LogInfo("Platform siparişleri ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Platform Siparişleri");
+                ToastManager.ShowSuccess("Platform siparişleri modülü aktif!", "Siparişler");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Platform siparişleri yüklenemedi";
+                GlobalLogger.Instance.LogError($"Platform siparişleri yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Platform Siparişleri");
+                ToastManager.ShowError("Platform siparişleri yüklenemedi!", "Hata");
+                MessageBox.Show($"Platform siparişleri yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowInvoiceManagement()
+        {
+            NavigationTimingService.Instance.StartTiming("Fatura Yönetimi");
+            try
+            {
+                CurrentView = new Views.InvoiceManagementView();
+                CurrentModule = "Fatura Yönetimi";
+                StatusMessage = "🧾 Fatura Yönetimi yüklendi";
+                GlobalLogger.Instance.LogInfo("Fatura yönetimi ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fatura Yönetimi");
+                ToastManager.ShowSuccess("Fatura yönetimi modülü aktif!", "Fatura");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Fatura yönetimi yüklenemedi";
+                GlobalLogger.Instance.LogError($"Fatura yönetimi yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fatura Yönetimi");
+                ToastManager.ShowError("Fatura yönetimi yüklenemedi!", "Hata");
+                MessageBox.Show($"Fatura yönetimi yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowApiHealthDashboard()
+        {
+            NavigationTimingService.Instance.StartTiming("API Sağlık Durumu");
+            try
+            {
+                CurrentView = new Views.ApiHealthDashboardView();
+                CurrentModule = "API Sağlık Durumu";
+                StatusMessage = "💓 API Sağlık Durumu yüklendi - Tüm servisler izleniyor";
+                GlobalLogger.Instance.LogInfo("API sağlık durumu ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("API Sağlık Durumu");
+                ToastManager.ShowSuccess("API sağlık durumu modülü aktif!", "API Health");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "API sağlık durumu yüklenemedi";
+                GlobalLogger.Instance.LogError($"API sağlık durumu yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("API Sağlık Durumu");
+                ToastManager.ShowError("API sağlık durumu yüklenemedi!", "Hata");
+                MessageBox.Show($"API sağlık durumu yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowPlatformSyncStatus()
+        {
+            NavigationTimingService.Instance.StartTiming("Platform Sync Durumu");
+            try
+            {
+                CurrentView = new Views.PlatformSyncStatusView();
+                CurrentModule = "Platform Sync Durumu";
+                StatusMessage = "🔄 Platform Sync Durumu yüklendi - Senkronizasyon izleniyor";
+                GlobalLogger.Instance.LogInfo("Platform sync durumu ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Platform Sync Durumu");
+                ToastManager.ShowSuccess("Platform sync durumu modülü aktif!", "Sync");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Platform sync durumu yüklenemedi";
+                GlobalLogger.Instance.LogError($"Platform sync durumu yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Platform Sync Durumu");
+                ToastManager.ShowError("Platform sync durumu yüklenemedi!", "Hata");
+                MessageBox.Show($"Platform sync durumu yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -1398,6 +1398,91 @@ namespace MesTechStok.Desktop
             }
         }
 
+        private void NavTrendyolConnection_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowTrendyolConnectionCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavTrendyolConnection });
+                    UpdateStatusBar("🛒 Trendyol Bağlantı yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Trendyol bağlantı hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavPlatformOrders_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowPlatformOrdersCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavPlatformOrders });
+                    UpdateStatusBar("📋 Platform Siparişleri yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Platform siparişleri hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavInvoiceManagement_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowInvoiceManagementCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavInvoiceManagement });
+                    UpdateStatusBar("🧾 Fatura Yönetimi yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Fatura yönetimi hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavApiHealthDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowApiHealthDashboardCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavApiHealthDashboard });
+                    UpdateStatusBar("💓 API Sağlık Durumu yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"API sağlık durumu hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavPlatformSyncStatus_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowPlatformSyncStatusCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavPlatformSyncStatus });
+                    UpdateStatusBar("🔄 Sync Durumu yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Sync durumu hatası: {ex.Message}", "Hata");
+            }
+        }
+
         private void NavReturnToWelcome_Click(object sender, RoutedEventArgs e)
         {
             try
