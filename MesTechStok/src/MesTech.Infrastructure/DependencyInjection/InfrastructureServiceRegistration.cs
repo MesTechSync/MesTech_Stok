@@ -51,6 +51,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -86,13 +88,28 @@ public static class InfrastructureServiceRegistration
         services.AddMesTechMessaging(configuration);
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
-        // === MESA OS Bridge (Dalga 1: Mock) ===
+        // === MESA OS Bridge (Dalga 1: Mock, Dalga 2: Monitoring) ===
         services.AddScoped<IMesaAIService, MockMesaAIService>();
         services.AddScoped<IMesaBotService, MockMesaBotService>();
         services.AddScoped<IMesaEventPublisher, MesaEventPublisher>();
+        services.AddSingleton<IMesaEventMonitor, MesaEventMonitor>();
+
+        // MESA Status Endpoint (http://localhost:5101/api/mesa/status)
+        services.AddHostedService(sp =>
+            new MesaStatusEndpoint(
+                sp.GetRequiredService<IMesaEventMonitor>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<MesaStatusEndpoint>>()));
 
         // Hangfire Background Jobs
         services.AddMesTechHangfire(configuration);
+
+        // === DALGA 2: Offline Mode (iskelet — Dalga 3'te tamamlanacak) ===
+        services.AddScoped<IOfflineQueue, OfflineQueueService>();
+        services.AddScoped<ISyncManager, SyncManagerService>();
+        services.AddSingleton<IConnectivityService, ConnectivityService>();
+
+        // Data Seeder
+        services.AddScoped<DataSeeder>();
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();

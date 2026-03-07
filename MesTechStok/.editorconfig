@@ -68,6 +68,7 @@ dotnet_diagnostic.CA1054.severity = none       # URI parameters as string
 dotnet_diagnostic.CA1062.severity = none       # MediatR handlers: DI-injected, non-null
 dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates (premature optimization)
 dotnet_diagnostic.CA1716.severity = none       # Identifier naming (intentional)
+dotnet_diagnostic.CA1711.severity = none       # Suffix naming conventions (Queue, Stack etc. intentional)
 
 [*.{csproj,props,targets}]
 indent_style = space
