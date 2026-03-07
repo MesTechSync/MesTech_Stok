@@ -1,0 +1,14 @@
+namespace MesTech.Domain.Entities;
+
+public class ApiCallLog
+{
+    public long Id { get; set; }
+    public string Endpoint { get; set; } = string.Empty;
+    public string Method { get; set; } = string.Empty;
+    public bool Success { get; set; }
+    public int? StatusCode { get; set; }
+    public string? Category { get; set; }
+    public long DurationMs { get; set; }
+    public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
+    public string? CorrelationId { get; set; }
+}

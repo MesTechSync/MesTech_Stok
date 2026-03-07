@@ -1,0 +1,36 @@
+using MesTech.Domain.Entities;
+using MesTech.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace MesTech.Infrastructure.Persistence.Repositories;
+
+public class WarehouseRepository : IWarehouseRepository
+{
+    private readonly AppDbContext _context;
+
+    public WarehouseRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
+
+    public async Task<Warehouse?> GetByIdAsync(int id)
+        => await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<Warehouse>> GetAllAsync()
+        => await _context.Warehouses.ToListAsync().ConfigureAwait(false);
+
+    public async Task<Warehouse?> GetDefaultAsync()
+        => await _context.Warehouses.FirstOrDefaultAsync(w => w.IsDefault).ConfigureAwait(false);
+
+    public async Task AddAsync(Warehouse warehouse)
+        => await _context.Warehouses.AddAsync(warehouse).ConfigureAwait(false);
+
+    public Task UpdateAsync(Warehouse warehouse)
+    {
+        _context.Warehouses.Update(warehouse);
+        return Task.CompletedTask;
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var wh = await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
+        if (wh != null) _context.Warehouses.Remove(wh);
+    }
+}

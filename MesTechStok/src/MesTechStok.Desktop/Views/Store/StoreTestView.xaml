@@ -1,0 +1,97 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Store.StoreTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TestButton" TargetType="Button">
+            <Setter Property="Background" Value="#F27A1A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E06B10"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <!-- Header -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Baglanti Testi" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                    <TextBlock Text="Secilen magazanin platform API baglantisini test edin" FontSize="13" Foreground="#7F8C8D"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Magaza Secimi -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Magaza Secin" FontSize="15" FontWeight="SemiBold" Foreground="#495057" Margin="0,0,0,8"/>
+                    <ComboBox Padding="10,8" FontSize="13" Margin="0,0,0,12"
+                              ItemsSource="{Binding Stores}" SelectedItem="{Binding SelectedStore}"
+                              DisplayMemberPath="DisplayName"/>
+                    <Button Style="{StaticResource TestButton}" Content="Baglantiyi Test Et"
+                            Command="{Binding RunTestCommand}" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Test Sonuclari -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Test Sonuclari" FontSize="15" FontWeight="SemiBold" Foreground="#495057" Margin="0,0,0,12"/>
+
+                    <!-- Loading -->
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,12">
+                        <TextBlock Text="Test yapiliyor..." FontSize="13" Foreground="#6C757D"/>
+                    </StackPanel>
+
+                    <!-- Results -->
+                    <ItemsControl ItemsSource="{Binding TestResults}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E9ECEF" BorderThickness="0,0,0,1" Padding="12,8" Margin="0,0,0,4">
+                                    <DockPanel>
+                                        <Ellipse DockPanel.Dock="Left" Width="12" Height="12" Fill="{Binding StatusColor}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding TestName}" FontWeight="SemiBold" FontSize="13"/>
+                                            <TextBlock Text="{Binding ResultMessage}" FontSize="11" Foreground="#6C757D"/>
+                                            <TextBlock Text="{Binding ResponseTime}" FontSize="11" Foreground="#ADB5BD"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

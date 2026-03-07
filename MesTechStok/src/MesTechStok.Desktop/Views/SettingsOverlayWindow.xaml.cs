@@ -125,15 +125,15 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sql = @"CREATE TABLE IF NOT EXISTS CompanySettings (
-                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                CompanyName TEXT NOT NULL,
-                                TaxNumber TEXT,
-                                Phone TEXT,
-                                Email TEXT,
-                                Address TEXT,
-                                CreatedDate TEXT NOT NULL,
-                                ModifiedDate TEXT
+                var sql = @"CREATE TABLE IF NOT EXISTS ""CompanySettings"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""CompanyName"" TEXT NOT NULL,
+                                ""TaxNumber"" TEXT,
+                                ""Phone"" TEXT,
+                                ""Email"" TEXT,
+                                ""Address"" TEXT,
+                                ""CreatedDate"" TIMESTAMP NOT NULL,
+                                ""ModifiedDate"" TIMESTAMP
                             );";
                 await db.Database.ExecuteSqlRawAsync(sql);
             }

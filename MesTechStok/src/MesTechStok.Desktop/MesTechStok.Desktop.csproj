@@ -18,6 +18,7 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <!-- Prevent .NET runtime installation requests -->
     <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <UserSecretsId>920e4b89-b8eb-4290-a7c9-8845ef312ee0</UserSecretsId>
   </PropertyGroup>
 
   <!-- Configuration Files - ALPHA TEAM CRITICAL FIX -->
@@ -37,12 +38,16 @@
     <Resource Include="Assets\Logos\**\*.png" />
   </ItemGroup>
 
-  <!-- Core project reference - ALPHA TEAM FIXED -->
+  <!-- Core + Domain project references -->
   <ItemGroup>
     <ProjectReference Include="..\MesTechStok.Core\MesTechStok.Core.csproj" />
+    <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
+    <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
+    <ProjectReference Include="..\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />

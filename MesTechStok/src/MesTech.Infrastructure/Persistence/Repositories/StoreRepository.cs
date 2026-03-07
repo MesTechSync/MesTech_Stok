@@ -1,0 +1,48 @@
+using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace MesTech.Infrastructure.Persistence.Repositories;
+
+public class StoreRepository : IStoreRepository
+{
+    private readonly AppDbContext _context;
+
+    public StoreRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<Store?> GetByIdAsync(int id, CancellationToken ct = default)
+        => await _context.Stores
+            .Include(s => s.Credentials)
+            .Include(s => s.ProductMappings)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+
+    public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(int tenantId, CancellationToken ct = default)
+        => await _context.Stores
+            .Include(s => s.ProductMappings)
+            .Where(s => s.TenantId == tenantId && s.IsActive)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Store>> GetByPlatformTypeAsync(PlatformType platformType, CancellationToken ct = default)
+        => await _context.Stores
+            .Where(s => s.PlatformType == platformType && s.IsActive)
+            .ToListAsync(ct);
+
+    public async Task AddAsync(Store store, CancellationToken ct = default)
+        => await _context.Stores.AddAsync(store, ct);
+
+    public Task UpdateAsync(Store store, CancellationToken ct = default)
+    {
+        _context.Stores.Update(store);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(Store store, CancellationToken ct = default)
+    {
+        _context.Stores.Remove(store);
+        return Task.CompletedTask;
+    }
+}

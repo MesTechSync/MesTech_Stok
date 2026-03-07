@@ -1,0 +1,5 @@
+# Ortam değişkenleri — şifreler içerir, ASLA commit edilmez
+.env
+
+# .env.example COMMIT EDİLİR (şablon olarak)
+!.env.example

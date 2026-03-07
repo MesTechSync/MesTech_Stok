@@ -1,0 +1,63 @@
+# DEV 5: Kalite Gate Tanimlari
+# CI/CD pipeline'da merge engelleyici kurallar
+# DEV 4 ile koordineli uygulanacak
+
+quality_gates:
+
+  # --- Test Coverage ---
+  coverage:
+    domain: 90%        # Domain katmani en az %90
+    application: 80%   # Application katmani en az %80
+    overall: 70%       # Genel en az %70
+    tool: coverlet      # coverlet.collector paketi kullanilir
+    report_format: cobertura
+    exclude:
+      - "MesTechStok.Desktop/**"   # WPF UI katmani haric
+      - "MesTechStok.Core/Migrations/**"
+
+  # --- Test Kurallari ---
+  tests:
+    unit_must_pass: true           # Unit testler %100 gecmeli
+    integration_must_pass: true    # Integration testler gecmeli
+    max_test_time: 300s            # 5 dakikadan uzun surmemeli
+    min_test_count: 100            # En az 100 test olmali
+    legacy_tests_protected: true   # Mevcut 8 test korunmali
+
+  # --- Kod Kalitesi ---
+  code:
+    max_complexity: 15             # Cyclomatic complexity
+    max_duplication: 3%            # Kod tekrari
+    zero_critical_vuln: true       # Kritik guvenlik acigi sifir
+    max_warnings: 0                # Derleme uyarisi sifir
+
+  # --- Mimari Kurallar ---
+  architecture:
+    domain_no_infrastructure: true     # Domain katmani altyapi bagimliligi yok
+    application_no_infrastructure: true # Application katmani altyapi bagimliligi yok
+    test_no_production_change: true    # Testler uretim kodunu degistirmez
+
+  # --- Tenant Izolasyonu ---
+  tenant_isolation:
+    cross_tenant_test_required: true   # Tenant izolasyon testi zorunlu
+    global_admin_bypass_tested: true   # Admin bypass testi zorunlu
+
+# --- CI/CD Entegrasyonu ---
+pipeline_integration:
+  # PR merge oncesi
+  pre_merge:
+    - dotnet build --configuration Release
+    - dotnet test --configuration Release --no-build --verbosity normal
+    - dotnet test --collect:"XPlat Code Coverage"
+
+  # Merge sonrasi
+  post_merge:
+    - dotnet test --configuration Release --collect:"XPlat Code Coverage"
+    - reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report
+
+  # Test komutlari
+  commands:
+    unit_tests: "dotnet test src/MesTech.Tests.Unit/ --verbosity normal"
+    integration_tests: "dotnet test src/MesTech.Tests.Integration/ --verbosity normal"
+    legacy_tests: "dotnet test src/MesTechStok.Tests/ --verbosity normal"
+    all_tests: "dotnet test MesTechStok.sln --verbosity normal"
+    coverage: "dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./coverage"

@@ -1,0 +1,109 @@
+# ═══════════════════════════════════════════════════════════════
+# MesTech Entegratör Stok — Docker Altyapı Servisleri
+# Versiyon: 1.0.0
+# Kullanım: docker compose up -d
+# Doğrulama: docker compose ps
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────
+  # PostgreSQL 17 + pgvector
+  # Merkezi veritabanı — Guid PK, EF Core 9
+  # ─────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: mestech-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mestech_stok}
+      POSTGRES_USER: ${POSTGRES_USER:-mestech_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunludur - .env dosyasini kontrol edin}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: Europe/Istanbul
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - mestech_pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mestech_user} -d ${POSTGRES_DB:-mestech_stok}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - mestech-network
+
+  # ─────────────────────────────────────────
+  # Redis 7
+  # Cache + Distributed Lock
+  # ─────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: mestech-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-mestech_redis_dev}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - mestech_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-mestech_redis_dev}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mestech-network
+
+  # ─────────────────────────────────────────
+  # RabbitMQ 3 + Management Panel
+  # Event Bus — MassTransit ile kullanılacak
+  # ─────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mestech-rabbitmq
+    restart: unless-stopped
+    hostname: mestech-rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-mestech_mq}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunludur - .env dosyasini kontrol edin}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-mestech}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    volumes:
+      - mestech_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - mestech-network
+
+# ═══════════════════════════════════════════
+# VOLUMES — Kalıcı veri depolama
+# DEMİR KURAL: Bu volume'lar SİLİNMEZ
+# ═══════════════════════════════════════════
+volumes:
+  mestech_pgdata:
+    name: mestech_pgdata
+  mestech_redis_data:
+    name: mestech_redis_data
+  mestech_rabbitmq_data:
+    name: mestech_rabbitmq_data
+
+# ═══════════════════════════════════════════
+# NETWORK
+# ═══════════════════════════════════════════
+networks:
+  mestech-network:
+    name: mestech-network
+    driver: bridge

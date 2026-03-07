@@ -71,7 +71,7 @@ namespace MesTechStok.Core.Data.Models
         public bool IsHealthy { get; set; } = true;
 
         // Provider-Specific Settings (JSON)
-        [Column(TypeName = "nvarchar(max)")]
+        [Column(TypeName = "text")]
         public string? ProviderSettings { get; set; }
 
         // Business Logic Methods
@@ -148,10 +148,10 @@ namespace MesTechStok.Core.Data.Models
         [StringLength(1000)]
         public string? ErrorMessage { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
+        [Column(TypeName = "text")]
         public string? RequestData { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
+        [Column(TypeName = "text")]
         public string? ResponseData { get; set; }
 
         public DateTime RequestDate { get; set; } = DateTime.Now;

@@ -395,20 +395,40 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Core Database Context (PRIMARY) – Yalnızca SQL Server
-        // 🔥 A++++ FIX: Thread-safe DbContext configuration
+        // Core Database Context (PRIMARY) – PostgreSQL 17 + pgvector
+        // FAZ 0 GÖREV 0.1: Multi-provider support (PostgreSQL birincil)
         services.AddDbContext<AppDbContext>(options =>
         {
+            var provider = configuration.GetValue<string>("Database:Provider") ?? "PostgreSQL";
             var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? "Server=(localdb)\\MSSQLLocalDB;Database=MesTechStok;Integrated Security=true;MultipleActiveResultSets=True;Min Pool Size=2;Max Pool Size=10;";
-            // Sağlayıcı zorunlu: SQL Server
-            options.UseSqlServer(connectionString);
-            // 🎯 CRITICAL: Enable thread safety and connection pooling
+                ?? "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=MesTech2026!Dev;";
+
+            if (provider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
+            {
+                options.UseNpgsql(connectionString);
+                Log.Information("Database provider: PostgreSQL 17 (pgvector enabled)");
+            }
+            else if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var sqlConn = configuration.GetConnectionString("SqlServerConnection") ?? connectionString;
+                options.UseSqlServer(sqlConn);
+                Log.Information("Database provider: SQL Server (fallback)");
+            }
+            else
+            {
+                var sqliteConn = configuration.GetConnectionString("SqliteConnection") ?? "Data Source=MesTechStok.db";
+                options.UseSqlite(sqliteConn);
+                Log.Information("Database provider: SQLite (development)");
+            }
+
             options.EnableSensitiveDataLogging(false);
             options.EnableServiceProviderCaching(true);
             options.EnableDetailedErrors(true);
-            Log.Information($"Database provider: SQL Server - Connection: {connectionString}");
-        }, ServiceLifetime.Scoped); // Explicit scope for thread safety
+
+            // FAZ 0: AuditInterceptor — otomatik audit alanları + soft delete
+            options.AddInterceptors(new MesTechStok.Core.Data.AuditInterceptor(
+                new MesTechStok.Core.Services.DevelopmentUserService()));
+        }, ServiceLifetime.Scoped);
 
 
         // ALPHA TEAM: Core Business Services
@@ -495,6 +515,10 @@ public partial class App : Application
         // TODO: Diğer interface/implementation mismatch'leri düzeltilecek
         // Already registered above: IWarehouseOptimizationService (mock)
         // services.AddScoped<MesTechStok.Core.Services.Abstract.IMobileWarehouseService, MesTechStok.Core.Services.Concrete.MobileWarehouseService>();
+
+        // FAZ 0: Unified Entegratör Altyapı Servisleri
+        services.AddScoped<MesTech.Domain.Interfaces.ICurrentUserService, MesTechStok.Core.Services.DevelopmentUserService>();
+        services.AddScoped<MesTech.Domain.Interfaces.IEventPublisher, MesTechStok.Core.Services.InMemoryEventPublisher>();
 
         // ALPHA TEAM: ViewModels
         services.AddTransient<MainViewModel>();

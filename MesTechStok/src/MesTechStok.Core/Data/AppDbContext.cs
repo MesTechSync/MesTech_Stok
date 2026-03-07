@@ -89,7 +89,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Channel).IsRequired().HasMaxLength(32);
             entity.Property(e => e.Direction).IsRequired().HasMaxLength(16);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(16);
-            entity.Property(e => e.Payload).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.Payload).HasColumnType("text");
             entity.Property(e => e.LastError).HasMaxLength(4000);
             entity.Property(e => e.CorrelationId).HasMaxLength(64);
             entity.HasIndex(e => new { e.Status, e.NextAttemptAt });
@@ -227,7 +227,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.LastName).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.HasIndex(e => e.Username).IsUnique();
-            entity.HasIndex(e => e.Email).IsUnique().HasFilter("[Email] IS NOT NULL"); // Nullable için unique index filter
+            entity.HasIndex(e => e.Email).IsUnique().HasFilter("\"Email\" IS NOT NULL"); // PostgreSQL uyumlu nullable unique index
         });
 
         // Role Configuration
@@ -625,7 +625,7 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// Çalışma zamanında kritik indeksleri kontrol eder ve yoksa oluşturur (SQL Server).
+    /// Çalışma zamanında kritik indeksleri kontrol eder ve yoksa oluşturur (PostgreSQL 17).
     /// Mevcut veritabanını migration çalıştırmadan PRD indeksleri ile hizalamak için kullanılır.
     /// </summary>
     public async Task EnsureIndexesCreatedAsync()
@@ -633,20 +633,20 @@ public class AppDbContext : DbContext
         var sqlCommands = new[]
         {
             // Products
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Products_SKU' AND object_id = OBJECT_ID('[dbo].[Products]'))\nCREATE UNIQUE INDEX [IX_Products_SKU] ON [dbo].[Products] ([SKU]);",
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Products_Barcode' AND object_id = OBJECT_ID('[dbo].[Products]'))\nCREATE UNIQUE INDEX [IX_Products_Barcode] ON [dbo].[Products] ([Barcode]);",
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Products_Name_IsActive' AND object_id = OBJECT_ID('[dbo].[Products]'))\nCREATE INDEX [IX_Products_Name_IsActive] ON [dbo].[Products] ([Name],[IsActive]);",
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Products_Category_IsActive' AND object_id = OBJECT_ID('[dbo].[Products]'))\nCREATE INDEX [IX_Products_Category_IsActive] ON [dbo].[Products] ([CategoryId],[IsActive]);",
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Products_Warehouse_IsActive' AND object_id = OBJECT_ID('[dbo].[Products]'))\nCREATE INDEX [IX_Products_Warehouse_IsActive] ON [dbo].[Products] ([WarehouseId],[IsActive]);",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Products_SKU\" ON \"Products\" (\"SKU\");",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Products_Barcode\" ON \"Products\" (\"Barcode\");",
+            "CREATE INDEX IF NOT EXISTS \"IX_Products_Name_IsActive\" ON \"Products\" (\"Name\", \"IsActive\");",
+            "CREATE INDEX IF NOT EXISTS \"IX_Products_Category_IsActive\" ON \"Products\" (\"CategoryId\", \"IsActive\");",
+            "CREATE INDEX IF NOT EXISTS \"IX_Products_Warehouse_IsActive\" ON \"Products\" (\"WarehouseId\", \"IsActive\");",
 
             // Categories
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Categories_Code' AND object_id = OBJECT_ID('[dbo].[Categories]'))\nCREATE UNIQUE INDEX [IX_Categories_Code] ON [dbo].[Categories] ([Code]);",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Categories_Code\" ON \"Categories\" (\"Code\");",
 
             // Orders
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Orders_OrderNumber' AND object_id = OBJECT_ID('[dbo].[Orders]'))\nCREATE UNIQUE INDEX [IX_Orders_OrderNumber] ON [dbo].[Orders] ([OrderNumber]);",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Orders_OrderNumber\" ON \"Orders\" (\"OrderNumber\");",
 
             // StockMovements
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_StockMovements_Product_Date' AND object_id = OBJECT_ID('[dbo].[StockMovements]'))\nCREATE INDEX [IX_StockMovements_Product_Date] ON [dbo].[StockMovements] ([ProductId],[Date]);"
+            "CREATE INDEX IF NOT EXISTS \"IX_StockMovements_Product_Date\" ON \"StockMovements\" (\"ProductId\", \"Date\");"
         };
 
         foreach (var sql in sqlCommands)
@@ -716,58 +716,52 @@ public class AppDbContext : DbContext
     /// </summary>
     public async Task EnsureTelemetryTablesCreatedAsync()
     {
-        // ONLY SQL SERVER: OBJECT_ID kontrolü ile tablo yoksa oluştur
-        const string createApiCallLogTable = @"IF OBJECT_ID('dbo.ApiCallLogs','U') IS NULL
-BEGIN
-    CREATE TABLE [dbo].[ApiCallLogs](
-        [Id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-        [Endpoint] NVARCHAR(256) NOT NULL,
-        [Method] NVARCHAR(10) NOT NULL,
-        [Success] BIT NOT NULL,
-        [StatusCode] INT NULL,
-        [Category] NVARCHAR(32) NULL,
-        [DurationMs] BIGINT NOT NULL,
-        [TimestampUtc] DATETIME2 NOT NULL,
-        [CorrelationId] NVARCHAR(64) NULL
-    );
-    CREATE INDEX IX_ApiCallLogs_TimestampUtc ON [dbo].[ApiCallLogs]([TimestampUtc]);
-    CREATE INDEX IX_ApiCallLogs_Endpoint_TimestampUtc ON [dbo].[ApiCallLogs]([Endpoint],[TimestampUtc]);
-END";
+        // PostgreSQL 17: CREATE TABLE IF NOT EXISTS
+        const string createApiCallLogTable = @"
+CREATE TABLE IF NOT EXISTS ""ApiCallLogs"" (
+    ""Id"" BIGSERIAL PRIMARY KEY,
+    ""Endpoint"" VARCHAR(256) NOT NULL,
+    ""Method"" VARCHAR(10) NOT NULL,
+    ""Success"" BOOLEAN NOT NULL,
+    ""StatusCode"" INT NULL,
+    ""Category"" VARCHAR(32) NULL,
+    ""DurationMs"" BIGINT NOT NULL,
+    ""TimestampUtc"" TIMESTAMP NOT NULL,
+    ""CorrelationId"" VARCHAR(64) NULL
+);
+CREATE INDEX IF NOT EXISTS ""IX_ApiCallLogs_TimestampUtc"" ON ""ApiCallLogs"" (""TimestampUtc"");
+CREATE INDEX IF NOT EXISTS ""IX_ApiCallLogs_Endpoint_TimestampUtc"" ON ""ApiCallLogs"" (""Endpoint"", ""TimestampUtc"");";
 
-        const string createCircuitStateLogTable = @"IF OBJECT_ID('dbo.CircuitStateLogs','U') IS NULL
-BEGIN
-    CREATE TABLE [dbo].[CircuitStateLogs](
-        [Id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-        [PreviousState] NVARCHAR(20) NOT NULL,
-        [NewState] NVARCHAR(20) NOT NULL,
-        [Reason] NVARCHAR(100) NOT NULL,
-        [FailureRate] FLOAT NOT NULL,
-        [WindowTotalCalls] INT NOT NULL,
-        [TransitionTimeUtc] DATETIME2 NOT NULL,
-        [CorrelationId] NVARCHAR(64) NULL,
-        [AdditionalInfo] NVARCHAR(256) NULL
-    );
-    CREATE INDEX IX_CircuitStateLogs_TransitionTimeUtc ON [dbo].[CircuitStateLogs]([TransitionTimeUtc]);
-    CREATE INDEX IX_CircuitStateLogs_NewState_TransitionTimeUtc ON [dbo].[CircuitStateLogs]([NewState],[TransitionTimeUtc]);
-END";
+        const string createCircuitStateLogTable = @"
+CREATE TABLE IF NOT EXISTS ""CircuitStateLogs"" (
+    ""Id"" BIGSERIAL PRIMARY KEY,
+    ""PreviousState"" VARCHAR(20) NOT NULL,
+    ""NewState"" VARCHAR(20) NOT NULL,
+    ""Reason"" VARCHAR(100) NOT NULL,
+    ""FailureRate"" DOUBLE PRECISION NOT NULL,
+    ""WindowTotalCalls"" INT NOT NULL,
+    ""TransitionTimeUtc"" TIMESTAMP NOT NULL,
+    ""CorrelationId"" VARCHAR(64) NULL,
+    ""AdditionalInfo"" VARCHAR(256) NULL
+);
+CREATE INDEX IF NOT EXISTS ""IX_CircuitStateLogs_TransitionTimeUtc"" ON ""CircuitStateLogs"" (""TransitionTimeUtc"");
+CREATE INDEX IF NOT EXISTS ""IX_CircuitStateLogs_NewState_TransitionTimeUtc"" ON ""CircuitStateLogs"" (""NewState"", ""TransitionTimeUtc"");";
 
-        const string createBarcodeScanLogTable = @"IF OBJECT_ID('dbo.BarcodeScanLogs','U') IS NULL
-BEGIN
-    CREATE TABLE [dbo].[BarcodeScanLogs](
-        [Id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-        [Barcode] NVARCHAR(256) NOT NULL,
-        [Format] NVARCHAR(32) NOT NULL,
-        [Source] NVARCHAR(16) NOT NULL,
-        [DeviceId] NVARCHAR(64) NULL,
-        [IsValid] BIT NOT NULL,
-        [ValidationMessage] NVARCHAR(256) NULL,
-        [RawLength] INT NOT NULL,
-        [TimestampUtc] DATETIME2 NOT NULL,
-        [CorrelationId] NVARCHAR(64) NULL
-    );
-    CREATE INDEX IX_BarcodeScanLogs_TimestampUtc ON [dbo].[BarcodeScanLogs]([TimestampUtc]);
-    CREATE INDEX IX_BarcodeScanLogs_Format_TimestampUtc ON [dbo].[BarcodeScanLogs]([Format],[TimestampUtc]);
-END";
+        const string createBarcodeScanLogTable = @"
+CREATE TABLE IF NOT EXISTS ""BarcodeScanLogs"" (
+    ""Id"" BIGSERIAL PRIMARY KEY,
+    ""Barcode"" VARCHAR(256) NOT NULL,
+    ""Format"" VARCHAR(32) NOT NULL,
+    ""Source"" VARCHAR(16) NOT NULL,
+    ""DeviceId"" VARCHAR(64) NULL,
+    ""IsValid"" BOOLEAN NOT NULL,
+    ""ValidationMessage"" VARCHAR(256) NULL,
+    ""RawLength"" INT NOT NULL,
+    ""TimestampUtc"" TIMESTAMP NOT NULL,
+    ""CorrelationId"" VARCHAR(64) NULL
+);
+CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_TimestampUtc"" ON ""BarcodeScanLogs"" (""TimestampUtc"");
+CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""BarcodeScanLogs"" (""Format"", ""TimestampUtc"");";
 
         try
         {
@@ -782,35 +776,31 @@ END";
     }
 
     /// <summary>
-    /// Canlı sistemde migration gerektirmeden concurrency (RowVersion) ve senkronizasyon alanlarını (SyncedAt, IdempotencyKey, ExternalId) güvenli şekilde ekler.
-    /// Yoksa eklenir, varsa atlanır.
+    /// Canlı sistemde migration gerektirmeden concurrency (Version) ve senkronizasyon alanlarını (SyncedAt, IdempotencyKey, ExternalId) güvenli şekilde ekler.
+    /// Yoksa eklenir, varsa atlanır. PostgreSQL 17: ADD COLUMN IF NOT EXISTS kullanır.
+    /// Not: PostgreSQL'de SQL Server'ın rowversion tipi yoktur; bunun yerine xmin system column veya explicit bigint version kullanılır.
     /// </summary>
     public async Task EnsureConcurrencyAndSyncColumnsCreatedAsync()
     {
-        // Products
-        const string addProdRowVersion = "IF COL_LENGTH('dbo.Products','RowVersion') IS NULL ALTER TABLE [dbo].[Products] ADD [RowVersion] rowversion;";
-        const string addProdSyncedAt = "IF COL_LENGTH('dbo.Products','SyncedAt') IS NULL ALTER TABLE [dbo].[Products] ADD [SyncedAt] DATETIME2(7) NULL;";
-
-        // Orders
-        const string addOrderRowVersion = "IF COL_LENGTH('dbo.Orders','RowVersion') IS NULL ALTER TABLE [dbo].[Orders] ADD [RowVersion] rowversion;";
-        const string addOrderSyncedAt = "IF COL_LENGTH('dbo.Orders','SyncedAt') IS NULL ALTER TABLE [dbo].[Orders] ADD [SyncedAt] DATETIME2(7) NULL;";
-        const string addOrderExternalId = "IF COL_LENGTH('dbo.Orders','ExternalId') IS NULL ALTER TABLE [dbo].[Orders] ADD [ExternalId] NVARCHAR(100) NULL;";
-        const string addOrderIdemKey = "IF COL_LENGTH('dbo.Orders','IdempotencyKey') IS NULL ALTER TABLE [dbo].[Orders] ADD [IdempotencyKey] NVARCHAR(100) NULL;";
-
-        // Customers
-        const string addCustRowVersion = "IF COL_LENGTH('dbo.Customers','RowVersion') IS NULL ALTER TABLE [dbo].[Customers] ADD [RowVersion] rowversion;";
-        const string addCustSyncedAt = "IF COL_LENGTH('dbo.Customers','SyncedAt') IS NULL ALTER TABLE [dbo].[Customers] ADD [SyncedAt] DATETIME2(7) NULL;";
-
-        // StockMovements
-        const string addMovRowVersion = "IF COL_LENGTH('dbo.StockMovements','RowVersion') IS NULL ALTER TABLE [dbo].[StockMovements] ADD [RowVersion] rowversion;";
-        const string addMovIdemKey = "IF COL_LENGTH('dbo.StockMovements','IdempotencyKey') IS NULL ALTER TABLE [dbo].[StockMovements] ADD [IdempotencyKey] NVARCHAR(100) NULL;";
-
         var commands = new[]
         {
-            addProdRowVersion, addProdSyncedAt,
-            addOrderRowVersion, addOrderSyncedAt, addOrderExternalId, addOrderIdemKey,
-            addCustRowVersion, addCustSyncedAt,
-            addMovRowVersion, addMovIdemKey
+            // Products – version column (bigint, uygulama seviyesinde artırılır; PG'de rowversion yoktur)
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Version\" BIGINT NOT NULL DEFAULT 0;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"SyncedAt\" TIMESTAMP NULL;",
+
+            // Orders
+            "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"Version\" BIGINT NOT NULL DEFAULT 0;",
+            "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"SyncedAt\" TIMESTAMP NULL;",
+            "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"ExternalId\" VARCHAR(100) NULL;",
+            "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"IdempotencyKey\" VARCHAR(100) NULL;",
+
+            // Customers
+            "ALTER TABLE \"Customers\" ADD COLUMN IF NOT EXISTS \"Version\" BIGINT NOT NULL DEFAULT 0;",
+            "ALTER TABLE \"Customers\" ADD COLUMN IF NOT EXISTS \"SyncedAt\" TIMESTAMP NULL;",
+
+            // StockMovements
+            "ALTER TABLE \"StockMovements\" ADD COLUMN IF NOT EXISTS \"Version\" BIGINT NOT NULL DEFAULT 0;",
+            "ALTER TABLE \"StockMovements\" ADD COLUMN IF NOT EXISTS \"IdempotencyKey\" VARCHAR(100) NULL;"
         };
 
         foreach (var sql in commands)
@@ -821,20 +811,20 @@ END";
 
     /// <summary>
     /// Üretim kritik ek indeksleri (filtered unique dahil) güvenli şekilde oluşturur.
-    /// Yoksa eklenir, varsa atlanır.
+    /// Yoksa eklenir, varsa atlanır. PostgreSQL 17: CREATE INDEX IF NOT EXISTS kullanır.
     /// </summary>
     public async Task EnsureProductionIndexesExtendedAsync()
     {
         var commands = new[]
         {
             // Customers: Unique Email (WHERE NOT NULL)
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Customers_Email_NotNull' AND object_id = OBJECT_ID('[dbo].[Customers]'))\nCREATE UNIQUE INDEX [IX_Customers_Email_NotNull] ON [dbo].[Customers] ([Email]) WHERE [Email] IS NOT NULL;",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Customers_Email_NotNull\" ON \"Customers\" (\"Email\") WHERE \"Email\" IS NOT NULL;",
             // Customers: Unique Phone (WHERE NOT NULL)
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Customers_Phone_NotNull' AND object_id = OBJECT_ID('[dbo].[Customers]'))\nCREATE UNIQUE INDEX [IX_Customers_Phone_NotNull] ON [dbo].[Customers] ([Phone]) WHERE [Phone] IS NOT NULL;",
-            // Orders: ExternalId + SyncedAt (kolonlar yoksa EnsureConcurrencyAndSyncColumnsCreatedAsync ekler)
-            "IF COL_LENGTH('dbo.Orders','ExternalId') IS NOT NULL AND COL_LENGTH('dbo.Orders','SyncedAt') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Orders_ExternalId_SyncedAt' AND object_id = OBJECT_ID('[dbo].[Orders]'))\nCREATE INDEX [IX_Orders_ExternalId_SyncedAt] ON [dbo].[Orders] ([ExternalId],[SyncedAt]);",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Customers_Phone_NotNull\" ON \"Customers\" (\"Phone\") WHERE \"Phone\" IS NOT NULL;",
+            // Orders: ExternalId + SyncedAt
+            "CREATE INDEX IF NOT EXISTS \"IX_Orders_ExternalId_SyncedAt\" ON \"Orders\" (\"ExternalId\", \"SyncedAt\");",
             // StockMovements: Date, MovementType, ProductId (raporlama için)
-            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_StockMovements_Date_Type_ProductId' AND object_id = OBJECT_ID('[dbo].[StockMovements]'))\nCREATE INDEX [IX_StockMovements_Date_Type_ProductId] ON [dbo].[StockMovements] ([Date],[MovementType],[ProductId]);"
+            "CREATE INDEX IF NOT EXISTS \"IX_StockMovements_Date_Type_ProductId\" ON \"StockMovements\" (\"Date\", \"MovementType\", \"ProductId\");"
         };
 
         foreach (var sql in commands)
@@ -845,36 +835,39 @@ END";
 
     /// <summary>
     /// Products tablosuna denetim/regülasyon alanlarını ekler (UsageInstructions, ImporterInfo, ManufacturerInfo) – yoksa
+    /// PostgreSQL 17: ADD COLUMN IF NOT EXISTS kullanır.
     /// </summary>
     public async Task EnsureProductRegulatoryColumnsCreatedAsync()
     {
-        const string addUsage = "IF COL_LENGTH('dbo.Products','UsageInstructions') IS NULL ALTER TABLE [dbo].[Products] ADD [UsageInstructions] NVARCHAR(1000) NULL;";
-        const string addImporter = "IF COL_LENGTH('dbo.Products','ImporterInfo') IS NULL ALTER TABLE [dbo].[Products] ADD [ImporterInfo] NVARCHAR(255) NULL;";
-        const string addManufacturer = "IF COL_LENGTH('dbo.Products','ManufacturerInfo') IS NULL ALTER TABLE [dbo].[Products] ADD [ManufacturerInfo] NVARCHAR(255) NULL;";
-        try { await Database.ExecuteSqlRawAsync(addUsage); } catch { }
-        try { await Database.ExecuteSqlRawAsync(addImporter); } catch { }
-        try { await Database.ExecuteSqlRawAsync(addManufacturer); } catch { }
+        var commands = new[]
+        {
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"UsageInstructions\" VARCHAR(1000) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ImporterInfo\" VARCHAR(255) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ManufacturerInfo\" VARCHAR(255) NULL;"
+        };
+        foreach (var sql in commands)
+        {
+            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+        }
     }
 
     /// <summary>
     /// Products tablosuna ticari/lojistik alanları ekler (Origin, Material, VolumeText, Desi, LeadTimeDays, Ship/ReturnAddress, Sizes, DiscountRate) – yoksa
+    /// PostgreSQL 17: ADD COLUMN IF NOT EXISTS kullanır.
     /// </summary>
     public async Task EnsureProductExtendedColumnsCreatedAsync()
     {
-        const string addOrigin = "IF COL_LENGTH('dbo.Products','Origin') IS NULL ALTER TABLE [dbo].[Products] ADD [Origin] NVARCHAR(50) NULL;";
-        const string addMaterial = "IF COL_LENGTH('dbo.Products','Material') IS NULL ALTER TABLE [dbo].[Products] ADD [Material] NVARCHAR(50) NULL;";
-        const string addVolumeText = "IF COL_LENGTH('dbo.Products','VolumeText') IS NULL ALTER TABLE [dbo].[Products] ADD [VolumeText] NVARCHAR(50) NULL;";
-        const string addDesi = "IF COL_LENGTH('dbo.Products','Desi') IS NULL ALTER TABLE [dbo].[Products] ADD [Desi] DECIMAL(10,2) NULL;";
-        const string addLeadTimeDays = "IF COL_LENGTH('dbo.Products','LeadTimeDays') IS NULL ALTER TABLE [dbo].[Products] ADD [LeadTimeDays] INT NULL;";
-        const string addShipAddress = "IF COL_LENGTH('dbo.Products','ShipAddress') IS NULL ALTER TABLE [dbo].[Products] ADD [ShipAddress] NVARCHAR(255) NULL;";
-        const string addReturnAddress = "IF COL_LENGTH('dbo.Products','ReturnAddress') IS NULL ALTER TABLE [dbo].[Products] ADD [ReturnAddress] NVARCHAR(255) NULL;";
-        const string addSizes = "IF COL_LENGTH('dbo.Products','Sizes') IS NULL ALTER TABLE [dbo].[Products] ADD [Sizes] NVARCHAR(50) NULL;";
-        const string addDiscountRate = "IF COL_LENGTH('dbo.Products','DiscountRate') IS NULL ALTER TABLE [dbo].[Products] ADD [DiscountRate] DECIMAL(5,2) NULL;";
-
         var commands = new[]
         {
-            addOrigin, addMaterial, addVolumeText, addDesi, addLeadTimeDays,
-            addShipAddress, addReturnAddress, addSizes, addDiscountRate
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Origin\" VARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Material\" VARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"VolumeText\" VARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Desi\" DECIMAL(10,2) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"LeadTimeDays\" INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ShipAddress\" VARCHAR(255) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ReturnAddress\" VARCHAR(255) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Sizes\" VARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"DiscountRate\" DECIMAL(5,2) NULL;"
         };
         foreach (var sql in commands)
         {
@@ -885,72 +878,73 @@ END";
     /// <summary>
     /// Products tablosundaki TÜM yeni alanları (modelde var olup tabloda olmayanları) güvenli şekilde ekler.
     /// CANLI ortamda migration olmadan hataları engellemek için kullanılır.
+    /// PostgreSQL 17: ADD COLUMN IF NOT EXISTS kullanır.
     /// </summary>
     public async Task EnsureProductAllColumnsCreatedAsync()
     {
         var commands = new[]
         {
             // GS1 ve fiyat
-            "IF COL_LENGTH('dbo.Products','GTIN') IS NULL ALTER TABLE [dbo].[Products] ADD [GTIN] NVARCHAR(14) NULL;",
-            "IF COL_LENGTH('dbo.Products','UPC') IS NULL ALTER TABLE [dbo].[Products] ADD [UPC] NVARCHAR(20) NULL;",
-            "IF COL_LENGTH('dbo.Products','EAN') IS NULL ALTER TABLE [dbo].[Products] ADD [EAN] NVARCHAR(20) NULL;",
-            "IF COL_LENGTH('dbo.Products','ListPrice') IS NULL ALTER TABLE [dbo].[Products] ADD [ListPrice] DECIMAL(18,2) NULL;",
-            "IF COL_LENGTH('dbo.Products','TaxRate') IS NULL ALTER TABLE [dbo].[Products] ADD [TaxRate] DECIMAL(5,2) NOT NULL CONSTRAINT DF_Products_TaxRate DEFAULT(18);",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"GTIN\" VARCHAR(14) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"UPC\" VARCHAR(20) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"EAN\" VARCHAR(20) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ListPrice\" DECIMAL(18,2) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"TaxRate\" DECIMAL(5,2) NOT NULL DEFAULT 18;",
 
             // Stok eşikleri
-            "IF COL_LENGTH('dbo.Products','MaximumStock') IS NULL ALTER TABLE [dbo].[Products] ADD [MaximumStock] INT NULL;",
-            "IF COL_LENGTH('dbo.Products','ReorderLevel') IS NULL ALTER TABLE [dbo].[Products] ADD [ReorderLevel] INT NULL;",
-            "IF COL_LENGTH('dbo.Products','ReorderQuantity') IS NULL ALTER TABLE [dbo].[Products] ADD [ReorderQuantity] INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"MaximumStock\" INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ReorderLevel\" INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ReorderQuantity\" INT NULL;",
 
             // İlişkisel opsiyoneller
-            "IF COL_LENGTH('dbo.Products','SupplierId') IS NULL ALTER TABLE [dbo].[Products] ADD [SupplierId] INT NULL;",
-            "IF COL_LENGTH('dbo.Products','WarehouseId') IS NULL ALTER TABLE [dbo].[Products] ADD [WarehouseId] INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"SupplierId\" INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"WarehouseId\" INT NULL;",
 
             // Fiziksel özellikler
-            "IF COL_LENGTH('dbo.Products','Weight') IS NULL ALTER TABLE [dbo].[Products] ADD [Weight] DECIMAL(10,3) NULL;",
-            "IF COL_LENGTH('dbo.Products','Length') IS NULL ALTER TABLE [dbo].[Products] ADD [Length] DECIMAL(10,2) NULL;",
-            "IF COL_LENGTH('dbo.Products','Width') IS NULL ALTER TABLE [dbo].[Products] ADD [Width] DECIMAL(10,2) NULL;",
-            "IF COL_LENGTH('dbo.Products','Height') IS NULL ALTER TABLE [dbo].[Products] ADD [Height] DECIMAL(10,2) NULL;",
-            "IF COL_LENGTH('dbo.Products','WeightUnit') IS NULL ALTER TABLE [dbo].[Products] ADD [WeightUnit] NVARCHAR(10) NULL;",
-            "IF COL_LENGTH('dbo.Products','DimensionUnit') IS NULL ALTER TABLE [dbo].[Products] ADD [DimensionUnit] NVARCHAR(10) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Weight\" DECIMAL(10,3) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Length\" DECIMAL(10,2) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Width\" DECIMAL(10,2) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Height\" DECIMAL(10,2) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"WeightUnit\" VARCHAR(10) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"DimensionUnit\" VARCHAR(10) NULL;",
 
             // Lokasyon
-            "IF COL_LENGTH('dbo.Products','Shelf') IS NULL ALTER TABLE [dbo].[Products] ADD [Shelf] NVARCHAR(20) NULL;",
-            "IF COL_LENGTH('dbo.Products','Bin') IS NULL ALTER TABLE [dbo].[Products] ADD [Bin] NVARCHAR(20) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Shelf\" VARCHAR(20) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Bin\" VARCHAR(20) NULL;",
 
             // Bayraklar
-            "IF COL_LENGTH('dbo.Products','IsDiscontinued') IS NULL ALTER TABLE [dbo].[Products] ADD [IsDiscontinued] BIT NOT NULL CONSTRAINT DF_Products_IsDiscontinued DEFAULT(0);",
-            "IF COL_LENGTH('dbo.Products','IsSerialized') IS NULL ALTER TABLE [dbo].[Products] ADD [IsSerialized] BIT NOT NULL CONSTRAINT DF_Products_IsSerialized DEFAULT(0);",
-            "IF COL_LENGTH('dbo.Products','IsBatchTracked') IS NULL ALTER TABLE [dbo].[Products] ADD [IsBatchTracked] BIT NOT NULL CONSTRAINT DF_Products_IsBatchTracked DEFAULT(0);",
-            "IF COL_LENGTH('dbo.Products','IsPerishable') IS NULL ALTER TABLE [dbo].[Products] ADD [IsPerishable] BIT NOT NULL CONSTRAINT DF_Products_IsPerishable DEFAULT(0);",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"IsDiscontinued\" BOOLEAN NOT NULL DEFAULT FALSE;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"IsSerialized\" BOOLEAN NOT NULL DEFAULT FALSE;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"IsBatchTracked\" BOOLEAN NOT NULL DEFAULT FALSE;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"IsPerishable\" BOOLEAN NOT NULL DEFAULT FALSE;",
 
             // Tarihler
-            "IF COL_LENGTH('dbo.Products','ExpiryDate') IS NULL ALTER TABLE [dbo].[Products] ADD [ExpiryDate] DATETIME2(7) NULL;",
-            "IF COL_LENGTH('dbo.Products','LastStockUpdate') IS NULL ALTER TABLE [dbo].[Products] ADD [LastStockUpdate] DATETIME2(7) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ExpiryDate\" TIMESTAMP NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"LastStockUpdate\" TIMESTAMP NULL;",
 
             // Kullanıcı izleme
-            "IF COL_LENGTH('dbo.Products','CreatedBy') IS NULL ALTER TABLE [dbo].[Products] ADD [CreatedBy] NVARCHAR(50) NULL;",
-            "IF COL_LENGTH('dbo.Products','ModifiedBy') IS NULL ALTER TABLE [dbo].[Products] ADD [ModifiedBy] NVARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"CreatedBy\" VARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ModifiedBy\" VARCHAR(50) NULL;",
 
             // Dosyalar/Görseller
-            "IF COL_LENGTH('dbo.Products','ImageUrls') IS NULL ALTER TABLE [dbo].[Products] ADD [ImageUrls] NVARCHAR(500) NULL;",
-            "IF COL_LENGTH('dbo.Products','DocumentUrls') IS NULL ALTER TABLE [dbo].[Products] ADD [DocumentUrls] NVARCHAR(500) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"ImageUrls\" VARCHAR(500) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"DocumentUrls\" VARCHAR(500) NULL;",
 
             // Marka/Model
-            "IF COL_LENGTH('dbo.Products','Model') IS NULL ALTER TABLE [dbo].[Products] ADD [Model] NVARCHAR(50) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Model\" VARCHAR(50) NULL;",
 
             // Tekli beden alanı (mevcut şema ile uyumluluk)
-            "IF COL_LENGTH('dbo.Products','Size') IS NULL ALTER TABLE [dbo].[Products] ADD [Size] NVARCHAR(20) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Size\" VARCHAR(20) NULL;",
 
             // Not/Etiketler
-            "IF COL_LENGTH('dbo.Products','Notes') IS NULL ALTER TABLE [dbo].[Products] ADD [Notes] NVARCHAR(1000) NULL;",
-            "IF COL_LENGTH('dbo.Products','Tags') IS NULL ALTER TABLE [dbo].[Products] ADD [Tags] NVARCHAR(200) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Notes\" VARCHAR(1000) NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"Tags\" VARCHAR(200) NULL;",
 
             // OpenCart entegrasyon
-            "IF COL_LENGTH('dbo.Products','OpenCartProductId') IS NULL ALTER TABLE [dbo].[Products] ADD [OpenCartProductId] INT NULL;",
-            "IF COL_LENGTH('dbo.Products','LastSyncDate') IS NULL ALTER TABLE [dbo].[Products] ADD [LastSyncDate] DATETIME2(7) NULL;",
-            "IF COL_LENGTH('dbo.Products','LastModifiedAt') IS NULL ALTER TABLE [dbo].[Products] ADD [LastModifiedAt] DATETIME2(7) NULL;",
-            "IF COL_LENGTH('dbo.Products','SyncWithOpenCart') IS NULL ALTER TABLE [dbo].[Products] ADD [SyncWithOpenCart] BIT NOT NULL CONSTRAINT DF_Products_SyncWithOpenCart DEFAULT(1);"
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"OpenCartProductId\" INT NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"LastSyncDate\" TIMESTAMP NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"LastModifiedAt\" TIMESTAMP NULL;",
+            "ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"SyncWithOpenCart\" BOOLEAN NOT NULL DEFAULT TRUE;"
         };
 
         foreach (var sql in commands)
@@ -973,10 +967,10 @@ END";
             entity.Property(e => e.ApiKey).IsRequired().HasMaxLength(500);
             entity.Property(e => e.ApiEndpoint).HasMaxLength(200);
             entity.Property(e => e.ModelName).HasMaxLength(100);
-            entity.Property(e => e.SystemPrompt).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.SystemPrompt).HasColumnType("text");
             entity.Property(e => e.EncryptionKey).HasMaxLength(100);
             entity.Property(e => e.LastErrorMessage).HasMaxLength(500);
-            entity.Property(e => e.ProviderSettings).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.ProviderSettings).HasColumnType("text");
 
             // Indexes for performance
             entity.HasIndex(e => e.ProviderName);
@@ -997,8 +991,8 @@ END";
             entity.HasKey(e => e.Id);
             entity.Property(e => e.RequestType).IsRequired().HasMaxLength(100);
             entity.Property(e => e.ErrorMessage).HasMaxLength(1000);
-            entity.Property(e => e.RequestData).HasColumnType("nvarchar(max)");
-            entity.Property(e => e.ResponseData).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.RequestData).HasColumnType("text");
+            entity.Property(e => e.ResponseData).HasColumnType("text");
             entity.Property(e => e.UserId).HasMaxLength(100);
             entity.Property(e => e.IpAddress).HasMaxLength(200);
             entity.Property(e => e.Notes).HasMaxLength(500);

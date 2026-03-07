@@ -1,0 +1,147 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.OpenCart.OpenCartSiteDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#495057"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="FormTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sol: Site Bilgileri -->
+            <StackPanel Grid.Column="0">
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Site Bilgileri" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,16"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="Site Adi *"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding SiteName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="Site URL *"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding SiteUrl, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="OpenCart Versiyon"/>
+                        <ComboBox Padding="10,8" FontSize="13" Margin="0,0,0,12"
+                                  SelectedItem="{Binding SelectedVersion}">
+                            <ComboBoxItem Content="OpenCart 3.x"/>
+                            <ComboBoxItem Content="OpenCart 4.x"/>
+                        </ComboBox>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="Admin Paneli URL"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding AdminUrl, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Veritabani Bilgileri -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Veritabani Bilgileri" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,16"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="DB Host"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding DbHost, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="DB Adi"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding DbName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="DB Kullanici"/>
+                        <TextBox Style="{StaticResource FormTextBox}" Text="{Binding DbUser, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Style="{StaticResource FormLabel}" Text="DB Sifre"/>
+                        <PasswordBox Padding="10,8" FontSize="13" Margin="0,0,0,12" BorderBrush="#CED4DA" BorderThickness="1"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Sag: Durum ve Istatistik -->
+            <StackPanel Grid.Column="1">
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Site Durumu" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,16"/>
+
+                        <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Durum:" Foreground="#6C757D"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Ellipse Width="10" Height="10" Fill="{Binding StatusColor}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Urun Sayisi:" Foreground="#6C757D"/>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding ProductCount}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Siparis Sayisi:" Foreground="#6C757D"/>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding OrderCount}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <TextBlock Text="Son Sync:" Foreground="#6C757D"/>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding LastSyncText}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Style="{StaticResource PrimaryButton}" Content="Baglantiyi Test Et" HorizontalAlignment="Stretch"
+                                Command="{Binding TestConnectionCommand}" Margin="0,0,0,8"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Margin="0,0,8,0"
+                                    Command="{Binding SaveCommand}" Background="#28A745"/>
+                            <Button Content="Iptal" Padding="16,10" FontSize="13" Cursor="Hand"
+                                    Command="{Binding CancelCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
