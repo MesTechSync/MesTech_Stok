@@ -1,5 +1,9 @@
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
+using MesTech.Infrastructure.Caching;
+using MesTech.Infrastructure.HealthChecks;
+using MesTech.Infrastructure.Jobs;
+using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
 using MesTech.Infrastructure.Security;
@@ -60,6 +64,39 @@ public static class InfrastructureServiceRegistration
         var encryptionKey = configuration["Security:EncryptionKey"]
             ?? AesGcmEncryptionService.GenerateKey();
         services.AddSingleton(new AesGcmEncryptionService(encryptionKey));
+
+        // === FAZ 1: ALTYAPI AKTIFLESTIRME ===
+
+        // Redis Cache
+        var redisConnection = configuration.GetConnectionString("Redis")
+            ?? configuration["Redis:Configuration"]
+            ?? "localhost:6379";
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnection;
+            options.InstanceName = "MesTech_";
+        });
+        services.AddSingleton<ICacheService, RedisCacheService>();
+
+        // RabbitMQ MassTransit Event Bus
+        services.AddMesTechMessaging(configuration);
+        services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
+
+        // Hangfire Background Jobs
+        services.AddMesTechHangfire(configuration);
+
+        // HealthCheck
+        services.AddSingleton<PlatformHealthCheckService>();
+        services.AddHealthChecks()
+            .AddCheck<RedisHealthCheck>("redis")
+            .AddCheck<PostgresHealthCheck>("postgresql");
+
+        // Health Check HTTP Endpoint (http://localhost:5100/health)
+        services.AddHostedService(sp =>
+            new HealthCheckEndpoint(
+                sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
 
         return services;
     }

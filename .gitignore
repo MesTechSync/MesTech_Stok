@@ -1,8 +1,13 @@
 # MesTech_Stok - Büyük Dosya ve Klasör Filtreleme
 
-# Secret Management — Geliştirme ortamı ayarları (şifreler içerir)
+# Secret Management
+.env
+.env.*
+!.env.example
 **/appsettings.Development.json
 **/appsettings.user.json
+**/appsettings.Production.json
+**/appsettings.Local.json
 
 # Büyük Executable Dosyalar
 *.exe

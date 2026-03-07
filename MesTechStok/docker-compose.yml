@@ -1,6 +1,5 @@
 # MesTech Stok - PostgreSQL 17 + pgvector + Redis + RabbitMQ
 # Kullanım: docker compose up -d
-version: "3.8"
 
 services:
   postgres:
@@ -9,7 +8,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: mestech_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-MesTech2026!Dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu - .env dosyasini olusturun}
       POSTGRES_DB: mestech_stok
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
@@ -42,11 +41,13 @@ services:
     container_name: mestech-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-mestech}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-MesTech2026!Dev}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER zorunlu - .env dosyasini olusturun}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu - .env dosyasini olusturun}
+      RABBITMQ_PLUGINS: "rabbitmq_management,rabbitmq_prometheus"
     ports:
       - "5672:5672"
       - "15672:15672"
+      - "15692:15692"
     volumes:
       - mestech_rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -60,7 +61,7 @@ services:
     container_name: mestech-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD zorunlu - .env dosyasini olusturun}
       MYSQL_DATABASE: opencart_stok
     ports:
       - "3306:3306"
@@ -95,3 +96,7 @@ volumes:
     driver: local
   mestech_seq_data:
     driver: local
+
+networks:
+  default:
+    name: mestech-network
