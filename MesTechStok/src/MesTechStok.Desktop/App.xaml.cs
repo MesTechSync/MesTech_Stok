@@ -416,7 +416,7 @@ public partial class App : Application
 
         // ALPHA TEAM: Desktop Services (Adapters for Core)
         services.AddScoped<IDatabaseService, DatabaseService>();
-        services.AddScoped<ISystemResourceService, SystemResourceService>();
+        services.AddSingleton<ISystemResourceService, SystemResourceService>();
         services.AddScoped<SimpleSecurityService>();
         // TODO: Basit güvenlik sistemi kullanılıyor (SimpleSecurityService)
         // services.AddScoped<IAuthorizationService, AuthorizationService>();
@@ -495,6 +495,11 @@ public partial class App : Application
         services.AddScoped<MesTech.Domain.Interfaces.IOrderRepository, MesTech.Infrastructure.Persistence.Repositories.OrderRepository>();
         services.AddScoped<MesTech.Domain.Interfaces.ITenantRepository, MesTech.Infrastructure.Persistence.Repositories.TenantRepository>();
         services.AddScoped<MesTech.Domain.Interfaces.IStoreRepository, MesTech.Infrastructure.Persistence.Repositories.StoreRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.ICategoryRepository, MesTech.Infrastructure.Persistence.Repositories.CategoryRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.ISupplierRepository, MesTech.Infrastructure.Persistence.Repositories.SupplierRepository>();
+
+        // Integration Layer (Adapters, Factory, Orchestrator, Webhook, TokenCache)
+        MesTech.Infrastructure.DependencyInjection.IntegrationServiceRegistration.AddIntegrationServices(services);
 
         // UnitOfWork + Domain Events
         services.AddScoped<MesTech.Domain.Interfaces.IDomainEventDispatcher, MesTech.Infrastructure.Services.DomainEventDispatcher>();

@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -22,6 +23,7 @@
     <PackageReference Include="Testcontainers.RabbitMq" Version="4.3.0" />
     <PackageReference Include="Testcontainers.Redis" Version="4.3.0" />
     <PackageReference Include="WireMock.Net" Version="1.6.7" />
+    <PackageReference Include="FlaUI.UIA3" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
@@ -34,6 +36,8 @@
     <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
     <ProjectReference Include="..\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
+    <ProjectReference Include="..\MesTechStok.Desktop\MesTechStok.Desktop.csproj" />
+    <ProjectReference Include="..\MesTechStok.Core\MesTechStok.Core.csproj" />
   </ItemGroup>
 
 </Project>

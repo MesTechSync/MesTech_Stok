@@ -531,11 +531,12 @@ namespace MesTechStok.Desktop.Views
                 }
                 else
                 {
-                    // Get MainViewModel from DI container and create a fresh instance
+                    // Get MainViewModel from DI container via a scope (scoped services need a scope)
                     var serviceProvider = App.ServiceProvider;
                     if (serviceProvider != null)
                     {
-                        var mainViewModel = serviceProvider.GetRequiredService<ViewModels.MainViewModel>();
+                        var scope = serviceProvider.CreateScope();
+                        var mainViewModel = scope.ServiceProvider.GetRequiredService<ViewModels.MainViewModel>();
                         var mainWindow = new MainWindow(mainViewModel);
                         mainWindow.Show();
                         mainWindow.WindowState = WindowState.Maximized;
