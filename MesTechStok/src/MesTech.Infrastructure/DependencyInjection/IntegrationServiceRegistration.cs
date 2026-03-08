@@ -26,8 +26,30 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<TrendyolAdapter>());
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OpenCartAdapter>());
 
+        // Dalga 3: Ciceksepeti + Hepsiburada marketplace adapters
+        services.AddSingleton<CiceksepetiAdapter>(sp =>
+            new CiceksepetiAdapter(new HttpClient(), sp.GetRequiredService<ILogger<CiceksepetiAdapter>>()));
+        services.AddSingleton<HepsiburadaAdapter>(sp =>
+            new HepsiburadaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<HepsiburadaAdapter>>()));
+
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<CiceksepetiAdapter>());
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<HepsiburadaAdapter>());
+
+        // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
+        services.AddScoped<ICargoAdapter>(sp =>
+            new YurticiKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<YurticiKargoAdapter>>()));
+        services.AddScoped<ICargoAdapter>(sp =>
+            new ArasKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
+        services.AddScoped<ICargoAdapter>(sp =>
+            new SuratKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
+
         // Factory — receives IEnumerable<IIntegratorAdapter>
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
+
+        // Cargo factory + selector + auto-shipment — Scoped (depends on scoped cargo adapters)
+        services.AddScoped<ICargoProviderFactory, CargoProviderFactory>();
+        services.AddScoped<ICargoProviderSelector, CargoProviderSelector>();
+        services.AddScoped<IAutoShipmentService, AutoShipmentService>();
 
         // Orchestrator — receives IAdapterFactory
         services.AddSingleton<IIntegratorOrchestrator, IntegratorOrchestratorService>();
