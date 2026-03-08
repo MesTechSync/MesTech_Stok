@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -77,7 +77,7 @@ namespace MesTechStok.Desktop.Views
             _ = LoadCategoriesAsync(); // Kategorileri başlangıçta yükle
 
             // ReportsView profil köprüsü için son instance'ı kaydet
-            try { ProductsViewProfilesBridge.Register(this); } catch { }
+            try { ProductsViewProfilesBridge.Register(this); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ProfilesBridge.Register: {ex.Message}"); }
 
             // Popup kaydı sonrası otomatik yenile
             MesTechStok.Desktop.Utils.EventBus.ProductsChanged += async (barcode) =>
@@ -105,11 +105,11 @@ namespace MesTechStok.Desktop.Views
                                     dgRow.Background = original;
                                 }
                             }
-                            catch { }
+                            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] row highlight animation: {ex.Message}"); }
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] EventBus.ProductsChanged handler: {ex.Message}"); }
             };
         }
 
@@ -156,7 +156,7 @@ namespace MesTechStok.Desktop.Views
                     if (miDelete != null) miDelete.Visibility = CanDeleteProducts ? Visibility.Visible : Visibility.Collapsed;
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ApplyRbacToContextMenus: {ex.Message}"); }
         }
 
         private async Task LoadCategoriesAsync()
@@ -501,7 +501,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     EmptyStatePanel.Visibility = _displayedProducts.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
                 }
-                catch { }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] EmptyStatePanel visibility: {ex.Message}"); }
             }
         }
 
@@ -525,7 +525,7 @@ namespace MesTechStok.Desktop.Views
                 _sizeFilter = GetComboValueOrEmpty(SizeFilter);
                 if (_sizeFilter == "Beden") _sizeFilter = string.Empty;
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] AdvancedQuickFilter read: {ex.Message}"); }
             await LoadProductsAsync();
             await UpdateStatisticsAsync();
         }
@@ -538,7 +538,7 @@ namespace MesTechStok.Desktop.Views
         // Gelişmiş Filtreler UI
         private void BtnAdvancedFilters_Click(object sender, RoutedEventArgs e)
         {
-            try { AdvancedFiltersPopup.IsOpen = true; } catch { }
+            try { AdvancedFiltersPopup.IsOpen = true; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] AdvancedFiltersPopup open: {ex.Message}"); }
         }
         private async void AdvancedFilters_Apply_Click(object sender, RoutedEventArgs e)
         {
@@ -575,7 +575,7 @@ namespace MesTechStok.Desktop.Views
                 AddRecentFilterSet(title, origins.ToList(), materials.ToList(), sizes.ToList());
                 AdvancedFiltersPopup.IsOpen = false;
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] AdvancedFilters_Apply: {ex.Message}"); }
         }
 
         private async Task ApplyAdvancedFiltersAsync(IReadOnlyList<string> origins, IReadOnlyList<string> materials, IReadOnlyList<string> sizes)
@@ -603,7 +603,7 @@ namespace MesTechStok.Desktop.Views
                 // Chip özetlerini üret
                 RenderActiveChips(origins, materials, sizes);
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ApplyAdvancedFilters: {ex.Message}"); }
         }
 
         private void AdvancedFilters_Reset_Click(object sender, RoutedEventArgs e)
@@ -617,7 +617,7 @@ namespace MesTechStok.Desktop.Views
                 ActiveChipsPanel.Children.Clear();
                 ActiveChipsPanel.Visibility = Visibility.Collapsed;
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] AdvancedFilters_Reset UI: {ex.Message}"); }
         }
 
         private void RenderActiveChips(IReadOnlyList<string> origins, IReadOnlyList<string> materials, IReadOnlyList<string> sizes)
@@ -636,7 +636,7 @@ namespace MesTechStok.Desktop.Views
                 if (sizes.Count > 0) AddChip("Beden: " + string.Join(",", sizes));
                 ActiveChipsPanel.Visibility = ActiveChipsPanel.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RenderActiveChips: {ex.Message}"); }
         }
 
         private async Task RemoveChipAsync(string label)
@@ -648,7 +648,7 @@ namespace MesTechStok.Desktop.Views
                 if (label.StartsWith("Beden:")) AdvancedFilters_ResetSizes();
                 await ApplyAdvancedFiltersAsync(new List<string>(), new List<string>(), new List<string>());
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RemoveChip: {ex.Message}"); }
         }
 
         private void AdvancedFilters_ResetOrigins()
@@ -675,7 +675,7 @@ namespace MesTechStok.Desktop.Views
                 // En fazla 5 tut
                 while (RecentFiltersWrap.Children.Count > 5) RecentFiltersWrap.Children.RemoveAt(RecentFiltersWrap.Children.Count - 1);
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] AddRecentFilterSet: {ex.Message}"); }
         }
 
         private async void PriceRange_Changed(object sender, RoutedEventArgs e)
@@ -700,7 +700,7 @@ namespace MesTechStok.Desktop.Views
             {
                 SummaryPanel.Visibility = SummaryPanel.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ToggleSummary visibility: {ex.Message}"); }
         }
 
         private void ToggleListOnly_Click(object sender, RoutedEventArgs e)
@@ -713,7 +713,7 @@ namespace MesTechStok.Desktop.Views
                     SummaryPanel.Visibility = Visibility.Collapsed;
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ToggleListOnly visibility: {ex.Message}"); }
         }
 
         private void ApplyImageDensity(bool large)
@@ -728,7 +728,7 @@ namespace MesTechStok.Desktop.Views
                     imgCol.Width = new DataGridLength(large ? 152 : 112);
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ApplyImageDensity DataGrid: {ex.Message}"); }
         }
 
         private void ChkLargeImages_Checked(object sender, RoutedEventArgs e)
@@ -836,7 +836,7 @@ namespace MesTechStok.Desktop.Views
                 var dlg = new CategoryManagerDialog { Owner = ownerWindow };
                 dlg.ShowInTaskbar = false;
                 dlg.Topmost = true;
-                dlg.Loaded += (_, __) => { try { dlg.Activate(); dlg.Focus(); } catch { } };
+                dlg.Loaded += (_, __) => { try { dlg.Activate(); dlg.Focus(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] CategoryManagerDialog Activate: {ex.Message}"); } };
                 dlg.ShowDialog();
                 ShowToastNotification("Kategori yöneticisi kapandı", "success");
                 // Kategorileri yeniden yükle, filtreyi koru
@@ -942,14 +942,14 @@ namespace MesTechStok.Desktop.Views
                         src.Freeze();
                         images.Add(src);
                     }
-                    catch { }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BitmapImage URL load: {ex.Message}"); }
                 }
                 if (images.Count == 0 && item.ImageSource != null) images.Add(item.ImageSource);
                 if (images.Count == 0) return;
                 var viewer = new ProductImageViewer(images) { Owner = Application.Current.MainWindow };
                 viewer.ShowDialog();
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] OpenImageViewer: {ex.Message}"); }
         }
 
         private string GetCategoryIcon(string category)
@@ -996,7 +996,7 @@ namespace MesTechStok.Desktop.Views
                 await UpdateStatisticsAsync();
             }
             catch (TaskCanceledException) { }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] SearchTextBox_TextChanged: {ex.Message}"); }
         }
 
         // CategoryFilter_Changed kaldırıldı - artık sidebar kullanılıyor
@@ -1169,7 +1169,7 @@ namespace MesTechStok.Desktop.Views
                 Clipboard.SetText(item.Barcode ?? string.Empty);
                 ShowToastNotification("Barkod kopyalandı", "success");
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RowCopyBarcode Clipboard: {ex.Message}"); }
         }
         private void RowCopySku_Click(object sender, RoutedEventArgs e)
         {
@@ -1180,7 +1180,7 @@ namespace MesTechStok.Desktop.Views
                 Clipboard.SetText(item.Sku ?? string.Empty);
                 ShowToastNotification("SKU kopyalandı", "success");
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RowCopySku Clipboard: {ex.Message}"); }
         }
         private void RowCopyName_Click(object sender, RoutedEventArgs e)
         {
@@ -1191,7 +1191,7 @@ namespace MesTechStok.Desktop.Views
                 Clipboard.SetText(item.Name ?? string.Empty);
                 ShowToastNotification("Ad kopyalandı", "success");
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RowCopyName Clipboard: {ex.Message}"); }
         }
 
         private void RowOpenFolder_Click(object sender, RoutedEventArgs e)
@@ -1204,7 +1204,7 @@ namespace MesTechStok.Desktop.Views
                 var folder = storage.GetProductFolder(item.Id);
                 if (System.IO.Directory.Exists(folder)) Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] RowOpenFolder Process.Start: {ex.Message}"); }
         }
 
         private void ShowSelectedProductDetails(ProductItem product)
@@ -1244,7 +1244,7 @@ namespace MesTechStok.Desktop.Views
                     }
                     e.Handled = true;
                 }
-                catch { }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ThumbCell_MouseDown toggle: {ex.Message}"); }
             }
         }
 
@@ -1274,14 +1274,14 @@ namespace MesTechStok.Desktop.Views
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) { ShowToastNotification("Barkod servisi yok", "warning"); return; }
                 svc.BarcodeScanned += BarcodeSvcOnBarcodeScanned;
-                try { svc.DeviceStatusChanged += SvcOnDeviceStatusChanged; } catch { }
+                try { svc.DeviceStatusChanged += SvcOnDeviceStatusChanged; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeService DeviceStatusChanged subscribe: {ex.Message}"); }
                 if (!svc.IsConnected) await svc.ConnectAsync();
                 await svc.StartScanningAsync();
                 _barcodeListening = true;
                 ShowToastNotification("Barkod dinleme aktif", "info");
-                try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeStatusText.Text = "Aktif"; } catch { }
+                try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeStatusText.Text = "Aktif"; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeStatusDot set Aktif: {ex.Message}"); }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ChkBarcodeListen_Checked: {ex.Message}"); }
         }
 
         private async void ChkBarcodeListen_Unchecked(object sender, RoutedEventArgs e)
@@ -1293,13 +1293,13 @@ namespace MesTechStok.Desktop.Views
                 if (svc == null) return;
                 await svc.StopScanningAsync();
                 svc.BarcodeScanned -= BarcodeSvcOnBarcodeScanned;
-                try { svc.DeviceStatusChanged -= SvcOnDeviceStatusChanged; } catch { }
+                try { svc.DeviceStatusChanged -= SvcOnDeviceStatusChanged; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeService DeviceStatusChanged unsubscribe: {ex.Message}"); }
                 await svc.DisconnectAsync();
                 _barcodeListening = false;
                 ShowToastNotification("Barkod dinleme kapalı", "info");
-                try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.Gray; BarcodeStatusText.Text = "Kapalı"; } catch { }
+                try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.Gray; BarcodeStatusText.Text = "Kapalı"; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeStatusDot set Kapali: {ex.Message}"); }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ChkBarcodeListen_Unchecked: {ex.Message}"); }
         }
 
         private void SvcOnDeviceStatusChanged(object? sender, string e)
@@ -1325,7 +1325,7 @@ namespace MesTechStok.Desktop.Views
                     }
                 });
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] SvcOnDeviceStatusChanged Dispatcher.Invoke: {ex.Message}"); }
         }
 
         private async void BarcodeSvcOnBarcodeScanned(object? sender, BarcodeScannedEventArgs e)
@@ -1335,7 +1335,7 @@ namespace MesTechStok.Desktop.Views
                 await Dispatcher.InvokeAsync(async () =>
                 {
                     LblLastBarcodePV.Text = e.Barcode;
-                    try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.Gold; BarcodeStatusText.Text = "Okundu"; } catch { }
+                    try { BarcodeStatusDot.Fill = System.Windows.Media.Brushes.Gold; BarcodeStatusText.Text = "Okundu"; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeStatusDot set Okundu: {ex.Message}"); }
                     var mode = (ScanModeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Listeyi Filtrele";
                     if (mode.Contains("Listeyi Filtrele"))
                     {
@@ -1348,10 +1348,10 @@ namespace MesTechStok.Desktop.Views
                     {
                         ProductUploadWindowManager.TryOpenWithBarcode(Window.GetWindow(this), e.Barcode);
                     }
-                    try { await Task.Delay(600); BarcodeStatusDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeStatusText.Text = "Aktif"; } catch { }
+                    try { await Task.Delay(600); BarcodeStatusDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeStatusText.Text = "Aktif"; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeStatusDot reset after delay: {ex.Message}"); }
                 });
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeSvcOnBarcodeScanned handler: {ex.Message}"); }
         }
 
         private async void AddProduct_Click(object sender, RoutedEventArgs e)
@@ -1404,7 +1404,7 @@ namespace MesTechStok.Desktop.Views
                         await svc.DisconnectAsync();
                     }
                 }
-                catch { }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeService StopScan Disconnect: {ex.Message}"); }
             }
             catch (Exception ex)
             {
@@ -1752,7 +1752,7 @@ namespace MesTechStok.Desktop.Views
                 var folder = storage.GetProductFolder(_selectedProduct.Id);
                 if (System.IO.Directory.Exists(folder)) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] SelectedOpenFolder Process.Start: {ex.Message}"); }
         }
 
         private void ProductsDataGrid_Sorting(object sender, DataGridSortingEventArgs e)
@@ -1809,16 +1809,16 @@ namespace MesTechStok.Desktop.Views
                         : Visibility.Collapsed;
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ColumnsSearch filter: {ex.Message}"); }
         }
 
         private void ColumnsSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            try { foreach (var cb in ColumnsPopupPanel.Children.OfType<CheckBox>()) cb.IsChecked = true; } catch { }
+            try { foreach (var cb in ColumnsPopupPanel.Children.OfType<CheckBox>()) cb.IsChecked = true; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ColumnsSelectAll CheckBoxes: {ex.Message}"); }
         }
         private void ColumnsSelectNone_Click(object sender, RoutedEventArgs e)
         {
-            try { foreach (var cb in ColumnsPopupPanel.Children.OfType<CheckBox>()) cb.IsChecked = false; } catch { }
+            try { foreach (var cb in ColumnsPopupPanel.Children.OfType<CheckBox>()) cb.IsChecked = false; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ColumnsSelectNone CheckBoxes: {ex.Message}"); }
         }
 
         private void ColumnsPopup_Save_Click(object sender, RoutedEventArgs e)
@@ -1856,11 +1856,11 @@ namespace MesTechStok.Desktop.Views
 
         private static void MarkInvalid(TextBox tb, string message)
         {
-            try { tb.ToolTip = message; tb.BorderBrush = System.Windows.Media.Brushes.Red; tb.BorderThickness = new Thickness(2); } catch { }
+            try { tb.ToolTip = message; tb.BorderBrush = System.Windows.Media.Brushes.Red; tb.BorderThickness = new Thickness(2); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] MarkInvalid TextBox border: {ex.Message}"); }
         }
         private static void ClearInvalid(TextBox tb)
         {
-            try { tb.ToolTip = null; tb.ClearValue(TextBox.BorderBrushProperty); tb.ClearValue(TextBox.BorderThicknessProperty); } catch { }
+            try { tb.ToolTip = null; tb.ClearValue(TextBox.BorderBrushProperty); tb.ClearValue(TextBox.BorderThicknessProperty); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ClearInvalid TextBox border: {ex.Message}"); }
         }
 
         private void SaveColumnsProfile_Click(object? sender, RoutedEventArgs e)
@@ -1915,7 +1915,7 @@ namespace MesTechStok.Desktop.Views
                 var json = System.Text.Json.JsonSerializer.Serialize(columns, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 System.IO.File.WriteAllText(path, json);
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ProductsDataGrid ColumnChanged autosave: {ex.Message}"); }
         }
 
         private void LoadColumnsProfile_Click(object? sender, RoutedEventArgs e)
@@ -2025,7 +2025,7 @@ namespace MesTechStok.Desktop.Views
         private string _profilesDir => System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Profiles");
         private void EnsureProfilesDir()
         {
-            try { System.IO.Directory.CreateDirectory(_profilesDir); } catch { }
+            try { System.IO.Directory.CreateDirectory(_profilesDir); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] EnsureProfilesDir CreateDirectory: {ex.Message}"); }
         }
 
         private void ColumnProfilesCombo_DropDownOpened(object sender, EventArgs e)
@@ -2041,7 +2041,7 @@ namespace MesTechStok.Desktop.Views
                     ColumnProfilesCombo.Items.Add(new ComboBoxItem { Content = System.IO.Path.GetFileNameWithoutExtension(f), Tag = f });
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ColumnProfilesCombo DropDownOpened: {ex.Message}"); }
         }
 
         private void ColumnProfilesCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2105,7 +2105,7 @@ namespace MesTechStok.Desktop.Views
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] TryLoadAutosavedColumns: {ex.Message}"); }
         }
 
         private void SaveColumnsProfileQuick_Click(object sender, RoutedEventArgs e)
@@ -2144,7 +2144,7 @@ namespace MesTechStok.Desktop.Views
             }
             if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.U)
             {
-                try { ProductUploadWindowManager.TryOpen(Window.GetWindow(this)); } catch { }
+                try { ProductUploadWindowManager.TryOpen(Window.GetWindow(this)); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] Ctrl+U ProductUpload shortcut: {ex.Message}"); }
                 e.Handled = true;
             }
         }
