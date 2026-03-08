@@ -9,14 +9,17 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
 /// Ciceksepeti platform adaptoru — iskelet.
-/// FAZ 2'de implement edilecek.
+/// Dalga 3'te implement edilecek.
 /// </summary>
 public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 {
+    private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
+    private bool _isConfigured;
 
-    public CiceksepetiAdapter(ILogger<CiceksepetiAdapter> logger)
+    public CiceksepetiAdapter(HttpClient httpClient, ILogger<CiceksepetiAdapter> logger)
     {
+        _httpClient = httpClient;
         _logger = logger;
     }
 

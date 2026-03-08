@@ -20,6 +20,13 @@ public class ProductPlatformMapping : BaseEntity
     public DateTime? LastSyncDate { get; set; }
     public bool IsEnabled { get; set; } = true;
 
+    /// <summary>
+    /// Platform'a ozel metadata — JSON serialized.
+    /// Ciceksepeti: DeliveryType, StockCode vb.
+    /// Hepsiburada: ListingStatus, CommissionRate vb.
+    /// </summary>
+    public string? PlatformSpecificData { get; set; }
+
     // Navigation
     public Product Product { get; set; } = null!;
     public ProductVariant? ProductVariant { get; set; }
