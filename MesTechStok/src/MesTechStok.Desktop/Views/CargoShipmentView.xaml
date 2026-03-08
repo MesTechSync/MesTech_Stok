@@ -1,0 +1,450 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.CargoShipmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <!-- Modern Card Style -->
+        <Style x:Key="OrderCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#F8F9FA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Button Styles -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1976D2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#4CAF50"/>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#F44336"/>
+        </Style>
+
+        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FB8C00"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="InfoButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#17A2B8"/>
+        </Style>
+
+        <!-- Status Badge Styles -->
+        <Style x:Key="StatusBadge" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CED4DA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- DataGrid Style -->
+        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F3F4"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="SelectionMode" Value="Extended"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Main Content -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F7FA" Padding="0,0,0,10">
+            <Grid Margin="15" SnapsToDevicePixels="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 0: Header -->
+                <Border Grid.Row="0" Style="{StaticResource OrderCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="&#x1F4E6;" FontSize="28" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <StackPanel>
+                                <TextBlock Text="Kargo Gonderim Yonetimi"
+                                          FontSize="24"
+                                          FontWeight="Bold"
+                                          Foreground="#2C3E50"/>
+                                <TextBlock Text="Siparisleri kargoya verin, etiket yazdir, takip edin"
+                                          FontSize="13"
+                                          Foreground="#6C757D"
+                                          Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="&#x1F504; Yenile"
+                                   Style="{StaticResource PrimaryButton}"
+                                   Click="Refresh_Click"
+                                   Margin="5,0"/>
+                            <Button Content="&#x1F4E4; Disa Aktar"
+                                   Style="{StaticResource InfoButton}"
+                                   Click="Export_Click"
+                                   Margin="5,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Row 1: Statistics Cards -->
+                <UniformGrid Grid.Row="1" Columns="4" Margin="0,10,0,0">
+                    <!-- Bekleyen -->
+                    <Border Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="Bekleyen" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="PendingCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#FB8C00"/>
+                            <TextBlock Text="kargo bekliyor" FontSize="10" Foreground="#6C757D"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Kargoda -->
+                    <Border Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="Kargoda" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="ShippedCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#2196F3"/>
+                            <TextBlock Text="yolda" FontSize="10" Foreground="#6C757D"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Teslim Edildi -->
+                    <Border Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="Teslim Edildi" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="DeliveredCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#4CAF50"/>
+                            <TextBlock Text="teslim edildi" FontSize="10" Foreground="#4CAF50"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Iade -->
+                    <Border Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="Iade" FontSize="12" Foreground="#6C757D" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="ReturnedCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#F44336"/>
+                            <TextBlock Text="iade surecinde" FontSize="10" Foreground="#F44336"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Row 2: Filters + Cargo Action Panel -->
+                <Grid Grid.Row="2" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="350"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Filters -->
+                    <Border Grid.Column="0" Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="&#x1F50D; Arama ve Filtreler" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Date Range -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Baslangic:" VerticalAlignment="Center" FontSize="12" Foreground="#6C757D"/>
+                                <DatePicker Grid.Row="0" Grid.Column="2" x:Name="StartDatePicker" FontSize="13"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="Bitis:" VerticalAlignment="Center" FontSize="12" Foreground="#6C757D"/>
+                                <DatePicker Grid.Row="0" Grid.Column="6" x:Name="EndDatePicker" FontSize="13"/>
+
+                                <!-- Platform Filter -->
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Platform:" VerticalAlignment="Center" FontSize="12" Foreground="#6C757D"/>
+                                <ComboBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="5" x:Name="PlatformFilterComboBox"
+                                         Style="{StaticResource ModernComboBox}"
+                                         SelectionChanged="PlatformFilter_SelectionChanged">
+                                    <ComboBoxItem Content="Tumu" IsSelected="True"/>
+                                    <ComboBoxItem Content="Trendyol"/>
+                                    <ComboBoxItem Content="Ciceksepeti"/>
+                                    <ComboBoxItem Content="Hepsiburada"/>
+                                    <ComboBoxItem Content="OpenCart"/>
+                                </ComboBox>
+
+                                <!-- Status Filter -->
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Durum:" VerticalAlignment="Center" FontSize="12" Foreground="#6C757D"/>
+                                <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="5" x:Name="StatusFilterComboBox"
+                                         Style="{StaticResource ModernComboBox}"
+                                         SelectionChanged="StatusFilter_SelectionChanged">
+                                    <ComboBoxItem Content="Tumu" IsSelected="True"/>
+                                    <ComboBoxItem Content="Bekleyen"/>
+                                    <ComboBoxItem Content="Kargoda"/>
+                                    <ComboBoxItem Content="Teslim Edildi"/>
+                                    <ComboBoxItem Content="Iade"/>
+                                </ComboBox>
+
+                                <!-- Search -->
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Ara:" VerticalAlignment="Center" FontSize="12" Foreground="#6C757D"/>
+                                <TextBox Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="5" x:Name="SearchTextBox"
+                                        Style="{StaticResource ModernTextBox}"
+                                        TextChanged="SearchTextBox_TextChanged"/>
+
+                                <!-- Clear Filters -->
+                                <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="7"
+                                       Content="&#x1F5D1;&#xFE0F; Filtreleri Temizle"
+                                       Style="{StaticResource WarningButton}"
+                                       FontSize="11"
+                                       Click="ClearFilters_Click"
+                                       HorizontalAlignment="Left"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right: Cargo Action Panel -->
+                    <Border Grid.Column="2" Style="{StaticResource OrderCard}">
+                        <StackPanel>
+                            <TextBlock Text="&#x1F69A; Kargo Islemleri" FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Kargo Firmasi -->
+                                <TextBlock Grid.Row="0" Text="Kargo Firmasi" FontSize="12" Foreground="#6C757D" Margin="0,0,0,4"/>
+                                <ComboBox Grid.Row="2" x:Name="CargoProviderComboBox"
+                                         Style="{StaticResource ModernComboBox}"
+                                         SelectionChanged="CargoProvider_SelectionChanged">
+                                    <ComboBoxItem Content="Yurtici Kargo" IsSelected="True"/>
+                                    <ComboBoxItem Content="Aras Kargo"/>
+                                    <ComboBoxItem Content="Surat Kargo"/>
+                                </ComboBox>
+
+                                <!-- Etiket Formati -->
+                                <TextBlock Grid.Row="4" Text="Etiket Formati" FontSize="12" Foreground="#6C757D" Margin="0,0,0,4"/>
+                                <ComboBox Grid.Row="6" x:Name="LabelFormatComboBox"
+                                         Style="{StaticResource ModernComboBox}">
+                                    <ComboBoxItem Content="PDF" IsSelected="True"/>
+                                    <ComboBoxItem Content="ZPL Termal"/>
+                                    <ComboBoxItem Content="PNG"/>
+                                </ComboBox>
+
+                                <!-- Secilenleri Kargoya Ver -->
+                                <Button Grid.Row="8"
+                                       Content="&#x1F4E6; Secilenleri Kargoya Ver"
+                                       Style="{StaticResource SuccessButton}"
+                                       Click="BulkShip_Click"
+                                       FontSize="13"
+                                       Padding="12,10"/>
+
+                                <!-- Etiket Yazdir -->
+                                <Button Grid.Row="10"
+                                       Content="&#x1F3F7;&#xFE0F; Etiket Yazdir"
+                                       Style="{StaticResource PrimaryButton}"
+                                       Click="PrintLabel_Click"
+                                       FontSize="13"
+                                       Padding="12,10"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Row 3: DataGrid -->
+                <Border Grid.Row="3" Style="{StaticResource OrderCard}" Margin="0,10,0,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                            <TextBlock Text="&#x1F4CB;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Kargo Listesi" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock x:Name="ShipmentCountText" Text="(0 gonderi)" FontSize="13" Foreground="#6C757D" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="1" x:Name="ShipmentsDataGrid"
+                                 Style="{StaticResource ModernDataGrid}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                                 MinHeight="300">
+                            <DataGrid.Columns>
+                                <!-- Checkbox -->
+                                <DataGridTemplateColumn Header="" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="130" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="150" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Urun" Binding="{Binding ProductSummary}" Width="200" IsReadOnly="True"/>
+
+                                <!-- Durum with Status Badge -->
+                                <DataGridTemplateColumn Header="Durum" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource StatusBadge}" x:Name="StatusBorder">
+                                                <TextBlock x:Name="StatusText" Text="{Binding Status}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="Bekleyen">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#FFF3CD"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="#856404"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Kargoda">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#CCE5FF"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="#004085"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Teslim Edildi">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#D4EDDA"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="#155724"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Iade">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#F8D7DA"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="#721C24"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="Takip No" Binding="{Binding TrackingNumber}" Width="150" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="100" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <!-- Row 4: Tracking Timeline Placeholder (hidden) -->
+                <Border Grid.Row="4" x:Name="TrackingTimelinePanel" Visibility="Collapsed" Style="{StaticResource OrderCard}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="&#x1F4CD; Kargo Takip Zaman Cizelgesi" FontSize="14" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <TextBlock Text="Kargo takip detaylari burada goruntulenecek..." FontSize="12" Foreground="#6C757D" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay"
+               Background="#80FFFFFF"
+               Visibility="Collapsed"
+               Panel.ZIndex="999">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="&#x23F3;" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform CenterX="16" CenterY="16"/>
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                   From="0" To="360" Duration="0:0:2"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </TextBlock.Triggers>
+                </TextBlock>
+                <TextBlock Text="Kargo verileri yukleniyor..." FontSize="14" Foreground="#6C757D" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
