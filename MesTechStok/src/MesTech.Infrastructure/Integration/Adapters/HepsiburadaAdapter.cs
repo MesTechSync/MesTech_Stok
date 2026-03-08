@@ -13,10 +13,13 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public class HepsiburadaAdapter : IIntegratorAdapter
 {
+    private readonly HttpClient _httpClient;
     private readonly ILogger<HepsiburadaAdapter> _logger;
+    private bool _isConfigured;
 
-    public HepsiburadaAdapter(ILogger<HepsiburadaAdapter> logger)
+    public HepsiburadaAdapter(HttpClient httpClient, ILogger<HepsiburadaAdapter> logger)
     {
+        _httpClient = httpClient;
         _logger = logger;
     }
 
@@ -47,4 +50,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter
             ResponseTime = TimeSpan.Zero
         });
     }
+
+    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
 }

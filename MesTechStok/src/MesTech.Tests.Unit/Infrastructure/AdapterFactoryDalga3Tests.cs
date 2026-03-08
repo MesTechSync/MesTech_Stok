@@ -25,8 +25,9 @@ public class AdapterFactoryDalga3Tests
 
     private static HepsiburadaAdapter CreateHepsiburadaAdapter()
     {
+        var httpClient = new HttpClient();
         var logger = new Mock<ILogger<HepsiburadaAdapter>>();
-        return new HepsiburadaAdapter(logger.Object);
+        return new HepsiburadaAdapter(httpClient, logger.Object);
     }
 
     private static AdapterFactory CreateFactory(params IIntegratorAdapter[] adapters)
