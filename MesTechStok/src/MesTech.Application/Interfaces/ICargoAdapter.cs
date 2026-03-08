@@ -15,7 +15,7 @@ public interface ICargoAdapter
     Task<ShipmentResult> CreateShipmentAsync(ShipmentRequest request, CancellationToken ct = default);
     Task<TrackingResult> TrackShipmentAsync(string trackingNumber, CancellationToken ct = default);
     Task<bool> CancelShipmentAsync(string shipmentId, CancellationToken ct = default);
-    Task<byte[]> GetShipmentLabelAsync(string shipmentId, CancellationToken ct = default);
+    Task<LabelResult> GetShipmentLabelAsync(string shipmentId, CancellationToken ct = default);
     Task<bool> IsAvailableAsync(CancellationToken ct = default);
 
     bool SupportsCancellation { get; }
