@@ -1,5 +1,7 @@
 using System.Net.Http;
 using FluentAssertions;
+using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -222,6 +224,233 @@ public class HepsiburadaAdapterContractTests : IClassFixture<WireMockFixture>, I
 
         // Assert
         result.Should().BeTrue();
+    }
+
+    // ══════════════════════════════════════
+    // 5. TestConnectionAsync — Missing ApiKey
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task TestConnectionAsync_MissingApiKey_ReturnsError()
+    {
+        // Arrange — no WireMock stub needed, should fail before HTTP call
+        var adapter = CreateAdapter();
+
+        // Act
+        var result = await adapter.TestConnectionAsync(
+            new Dictionary<string, string> { ["MerchantId"] = MerchantId });
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("ApiKey");
+        result.HttpStatusCode.Should().BeNull();
+        _mockServer.LogEntries.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 6. TestConnectionAsync — Unauthorized (401)
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task TestConnectionAsync_Unauthorized_ReturnsError()
+    {
+        // Arrange
+        _mockServer
+            .Given(Request.Create()
+                .WithPath($"/listings/merchantid/{MerchantId}")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(401)
+                .WithBody("Unauthorized"));
+
+        var adapter = CreateAdapter();
+
+        // Act
+        var result = await adapter.TestConnectionAsync(ValidCredentials);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.HttpStatusCode.Should().Be(401);
+        result.ErrorMessage.Should().Contain("Yetkisiz");
+    }
+
+    // ══════════════════════════════════════
+    // 7. PushStockUpdateAsync — Success
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushStockUpdateAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/listings/and-inventory")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.PushStockUpdateAsync(Guid.NewGuid(), 25);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    // ══════════════════════════════════════
+    // 8. PushStockUpdateAsync — Server Error
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushStockUpdateAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/listings/and-inventory")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.PushStockUpdateAsync(Guid.NewGuid(), 10);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 9. PushPriceUpdateAsync — Success
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushPriceUpdateAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/listings/and-inventory")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.PushPriceUpdateAsync(Guid.NewGuid(), 149.99m);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    // ══════════════════════════════════════
+    // 10. PushPriceUpdateAsync — Server Error
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushPriceUpdateAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/listings/and-inventory")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.PushPriceUpdateAsync(Guid.NewGuid(), 99.90m);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 11. PushProductAsync — Not Supported
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushProductAsync_NotSupported_ReturnsFalse()
+    {
+        // Arrange — no WireMock stub needed, HB does not support product push
+        var adapter = CreateAdapter();
+        var product = new Product { Name = "Test", SKU = "TST-001", SalePrice = 50m, Stock = 5 };
+
+        // Act
+        var result = await adapter.PushProductAsync(product);
+
+        // Assert
+        result.Should().BeFalse();
+        _mockServer.LogEntries.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 12. UpdateOrderStatusAsync — Success
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/packages/PKG-001/status")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.UpdateOrderStatusAsync("PKG-001", "Shipped");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    // ══════════════════════════════════════
+    // 13. GetCategoriesAsync — Returns Empty
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task GetCategoriesAsync_ReturnsEmptyList()
+    {
+        // Arrange — no WireMock stub needed, HB returns empty list directly
+        var adapter = CreateAdapter();
+        IIntegratorAdapter iface = adapter;
+
+        // Act
+        var categories = await iface.GetCategoriesAsync();
+
+        // Assert
+        categories.Should().NotBeNull();
+        categories.Should().BeEmpty();
+        _mockServer.LogEntries.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 14. EnsureConfigured — Throws
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task EnsureConfigured_ThrowsWhenNotConfigured()
+    {
+        // Arrange — unconfigured adapter
+        var adapter = CreateAdapter();
+
+        // Act
+        Func<Task> act = () => adapter.PullProductsAsync();
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*konfigure*");
     }
 
     public void Dispose()
