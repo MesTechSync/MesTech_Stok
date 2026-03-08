@@ -5,6 +5,7 @@ namespace MesTechStok.Core.Data.Models;
 /// <summary>
 /// Kullanıcı varlığı - Authentication ve Authorization için temel model
 /// </summary>
+[Obsolete("Use MesTech.Domain.Entities.User — Dalga 4'te kaldırılacak")]
 public class User
 {
     public int Id { get; set; }

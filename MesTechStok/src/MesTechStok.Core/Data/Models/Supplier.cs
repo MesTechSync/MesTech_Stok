@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MesTechStok.Core.Data.Models
 {
+    [Obsolete("Use MesTech.Domain.Entities.Supplier — Dalga 4'te kaldırılacak")]
     public class Supplier
     {
         [Key]
