@@ -151,29 +151,140 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         return result;
     }
 
-    // ── Product methods (stub — 2B'de implement edilecek) ─
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    // ── Product methods ─────────────────────────────────
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2B'de implement edilecek");
+        ArgumentNullException.ThrowIfNull(product);
+
+        var payload = new
+        {
+            stockCode = product.SKU,
+            productName = product.Name,
+            salesPrice = product.SalePrice,
+            stockQuantity = product.Stock,
+            description = product.Description ?? "",
+            barcode = product.Barcode
+        };
+
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti PushProduct OK: {Sku}", product.SKU);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti PushProduct failed {Status}: {Error}", response.StatusCode, error);
+        return false;
     }
 
-    public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2B'de implement edilecek");
+        var products = new List<Product>();
+        var page = 1;
+        const int pageSize = 50;
+
+        while (!ct.IsCancellationRequested)
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Products?PageSize={pageSize}&Page={page}"), ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Ciceksepeti PullProducts page {Page} failed: {Status}", page, response.StatusCode);
+                break;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var csResponse = JsonSerializer.Deserialize<CsProductListResponse>(content, _jsonOptions);
+
+            if (csResponse?.Products is null || csResponse.Products.Count == 0)
+                break;
+
+            foreach (var cp in csResponse.Products)
+            {
+                products.Add(new Product
+                {
+                    Name = cp.ProductName,
+                    SKU = cp.StockCode,
+                    Barcode = cp.Barcode,
+                    Description = cp.Description,
+                    SalePrice = cp.SalesPrice,
+                    Stock = cp.StockQuantity,
+                    IsActive = true
+                });
+            }
+
+            if (products.Count >= csResponse.TotalCount)
+                break;
+
+            page++;
+        }
+
+        _logger.LogInformation("Ciceksepeti PullProducts: {Count} products fetched", products.Count);
+        return products.AsReadOnly();
     }
 
-    public Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
+    public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2B'de implement edilecek");
+
+        var payload = new { items = new[] { new { stockCode = productId.ToString(), quantity = newStock } } };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti stock update OK: {ProductId} → {Stock}", productId, newStock);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti stock update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
     }
 
-    public Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
+    public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2B'de implement edilecek");
+
+        var payload = new { items = new[] { new { stockCode = productId.ToString(), salesPrice = newPrice } } };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti price update OK: {ProductId} → {Price}", productId, newPrice);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti price update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
     }
 
     // ── Order methods (stub — 2C'de implement edilecek) ──
