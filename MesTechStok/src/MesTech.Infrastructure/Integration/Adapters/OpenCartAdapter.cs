@@ -548,4 +548,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter
         "refunded" => 11,
         _ => 2
     };
+
+    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
 }

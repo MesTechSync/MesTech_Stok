@@ -47,4 +47,7 @@ public class AmazonTrAdapter : IIntegratorAdapter
             ResponseTime = TimeSpan.Zero
         });
     }
+
+    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
 }

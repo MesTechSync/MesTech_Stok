@@ -72,4 +72,55 @@ public static class FakeData
             IsActive = true,
         };
     }
+
+    public static Order CreateOrder(
+        Guid? customerId = null,
+        OrderStatus status = OrderStatus.Pending,
+        PlatformType? sourcePlatform = null)
+    {
+        var faker = new Faker("tr");
+        return new Order
+        {
+            OrderNumber = $"ORD-{faker.Random.Int(10000, 99999)}",
+            CustomerId = customerId ?? Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Status = status,
+            SubTotal = faker.Random.Decimal(50, 5000),
+            TaxAmount = faker.Random.Decimal(10, 500),
+            TotalAmount = faker.Random.Decimal(60, 5500),
+            SourcePlatform = sourcePlatform,
+        };
+    }
+
+    public static CiceksepetiCategory CreateCiceksepetiCategory(
+        long categoryId = 0,
+        string? name = null,
+        long? parentId = null,
+        bool isLeaf = false)
+    {
+        var faker = new Faker("tr");
+        return new CiceksepetiCategory
+        {
+            CiceksepetiCategoryId = categoryId == 0 ? faker.Random.Long(1000, 99999) : categoryId,
+            CategoryName = name ?? faker.Commerce.Categories(1).First(),
+            ParentCategoryId = parentId,
+            IsLeaf = isLeaf,
+        };
+    }
+
+    public static HepsiburadaListing CreateHepsiburadaListing(
+        string? hbSku = null,
+        string? merchantSku = null,
+        string status = "Passive",
+        decimal commission = 0.12m)
+    {
+        var faker = new Faker("tr");
+        return new HepsiburadaListing
+        {
+            HepsiburadaSKU = hbSku ?? $"HB-{faker.Random.AlphaNumeric(8)}",
+            MerchantSKU = merchantSku ?? $"MRC-{faker.Random.AlphaNumeric(6)}",
+            ListingStatus = status,
+            CommissionRate = commission,
+        };
+    }
 }

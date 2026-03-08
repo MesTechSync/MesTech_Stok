@@ -3,8 +3,8 @@ using MesTech.Domain.Common;
 namespace MesTech.Domain.Entities;
 
 /// <summary>
-/// Ciceksepeti platform kategori entity'si.
-/// Ciceksepeti'nin kendi kategori agaci — leaf kategorilere urun eslenir.
+/// Ciceksepeti platform kategorisi.
+/// Platform-specific — genel Category'den ayri tutulur.
 /// </summary>
 public class CiceksepetiCategory : BaseEntity
 {
@@ -12,4 +12,6 @@ public class CiceksepetiCategory : BaseEntity
     public string CategoryName { get; set; } = string.Empty;
     public long? ParentCategoryId { get; set; }
     public bool IsLeaf { get; set; }
+
+    public override string ToString() => $"[CS-{CiceksepetiCategoryId}] {CategoryName}";
 }

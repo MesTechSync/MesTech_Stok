@@ -8,9 +8,9 @@ namespace MesTech.Tests.Unit.Domain;
 public class CargoEnumTests
 {
     [Fact]
-    public void CargoProvider_ShouldHave4Members()
+    public void CargoProvider_ShouldHave8Members()
     {
-        Enum.GetValues<CargoProvider>().Should().HaveCount(4);
+        Enum.GetValues<CargoProvider>().Should().HaveCount(8);
     }
 
     [Theory]
@@ -18,26 +18,31 @@ public class CargoEnumTests
     [InlineData(CargoProvider.YurticiKargo, 1)]
     [InlineData(CargoProvider.ArasKargo, 2)]
     [InlineData(CargoProvider.SuratKargo, 3)]
+    [InlineData(CargoProvider.MngKargo, 4)]
+    [InlineData(CargoProvider.PttKargo, 5)]
+    [InlineData(CargoProvider.Hepsijet, 6)]
+    [InlineData(CargoProvider.UPS, 7)]
     public void CargoProvider_Values_ShouldMatchExpected(CargoProvider provider, int expected)
     {
         ((int)provider).Should().Be(expected);
     }
 
     [Fact]
-    public void CargoStatus_ShouldHave8Members()
+    public void CargoStatus_ShouldHave9Members()
     {
-        Enum.GetValues<CargoStatus>().Should().HaveCount(8);
+        Enum.GetValues<CargoStatus>().Should().HaveCount(9);
     }
 
     [Theory]
-    [InlineData(CargoStatus.Unknown)]
     [InlineData(CargoStatus.Created)]
     [InlineData(CargoStatus.PickedUp)]
     [InlineData(CargoStatus.InTransit)]
     [InlineData(CargoStatus.OutForDelivery)]
     [InlineData(CargoStatus.Delivered)]
     [InlineData(CargoStatus.Returned)]
+    [InlineData(CargoStatus.Lost)]
     [InlineData(CargoStatus.Cancelled)]
+    [InlineData(CargoStatus.AtBranch)]
     public void CargoStatus_AllValues_ShouldBeDefined(CargoStatus status)
     {
         Enum.IsDefined(status).Should().BeTrue();

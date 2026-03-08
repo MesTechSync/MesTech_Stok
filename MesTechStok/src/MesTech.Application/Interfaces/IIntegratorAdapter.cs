@@ -20,9 +20,7 @@ public interface IIntegratorAdapter
     Task<ConnectionTestResultDto> TestConnectionAsync(Dictionary<string, string> credentials, CancellationToken ct = default);
 
     /// <summary>
-    /// Platform kategori listesini ceker.
-    /// Default: bos liste doner — adapter'lar override edebilir.
+    /// Platform kategorilerini ceker. Desteklemeyen adapter'lar bos liste doner.
     /// </summary>
-    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default);
 }

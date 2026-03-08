@@ -31,6 +31,22 @@ public class Order : BaseEntity, ITenantEntity
     public string? CustomerName { get; set; }
     public string? CustomerEmail { get; set; }
 
+    // Platform kaynagi
+    public PlatformType? SourcePlatform { get; set; }
+    public string? ExternalOrderId { get; set; }
+    public string? PlatformOrderNumber { get; set; }
+
+    // Kargo bilgisi
+    public CargoProvider? CargoProvider { get; set; }
+    public string? TrackingNumber { get; set; }
+    public string? CargoBarcode { get; set; }
+    public DateTime? ShippedAt { get; set; }
+    public DateTime? DeliveredAt { get; set; }
+
+    // Otomatik gonderim
+    public bool AutoShipmentEnabled { get; set; }
+    public DateTime? AutoShipmentScheduledAt { get; set; }
+
     // Concurrency
     public byte[]? RowVersion { get; set; }
 
@@ -60,6 +76,23 @@ public class Order : BaseEntity, ITenantEntity
     {
         Status = OrderStatus.Confirmed;
         RaiseDomainEvent(new OrderPlacedEvent(Id, OrderNumber, CustomerId, TotalAmount, DateTime.UtcNow));
+    }
+
+    /// <summary>
+    /// Siparisi kargoya verir. Sadece Confirmed statusunden gecis yapilabilir.
+    /// </summary>
+    public void MarkAsShipped(string trackingNumber, CargoProvider provider)
+    {
+        if (Status != OrderStatus.Confirmed)
+            throw new InvalidOperationException(
+                $"Cannot ship order in {Status} status. Only Confirmed orders can be shipped.");
+
+        TrackingNumber = trackingNumber;
+        CargoProvider = provider;
+        ShippedAt = DateTime.UtcNow;
+        Status = OrderStatus.Shipped;
+
+        RaiseDomainEvent(new OrderShippedEvent(Id, trackingNumber, provider, DateTime.UtcNow));
     }
 
     public int TotalItems => _orderItems.Sum(i => i.Quantity);

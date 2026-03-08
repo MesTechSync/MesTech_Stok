@@ -75,6 +75,7 @@ public class ProtectionTests
         members.Should().Contain("PushStockUpdateAsync");
         members.Should().Contain("PushPriceUpdateAsync");
         members.Should().Contain("TestConnectionAsync");
+        members.Should().Contain("GetCategoriesAsync");
     }
 
     [Fact]
