@@ -287,35 +287,163 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         return false;
     }
 
-    // ── Order methods (stub — 2C'de implement edilecek) ──
-    public Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(DateTime? since = null, CancellationToken ct = default)
+    // ── Order methods ───────────────────────────────────
+    public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2C'de implement edilecek");
+        var orders = new List<ExternalOrderDto>();
+        var page = 1;
+        const int pageSize = 50;
+
+        var url = "/api/v1/Order?PageSize=" + pageSize;
+        if (since.HasValue)
+            url += "&StartDate=" + since.Value.ToString("yyyy-MM-dd");
+
+        while (!ct.IsCancellationRequested)
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Ciceksepeti PullOrders page {Page} failed: {Status}", page, response.StatusCode);
+                break;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var csResponse = JsonSerializer.Deserialize<CsOrderListResponse>(content, _jsonOptions);
+
+            if (csResponse?.Orders is null || csResponse.Orders.Count == 0)
+                break;
+
+            foreach (var csOrder in csResponse.Orders)
+            {
+                // Sub-order flattening: her sub-order ayri ExternalOrderDto olur
+                foreach (var sub in csOrder.SubOrders)
+                {
+                    orders.Add(new ExternalOrderDto
+                    {
+                        PlatformOrderId = sub.SubOrderId.ToString(),
+                        PlatformCode = PlatformCode,
+                        OrderNumber = csOrder.OrderNumber,
+                        Status = sub.Status,
+                        CustomerName = csOrder.CustomerName,
+                        CustomerEmail = csOrder.CustomerEmail,
+                        CustomerAddress = csOrder.DeliveryAddress,
+                        CustomerCity = csOrder.DeliveryCity,
+                        TotalAmount = sub.TotalPrice,
+                        CargoProviderName = sub.CargoCompany,
+                        CargoTrackingNumber = sub.TrackingNumber,
+                        ShipmentPackageId = sub.SubOrderId.ToString(),
+                        OrderDate = csOrder.OrderDate,
+                        Lines = sub.Items.Select(item => new ExternalOrderLineDto
+                        {
+                            PlatformLineId = item.ItemId.ToString(),
+                            SKU = item.StockCode,
+                            Barcode = item.Barcode,
+                            ProductName = item.ProductName,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            LineTotal = item.TotalPrice
+                        }).ToList()
+                    });
+                }
+            }
+
+            if (orders.Count >= csResponse.TotalCount)
+                break;
+
+            page++;
+        }
+
+        _logger.LogInformation("Ciceksepeti PullOrders: {Count} sub-orders fetched", orders.Count);
+        return orders.AsReadOnly();
     }
 
-    public Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
+    public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2C'de implement edilecek");
+
+        var payload = new { subOrderId = long.Parse(packageId), status };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti order status updated: {PackageId} → {Status}", packageId, status);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti order status update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
     }
 
-    // ── Webhook methods (stub — 2C'de implement edilecek) ─
+    // ── Webhook methods ─────────────────────────────────
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
-        => Task.FromResult(false);
+    {
+        _logger.LogInformation("Ciceksepeti webhook registration not supported via API — manual panel config");
+        return Task.FromResult(false);
+    }
 
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
         => Task.FromResult(false);
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
-        => Task.CompletedTask;
+    {
+        var webhook = JsonSerializer.Deserialize<CsWebhookPayload>(payload, _jsonOptions);
+        _logger.LogInformation("Ciceksepeti webhook received: {EventType} Order={OrderId} Sub={SubOrderId}",
+            webhook?.EventType, webhook?.OrderId, webhook?.SubOrderId);
+        return Task.CompletedTask;
+    }
 
     // ── Shipment notification ───────────────────────────
-    public Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
         CargoProvider provider, CancellationToken ct = default)
     {
         EnsureConfigured();
-        throw new NotImplementedException("Task 2C'de implement edilecek");
+
+        var cargoCompany = provider switch
+        {
+            CargoProvider.YurticiKargo => "Yurtiçi Kargo",
+            CargoProvider.ArasKargo => "Aras Kargo",
+            CargoProvider.SuratKargo => "Sürat Kargo",
+            _ => provider.ToString()
+        };
+
+        var payload = new
+        {
+            subOrderId = long.Parse(platformOrderId),
+            cargoCompany,
+            trackingNumber
+        };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti shipment sent: SubOrder={SubOrderId} Tracking={Tracking}",
+                platformOrderId, trackingNumber);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti shipment failed {Status}: {Error}", response.StatusCode, error);
+        return false;
     }
 
     // ── Categories ──────────────────────────────────────
