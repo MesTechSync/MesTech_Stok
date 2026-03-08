@@ -43,6 +43,7 @@
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.4.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Polly" Version="8.5.2" />
+    <PackageVersion Include="prometheus-net" Version="8.2.1" />
     <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
     <PackageVersion Include="System.IO.Ports" Version="9.0.6" />
     <PackageVersion Include="System.Text.Json" Version="9.0.6" />
