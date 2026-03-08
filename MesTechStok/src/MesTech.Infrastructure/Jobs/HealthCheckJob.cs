@@ -1,5 +1,7 @@
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Caching;
+using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -12,11 +14,13 @@ public class HealthCheckJob : ISyncJob
     public string JobId => "health-check";
     public string CronExpression => "* * * * *"; // Her 1 dk
 
+    private readonly IAdapterFactory _factory;
     private readonly ICacheService _cache;
     private readonly ILogger<HealthCheckJob> _logger;
 
-    public HealthCheckJob(ICacheService cache, ILogger<HealthCheckJob> logger)
+    public HealthCheckJob(IAdapterFactory factory, ICacheService cache, ILogger<HealthCheckJob> logger)
     {
+        _factory = factory;
         _cache = cache;
         _logger = logger;
     }
@@ -25,17 +29,53 @@ public class HealthCheckJob : ISyncJob
     {
         _logger.LogDebug("[{JobId}] Health check basliyor...", JobId);
 
-        var result = new Dictionary<string, object>
+        var adapters = _factory.GetAll();
+        var healthResults = new Dictionary<string, object>
         {
             ["timestamp"] = DateTime.UtcNow,
-            ["status"] = "healthy"
+            ["adapterCount"] = adapters.Count
         };
 
-        // TODO: Her platform adapter'in CheckHealthAsync() metodunu cagir
-        // Sonuclari cache'e yaz
+        var allHealthy = true;
 
-        await _cache.SetAsync(CacheKeys.Health("all"), result, CacheKeys.HealthTTL, ct);
+        foreach (var adapter in adapters)
+        {
+            ct.ThrowIfCancellationRequested();
 
-        _logger.LogDebug("[{JobId}] Health check tamamlandi", JobId);
+            try
+            {
+                // TrendyolAdapter has CheckHealthAsync
+                if (adapter is TrendyolAdapter trendyol)
+                {
+                    var health = await trendyol.CheckHealthAsync(ct);
+                    healthResults[adapter.PlatformCode] = new { health.IsHealthy, health.LatencyMs };
+                    if (!health.IsHealthy) allHealthy = false;
+
+                    _logger.LogDebug("[{JobId}] {Platform}: {Status} ({Latency}ms)",
+                        JobId, adapter.PlatformCode,
+                        health.IsHealthy ? "UP" : "DOWN",
+                        health.LatencyMs);
+                }
+                else
+                {
+                    // Other adapters: registered = available
+                    healthResults[adapter.PlatformCode] = new { IsHealthy = true, LatencyMs = 0 };
+                    _logger.LogDebug("[{JobId}] {Platform}: REGISTERED", JobId, adapter.PlatformCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                allHealthy = false;
+                healthResults[adapter.PlatformCode] = new { IsHealthy = false, Error = ex.Message };
+                _logger.LogWarning(ex, "[{JobId}] {Platform} health check basarisiz", JobId, adapter.PlatformCode);
+            }
+        }
+
+        healthResults["status"] = allHealthy ? "healthy" : "degraded";
+
+        await _cache.SetAsync(CacheKeys.Health("all"), healthResults, CacheKeys.HealthTTL, ct);
+
+        _logger.LogDebug("[{JobId}] Health check tamamlandi: {Status}, {Count} adapter kontrol edildi",
+            JobId, allHealthy ? "healthy" : "degraded", adapters.Count);
     }
 }

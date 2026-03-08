@@ -1,5 +1,6 @@
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Caching;
+using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -12,11 +13,13 @@ public class CategorySyncJob : ISyncJob
     public string JobId => "category-sync";
     public string CronExpression => "0 4 * * *"; // Her gun 04:00
 
+    private readonly TrendyolAdapter _trendyolAdapter;
     private readonly ICacheService _cache;
     private readonly ILogger<CategorySyncJob> _logger;
 
-    public CategorySyncJob(ICacheService cache, ILogger<CategorySyncJob> logger)
+    public CategorySyncJob(TrendyolAdapter trendyolAdapter, ICacheService cache, ILogger<CategorySyncJob> logger)
     {
+        _trendyolAdapter = trendyolAdapter;
         _cache = cache;
         _logger = logger;
     }
@@ -25,11 +28,24 @@ public class CategorySyncJob : ISyncJob
     {
         _logger.LogInformation("[{JobId}] Kategori sync basliyor...", JobId);
 
-        // TODO: TrendyolAdapter.GetCategoriesAsync() -> cache'e yaz
-        // Cache key: CacheKeys.Categories("trendyol")
-        // TTL: 24 saat
+        try
+        {
+            var categories = await _trendyolAdapter.GetCategoriesAsync(ct);
 
-        await Task.CompletedTask;
-        _logger.LogInformation("[{JobId}] Kategori sync tamamlandi", JobId);
+            await _cache.SetAsync(
+                CacheKeys.Categories("trendyol"),
+                categories,
+                CacheKeys.CategoryTTL,
+                ct);
+
+            _logger.LogInformation(
+                "[{JobId}] Kategori sync tamamlandi: {Count} kategori cache'e yazildi (TTL: 24h)",
+                JobId, categories.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{JobId}] Kategori sync HATA", JobId);
+            throw;
+        }
     }
 }

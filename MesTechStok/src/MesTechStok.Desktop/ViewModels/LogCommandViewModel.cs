@@ -230,10 +230,17 @@ namespace MesTechStok.Desktop.ViewModels
 
         public async void Execute(object? parameter)
         {
-            if (_asyncExecute != null)
-                await _asyncExecute();
-            else
-                _execute?.Invoke();
+            try
+            {
+                if (_asyncExecute != null)
+                    await _asyncExecute();
+                else
+                    _execute?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[RelayCommand] Execute failed: {ex.Message}");
+            }
         }
 
         public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);

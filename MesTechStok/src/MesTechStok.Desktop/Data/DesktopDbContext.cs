@@ -327,10 +327,10 @@ namespace MesTechStok.Desktop.Data
             if (!optionsBuilder.IsConfigured)
             {
                 // Bu yardımcı context yalnızca demo/test amaçlıydı.
-                // Tek kaynaklı mimaride kullanılmamalı; varsayılanı SQL Server yap.
+                // Dalga 1: Tek provider — PostgreSQL.
                 if (!string.IsNullOrWhiteSpace(_connectionString))
                 {
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    optionsBuilder.UseNpgsql(_connectionString);
                 }
             }
         }

@@ -1,3 +1,4 @@
+using System.Net.Http;
 using FluentAssertions;
 using MesTech.Tests.Integration._Shared;
 using WireMock.RequestBuilders;

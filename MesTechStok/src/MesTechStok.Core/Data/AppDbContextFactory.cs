@@ -8,7 +8,7 @@ namespace MesTechStok.Core.Data;
 
 /// <summary>
 /// Design-time factory to scaffold migrations for selected provider.
-/// Provider önceliği: Env var > appsettings.json. Desteklenen: SqlServer, PostgreSQL.
+/// Provider: PostgreSQL (tek provider — Dalga 1 stabilizasyon).
 /// </summary>
 public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
@@ -24,21 +24,20 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 
         var configuration = builder.Build();
 
-        // Sağlayıcı sabit: SQL Server
-        var sqlServerConn = Environment.GetEnvironmentVariable("MESTECH_SQLSERVER_CONNECTION");
+        var pgConn = Environment.GetEnvironmentVariable("MESTECH_PG_CONNECTION");
         var defaultConn = configuration.GetConnectionString("DefaultConnection");
-        var connectionString = sqlServerConn ?? defaultConn ?? string.Empty;
+        var connectionString = pgConn ?? defaultConn ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            connectionString = "Server=localhost\\SQLEXPRESS;Database=MesTech_stok;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+            connectionString = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=mestech_postgres_dev";
         }
 
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        optionsBuilder.UseSqlServer(connectionString, sql =>
+        optionsBuilder.UseNpgsql(connectionString, npgsql =>
         {
-            sql.CommandTimeout(120);
-            sql.EnableRetryOnFailure(5);
+            npgsql.CommandTimeout(120);
+            npgsql.EnableRetryOnFailure(5);
         });
 
         return new AppDbContext(optionsBuilder.Options);

@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -10,10 +11,12 @@ public class TrendyolClaimSyncJob : ISyncJob
     public string JobId => "trendyol-claim-sync";
     public string CronExpression => "*/15 * * * *"; // Her 15 dk
 
+    private readonly IAdapterFactory _factory;
     private readonly ILogger<TrendyolClaimSyncJob> _logger;
 
-    public TrendyolClaimSyncJob(ILogger<TrendyolClaimSyncJob> logger)
+    public TrendyolClaimSyncJob(IAdapterFactory factory, ILogger<TrendyolClaimSyncJob> logger)
     {
+        _factory = factory;
         _logger = logger;
     }
 
@@ -21,9 +24,26 @@ public class TrendyolClaimSyncJob : ISyncJob
     {
         _logger.LogInformation("[{JobId}] Trendyol iade sync basliyor...", JobId);
 
-        // TODO: TrendyolAdapter.PullClaimsAsync() cagirilacak
+        try
+        {
+            var adapter = _factory.ResolveCapability<IClaimCapableAdapter>("Trendyol");
+            if (adapter == null)
+            {
+                _logger.LogWarning("[{JobId}] Trendyol IClaimCapableAdapter bulunamadi, atlaniyor", JobId);
+                return;
+            }
 
-        await Task.CompletedTask;
-        _logger.LogInformation("[{JobId}] Trendyol iade sync tamamlandi", JobId);
+            var since = DateTime.UtcNow.AddMinutes(-20); // 15dk cron + 5dk overlap
+            var claims = await adapter.PullClaimsAsync(since, ct);
+
+            _logger.LogInformation(
+                "[{JobId}] Trendyol iade sync tamamlandi: {Count} iade cekildi",
+                JobId, claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{JobId}] Trendyol iade sync HATA", JobId);
+            throw;
+        }
     }
 }

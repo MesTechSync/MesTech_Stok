@@ -46,10 +46,10 @@ namespace MesTechStok.Desktop.Views
             ProductStock = product.Stock;
             ProductImageUrl = product.ImageUrl;
             // Async loading - fire and forget with proper error handling
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
 
-        private async void LoadDataAsync()
+        private async Task LoadDataAsync()
         {
             try
             {

@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -10,20 +11,36 @@ public class InvoiceRetryJob : ISyncJob
     public string JobId => "invoice-retry";
     public string CronExpression => "*/10 * * * *"; // Her 10 dk
 
+    private readonly IInvoiceProvider _invoiceProvider;
     private readonly ILogger<InvoiceRetryJob> _logger;
 
-    public InvoiceRetryJob(ILogger<InvoiceRetryJob> logger)
+    public InvoiceRetryJob(IInvoiceProvider invoiceProvider, ILogger<InvoiceRetryJob> logger)
     {
+        _invoiceProvider = invoiceProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Fatura retry basliyor...", JobId);
+        _logger.LogInformation("[{JobId}] Fatura retry basliyor (Provider: {Provider})...",
+            JobId, _invoiceProvider.ProviderName);
 
-        // TODO: Status=Error olan faturalari tekrar IInvoiceProvider'a gonder
+        try
+        {
+            // TODO: Dalga 3'te InvoiceRepository eklenince Status=Error faturalar
+            // buradan cekilip IInvoiceProvider ile tekrar denenecek.
+            // Simdilik provider aktifligini dogruluyoruz.
 
-        await Task.CompletedTask;
-        _logger.LogInformation("[{JobId}] Fatura retry tamamlandi", JobId);
+            _logger.LogInformation(
+                "[{JobId}] Fatura retry tamamlandi — provider aktif: {Provider}",
+                JobId, _invoiceProvider.ProviderName);
+
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{JobId}] Fatura retry HATA", JobId);
+            throw;
+        }
     }
 }

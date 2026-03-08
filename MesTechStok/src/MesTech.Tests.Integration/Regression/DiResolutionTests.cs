@@ -97,6 +97,8 @@ public class DiResolutionTests : IDisposable
     [InlineData(typeof(IOrderRepository))]
     [InlineData(typeof(ITenantRepository))]
     [InlineData(typeof(IStoreRepository))]
+    [InlineData(typeof(ICategoryRepository))]
+    [InlineData(typeof(ISupplierRepository))]
     public void Repository_ShouldResolve(Type serviceType)
     {
         using var scope = _provider.CreateScope();

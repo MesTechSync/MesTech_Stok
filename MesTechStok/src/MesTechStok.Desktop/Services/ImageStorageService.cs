@@ -309,7 +309,7 @@ namespace MesTechStok.Desktop.Services
             }
             catch (Exception ex)
             {
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"SaveResizedJpegAsync failed: {inputPath} -> {outputPath}: {ex.Message}", nameof(ImageStorageService)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"SaveResizedJpegAsync failed: {inputPath} -> {outputPath}: {ex.Message}", nameof(ImageStorageService));
                 throw; // Re-throw to let calling method handle
             }
         }
@@ -353,7 +353,7 @@ namespace MesTechStok.Desktop.Services
             }
             catch (Exception ex)
             {
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"SaveFixedCanvasJpegAsync failed: {inputPath} -> {outputPath}: {ex.Message}", nameof(ImageStorageService)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"SaveFixedCanvasJpegAsync failed: {inputPath} -> {outputPath}: {ex.Message}", nameof(ImageStorageService));
                 throw; // Re-throw to let calling method handle
             }
         }

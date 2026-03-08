@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -10,10 +11,12 @@ public class TrendyolStockSyncJob : ISyncJob
     public string JobId => "trendyol-stock-sync";
     public string CronExpression => "*/30 * * * *"; // Her 30 dk
 
+    private readonly IAdapterFactory _factory;
     private readonly ILogger<TrendyolStockSyncJob> _logger;
 
-    public TrendyolStockSyncJob(ILogger<TrendyolStockSyncJob> logger)
+    public TrendyolStockSyncJob(IAdapterFactory factory, ILogger<TrendyolStockSyncJob> logger)
     {
+        _factory = factory;
         _logger = logger;
     }
 
@@ -21,9 +24,39 @@ public class TrendyolStockSyncJob : ISyncJob
     {
         _logger.LogInformation("[{JobId}] Trendyol stok sync basliyor...", JobId);
 
-        // TODO: Degisen urunleri bul, TrendyolAdapter.PushStockUpdateAsync() ile push et
+        try
+        {
+            var adapter = _factory.Resolve("Trendyol");
+            if (adapter == null)
+            {
+                _logger.LogWarning("[{JobId}] Trendyol adapter bulunamadi, atlaniyor", JobId);
+                return;
+            }
 
-        await Task.CompletedTask;
-        _logger.LogInformation("[{JobId}] Trendyol stok sync tamamlandi", JobId);
+            // Pull current product list, then push stock for each
+            var products = await adapter.PullProductsAsync(ct);
+            var pushed = 0;
+
+            foreach (var product in products)
+            {
+                ct.ThrowIfCancellationRequested();
+                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct);
+                if (ok) pushed++;
+            }
+
+            _logger.LogInformation(
+                "[{JobId}] Trendyol stok sync tamamlandi: {Pushed}/{Total} urun guncellendi",
+                JobId, pushed, products.Count);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("[{JobId}] Trendyol stok sync iptal edildi", JobId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{JobId}] Trendyol stok sync HATA", JobId);
+            throw;
+        }
     }
 }

@@ -87,7 +87,8 @@ namespace MesTechStok.Desktop
                 {
                     var sp = App.ServiceProvider;
                     var cfg = sp?.GetService<IConfiguration>();
-                    var dbInfo = "MesTech_stok – SQL Server (SQLEXPRESS)";
+                    var provider = cfg?["Database:Provider"] ?? "PostgreSQL";
+                    var dbInfo = $"MesTech_stok - {provider} (Docker)";
                     var dbText = this.FindName("HeaderDbInfo") as TextBlock;
                     if (dbText != null) dbText.Text = dbInfo;
 

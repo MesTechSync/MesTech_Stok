@@ -228,7 +228,7 @@ public partial class App : Application
                         // Add in-memory configuration as fallback
                         config.AddInMemoryCollection(new Dictionary<string, string?>
                         {
-                            ["ConnectionStrings:DefaultConnection"] = "Server=(localdb)\\MSSQLLocalDB;Database=MesTechStok;Integrated Security=true;MultipleActiveResultSets=True;Min Pool Size=2;Max Pool Size=10;",
+                            ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=mestech_postgres_dev",
                             ["Logging:LogLevel:Default"] = "Information",
                             ["Application:Name"] = "MesTech Stok Takip Sistemi",
                             ["Application:Version"] = "2.0 Professional",
@@ -346,30 +346,14 @@ public partial class App : Application
     private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         // Core Database Context (PRIMARY) – PostgreSQL 17 + pgvector
-        // FAZ 0 GÖREV 0.1: Multi-provider support (PostgreSQL birincil)
+        // DALGA 1: Tek provider — PostgreSQL (SqlServer/SQLite fallback kaldırıldı)
         services.AddDbContext<AppDbContext>(options =>
         {
-            var provider = configuration.GetValue<string>("Database:Provider") ?? "PostgreSQL";
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection yapılandırılmamış. dotnet user-secrets veya appsettings.json kullanın.");
 
-            if (provider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
-            {
-                options.UseNpgsql(connectionString);
-                Log.Information("Database provider: PostgreSQL 17 (pgvector enabled)");
-            }
-            else if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-            {
-                var sqlConn = configuration.GetConnectionString("SqlServerConnection") ?? connectionString;
-                options.UseSqlServer(sqlConn);
-                Log.Information("Database provider: SQL Server (fallback)");
-            }
-            else
-            {
-                var sqliteConn = configuration.GetConnectionString("SqliteConnection") ?? "Data Source=MesTechStok.db";
-                options.UseSqlite(sqliteConn);
-                Log.Information("Database provider: SQLite (development)");
-            }
+            options.UseNpgsql(connectionString);
+            Log.Information("Core Database provider: PostgreSQL (Bridge — Dalga 1)");
 
             options.EnableSensitiveDataLogging(false);
             options.EnableServiceProviderCaching(true);
@@ -499,7 +483,7 @@ public partial class App : Application
         services.AddScoped<MesTech.Domain.Interfaces.ISupplierRepository, MesTech.Infrastructure.Persistence.Repositories.SupplierRepository>();
 
         // Integration Layer (Adapters, Factory, Orchestrator, Webhook, TokenCache)
-        MesTech.Infrastructure.DependencyInjection.IntegrationServiceRegistration.AddIntegrationServices(services);
+        MesTech.Infrastructure.DependencyInjection.IntegrationServiceRegistration.AddIntegrationServices(services, configuration);
 
         // UnitOfWork + Domain Events
         services.AddScoped<MesTech.Domain.Interfaces.IDomainEventDispatcher, MesTech.Infrastructure.Services.DomainEventDispatcher>();

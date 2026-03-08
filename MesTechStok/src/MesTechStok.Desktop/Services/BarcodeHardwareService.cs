@@ -109,7 +109,7 @@ namespace MesTechStok.Desktop.Services
             _logger.LogInformation("[CHARLIE] BarcodeHardwareService initialized with modern ZXing.Net + OpenCvSharp4");
             // Apply config-driven options
             ApplyReaderOptionsFromConfig();
-            try { GlobalLogger.Instance.LogInfo("BarcodeHardwareService hazır", "BarcodeHW"); } catch { }
+            GlobalLogger.Instance.LogInfo("BarcodeHardwareService hazır", "BarcodeHW");
         }
 
         private void ApplyReaderOptionsFromConfig()
@@ -242,20 +242,20 @@ namespace MesTechStok.Desktop.Services
                     DeviceStatusChanged?.Invoke(this, "Connected to camera");
 
                     _logger.LogInformation("[CHARLIE] Barcode hardware service connected successfully");
-                    try { GlobalLogger.Instance.LogEvent("BARCODE", $"Camera connected (index={_cameraIndex})", "BarcodeHW"); } catch { }
+                    GlobalLogger.Instance.LogEvent("BARCODE", $"Camera connected (index={_cameraIndex})", "BarcodeHW");
                     return Task.FromResult(true);
                 }
 
                 _logger.LogError("[CHARLIE] No available camera found for barcode scanning");
                 DeviceStatusChanged?.Invoke(this, "No camera available");
-                try { GlobalLogger.Instance.LogWarning("Kamera bulunamadı", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogWarning("Kamera bulunamadı", "BarcodeHW");
                 return Task.FromResult(false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CHARLIE] Error connecting to barcode hardware");
                 DeviceStatusChanged?.Invoke(this, $"Connection error: {ex.Message}");
-                try { GlobalLogger.Instance.LogError($"Kamera bağlantı hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogError($"Kamera bağlantı hatası: {ex.Message}", "BarcodeHW");
                 return Task.FromResult(false);
             }
         }
@@ -276,13 +276,13 @@ namespace MesTechStok.Desktop.Services
                 DeviceStatusChanged?.Invoke(this, "Disconnected");
 
                 _logger.LogInformation("[CHARLIE] Barcode hardware disconnected successfully");
-                try { GlobalLogger.Instance.LogEvent("BARCODE", "Camera disconnected", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogEvent("BARCODE", "Camera disconnected", "BarcodeHW");
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CHARLIE] Error disconnecting barcode hardware");
-                try { GlobalLogger.Instance.LogError($"Kamera bağlantı kesme hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogError($"Kamera bağlantı kesme hatası: {ex.Message}", "BarcodeHW");
                 return false;
             }
         }
@@ -295,14 +295,14 @@ namespace MesTechStok.Desktop.Services
                 if (!_isConnected || _videoCapture == null)
                 {
                     _logger.LogWarning("[CHARLIE] Cannot start scanning - camera not connected");
-                    try { GlobalLogger.Instance.LogWarning("Tarama başlatılamadı: kamera bağlı değil", "BarcodeHW"); } catch { }
+                    GlobalLogger.Instance.LogWarning("Tarama başlatılamadı: kamera bağlı değil", "BarcodeHW");
                     return false;
                 }
 
                 if (_isScanning)
                 {
                     _logger.LogInformation("[CHARLIE] Scanning already in progress");
-                    try { GlobalLogger.Instance.LogInfo("Tarama zaten aktif", "BarcodeHW"); } catch { }
+                    GlobalLogger.Instance.LogInfo("Tarama zaten aktif", "BarcodeHW");
                     return true;
                 }
 
@@ -313,7 +313,7 @@ namespace MesTechStok.Desktop.Services
                 DeviceStatusChanged?.Invoke(this, "Scanning started");
 
                 _logger.LogInformation("[CHARLIE] Barcode scanning started");
-                try { GlobalLogger.Instance.LogEvent("BARCODE", "ScanStarted", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogEvent("BARCODE", "ScanStarted", "BarcodeHW");
 
                 // CHARLIE TEAM: Start continuous scanning loop
                 _ = Task.Run(async () => await ScanContinuouslyAsync());
@@ -323,7 +323,7 @@ namespace MesTechStok.Desktop.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CHARLIE] Error starting barcode scanning");
-                try { GlobalLogger.Instance.LogError($"Tarama başlatma hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogError($"Tarama başlatma hatası: {ex.Message}", "BarcodeHW");
                 return false;
             }
         }
@@ -337,13 +337,13 @@ namespace MesTechStok.Desktop.Services
                 DeviceStatusChanged?.Invoke(this, "Scanning stopped");
 
                 _logger.LogInformation("[CHARLIE] Barcode scanning stopped");
-                try { GlobalLogger.Instance.LogEvent("BARCODE", "ScanStopped", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogEvent("BARCODE", "ScanStopped", "BarcodeHW");
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CHARLIE] Error stopping barcode scanning");
-                try { GlobalLogger.Instance.LogError($"Tarama durdurma hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogError($"Tarama durdurma hatası: {ex.Message}", "BarcodeHW");
                 return false;
             }
         }
@@ -480,7 +480,7 @@ namespace MesTechStok.Desktop.Services
 
                             // Fire barcode scanned event
                             BarcodeScanned?.Invoke(this, new BarcodeScannedEventArgs(result.Text));
-                            try { GlobalLogger.Instance.LogEvent("BARCODE", $"Detected value={result.Text} format={result.BarcodeFormat}", "BarcodeHW"); } catch { }
+                            GlobalLogger.Instance.LogEvent("BARCODE", $"Detected value={result.Text} format={result.BarcodeFormat}", "BarcodeHW");
 
                             // Persist to SQL (service-level persistence; UI bağımsız)
                             try
@@ -505,13 +505,13 @@ namespace MesTechStok.Desktop.Services
                                             CorrelationId = CorrelationContext.CurrentId
                                         });
                                         db.SaveChanges();
-                                        try { GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogged value={result.Text} format={result.BarcodeFormat} corr={CorrelationContext.CurrentId}", "BarcodeHW"); } catch { }
+                                        GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogged value={result.Text} format={result.BarcodeFormat} corr={CorrelationContext.CurrentId}", "BarcodeHW");
                                     }
                                 }
                             }
                             catch (Exception exLog)
                             {
-                                try { GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogError {exLog.Message}", "BarcodeHW"); } catch { }
+                                GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogError {exLog.Message}", "BarcodeHW");
                             }
 
                             // Brief pause after successful scan to prevent duplicate detections
@@ -525,13 +525,13 @@ namespace MesTechStok.Desktop.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "[CHARLIE] Error during continuous scanning");
-                    try { GlobalLogger.Instance.LogError($"Sürekli tarama hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                    GlobalLogger.Instance.LogError($"Sürekli tarama hatası: {ex.Message}", "BarcodeHW");
                     await Task.Delay(1000); // Longer delay on error
                 }
             }
 
             _logger.LogInformation("[CHARLIE] Continuous barcode scanning loop ended");
-            try { GlobalLogger.Instance.LogInfo("Sürekli tarama döngüsü sonlandı", "BarcodeHW"); } catch { }
+            GlobalLogger.Instance.LogInfo("Sürekli tarama döngüsü sonlandı", "BarcodeHW");
         }
 
         private Bitmap MatToBitmap(Mat mat)
@@ -568,7 +568,7 @@ namespace MesTechStok.Desktop.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CHARLIE] Error disposing BarcodeHardwareService");
-                try { GlobalLogger.Instance.LogError($"BarcodeHW dispose hatası: {ex.Message}", "BarcodeHW"); } catch { }
+                GlobalLogger.Instance.LogError($"BarcodeHW dispose hatası: {ex.Message}", "BarcodeHW");
             }
         }
 

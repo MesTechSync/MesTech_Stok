@@ -284,7 +284,7 @@ namespace MesTechStok.Desktop.Services
                 }
             }
 
-            try { MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün eklendi Id={entity.Id}, SKU={entity.SKU}, Barkod={entity.Barcode}", nameof(SqlBackedProductService)); } catch { }
+            MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün eklendi Id={entity.Id}, SKU={entity.SKU}, Barkod={entity.Barcode}", nameof(SqlBackedProductService));
 
             // Görsel varyantlarını oluştur ve ana görsel yolunu güncelle
             try
@@ -399,7 +399,7 @@ namespace MesTechStok.Desktop.Services
                 }
             }
             catch { }
-            try { MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün güncellendi Id={p.Id}, SKU={p.SKU}, Barkod={p.Barcode}", nameof(SqlBackedProductService)); } catch { }
+            MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün güncellendi Id={p.Id}, SKU={p.SKU}, Barkod={p.Barcode}", nameof(SqlBackedProductService));
 
             // Görsel değişmiş olabilir; varyantları güncelle
             try
@@ -483,7 +483,7 @@ namespace MesTechStok.Desktop.Services
             p.IsActive = false;
             p.ModifiedDate = DateTime.UtcNow;
             await _db.SaveChangesAsync();
-            try { MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün pasife çekildi Id={p.Id}, SKU={p.SKU}", nameof(SqlBackedProductService)); } catch { }
+            MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün pasife çekildi Id={p.Id}, SKU={p.SKU}", nameof(SqlBackedProductService));
             return true;
         }
 
@@ -505,8 +505,8 @@ namespace MesTechStok.Desktop.Services
                 NewStock = p.Stock
             });
             await _db.SaveChangesAsync();
-            try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"StockChanged Id={p.Id} Old={previous} New={p.Stock}", nameof(SqlBackedProductService)); } catch { }
-            try { MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[STOCK] Stok güncellendi Id={p.Id}, Önce={previous} Sonra={p.Stock}", nameof(SqlBackedProductService)); } catch { }
+            MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"StockChanged Id={p.Id} Old={previous} New={p.Stock}", nameof(SqlBackedProductService));
+            MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[STOCK] Stok güncellendi Id={p.Id}, Önce={previous} Sonra={p.Stock}", nameof(SqlBackedProductService));
             return true;
         }
 

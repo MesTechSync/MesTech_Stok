@@ -554,7 +554,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 MesTechStok.Desktop.Utils.ToastManager.ShowError($"Kaydetme hatası: {ex.Message}", "Ürün");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("PRODUCT_SAVE_EXCEPTION", $"corrId={CorrelationContext.CurrentId} msg={ex.Message}", nameof(ProductUploadPopup)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("PRODUCT_SAVE_EXCEPTION", $"corrId={CorrelationContext.CurrentId} msg={ex.Message}", nameof(ProductUploadPopup));
                 return false;
             }
             finally
@@ -803,7 +803,7 @@ namespace MesTechStok.Desktop.Views
                         }
                         _isDirty = true;
                     }, System.Windows.Threading.DispatcherPriority.Background);
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"DragMoveMulti count={moved.Length} dest={destIdx}", nameof(ProductUploadPopup)); AppendAudit($"Çoklu sürükle-bırak: {moved.Length} öğe"); } catch { }
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"DragMoveMulti count={moved.Length} dest={destIdx}", nameof(ProductUploadPopup)); AppendAudit($"Çoklu sürükle-bırak: {moved.Length} öğe");
                     return;
                 }
                 // Tekli sürükle-bırak (mevcut davranış)
@@ -832,7 +832,7 @@ namespace MesTechStok.Desktop.Views
                             }
                             _isDirty = true;
                         }, System.Windows.Threading.DispatcherPriority.Background);
-                        try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"DragMoveSingle from={srcIdx} to={insertAt}", nameof(ProductUploadPopup)); AppendAudit($"Sürükle-bırak: {srcIdx}→{insertAt}"); } catch { }
+                        MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"DragMoveSingle from={srcIdx} to={insertAt}", nameof(ProductUploadPopup)); AppendAudit($"Sürükle-bırak: {srcIdx}→{insertAt}");
                     }
                 }
             }
@@ -876,8 +876,8 @@ namespace MesTechStok.Desktop.Views
                 };
                 if (ofd.ShowDialog() == true)
                 {
-                    ValidateAndAddVideoAsync(ofd.FileName);
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Add path={System.IO.Path.GetFileName(ofd.FileName)}", nameof(ProductUploadPopup)); AppendAudit($"Video eklendi: {System.IO.Path.GetFileName(ofd.FileName)}"); } catch { }
+                    _ = ValidateAndAddVideoAsync(ofd.FileName);
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Add path={System.IO.Path.GetFileName(ofd.FileName)}", nameof(ProductUploadPopup)); AppendAudit($"Video eklendi: {System.IO.Path.GetFileName(ofd.FileName)}");
                 }
             }
             catch { }
@@ -898,7 +898,7 @@ namespace MesTechStok.Desktop.Views
                 ImageList.ItemsSource = _imageFiles.Select(p => new BitmapImage(new Uri(p))).ToList();
                 _isDirty = true;
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Görsel linki eklendi", "Görsel");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten görsel eklendi"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten görsel eklendi");
             }
             catch { }
         }
@@ -917,12 +917,12 @@ namespace MesTechStok.Desktop.Views
                 VideoList.ItemsSource = _videoFiles.ToList();
                 _isDirty = true;
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Video linki eklendi", "Video");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten video eklendi"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten video eklendi");
             }
             catch { }
         }
 
-        private async void ValidateAndAddVideoAsync(string filePath)
+        private async Task ValidateAndAddVideoAsync(string filePath)
         {
             try
             {
@@ -937,7 +937,7 @@ namespace MesTechStok.Desktop.Views
                 VideoList.ItemsSource = null;
                 VideoList.ItemsSource = _videoFiles;
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Video eklendi", "Video");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Validated path={System.IO.Path.GetFileName(filePath)}", nameof(ProductUploadPopup)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Validated path={System.IO.Path.GetFileName(filePath)}", nameof(ProductUploadPopup));
             }
             catch { }
             finally { Busy(); }
@@ -979,7 +979,7 @@ namespace MesTechStok.Desktop.Views
                 if (string.IsNullOrWhiteSpace(path)) return;
                 // Dış oynatıcı ile aç (varsayılan Windows Player)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = path, UseShellExecute = true });
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Play path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video oynatıldı: {System.IO.Path.GetFileName(path)}"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Play path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video oynatıldı: {System.IO.Path.GetFileName(path)}");
             }
             catch { }
         }
@@ -994,7 +994,7 @@ namespace MesTechStok.Desktop.Views
                 _videoFiles.Remove(path);
                 VideoList.ItemsSource = null;
                 VideoList.ItemsSource = _videoFiles;
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Removed path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video silindi: {System.IO.Path.GetFileName(path)}"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Removed path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video silindi: {System.IO.Path.GetFileName(path)}");
             }
             catch { }
         }
@@ -1331,7 +1331,7 @@ namespace MesTechStok.Desktop.Views
                 var idx = ImageList.Items.IndexOf(bi);
                 if (idx >= 0) { _coverIndex = idx; CoverIndex = idx; }
                 MesTechStok.Desktop.Utils.ToastManager.ShowInfo("Kapak görseli seçildi", "Görsel");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"CoverSelected idx={idx}", nameof(ProductUploadPopup)); AppendAudit($"Kapak seçildi: {idx}"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"CoverSelected idx={idx}", nameof(ProductUploadPopup)); AppendAudit($"Kapak seçildi: {idx}");
             }
         }
 
@@ -1349,7 +1349,7 @@ namespace MesTechStok.Desktop.Views
                     try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
                     try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
                     if (_coverIndex == idx) _coverIndex = -1;
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"Removed idx={idx}", nameof(ProductUploadPopup)); AppendAudit($"Görsel silindi: {idx}"); } catch { }
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"Removed idx={idx}", nameof(ProductUploadPopup)); AppendAudit($"Görsel silindi: {idx}");
                 }
             }
         }
@@ -1393,7 +1393,7 @@ namespace MesTechStok.Desktop.Views
                     _imageFiles[idx] = temp;
                     ImageList.ItemsSource = null;
                     ImageList.ItemsSource = _imageFiles.Select(f => new BitmapImage(new Uri(f)));
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"MovedUp from={idx} to={idx - 1}", nameof(ProductUploadPopup)); AppendAudit($"Görsel yukarı taşındı: {idx}→{idx - 1}"); } catch { }
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"MovedUp from={idx} to={idx - 1}", nameof(ProductUploadPopup)); AppendAudit($"Görsel yukarı taşındı: {idx}→{idx - 1}");
                 }
             }
         }
@@ -1411,7 +1411,7 @@ namespace MesTechStok.Desktop.Views
                     _imageFiles[idx] = temp;
                     ImageList.ItemsSource = null;
                     ImageList.ItemsSource = _imageFiles.Select(f => new BitmapImage(new Uri(f)));
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"MovedDown from={idx} to={idx + 1}", nameof(ProductUploadPopup)); AppendAudit($"Görsel aşağı taşındı: {idx}→{idx + 1}"); } catch { }
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"MovedDown from={idx} to={idx + 1}", nameof(ProductUploadPopup)); AppendAudit($"Görsel aşağı taşındı: {idx}→{idx + 1}");
                 }
             }
         }
@@ -1433,7 +1433,7 @@ namespace MesTechStok.Desktop.Views
                 _isDirty = true;
                 try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
                 try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"RemovedSelected count={removedCount}", nameof(ProductUploadPopup)); AppendAudit($"Seçili görseller silindi: {removedCount}"); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"RemovedSelected count={removedCount}", nameof(ProductUploadPopup)); AppendAudit($"Seçili görseller silindi: {removedCount}");
             }
             catch { }
         }
@@ -1490,7 +1490,7 @@ namespace MesTechStok.Desktop.Views
                         if (newIdx >= 0) { _coverIndex = newIdx; CoverIndex = newIdx; }
                     }
                     _isDirty = true;
-                    try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"KeyReorder dir={(e.Key == Key.Up ? "Up" : "Down")} count={sel.Count}", nameof(ProductUploadPopup)); AppendAudit($"Kısayol ile sıralama: {(e.Key == Key.Up ? "Yukarı" : "Aşağı")} ({sel.Count})"); } catch { }
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"KeyReorder dir={(e.Key == Key.Up ? "Up" : "Down")} count={sel.Count}", nameof(ProductUploadPopup)); AppendAudit($"Kısayol ile sıralama: {(e.Key == Key.Up ? "Yukarı" : "Aşağı")} ({sel.Count})");
                     e.Handled = true;
                 }
             }

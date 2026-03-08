@@ -137,7 +137,9 @@ Test-Check "RabbitMQ vhost 'mestech' mevcut" {
     "mestech vhost aktif"
 }
 Test-Check "RabbitMQ management API erisilebilir" {
-    $response = Invoke-WebRequest -Uri "http://localhost:15672/api/overview" -Headers @{Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('mestech_mq:mestech_mq_dev')))"} -UseBasicParsing -ErrorAction Stop
+    $rmqUser = $env:RABBITMQ_USER; if (-not $rmqUser) { $rmqUser = "mestech_mq" }
+    $rmqPass = $env:RABBITMQ_PASSWORD; if (-not $rmqPass) { throw "RABBITMQ_PASSWORD env var gerekli" }
+    $response = Invoke-WebRequest -Uri "http://localhost:15672/api/overview" -Headers @{Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${rmqUser}:${rmqPass}")))"} -UseBasicParsing -ErrorAction Stop
     if ($response.StatusCode -ne 200) { throw "HTTP $($response.StatusCode)" }
     "HTTP 200 OK"
 }

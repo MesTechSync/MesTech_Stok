@@ -267,7 +267,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <ip:PackIconMaterial Kind="DatabaseOutline" Width="14" Height="14" Foreground="#7F8C8D" Margin="0,0,6,0"/>
-                    <TextBlock x:Name="HeaderDbInfo" Text="MesTech_stok – SQL Server (SQLEXPRESS)" FontSize="12" Foreground="#7F8C8D"/>
+                    <TextBlock x:Name="HeaderDbInfo" Text="MesTech_stok – PostgreSQL (Docker)" FontSize="12" Foreground="#7F8C8D"/>
                 </StackPanel>
             </Grid>
         </Border>

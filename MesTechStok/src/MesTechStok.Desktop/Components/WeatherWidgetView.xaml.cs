@@ -13,10 +13,10 @@ namespace MesTechStok.Desktop.Components
         public WeatherWidgetView()
         {
             InitializeComponent();
-            LoadWeatherData();
+            _ = LoadWeatherDataAsync();
         }
 
-        private async void LoadWeatherData()
+        private async Task LoadWeatherDataAsync()
         {
             try
             {

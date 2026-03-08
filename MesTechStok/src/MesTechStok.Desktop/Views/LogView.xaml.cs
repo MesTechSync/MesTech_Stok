@@ -100,11 +100,11 @@ namespace MesTechStok.Desktop.Views
                 {
                     hid.BarcodeScanned += (s, e) =>
                     {
-                        try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("BARCODE", $"HID received value={e.Barcode}", "USB_HID"); } catch { }
+                        MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("BARCODE", $"HID received value={e.Barcode}", "USB_HID");
                     };
                     hid.ScanError += (s, e) =>
                     {
-                        try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"HID error: {e.ErrorMessage}", "USB_HID"); } catch { }
+                        MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"HID error: {e.ErrorMessage}", "USB_HID");
                     };
                 }
             }
@@ -363,7 +363,7 @@ namespace MesTechStok.Desktop.Views
                 var corrId = CorrelationContext.CurrentId ?? "<none>";
 
                 // 1) Serilog + UI log
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("SELFTEST", $"corrId={corrId} message=Correlation self-test başlıyor", nameof(LogView)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("SELFTEST", $"corrId={corrId} message=Correlation self-test başlıyor", nameof(LogView));
                 Log.Information("[SelfTest] Starting correlation self-test with CorrelationId={CorrelationId}", corrId);
 
                 // 2) DB telemetry: write a dummy ApiCallLog
@@ -431,7 +431,7 @@ namespace MesTechStok.Desktop.Views
                 }
 
                 // 3) Audit + UI
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("LOG_PURGE", $"deleted={deleted} failed={failed} backup={(backupZip ?? "<none>")}", nameof(LogView)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("LOG_PURGE", $"deleted={deleted} failed={failed} backup={(backupZip ?? "<none>")}", nameof(LogView));
                 AddLog("ℹ️", $"Güvenli temizleme tamamlandı: {deleted} silindi, {failed} başarısız. Yedek={(backupZip ?? "yok")}", nameof(LogView), Colors.SteelBlue);
                 StatusText.Text = "Güvenli temizleme tamamlandı";
             }

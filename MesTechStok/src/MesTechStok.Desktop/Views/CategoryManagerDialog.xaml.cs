@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using MesTechStok.Core.Data;
@@ -21,11 +22,11 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
             _db = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<AppDbContext>();
             CmbCatPageSize.SelectedIndex = 1; // 50
-            LoadAsync();
+            _ = LoadAsync();
             this.Activate(); this.Focus();
         }
 
-        private async void LoadAsync()
+        private async Task LoadAsync()
         {
             try
             {
@@ -43,7 +44,10 @@ namespace MesTechStok.Desktop.Views
                 CategoriesGrid.ItemsSource = items;
                 UpdatePagerUi();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CategoryManager] LoadAsync failed: {ex.Message}");
+            }
         }
 
         private void UpdatePagerUi()
@@ -82,7 +86,7 @@ namespace MesTechStok.Desktop.Views
                 });
                 await _db.SaveChangesAsync();
                 TxtCatName.Text = string.Empty; TxtCatCode.Text = string.Empty; ChkActive.IsChecked = true; _currentPage = 1;
-                LoadAsync();
+                _ = LoadAsync();
             }
             catch (Exception ex)
             {
@@ -110,7 +114,7 @@ namespace MesTechStok.Desktop.Views
                 cat.IsActive = ChkActive.IsChecked == true;
                 cat.ModifiedDate = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                LoadAsync();
+                _ = LoadAsync();
             }
             catch (Exception ex)
             {
@@ -136,7 +140,7 @@ namespace MesTechStok.Desktop.Views
                 }
                 await _db.SaveChangesAsync();
                 ClearForm();
-                LoadAsync();
+                _ = LoadAsync();
             }
             catch (Exception ex)
             {
@@ -176,7 +180,7 @@ namespace MesTechStok.Desktop.Views
 
         private void TxtSearchCat_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            try { _currentPage = 1; LoadAsync(); } catch { }
+            try { _currentPage = 1; _ = LoadAsync(); } catch { }
         }
 
         private void CmbCatPageSize_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -187,7 +191,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     _pageSize = Math.Max(1, Math.Min(ps, 200));
                     _currentPage = 1;
-                    LoadAsync();
+                    _ = LoadAsync();
                 }
             }
             catch { }
@@ -195,12 +199,12 @@ namespace MesTechStok.Desktop.Views
 
         private void PrevPage_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentPage > 1) { _currentPage--; LoadAsync(); }
+            if (_currentPage > 1) { _currentPage--; _ = LoadAsync(); }
         }
 
         private void NextPage_Click(object sender, RoutedEventArgs e)
         {
-            _currentPage++; LoadAsync();
+            _currentPage++; _ = LoadAsync();
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();

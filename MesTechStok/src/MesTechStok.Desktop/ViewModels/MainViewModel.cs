@@ -881,20 +881,8 @@ namespace MesTechStok.Desktop.ViewModels
                 StatusMessage = "📍 STOK YERLEŞİM SİSTEMİ yüklendi - Akıllı konum yönetimi ve optimizasyon aktif";
 
                 // Sistem durumunu kontrol et
-                // TEMPORARILY DISABLED - LocationService not implemented
-                var isLocationServiceReady = false; // await CheckLocationServiceHealthAsync();
-                if (isLocationServiceReady)
-                {
-                    StatusMessage = "📍 STOK YERLEŞİM SİSTEMİ yüklendi - Tüm servisler hazır";
-                    GlobalLogger.Instance.LogInfo("STOK YERLEŞİM SİSTEMİ başlatıldı - Tüm servisler aktif", "MainViewModel");
-                    ToastManager.ShowSuccess("STOK YERLEŞİM SİSTEMİ aktif! 🚀", "MesTech");
-                }
-                else
-                {
-                    StatusMessage = "⚠️ STOK YERLEŞİM SİSTEMİ yüklendi - Bazı servisler devre dışı";
-                    GlobalLogger.Instance.LogWarning("STOK YERLEŞİM SİSTEMİ başlatıldı - Kısmi servis durumu", "MainViewModel");
-                    ToastManager.ShowWarning("STOK YERLEŞİM SİSTEMİ aktif (kısmi)", "MesTech");
-                }
+                CurrentView = new Views.ComingSoonView("Stok Yerlesim Sistemi");
+                StatusMessage = "Stok Yerlesim Sistemi - Yakinda";
 
                 NavigationTimingService.Instance.StopTiming("STOK YERLEŞİM SİSTEMİ");
             }
@@ -939,8 +927,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Konum Takibi");
             try
             {
-                // TODO: LocationTrackingView oluşturulacak
-                // CurrentView = new Views.LocationTrackingView();
+                CurrentView = new Views.ComingSoonView("Konum Takibi");
                 CurrentModule = "Konum Takibi";
                 StatusMessage = "🎯 Konum Takibi yüklendi - Ürün konum takibi ve hareket geçmişi aktif";
                 GlobalLogger.Instance.LogInfo("Konum Takibi başlatıldı", "MainViewModel");
@@ -964,8 +951,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Depo Haritası");
             try
             {
-                // TODO: WarehouseMapView oluşturulacak
-                // CurrentView = new Views.WarehouseMapView();
+                CurrentView = new Views.ComingSoonView("Depo Haritasi");
                 CurrentModule = "Depo Haritası";
                 StatusMessage = "🗺️ Depo Haritası yüklendi - Görsel depo haritası ve konum planlaması aktif";
                 GlobalLogger.Instance.LogInfo("Depo Haritası başlatıldı", "MainViewModel");
@@ -989,8 +975,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Mobil Depo");
             try
             {
-                // TODO: MobileWarehouseView oluşturulacak
-                // CurrentView = new Views.MobileWarehouseView();
+                CurrentView = new Views.ComingSoonView("Mobil Depo");
                 CurrentModule = "Mobil Depo";
                 StatusMessage = "📱 Mobil Depo yüklendi - Mobil cihaz entegrasyonu ve QR kod sistemi aktif";
                 GlobalLogger.Instance.LogInfo("Mobil Depo başlatıldı", "MainViewModel");
@@ -1014,8 +999,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Konum Raporları");
             try
             {
-                // TODO: LocationReportsView oluşturulacak
-                // CurrentView = new Views.LocationReportsView();
+                CurrentView = new Views.ComingSoonView("Konum Raporlari");
                 CurrentModule = "Konum Raporları";
                 StatusMessage = "📋 Konum Raporları yüklendi - Detaylı konum analizi ve raporlama aktif";
                 GlobalLogger.Instance.LogInfo("Konum Raporları başlatıldı", "MainViewModel");
@@ -1037,17 +1021,17 @@ namespace MesTechStok.Desktop.ViewModels
         private async Task RefreshDatabaseInfo()
         {
             await Task.Delay(500);
-            DatabaseInfo = "MesTech_stok – SQL Server (SQLEXPRESS)";
+            DatabaseInfo = "MesTech_stok – PostgreSQL (Docker)";
             IsDatabaseConnected = true;
-            StatusMessage = "📊 MesTech Stok Yönetimi – SQL Server aktif";
+            StatusMessage = "MesTech Stok Yonetimi – PostgreSQL aktif";
         }
 
         private async Task CheckDatabaseConnectionAsync()
         {
             await Task.Delay(100);
             IsDatabaseConnected = true;
-            DatabaseInfo = "MesTech_stok – SQL Server (SQLEXPRESS)";
-            StatusMessage = "✅ MesTech Stok Yönetimi – SQL bağlantısı hazır";
+            DatabaseInfo = "MesTech_stok – PostgreSQL (Docker)";
+            StatusMessage = "MesTech Stok Yonetimi – PostgreSQL baglantisi hazir";
         }
 
         [RelayCommand]

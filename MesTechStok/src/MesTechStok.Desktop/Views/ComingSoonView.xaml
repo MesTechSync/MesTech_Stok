@@ -1,0 +1,35 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.ComingSoonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F5F7FA">
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="420">
+            <Border Background="White" CornerRadius="16" Padding="48"
+                    Effect="{StaticResource CardShadow}" Margin="20">
+                <Border.Resources>
+                    <DropShadowEffect x:Key="CardShadow" BlurRadius="20" ShadowDepth="4"
+                                      Opacity="0.15" Color="#000000"/>
+                </Border.Resources>
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Background="#E3F2FD" CornerRadius="50" Width="80" Height="80"
+                            HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="&#x1F680;" FontSize="36"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Yakinda Geliyor" FontSize="24" FontWeight="Bold"
+                               Foreground="#1A2332" HorizontalAlignment="Center"
+                               Margin="0,0,0,8"/>
+                    <TextBlock x:Name="ModuleNameText" FontSize="14" Foreground="#7F8C8D"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap" Margin="0,0,0,16"/>
+                    <Border Background="#E8F5E9" CornerRadius="8" Padding="16"
+                            Margin="0,8,0,0">
+                        <TextBlock Text="Altyapi hazir - Gelistirme planinda"
+                                   Foreground="#2E7D32" FontSize="13"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

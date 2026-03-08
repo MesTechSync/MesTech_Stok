@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
@@ -10,10 +11,12 @@ public class OpenCartStockSyncJob : ISyncJob
     public string JobId => "opencart-stock-sync";
     public string CronExpression => "*/30 * * * *"; // Her 30 dk
 
+    private readonly IAdapterFactory _factory;
     private readonly ILogger<OpenCartStockSyncJob> _logger;
 
-    public OpenCartStockSyncJob(ILogger<OpenCartStockSyncJob> logger)
+    public OpenCartStockSyncJob(IAdapterFactory factory, ILogger<OpenCartStockSyncJob> logger)
     {
+        _factory = factory;
         _logger = logger;
     }
 
@@ -21,9 +24,41 @@ public class OpenCartStockSyncJob : ISyncJob
     {
         _logger.LogInformation("[{JobId}] OpenCart stok sync basliyor...", JobId);
 
-        // TODO: OpenCartAdapter uzerinden cift yonlu stok sync
+        try
+        {
+            var adapter = _factory.Resolve("OpenCart");
+            if (adapter == null)
+            {
+                _logger.LogWarning("[{JobId}] OpenCart adapter bulunamadi, atlaniyor", JobId);
+                return;
+            }
 
-        await Task.CompletedTask;
-        _logger.LogInformation("[{JobId}] OpenCart stok sync tamamlandi", JobId);
+            // Pull current products from OpenCart
+            var products = await adapter.PullProductsAsync(ct);
+            _logger.LogInformation("[{JobId}] OpenCart'tan {Count} urun cekildi", JobId, products.Count);
+
+            // Push stock updates for reconciliation
+            var pushed = 0;
+            foreach (var product in products)
+            {
+                ct.ThrowIfCancellationRequested();
+                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct);
+                if (ok) pushed++;
+            }
+
+            _logger.LogInformation(
+                "[{JobId}] OpenCart stok sync tamamlandi: {Pushed}/{Total} urun guncellendi",
+                JobId, pushed, products.Count);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("[{JobId}] OpenCart stok sync iptal edildi", JobId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{JobId}] OpenCart stok sync HATA", JobId);
+            throw;
+        }
     }
 }

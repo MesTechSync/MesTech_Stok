@@ -15,7 +15,7 @@ using MesTechStok.Core.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+
 using System.Threading.Tasks;
 
 namespace MesTechStok.Desktop.Views
@@ -510,7 +510,7 @@ namespace MesTechStok.Desktop.Views
                     var backupSql = $"BACKUP DATABASE [{dbName}] TO DISK = @targetPath WITH INIT, NAME = N'MesTechStok Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10";
 
                     // Yedekleme işlemini çalıştır
-                    var pathParam = new SqlParameter("@targetPath", targetPath);
+                    var pathParam = new Npgsql.NpgsqlParameter("@targetPath", targetPath);
                     await db.Database.ExecuteSqlRawAsync(backupSql, pathParam);
 
                     // Dosya bilgisi

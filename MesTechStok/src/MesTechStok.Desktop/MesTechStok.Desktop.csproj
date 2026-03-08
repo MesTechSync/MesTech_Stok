@@ -72,7 +72,6 @@
     </PackageReference>
     
     <!-- CHARLIE TEAM: HTTP Client for OpenCart Integration -->
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.Json" Version="9.0.6" />
     <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
@@ -87,8 +86,7 @@
     <PackageReference Include="ClosedXML" Version="0.102.2" />
     <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.4.6" />
     
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+    <!-- SqlServer + Sqlite kaldırıldı: Dalga 2 4.D2-01 — sadece PostgreSQL kullanılıyor -->
     <PackageReference Include="Npgsql" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">

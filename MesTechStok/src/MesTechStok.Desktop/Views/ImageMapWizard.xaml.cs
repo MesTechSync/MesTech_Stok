@@ -55,7 +55,7 @@ namespace MesTechStok.Desktop.Views
                 PreviewGrid.ItemsSource = _rows;
                 ApplyFilters();
                 SummaryText.Text = $"Bulunan: {files.Count}, Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)}";
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] PREVIEW corr={_corr} files={files.Count}", nameof(ImageMapWizard)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] PREVIEW corr={_corr} files={files.Count}", nameof(ImageMapWizard));
             }
             catch (Exception ex)
             {
@@ -152,14 +152,14 @@ namespace MesTechStok.Desktop.Views
                         if (p != null && !string.IsNullOrWhiteSpace(res.Full1200))
                         {
                             p.ImageUrl = res.Full1200; await ctx.SaveChangesAsync(); ok++; r.Status = "Güncellendi";
-                            try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={p.Id} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard)); } catch { }
+                            MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={p.Id} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard));
                         }
                     }
                     catch { fail++; r.Status = "Hata"; }
                 }
                 PreviewGrid.Items.Refresh();
                 SummaryText.Text = $"Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)} · Güncellendi={ok} · Hata={fail}";
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] APPLY corr={_corr} ok={ok} fail={fail}", nameof(ImageMapWizard)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("IMPORT", $"[IMAGE_MAP] APPLY corr={_corr} ok={ok} fail={fail}", nameof(ImageMapWizard));
             }
             catch (Exception ex)
             {

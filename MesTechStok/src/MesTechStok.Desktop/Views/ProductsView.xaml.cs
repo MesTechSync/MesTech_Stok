@@ -69,7 +69,7 @@ namespace MesTechStok.Desktop.Views
 
             ProductsDataGrid.ItemsSource = _displayedProducts;
 
-            InitializeAsync();
+            _ = InitializeAsync();
             _ = LoadCategoriesAsync(); // Kategorileri başlangıçta yükle
 
             // ReportsView profil köprüsü için son instance'ı kaydet
@@ -109,7 +109,7 @@ namespace MesTechStok.Desktop.Views
             };
         }
 
-        private async void InitializeAsync()
+        private async Task InitializeAsync()
         {
             try
             {
@@ -624,7 +624,7 @@ namespace MesTechStok.Desktop.Views
                 void AddChip(string label)
                 {
                     var b = new Button { Content = label + "  ✕", Style = (Style)FindResource("ChipButtonStyle") };
-                    b.Click += (s, e) => RemoveChip(label);
+                    b.Click += (s, e) => _ = RemoveChipAsync(label);
                     ActiveChipsPanel.Children.Add(b);
                 }
                 if (origins.Count > 0) AddChip("Menşei: " + string.Join(",", origins));
@@ -635,7 +635,7 @@ namespace MesTechStok.Desktop.Views
             catch { }
         }
 
-        private async void RemoveChip(string label)
+        private async Task RemoveChipAsync(string label)
         {
             try
             {
@@ -1378,7 +1378,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 ShowToastNotification($"Popup açılamadı: {ex.Message}", "error");
-                try { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"Popup açılamadı: {ex}", nameof(ProductsView)); } catch { }
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogError($"Popup açılamadı: {ex}", nameof(ProductsView));
             }
         }
 

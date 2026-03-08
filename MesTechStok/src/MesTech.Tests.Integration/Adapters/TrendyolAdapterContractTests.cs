@@ -1,3 +1,4 @@
+using System.Net.Http;
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Infrastructure.Integration.Adapters;
