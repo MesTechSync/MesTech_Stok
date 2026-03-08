@@ -19,6 +19,13 @@ public class AppDbContext : DbContext
         _tenantProvider = tenantProvider;
     }
 
+    /// <summary>
+    /// EF Core query filter'ın her sorguda dinamik olarak değerlendireceği property.
+    /// Expression.Constant(value) kullanmak yerine bu property'yi yakala —
+    /// EF Core, DbContext instance'ını query-time'da swap eder.
+    /// </summary>
+    internal Guid CurrentTenantId => _tenantProvider.GetCurrentTenantId();
+
     // ── Domain Entities ──
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
@@ -71,7 +78,16 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         // Global Query Filters — soft-delete + tenant izolasyonu
-        var currentTenantId = _tenantProvider.GetCurrentTenantId();
+        // NOT: Expression.Constant(value) kullanılmaz — model cache'de baked-in olur.
+        // CurrentTenantId property'si EF Core tarafından query-time'da instance üzerinden değerlendirilir.
+        var currentTenantIdProperty = typeof(AppDbContext)
+            .GetProperty(nameof(CurrentTenantId),
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var dbContextExpr = Expression.Constant(this, typeof(AppDbContext));
+        var tenantIdCallExpr = Expression.Property(dbContextExpr, currentTenantIdProperty);
+
+        // Platform-agnostic entity'ler — tenant filter UYGULANMAZ (admin tüm veriyi görebilir):
+        // SyncLog: cross-tenant admin görünümü için ITenantEntity implement etmez
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var clrType = entityType.ClrType;
@@ -93,12 +109,12 @@ public class AppDbContext : DbContext
                     Expression.Constant(false));
             }
 
-            // Tenant filter
+            // Tenant filter — CurrentTenantId property'si üzerinden dinamik değerlendirme
             if (isTenantEntity)
             {
                 var tenantFilter = Expression.Equal(
                     Expression.Property(parameter, nameof(ITenantEntity.TenantId)),
-                    Expression.Constant(currentTenantId));
+                    tenantIdCallExpr);
 
                 filter = filter == null ? tenantFilter : Expression.AndAlso(filter, tenantFilter);
             }
