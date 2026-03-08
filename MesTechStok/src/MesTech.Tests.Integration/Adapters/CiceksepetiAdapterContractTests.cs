@@ -252,6 +252,306 @@ public class CiceksepetiAdapterContractTests : IClassFixture<WireMockFixture>, I
         result.Should().BeTrue();
     }
 
+    // ══════════════════════════════════════
+    // 5. PushStockUpdateAsync Tests
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushStockUpdateAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+        var productId = Guid.NewGuid();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products/stock")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.PushStockUpdateAsync(productId, 42);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PushStockUpdateAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+        var productId = Guid.NewGuid();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products/stock")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.PushStockUpdateAsync(productId, 10);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 6. PushPriceUpdateAsync Tests
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PushPriceUpdateAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+        var productId = Guid.NewGuid();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products/price")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.PushPriceUpdateAsync(productId, 149.90m);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PushPriceUpdateAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+        var productId = Guid.NewGuid();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products/price")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.PushPriceUpdateAsync(productId, 99.90m);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 7. PullProductsAsync — Pagination
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullProductsAsync_Paginated_FetchesAllPages()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        // Page 1 — 50 products
+        var page1Products = Enumerable.Range(1, 50)
+            .Select(i => $@"{{""productId"":{i},""productName"":""Urun {i}"",""stockCode"":""CS-{i:D3}"",""barcode"":""869{i:D10}"",""salesPrice"":{10 + i},""stockQuantity"":{i},""categoryId"":1,""images"":[]}}")
+            .ToList();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .WithParam("Page", "1")
+                .WithParam("PageSize", "50")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody($@"{{""totalCount"":60,""products"":[{string.Join(",", page1Products)}]}}"));
+
+        // Page 2 — 10 products
+        var page2Products = Enumerable.Range(51, 10)
+            .Select(i => $@"{{""productId"":{i},""productName"":""Urun {i}"",""stockCode"":""CS-{i:D3}"",""barcode"":""869{i:D10}"",""salesPrice"":{10 + i},""stockQuantity"":{i},""categoryId"":1,""images"":[]}}")
+            .ToList();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .WithParam("Page", "2")
+                .WithParam("PageSize", "50")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody($@"{{""totalCount"":60,""products"":[{string.Join(",", page2Products)}]}}"));
+
+        // Act
+        var products = await adapter.PullProductsAsync();
+
+        // Assert
+        products.Should().HaveCount(60);
+        products[0].Name.Should().Be("Urun 1");
+        products[0].SKU.Should().Be("CS-001");
+        products[49].Name.Should().Be("Urun 50");
+        products[50].Name.Should().Be("Urun 51");
+        products[59].Name.Should().Be("Urun 60");
+    }
+
+    [Fact]
+    public async Task PullProductsAsync_ServerError_ReturnsPartial()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        // Page 1 — OK with 3 products
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .WithParam("Page", "1")
+                .WithParam("PageSize", "50")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""totalCount"": 60,
+                    ""products"": [
+                        {""productId"":1,""productName"":""Gul"",""stockCode"":""CS-001"",""barcode"":""8691111111111"",""salesPrice"":25.00,""stockQuantity"":10,""categoryId"":1,""images"":[]},
+                        {""productId"":2,""productName"":""Lale"",""stockCode"":""CS-002"",""barcode"":""8692222222222"",""salesPrice"":30.00,""stockQuantity"":20,""categoryId"":1,""images"":[]},
+                        {""productId"":3,""productName"":""Papatya"",""stockCode"":""CS-003"",""barcode"":""8693333333333"",""salesPrice"":15.00,""stockQuantity"":5,""categoryId"":1,""images"":[]}
+                    ]
+                }"));
+
+        // Page 2 — 500 error
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .WithParam("Page", "2")
+                .WithParam("PageSize", "50")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var products = await adapter.PullProductsAsync();
+
+        // Assert — only page 1 products returned
+        products.Should().HaveCount(3);
+        products[0].Name.Should().Be("Gul");
+        products[1].Name.Should().Be("Lale");
+        products[2].Name.Should().Be("Papatya");
+    }
+
+    // ══════════════════════════════════════
+    // 8. PullOrdersAsync — Server Error
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullOrdersAsync_ServerError_ReturnsEmpty()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var orders = await adapter.PullOrdersAsync();
+
+        // Assert
+        orders.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 9. UpdateOrderStatusAsync Tests
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_Success_ReturnsTrue()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order/Status")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200));
+
+        // Act
+        var result = await adapter.UpdateOrderStatusAsync("3001", "Shipped");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order/Status")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.UpdateOrderStatusAsync("3001", "Shipped");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 10. GetCategoriesAsync Test
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task GetCategoriesAsync_ReturnsEmptyList()
+    {
+        // Arrange — no WireMock stub needed, Ciceksepeti returns empty list directly
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        // Act
+        var categories = await adapter.GetCategoriesAsync();
+
+        // Assert
+        categories.Should().BeEmpty();
+        _mockServer.LogEntries.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 11. EnsureConfigured Guard Test
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task EnsureConfigured_ThrowsWhenNotConfigured()
+    {
+        // Arrange — use unconfigured adapter (no TestConnectionAsync call)
+        var adapter = CreateAdapter();
+
+        // Act
+        var act = () => adapter.PullProductsAsync();
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*konfigure*");
+    }
+
     public void Dispose()
     {
         _fixture.Reset();
