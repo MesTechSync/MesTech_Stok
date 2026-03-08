@@ -79,11 +79,18 @@ services:
     restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:-MesTech_Seq_Dev}"
     ports:
       - "5341:5341"
       - "8080:80"
     volumes:
       - mestech_seq_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 volumes:
   mestech_pgdata:
@@ -100,3 +107,4 @@ volumes:
 networks:
   default:
     name: mestech-network
+    external: true

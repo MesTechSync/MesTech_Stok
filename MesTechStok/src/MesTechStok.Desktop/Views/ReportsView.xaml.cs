@@ -93,9 +93,7 @@ namespace MesTechStok.Desktop.Views
 
         public ReportsView()
         {
-            _reportsService = new SqlBackedReportsService(
-                MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<MesTechStok.Core.Data.AppDbContext>()
-            );
+            _reportsService = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<SqlBackedReportsService>();
             _displayedReports = new ObservableCollection<Services.ReportItem>();
 
             InitializeComponent();
@@ -142,6 +140,10 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
+                LoadingOverlay.Visibility = Visibility.Visible;
+                ErrorState.Visibility = Visibility.Collapsed;
+                EmptyState.Visibility = Visibility.Collapsed;
+
                 // SQL tabanlı özetleri al ve sağ paneli doldur
                 var summaries = await _reportsService.GetDashboardSummariesAsync();
 
@@ -164,12 +166,26 @@ namespace MesTechStok.Desktop.Views
                 }
 
                 GlobalLogger.Instance.LogInfo($"Rapor özetleri yüklendi: TopProducts={summaries.TopProducts.Count}, LowStock={summaries.LowStockItems.Count}", "ReportsView");
+
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+
+                if (summaries.TopProducts.Count == 0 && summaries.LowStockItems.Count == 0)
+                {
+                    EmptyState.Visibility = Visibility.Visible;
+                }
             }
             catch (Exception ex)
             {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                ErrorState.Visibility = Visibility.Visible;
+                ReportErrorText.Text = $"Raporlar yüklenemedi: {ex.Message}";
                 GlobalLogger.Instance.LogError($"Rapor sayfası yükleme hatası: {ex.Message}", "ReportsView");
-                ToastManager.ShowError("❌ Rapor verileri yüklenirken hata oluştu!", "Hata");
             }
+        }
+
+        private void RetryReports_Click(object sender, RoutedEventArgs e)
+        {
+            _ = LoadReportsPageAsync();
         }
 
         private async Task UpdateStatisticsAsync()
@@ -482,7 +498,7 @@ namespace MesTechStok.Desktop.Views
                     }
                     catch { }
 
-                    var pdf = new PdfReportService();
+                    var pdf = App.ServiceProvider?.GetService<PdfReportService>() ?? new PdfReportService();
                     GlobalLogger.Instance.LogInfo($"PDF export starting: rows={lowStock.Count}", "ReportsView");
                     await pdf.ExportLowStockReportAsync(sfd.FileName, company, lowStock);
                     GlobalLogger.Instance.LogInfo($"PDF export done: path={sfd.FileName}", "ReportsView");

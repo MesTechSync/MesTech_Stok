@@ -508,7 +508,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                ShowError($"Kamera başlatma hatası: {ex.Message}");
+                ShowError($"Kamera başlatma hatası: {ex.Message}", isCritical: true);
             }
         }
 
@@ -1572,11 +1572,17 @@ namespace MesTechStok.Desktop.Views
             ErrorText.Text = $"Barkod '{barcode}' için ürün bulunamadı.\nYeni ürün eklemek için ürün yönetimi modülünü kullanın.";
         }
 
-        private void ShowError(string message)
+        private void ShowError(string message, bool isCritical = false)
         {
             ProductInfoPanel.Visibility = Visibility.Collapsed;
             ErrorPanel.Visibility = Visibility.Visible;
             ErrorText.Text = message;
+
+            if (isCritical)
+            {
+                BarcodeErrorText.Text = message;
+                BarcodeErrorState.Visibility = Visibility.Visible;
+            }
 
             AddActivity($"❌ Hata: {message}", Colors.Red);
         }
@@ -1587,6 +1593,13 @@ namespace MesTechStok.Desktop.Views
             ProductInfoPanel.Visibility = Visibility.Visible;
 
             AddActivity($"✅ {message}", Colors.Green);
+        }
+
+        private void RetryBarcode_Click(object sender, RoutedEventArgs e)
+        {
+            // Hide error overlay and re-attempt camera start
+            BarcodeErrorState.Visibility = Visibility.Collapsed;
+            StartCamera_Click(sender, e);
         }
 
         private void AddActivity(string message, System.Windows.Media.Color color)

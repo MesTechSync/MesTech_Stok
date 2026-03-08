@@ -172,11 +172,16 @@ public class StockMovementTests
         product.Stock.Should().Be(-15);
         product.IsOutOfStock().Should().BeTrue();
 
-        // Domain event should still be raised even for negative stock
-        product.DomainEvents.Should().HaveCount(1);
-        var @event = product.DomainEvents[0] as MesTech.Domain.Events.StockChangedEvent;
-        @event.Should().NotBeNull();
-        @event!.PreviousQuantity.Should().Be(10);
-        @event.NewQuantity.Should().Be(-15);
+        // Domain events: StockChangedEvent + LowStockDetectedEvent (stock crossed threshold)
+        product.DomainEvents.Should().HaveCount(2);
+        var stockEvent = product.DomainEvents[0] as MesTech.Domain.Events.StockChangedEvent;
+        stockEvent.Should().NotBeNull();
+        stockEvent!.PreviousQuantity.Should().Be(10);
+        stockEvent.NewQuantity.Should().Be(-15);
+
+        var lowStockEvent = product.DomainEvents[1] as MesTech.Domain.Events.LowStockDetectedEvent;
+        lowStockEvent.Should().NotBeNull();
+        lowStockEvent!.CurrentStock.Should().Be(-15);
+        lowStockEvent.MinimumStock.Should().Be(5);
     }
 }

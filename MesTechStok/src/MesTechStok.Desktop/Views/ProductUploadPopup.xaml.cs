@@ -34,15 +34,13 @@ namespace MesTechStok.Desktop.Views
         private Guid? _editingProductId = null;
         private bool _isDirty = false;
 
-        // 🔥 A++++ THREAD SAFETY: Helper method to get fresh service per operation  
         private IProductDataService GetProductService()
         {
             if (_serviceProvider != null)
             {
-                // WARNING: Caller must dispose the scope properly!
                 var scope = _serviceProvider.CreateScope();
-                var ctx = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();
-                return ctx != null ? new SqlBackedProductService(ctx) : new EnhancedProductService();
+                var svc = scope.ServiceProvider.GetService<IProductDataService>();
+                if (svc != null) return svc;
             }
             return new EnhancedProductService();
         }
@@ -489,7 +487,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     try
                     {
-                        var storage = new ImageStorageService();
+                        var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
                         // Kapak
                         var coverSaved = await storage.SaveAsync(item.Id, coverPath);
                         var mediaChanged = false;
@@ -1550,7 +1548,7 @@ namespace MesTechStok.Desktop.Views
                         // Ürün klasörü altında olabilir
                         try
                         {
-                            var storage = new ImageStorageService();
+                            var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
                             var pf = storage.GetProductFolder(_editingProductId.Value);
                             var inProd = System.IO.Path.Combine(pf, path);
                             if (System.IO.File.Exists(inProd))

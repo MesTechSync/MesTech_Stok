@@ -363,6 +363,32 @@
                     </StackPanel>
                 </Border>
             </Grid>
+
+            <!-- Loading Overlay -->
+            <Border x:Name="LoadingOverlay" Background="#99FFFFFF" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" Margin="0,0,0,12"/>
+                    <TextBlock Text="Barkod işleniyor..." FontSize="14" Foreground="#555" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Error State -->
+            <Border x:Name="BarcodeErrorState" Background="#F8F9FA" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="BarcodeErrorText" Text="Barkod okuma hatası" FontSize="14" Foreground="#E53935" HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" MaxWidth="400"/>
+                    <Button Content="Tekrar Dene" Padding="16,6" Click="RetryBarcode_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Empty State -->
+            <Border x:Name="BarcodeEmptyState" Background="#F8F9FA" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x1F4F7;" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                    <TextBlock Text="Henüz barkod taranmadı" FontSize="16" Foreground="#888" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="Kamerayı başlatın veya manuel barkod girin" FontSize="12" Foreground="#AAA" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </ScrollViewer>
-</UserControl> 
+</UserControl>

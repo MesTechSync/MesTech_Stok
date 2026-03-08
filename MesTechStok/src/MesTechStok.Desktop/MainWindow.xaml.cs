@@ -53,9 +53,9 @@ namespace MesTechStok.Desktop
         private WindowState _previousWindowState = WindowState.Maximized;
         private WindowStyle _previousWindowStyle = WindowStyle.SingleBorderWindow;
 
-        // Password authentication (configurable)
-        private const string MASTER_PASSWORD = "Admin123!";
+        // Password authentication (BCrypt via IAuthService)
         private bool _isAuthenticated = false;
+        private int _overlayLoginAttempts = 0;
 
         public MainWindow(MainViewModel viewModel, bool startInWelcomeMode = false)
         {
@@ -2241,41 +2241,51 @@ namespace MesTechStok.Desktop
             }
         }
 
-        // Password Authentication Methods
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        // Password Authentication Methods — BCrypt via IAuthService
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                if (_overlayLoginAttempts >= 5)
+                {
+                    ShowLoginError("Hesabiniz kilitlendi. 1 dakika bekleyin.");
+                    return;
+                }
+
                 string enteredPassword = PasswordBox.Password;
 
                 if (string.IsNullOrEmpty(enteredPassword))
                 {
-                    ShowLoginError("Lütfen şifrenizi giriniz");
+                    ShowLoginError("Lutfen sifrenizi giriniz");
                     return;
                 }
 
-                if (enteredPassword == MASTER_PASSWORD)
+                var authService = App.ServiceProvider?.GetService<MesTechStok.Core.Services.Abstract.IAuthService>();
+                if (authService != null)
                 {
-                    // Şifre doğru - sistemi aç
-                    _isAuthenticated = true;
-                    HidePasswordOverlay();
-
-                    // Ana sistemi başlat
-                    if (_isWelcomeMode)
+                    var result = await authService.LoginAsync("admin", enteredPassword);
+                    if (result.IsSuccess)
                     {
-                        InitializeWelcomeModeDirect();
+                        _isAuthenticated = true;
+                        _overlayLoginAttempts = 0;
+                        HidePasswordOverlay();
+
+                        if (_isWelcomeMode)
+                            InitializeWelcomeModeDirect();
+                        else
+                            InitializeMainSystemDirect();
                     }
                     else
                     {
-                        InitializeMainSystemDirect();
+                        _overlayLoginAttempts++;
+                        ShowLoginError(result.Message);
+                        PasswordBox.Password = "";
+                        PasswordBox.Focus();
                     }
                 }
                 else
                 {
-                    // Yanlış şifre
-                    ShowLoginError("Hatalı şifre! Tekrar deneyiniz.");
-                    PasswordBox.Password = "";
-                    PasswordBox.Focus();
+                    ShowLoginError("Kimlik dogrulama servisi yuklenemedi");
                 }
             }
             catch (Exception ex)

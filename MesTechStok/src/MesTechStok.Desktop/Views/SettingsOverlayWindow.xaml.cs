@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using MesTech.Application.Commands.SaveCompanySettings;
 
 namespace MesTechStok.Desktop.Views
 {
@@ -69,48 +68,29 @@ namespace MesTechStok.Desktop.Views
                     return;
                 }
 
-                using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var mediator = sp.GetRequiredService<IMediator>();
 
-                // Tablo yoksa oluştur (SQLite)
-                await EnsureCompanySettingsTableAsync(db);
-
-                // CompanySettings tek kayıt politikası
-                var settings = await db.CompanySettings.FirstOrDefaultAsync();
-                if (settings == null)
+                var warehouseInputs = Warehouses.Select(w => new WarehouseInput
                 {
-                    settings = new CompanySettings();
-                    db.CompanySettings.Add(settings);
-                }
+                    Name = w.Name,
+                    Address = w.Address,
+                    City = w.City,
+                    Phone = w.Phone,
+                }).ToList();
 
-                settings.CompanyName = CompanyName.Text.Trim();
-                settings.TaxNumber = CompanyTaxNumber.Text?.Trim();
-                settings.Phone = CompanyPhone.Text?.Trim();
-                settings.Email = CompanyEmail.Text?.Trim();
-                settings.Address = CompanyAddress.Text?.Trim();
-                settings.ModifiedDate = DateTime.Now;
+                var result = await mediator.Send(new SaveCompanySettingsCommand(
+                    CompanyName: CompanyName.Text.Trim(),
+                    TaxNumber: CompanyTaxNumber.Text?.Trim(),
+                    Phone: CompanyPhone.Text?.Trim(),
+                    Email: CompanyEmail.Text?.Trim(),
+                    Address: CompanyAddress.Text?.Trim(),
+                    Warehouses: warehouseInputs));
 
-                // Warehouses: basit strateji – mevcutları temizle, yeniden ekle
-                // Core Warehouse modelini kullanıyoruz
-                var existing = db.Warehouses.ToList();
-                if (existing.Any())
+                if (!result.IsSuccess)
                 {
-                    db.Warehouses.RemoveRange(existing);
+                    MessageBox.Show($"Ayarlar kaydedilemedi: {result.ErrorMessage}");
+                    return;
                 }
-                foreach (var w in Warehouses)
-                {
-                    db.Warehouses.Add(new Warehouse
-                    {
-                        Name = w.Name.Trim(),
-                        Address = string.IsNullOrWhiteSpace(w.Address) ? null : w.Address.Trim(),
-                        City = string.IsNullOrWhiteSpace(w.City) ? null : w.City.Trim(),
-                        Phone = string.IsNullOrWhiteSpace(w.Phone) ? null : w.Phone.Trim(),
-                        Type = "BRANCH",
-                        IsActive = true
-                    });
-                }
-
-                await db.SaveChangesAsync();
 
                 this.DialogResult = true;
                 this.Close();
@@ -118,28 +98,6 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Ayarlar kaydedilemedi: {ex.Message}");
-            }
-        }
-
-        private static async Task EnsureCompanySettingsTableAsync(AppDbContext db)
-        {
-            try
-            {
-                var sql = @"CREATE TABLE IF NOT EXISTS ""CompanySettings"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""CompanyName"" TEXT NOT NULL,
-                                ""TaxNumber"" TEXT,
-                                ""Phone"" TEXT,
-                                ""Email"" TEXT,
-                                ""Address"" TEXT,
-                                ""CreatedDate"" TIMESTAMP NOT NULL,
-                                ""ModifiedDate"" TIMESTAMP
-                            );";
-                await db.Database.ExecuteSqlRawAsync(sql);
-            }
-            catch
-            {
-                // yoksay: EF Migration'lar varsa tablo zaten vardır
             }
         }
 
@@ -162,5 +120,3 @@ namespace MesTechStok.Desktop.Views
         public string Phone { get; set; } = string.Empty;
     }
 }
-
-

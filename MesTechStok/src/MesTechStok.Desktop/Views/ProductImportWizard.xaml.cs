@@ -50,15 +50,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 var sp = MesTechStok.Desktop.App.ServiceProvider;
-                if (sp != null)
-                {
-                    var ctx = sp.GetService<MesTechStok.Core.Data.AppDbContext>();
-                    _productService = ctx != null ? new SqlBackedProductService(ctx) : new EnhancedProductService();
-                }
-                else
-                {
-                    _productService = new EnhancedProductService();
-                }
+                _productService = sp?.GetService<IProductDataService>() ?? new EnhancedProductService();
             }
             catch { _productService = new EnhancedProductService(); }
         }

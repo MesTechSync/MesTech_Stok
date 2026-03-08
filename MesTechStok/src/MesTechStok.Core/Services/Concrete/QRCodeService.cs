@@ -9,7 +9,9 @@ using MesTechStok.Core.Services.Abstract;
 namespace MesTechStok.Core.Services.Concrete
 {
     /// <summary>
-    /// QR kod entegrasyonu servisi implementasyonu
+    /// QR kod entegrasyonu servisi — şu an JSON içerik baytları döndürüyor.
+    /// Gerçek QR görüntü üretimi için QRCoder NuGet paketi gerekli (Dalga 3).
+    /// Desktop bu servisi aktif kullanıyor, dolayısıyla NotImplementedException atılmıyor.
     /// </summary>
     public class QRCodeService : IQRCodeService
     {

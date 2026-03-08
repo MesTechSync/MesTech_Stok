@@ -8,10 +8,15 @@ using MesTechStok.Core.Data.Models;
 namespace MesTechStok.Core.Services.Concrete
 {
     /// <summary>
-    /// Stok Yerleşim Sistemi konum yönetimi servisi implementasyonu
+    /// Stok Yerleşim Sistemi konum yönetimi servisi.
+    /// Dalga 3'te gerçek veritabanı implementasyonu yapılacak.
+    /// Şu an Desktop uygulaması MockLocationService kullanıyor.
     /// </summary>
     public class LocationService : ILocationService
     {
+        private const string DeferredMessage =
+            "LocationService Dalga 3'te implement edilecek — depo yönetimi modülü.";
+
         private readonly ILogger<LocationService> _logger;
 
         public LocationService(ILogger<LocationService> logger)
@@ -19,842 +24,103 @@ namespace MesTechStok.Core.Services.Concrete
             _logger = logger;
         }
 
-        #region Temel Konum Yönetimi
-
-        public async Task<WarehouseBin> GetBinByCodeAsync(string binCode)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting bin by code: {binCode}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                var bin = new WarehouseBin
-                {
-                    Id = 1,
-                    Name = $"Göz {binCode}",
-                    Code = binCode,
-                    ShelfId = 1,
-                    BinNumber = 1,
-                    IsActive = true
-                };
-
-                _logger.LogInformation($"Bin found: {bin.Name}");
-                return bin;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting bin by code: {binCode}");
-                throw;
-            }
-        }
-
-        public async Task<ProductLocation> PlaceProductAsync(Guid productId, Guid binId, int quantity, string notes)
-        {
-            try
-            {
-                _logger.LogInformation($"Placing product {productId} in bin {binId} with quantity {quantity}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var location = new ProductLocation
-                {
-                    Id = 1,
-                    ProductId = productId,
-                    BinId = binId,
-                    Quantity = quantity,
-                    Notes = notes,
-                    PlacedDate = DateTime.Now,
-                    IsActive = true
-                };
-
-                _logger.LogInformation($"Product placed successfully in bin {binId}");
-                return location;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error placing product {productId} in bin {binId}");
-                throw;
-            }
-        }
-
-        public async Task<ProductLocation> MoveProductAsync(Guid productId, Guid fromBinId, Guid toBinId, int quantity)
-        {
-            try
-            {
-                _logger.LogInformation($"Moving product {productId} from bin {fromBinId} to bin {toBinId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var location = new ProductLocation
-                {
-                    Id = 1,
-                    ProductId = productId,
-                    BinId = toBinId,
-                    Quantity = quantity,
-                    PlacedDate = DateTime.Now,
-                    IsActive = true
-                };
-
-                _logger.LogInformation($"Product moved successfully to bin {toBinId}");
-                return location;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error moving product {productId} from bin {fromBinId} to bin {toBinId}");
-                throw;
-            }
-        }
-
-        public async Task<ProductLocation> RemoveProductAsync(Guid productId, Guid binId, int quantity)
-        {
-            try
-            {
-                _logger.LogInformation($"Removing product {productId} from bin {binId} with quantity {quantity}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var location = new ProductLocation
-                {
-                    Id = 1,
-                    ProductId = productId,
-                    BinId = binId,
-                    Quantity = 0,
-                    IsActive = false
-                };
-
-                _logger.LogInformation($"Product removed successfully from bin {binId}");
-                return location;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error removing product {productId} from bin {binId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Gelişmiş Konum Yönetimi
-
-        public async Task<WarehouseZone> CreateZoneAsync(WarehouseZone zone)
-        {
-            try
-            {
-                _logger.LogInformation($"Creating new zone: {zone.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                zone.Id = new Random().Next(1000, 9999);
-                zone.CreatedDate = DateTime.Now;
-                zone.IsActive = true;
-
-                _logger.LogInformation($"Zone created successfully with ID: {zone.Id}");
-                return zone;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error creating zone: {zone.Name}");
-                throw;
-            }
-        }
-
-        public async Task<WarehouseRack> CreateRackAsync(WarehouseRack rack)
-        {
-            try
-            {
-                _logger.LogInformation($"Creating new rack: {rack.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                rack.Id = new Random().Next(1000, 9999);
-                rack.CreatedDate = DateTime.Now;
-                rack.IsActive = true;
-
-                _logger.LogInformation($"Rack created successfully with ID: {rack.Id}");
-                return rack;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error creating rack: {rack.Name}");
-                throw;
-            }
-        }
-
-        public async Task<WarehouseShelf> CreateShelfAsync(WarehouseShelf shelf)
-        {
-            try
-            {
-                _logger.LogInformation($"Creating new shelf: {shelf.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                shelf.Id = new Random().Next(1000, 9999);
-                shelf.CreatedDate = DateTime.Now;
-                shelf.IsActive = true;
-
-                _logger.LogInformation($"Shelf created successfully with ID: {shelf.Id}");
-                return shelf;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error creating shelf: {shelf.Name}");
-                throw;
-            }
-        }
-
-        public async Task<WarehouseBin> CreateBinAsync(WarehouseBin bin)
-        {
-            try
-            {
-                _logger.LogInformation($"Creating new bin: {bin.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                bin.Id = new Random().Next(1000, 9999);
-                bin.CreatedDate = DateTime.Now;
-                bin.IsActive = true;
-
-                _logger.LogInformation($"Bin created successfully with ID: {bin.Id}");
-                return bin;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error creating bin: {bin.Name}");
-                throw;
-            }
-        }
-
-        public async Task<bool> UpdateZoneAsync(WarehouseZone zone)
-        {
-            try
-            {
-                _logger.LogInformation($"Updating zone: {zone.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                zone.ModifiedDate = DateTime.Now;
-
-                _logger.LogInformation($"Zone updated successfully: {zone.Name}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating zone: {zone.Name}");
-                throw;
-            }
-        }
-
-        public async Task<bool> UpdateRackAsync(WarehouseRack rack)
-        {
-            try
-            {
-                _logger.LogInformation($"Updating rack: {rack.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                rack.ModifiedDate = DateTime.Now;
-
-                _logger.LogInformation($"Rack updated successfully: {rack.Name}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating rack: {rack.Name}");
-                throw;
-            }
-        }
-
-        public async Task<bool> UpdateShelfAsync(WarehouseShelf shelf)
-        {
-            try
-            {
-                _logger.LogInformation($"Updating shelf: {shelf.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                shelf.ModifiedDate = DateTime.Now;
-
-                _logger.LogInformation($"Shelf updated successfully: {shelf.Name}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating shelf: {shelf.Name}");
-                throw;
-            }
-        }
-
-        public async Task<bool> UpdateBinAsync(WarehouseBin bin)
-        {
-            try
-            {
-                _logger.LogInformation($"Updating bin: {bin.Name}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                bin.ModifiedDate = DateTime.Now;
-
-                _logger.LogInformation($"Bin updated successfully: {bin.Name}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating bin: {bin.Name}");
-                throw;
-            }
-        }
-
-        public async Task<bool> DeactivateZoneAsync(int zoneId)
-        {
-            try
-            {
-                _logger.LogInformation($"Deactivating zone: {zoneId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                _logger.LogInformation($"Zone {zoneId} deactivated successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deactivating zone: {zoneId}");
-                throw;
-            }
-        }
-
-        public async Task<bool> DeactivateRackAsync(int rackId)
-        {
-            try
-            {
-                _logger.LogInformation($"Deactivating rack: {rackId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                _logger.LogInformation($"Rack {rackId} deactivated successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deactivating rack: {rackId}");
-                throw;
-            }
-        }
-
-        public async Task<bool> DeactivateShelfAsync(int shelfId)
-        {
-            try
-            {
-                _logger.LogInformation($"Deactivating shelf: {shelfId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                _logger.LogInformation($"Shelf {shelfId} deactivated successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deactivating shelf: {shelfId}");
-                throw;
-            }
-        }
-
-        public async Task<bool> DeactivateBinAsync(Guid binId)
-        {
-            try
-            {
-                _logger.LogInformation($"Deactivating bin: {binId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                _logger.LogInformation($"Bin {binId} deactivated successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deactivating bin: {binId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Akıllı Konum Önerisi
-
-        public async Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(Guid productId, int quantity)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting smart location suggestions for product {productId}, quantity {quantity}");
-                
-                // TODO: Gerçek akıllı algoritma implementasyonu
-                var suggestions = new List<SmartLocationSuggestion>
-                {
-                    new SmartLocationSuggestion
-                    {
-                        BinId = 1,
-                        BinCode = "A010101",
-                        ZoneName = "A Bölümü",
-                        RackName = "A-01",
-                        ShelfName = "A-01-01",
-                        BinName = "A-01-01-01",
-                        Score = 95.5m,
-                        Reason = "En yakın konum, yeterli kapasite",
-                        EstimatedEfficiency = 92.3m
-                    },
-                    new SmartLocationSuggestion
-                    {
-                        BinId = 2,
-                        BinCode = "A010102",
-                        ZoneName = "A Bölümü",
-                        RackName = "A-01",
-                        ShelfName = "A-01-01",
-                        BinName = "A-01-01-02",
-                        Score = 88.7m,
-                        Reason = "İyi erişilebilirlik, orta kapasite",
-                        EstimatedEfficiency = 85.1m
-                    }
-                };
-
-                _logger.LogInformation($"Generated {suggestions.Count} smart location suggestions");
-                return suggestions;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting smart location suggestions for product {productId}");
-                throw;
-            }
-        }
-
-        public async Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(Guid binId)
-        {
-            try
-            {
-                _logger.LogInformation($"Calculating location efficiency for bin {binId}");
-                
-                // TODO: Gerçek verimlilik hesaplama algoritması
-                var score = new LocationEfficiencyScore
-                {
-                    BinId = binId,
-                    OverallScore = 87.5m,
-                    AccessibilityScore = 92.0m,
-                    CapacityUtilizationScore = 85.0m,
-                    MovementEfficiencyScore = 89.0m,
-                    SafetyScore = 90.0m,
-                    CalculatedDate = DateTime.Now
-                };
-
-                _logger.LogInformation($"Location efficiency calculated for bin {binId}: {score.OverallScore}%");
-                return score;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error calculating location efficiency for bin {binId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Toplu İşlemler
-
-        public async Task<bool> BulkMoveProductsAsync(List<BulkMoveRequest> requests)
-        {
-            try
-            {
-                _logger.LogInformation($"Processing bulk move operation for {requests.Count} products");
-                
-                // TODO: Gerçek toplu işlem implementasyonu
-                foreach (var request in requests)
-                {
-                    _logger.LogInformation($"Moving product {request.ProductId} from bin {request.FromBinId} to bin {request.ToBinId}");
-                }
-
-                _logger.LogInformation($"Bulk move operation completed successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error processing bulk move operation");
-                throw;
-            }
-        }
-
-        public async Task<bool> BulkPlaceProductsAsync(List<BulkPlaceRequest> requests)
-        {
-            try
-            {
-                _logger.LogInformation($"Processing bulk place operation for {requests.Count} products");
-                
-                // TODO: Gerçek toplu işlem implementasyonu
-                foreach (var request in requests)
-                {
-                    _logger.LogInformation($"Placing product {request.ProductId} in bin {request.BinId} with quantity {request.Quantity}");
-                }
-
-                _logger.LogInformation($"Bulk place operation completed successfully");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error processing bulk place operation");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Konum Geçmişi
-
-        public async Task<List<LocationMovement>> GetLocationHistoryAsync(Guid binId, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting location history for bin {binId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                var movements = new List<LocationMovement>
-                {
-                    new LocationMovement
-                    {
-                        Id = 1,
-                        BinId = binId,
-                        ProductId = 1,
-                        MovementType = MovementType.Place,
-                        Quantity = 10,
-                        MovementDate = DateTime.Now.AddDays(-1),
-                        Notes = "İlk yerleştirme"
-                    },
-                    new LocationMovement
-                    {
-                        Id = 2,
-                        BinId = binId,
-                        ProductId = 1,
-                        MovementType = MovementType.Move,
-                        Quantity = 5,
-                        MovementDate = DateTime.Now.AddHours(-2),
-                        Notes = "Kısmi taşıma"
-                    }
-                };
-
-                _logger.LogInformation($"Found {movements.Count} location movements for bin {binId}");
-                return movements;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting location history for bin {binId}");
-                throw;
-            }
-        }
-
-        public async Task<List<LocationMovement>> GetProductMovementHistoryAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting product movement history for product {productId}");
-                
-                // TODO: Gerçek veritabanı implementasyonu
-                var movements = new List<LocationMovement>
-                {
-                    new LocationMovement
-                    {
-                        Id = 1,
-                        ProductId = productId,
-                        BinId = 1,
-                        MovementType = MovementType.Place,
-                        Quantity = 10,
-                        MovementDate = DateTime.Now.AddDays(-2),
-                        Notes = "İlk yerleştirme"
-                    },
-                    new LocationMovement
-                    {
-                        Id = 2,
-                        ProductId = productId,
-                        BinId = 2,
-                        MovementType = MovementType.Move,
-                        Quantity = 10,
-                        MovementDate = DateTime.Now.AddDays(-1),
-                        Notes = "Yeni konuma taşıma"
-                    }
-                };
-
-                _logger.LogInformation($"Found {movements.Count} product movements for product {productId}");
-                return movements;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting product movement history for product {productId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Konum Arama
-
-        public async Task<List<WarehouseBin>> FindAvailableBinsAsync(Product product, int quantity)
-        {
-            try
-            {
-                _logger.LogInformation($"Finding available bins for product {product.Id}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var bins = new List<WarehouseBin>
-                {
-                    new WarehouseBin { Id = 1, Name = "A-01-01-01", Code = "A010101", IsActive = true },
-                    new WarehouseBin { Id = 2, Name = "A-01-01-02", Code = "A010102", IsActive = true },
-                    new WarehouseBin { Id = 3, Name = "B-01-01-01", Code = "B010101", IsActive = true }
-                };
-
-                _logger.LogInformation($"Found {bins.Count} available bins");
-                return bins;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error finding available bins for product {product.Id}");
-                throw;
-            }
-        }
-
-        public async Task<List<WarehouseBin>> FindBinsByProductAsync(Guid productId)
-        {
-            try
-            {
-                _logger.LogInformation($"Finding bins for product {productId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var bins = new List<WarehouseBin>
-                {
-                    new WarehouseBin { Id = 1, Name = "A-01-01-01", Code = "A010101", IsActive = true }
-                };
-
-                _logger.LogInformation($"Found {bins.Count} bins for product {productId}");
-                return bins;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error finding bins for product {productId}");
-                throw;
-            }
-        }
-
-        public async Task<List<ProductLocation>> GetProductLocationsAsync(Guid productId)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting locations for product {productId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var locations = new List<ProductLocation>
-                {
-                    new ProductLocation
-                    {
-                        Id = 1,
-                        ProductId = productId,
-                        BinId = 1,
-                        Quantity = 10,
-                        IsActive = true
-                    }
-                };
-
-                _logger.LogInformation($"Found {locations.Count} locations for product {productId}");
-                return locations;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting locations for product {productId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Optimizasyon
-
-        public async Task<WarehouseBin> GetOptimalBinAsync(Product product, int quantity)
-        {
-            try
-            {
-                _logger.LogInformation($"Finding optimal bin for product {product.Id}");
-
-                // TODO: Gerçek optimizasyon algoritması
-                var optimalBin = new WarehouseBin
-                {
-                    Id = 1,
-                    Name = "A-01-01-01",
-                    Code = "A010101",
-                    IsActive = true
-                };
-
-                _logger.LogInformation($"Optimal bin found: {optimalBin.Name}");
-                return optimalBin;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error finding optimal bin for product {product.Id}");
-                throw;
-            }
-        }
-
-        public async Task<List<WarehouseBin>> GetNearbyBinsAsync(Guid binId, int radius)
-        {
-            try
-            {
-                _logger.LogInformation($"Finding nearby bins for bin {binId}");
-
-                // TODO: Gerçek koordinat hesaplama
-                var nearbyBins = new List<WarehouseBin>
-                {
-                    new WarehouseBin { Id = 2, Name = "A-01-01-02", Code = "A010102", IsActive = true },
-                    new WarehouseBin { Id = 3, Name = "A-01-01-03", Code = "A010103", IsActive = true }
-                };
-
-                _logger.LogInformation($"Found {nearbyBins.Count} nearby bins");
-                return nearbyBins;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error finding nearby bins for bin {binId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Raporlama
-
-        public async Task<LocationReport> GetLocationReportAsync(Guid warehouseId)
-        {
-            try
-            {
-                _logger.LogInformation($"Generating location report for warehouse {warehouseId}");
-
-                var report = new LocationReport
-                {
-                    WarehouseId = warehouseId,
-                    WarehouseName = "Ana Depo",
-                    TotalZones = 3,
-                    TotalRacks = 6,
-                    TotalShelves = 18,
-                    TotalBins = 54,
-                    ZoneUtilization = 75.5m,
-                    RackUtilization = 68.2m,
-                    ShelfUtilization = 72.1m,
-                    BinUtilization = 65.8m
-                };
-
-                _logger.LogInformation($"Location report generated successfully for warehouse {warehouseId}");
-                return report;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error generating location report for warehouse {warehouseId}");
-                throw;
-            }
-        }
-
-        public async Task<BinUtilizationReport> GetBinUtilizationReportAsync(Guid warehouseId)
-        {
-            try
-            {
-                _logger.LogInformation($"Generating bin utilization report for warehouse {warehouseId}");
-
-                // TODO: Gerçek kullanım raporu implementasyonu
-                var report = new BinUtilizationReport();
-                
-                _logger.LogInformation($"Bin utilization report generated successfully for warehouse {warehouseId}");
-                return report;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error generating bin utilization report for warehouse {warehouseId}");
-                throw;
-            }
-        }
-
-        #endregion
-
-        #region Depo Organizasyonu
-
-        public async Task<List<WarehouseZone>> GetWarehouseZonesAsync(Guid warehouseId)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting zones for warehouse {warehouseId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var zones = new List<WarehouseZone>
-                {
-                    new WarehouseZone { Id = 1, Name = "A Bölümü", Code = "A", WarehouseId = warehouseId, IsActive = true, DisplayOrder = 1 },
-                    new WarehouseZone { Id = 2, Name = "B Bölümü", Code = "B", WarehouseId = warehouseId, IsActive = true, DisplayOrder = 2 },
-                    new WarehouseZone { Id = 3, Name = "C Bölümü", Code = "C", WarehouseId = warehouseId, IsActive = true, DisplayOrder = 3 }
-                };
-
-                _logger.LogInformation($"Found {zones.Count} zones for warehouse {warehouseId}");
-                return zones;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting zones for warehouse {warehouseId}");
-                throw;
-            }
-        }
-
-        public async Task<List<WarehouseRack>> GetRacksByZoneAsync(int zoneId)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting racks for zone {zoneId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var racks = new List<WarehouseRack>
-                {
-                    new WarehouseRack { Id = 1, Name = $"A-{zoneId:00}", Code = $"A{zoneId:00}", ZoneId = zoneId, IsActive = true, RowNumber = 1, ColumnNumber = 1 },
-                    new WarehouseRack { Id = 2, Name = $"B-{zoneId:00}", Code = $"B{zoneId:00}", ZoneId = zoneId, IsActive = true, RowNumber = 1, ColumnNumber = 2 }
-                };
-
-                _logger.LogInformation($"Found {racks.Count} racks for zone {zoneId}");
-                return racks;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting racks for zone {zoneId}");
-                throw;
-            }
-        }
-
-        public async Task<List<WarehouseShelf>> GetShelvesByRackAsync(int rackId)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting shelves for rack {rackId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var shelves = new List<WarehouseShelf>
-                {
-                    new WarehouseShelf { Id = 1, Name = $"A-{rackId:00}-01", Code = $"A{rackId:00}01", RackId = rackId, IsActive = true, LevelNumber = 1 },
-                    new WarehouseShelf { Id = 2, Name = $"A-{rackId:00}-02", Code = $"A{rackId:00}02", RackId = rackId, IsActive = true, LevelNumber = 2 },
-                    new WarehouseShelf { Id = 3, Name = $"A-{rackId:00}-03", Code = $"A{rackId:00}03", RackId = rackId, IsActive = true, LevelNumber = 3 }
-                };
-
-                _logger.LogInformation($"Found {shelves.Count} shelves for rack {rackId}");
-                return shelves;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting shelves for rack {rackId}");
-                throw;
-            }
-        }
-
-        public async Task<List<WarehouseBin>> GetBinsByShelfAsync(int shelfId)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting bins for shelf {shelfId}");
-
-                // TODO: Gerçek veritabanı implementasyonu
-                var bins = new List<WarehouseBin>
-                {
-                    new WarehouseBin { Id = 1, Name = $"A-{shelfId:00}-01", Code = $"A{shelfId:00}01", ShelfId = shelfId, IsActive = true, BinNumber = 1 },
-                    new WarehouseBin { Id = 2, Name = $"A-{shelfId:00}-02", Code = $"A{shelfId:00}02", ShelfId = shelfId, IsActive = true, BinNumber = 2 },
-                    new WarehouseBin { Id = 3, Name = $"A-{shelfId:00}-03", Code = $"A{shelfId:00}03", ShelfId = shelfId, IsActive = true, BinNumber = 3 }
-                };
-
-                _logger.LogInformation($"Found {bins.Count} bins for shelf {shelfId}");
-                return bins;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting bins for shelf {shelfId}");
-                throw;
-            }
-        }
-
-        #endregion
+        public Task<WarehouseBin> GetBinByCodeAsync(string binCode)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<ProductLocation> PlaceProductAsync(Guid productId, Guid binId, int quantity, string notes)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<ProductLocation> MoveProductAsync(Guid productId, Guid fromBinId, Guid toBinId, int quantity)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<ProductLocation> RemoveProductAsync(Guid productId, Guid binId, int quantity)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseBin>> FindAvailableBinsAsync(Product product, int quantity)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseBin>> FindBinsByProductAsync(Guid productId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<ProductLocation>> GetProductLocationsAsync(Guid productId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<WarehouseBin> GetOptimalBinAsync(Product product, int quantity)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseBin>> GetNearbyBinsAsync(Guid binId, int radius)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<LocationReport> GetLocationReportAsync(Guid warehouseId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<BinUtilizationReport> GetBinUtilizationReportAsync(Guid warehouseId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseZone>> GetWarehouseZonesAsync(Guid warehouseId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseRack>> GetRacksByZoneAsync(int zoneId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseShelf>> GetShelvesByRackAsync(int rackId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<WarehouseBin>> GetBinsByShelfAsync(int shelfId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<WarehouseZone> CreateZoneAsync(WarehouseZone zone)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<WarehouseRack> CreateRackAsync(WarehouseRack rack)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<WarehouseShelf> CreateShelfAsync(WarehouseShelf shelf)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<WarehouseBin> CreateBinAsync(WarehouseBin bin)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> UpdateZoneAsync(WarehouseZone zone)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> UpdateRackAsync(WarehouseRack rack)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> UpdateShelfAsync(WarehouseShelf shelf)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> UpdateBinAsync(WarehouseBin bin)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> DeactivateZoneAsync(int zoneId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> DeactivateRackAsync(int rackId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> DeactivateShelfAsync(int shelfId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> DeactivateBinAsync(Guid binId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<SmartLocationSuggestion>> GetSmartLocationSuggestionsAsync(Guid productId, int quantity)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<LocationEfficiencyScore> CalculateLocationEfficiencyAsync(Guid binId)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> BulkMoveProductsAsync(List<BulkMoveRequest> requests)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<bool> BulkPlaceProductsAsync(List<BulkPlaceRequest> requests)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<LocationMovement>> GetLocationHistoryAsync(Guid binId, DateTime? fromDate = null, DateTime? toDate = null)
+            => throw new NotImplementedException(DeferredMessage);
+
+        public Task<List<LocationMovement>> GetProductMovementHistoryAsync(Guid productId, DateTime? fromDate = null, DateTime? toDate = null)
+            => throw new NotImplementedException(DeferredMessage);
     }
 }

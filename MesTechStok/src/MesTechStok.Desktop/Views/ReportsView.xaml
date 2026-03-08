@@ -228,5 +228,31 @@
                 </StackPanel>
             </Border>
         </Grid>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.Row="0" Grid.RowSpan="3" Background="#99FFFFFF" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Rapor verileri yükleniyor..." FontSize="14" Foreground="#555" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Grid.Row="2" Background="#F5F7FA" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4CA;" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Text="Rapor verisi bulunamadı" FontSize="16" Foreground="#888" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                <TextBlock Text="Ürün veya stok hareketi ekledikten sonra raporlar oluşacaktır." FontSize="12" Foreground="#AAA" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.Row="0" Grid.RowSpan="3" Background="#F5F7FA" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8"/>
+                <TextBlock x:Name="ReportErrorText" Text="Raporlar yüklenemedi" FontSize="14" Foreground="#E53935" HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" MaxWidth="400"/>
+                <Button Content="Tekrar Dene" Padding="16,6" Click="RetryReports_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
-</UserControl> 
+</UserControl>

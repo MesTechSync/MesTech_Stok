@@ -163,7 +163,8 @@ public partial class App : Application
                 retainedFileCountLimit: 30,
                 encoding: System.Text.Encoding.UTF8,
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (CorrId={CorrelationId}) {Message:lj} {Properties:j}{NewLine}{Exception}")
-            // ✅ DOS PENCERE FIX: Console output kaldırıldı
+            // Dalga 2 4.D2-04: Seq log aggregation (http://localhost:5341, UI: http://localhost:8080)
+            .WriteTo.Seq("http://localhost:5341")
             .CreateLogger();
 
         try
@@ -398,6 +399,12 @@ public partial class App : Application
         services.Configure<ResilienceOptions>(configuration.GetSection("Resilience"));
         services.Configure<OpenCartSettingsOptions>(configuration.GetSection("OpenCartSettings"));
 
+        // Product Data Services (SqlBacked primary, Enhanced as fallback)
+        services.AddScoped<IProductDataService, SqlBackedProductService>();
+        services.AddSingleton<ImageStorageService>();
+        services.AddScoped<SqlBackedReportsService>();
+        services.AddSingleton<PdfReportService>();
+
         // ALPHA TEAM: Desktop Services (Adapters for Core)
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddSingleton<ISystemResourceService, SystemResourceService>();
@@ -453,10 +460,11 @@ public partial class App : Application
 
         // === DALGA 1 GÖREV 2.03: Clean Architecture DI Entegrasyonu ===
 
-        // MediatR — Application CQRS handlers (11 handler)
+        // MediatR — Application CQRS handlers + Desktop handlers (DbContext-backed)
         services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(
-                typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+            cfg.RegisterServicesFromAssemblies(
+                typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly,
+                typeof(MesTechStok.Desktop.Handlers.GetCategoriesPagedHandler).Assembly));
 
         // Infrastructure AppDbContext (Clean Architecture — Core AppDbContext ile birlikte çalışır)
         services.AddScoped<MesTech.Infrastructure.Persistence.AuditInterceptor>();
@@ -494,8 +502,10 @@ public partial class App : Application
         services.AddSingleton<MesTech.Domain.Services.PricingService>();
         services.AddSingleton<MesTech.Domain.Services.BarcodeValidationService>();
 
-        // Tenant Provider
-        services.AddSingleton<MesTech.Domain.Interfaces.ITenantProvider, MesTech.Infrastructure.Security.DevelopmentTenantProvider>();
+        // Tenant Provider — DesktopTenantProvider (login sonrasi SetTenant ile tenant degisir)
+        services.AddSingleton<MesTech.Infrastructure.Security.DesktopTenantProvider>();
+        services.AddSingleton<MesTech.Domain.Interfaces.ITenantProvider>(sp =>
+            sp.GetRequiredService<MesTech.Infrastructure.Security.DesktopTenantProvider>());
 
         // NOT: Redis, RabbitMQ, Hangfire, HealthChecks → Dalga 2'de aktifleştirilecek (dış bağımlılık gerektirir)
 

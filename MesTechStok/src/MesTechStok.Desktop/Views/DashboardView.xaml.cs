@@ -6,9 +6,10 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Desktop.Data;
+using MesTech.Application.Queries.GetDashboardData;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
@@ -63,6 +64,9 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
+                LoadingOverlay.Visibility = Visibility.Visible;
+                ErrorState.Visibility = Visibility.Collapsed;
+
                 _logger.LogInformation("Loading dashboard data...");
 
                 // Load KPI data
@@ -79,13 +83,21 @@ namespace MesTechStok.Desktop.Views
 
                 LastUpdatedText.Text = $"Son Güncelleme: {DateTime.Now:HH:mm:ss}";
                 _logger.LogInformation("Dashboard data loaded successfully");
+
+                LoadingOverlay.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load dashboard data");
-                MessageBox.Show($"Dashboard verileri yüklenirken hata oluştu: {ex.Message}", "Hata",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                ErrorState.Visibility = Visibility.Visible;
+                DashboardErrorText.Text = $"Dashboard yüklenemedi: {ex.Message}";
             }
+        }
+
+        private void RetryDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            _ = LoadDashboardDataAsync();
         }
 
         private async Task LoadKPIDataAsync()
@@ -107,13 +119,12 @@ namespace MesTechStok.Desktop.Views
                 var lowStockProducts = await _productService.GetLowStockProductsAsync();
                 LowStockWidget.Value = lowStockProducts.Count().ToString();
 
-                // Active Categories (using database context)
+                // Active Categories (via MediatR)
                 var serviceProvider = App.ServiceProvider;
                 if (serviceProvider != null)
                 {
-                    using var scope = serviceProvider.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<DesktopDbContext>();
-                    var categoriesCount = context.Categories.Count(c => c.IsActive);
+                    var mediator = serviceProvider.GetRequiredService<IMediator>();
+                    var categoriesCount = await mediator.Send(new GetActiveCategoriesCountQuery());
                     ActiveCategoriesWidget.Value = categoriesCount.ToString();
                 }
 
@@ -343,16 +354,8 @@ namespace MesTechStok.Desktop.Views
                 var serviceProvider = App.ServiceProvider;
                 if (serviceProvider != null)
                 {
-                    using var scope = serviceProvider.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<DesktopDbContext>();
-
-                    var recentMovements = await context.StockMovements
-                        .Include(sm => sm.Product)
-                        .OrderByDescending(sm => sm.Date)
-                        .Take(10)
-                        .ToListAsync();
-
-                    // Tür belirsizliğini önlemek için explicit cast yok; DesktopDbContext türleri kullanılıyor
+                    var mediator = serviceProvider.GetRequiredService<IMediator>();
+                    var recentMovements = await mediator.Send(new GetRecentStockMovementsQuery(10));
                     RecentActivitiesGrid.ItemsSource = recentMovements;
                     _logger.LogInformation($"Loaded {recentMovements.Count} recent activities");
                 }
@@ -360,7 +363,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load recent activities");
-                RecentActivitiesGrid.ItemsSource = new ObservableCollection<MesTechStok.Desktop.Data.StockMovement>();
+                RecentActivitiesGrid.ItemsSource = new ObservableCollection<RecentMovementDto>();
             }
         }
 

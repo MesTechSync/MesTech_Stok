@@ -119,6 +119,22 @@ public class Product : BaseEntity, ITenantEntity
 
         RaiseDomainEvent(new StockChangedEvent(
             Id, SKU, previousStock, Stock, movementType, DateTime.UtcNow));
+
+        if (IsLowStock() && previousStock > MinimumStock)
+        {
+            RaiseDomainEvent(new LowStockDetectedEvent(
+                Id, SKU, Stock, MinimumStock, DateTime.UtcNow));
+        }
+    }
+
+    public void UpdatePrice(decimal newSalePrice)
+    {
+        if (newSalePrice == SalePrice) return;
+        var oldPrice = SalePrice;
+        SalePrice = newSalePrice;
+
+        RaiseDomainEvent(new PriceChangedEvent(
+            Id, SKU, oldPrice, newSalePrice, DateTime.UtcNow));
     }
 
     public bool IsLowStock() => Stock <= MinimumStock;

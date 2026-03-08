@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Queries.GetSidebarCategories;
+using MesTech.Application.Queries.GetProductDbStatus;
+using MesTech.Application.Commands.SeedDemoData;
+using MesTech.Application.Commands.CreateBulkProducts;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Utils;
@@ -56,8 +61,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 var sp = MesTechStok.Desktop.App.ServiceProvider!;
-                var core = sp.GetRequiredService<MesTechStok.Core.Services.Abstract.IProductService>();
-                _productService = new EnhancedProductService(); // Geçici olarak Enhanced kullan
+                _productService = sp.GetRequiredService<IProductDataService>();
                 _usingDemoService = false;
             }
             catch
@@ -203,11 +207,8 @@ namespace MesTechStok.Desktop.Views
                         var sp = MesTechStok.Desktop.App.ServiceProvider;
                         if (sp != null)
                         {
-                            var db = sp.GetRequiredService<MesTechStok.Core.Data.AppDbContext>();
-                            var categories = await db.Categories.AsNoTracking()
-                                .Where(c => c.IsActive)
-                                .OrderBy(c => c.Name)
-                                .ToListAsync();
+                            var mediator = sp.GetRequiredService<IMediator>();
+                            var categories = await mediator.Send(new GetSidebarCategoriesQuery());
 
                             foreach (var category in categories)
                             {
@@ -339,11 +340,9 @@ namespace MesTechStok.Desktop.Views
                     var sp = MesTechStok.Desktop.App.ServiceProvider;
                     if (sp != null)
                     {
-                        var db = sp.GetRequiredService<MesTechStok.Core.Data.AppDbContext>();
-                        var categories = await db.Categories.AsNoTracking()
-                            .Where(c => c.IsActive && (string.IsNullOrEmpty(searchText) || c.Name.Contains(searchText)))
-                            .OrderBy(c => c.Name)
-                            .ToListAsync();
+                        var mediator = sp.GetRequiredService<IMediator>();
+                        var categories = await mediator.Send(new GetSidebarCategoriesQuery(
+                            string.IsNullOrEmpty(searchText) ? null : searchText));
 
                         foreach (var category in categories)
                         {
@@ -488,7 +487,12 @@ namespace MesTechStok.Desktop.Views
                         MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogInfo("[UI] DB erişilemedi, demo veri ile dolduruldu", nameof(ProductsView));
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Both primary and fallback failed — show error state
+                    ProductsErrorText.Text = $"Ürünler yüklenemedi: {ex.Message}";
+                    ProductsErrorState.Visibility = Visibility.Visible;
+                }
             }
             finally
             {
@@ -864,16 +868,14 @@ namespace MesTechStok.Desktop.Views
                     DbStatusText.Text = $"DB: DEMO · Gösterilen={_displayedProducts.Count}";
                     return;
                 }
-                var ctx = sp.GetRequiredService<MesTechStok.Core.Data.AppDbContext>();
-                var ok = await ctx.Database.CanConnectAsync();
-                if (!ok)
+                var mediator = sp.GetRequiredService<IMediator>();
+                var status = await mediator.Send(new GetProductDbStatusQuery());
+                if (!status.IsConnected)
                 {
                     DbStatusText.Text = "DB: fail";
                     return;
                 }
-                var aktif = await ctx.Products.AsNoTracking().CountAsync(p => p.IsActive);
-                var toplam = await ctx.Products.AsNoTracking().CountAsync();
-                DbStatusText.Text = $"DB: OK · Aktif={aktif} · Toplam={toplam} · Gösterilen={_displayedProducts.Count}";
+                DbStatusText.Text = $"DB: OK · Aktif={status.ActiveCount} · Toplam={status.TotalCount} · Gösterilen={_displayedProducts.Count}";
             }
             catch { DbStatusText.Text = "DB: fail"; }
         }
@@ -1198,7 +1200,7 @@ namespace MesTechStok.Desktop.Views
             {
                 var item = (sender as FrameworkElement)?.DataContext as ProductItem;
                 if (item == null) return;
-                var storage = new ImageStorageService();
+                var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
                 var folder = storage.GetProductFolder(item.Id);
                 if (System.IO.Directory.Exists(folder)) Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
@@ -1536,19 +1538,21 @@ namespace MesTechStok.Desktop.Views
             {
                 var sp = MesTechStok.Desktop.App.ServiceProvider;
                 if (sp == null) { ShowToastNotification("Servis bulunamadı", "error"); return; }
-                var ctx = sp.GetRequiredService<MesTechStok.Core.Data.AppDbContext>();
-                await ctx.Database.EnsureCreatedAsync();
-                // Sadece aktif ürün yoksa seed et
-                var hasActive = await ctx.Products.AnyAsync(p => p.IsActive);
-                if (hasActive)
+                var mediator = sp.GetRequiredService<IMediator>();
+                var seedResult = await mediator.Send(new SeedDemoDataCommand());
+                if (!seedResult.IsSuccess)
                 {
-                    ShowToastNotification("Aktif ürünler mevcut, demo yükleme atlandı.", "info");
+                    ShowToastNotification($"Demo yükleme hatası: {seedResult.Message}", "error");
                     return;
                 }
-                await ctx.SeedDemoDataAsync();
+                if (seedResult.WasSkipped)
+                {
+                    ShowToastNotification(seedResult.Message ?? "Atlandı.", "info");
+                    return;
+                }
                 ShowToastNotification("✅ Demo verileri yüklendi.", "success");
                 // DB'ye döneriz
-                _productService = new SqlBackedProductService(ctx);
+                _productService = App.ServiceProvider?.GetService<IProductDataService>() ?? _productService;
                 _usingDemoService = false;
                 await LoadCategoriesAsync();
                 await LoadProductsAsync();
@@ -1567,43 +1571,16 @@ namespace MesTechStok.Desktop.Views
             {
                 var sp = MesTechStok.Desktop.App.ServiceProvider;
                 if (sp == null) { ShowToastNotification("Servis bulunamadı", "error"); return; }
-                var ctx = sp.GetRequiredService<MesTechStok.Core.Data.AppDbContext>();
-                await ctx.Database.EnsureCreatedAsync();
-
-                // Var olanları etkilemeden hızlı 40 ürün ekle
-                var rand = new Random();
-                var catId = await ctx.Categories.Select(c => c.Id).FirstOrDefaultAsync();
-                if (catId == Guid.Empty)
+                var mediator = sp.GetRequiredService<IMediator>();
+                var bulkResult = await mediator.Send(new CreateBulkProductsCommand(40));
+                if (!bulkResult.IsSuccess)
                 {
-                    ctx.Categories.Add(new MesTechStok.Core.Data.Models.Category { Name = "Genel", Code = "GENEL", IsActive = true, CreatedDate = DateTime.UtcNow });
-                    await ctx.SaveChangesAsync();
-                    catId = await ctx.Categories.Select(c => c.Id).FirstOrDefaultAsync();
+                    ShowToastNotification($"Manuel ürün ekleme hatası: {bulkResult.Message}", "error");
+                    return;
                 }
 
-                int created = 0;
-                for (int i = 0; i < 40; i++)
-                {
-                    var barcode = (8690000000000L + rand.Next(1, 900000)).ToString();
-                    if (await ctx.Products.AnyAsync(p => p.Barcode == barcode)) continue;
-                    ctx.Products.Add(new MesTechStok.Core.Data.Models.Product
-                    {
-                        Name = $"Hızlı Ürün {DateTime.Now:HHmmss}-{i + 1}",
-                        SKU = $"FAST-{Guid.NewGuid():N}".Substring(0, 16),
-                        Barcode = barcode,
-                        CategoryId = catId,
-                        PurchasePrice = rand.Next(50, 500),
-                        SalePrice = rand.Next(60, 900),
-                        Stock = rand.Next(0, 120),
-                        MinimumStock = 5,
-                        TaxRate = 18m,
-                        IsActive = true,
-                        CreatedDate = DateTime.UtcNow
-                    });
-                    created++;
-                }
-                await ctx.SaveChangesAsync();
-
-                _productService = new SqlBackedProductService(ctx);
+                var created = bulkResult.CreatedCount;
+                _productService = App.ServiceProvider?.GetService<IProductDataService>() ?? _productService;
                 _usingDemoService = false;
                 await LoadCategoriesAsync();
                 await LoadProductsAsync();
@@ -1771,7 +1748,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 if (_selectedProduct == null) return;
-                var storage = new ImageStorageService();
+                var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
                 var folder = storage.GetProductFolder(_selectedProduct.Id);
                 if (System.IO.Directory.Exists(folder)) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
@@ -2170,6 +2147,12 @@ namespace MesTechStok.Desktop.Views
                 try { ProductUploadWindowManager.TryOpen(Window.GetWindow(this)); } catch { }
                 e.Handled = true;
             }
+        }
+
+        private async void RetryProducts_Click(object sender, RoutedEventArgs e)
+        {
+            ProductsErrorState.Visibility = Visibility.Collapsed;
+            await LoadProductsAsync();
         }
     }
 

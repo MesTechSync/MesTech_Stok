@@ -924,5 +924,23 @@
             </Border>
             </Border>
 
+        <!-- Empty State -->
+        <Border x:Name="ProductsEmptyState" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#F7F9FC" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4E6;" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Text="Henüz ürün bulunamadı" FontSize="16" Foreground="#888" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                <TextBlock Text="Ürün eklemek için yukarıdaki butonları kullanabilirsiniz." FontSize="12" Foreground="#AAA" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ProductsErrorState" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#F7F9FC" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8"/>
+                <TextBlock x:Name="ProductsErrorText" Text="Ürünler yüklenemedi" FontSize="14" Foreground="#E53935" HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" MaxWidth="400"/>
+                <Button Content="Tekrar Dene" Padding="16,6" Click="RetryProducts_Click"/>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </UserControl> 

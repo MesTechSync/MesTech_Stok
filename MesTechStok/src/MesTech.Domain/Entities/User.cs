@@ -4,6 +4,8 @@ namespace MesTech.Domain.Entities;
 
 /// <summary>
 /// Kullanıcı entity'si.
+/// Tenant hiyerarşisi: Tenant → Store → User.
+/// ITenantEntity implement etmez — kullanıcı sorguları tenant-filtered değildir.
 /// </summary>
 public class User : BaseEntity
 {
@@ -16,6 +18,10 @@ public class User : BaseEntity
     public bool IsActive { get; set; } = true;
     public bool IsEmailConfirmed { get; set; }
     public DateTime? LastLoginDate { get; set; }
+
+    // Tenant ilişkisi (nullable — mevcut veri default tenant'a migrate edilecek)
+    public Guid? TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
 
     public string? FullName => string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
         ? Username

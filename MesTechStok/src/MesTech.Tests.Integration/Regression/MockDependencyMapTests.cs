@@ -7,9 +7,10 @@ using FluentAssertions;
 namespace MesTech.Tests.Integration.Regression;
 
 /// <summary>
-/// 5.D1-02: Mock Bagimlilik Haritasi — documents and verifies the mock service landscape.
+/// 5.D1-02 / 5.D2-04: Mock Bagimlilik Haritasi — documents and verifies the mock service landscape.
 /// Active mocks: 6 (3 Desktop + 2 Infrastructure MESA + 1 Integration Invoice)
-/// Obsolete mocks: 4 (Desktop Services, [Obsolete] marked)
+/// Obsolete mocks: 0 (4 deleted in Dalga 2: MockBarcodeService, MockInventoryService,
+///   MockProductService, MockOpenCartService)
 /// If a new mock is added or an existing one removed, these tests must be updated.
 /// </summary>
 [Trait("Category", "Regression")]
@@ -17,14 +18,14 @@ namespace MesTech.Tests.Integration.Regression;
 public class MockDependencyMapTests
 {
     // ── Active Mocks (registered in DI) ──
-    // Desktop App.xaml.cs lines 379-385:
+    // Desktop App.xaml.cs:
     //   ILocationService → MockLocationService
     //   IWarehouseOptimizationService → MockWarehouseOptimizationService
     //   IMobileWarehouseService → MockMobileWarehouseService
-    // InfrastructureServiceRegistration.cs lines 92-93:
+    // InfrastructureServiceRegistration.cs:
     //   IMesaAIService → MockMesaAIService
     //   IMesaBotService → MockMesaBotService
-    // IntegrationServiceRegistration.cs line 40:
+    // IntegrationServiceRegistration.cs:
     //   IInvoiceProvider → MockInvoiceProvider
 
     private static readonly string[] ActiveMockFiles =
@@ -37,13 +38,13 @@ public class MockDependencyMapTests
         "MockInvoiceProvider.cs",
     };
 
-    // ── Obsolete Mocks (NOT in DI, [Obsolete] marked) ──
-    private static readonly string[] ObsoleteMockFiles =
+    // ── Deleted obsolete mock class names (verify they stay deleted) ──
+    private static readonly string[] DeletedObsoleteMockClassNames =
     {
-        "MockBarcodeService.cs",
-        "MockInventoryService.cs",
-        "MockProductService.cs",
-        "MockOpenCartService.cs",
+        "MockBarcodeService",
+        "MockInventoryService",
+        "MockProductService",
+        "MockOpenCartService",
     };
 
     private static string FindSrcRoot()
@@ -72,28 +73,26 @@ public class MockDependencyMapTests
     }
 
     [Fact]
-    public void ObsoleteMockFiles_ShouldExistAndBeMarkedObsolete()
+    public void DeletedObsoleteMocks_ShouldNotExistInSourceTree()
     {
         var srcRoot = FindSrcRoot();
-        foreach (var mockFile in ObsoleteMockFiles)
+        foreach (var className in DeletedObsoleteMockClassNames)
         {
-            var files = Directory.GetFiles(srcRoot, mockFile, SearchOption.AllDirectories)
+            var files = Directory.GetFiles(srcRoot, $"{className}.cs", SearchOption.AllDirectories)
                 .Where(f => !f.Contains("test", StringComparison.OrdinalIgnoreCase)
-                         && !f.Contains("Test", StringComparison.OrdinalIgnoreCase))
+                         && !f.Contains("Test", StringComparison.OrdinalIgnoreCase)
+                         && !f.Contains("obj", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
-            files.Should().NotBeEmpty($"Obsolete mock '{mockFile}' should exist");
-
-            var content = File.ReadAllText(files.First());
-            content.Should().Contain("[Obsolete",
-                $"'{mockFile}' must be marked [Obsolete] since it is not used in DI");
+            files.Should().BeEmpty(
+                $"Deleted mock '{className}' should NOT exist in source tree (Dalga 2 cleanup)");
         }
     }
 
     [Fact]
-    public void TotalMockCount_ShouldBe9()
+    public void TotalMockCount_ShouldBe6()
     {
-        // 5 active + 4 obsolete = 9 mock service files
+        // 6 active + 0 obsolete = 6 mock service files
         // If this fails, someone added/removed a mock without updating this map
         var srcRoot = FindSrcRoot();
         var allMocks = Directory.GetFiles(srcRoot, "Mock*.cs", SearchOption.AllDirectories)
@@ -102,23 +101,19 @@ public class MockDependencyMapTests
                      && !f.Contains("obj", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
-        allMocks.Length.Should().Be(ActiveMockFiles.Length + ObsoleteMockFiles.Length,
-            $"Expected {ActiveMockFiles.Length} active + {ObsoleteMockFiles.Length} obsolete = " +
-            $"{ActiveMockFiles.Length + ObsoleteMockFiles.Length} total mock files. " +
+        allMocks.Length.Should().Be(ActiveMockFiles.Length,
+            $"Expected {ActiveMockFiles.Length} active mock files. " +
             $"Found: {string.Join(", ", allMocks.Select(Path.GetFileName))}");
     }
 
     [Fact]
-    public void ObsoleteMocks_ShouldNotBeRegisteredInDI()
+    public void DeletedMocks_ShouldNotBeRegisteredInDI()
     {
-        // Verify obsolete mock class names don't appear in DI registration files
         var srcRoot = FindSrcRoot();
 
         var diFiles = new List<string>();
-        // App.xaml.cs
         var appXamlCs = Directory.GetFiles(srcRoot, "App.xaml.cs", SearchOption.AllDirectories);
         diFiles.AddRange(appXamlCs);
-        // ServiceRegistration files
         var regFiles = Directory.GetFiles(srcRoot, "*Registration*.cs", SearchOption.AllDirectories)
             .Where(f => !f.Contains("test", StringComparison.OrdinalIgnoreCase)
                      && !f.Contains("Test", StringComparison.OrdinalIgnoreCase));
@@ -127,11 +122,10 @@ public class MockDependencyMapTests
         foreach (var diFile in diFiles)
         {
             var content = File.ReadAllText(diFile);
-            foreach (var obsoleteMock in ObsoleteMockFiles)
+            foreach (var className in DeletedObsoleteMockClassNames)
             {
-                var className = Path.GetFileNameWithoutExtension(obsoleteMock);
                 content.Should().NotContain(className,
-                    $"Obsolete mock '{className}' should NOT be registered in '{Path.GetFileName(diFile)}'");
+                    $"Deleted mock '{className}' should NOT be registered in '{Path.GetFileName(diFile)}'");
             }
         }
     }

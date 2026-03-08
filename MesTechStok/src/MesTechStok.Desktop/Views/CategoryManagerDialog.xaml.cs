@@ -2,16 +2,18 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using MesTech.Application.Commands.CreateCategory;
+using MesTech.Application.Commands.UpdateCategory;
+using MesTech.Application.Commands.DeleteCategory;
+using MesTech.Application.Queries.GetCategoriesPaged;
 
 namespace MesTechStok.Desktop.Views
 {
     public partial class CategoryManagerDialog : Window
     {
-        private readonly AppDbContext _db;
+        private readonly IMediator _mediator;
         private int _currentPage = 1;
         private int _pageSize = 50;
         private int _totalItems = 0;
@@ -20,7 +22,7 @@ namespace MesTechStok.Desktop.Views
         public CategoryManagerDialog()
         {
             InitializeComponent();
-            _db = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<AppDbContext>();
+            _mediator = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<IMediator>();
             CmbCatPageSize.SelectedIndex = 1; // 50
             _ = LoadAsync();
             this.Activate(); this.Focus();
@@ -30,24 +32,45 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
+                LoadingOverlay.Visibility = Visibility.Visible;
+                ErrorState.Visibility = Visibility.Collapsed;
+                EmptyState.Visibility = Visibility.Collapsed;
+
                 var term = (TxtSearchCat?.Text ?? string.Empty).Trim();
-                var q = _db.Categories.AsNoTracking().AsQueryable();
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    q = q.Where(c => c.Name.Contains(term) || c.Code.Contains(term));
-                }
-                _totalItems = await q.CountAsync();
-                var items = await q.OrderBy(c => c.Name)
-                    .Skip((_currentPage - 1) * _pageSize)
-                    .Take(_pageSize)
-                    .ToListAsync();
-                CategoriesGrid.ItemsSource = items;
+                var result = await _mediator.Send(new GetCategoriesPagedQuery(
+                    SearchTerm: string.IsNullOrWhiteSpace(term) ? null : term,
+                    Page: _currentPage,
+                    PageSize: _pageSize));
+
+                _totalItems = result.TotalCount;
+                CategoriesGrid.ItemsSource = result.Items;
                 UpdatePagerUi();
+
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+
+                if (result.TotalCount == 0)
+                {
+                    EmptyState.Visibility = Visibility.Visible;
+                    CategoriesGrid.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    EmptyState.Visibility = Visibility.Collapsed;
+                    CategoriesGrid.Visibility = Visibility.Visible;
+                }
             }
             catch (Exception ex)
             {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                ErrorState.Visibility = Visibility.Visible;
+                ErrorMessageText.Text = $"Veri yüklenemedi: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"[CategoryManager] LoadAsync failed: {ex.Message}");
             }
+        }
+
+        private void Retry_Click(object sender, RoutedEventArgs e)
+        {
+            _ = LoadAsync();
         }
 
         private void UpdatePagerUi()
@@ -72,19 +95,15 @@ namespace MesTechStok.Desktop.Views
                 var code = (TxtCatCode.Text ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(name)) { MessageBox.Show("Kategori adı gerekli."); return; }
                 if (string.IsNullOrWhiteSpace(code)) code = name.ToUpperInvariant().Replace(' ', '_');
-                if (await _db.Categories.AnyAsync(c => c.Name == name || c.Code == code))
+
+                var result = await _mediator.Send(new CreateCategoryCommand(name, code, ChkActive.IsChecked == true));
+
+                if (!result.IsSuccess)
                 {
-                    MessageBox.Show("Aynı ad veya kodda kategori mevcut.");
+                    MessageBox.Show(result.ErrorMessage ?? "Hata oluştu.");
                     return;
                 }
-                _db.Categories.Add(new Category
-                {
-                    Name = name,
-                    Code = code,
-                    IsActive = ChkActive.IsChecked == true,
-                    CreatedDate = DateTime.UtcNow
-                });
-                await _db.SaveChangesAsync();
+
                 TxtCatName.Text = string.Empty; TxtCatCode.Text = string.Empty; ChkActive.IsChecked = true; _currentPage = 1;
                 _ = LoadAsync();
             }
@@ -102,18 +121,15 @@ namespace MesTechStok.Desktop.Views
                 var name = (TxtCatName.Text ?? "").Trim();
                 var code = (TxtCatCode.Text ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(name)) { MessageBox.Show("Kategori adı gerekli."); return; }
-                var cat = await _db.Categories.FirstOrDefaultAsync(c => c.Id == _selectedId);
-                if (cat == null) return;
-                // adı/kodu çakışmasın
-                if (await _db.Categories.AnyAsync(c => (c.Name == name || (!string.IsNullOrWhiteSpace(code) && c.Code == code)) && c.Id != _selectedId))
+
+                var result = await _mediator.Send(new UpdateCategoryCommand(_selectedId, name, code, ChkActive.IsChecked == true));
+
+                if (!result.IsSuccess)
                 {
-                    MessageBox.Show("Aynı ad/kod mevcut."); return;
+                    MessageBox.Show(result.ErrorMessage ?? "Hata oluştu.");
+                    return;
                 }
-                cat.Name = name;
-                cat.Code = string.IsNullOrWhiteSpace(code) ? name.ToUpperInvariant().Replace(' ', '_') : code;
-                cat.IsActive = ChkActive.IsChecked == true;
-                cat.ModifiedDate = DateTime.UtcNow;
-                await _db.SaveChangesAsync();
+
                 _ = LoadAsync();
             }
             catch (Exception ex)
@@ -127,18 +143,15 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 if (_selectedId == Guid.Empty) { MessageBox.Show("Seçim yapın."); return; }
-                var cat = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == _selectedId);
-                if (cat == null) return;
-                if (cat.Products.Any())
+
+                var result = await _mediator.Send(new DeleteCategoryCommand(_selectedId));
+
+                if (!result.IsSuccess)
                 {
-                    // Ürün var: pasif et
-                    cat.IsActive = false;
+                    MessageBox.Show(result.ErrorMessage ?? "Hata oluştu.");
+                    return;
                 }
-                else
-                {
-                    _db.Categories.Remove(cat);
-                }
-                await _db.SaveChangesAsync();
+
                 ClearForm();
                 _ = LoadAsync();
             }
@@ -167,7 +180,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                if (CategoriesGrid.SelectedItem is Category c)
+                if (CategoriesGrid.SelectedItem is CategoryItemDto c)
                 {
                     _selectedId = c.Id;
                     TxtCatName.Text = c.Name;
@@ -210,5 +223,3 @@ namespace MesTechStok.Desktop.Views
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
     }
 }
-
-

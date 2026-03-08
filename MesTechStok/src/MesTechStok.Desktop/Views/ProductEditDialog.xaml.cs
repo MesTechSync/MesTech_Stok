@@ -143,7 +143,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     if (!string.IsNullOrWhiteSpace(ProductImageUrl))
                     {
-                        var storage = new ImageStorageService();
+                        var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
                         // Geçici olarak 0 id; gerçek kayıttan sonra güncellenebilir. Düzenle modunda Id var.
                         Guid id = Guid.Empty;
                         if (Owner is MainWindow mw && mw.DataContext is object) { }

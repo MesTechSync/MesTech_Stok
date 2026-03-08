@@ -40,15 +40,8 @@ public partial class LoginWindow : Window
     {
         try
         {
-            // Set demo credentials but don't auto-fill password
-            UsernameTextBox.Text = "admin";
-            PasswordBox.Password = ""; // EMPTY for security
-
-            // Set focus to password field since username is pre-filled
-            PasswordBox.Focus();
-
-            // Show hint message
-            ShowStatus("Demo giriş: admin / Admin123!", "Info");
+            // Kullanıcı adı alanına odaklan
+            UsernameTextBox.Focus();
 
             // Ensure password visibility defaults
             UpdatePasswordVisibility(false);
@@ -106,7 +99,12 @@ public partial class LoginWindow : Window
                 return;
             }
 
-            // Demo mod: AuthService boş şifreyi de kabul edebiliyor; kontrolü servise bırak
+            if (string.IsNullOrEmpty(password))
+            {
+                ShowStatus("Sifre bos olamaz", "Error");
+                PasswordBox.Focus();
+                return;
+            }
 
             // Attempt login
             var result = await _authService.LoginAsync(username, password);
@@ -247,6 +245,6 @@ public partial class LoginWindow : Window
 
     private void MenuForgotPassword_Click(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("Demo giriş bilgileri: admin / Admin123!", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show("Sifrenizi unuttuysaniz sistem yoneticinize basvurun.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }
