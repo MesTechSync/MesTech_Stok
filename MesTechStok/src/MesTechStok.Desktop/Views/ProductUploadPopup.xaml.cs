@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using System.Text.RegularExpressions;
 using MesTechStok.Core.Diagnostics;
 using MesTechStok.Core.Services.Abstract;
+using MesTechStok.Desktop.Utils;
 
 namespace MesTechStok.Desktop.Views
 {
@@ -58,11 +59,18 @@ namespace MesTechStok.Desktop.Views
                 CmbMaterial.ItemsSource = new[] { "Porselen", "Cam", "Plastik", "Metal" };
                 CmbVolume.ItemsSource = new[] { "200 ml", "300 ml", "500 ml", "1 L" };
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] InitComboBoxDefaults failed: {ex.Message}");
+            }
 
             // Ağ/DB çağrılarını UI yüklenince asenkron çek
             Loaded += ProductUploadPopup_Loaded;
-            try { this.Activate(); this.Focus(); } catch { }
+            try { this.Activate(); this.Focus(); }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ActivateWindow failed: {ex.Message}");
+            }
         }
 
         // Düzenleme/ön-dolum için aşırı yüklenmiş ctor
@@ -83,15 +91,20 @@ namespace MesTechStok.Desktop.Views
                         if (!string.IsNullOrWhiteSpace(existing.Category))
                             CmbCategory.SelectedItem = existing.Category;
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetCategorySelection failed: {ex.Message}");
+                    }
                 };
 
                 TxtSale.Text = existing.SalePrice.ToString();
                 TxtPurchase.Text = existing.PurchasePrice.ToString();
                 TxtDiscount.Text = existing.DiscountRate.ToString();
                 TxtStock.Text = existing.Stock.ToString();
-                try { TxtMinStock.Text = existing.MinimumStock.ToString(); } catch { }
-                try { TxtBrand.Text = existing.Supplier ?? string.Empty; } catch { }
+                try { TxtMinStock.Text = existing.MinimumStock.ToString(); }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetMinStock failed: {ex.Message}"); }
+                try { TxtBrand.Text = existing.Supplier ?? string.Empty; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetBrand failed: {ex.Message}"); }
                 TxtDescription.Text = existing.Description ?? string.Empty;
                 if (!string.IsNullOrWhiteSpace(existing.ImageUrl))
                 {
@@ -104,8 +117,10 @@ namespace MesTechStok.Desktop.Views
                     _imageFiles.AddRange(parts);
                 }
                 ImageList.ItemsSource = ToBitmapList(_imageFiles);
-                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
-                try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
+                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetNoImagesHint failed: {ex.Message}"); }
+                try { ImageCountText.Text = $" ({_imageFiles.Count})"; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetImageCountText failed: {ex.Message}"); }
 
                 if (!string.IsNullOrWhiteSpace(existing.Origin)) CmbOrigin.SelectedItem = existing.Origin;
                 if (!string.IsNullOrWhiteSpace(existing.Material)) CmbMaterial.SelectedItem = existing.Material;
@@ -134,7 +149,10 @@ namespace MesTechStok.Desktop.Views
                 CmbVat.SelectedIndex = 3; // %20
                 UpdateCommissionText();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] EditingCtorPopulate failed: {ex.Message}");
+            }
         }
 
         // Barkod ön-dolum için aşırı yüklenmiş ctor
@@ -146,12 +164,16 @@ namespace MesTechStok.Desktop.Views
                 TxtBarcode.Text = prefillBarcode ?? string.Empty;
                 this.Loaded += (_, __) =>
                 {
-                    try { TxtName.Focus(); } catch { }
+                    try { TxtName.Focus(); }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] FocusTxtName failed: {ex.Message}"); }
                 };
                 CmbVat.SelectedIndex = 3; // %20 varsayım
                 UpdateCommissionText();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] BarcodeCtorPopulate failed: {ex.Message}");
+            }
         }
 
         private async void ProductUploadPopup_Loaded(object sender, RoutedEventArgs e)
@@ -170,7 +192,10 @@ namespace MesTechStok.Desktop.Views
                     await ReloadExistingImagesAsync(_editingProductId.Value);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Loaded failed: {ex.Message}");
+            }
             finally { Busy(); }
         }
 
@@ -228,14 +253,20 @@ namespace MesTechStok.Desktop.Views
                     NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible;
                     Console.WriteLine($"[DEBUG] NoImagesHint visibility set to: {NoImagesHint.Visibility}");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"[ProductUploadPopup] ReloadImages SetNoImagesHint failed: {ex.Message}");
+                }
 
                 try
                 {
                     ImageCountText.Text = $" ({_imageFiles.Count})";
                     Console.WriteLine($"[DEBUG] ImageCountText updated to: {ImageCountText.Text}");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"[ProductUploadPopup] ReloadImages SetImageCountText failed: {ex.Message}");
+                }
 
                 Console.WriteLine("[DEBUG] ReloadExistingImagesAsync COMPLETED successfully");
             }
@@ -274,7 +305,10 @@ namespace MesTechStok.Desktop.Views
                     if (r != MessageBoxResult.Yes) return;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Close_Click dirty check failed: {ex.Message}");
+            }
             Close();
         }
 
@@ -296,8 +330,10 @@ namespace MesTechStok.Desktop.Views
                 _imageFiles.AddRange(ofd.FileNames);
                 ImageList.ItemsSource = null;
                 ImageList.ItemsSource = _imageFiles.Select(f => new System.Windows.Media.Imaging.BitmapImage(new Uri(f)));
-                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
-                try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
+                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] AddImages SetNoImagesHint failed: {ex.Message}"); }
+                try { ImageCountText.Text = $" ({_imageFiles.Count})"; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] AddImages SetImageCountText failed: {ex.Message}"); }
                 _isDirty = true;
                 AnyField_Changed(this, new RoutedEventArgs());
             }
@@ -314,7 +350,10 @@ namespace MesTechStok.Desktop.Views
                 viewer.Owner = this;
                 viewer.Show();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Preview_Click failed: {ex.Message}");
+            }
         }
 
         private void Image_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -329,7 +368,10 @@ namespace MesTechStok.Desktop.Views
                     viewer.Show();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Image_MouseDoubleClick failed: {ex.Message}");
+            }
         }
 
         private async void SaveDraft_Click(object sender, RoutedEventArgs e)
@@ -363,13 +405,15 @@ namespace MesTechStok.Desktop.Views
                     MesTechStok.Desktop.Utils.ToastManager.ShowWarning("Barkod gerekli", "Ürün");
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("PRODUCT_VALIDATION_FAIL",
                         $"corrId={CorrelationContext.CurrentId} user={userName} reason=MissingBarcode", nameof(ProductUploadPopup));
-                    try { TxtBarcode.Focus(); } catch { }
+                    try { TxtBarcode.Focus(); }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] FocusTxtBarcode failed: {ex.Message}"); }
                     return false;
                 }
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     name = barcode;
-                    try { TxtName.Text = name; } catch { }
+                    try { TxtName.Text = name; }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetTxtName failed: {ex.Message}"); }
                 }
                 decimal.TryParse(TxtSale.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.CurrentCulture, out var sale);
                 decimal.TryParse(TxtPurchase.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.CurrentCulture, out var purchase);
@@ -433,9 +477,12 @@ namespace MesTechStok.Desktop.Views
                 };
                 // Link-only ekleme modunda kayıttan önce opsiyonel yerel kayıt uyarılarını kullanıcıya bırakıyoruz
                 // Denetim bilgileri (opsiyonel)
-                try { item.UsageInstructions = TxtUsage.Text?.Trim(); } catch { }
-                try { item.ImporterInfo = TxtImporter.Text?.Trim(); } catch { }
-                try { item.ManufacturerInfo = TxtManufacturer.Text?.Trim(); } catch { }
+                try { item.UsageInstructions = TxtUsage.Text?.Trim(); }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetUsageInstructions failed: {ex.Message}"); }
+                try { item.ImporterInfo = TxtImporter.Text?.Trim(); }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetImporterInfo failed: {ex.Message}"); }
+                try { item.ManufacturerInfo = TxtManufacturer.Text?.Trim(); }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetManufacturerInfo failed: {ex.Message}"); }
 
                 Busy("Kaydediliyor…");
                 bool ok;
@@ -498,7 +545,8 @@ namespace MesTechStok.Desktop.Views
                         }
                         else
                         {
-                            try { MesTechStok.Desktop.Utils.ToastManager.ShowWarning("Kapak görseli kaydedilemedi (boyut/uzantı limiti).", "Görsel"); } catch { }
+                            try { MesTechStok.Desktop.Utils.ToastManager.ShowWarning("Kapak görseli kaydedilemedi (boyut/uzantı limiti).", "Görsel"); }
+                            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] ShowCoverWarning failed: {ex.Message}"); }
                         }
 
                         // Ek görseller
@@ -515,7 +563,10 @@ namespace MesTechStok.Desktop.Views
                                     if (!string.IsNullOrWhiteSpace(r.Full1200)) savedPaths.Add(r.Full1200!);
                                     else failedCount++;
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    GlobalLogger.Instance.LogError($"[ProductUploadPopup] SaveAdditionalImage failed for '{f}': {ex.Message}");
+                                }
                             }
                             if (savedPaths.Count > 0)
                             {
@@ -524,17 +575,22 @@ namespace MesTechStok.Desktop.Views
                             }
                             if (failedCount > 0)
                             {
-                                try { MesTechStok.Desktop.Utils.ToastManager.ShowWarning($"{failedCount} görsel kaydedilemedi (boyut/uzantı limiti).", "Görsel"); } catch { }
+                                try { MesTechStok.Desktop.Utils.ToastManager.ShowWarning($"{failedCount} görsel kaydedilemedi (boyut/uzantı limiti).", "Görsel"); }
+                                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] ShowImageFailWarning failed: {ex.Message}"); }
                             }
                         }
 
                         // DB'de görsel yollarını güncelle
                         if (mediaChanged)
                         {
-                            try { await GetProductService().UpdateProductAsync(item); } catch { }
+                            try { await GetProductService().UpdateProductAsync(item); }
+                            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] UpdateProductMedia failed: {ex.Message}"); }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[ProductUploadPopup] SaveImages failed: {ex.Message}");
+                    }
                 }
 
                 var op = _editingProductId.HasValue ? "Update" : (draft ? "Draft" : "Add");
@@ -571,7 +627,11 @@ namespace MesTechStok.Desktop.Views
                 var user = await auth.GetCurrentUserAsync();
                 return user?.Username ?? "anonymous";
             }
-            catch { return "anonymous"; }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] GetCurrentUsernameAsync failed: {ex.Message}");
+                return "anonymous";
+            }
         }
 
         private static decimal? TryParseNullableDecimal(string? s)
@@ -594,7 +654,11 @@ namespace MesTechStok.Desktop.Views
                 add(Chk2S); add(ChkS); add(ChkM); add(ChkL); add(ChkXL); add(Chk2XL); add(Chk3XL);
                 return list.Count > 0 ? string.Join(",", list) : null;
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] CollectSizes failed: {ex.Message}");
+                return null;
+            }
         }
 
         // Basit komisyon/net/marj hesap gösterimi
@@ -613,7 +677,8 @@ namespace MesTechStok.Desktop.Views
             var margin = discounted > 0 ? Math.Max(0, discounted - purchase) : 0m;
             var marginPct = discounted > 0 ? (margin / discounted) * 100m : 0m;
             CommissionText.Text = $"KDV: ₺{vat:N2} · Komisyon: ₺{commission:N2}";
-            try { NetSummaryText.Text = $"Net: ₺{net:N2} · Marj: ₺{margin:N2} (%{marginPct:0.##})"; } catch { }
+            try { NetSummaryText.Text = $"Net: ₺{net:N2} · Marj: ₺{margin:N2} (%{marginPct:0.##})"; }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetNetSummaryText failed: {ex.Message}"); }
         }
 
         private static decimal ParsePercent(ComboBoxItem? item)
@@ -677,7 +742,10 @@ namespace MesTechStok.Desktop.Views
                 Chk2XL.IsChecked = on;
                 Chk3XL.IsChecked = on;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Sizes_All_Toggled failed: {ex.Message}");
+            }
         }
 
         private void Root_DragOver(object sender, DragEventArgs e) { if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effects = DragDropEffects.Copy; }
@@ -696,7 +764,10 @@ namespace MesTechStok.Desktop.Views
                     AnyField_Changed(this, new RoutedEventArgs());
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] Root_Drop failed: {ex.Message}");
+            }
         }
 
         // Basit drag-sort desteği
@@ -713,7 +784,8 @@ namespace MesTechStok.Desktop.Views
             {
                 if (sender is FrameworkElement fe && fe.DataContext is BitmapImage bi)
                 {
-                    try { Mouse.SetCursor(Cursors.SizeAll); } catch { }
+                    try { Mouse.SetCursor(Cursors.SizeAll); }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] SetCursor failed: {ex.Message}"); }
                     // Eğer kaynak öğe seçili değilse sadece onu seç
                     if (!ImageList.SelectedItems.Contains(bi))
                     {
@@ -847,7 +919,10 @@ namespace MesTechStok.Desktop.Views
                     if (idx >= 0) { _coverIndex = idx; CoverIndex = idx; _isDirty = true; }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ImageItem_MouseLeftButtonUp failed: {ex.Message}");
+            }
         }
 
         private void RemoveAllImages_Click(object sender, RoutedEventArgs e)
@@ -859,7 +934,10 @@ namespace MesTechStok.Desktop.Views
                 _coverIndex = -1; CoverIndex = -1;
                 _isDirty = true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveAllImages failed: {ex.Message}");
+            }
         }
 
         // Yeni: Video ekle (şimdilik dosya seçtirip loglama yapıyoruz)
@@ -878,7 +956,10 @@ namespace MesTechStok.Desktop.Views
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Add path={System.IO.Path.GetFileName(ofd.FileName)}", nameof(ProductUploadPopup)); AppendAudit($"Video eklendi: {System.IO.Path.GetFileName(ofd.FileName)}");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] AddVideo_Click failed: {ex.Message}");
+            }
         }
 
         // Link ile resim ekleme (indirmeden göster veya indirerek kaydet seçenekli)
@@ -898,7 +979,10 @@ namespace MesTechStok.Desktop.Views
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Görsel linki eklendi", "Görsel");
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten görsel eklendi");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] AddImageFromLink failed: {ex.Message}");
+            }
         }
 
         private void AddVideoFromLink_Click(object sender, RoutedEventArgs e)
@@ -917,7 +1001,10 @@ namespace MesTechStok.Desktop.Views
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Video linki eklendi", "Video");
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"AddLink url={url}", nameof(ProductUploadPopup)); AppendAudit($"Linkten video eklendi");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] AddVideoFromLink failed: {ex.Message}");
+            }
         }
 
         private async Task ValidateAndAddVideoAsync(string filePath)
@@ -937,7 +1024,10 @@ namespace MesTechStok.Desktop.Views
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Video eklendi", "Video");
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Validated path={System.IO.Path.GetFileName(filePath)}", nameof(ProductUploadPopup));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ValidateAndAddVideo failed: {ex.Message}");
+            }
             finally { Busy(); }
         }
 
@@ -958,13 +1048,13 @@ namespace MesTechStok.Desktop.Views
                         }
                         else tcs.TrySetResult(false);
                     }
-                    catch { tcs.TrySetResult(false); }
-                    finally { try { player.Close(); } catch { } }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] ValidateVideoDuration MediaOpened failed: {ex.Message}"); tcs.TrySetResult(false); }
+                    finally { try { player.Close(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] CloseMediaPlayer failed: {ex.Message}"); } }
                 };
-                player.MediaFailed += (_, __) => { try { player.Close(); } catch { } tcs.TrySetResult(false); };
+                player.MediaFailed += (_, __) => { try { player.Close(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] CloseMediaPlayerOnFail failed: {ex.Message}"); } tcs.TrySetResult(false); };
                 player.Open(new Uri(filePath));
             }
-            catch { tcs.TrySetResult(false); }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] ValidateVideoDuration failed: {ex.Message}"); tcs.TrySetResult(false); }
             return tcs.Task;
         }
 
@@ -979,7 +1069,10 @@ namespace MesTechStok.Desktop.Views
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = path, UseShellExecute = true });
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Play path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video oynatıldı: {System.IO.Path.GetFileName(path)}");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] PlayVideo_Click failed: {ex.Message}");
+            }
         }
 
         private void RemoveVideo_Click(object sender, RoutedEventArgs e)
@@ -994,7 +1087,10 @@ namespace MesTechStok.Desktop.Views
                 VideoList.ItemsSource = _videoFiles;
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("VIDEO", $"Removed path={System.IO.Path.GetFileName(path)}", nameof(ProductUploadPopup)); AppendAudit($"Video silindi: {System.IO.Path.GetFileName(path)}");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveVideo_Click failed: {ex.Message}");
+            }
         }
 
         // Sol menü hızlı gezinme (basit odak kaydırma)
@@ -1004,7 +1100,10 @@ namespace MesTechStok.Desktop.Views
             {
                 el?.BringIntoView();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ScrollToElement failed: {ex.Message}");
+            }
         }
         private void Nav_UrunBilgileri_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec_UrunBilgileri);
         private void Nav_SatisBilgileri_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec_SatisBilgileri);
@@ -1058,7 +1157,10 @@ namespace MesTechStok.Desktop.Views
                 if (TryParseNullableInt(TxtLeadTime?.Text ?? string.Empty).HasValue) entered.Add($"Termin: {TxtLeadTime?.Text} gün");
                 if (EnteredList != null) EnteredList.ItemsSource = entered;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] AnyField_Changed failed: {ex.Message}");
+            }
         }
 
         // Barkod dinleme toggle
@@ -1074,7 +1176,10 @@ namespace MesTechStok.Desktop.Views
                 await svc.StartScanningAsync();
                 MesTechStok.Desktop.Utils.ToastManager.ShowInfo("Barkod dinleme aktif", "Barkod");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ChkBarcodeListen_Checked failed: {ex.Message}");
+            }
         }
 
         private async void ChkBarcodeListen_Unchecked(object sender, RoutedEventArgs e)
@@ -1089,7 +1194,10 @@ namespace MesTechStok.Desktop.Views
                 await svc.DisconnectAsync();
                 MesTechStok.Desktop.Utils.ToastManager.ShowInfo("Barkod dinleme kapalı", "Barkod");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ChkBarcodeListen_Unchecked failed: {ex.Message}");
+            }
         }
 
         private async void BarcodeSvc_BarcodeScanned(object? sender, BarcodeScannedEventArgs e)
@@ -1151,8 +1259,10 @@ namespace MesTechStok.Desktop.Views
                         }
                         ImageList.ItemsSource = null;
                         ImageList.ItemsSource = ToBitmapList(_imageFiles);
-                        try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
-                        try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
+                        try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; }
+                        catch (Exception ex2) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] BarcodeScanned SetNoImagesHint failed: {ex2.Message}"); }
+                        try { ImageCountText.Text = $" ({_imageFiles.Count})"; }
+                        catch (Exception ex2) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] BarcodeScanned SetImageCountText failed: {ex2.Message}"); }
                         _coverIndex = _imageFiles.Count > 0 ? 0 : -1; CoverIndex = _coverIndex;
                         MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Var olan ürün getirildi", "Barkod");
                     }
@@ -1163,7 +1273,10 @@ namespace MesTechStok.Desktop.Views
                     }
                 });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] BarcodeSvc_BarcodeScanned failed: {ex.Message}");
+            }
         }
 
         // Alt çubuk aksiyonları (placeholder davranışlar)
@@ -1186,7 +1299,10 @@ namespace MesTechStok.Desktop.Views
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Ürün kopyalandı", "Ürün");
                 MesTechStok.Desktop.Utils.EventBus.PublishProductsChanged(clone.Barcode);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] CopyProduct_Click failed: {ex.Message}");
+            }
         }
         // Onaya Gönder kaldırıldı
 
@@ -1199,7 +1315,10 @@ namespace MesTechStok.Desktop.Views
                 MesTechStok.Desktop.Utils.ToastManager.ShowSuccess("Dropshipping’e gönderildi (satışa açma talebi iletildi)", "Dropshipping");
                 AppendAudit($"Dropshipping’e gönderildi: {barcode}");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] OpenDropshipping_Click failed: {ex.Message}");
+            }
         }
 
         private void ShipAddress_Select_Click(object sender, RoutedEventArgs e)
@@ -1212,7 +1331,10 @@ namespace MesTechStok.Desktop.Views
                     TxtShipAddress.Text = $"Dosyadan seçildi: {System.IO.Path.GetFileName(dlg.FileName)}";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ShipAddress_Select_Click failed: {ex.Message}");
+            }
         }
         private void ReturnAddress_Select_Click(object sender, RoutedEventArgs e)
         {
@@ -1224,7 +1346,10 @@ namespace MesTechStok.Desktop.Views
                     TxtReturnAddress.Text = $"Dosyadan seçildi: {System.IO.Path.GetFileName(dlg.FileName)}";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ReturnAddress_Select_Click failed: {ex.Message}");
+            }
         }
 
         private void AppendAudit(string msg)
@@ -1233,7 +1358,10 @@ namespace MesTechStok.Desktop.Views
             {
                 AuditList.Items.Insert(0, new { Time = DateTime.Now.ToString("HH:mm:ss"), Event = "INFO", Message = msg });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] AppendAudit failed: {ex.Message}");
+            }
         }
 
         // HTML önizleme
@@ -1260,7 +1388,10 @@ namespace MesTechStok.Desktop.Views
                 var html = $"<html><head><meta charset='utf-8'></head><body style='font-family:Segoe UI;font-size:14px;padding:8px'>{System.Net.WebUtility.HtmlEncode(TxtDescription.Text).Replace("\n", "<br/>")}</body></html>";
                 DescPreview.NavigateToString(html);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] UpdateHtmlPreview failed: {ex.Message}");
+            }
         }
 
         private void UpdateMarkdownPreview()
@@ -1271,7 +1402,10 @@ namespace MesTechStok.Desktop.Views
                 string html = SimpleMarkdownToHtml(src);
                 DescPreview.NavigateToString(html);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] UpdateMarkdownPreview failed: {ex.Message}");
+            }
         }
 
         private static string SimpleMarkdownToHtml(string markdown)
@@ -1344,8 +1478,10 @@ namespace MesTechStok.Desktop.Views
                     _imageFiles.RemoveAt(idx);
                     ImageList.ItemsSource = null;
                     ImageList.ItemsSource = _imageFiles.Select(f => new BitmapImage(new Uri(f)));
-                    try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
-                    try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
+                    try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveImage SetNoImagesHint failed: {ex.Message}"); }
+                    try { ImageCountText.Text = $" ({_imageFiles.Count})"; }
+                    catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveImage SetImageCountText failed: {ex.Message}"); }
                     if (_coverIndex == idx) _coverIndex = -1;
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"Removed idx={idx}", nameof(ProductUploadPopup)); AppendAudit($"Görsel silindi: {idx}");
                 }
@@ -1429,11 +1565,16 @@ namespace MesTechStok.Desktop.Views
                 ImageList.ItemsSource = _imageFiles.Select(f => new BitmapImage(new Uri(f)));
                 if (_coverIndex >= _imageFiles.Count) { _coverIndex = -1; CoverIndex = -1; }
                 _isDirty = true;
-                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; } catch { }
-                try { ImageCountText.Text = $" ({_imageFiles.Count})"; } catch { }
+                try { NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveSelected SetNoImagesHint failed: {ex.Message}"); }
+                try { ImageCountText.Text = $" ({_imageFiles.Count})"; }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveSelected SetImageCountText failed: {ex.Message}"); }
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("IMAGE", $"RemovedSelected count={removedCount}", nameof(ProductUploadPopup)); AppendAudit($"Seçili görseller silindi: {removedCount}");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] RemoveSelectedImages_Click failed: {ex.Message}");
+            }
         }
 
         private void ImageList_KeyDown(object sender, KeyEventArgs e)
@@ -1492,7 +1633,10 @@ namespace MesTechStok.Desktop.Views
                     e.Handled = true;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] ImageList_KeyDown failed: {ex.Message}");
+            }
         }
 
         private void MakeSelectedCover_Click(object sender, RoutedEventArgs e)
@@ -1504,7 +1648,10 @@ namespace MesTechStok.Desktop.Views
                 var idx = ImageList.Items.IndexOf(bi);
                 if (idx >= 0) { _coverIndex = idx; CoverIndex = idx; MesTechStok.Desktop.Utils.ToastManager.ShowInfo("Kapak görseli seçildi", "Görsel"); _isDirty = true; }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductUploadPopup] MakeSelectedCover_Click failed: {ex.Message}");
+            }
         }
 
         // Yardımcı: farklı yol formatlarından güvenle BitmapImage üret

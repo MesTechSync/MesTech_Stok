@@ -496,7 +496,10 @@ namespace MesTechStok.Desktop.Views
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[ReportsView] Low stock export failed: {ex.Message}");
+                    }
 
                     var pdf = App.ServiceProvider?.GetService<PdfReportService>() ?? new PdfReportService();
                     GlobalLogger.Instance.LogInfo($"PDF export starting: rows={lowStock.Count}", "ReportsView");

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using MesTechStok.Core.Diagnostics;
 using MesTechStok.Core.Interfaces;
+using MesTechStok.Desktop.Utils;
 using System.IO.Compression;
 
 namespace MesTechStok.Desktop.Views
@@ -77,7 +78,10 @@ namespace MesTechStok.Desktop.Views
                         if (CorrelationFilter != null) CorrelationFilter.Width = 200 * scale;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"[LogView] SizeChanged layout adjust failed: {ex.Message}");
+                }
             };
 
             // Auto refresh timer
@@ -108,7 +112,10 @@ namespace MesTechStok.Desktop.Views
                     };
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[LogView] USB HID barcode integration failed: {ex.Message}");
+            }
 
             // Global buffer'daki geçmiş logları ilk yüklemede getir (tek UI güncellemesiyle)
             try
@@ -142,7 +149,10 @@ namespace MesTechStok.Desktop.Views
                     });
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[LogView] Initial log snapshot load failed: {ex.Message}");
+            }
             finally
             {
                 _suspendUi = false;

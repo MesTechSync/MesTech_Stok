@@ -131,7 +131,10 @@ namespace MesTechStok.Desktop.Views
                     baseTimeoutMs = int.TryParse(cfg["BarcodeView:Scan:BaseTimeoutMs"], out var btm) ? btm : baseTimeoutMs;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] ReadBaseTimeoutConfig failed: {ex.Message}");
+            }
             _baseTimeoutMs = Math.Max(2000, baseTimeoutMs);
             try
             {
@@ -143,7 +146,10 @@ namespace MesTechStok.Desktop.Views
                         ? Math.Max(_baseTimeoutMs, atm) : _absoluteTimeoutMs;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] ReadAbsoluteTimeoutConfig failed: {ex.Message}");
+            }
 
             _scanTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_baseTimeoutMs) };
             _scanTimer.Tick += ScanTimer_Tick;
@@ -166,7 +172,10 @@ namespace MesTechStok.Desktop.Views
                 hid?.StartScanningAsync();
                 GlobalLogger.Instance.LogInfo("USB HID dinleyici başlatıldı", "BarcodeView");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] StartUsbHidScanner failed: {ex.Message}");
+            }
 
             // Başlangıçta overscan boyutlandırma Loaded'da yapılacak
         }
@@ -273,7 +282,10 @@ namespace MesTechStok.Desktop.Views
                         _barcodeReader.Options.TryInverted = tryInverted;
                         _barcodeReader.Options.AssumeGS1 = true;
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[BarcodeView] ApplyFormatPresetConfig failed: {ex.Message}");
+                    }
 
                     // Önizleme enable
                     if (this.FindName("PreviewToggle") is CheckBox pt)
@@ -301,7 +313,10 @@ namespace MesTechStok.Desktop.Views
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] BarcodeView_Loaded config failed: {ex.Message}");
+            }
         }
 
         private void BarcodeView_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -348,7 +363,10 @@ namespace MesTechStok.Desktop.Views
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] SizeChanged layout failed: {ex.Message}");
+            }
         }
         private void CameraHost_SizeChanged(object sender, SizeChangedEventArgs? e)
         {
@@ -366,7 +384,10 @@ namespace MesTechStok.Desktop.Views
                         heightMul = double.TryParse(config["BarcodeView:Overscan:HeightMultiplier"], out var hm) ? hm : heightMul;
                     }
                 }
-                catch { /* config yoksa varsayılan */ }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"[BarcodeView] ReadOverscanConfig failed: {ex.Message}");
+                }
 
                 var baseW = CameraHost.ActualWidth;
                 var baseH = CameraHost.ActualHeight;
@@ -404,7 +425,10 @@ namespace MesTechStok.Desktop.Views
                     htx.Text = $"{hsl.Value:F2}x";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] CameraHost_SizeChanged failed: {ex.Message}");
+            }
         }
 
         private void OverscanToggle_Checked(object sender, RoutedEventArgs e)
@@ -559,7 +583,10 @@ namespace MesTechStok.Desktop.Views
                         _videoSource.VideoResolution = preferred ?? caps.OrderByDescending(c => c.FrameSize.Width * c.FrameSize.Height).First();
                     }
                 }
-                catch { /* capability seçimi kritik değil */ }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"[BarcodeView] CameraCapabilitySelect failed: {ex.Message}");
+                }
 
                 _videoSource.NewFrame += VideoSource_NewFrame;
 
@@ -624,12 +651,12 @@ namespace MesTechStok.Desktop.Views
 
         private void PreviewToggle_Checked(object sender, RoutedEventArgs e)
         {
-            try { CameraHost.Visibility = Visibility.Visible; } catch { }
+            try { CameraHost.Visibility = Visibility.Visible; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] PreviewToggle_Checked failed: {ex.Message}"); }
         }
 
         private void PreviewToggle_Unchecked(object sender, RoutedEventArgs e)
         {
-            try { CameraHost.Visibility = Visibility.Collapsed; } catch { }
+            try { CameraHost.Visibility = Visibility.Collapsed; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] PreviewToggle_Unchecked failed: {ex.Message}"); }
         }
 
         private void UpceToggle_Checked(object sender, RoutedEventArgs e)
@@ -641,7 +668,10 @@ namespace MesTechStok.Desktop.Views
                 ApplyUiFormatsToReader();
                 AddActivity("UPC-E etkinleştirildi", Colors.Blue);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] UpceToggle_Checked failed: {ex.Message}");
+            }
         }
 
         private void UpceToggle_Unchecked(object sender, RoutedEventArgs e)
@@ -652,7 +682,10 @@ namespace MesTechStok.Desktop.Views
                 ApplyUiFormatsToReader();
                 AddActivity("UPC-E devre dışı", Colors.Blue);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] UpceToggle_Unchecked failed: {ex.Message}");
+            }
         }
 
         private void GlossyToggle_Checked(object sender, RoutedEventArgs e)
@@ -687,7 +720,10 @@ namespace MesTechStok.Desktop.Views
             {
                 AddActivity("Yakın mesafe optimizasyonu: AÇIK (ROI dar, ölçek artırıldı)", Colors.Blue);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] NearToggle_Checked failed: {ex.Message}");
+            }
         }
 
         private void NearToggle_Unchecked(object sender, RoutedEventArgs e)
@@ -697,7 +733,10 @@ namespace MesTechStok.Desktop.Views
             {
                 AddActivity("Yakın mesafe optimizasyonu: KAPALI", Colors.Blue);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] NearToggle_Unchecked failed: {ex.Message}");
+            }
         }
 
         private void SingleFormatCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -711,7 +750,10 @@ namespace MesTechStok.Desktop.Views
                     AddActivity($"Tek format: {label}", Colors.Blue);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] SingleFormatCombo_SelectionChanged failed: {ex.Message}");
+            }
         }
 
         private void ApplyUiFormatsToReader()
@@ -741,7 +783,10 @@ namespace MesTechStok.Desktop.Views
 
                 _barcodeReader.Options.PossibleFormats = baseSet.ToArray();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] ApplyUiFormatsToReader failed: {ex.Message}");
+            }
         }
 
         private void StartDemoCamera()
@@ -807,7 +852,10 @@ namespace MesTechStok.Desktop.Views
                                         st.ScaleY = Math.Max(0.5, Math.Min(2.0, scale));
                                     }
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    GlobalLogger.Instance.LogError($"[BarcodeView] PreviewScaleConfig failed: {ex.Message}");
+                                }
                             }
                             _lastUiUpdate = now;
                         }
@@ -845,7 +893,10 @@ namespace MesTechStok.Desktop.Views
                                         if (roiHeightPct < 0.3) roiHeightPct = 0.5;
                                     }
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    GlobalLogger.Instance.LogError($"[BarcodeView] ReadRoiVerticalConfig failed: {ex.Message}");
+                                }
 
                                 // Yatay ROI de uygula
                                 double roiLeftPct = 0.05, roiWidthPct = 0.90;
@@ -862,7 +913,10 @@ namespace MesTechStok.Desktop.Views
                                         if (roiWidthPct < 0.5) roiWidthPct = 0.9;
                                     }
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    GlobalLogger.Instance.LogError($"[BarcodeView] ReadRoiHorizontalConfig failed: {ex.Message}");
+                                }
 
                                 // Yakın mesafe optimizasyonu açıksa dikey ROI'yi daralt
                                 if (_nearOptimization)
@@ -916,7 +970,10 @@ namespace MesTechStok.Desktop.Views
                                         decodeScale = Math.Max(0.75, Math.Min(2.0, decodeScale));
                                     }
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    GlobalLogger.Instance.LogError($"[BarcodeView] ReadDecodeScaleConfig failed: {ex.Message}");
+                                }
 
                                 // 2D önceliklendirme: önce 2D dene (QR/DM), sonra genel decoder
                                 ZXing.Result? result = null;
@@ -954,7 +1011,10 @@ namespace MesTechStok.Desktop.Views
                                             temp.RotateFlip(System.Drawing.RotateFlipType.RotateNoneFlipNone); // no-op: GDI başlatmak için
                                             result = twoDReader.Decode(temp) ?? _barcodeReader.Decode(temp);
                                         }
-                                        catch { }
+                                        catch (Exception ex)
+                                        {
+                                            GlobalLogger.Instance.LogError($"[BarcodeView] GlossyDecode failed: {ex.Message}");
+                                        }
                                         if (result != null && !string.IsNullOrEmpty(result.Text)) break;
                                     }
                                     // Mat yüzey optimizasyonu: düşük kontrastta CLAHE + keskinleştirme denemesi
@@ -975,7 +1035,10 @@ namespace MesTechStok.Desktop.Views
                                             using var boosted = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(gray);
                                             result = twoDReader.Decode(boosted) ?? _barcodeReader.Decode(boosted);
                                         }
-                                        catch { }
+                                        catch (Exception ex)
+                                        {
+                                            GlobalLogger.Instance.LogError($"[BarcodeView] MatteDecode failed: {ex.Message}");
+                                        }
                                         if (result != null && !string.IsNullOrEmpty(result.Text)) break;
                                     }
                                     // Decode hızlı başarısızlık: tek format seçiliyse TryHarder'ı geçici düşür
@@ -1085,7 +1148,10 @@ namespace MesTechStok.Desktop.Views
                             // roiTop'u son hesaplamadan al: VideoSource_NewFrame kapsamındaki lokal değişkene erişemeyiz,
                             // bu nedenle merkez etiket konumu zaten görsel doğrulama sağlar.
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            GlobalLogger.Instance.LogError($"[BarcodeView] DetectionOverlayRoiOffset failed: {ex.Message}");
+                        }
                     }
                     // Görünür alana kliple (CameraHost içinde)
                     if (x < 0) x = 0; if (y < 0) y = 0;
@@ -1227,16 +1293,19 @@ namespace MesTechStok.Desktop.Views
                             var waited = System.Threading.SpinWait.SpinUntil(() => !_videoSource.IsRunning, TimeSpan.FromSeconds(2));
                             if (!waited)
                             {
-                                try { _videoSource.Stop(); } catch { }
+                                try { _videoSource.Stop(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] ForceStopCamera failed: {ex.Message}"); }
                             }
                         }
                     }
-                    catch { /* ignore */ }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[BarcodeView] SignalToStopCamera failed: {ex.Message}");
+                    }
                     finally
                     {
-                        try { _videoSource.NewFrame -= VideoSource_NewFrame; } catch { }
-                        try { _videoSource.Stop(); } catch { }
-                        try { _videoSource = null; } catch { }
+                        try { _videoSource.NewFrame -= VideoSource_NewFrame; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] UnsubscribeNewFrame failed: {ex.Message}"); }
+                        try { _videoSource.Stop(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] StopVideoSource failed: {ex.Message}"); }
+                        try { _videoSource = null; } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] NullifyVideoSource failed: {ex.Message}"); }
                     }
                 }
 
@@ -1250,7 +1319,7 @@ namespace MesTechStok.Desktop.Views
                 });
 
                 // GC ile DirectShow grafını serbest bırakmayı zorla
-                try { GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect(); } catch { }
+                try { GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect(); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[BarcodeView] GCCollect failed: {ex.Message}"); }
                 AddActivity("⏹️ Kamera tamamen serbest bırakıldı", Colors.Red);
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogInfo("Kamera kaynağı serbest", "BarcodeView");
             }
@@ -1322,11 +1391,15 @@ namespace MesTechStok.Desktop.Views
                             decodeCooldownMs = int.TryParse(config["BarcodeView:Reader:DecodeCooldownMs"], out var dcm) ? dcm : decodeCooldownMs;
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[BarcodeView] ReadScanStartConfig failed: {ex.Message}");
+                    }
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("BARCODE", $"ScanStarted UseROI={useRoi} ROI=top:{roiTopPercent:P0} height:{roiHeightPercent:P0} CooldownMs={decodeCooldownMs}", "BarcodeView");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    GlobalLogger.Instance.LogError($"[BarcodeView] LogScanStartDetails failed: {ex.Message}");
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("BARCODE", "ScanStarted", "BarcodeView");
                 }
             }
@@ -1414,7 +1487,10 @@ namespace MesTechStok.Desktop.Views
                 Canvas.SetTop(ScanLine, top);
                 ScanLine.Opacity = ScanLine.Opacity == 0 ? 1 : 0;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] ScanLineTimer_Tick failed: {ex.Message}");
+            }
         }
 
         private string GenerateRandomBarcode()
@@ -1673,7 +1749,10 @@ namespace MesTechStok.Desktop.Views
                     ScanHistoryPanel.Children.RemoveAt(ScanHistoryPanel.Children.Count - 1);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[BarcodeView] TrimScanHistoryUi failed: {ex.Message}");
+            }
         }
 
         private void TestScan_Click(object sender, RoutedEventArgs e)

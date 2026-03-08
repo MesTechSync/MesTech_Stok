@@ -52,7 +52,11 @@ namespace MesTechStok.Desktop.Views
                 var sp = MesTechStok.Desktop.App.ServiceProvider;
                 _productService = sp?.GetService<IProductDataService>() ?? new EnhancedProductService();
             }
-            catch { _productService = new EnhancedProductService(); }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductImportWizard] DI resolve failed, using fallback: {ex.Message}");
+                _productService = new EnhancedProductService();
+            }
         }
 
         public IEnumerable<MappingRow> Mappings => _mappings;
@@ -466,7 +470,10 @@ namespace MesTechStok.Desktop.Views
                     System.IO.File.WriteAllText(sfd.FileName, SummaryText.Text);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[ProductImportWizard] Export errors file failed: {ex.Message}");
+            }
         }
 
         private void Busy(string? text = null)

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Services;
+using MesTechStok.Desktop.Utils;
 using System.Windows.Shapes;
 using Microsoft.Extensions.Configuration;
 
@@ -57,7 +58,8 @@ namespace MesTechStok.Desktop.Views
             Loaded += WelcomeWindow_Loaded;
 
             // Canlı ayar güncellemesi için event
-            try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged += OnCompanySettingsChanged; } catch { }
+            try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged += OnCompanySettingsChanged; }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[WelcomeWindow] EventBus subscription failed: {ex.Message}"); }
 
             // Resolve system resource service from DI if available
             _sysService = App.ServiceProvider?.GetService<ISystemResourceService>() ?? new SystemResourceService(Microsoft.Extensions.Logging.Abstractions.NullLogger<SystemResourceService>.Instance);
@@ -125,7 +127,10 @@ namespace MesTechStok.Desktop.Views
                                 FooterCompanyText.Text = settings.CompanyName;
                             }
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            GlobalLogger.Instance.LogError($"[WelcomeWindow] Company settings UI update failed: {ex.Message}");
+                        }
                     });
                 }
             }
@@ -690,7 +695,8 @@ namespace MesTechStok.Desktop.Views
                 // Tile butonlara click handler ata (tek sefer)
                 AttachMarketplaceHandlers();
                 // İçerikleri mevcut dosyaya göre güncelle (logo yoksa fallback vektör)
-                try { ReplaceMarketplaceTileContent(); } catch { }
+                try { ReplaceMarketplaceTileContent(); }
+                catch (Exception ex) { GlobalLogger.Instance.LogError($"[WelcomeWindow] ReplaceMarketplaceTileContent failed: {ex.Message}"); }
             }
         }
 
@@ -745,7 +751,10 @@ namespace MesTechStok.Desktop.Views
                     AttachToButtons(root);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[WelcomeWindow] AttachMarketplaceHandlers failed: {ex.Message}");
+            }
         }
 
         private void MarketplaceTile_Click(object sender, RoutedEventArgs e)
@@ -924,7 +933,10 @@ namespace MesTechStok.Desktop.Views
                             e.Handled = true;
                             return;
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            GlobalLogger.Instance.LogError($"[WelcomeWindow] ESC return to MainWindow failed: {ex.Message}");
+                        }
                     }
 
                     this.WindowState = WindowState.Minimized;
@@ -1009,7 +1021,10 @@ namespace MesTechStok.Desktop.Views
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        GlobalLogger.Instance.LogError($"[WelcomeWindow] Settings footer update failed: {ex.Message}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1291,7 +1306,8 @@ namespace MesTechStok.Desktop.Views
         {
             _clockTimer?.Stop();
             _systemStatsTimer?.Stop();
-            try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged -= OnCompanySettingsChanged; } catch { }
+            try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged -= OnCompanySettingsChanged; }
+            catch (Exception ex) { GlobalLogger.Instance.LogError($"[WelcomeWindow] EventBus unsubscribe failed: {ex.Message}"); }
             base.OnClosed(e);
         }
 
@@ -1312,7 +1328,10 @@ namespace MesTechStok.Desktop.Views
                     }
                 });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"[WelcomeWindow] OnCompanySettingsChanged failed: {ex.Message}");
+            }
         }
     }
 }
