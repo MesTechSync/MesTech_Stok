@@ -671,9 +671,8 @@ public class CiceksepetiAdapterContractTests : IClassFixture<WireMockFixture>, I
                     ]
                 }"));
 
-        // Act — cast to IIntegratorAdapter to access default interface method
-        IIntegratorAdapter adapterInterface = adapter;
-        var categories = await adapterInterface.GetCategoriesAsync();
+        // Act
+        var categories = await adapter.GetCategoriesAsync();
 
         // Assert
         categories.Should().NotBeEmpty();

@@ -59,4 +59,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
         => throw new NotImplementedException("Ciceksepeti webhook FAZ 2'de implement edilecek");
+
+    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
 }

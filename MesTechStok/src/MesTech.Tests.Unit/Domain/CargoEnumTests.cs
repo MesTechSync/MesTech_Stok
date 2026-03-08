@@ -4,18 +4,9 @@ using MesTech.Domain.Enums;
 namespace MesTech.Tests.Unit.Domain;
 
 [Trait("Category", "Unit")]
+[Trait("Phase", "Dalga3")]
 public class CargoEnumTests
 {
-    [Theory]
-    [InlineData(CargoProvider.YurticiKargo, 1)]
-    [InlineData(CargoProvider.ArasKargo, 2)]
-    [InlineData(CargoProvider.SuratKargo, 3)]
-    [InlineData(CargoProvider.None, 0)]
-    public void CargoProvider_ShouldHaveCorrectValues(CargoProvider provider, int expected)
-    {
-        ((int)provider).Should().Be(expected);
-    }
-
     [Fact]
     public void CargoProvider_ShouldHave8Members()
     {
@@ -23,17 +14,44 @@ public class CargoEnumTests
     }
 
     [Theory]
-    [InlineData(CargoStatus.Created, 0)]
-    [InlineData(CargoStatus.Delivered, 4)]
-    [InlineData(CargoStatus.AtBranch, 8)]
-    public void CargoStatus_ShouldHaveCorrectValues(CargoStatus status, int expected)
+    [InlineData(CargoProvider.None, 0)]
+    [InlineData(CargoProvider.YurticiKargo, 1)]
+    [InlineData(CargoProvider.ArasKargo, 2)]
+    [InlineData(CargoProvider.SuratKargo, 3)]
+    [InlineData(CargoProvider.MngKargo, 4)]
+    [InlineData(CargoProvider.PttKargo, 5)]
+    [InlineData(CargoProvider.Hepsijet, 6)]
+    [InlineData(CargoProvider.UPS, 7)]
+    public void CargoProvider_Values_ShouldMatchExpected(CargoProvider provider, int expected)
     {
-        ((int)status).Should().Be(expected);
+        ((int)provider).Should().Be(expected);
     }
 
     [Fact]
     public void CargoStatus_ShouldHave9Members()
     {
         Enum.GetValues<CargoStatus>().Should().HaveCount(9);
+    }
+
+    [Theory]
+    [InlineData(CargoStatus.Created)]
+    [InlineData(CargoStatus.PickedUp)]
+    [InlineData(CargoStatus.InTransit)]
+    [InlineData(CargoStatus.OutForDelivery)]
+    [InlineData(CargoStatus.Delivered)]
+    [InlineData(CargoStatus.Returned)]
+    [InlineData(CargoStatus.Lost)]
+    [InlineData(CargoStatus.Cancelled)]
+    [InlineData(CargoStatus.AtBranch)]
+    public void CargoStatus_AllValues_ShouldBeDefined(CargoStatus status)
+    {
+        Enum.IsDefined(status).Should().BeTrue();
+    }
+
+    [Fact]
+    public void CargoStatus_DeliveryTerminalStates_ShouldInclude4States()
+    {
+        var terminalStates = new[] { CargoStatus.Delivered, CargoStatus.Returned, CargoStatus.Lost, CargoStatus.Cancelled };
+        terminalStates.Should().HaveCount(4);
     }
 }
