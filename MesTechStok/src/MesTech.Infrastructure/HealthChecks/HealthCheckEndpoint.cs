@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
@@ -36,7 +37,7 @@ public class HealthCheckEndpoint : BackgroundService
         try
         {
             _listener.Start();
-            _logger.LogInformation("Health check endpoint aktif: http://localhost:{Port}/health", _port);
+            _logger.LogInformation("Health + Metrics endpoint aktif: http://localhost:{Port}/health ve /metrics", _port);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -89,6 +90,16 @@ public class HealthCheckEndpoint : BackgroundService
                 var buffer = System.Text.Encoding.UTF8.GetBytes(json);
                 response.ContentLength64 = buffer.Length;
                 await response.OutputStream.WriteAsync(buffer, ct);
+            }
+            else if (request.Url?.AbsolutePath == "/metrics")
+            {
+                response.ContentType = "text/plain; version=0.0.4; charset=utf-8";
+                response.StatusCode = 200;
+                using var metricsStream = new MemoryStream();
+                await Metrics.DefaultRegistry.CollectAndExportAsTextAsync(metricsStream, ct);
+                var metricsBuffer = metricsStream.ToArray();
+                response.ContentLength64 = metricsBuffer.Length;
+                await response.OutputStream.WriteAsync(metricsBuffer, ct);
             }
             else
             {
