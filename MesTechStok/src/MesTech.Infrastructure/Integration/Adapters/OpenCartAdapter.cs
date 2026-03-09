@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -12,11 +13,12 @@ using Polly.Retry;
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// OpenCart platform adaptoru — IIntegratorAdapter + IOrderCapableAdapter.
-/// Polly retry pipeline, batch stok guncelleme ve siparis cekme destegi.
+/// OpenCart platform adaptoru — IIntegratorAdapter + IOrderCapableAdapter + ICustomerSyncCapable + ICategorySyncCapable.
+/// Polly retry pipeline, batch stok guncelleme, siparis cekme, musteri ve kategori senkronizasyonu destegi.
 /// OpenCart'ta kargo yonetimi yok (SupportsShipment = false).
 /// </summary>
-public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
+    ICustomerSyncCapable, ICategorySyncCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
@@ -479,6 +481,254 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter
         catch (Exception ex)
         {
             _logger.LogError(ex, "OpenCart UpdateOrderStatus exception: {OrderId}", packageId);
+            return false;
+        }
+    }
+
+    // ── ICustomerSyncCapable ─────────────────────────────────────────────
+
+    public async Task<IReadOnlyList<CustomerSyncDto>> PullCustomersAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PullCustomersAsync since={Since}", since);
+
+        var customers = new List<CustomerSyncDto>();
+
+        try
+        {
+            var page = 1;
+            const int limit = 100;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"/api/rest/customers?limit={limit}&page={page}";
+                if (since.HasValue)
+                    url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(
+                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode) break;
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var dataArr))
+                {
+                    hasMore = false;
+                    break;
+                }
+
+                var items = dataArr.EnumerateArray().ToList();
+                if (items.Count == 0) break;
+
+                foreach (var item in items)
+                {
+                    customers.Add(new CustomerSyncDto
+                    {
+                        Id = item.TryGetProperty("customer_id", out var cid) ? cid.ToString() : "",
+                        FirstName = item.TryGetProperty("firstname", out var fn) ? fn.GetString() ?? "" : "",
+                        LastName = item.TryGetProperty("lastname", out var ln) ? ln.GetString() ?? "" : "",
+                        Email = item.TryGetProperty("email", out var em) ? em.GetString() ?? "" : "",
+                        Phone = item.TryGetProperty("telephone", out var tel) ? tel.GetString() : null,
+                        Address = item.TryGetProperty("address_1", out var addr) ? addr.GetString() : null,
+                        City = item.TryGetProperty("city", out var city) ? city.GetString() : null,
+                        Country = item.TryGetProperty("country", out var country) ? country.GetString() : null,
+                        DateModified = item.TryGetProperty("date_modified", out var dm)
+                            && DateTime.TryParse(dm.GetString(), out var dmv)
+                                ? DateTime.SpecifyKind(dmv, DateTimeKind.Utc)
+                                : DateTime.MinValue
+                    });
+                }
+
+                hasMore = items.Count == limit;
+                page++;
+            }
+
+            _logger.LogInformation("OpenCart PullCustomers: {Count} customers retrieved", customers.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PullCustomers failed");
+        }
+
+        return customers.AsReadOnly();
+    }
+
+    public async Task<bool> PushCustomerAsync(CustomerSyncDto customer, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PushCustomerAsync: Email={Email}", customer.Email);
+
+        try
+        {
+            var payload = new
+            {
+                firstname = customer.FirstName,
+                lastname = customer.LastName,
+                email = customer.Email,
+                telephone = customer.Phone ?? "",
+                address_1 = customer.Address ?? "",
+                city = customer.City ?? "",
+                country = customer.Country ?? ""
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            var isUpdate = !string.IsNullOrWhiteSpace(customer.Id);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return isUpdate
+                        ? await _httpClient.PutAsync(
+                            new Uri($"/api/rest/customers/{customer.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
+                        : await _httpClient.PostAsync(
+                            new Uri("/api/rest/customers", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("OpenCart PushCustomer failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PushCustomer exception: {Email}", customer.Email);
+            return false;
+        }
+    }
+
+    // ── ICategorySyncCapable ──────────────────────────────────────────────
+
+    public async Task<IReadOnlyList<CategoryTreeSyncDto>> PullCategoryTreeAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PullCategoryTreeAsync called");
+
+        var tree = new List<CategoryTreeSyncDto>();
+
+        try
+        {
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri("/api/rest/categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("OpenCart PullCategoryTree failed: {Status} - {Error}", response.StatusCode, error);
+                return tree.AsReadOnly();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (!doc.RootElement.TryGetProperty("data", out var dataArr))
+                return tree.AsReadOnly();
+
+            // Parse flat list from API
+            var flatList = new List<CategoryTreeSyncDto>();
+            foreach (var item in dataArr.EnumerateArray())
+            {
+                flatList.Add(new CategoryTreeSyncDto
+                {
+                    Id = item.TryGetProperty("category_id", out var cid) ? cid.ToString() : "",
+                    ParentId = item.TryGetProperty("parent_id", out var pid) ? pid.ToString() : null,
+                    Name = item.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
+                    SortOrder = item.TryGetProperty("sort_order", out var so)
+                        && int.TryParse(so.GetString() ?? so.ToString(), out var sov) ? sov : 0,
+                    Status = item.TryGetProperty("status", out var st)
+                        && st.ToString() == "1"
+                });
+            }
+
+            // Build tree structure from flat list
+            var lookup = flatList.ToDictionary(c => c.Id);
+            foreach (var cat in flatList)
+            {
+                if (!string.IsNullOrWhiteSpace(cat.ParentId) && cat.ParentId != "0" && lookup.TryGetValue(cat.ParentId, out var parent))
+                {
+                    parent.Children.Add(cat);
+                }
+                else
+                {
+                    tree.Add(cat);
+                }
+            }
+
+            _logger.LogInformation("OpenCart PullCategoryTree: {Count} root categories, {Total} total",
+                tree.Count, flatList.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PullCategoryTree failed");
+        }
+
+        return tree.AsReadOnly();
+    }
+
+    public async Task<bool> PushCategoryAsync(CategorySyncDto category, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(category);
+
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PushCategoryAsync: Name={Name}", category.Name);
+
+        try
+        {
+            var payload = new
+            {
+                parent_id = category.ParentId ?? "0",
+                sort_order = category.SortOrder,
+                status = category.Status ? 1 : 0,
+                category_description = new Dictionary<string, object>
+                {
+                    ["1"] = new
+                    {
+                        name = category.Name,
+                        description = category.Description ?? "",
+                        meta_title = category.Name
+                    }
+                },
+                image = category.ImageUrl ?? ""
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            var isUpdate = !string.IsNullOrWhiteSpace(category.Id);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return isUpdate
+                        ? await _httpClient.PutAsync(
+                            new Uri($"/api/rest/categories/{category.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
+                        : await _httpClient.PostAsync(
+                            new Uri("/api/rest/categories", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("OpenCart PushCategory failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PushCategory exception: {Name}", category.Name);
             return false;
         }
     }
