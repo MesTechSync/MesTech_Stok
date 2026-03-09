@@ -160,3 +160,227 @@ public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotific
         _monitor.RecordPublish("price.changed");
     }
 }
+
+public class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceSentEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<InvoiceGeneratedBridgeHandler> _logger;
+
+    public InvoiceGeneratedBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<InvoiceGeneratedBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<InvoiceSentEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] InvoiceSent yakalandi: InvoiceId={InvoiceId}", e.InvoiceId);
+
+        var mesaEvent = new MesaInvoiceGeneratedEvent(
+            e.InvoiceId, Guid.Empty, e.GibInvoiceId ?? string.Empty,
+            "EFatura", null, null, null, 0m, e.PdfUrl,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("invoice.generated");
+    }
+}
+
+public class InvoiceCancelledBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceCancelledEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<InvoiceCancelledBridgeHandler> _logger;
+
+    public InvoiceCancelledBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<InvoiceCancelledBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<InvoiceCancelledEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] InvoiceCancelled yakalandi: {InvoiceNumber}", e.InvoiceNumber);
+
+        var mesaEvent = new MesaInvoiceCancelledEvent(
+            e.InvoiceId, e.InvoiceNumber, e.Reason,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct);
+        _monitor.RecordPublish("invoice.cancelled");
+    }
+}
+
+public class ReturnCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnCreatedEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<ReturnCreatedBridgeHandler> _logger;
+
+    public ReturnCreatedBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<ReturnCreatedBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<ReturnCreatedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] ReturnCreated yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
+
+        var mesaEvent = new MesaReturnCreatedEvent(
+            e.ReturnRequestId, e.OrderId,
+            e.Platform.ToString(), null, null,
+            e.Reason.ToString(), 0, 0m,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("return.created");
+    }
+}
+
+public class ReturnResolvedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnResolvedEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<ReturnResolvedBridgeHandler> _logger;
+
+    public ReturnResolvedBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<ReturnResolvedBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<ReturnResolvedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] ReturnResolved yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
+
+        var mesaEvent = new MesaReturnResolvedEvent(
+            e.ReturnRequestId, e.OrderId,
+            e.FinalStatus.ToString(), e.RefundAmount,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("return.resolved");
+    }
+}
+
+public class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNotification<BuyboxLostEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<BuyboxLostBridgeHandler> _logger;
+
+    public BuyboxLostBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<BuyboxLostBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<BuyboxLostEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] BuyboxLost yakalandi: {SKU}, rakip={Competitor}",
+            e.SKU, e.CompetitorName);
+
+        var mesaEvent = new MesaBuyboxLostEvent(
+            e.ProductId, e.SKU,
+            e.CurrentPrice, e.CompetitorPrice, e.CompetitorName,
+            e.CurrentPrice - e.CompetitorPrice,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct);
+        _monitor.RecordPublish("buybox.lost");
+    }
+}
+
+public class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventNotification<SupplierFeedSyncedEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<SupplierFeedSyncedBridgeHandler> _logger;
+
+    public SupplierFeedSyncedBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<SupplierFeedSyncedBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<SupplierFeedSyncedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] SupplierFeedSynced yakalandi: SupplierId={SupplierId}", e.SupplierId);
+
+        var mesaEvent = new MesaSupplierFeedSyncedEvent(
+            e.SupplierId, string.Empty, string.Empty,
+            e.TotalProducts, 0, e.UpdatedProducts, e.DeactivatedProducts,
+            _tenantProvider.GetCurrentTenantId(),
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct);
+        _monitor.RecordPublish("supplier.feed.synced");
+    }
+}
