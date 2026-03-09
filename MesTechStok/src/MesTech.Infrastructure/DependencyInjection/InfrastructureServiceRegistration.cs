@@ -9,11 +9,13 @@ using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
+using MesTech.Infrastructure.Realtime;
 using MesTech.Infrastructure.Security;
 using MesTech.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.DependencyInjection;
 
@@ -128,6 +130,15 @@ public static class InfrastructureServiceRegistration
             new HealthCheckEndpoint(
                 sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                 sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
+
+        // ── Realtime Dashboard (port 5102) ──
+        services.AddSingleton<WebSocketConnectionManager>();
+        services.AddSingleton<IDashboardNotifier, WebSocketDashboardNotifier>();
+        services.AddHostedService(sp => new RealtimeDashboardEndpoint(
+            sp.GetRequiredService<WebSocketConnectionManager>(),
+            sp.GetRequiredService<ILogger<RealtimeDashboardEndpoint>>(),
+            port: configuration.GetValue<int>("Realtime:WebSocketPort", 5102)
+        ));
 
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();
