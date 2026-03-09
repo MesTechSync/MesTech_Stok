@@ -111,21 +111,12 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
         }
         else
         {
-            _logger.LogWarning(
-                "[MESA Consumer] Bot bildirim BASARISIZ: kanal={Channel}, hata={Error}",
-                msg.Channel, msg.ErrorMessage);
-        }
-
-        _monitor.RecordConsume("bot.notification.sent");
-
-        // Dalga 4: Bildirim audit log + ardisik hata alarm
-        if (!msg.Success)
-        {
             _logger.LogError(
                 "[MESA Consumer] Bot bildirim hatasi — kanal={Channel}, hata={Error}. Ardisik hatalari kontrol edin.",
                 msg.Channel, msg.ErrorMessage);
         }
 
+        _monitor.RecordConsume("bot.notification.sent");
         return Task.CompletedTask;
     }
 }
@@ -212,7 +203,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         var msg = context.Message;
         _logger.LogInformation(
             "[MESA Consumer] Musteri fatura istedi: telefon={Phone}, siparis={Order}, kanal={Channel}",
-            MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.RequestChannel);
+            MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.RequestChannel);
 
         // TODO: OrderNumber ile Order bul → Invoice bul → PdfUrl
         // Invoice yoksa: "Faturaniz henuz hazirlanmadi" WhatsApp mesaji
@@ -221,11 +212,6 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         _monitor.RecordConsume("bot.invoice.requested");
         return Task.CompletedTask;
     }
-
-    private static string MaskPhone(string phone) =>
-        phone.Length > 5
-            ? phone[..3] + new string('*', phone.Length - 5) + phone[^2..]
-            : "***";
 }
 
 public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
@@ -246,7 +232,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         var msg = context.Message;
         _logger.LogInformation(
             "[MESA Consumer] Musteri iade istedi: telefon={Phone}, siparis={Order}, sebep={Reason}, kanal={Channel}",
-            MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.ReturnReason, msg.RequestChannel);
+            MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.ReturnReason, msg.RequestChannel);
 
         // TODO: OrderNumber ile Order bul → ReturnRequest olustur (line'siz)
         // Status: Initiated, Source: WhatsApp
@@ -256,8 +242,12 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         _monitor.RecordConsume("bot.return.requested");
         return Task.CompletedTask;
     }
+}
 
-    private static string MaskPhone(string phone) =>
+// ── Shared Helpers ──
+file static class MesaConsumerHelpers
+{
+    internal static string MaskPhone(string phone) =>
         phone.Length > 5
             ? phone[..3] + new string('*', phone.Length - 5) + phone[^2..]
             : "***";
