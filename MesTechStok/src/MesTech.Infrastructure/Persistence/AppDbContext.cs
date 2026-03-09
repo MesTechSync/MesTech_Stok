@@ -71,6 +71,10 @@ public class AppDbContext : DbContext
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
 
+    // ── Dalga 5: Fatura Sablon + Kontor ──
+    public DbSet<InvoiceTemplate> InvoiceTemplates => Set<InvoiceTemplate>();
+    public DbSet<KontorBalance> KontorBalances => Set<KontorBalance>();
+
     // ── Dalga 4: Finansal Entity'ler ──
     public DbSet<ReturnRequest> ReturnRequests => Set<ReturnRequest>();
     public DbSet<ReturnRequestLine> ReturnRequestLines => Set<ReturnRequestLine>();
@@ -246,6 +250,68 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(l => l.ProductId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // InvoiceTemplate — Dalga 5
+        modelBuilder.Entity<InvoiceTemplate>(e =>
+        {
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_InvoiceTemplates_TenantId");
+            e.Property(t => t.TemplateName).HasMaxLength(100);
+            e.Property(t => t.PhoneNumber).HasMaxLength(20);
+            e.Property(t => t.Email).HasMaxLength(200);
+            e.Property(t => t.TicaretSicilNo).HasMaxLength(50);
+            e.Property(t => t.LogoImage).HasMaxLength(500_000);
+            e.Property(t => t.SignatureImage).HasMaxLength(500_000);
+
+            e.HasOne(t => t.Store)
+                .WithMany()
+                .HasForeignKey(t => t.StoreId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // KontorBalance — Dalga 5
+        modelBuilder.Entity<KontorBalance>(e =>
+        {
+            e.HasIndex(k => k.TenantId).HasDatabaseName("IX_KontorBalances_TenantId");
+            e.HasIndex(k => new { k.StoreId, k.Provider })
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+
+            e.HasOne(k => k.Store)
+                .WithMany()
+                .HasForeignKey(k => k.StoreId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Dalga 5: Multi-Tenant Gap Fix TenantId Indexes ──
+        modelBuilder.Entity<StoreCredential>(e =>
+        {
+            e.HasIndex(sc => sc.TenantId).HasDatabaseName("IX_StoreCredentials_TenantId");
+        });
+
+        modelBuilder.Entity<ProductPlatformMapping>(e =>
+        {
+            e.HasIndex(pm => pm.TenantId).HasDatabaseName("IX_ProductPlatformMappings_TenantId");
+        });
+
+        modelBuilder.Entity<BrandPlatformMapping>(e =>
+        {
+            e.HasIndex(bm => bm.TenantId).HasDatabaseName("IX_BrandPlatformMappings_TenantId");
+        });
+
+        modelBuilder.Entity<CategoryPlatformMapping>(e =>
+        {
+            e.HasIndex(cm => cm.TenantId).HasDatabaseName("IX_CategoryPlatformMappings_TenantId");
+        });
+
+        modelBuilder.Entity<OfflineQueueItem>(e =>
+        {
+            e.HasIndex(o => o.TenantId).HasDatabaseName("IX_OfflineQueueItems_TenantId");
+        });
+
+        modelBuilder.Entity<SyncRetryItem>(e =>
+        {
+            e.HasIndex(s => s.TenantId).HasDatabaseName("IX_SyncRetryItems_TenantId");
         });
 
         // ── Dalga 4: Finansal Entity Index'leri ──
