@@ -30,6 +30,21 @@ public class OrchestrationE2ETests
     // ══════════════════════════════════════════════════════════════════════════
 
     /// <summary>
+    /// Creates a mock IOrderRepository that returns an order for any id.
+    /// </summary>
+    private static Mock<IOrderRepository> CreateMockOrderRepo(PlatformType platform = PlatformType.Trendyol)
+    {
+        var mock = new Mock<IOrderRepository>();
+        mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((Guid id) => new Order
+            {
+                CustomerName = "E2E Test Customer",
+                SourcePlatform = platform
+            });
+        return mock;
+    }
+
+    /// <summary>
     /// Creates a mock ICargoAdapter with specified provider, availability, and shipment result.
     /// </summary>
     private static Mock<ICargoAdapter> CreateMockCargoAdapter(
@@ -130,8 +145,11 @@ public class OrchestrationE2ETests
             new IIntegratorAdapter[] { trendyolMock.Object },
             NullLogger<AdapterFactory>.Instance);
 
+        var orderRepoMock = CreateMockOrderRepo();
+
         var autoShipment = new AutoShipmentService(
             selector, cargoFactory, adapterFactory,
+            orderRepoMock.Object,
             NullLogger<AutoShipmentService>.Instance);
 
         var orderId = Guid.NewGuid();
@@ -191,8 +209,11 @@ public class OrchestrationE2ETests
             Array.Empty<IIntegratorAdapter>(),
             NullLogger<AdapterFactory>.Instance);
 
+        var orderRepoMock = CreateMockOrderRepo();
+
         var autoShipment = new AutoShipmentService(
             selector, cargoFactory, adapterFactory,
+            orderRepoMock.Object,
             NullLogger<AutoShipmentService>.Instance);
 
         var orderId = Guid.NewGuid();
@@ -349,8 +370,11 @@ public class OrchestrationE2ETests
             new IIntegratorAdapter[] { trendyolMock.Object },
             NullLogger<AdapterFactory>.Instance);
 
+        var orderRepoMock = CreateMockOrderRepo();
+
         var autoShipment = new AutoShipmentService(
             selector, cargoFactory, adapterFactory,
+            orderRepoMock.Object,
             NullLogger<AutoShipmentService>.Instance);
 
         var orderId = Guid.NewGuid();
@@ -489,8 +513,11 @@ public class OrchestrationE2ETests
             new IIntegratorAdapter[] { trendyolMock.Object },
             NullLogger<AdapterFactory>.Instance);
 
+        var orderRepoMock = CreateMockOrderRepo();
+
         var autoShipment = new AutoShipmentService(
             selector, cargoFactory, adapterFactory,
+            orderRepoMock.Object,
             NullLogger<AutoShipmentService>.Instance);
 
         // Act — Step 1: Pull orders from Trendyol
@@ -589,8 +616,11 @@ public class OrchestrationE2ETests
         adapterFactory.GetAll().Should().HaveCount(4,
             "all 4 platform adapters should be registered");
 
+        var orderRepoMock = CreateMockOrderRepo();
+
         var autoShipment = new AutoShipmentService(
             selector, cargoFactory, adapterFactory,
+            orderRepoMock.Object,
             NullLogger<AutoShipmentService>.Instance);
         autoShipment.Should().NotBeNull(
             "full service graph must instantiate without errors");

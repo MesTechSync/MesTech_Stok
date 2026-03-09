@@ -1,7 +1,9 @@
 using FluentAssertions;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Orchestration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -21,6 +23,7 @@ public class AutoShipmentServiceTests
     private readonly Mock<ICargoProviderSelector> _selectorMock;
     private readonly Mock<ICargoProviderFactory> _cargoFactoryMock;
     private readonly Mock<IAdapterFactory> _adapterFactoryMock;
+    private readonly Mock<IOrderRepository> _orderRepoMock;
     private readonly Mock<ILogger<AutoShipmentService>> _loggerMock;
     private readonly Mock<ICargoAdapter> _cargoAdapterMock;
     private readonly Mock<IShipmentCapableAdapter> _shipmentAdapterMock;
@@ -33,14 +36,25 @@ public class AutoShipmentServiceTests
         _selectorMock = new Mock<ICargoProviderSelector>();
         _cargoFactoryMock = new Mock<ICargoProviderFactory>();
         _adapterFactoryMock = new Mock<IAdapterFactory>();
+        _orderRepoMock = new Mock<IOrderRepository>();
         _loggerMock = new Mock<ILogger<AutoShipmentService>>();
         _cargoAdapterMock = new Mock<ICargoAdapter>();
         _shipmentAdapterMock = new Mock<IShipmentCapableAdapter>();
+
+        // Default: return an order for any GetByIdAsync call
+        _orderRepoMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new Order
+            {
+                CustomerName = "Test Customer",
+                SourcePlatform = PlatformType.Trendyol
+            });
 
         _sut = new AutoShipmentService(
             _selectorMock.Object,
             _cargoFactoryMock.Object,
             _adapterFactoryMock.Object,
+            _orderRepoMock.Object,
             _loggerMock.Object);
     }
 
@@ -269,16 +283,18 @@ public class AutoShipmentServiceTests
     [InlineData("selector")]
     [InlineData("cargoFactory")]
     [InlineData("adapterFactory")]
+    [InlineData("orderRepository")]
     [InlineData("logger")]
     public void Constructor_NullDependency_ThrowsArgumentNullException(string nullParam)
     {
         Action action = nullParam switch
         {
-            "selector"       => () => new AutoShipmentService(null!, _cargoFactoryMock.Object, _adapterFactoryMock.Object, _loggerMock.Object),
-            "cargoFactory"   => () => new AutoShipmentService(_selectorMock.Object, null!, _adapterFactoryMock.Object, _loggerMock.Object),
-            "adapterFactory" => () => new AutoShipmentService(_selectorMock.Object, _cargoFactoryMock.Object, null!, _loggerMock.Object),
-            "logger"         => () => new AutoShipmentService(_selectorMock.Object, _cargoFactoryMock.Object, _adapterFactoryMock.Object, null!),
-            _                => throw new ArgumentOutOfRangeException(nameof(nullParam))
+            "selector"        => () => new AutoShipmentService(null!, _cargoFactoryMock.Object, _adapterFactoryMock.Object, _orderRepoMock.Object, _loggerMock.Object),
+            "cargoFactory"    => () => new AutoShipmentService(_selectorMock.Object, null!, _adapterFactoryMock.Object, _orderRepoMock.Object, _loggerMock.Object),
+            "adapterFactory"  => () => new AutoShipmentService(_selectorMock.Object, _cargoFactoryMock.Object, null!, _orderRepoMock.Object, _loggerMock.Object),
+            "orderRepository" => () => new AutoShipmentService(_selectorMock.Object, _cargoFactoryMock.Object, _adapterFactoryMock.Object, null!, _loggerMock.Object),
+            "logger"          => () => new AutoShipmentService(_selectorMock.Object, _cargoFactoryMock.Object, _adapterFactoryMock.Object, _orderRepoMock.Object, null!),
+            _                 => throw new ArgumentOutOfRangeException(nameof(nullParam))
         };
 
         action.Should().Throw<ArgumentNullException>().WithParameterName(nullParam);
