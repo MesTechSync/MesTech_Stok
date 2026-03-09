@@ -8,6 +8,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
@@ -59,6 +60,22 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                     _logger.LogWarning(
                         "Trendyol API retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("{Platform} circuit breaker OPENED for {Duration}s",
+                        PlatformCode, args.BreakDuration.TotalSeconds);
                     return default;
                 }
             })

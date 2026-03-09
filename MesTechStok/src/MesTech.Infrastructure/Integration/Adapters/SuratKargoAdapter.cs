@@ -6,6 +6,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
@@ -51,6 +52,22 @@ public class SuratKargoAdapter : ICargoAdapter
                 {
                     _logger.LogWarning("Surat Kargo API retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("SuratKargo circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
                     return default;
                 }
             })
