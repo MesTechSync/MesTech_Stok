@@ -1402,7 +1402,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Fatura Yönetimi");
             try
             {
-                CurrentView = new Views.InvoiceManagementView();
+                CurrentView = new Views.InvoiceManagementView(invoiceProvider: null, trendyolAdapter: null);
                 CurrentModule = "Fatura Yönetimi";
                 StatusMessage = "🧾 Fatura Yönetimi yüklendi";
                 GlobalLogger.Instance.LogInfo("Fatura yönetimi ekranı açıldı", "MainViewModel");

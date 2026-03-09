@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
 
@@ -17,14 +16,15 @@ namespace MesTechStok.Desktop.Views
         private readonly TrendyolAdapter? _trendyolAdapter;
         private readonly ObservableCollection<InvoiceDisplayItem> _invoices = new();
 
-        public InvoiceManagementView()
+        // Null defaults allow the WPF designer to call the constructor without arguments.
+        public InvoiceManagementView(IInvoiceProvider? invoiceProvider = null, TrendyolAdapter? trendyolAdapter = null)
         {
             InitializeComponent();
             InvStartDate.SelectedDate = DateTime.Today.AddMonths(-1);
             InvEndDate.SelectedDate = DateTime.Today;
 
-            _invoiceProvider = App.ServiceProvider?.GetService<IInvoiceProvider>();
-            _trendyolAdapter = App.ServiceProvider?.GetService<TrendyolAdapter>();
+            _invoiceProvider = invoiceProvider;
+            _trendyolAdapter = trendyolAdapter;
 
             InvoicesGrid.ItemsSource = _invoices;
             LoadSampleData();
