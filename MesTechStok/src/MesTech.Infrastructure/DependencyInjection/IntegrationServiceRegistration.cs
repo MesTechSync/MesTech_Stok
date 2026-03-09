@@ -43,6 +43,10 @@ public static class IntegrationServiceRegistration
             new PazaramaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PazaramaAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PazaramaAdapter>());
 
+        // Dalga 5: N11 SOAP adapter — Scoped (multi-tenant credential isolation)
+        services.AddScoped<N11Adapter>();
+        services.AddScoped<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
+
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>
             new YurticiKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<YurticiKargoAdapter>>()));

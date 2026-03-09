@@ -1,23 +1,40 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.Xml.Linq;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// N11 platform adaptoru — iskelet. SOAP wrapper gerekli.
-/// FAZ 2'de implement edilecek.
+/// N11 platform adaptoru — Dalga 5 tam SOAP entegrasyon.
+/// IIntegratorAdapter + IOrderCapableAdapter.
+/// SimpleSoapClient + N11SoapRequestBuilder kullanan WCF'siz SOAP client.
+/// Sayfa bazli pagination (FetchAllPagesAsync), CultureInfo.InvariantCulture.
 /// </summary>
-public class N11Adapter : IIntegratorAdapter
+public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
+    private SimpleSoapClient? _soapClient;
+    private string? _appKey;
+    private string? _appSecret;
+    private string? _soapBaseUrl;
+    private bool _isConfigured;
+
+    // SOAP service URL suffixes
+    private const string ProductServicePath = "/ws/ProductService.wsdl";
+    private const string OrderServicePath = "/ws/OrderService.wsdl";
+    private const string CategoryServicePath = "/ws/CategoryService.wsdl";
+    private const string ShipmentServicePath = "/ws/ShipmentService.wsdl";
+    private const string CityServicePath = "/ws/CityService.wsdl";
 
     public N11Adapter(ILogger<N11Adapter> logger)
     {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public string PlatformCode => nameof(PlatformType.N11);
@@ -25,29 +42,551 @@ public class N11Adapter : IIntegratorAdapter
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;
 
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
-        => throw new NotImplementedException("N11 adapter FAZ 2'de implement edilecek — SOAP wrapper gerekli");
+    // ── Configuration ────────────────────────────────────
 
-    public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
-        => throw new NotImplementedException("N11 adapter FAZ 2'de implement edilecek — SOAP wrapper gerekli");
-
-    public Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
-        => throw new NotImplementedException("N11 adapter FAZ 2'de implement edilecek");
-
-    public Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
-        => throw new NotImplementedException("N11 adapter FAZ 2'de implement edilecek");
-
-    public Task<ConnectionTestResultDto> TestConnectionAsync(Dictionary<string, string> credentials, CancellationToken ct = default)
+    /// <summary>
+    /// Adapter'i N11 SOAP API icin konfigure eder.
+    /// </summary>
+    public void Configure(string appKey, string appSecret, string soapBaseUrl, HttpClient? httpClient = null)
     {
-        _logger.LogWarning("N11Adapter.TestConnectionAsync — henuz implement edilmedi");
-        return Task.FromResult(new ConnectionTestResultDto
-        {
-            PlatformCode = PlatformCode,
-            ErrorMessage = "N11 adapter henuz implement edilmedi (FAZ 2)",
-            ResponseTime = TimeSpan.Zero
-        });
+        if (string.IsNullOrWhiteSpace(appKey))
+            throw new ArgumentException("appKey bos olamaz", nameof(appKey));
+        if (string.IsNullOrWhiteSpace(appSecret))
+            throw new ArgumentException("appSecret bos olamaz", nameof(appSecret));
+        if (string.IsNullOrWhiteSpace(soapBaseUrl))
+            throw new ArgumentException("soapBaseUrl bos olamaz", nameof(soapBaseUrl));
+
+        _appKey = appKey;
+        _appSecret = appSecret;
+        _soapBaseUrl = soapBaseUrl.TrimEnd('/');
+
+        var client = httpClient ?? new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(30);
+
+        _soapClient = new SimpleSoapClient(client, _logger);
+        _isConfigured = true;
+
+        _logger.LogInformation("N11Adapter konfigure edildi — BaseUrl={BaseUrl}", _soapBaseUrl);
     }
 
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    private void EnsureConfigured()
+    {
+        if (!_isConfigured || _soapClient is null)
+            throw new InvalidOperationException("N11Adapter henuz konfigure edilmedi. Once Configure() cagirin.");
+    }
+
+    // ── Pagination Helper ────────────────────────────────
+
+    private async Task<List<T>> FetchAllPagesAsync<T>(
+        Func<int, int, Task<(List<T> items, int totalPages)>> fetcher,
+        int pageSize = 100,
+        CancellationToken ct = default)
+    {
+        var all = new List<T>();
+        int page = 0, totalPages = 1;
+        while (page < totalPages)
+        {
+            ct.ThrowIfCancellationRequested();
+            var (items, total) = await fetcher(page, pageSize).ConfigureAwait(false);
+            all.AddRange(items);
+            totalPages = total;
+            page++;
+        }
+        return all;
+    }
+
+    // ── SOAP Fault Check (namespace-agnostic) ────────────
+
+    /// <summary>
+    /// Checks if the SOAP response element is a Fault or contains a Fault.
+    /// Uses SimpleSoapClient.ThrowIfFault for descendant search,
+    /// plus direct local-name check for the element itself.
+    /// </summary>
+    private static void ThrowIfSoapFault(XElement response)
+    {
+        // Check if the element itself is a Fault (SimpleSoapClient returns first child of Body)
+        if (response.Name.LocalName.Equals("Fault", StringComparison.OrdinalIgnoreCase))
+        {
+            var faultString = response.Elements()
+                .FirstOrDefault(e => e.Name.LocalName == "faultstring")?.Value
+                ?? "Unknown SOAP Fault";
+            throw new InvalidOperationException($"SOAP Fault: {faultString}");
+        }
+
+        // Also check descendants (delegating to existing method)
+        SimpleSoapClient.ThrowIfFault(response);
+    }
+
+    // ── Namespace-agnostic XML helpers ───────────────────
+
+    /// <summary>
+    /// Finds all descendant elements matching a local name, ignoring namespace.
+    /// </summary>
+    private static IEnumerable<XElement> DescendantsByLocalName(XElement root, string localName)
+    {
+        return root.Descendants().Where(e => e.Name.LocalName == localName);
+    }
+
+    /// <summary>
+    /// Finds the first child element matching a local name, ignoring namespace.
+    /// </summary>
+    private static XElement? ElementByLocalName(XElement parent, string localName)
+    {
+        return parent.Elements().FirstOrDefault(e => e.Name.LocalName == localName);
+    }
+
+    // ── IIntegratorAdapter ───────────────────────────────
+
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildSaveProduct(
+                _appKey!, _appSecret!,
+                productSellerCode: product.SKU,
+                title: product.Name,
+                categoryId: 0, // Default category — caller should set via platform mapping
+                price: product.SalePrice,
+                stockQuantity: product.Stock,
+                description: product.Description);
+
+            var url = _soapBaseUrl + ProductServicePath;
+            var response = await _soapClient!.SendAsync(url, "SaveProduct", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 SaveProduct basarili — SKU={SKU}", product.SKU);
+                return true;
+            }
+
+            _logger.LogWarning("N11 SaveProduct basarisiz — SKU={SKU}, Status={Status}", product.SKU, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 SaveProduct hatasi — SKU={SKU}", product.SKU);
+            return false;
+        }
+    }
+
+    public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var products = await FetchAllPagesAsync<Product>(
+                async (page, pageSize) =>
+                {
+                    var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize);
+                    var url = _soapBaseUrl + ProductServicePath;
+                    var response = await _soapClient!.SendAsync(url, "GetProductList", body, ct).ConfigureAwait(false);
+
+                    ThrowIfSoapFault(response);
+
+                    var items = ParseProducts(response);
+                    var totalPages = ParseTotalPages(response);
+
+                    return (items, totalPages);
+                },
+                pageSize: 100,
+                ct).ConfigureAwait(false);
+
+            _logger.LogInformation("N11 PullProducts tamamlandi — {Count} urun cekildi", products.Count);
+            return products.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 PullProducts hatasi");
+            return Array.Empty<Product>();
+        }
+    }
+
+    public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            // N11 uses numeric product ID; we pass Guid hash as long for mapping
+            var n11ProductId = Math.Abs(productId.GetHashCode());
+            var body = N11SoapRequestBuilder.BuildUpdateStock(_appKey!, _appSecret!, n11ProductId, newStock);
+            var url = _soapBaseUrl + ProductServicePath;
+            var response = await _soapClient!.SendAsync(url, "UpdateStockByStockId", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 StockUpdate basarili — ProductId={ProductId}, NewStock={Stock}",
+                    productId, newStock);
+                return true;
+            }
+
+            _logger.LogWarning("N11 StockUpdate basarisiz — ProductId={ProductId}, Status={Status}",
+                productId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 StockUpdate hatasi — ProductId={ProductId}", productId);
+            return false;
+        }
+    }
+
+    public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var n11ProductId = Math.Abs(productId.GetHashCode());
+            var body = N11SoapRequestBuilder.BuildUpdatePrice(_appKey!, _appSecret!, n11ProductId, newPrice);
+            var url = _soapBaseUrl + ProductServicePath;
+            var response = await _soapClient!.SendAsync(url, "UpdateProductPriceById", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 PriceUpdate basarili — ProductId={ProductId}, NewPrice={Price}",
+                    productId, newPrice.ToString(CultureInfo.InvariantCulture));
+                return true;
+            }
+
+            _logger.LogWarning("N11 PriceUpdate basarisiz — ProductId={ProductId}, Status={Status}",
+                productId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 PriceUpdate hatasi — ProductId={ProductId}", productId);
+            return false;
+        }
+    }
+
+    public async Task<ConnectionTestResultDto> TestConnectionAsync(
+        Dictionary<string, string> credentials, CancellationToken ct = default)
+    {
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            var appKey = credentials.GetValueOrDefault("N11AppKey", "");
+            var appSecret = credentials.GetValueOrDefault("N11AppSecret", "");
+            var baseUrl = credentials.GetValueOrDefault("N11BaseUrl", "https://api.n11.com");
+
+            if (string.IsNullOrWhiteSpace(appKey) || string.IsNullOrWhiteSpace(appSecret))
+            {
+                return new ConnectionTestResultDto
+                {
+                    PlatformCode = PlatformCode,
+                    ErrorMessage = "N11AppKey ve N11AppSecret zorunludur",
+                    ResponseTime = sw.Elapsed
+                };
+            }
+
+            // Configure if not already configured or with new credentials
+            if (!_isConfigured)
+            {
+                Configure(appKey, appSecret, baseUrl);
+            }
+
+            // Test: fetch top-level categories
+            var body = N11SoapRequestBuilder.BuildGetCategories(_appKey!, _appSecret!);
+            var url = _soapBaseUrl + CategoryServicePath;
+            var response = await _soapClient!.SendAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            sw.Stop();
+            return new ConnectionTestResultDto
+            {
+                IsSuccess = true,
+                PlatformCode = PlatformCode,
+                StoreName = "N11 Marketplace",
+                ResponseTime = sw.Elapsed
+            };
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            _logger.LogError(ex, "N11 TestConnection hatasi");
+            return new ConnectionTestResultDto
+            {
+                PlatformCode = PlatformCode,
+                ErrorMessage = ex.Message,
+                ResponseTime = sw.Elapsed
+            };
+        }
+    }
+
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildGetCategories(_appKey!, _appSecret!);
+            var url = _soapBaseUrl + CategoryServicePath;
+            var response = await _soapClient!.SendAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var categories = DescendantsByLocalName(response, "categories")
+                .Select(c => new CategoryDto
+                {
+                    PlatformCategoryId = int.Parse(
+                        ElementByLocalName(c, "id")?.Value ?? "0", CultureInfo.InvariantCulture),
+                    Name = ElementByLocalName(c, "name")?.Value ?? string.Empty
+                }).ToList();
+
+            _logger.LogInformation("N11 GetCategories tamamlandi — {Count} kategori cekildi", categories.Count);
+            return categories.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 GetCategories hatasi");
+            return Array.Empty<CategoryDto>();
+        }
+    }
+
+    // ── IOrderCapableAdapter ─────────────────────────────
+
+    public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var orders = await FetchAllPagesAsync<ExternalOrderDto>(
+                async (page, pageSize) =>
+                {
+                    var body = N11SoapRequestBuilder.BuildGetOrders(
+                        _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize);
+                    var url = _soapBaseUrl + OrderServicePath;
+                    var response = await _soapClient!.SendAsync(url, "DetailedOrderList", body, ct).ConfigureAwait(false);
+
+                    ThrowIfSoapFault(response);
+
+                    var items = ParseOrders(response);
+                    var totalPages = ParseOrderTotalPages(response);
+
+                    return (items, totalPages);
+                },
+                pageSize: 50,
+                ct).ConfigureAwait(false);
+
+            // Filter by since date if provided
+            if (since.HasValue)
+            {
+                orders = orders.Where(o => o.OrderDate >= since.Value).ToList();
+            }
+
+            _logger.LogInformation("N11 PullOrders tamamlandi — {Count} siparis cekildi", orders.Count);
+            return orders.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 PullOrders hatasi");
+            return Array.Empty<ExternalOrderDto>();
+        }
+    }
+
+    public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            if (!long.TryParse(packageId, CultureInfo.InvariantCulture, out var orderItemId))
+            {
+                _logger.LogWarning("N11 UpdateOrderStatus — gecersiz packageId: {PackageId}", packageId);
+                return false;
+            }
+
+            var body = N11SoapRequestBuilder.BuildUpdateOrderStatus(_appKey!, _appSecret!, orderItemId, status);
+            var url = _soapBaseUrl + OrderServicePath;
+            var response = await _soapClient!.SendAsync(url, "OrderItemAccept", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var resultStatus = GetResultStatus(response);
+            if (resultStatus == "success")
+            {
+                _logger.LogInformation("N11 UpdateOrderStatus basarili — OrderItemId={Id}, Status={Status}",
+                    packageId, status);
+                return true;
+            }
+
+            _logger.LogWarning("N11 UpdateOrderStatus basarisiz — OrderItemId={Id}, ResultStatus={Status}",
+                packageId, resultStatus);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 UpdateOrderStatus hatasi — OrderItemId={Id}", packageId);
+            return false;
+        }
+    }
+
+    // ── XML Response Parsing Helpers ─────────────────────
+
+    private static string GetResultStatus(XElement response)
+    {
+        var resultEl = DescendantsByLocalName(response, "result").FirstOrDefault();
+        return ElementByLocalName(resultEl!, "status")?.Value ?? "unknown";
+    }
+
+    private static int ParseTotalPages(XElement response)
+    {
+        // N11 products: pagingData/totalPage or productList/totalCount
+        var pagingData = DescendantsByLocalName(response, "pagingData").FirstOrDefault();
+        if (pagingData is not null)
+        {
+            var totalPageEl = ElementByLocalName(pagingData, "totalPage");
+            if (totalPageEl is not null)
+                return int.Parse(totalPageEl.Value, CultureInfo.InvariantCulture);
+        }
+
+        // Fallback: calculate from totalCount / pageSize in productList
+        var productList = DescendantsByLocalName(response, "productList").FirstOrDefault();
+        if (productList is not null)
+        {
+            var totalCount = int.Parse(
+                ElementByLocalName(productList, "totalCount")?.Value ?? "0", CultureInfo.InvariantCulture);
+            var pageSize = int.Parse(
+                ElementByLocalName(productList, "pageSize")?.Value ?? "100", CultureInfo.InvariantCulture);
+
+            return pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1;
+        }
+
+        return 1;
+    }
+
+    private static List<Product> ParseProducts(XElement response)
+    {
+        // Products are in <products> elements (either under productList or directly)
+        return DescendantsByLocalName(response, "products")
+            .Where(p => ElementByLocalName(p, "productSellerCode") is not null)
+            .Select(p =>
+            {
+                var product = new Product
+                {
+                    SKU = ElementByLocalName(p, "productSellerCode")?.Value ?? string.Empty,
+                    Name = ElementByLocalName(p, "title")?.Value ?? string.Empty
+                };
+
+                var priceValue = ElementByLocalName(p, "price")?.Value;
+                if (!string.IsNullOrEmpty(priceValue) &&
+                    decimal.TryParse(priceValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var price))
+                {
+                    product.SalePrice = price;
+                }
+
+                var stockItem = DescendantsByLocalName(p, "stockItem").FirstOrDefault();
+                var stockQuantity = stockItem is not null
+                    ? ElementByLocalName(stockItem, "quantity")?.Value
+                    : null;
+                if (!string.IsNullOrEmpty(stockQuantity) &&
+                    int.TryParse(stockQuantity, NumberStyles.Any, CultureInfo.InvariantCulture, out var qty))
+                {
+                    product.Stock = qty;
+                }
+
+                return product;
+            }).ToList();
+    }
+
+    private static int ParseOrderTotalPages(XElement response)
+    {
+        var pagingData = DescendantsByLocalName(response, "pagingData").FirstOrDefault();
+        if (pagingData is null)
+            return 1;
+
+        var totalPage = ElementByLocalName(pagingData, "totalPage");
+        if (totalPage is not null)
+            return int.Parse(totalPage.Value, CultureInfo.InvariantCulture);
+
+        var totalCount = ElementByLocalName(pagingData, "totalCount");
+        if (totalCount is not null)
+        {
+            var count = int.Parse(totalCount.Value, CultureInfo.InvariantCulture);
+            return count > 0 ? (int)Math.Ceiling(count / 50.0) : 1;
+        }
+
+        return 1;
+    }
+
+    private List<ExternalOrderDto> ParseOrders(XElement response)
+    {
+        return DescendantsByLocalName(response, "orderList")
+            .Where(o => ElementByLocalName(o, "id") is not null)
+            .Select(o =>
+            {
+                var buyer = ElementByLocalName(o, "buyer");
+                var shippingAddr = ElementByLocalName(o, "shippingAddress");
+
+                var order = new ExternalOrderDto
+                {
+                    PlatformCode = PlatformCode,
+                    PlatformOrderId = ElementByLocalName(o, "id")?.Value ?? string.Empty,
+                    OrderNumber = ElementByLocalName(o, "orderNumber")?.Value
+                        ?? ElementByLocalName(o, "id")?.Value ?? string.Empty,
+                    Status = ElementByLocalName(o, "status")?.Value ?? string.Empty,
+                    CustomerName = buyer is not null
+                        ? ElementByLocalName(buyer, "fullName")?.Value ?? string.Empty
+                        : string.Empty,
+                    CustomerEmail = buyer is not null
+                        ? ElementByLocalName(buyer, "email")?.Value
+                        : null,
+                    CustomerPhone = buyer is not null
+                        ? ElementByLocalName(buyer, "phone")?.Value
+                        : null,
+                    CustomerAddress = shippingAddr is not null
+                        ? ElementByLocalName(shippingAddr, "address")?.Value
+                        : null,
+                    CustomerCity = shippingAddr is not null
+                        ? ElementByLocalName(shippingAddr, "city")?.Value
+                        : null,
+                    Currency = "TRY"
+                };
+
+                // Parse order date
+                var createDate = ElementByLocalName(o, "createDate")?.Value;
+                if (!string.IsNullOrEmpty(createDate) &&
+                    DateTime.TryParse(createDate, CultureInfo.InvariantCulture,
+                        DateTimeStyles.None, out var dt))
+                {
+                    order.OrderDate = dt;
+                }
+
+                // Parse total amount
+                var totalAmount = ElementByLocalName(o, "totalAmount")?.Value;
+                if (!string.IsNullOrEmpty(totalAmount) &&
+                    decimal.TryParse(totalAmount, NumberStyles.Any,
+                        CultureInfo.InvariantCulture, out var amount))
+                {
+                    order.TotalAmount = amount;
+                }
+
+                // Parse order items
+                var items = DescendantsByLocalName(o, "orderItem").Select(item => new ExternalOrderLineDto
+                {
+                    PlatformLineId = ElementByLocalName(item, "id")?.Value,
+                    SKU = ElementByLocalName(item, "sellerCode")?.Value,
+                    ProductName = ElementByLocalName(item, "productName")?.Value ?? string.Empty,
+                    Quantity = int.TryParse(ElementByLocalName(item, "quantity")?.Value,
+                        NumberStyles.Any, CultureInfo.InvariantCulture, out var q) ? q : 1,
+                    UnitPrice = decimal.TryParse(ElementByLocalName(item, "price")?.Value,
+                        NumberStyles.Any, CultureInfo.InvariantCulture, out var p) ? p : 0m,
+                    LineTotal = decimal.TryParse(ElementByLocalName(item, "totalPrice")?.Value,
+                        NumberStyles.Any, CultureInfo.InvariantCulture, out var lt) ? lt : 0m
+                }).ToList();
+
+                order.Lines = items;
+
+                return order;
+            }).ToList();
+    }
 }

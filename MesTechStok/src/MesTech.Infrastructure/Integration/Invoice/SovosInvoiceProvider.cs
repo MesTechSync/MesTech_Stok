@@ -6,8 +6,6 @@ using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using DtoInvoiceResult = MesTech.Application.DTOs.InvoiceResult;
-
 namespace MesTech.Infrastructure.Integration.Invoice;
 
 /// <summary>
@@ -184,15 +182,38 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
     // ── IBulkInvoiceCapable ────────────────────────────────────────────
 
     public async Task<BulkInvoiceResult> CreateBulkInvoiceAsync(
-        IEnumerable<InvoiceDto> invoices, CancellationToken ct = default)
+        IEnumerable<InvoiceCreateRequest> requests, CancellationToken ct = default)
     {
         EnsureConfigured();
-        var invoiceList = invoices.ToList();
-        _logger.LogInformation("Sovos CreateBulkInvoice for {Count} invoices", invoiceList.Count);
+        var requestList = requests.ToList();
+        _logger.LogInformation("Sovos CreateBulkInvoice for {Count} invoices", requestList.Count);
 
         try
         {
-            var payloads = invoiceList.Select(inv => BuildInvoicePayload(inv, "SATIS")).ToArray();
+            var payloads = requestList.Select(req => new
+            {
+                invoiceType = "SATIS",
+                invoiceNumber = req.PlatformOrderId,
+                customer = new
+                {
+                    name = req.Customer.Name,
+                    taxNumber = req.Customer.TaxNumber,
+                    taxOffice = req.Customer.TaxOffice,
+                    address = req.Customer.Address
+                },
+                amounts = new
+                {
+                    grandTotal = req.TotalAmount
+                },
+                lines = req.Lines.Select(l => new
+                {
+                    productName = l.ProductName,
+                    sku = l.SKU,
+                    quantity = l.Quantity,
+                    unitPrice = l.UnitPrice,
+                    taxRate = l.TaxRate
+                }).ToArray()
+            }).ToArray();
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
             {
@@ -207,42 +228,38 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 var errorBody = await response.Content.ReadAsStringAsync(ct);
                 _logger.LogWarning("Sovos CreateBulkInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
-                var allFail = invoiceList.Select(_ =>
-                    new DtoInvoiceResult { Success = false, ErrorMessage = errorBody }).ToList();
-                return new BulkInvoiceResult(allFail, 0, invoiceList.Count);
+                var failResults = requestList.Select(r =>
+                    new BulkInvoiceItemResult(r.OrderId, false, null, errorBody)).ToList();
+                return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(ct);
             using var doc = JsonDocument.Parse(responseJson);
-            var results = new List<DtoInvoiceResult>();
+            var results = new List<BulkInvoiceItemResult>();
 
             if (doc.RootElement.TryGetProperty("results", out var resultsArray))
             {
+                var i = 0;
                 foreach (var item in resultsArray.EnumerateArray())
                 {
                     var success = item.TryGetProperty("success", out var s) && s.GetBoolean();
                     var gibId = item.TryGetProperty("gibInvoiceId", out var g) ? g.GetString() : null;
-                    var pdfUrl = item.TryGetProperty("pdfUrl", out var p) ? p.GetString() : null;
                     var error = item.TryGetProperty("errorMessage", out var e) ? e.GetString() : null;
-                    results.Add(new DtoInvoiceResult
-                    {
-                        Success = success,
-                        GibInvoiceId = gibId,
-                        PdfUrl = pdfUrl,
-                        ErrorMessage = error
-                    });
+                    var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.Empty;
+                    results.Add(new BulkInvoiceItemResult(orderId, success, gibId, error));
+                    i++;
                 }
             }
 
             var successCount = results.Count(r => r.Success);
-            return new BulkInvoiceResult(results, successCount, results.Count - successCount);
+            return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Sovos CreateBulkInvoice exception");
-            var allFail = invoiceList.Select(_ =>
-                new DtoInvoiceResult { Success = false, ErrorMessage = ex.Message }).ToList();
-            return new BulkInvoiceResult(allFail, 0, invoiceList.Count);
+            var failResults = requestList.Select(r =>
+                new BulkInvoiceItemResult(r.OrderId, false, null, ex.Message)).ToList();
+            return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
         }
     }
 
@@ -278,12 +295,19 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 foreach (var item in invoicesArray.EnumerateArray())
                 {
                     var gibId = item.GetProperty("gibInvoiceId").GetString()!;
+                    var invoiceNumber = item.TryGetProperty("invoiceNumber", out var inv)
+                        ? inv.GetString() ?? gibId : gibId;
                     var senderName = item.GetProperty("senderName").GetString()!;
                     var senderTax = item.GetProperty("senderTaxNumber").GetString()!;
                     var amount = item.GetProperty("amount").GetDecimal();
                     var invoiceDate = item.GetProperty("invoiceDate").GetDateTime();
-                    var status = item.GetProperty("status").GetString()!;
-                    list.Add(new IncomingInvoiceDto(gibId, senderName, senderTax, amount, invoiceDate, status));
+                    var pdfUrl = item.TryGetProperty("pdfUrl", out var pdf)
+                        && pdf.ValueKind != JsonValueKind.Null
+                        ? pdf.GetString() : null;
+                    var statusStr = item.GetProperty("status").GetString()!;
+                    var status = Enum.TryParse<Domain.Enums.InvoiceStatus>(statusStr, true, out var parsed)
+                        ? parsed : Domain.Enums.InvoiceStatus.Draft;
+                    list.Add(new IncomingInvoiceDto(gibId, invoiceNumber, senderName, senderTax, amount, invoiceDate, pdfUrl, status));
                 }
             }
 
@@ -350,7 +374,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
     // ── IKontorCapable ──────────────────────────────────────────────────
 
-    public async Task<KontorInfo> GetKontorBalanceAsync(CancellationToken ct = default)
+    public async Task<KontorBalanceDto> GetKontorBalanceAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
         _logger.LogInformation("Sovos GetKontorBalance");
@@ -363,7 +387,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Sovos GetKontorBalance failed: {Status}", response.StatusCode);
-                return new KontorInfo(0, 0, null);
+                return new KontorBalanceDto(0, 0, null, ProviderName);
             }
 
             var json = await response.Content.ReadAsStringAsync(ct);
@@ -377,12 +401,12 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 ? lc.GetDateTime()
                 : null;
 
-            return new KontorInfo(remaining, total, lastChecked);
+            return new KontorBalanceDto(remaining, total, lastChecked, ProviderName);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Sovos GetKontorBalance exception");
-            return new KontorInfo(0, 0, null);
+            return new KontorBalanceDto(0, 0, null, ProviderName);
         }
     }
 

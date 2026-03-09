@@ -3,6 +3,7 @@ using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Tests.Integration._Shared;
@@ -103,6 +104,24 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
                 new("Urun X", "SKU-X01", 5, 100m, 20m, 100m, 600m)
             }
         );
+    }
+
+    private static InvoiceCreateRequest CreateTestInvoiceRequest(string number = "PST-2026-001")
+    {
+        return new InvoiceCreateRequest
+        {
+            OrderId = Guid.NewGuid(),
+            Platform = PlatformType.Trendyol,
+            PlatformOrderId = number,
+            Type = InvoiceType.EFatura,
+            Customer = new InvoiceCustomerInfo(
+                "Test Musteri Ltd.", "9876543210", "Besiktas", "Istanbul, Turkiye", null, null),
+            TotalAmount = 600m,
+            Lines = new List<InvoiceCreateLine>
+            {
+                new("Urun X", "SKU-X01", 5, 100m, 20m, null)
+            }
+        };
     }
 
     // ════ 1. CreateEFatura — e-Invoice via JSON:API ════
@@ -432,10 +451,10 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
     {
         // Arrange
         var provider = CreateConfiguredProvider();
-        var invoices = new[]
+        var requests = new[]
         {
-            CreateTestInvoice("BULK-001"),
-            CreateTestInvoice("BULK-002")
+            CreateTestInvoiceRequest("BULK-001"),
+            CreateTestInvoiceRequest("BULK-002")
         };
 
         _fixture.Server
@@ -461,15 +480,14 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
                     }, 2, 1, 25)));
 
         // Act
-        var result = await provider.CreateBulkInvoiceAsync(invoices);
+        var result = await provider.CreateBulkInvoiceAsync(requests);
 
         // Assert
         result.Results.Should().HaveCount(2);
         result.SuccessCount.Should().Be(2);
-        result.FailCount.Should().Be(0);
+        result.FailedCount.Should().Be(0);
         result.Results[0].Success.Should().BeTrue();
         result.Results[0].GibInvoiceId.Should().Be("GIB-BULK-001");
-        result.Results[0].PdfUrl.Should().Contain("bulk-001");
         result.Results[1].Success.Should().BeTrue();
         result.Results[1].GibInvoiceId.Should().Be("GIB-BULK-002");
     }
@@ -481,10 +499,10 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
     {
         // Arrange
         var provider = CreateConfiguredProvider();
-        var invoices = new[]
+        var requests = new[]
         {
-            CreateTestInvoice("PART-001"),
-            CreateTestInvoice("PART-002")
+            CreateTestInvoiceRequest("PART-001"),
+            CreateTestInvoiceRequest("PART-002")
         };
 
         _fixture.Server
@@ -510,12 +528,12 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
                     }, 2, 1, 25)));
 
         // Act
-        var result = await provider.CreateBulkInvoiceAsync(invoices);
+        var result = await provider.CreateBulkInvoiceAsync(requests);
 
         // Assert
         result.Results.Should().HaveCount(2);
         result.SuccessCount.Should().Be(1);
-        result.FailCount.Should().Be(1);
+        result.FailedCount.Should().Be(1);
         result.Results[0].Success.Should().BeTrue();
         result.Results[0].GibInvoiceId.Should().Be("GIB-PART-001");
         result.Results[1].Success.Should().BeFalse();
@@ -529,10 +547,10 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
     {
         // Arrange
         var provider = CreateConfiguredProvider();
-        var invoices = new[]
+        var requests = new[]
         {
-            CreateTestInvoice("ERR-001"),
-            CreateTestInvoice("ERR-002")
+            CreateTestInvoiceRequest("ERR-001"),
+            CreateTestInvoiceRequest("ERR-002")
         };
 
         _fixture.Server
@@ -544,12 +562,12 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
                 .WithBody(@"{""error"": ""Internal Server Error""}"));
 
         // Act
-        var result = await provider.CreateBulkInvoiceAsync(invoices);
+        var result = await provider.CreateBulkInvoiceAsync(requests);
 
         // Assert
         result.Results.Should().HaveCount(2);
         result.SuccessCount.Should().Be(0);
-        result.FailCount.Should().Be(2);
+        result.FailedCount.Should().Be(2);
         result.Results.Should().AllSatisfy(r =>
         {
             r.Success.Should().BeFalse();

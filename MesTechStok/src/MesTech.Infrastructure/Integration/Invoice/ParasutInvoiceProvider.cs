@@ -7,8 +7,6 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using Microsoft.Extensions.Logging;
-using DtoInvoiceResult = MesTech.Application.DTOs.InvoiceResult;
-
 namespace MesTech.Infrastructure.Integration.Invoice;
 
 /// <summary>
@@ -203,39 +201,35 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     // ── IBulkInvoiceCapable ────────────────────────────────────────────
 
     public async Task<BulkInvoiceResult> CreateBulkInvoiceAsync(
-        IEnumerable<InvoiceDto> invoices, CancellationToken ct = default)
+        IEnumerable<InvoiceCreateRequest> requests, CancellationToken ct = default)
     {
         EnsureConfigured();
 
-        var invoiceList = invoices.ToList();
-        _logger.LogInformation("Parasut CreateBulkInvoice for {Count} invoices", invoiceList.Count);
+        var requestList = requests.ToList();
+        _logger.LogInformation("Parasut CreateBulkInvoice for {Count} invoices", requestList.Count);
 
         try
         {
             await SetAuthHeaderAsync(ct);
 
-            var dataArray = invoiceList.Select(inv => new
+            var dataArray = requestList.Select(req => new
             {
                 type = "e_invoice",
                 attributes = new
                 {
-                    invoice_number = inv.InvoiceNumber,
-                    customer_name = inv.CustomerName,
-                    customer_tax_number = inv.CustomerTaxNumber,
-                    customer_tax_office = inv.CustomerTaxOffice,
-                    customer_address = inv.CustomerAddress,
-                    sub_total = inv.SubTotal.ToString(CultureInfo.InvariantCulture),
-                    tax_total = inv.TaxTotal.ToString(CultureInfo.InvariantCulture),
-                    grand_total = inv.GrandTotal.ToString(CultureInfo.InvariantCulture),
-                    lines = inv.Lines.Select(l => new
+                    invoice_number = req.PlatformOrderId,
+                    customer_name = req.Customer.Name,
+                    customer_tax_number = req.Customer.TaxNumber,
+                    customer_tax_office = req.Customer.TaxOffice,
+                    customer_address = req.Customer.Address,
+                    grand_total = req.TotalAmount.ToString(CultureInfo.InvariantCulture),
+                    lines = req.Lines.Select(l => new
                     {
                         product_name = l.ProductName,
                         sku = l.SKU,
                         quantity = l.Quantity,
                         unit_price = l.UnitPrice.ToString(CultureInfo.InvariantCulture),
-                        tax_rate = l.TaxRate.ToString(CultureInfo.InvariantCulture),
-                        tax_amount = l.TaxAmount.ToString(CultureInfo.InvariantCulture),
-                        line_total = l.LineTotal.ToString(CultureInfo.InvariantCulture)
+                        tax_rate = l.TaxRate.ToString(CultureInfo.InvariantCulture)
                     }).ToArray()
                 }
             }).ToArray();
@@ -258,20 +252,18 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 _logger.LogWarning("Parasut bulk POST failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
 
-                var failResults = invoiceList.Select(_ => new DtoInvoiceResult
-                {
-                    Success = false,
-                    ErrorMessage = errorBody
-                }).ToList();
+                var failResults = requestList.Select(r =>
+                    new BulkInvoiceItemResult(r.OrderId, false, null, errorBody)).ToList();
 
-                return new BulkInvoiceResult(failResults, 0, invoiceList.Count);
+                return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(ct);
             using var doc = JsonDocument.Parse(responseJson);
 
             var dataElement = doc.RootElement.GetProperty("data");
-            var results = new List<DtoInvoiceResult>();
+            var results = new List<BulkInvoiceItemResult>();
+            var i = 0;
 
             foreach (var item in dataElement.EnumerateArray())
             {
@@ -279,34 +271,25 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib)
                     && gib.ValueKind != JsonValueKind.Null
                     ? gib.GetString() : null;
-                var pdfUrl = attrs.TryGetProperty("pdf_url", out var pdf)
-                    && pdf.ValueKind != JsonValueKind.Null
-                    ? pdf.GetString() : null;
 
                 var success = !string.IsNullOrEmpty(gibId);
-                results.Add(new DtoInvoiceResult
-                {
-                    Success = success,
-                    GibInvoiceId = gibId,
-                    PdfUrl = pdfUrl,
-                    ErrorMessage = success ? null : "Missing gib_invoice_id in response"
-                });
+                var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.Empty;
+                results.Add(new BulkInvoiceItemResult(orderId, success, gibId,
+                    success ? null : "Missing gib_invoice_id in response"));
+                i++;
             }
 
             var successCount = results.Count(r => r.Success);
-            return new BulkInvoiceResult(results, successCount, results.Count - successCount);
+            return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Parasut CreateBulkInvoice exception");
 
-            var failResults = invoiceList.Select(_ => new DtoInvoiceResult
-            {
-                Success = false,
-                ErrorMessage = ex.Message
-            }).ToList();
+            var failResults = requestList.Select(r =>
+                new BulkInvoiceItemResult(r.OrderId, false, null, ex.Message)).ToList();
 
-            return new BulkInvoiceResult(failResults, 0, invoiceList.Count);
+            return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
         }
     }
 
