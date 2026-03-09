@@ -10,6 +10,12 @@ public class User
 {
     public int Id { get; set; }
 
+    /// <summary>
+    /// Domain.User (Guid PK) ile korrelasyon köprüsü.
+    /// Yeni kod Domain entity kullanır — bu alan data migration için.
+    /// </summary>
+    public Guid ExternalId { get; set; } = Guid.NewGuid();
+
     [Required]
     [StringLength(50)]
     public string Username { get; set; } = string.Empty;

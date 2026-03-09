@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Entities.AI;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,6 +70,22 @@ public class AppDbContext : DbContext
     // ── Fatura Entity'leri (Faz 1) ──
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+
+    // ── Dalga 4: Finansal Entity'ler ──
+    public DbSet<ReturnRequest> ReturnRequests => Set<ReturnRequest>();
+    public DbSet<ReturnRequestLine> ReturnRequestLines => Set<ReturnRequestLine>();
+    public DbSet<CustomerAccount> CustomerAccounts => Set<CustomerAccount>();
+    public DbSet<SupplierAccount> SupplierAccounts => Set<SupplierAccount>();
+    public DbSet<AccountTransaction> AccountTransactions => Set<AccountTransaction>();
+    public DbSet<PlatformCommission> PlatformCommissions => Set<PlatformCommission>();
+    public DbSet<PlatformPayment> PlatformPayments => Set<PlatformPayment>();
+
+    // ── Dalga 4: Dropshipping ──
+    public DbSet<SupplierFeed> SupplierFeeds => Set<SupplierFeed>();
+
+    // ── Dalga 4: AI ──
+    public DbSet<PriceRecommendation> PriceRecommendations => Set<PriceRecommendation>();
+    public DbSet<StockPrediction> StockPredictions => Set<StockPrediction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -229,6 +246,95 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(l => l.ProductId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── Dalga 4: Finansal Entity Index'leri ──
+
+        // ReturnRequest
+        modelBuilder.Entity<ReturnRequest>(e =>
+        {
+            e.HasIndex(r => r.TenantId).HasDatabaseName("IX_ReturnRequests_TenantId");
+            e.HasIndex(r => r.OrderId);
+            e.HasIndex(r => r.Status);
+            e.HasIndex(r => new { r.TenantId, r.Platform, r.Status })
+                .HasDatabaseName("IX_ReturnRequests_Tenant_Platform_Status");
+            e.Property(r => r.RefundAmount).HasPrecision(18, 2);
+            e.Property(r => r.CustomerName).HasMaxLength(300);
+        });
+
+        // AccountTransaction
+        modelBuilder.Entity<AccountTransaction>(e =>
+        {
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_AccountTransactions_TenantId");
+            e.HasIndex(t => t.AccountId);
+            e.HasIndex(t => t.TransactionDate);
+            e.HasIndex(t => new { t.TenantId, t.Type })
+                .HasDatabaseName("IX_AccountTransactions_Tenant_Type");
+            e.Property(t => t.DebitAmount).HasPrecision(18, 2);
+            e.Property(t => t.CreditAmount).HasPrecision(18, 2);
+        });
+
+        // CustomerAccount
+        modelBuilder.Entity<CustomerAccount>(e =>
+        {
+            e.HasIndex(a => a.TenantId).HasDatabaseName("IX_CustomerAccounts_TenantId");
+        });
+
+        // SupplierAccount
+        modelBuilder.Entity<SupplierAccount>(e =>
+        {
+            e.HasIndex(a => a.TenantId).HasDatabaseName("IX_SupplierAccounts_TenantId");
+        });
+
+        // PlatformCommission
+        modelBuilder.Entity<PlatformCommission>(e =>
+        {
+            e.HasIndex(c => new { c.TenantId, c.Platform, c.PlatformCategoryId })
+                .HasDatabaseName("IX_PlatformCommissions_Tenant_Platform_Category");
+            e.Property(c => c.Rate).HasPrecision(5, 2);
+            e.Property(c => c.MinAmount).HasPrecision(18, 2);
+            e.Property(c => c.MaxAmount).HasPrecision(18, 2);
+        });
+
+        // PlatformPayment
+        modelBuilder.Entity<PlatformPayment>(e =>
+        {
+            e.HasIndex(p => new { p.TenantId, p.Platform, p.Status })
+                .HasDatabaseName("IX_PlatformPayments_Tenant_Platform_Status");
+            e.HasIndex(p => new { p.TenantId, p.PeriodStart })
+                .HasDatabaseName("IX_PlatformPayments_Tenant_Period");
+            e.Property(p => p.GrossSales).HasPrecision(18, 2);
+            e.Property(p => p.TotalCommission).HasPrecision(18, 2);
+            e.Property(p => p.TotalShippingCost).HasPrecision(18, 2);
+            e.Property(p => p.TotalReturnDeduction).HasPrecision(18, 2);
+            e.Property(p => p.OtherDeductions).HasPrecision(18, 2);
+            e.Property(p => p.NetAmount).HasPrecision(18, 2);
+        });
+
+        // SupplierFeed
+        modelBuilder.Entity<SupplierFeed>(e =>
+        {
+            e.HasIndex(f => new { f.TenantId, f.SupplierId })
+                .HasDatabaseName("IX_SupplierFeeds_Tenant_Supplier");
+            e.Property(f => f.PriceMarkupPercent).HasPrecision(5, 2);
+            e.Property(f => f.PriceMarkupFixed).HasPrecision(18, 2);
+        });
+
+        // AI — PriceRecommendation
+        modelBuilder.Entity<PriceRecommendation>(e =>
+        {
+            e.HasIndex(r => new { r.ProductId, r.CreatedAt })
+                .HasDatabaseName("IX_PriceRecommendations_Product_Created");
+            e.Property(r => r.RecommendedPrice).HasPrecision(18, 2);
+            e.Property(r => r.CurrentPrice).HasPrecision(18, 2);
+            e.Property(r => r.CompetitorMinPrice).HasPrecision(18, 2);
+        });
+
+        // AI — StockPrediction
+        modelBuilder.Entity<StockPrediction>(e =>
+        {
+            e.HasIndex(s => new { s.ProductId, s.CreatedAt })
+                .HasDatabaseName("IX_StockPredictions_Product_Created");
         });
     }
 

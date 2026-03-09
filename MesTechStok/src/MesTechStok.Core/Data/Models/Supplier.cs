@@ -10,6 +10,12 @@ namespace MesTechStok.Core.Data.Models
         [Key]
         public int Id { get; set; }
 
+        /// <summary>
+        /// Domain.Supplier (Guid PK) ile korrelasyon köprüsü.
+        /// Yeni kod Domain entity kullanır — bu alan data migration için.
+        /// </summary>
+        public Guid ExternalId { get; set; } = Guid.NewGuid();
+
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;

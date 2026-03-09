@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MesTechStok.Desktop.Models
 {
+    [Obsolete("Use MesTech.Domain.Entities.User — Dalga 5'te kaldırılacak")]
     public class User
     {
         public int Id { get; set; }
