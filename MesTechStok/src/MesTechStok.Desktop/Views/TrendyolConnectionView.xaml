@@ -3,86 +3,157 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Resources>
-        <Style x:Key="CardBorder" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E9ECEF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="8"/>
+        <Style x:Key="CardBorder"
+                TargetType="Border">
+            <Setter Property="Background"
+                    Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="#E9ECEF"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="12"/>
+            <Setter Property="Padding"
+                    Value="20"/>
+            <Setter Property="Margin"
+                    Value="8"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                    <DropShadowEffect Color="Black"
+                            BlurRadius="8"
+                            ShadowDepth="2"
+                            Opacity="0.1"/>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="PrimaryBtn" TargetType="Button">
-            <Setter Property="Background" Value="#FF6000"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="PrimaryBtn"
+                TargetType="Button">
+            <Setter Property="Background"
+                    Value="#FF6000"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+            <Setter Property="Padding"
+                    Value="16,10"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="FontWeight"
+                    Value="Medium"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#CC4D00"/>
+                            <Trigger Property="IsMouseOver"
+                                    Value="True">
+                                <Setter Property="Background"
+                                        Value="#CC4D00"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="SecondaryBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
-            <Setter Property="Background" Value="#007ACC"/>
+        <Style x:Key="SecondaryBtn"
+                TargetType="Button"
+                BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background"
+                    Value="#007ACC"/>
         </Style>
-        <Style x:Key="SuccessBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
-            <Setter Property="Background" Value="#28A745"/>
+        <Style x:Key="SuccessBtn"
+                TargetType="Button"
+                BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background"
+                    Value="#28A745"/>
         </Style>
-        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
-            <Setter Property="Background" Value="#DC3545"/>
+        <Style x:Key="DangerBtn"
+                TargetType="Button"
+                BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background"
+                    Value="#DC3545"/>
         </Style>
-        <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#495057"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
+        <Style x:Key="FieldLabel"
+                TargetType="TextBlock">
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="Foreground"
+                    Value="#495057"/>
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+            <Setter Property="Margin"
+                    Value="0,0,10,0"/>
         </Style>
-        <Style x:Key="FieldInput" TargetType="TextBox">
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#CED4DA"/>
-            <Setter Property="BorderThickness" Value="1"/>
+        <Style x:Key="FieldInput"
+                TargetType="TextBox">
+            <Setter Property="Padding"
+                    Value="10"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="BorderBrush"
+                    Value="#CED4DA"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
         </Style>
-        <Style x:Key="StatusBadge" TargetType="Border">
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Style x:Key="StatusBadge"
+                TargetType="Border">
+            <Setter Property="CornerRadius"
+                    Value="10"/>
+            <Setter Property="Padding"
+                    Value="10,4"/>
+            <Setter Property="HorizontalAlignment"
+                    Value="Left"/>
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+            Opacity="0"
+            RenderTransformOrigin="0.5,0.5">
+        <ScrollViewer.RenderTransform>
+            <TranslateTransform Y="20"/>
+        </ScrollViewer.RenderTransform>
+        <ScrollViewer.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard Storyboard="{StaticResource PageEnterAnimation}"/>
+            </EventTrigger>
+        </ScrollViewer.Triggers>
         <StackPanel Margin="20">
             <!-- Header -->
-            <Border Style="{StaticResource CardBorder}" Margin="8,8,8,16">
+            <Border Style="{StaticResource CardBorder}"
+                    Margin="8,8,8,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Trendyol Baglanti Yonetimi" FontSize="22" FontWeight="Bold" Foreground="#FF6000"/>
-                        <TextBlock Text="Trendyol Marketplace API baglanti ayarlari ve durum izleme" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                        <TextBlock Text="Trendyol Baglanti Yonetimi"
+                                FontSize="22"
+                                FontWeight="Bold"
+                                Foreground="#FF6000"/>
+                        <TextBlock Text="Trendyol Marketplace API baglanti ayarlari ve durum izleme"
+                                FontSize="13"
+                                Foreground="#6C757D"
+                                Margin="0,4,0,0"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border x:Name="ConnectionStatusBadge" Style="{StaticResource StatusBadge}" Background="#E8F5E9">
-                            <TextBlock x:Name="ConnectionStatusText" Text="Bagli Degil" FontSize="12" FontWeight="Medium" Foreground="#2E7D32"/>
+                    <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                        <Border x:Name="ConnectionStatusBadge"
+                                Style="{StaticResource StatusBadge}"
+                                Background="#E8F5E9">
+                            <TextBlock x:Name="ConnectionStatusText"
+                                    Text="Bagli Degil"
+                                    FontSize="12"
+                                    FontWeight="Medium"
+                                    Foreground="#2E7D32"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -91,15 +162,23 @@
             <!-- API Credentials -->
             <Border Style="{StaticResource CardBorder}">
                 <StackPanel>
-                    <TextBlock Text="API Kimlik Bilgileri" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,16"/>
+                    <TextBlock Text="API Kimlik Bilgileri"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="#212529"
+                            Margin="0,0,0,16"/>
 
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="Seller ID:"/>
-                        <TextBox Grid.Column="1" x:Name="SellerIdTextBox" Style="{StaticResource FieldInput}" Tag="Trendyol Seller ID"/>
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="Seller ID:"/>
+                        <TextBox Grid.Column="1"
+                                x:Name="SellerIdTextBox"
+                                Style="{StaticResource FieldInput}"
+                                Tag="Trendyol Seller ID"/>
                     </Grid>
 
                     <Grid Margin="0,0,0,12">
@@ -107,8 +186,12 @@
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="API Key:"/>
-                        <TextBox Grid.Column="1" x:Name="ApiKeyTextBox" Style="{StaticResource FieldInput}" Tag="Trendyol API Key"/>
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="API Key:"/>
+                        <TextBox Grid.Column="1"
+                                x:Name="ApiKeyTextBox"
+                                Style="{StaticResource FieldInput}"
+                                Tag="Trendyol API Key"/>
                     </Grid>
 
                     <Grid Margin="0,0,0,12">
@@ -116,8 +199,14 @@
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="API Secret:"/>
-                        <PasswordBox Grid.Column="1" x:Name="ApiSecretBox" Padding="10" FontSize="13" BorderBrush="#CED4DA" BorderThickness="1"/>
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="API Secret:"/>
+                        <PasswordBox Grid.Column="1"
+                                x:Name="ApiSecretBox"
+                                Padding="10"
+                                FontSize="13"
+                                BorderBrush="#CED4DA"
+                                BorderThickness="1"/>
                     </Grid>
 
                     <Grid Margin="0,0,0,12">
@@ -125,13 +214,26 @@
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="Base URL:"/>
-                        <TextBox Grid.Column="1" x:Name="BaseUrlTextBox" Style="{StaticResource FieldInput}" Text="https://api.trendyol.com/sapigw" IsReadOnly="True" Foreground="#6C757D"/>
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="Base URL:"/>
+                        <TextBox Grid.Column="1"
+                                x:Name="BaseUrlTextBox"
+                                Style="{StaticResource FieldInput}"
+                                Text="https://api.trendyol.com/sapigw"
+                                IsReadOnly="True"
+                                Foreground="#6C757D"/>
                     </Grid>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                        <Button Content="Baglanti Test Et" Style="{StaticResource PrimaryBtn}" Click="TestConnection_Click" Margin="0,0,8,0"/>
-                        <Button Content="Kaydet" Style="{StaticResource SuccessBtn}" Click="SaveCredentials_Click"/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,8,0,0">
+                        <Button Content="Baglanti Test Et"
+                                Style="{StaticResource PrimaryBtn}"
+                                Click="TestConnection_Click"
+                                Margin="0,0,8,0"/>
+                        <Button Content="Kaydet"
+                                Style="{StaticResource SuccessBtn}"
+                                Click="SaveCredentials_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -139,15 +241,22 @@
             <!-- Sync Settings -->
             <Border Style="{StaticResource CardBorder}">
                 <StackPanel>
-                    <TextBlock Text="Senkronizasyon Ayarlari" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,16"/>
+                    <TextBlock Text="Senkronizasyon Ayarlari"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="#212529"
+                            Margin="0,0,0,16"/>
 
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="Urun Sync Araligi:"/>
-                        <ComboBox Grid.Column="1" x:Name="ProductSyncIntervalCombo" SelectedIndex="1">
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="Urun Sync Araligi:"/>
+                        <ComboBox Grid.Column="1"
+                                x:Name="ProductSyncIntervalCombo"
+                                SelectedIndex="1">
                             <ComboBoxItem Content="15 dakika"/>
                             <ComboBoxItem Content="30 dakika"/>
                             <ComboBoxItem Content="1 saat"/>
@@ -160,8 +269,11 @@
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource FieldLabel}" Text="Siparis Kontrol Araligi:"/>
-                        <ComboBox Grid.Column="1" x:Name="OrderSyncIntervalCombo" SelectedIndex="0">
+                        <TextBlock Style="{StaticResource FieldLabel}"
+                                Text="Siparis Kontrol Araligi:"/>
+                        <ComboBox Grid.Column="1"
+                                x:Name="OrderSyncIntervalCombo"
+                                SelectedIndex="0">
                             <ComboBoxItem Content="5 dakika"/>
                             <ComboBoxItem Content="10 dakika"/>
                             <ComboBoxItem Content="15 dakika"/>
@@ -169,12 +281,27 @@
                         </ComboBox>
                     </Grid>
 
-                    <CheckBox x:Name="AutoSyncCheckBox" Content="Otomatik senkronizasyon aktif" IsChecked="True" FontSize="13" Margin="0,0,0,8"/>
-                    <CheckBox x:Name="AutoInvoiceCheckBox" Content="Otomatik fatura olusturma aktif" IsChecked="False" FontSize="13" Margin="0,0,0,8"/>
-                    <CheckBox x:Name="WebhookCheckBox" Content="Webhook bildirimleri aktif" IsChecked="False" FontSize="13"/>
+                    <CheckBox x:Name="AutoSyncCheckBox"
+                            Content="Otomatik senkronizasyon aktif"
+                            IsChecked="True"
+                            FontSize="13"
+                            Margin="0,0,0,8"/>
+                    <CheckBox x:Name="AutoInvoiceCheckBox"
+                            Content="Otomatik fatura olusturma aktif"
+                            IsChecked="False"
+                            FontSize="13"
+                            Margin="0,0,0,8"/>
+                    <CheckBox x:Name="WebhookCheckBox"
+                            Content="Webhook bildirimleri aktif"
+                            IsChecked="False"
+                            FontSize="13"/>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                        <Button Content="Ayarlari Kaydet" Style="{StaticResource SuccessBtn}" Click="SaveSyncSettings_Click"/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,12,0,0">
+                        <Button Content="Ayarlari Kaydet"
+                                Style="{StaticResource SuccessBtn}"
+                                Click="SaveSyncSettings_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -182,7 +309,11 @@
             <!-- Connection Status Panel -->
             <Border Style="{StaticResource CardBorder}">
                 <StackPanel>
-                    <TextBlock Text="Baglanti Durumu" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,16"/>
+                    <TextBlock Text="Baglanti Durumu"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="#212529"
+                            Margin="0,0,0,16"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -193,42 +324,104 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- API Status -->
-                        <Border Grid.Column="0" Background="#F8F9FA" CornerRadius="8" Padding="12" Margin="0,0,8,0">
+                        <Border Grid.Column="0"
+                                Background="#F8F9FA"
+                                CornerRadius="8"
+                                Padding="12"
+                                Margin="0,0,8,0">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="API Durumu" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="ApiStatusText" Text="--" FontSize="18" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                <TextBlock Text="API Durumu"
+                                        FontSize="11"
+                                        Foreground="#6C757D"
+                                        HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ApiStatusText"
+                                        Text="--"
+                                        FontSize="18"
+                                        FontWeight="Bold"
+                                        Foreground="#28A745"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Last Sync -->
-                        <Border Grid.Column="1" Background="#F8F9FA" CornerRadius="8" Padding="12" Margin="4,0">
+                        <Border Grid.Column="1"
+                                Background="#F8F9FA"
+                                CornerRadius="8"
+                                Padding="12"
+                                Margin="4,0">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="Son Sync" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="LastSyncText" Text="--" FontSize="14" FontWeight="Medium" Foreground="#212529" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                <TextBlock Text="Son Sync"
+                                        FontSize="11"
+                                        Foreground="#6C757D"
+                                        HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="LastSyncText"
+                                        Text="--"
+                                        FontSize="14"
+                                        FontWeight="Medium"
+                                        Foreground="#212529"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Product Count -->
-                        <Border Grid.Column="2" Background="#F8F9FA" CornerRadius="8" Padding="12" Margin="4,0">
+                        <Border Grid.Column="2"
+                                Background="#F8F9FA"
+                                CornerRadius="8"
+                                Padding="12"
+                                Margin="4,0">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="Urun Sayisi" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="ProductCountText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#007ACC" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                <TextBlock Text="Urun Sayisi"
+                                        FontSize="11"
+                                        Foreground="#6C757D"
+                                        HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ProductCountText"
+                                        Text="0"
+                                        FontSize="18"
+                                        FontWeight="Bold"
+                                        Foreground="#007ACC"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Order Count -->
-                        <Border Grid.Column="3" Background="#F8F9FA" CornerRadius="8" Padding="12" Margin="8,0,0,0">
+                        <Border Grid.Column="3"
+                                Background="#F8F9FA"
+                                CornerRadius="8"
+                                Padding="12"
+                                Margin="8,0,0,0">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="Bekleyen Siparis" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="PendingOrderText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                <TextBlock Text="Bekleyen Siparis"
+                                        FontSize="11"
+                                        Foreground="#6C757D"
+                                        HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="PendingOrderText"
+                                        Text="0"
+                                        FontSize="18"
+                                        FontWeight="Bold"
+                                        Foreground="#FFC107"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                        <Button Content="Urunleri Cek" Style="{StaticResource SecondaryBtn}" Click="PullProducts_Click" Margin="0,0,8,0"/>
-                        <Button Content="Stok Gonder" Style="{StaticResource SuccessBtn}" Click="PushStock_Click" Margin="0,0,8,0"/>
-                        <Button Content="Siparisleri Cek" Style="{StaticResource PrimaryBtn}" Click="PullOrders_Click"/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,16,0,0">
+                        <Button Content="Urunleri Cek"
+                                Style="{StaticResource SecondaryBtn}"
+                                Click="PullProducts_Click"
+                                Margin="0,0,8,0"/>
+                        <Button Content="Stok Gonder"
+                                Style="{StaticResource SuccessBtn}"
+                                Click="PushStock_Click"
+                                Margin="0,0,8,0"/>
+                        <Button Content="Siparisleri Cek"
+                                Style="{StaticResource PrimaryBtn}"
+                                Click="PullOrders_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -237,10 +430,24 @@
             <Border Style="{StaticResource CardBorder}">
                 <StackPanel>
                     <Grid Margin="0,0,0,12">
-                        <TextBlock Text="Son Islemler" FontSize="16" FontWeight="Bold" Foreground="#212529"/>
-                        <Button Content="Temizle" Style="{StaticResource DangerBtn}" HorizontalAlignment="Right" Padding="10,6" FontSize="11" Click="ClearLog_Click"/>
+                        <TextBlock Text="Son Islemler"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Foreground="#212529"/>
+                        <Button Content="Temizle"
+                                Style="{StaticResource DangerBtn}"
+                                HorizontalAlignment="Right"
+                                Padding="10,6"
+                                FontSize="11"
+                                Click="ClearLog_Click"/>
                     </Grid>
-                    <ListBox x:Name="ActivityLogList" MinHeight="120" MaxHeight="250" BorderBrush="#E9ECEF" BorderThickness="1" FontSize="12" FontFamily="Consolas"/>
+                    <ListBox x:Name="ActivityLogList"
+                            MinHeight="120"
+                            MaxHeight="250"
+                            BorderBrush="#E9ECEF"
+                            BorderThickness="1"
+                            FontSize="12"
+                            FontFamily="Consolas"/>
                 </StackPanel>
             </Border>
         </StackPanel>
