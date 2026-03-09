@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -20,6 +20,7 @@ using MesTechStok.Core.Services.Abstract;
 using System.Windows.Documents;
 using MesTechStok.Core.Data;
 using Microsoft.EntityFrameworkCore;
+using MahApps.Metro.Controls;
 
 namespace MesTechStok.Desktop
 {
@@ -27,7 +28,7 @@ namespace MesTechStok.Desktop
     /// MainWindow.xaml için etkileşim mantığı
     /// EMERGENCY FIX: Simplified constructor to prevent crash
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         private MainViewModel? _viewModel;
         private bool _isWelcomeMode = false;
@@ -381,7 +382,7 @@ namespace MesTechStok.Desktop
                     mainSystemContent.Visibility = Visibility.Visible;
                 }
 
-                // Header'ı göster  
+                // Header'ı göster
                 var headerBar = this.FindName("HeaderBar") as FrameworkElement;
                 if (headerBar != null)
                 {
@@ -413,7 +414,7 @@ namespace MesTechStok.Desktop
                     mainSystemContent.Visibility = Visibility.Collapsed;
                 }
 
-                // Header'ı gizle  
+                // Header'ı gizle
                 var headerBar = this.FindName("HeaderBar") as FrameworkElement;
                 if (headerBar != null)
                 {
