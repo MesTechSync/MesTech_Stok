@@ -78,11 +78,17 @@ public class Invoice : BaseEntity, ITenantEntity
         Status = InvoiceStatus.Rejected;
     }
 
-    public void Cancel()
+    public string? CancellationReason { get; set; }
+    public DateTime? CancelledAt { get; set; }
+
+    public void Cancel(string? reason = null)
     {
         if (Status == InvoiceStatus.Accepted)
             throw new InvalidOperationException("Kabul edilmis fatura iptal edilemez.");
         Status = InvoiceStatus.Cancelled;
+        CancellationReason = reason;
+        CancelledAt = DateTime.UtcNow;
+        RaiseDomainEvent(new InvoiceCancelledEvent(Id, OrderId, InvoiceNumber, reason, DateTime.UtcNow));
     }
 
     public void MarkAsPlatformSent(string platformInvoiceUrl)
