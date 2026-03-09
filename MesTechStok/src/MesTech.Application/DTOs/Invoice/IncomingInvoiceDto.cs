@@ -1,9 +1,13 @@
+using MesTech.Domain.Enums;
+
 namespace MesTech.Application.DTOs.Invoice;
 
 public record IncomingInvoiceDto(
     string GibInvoiceId,
+    string InvoiceNumber,
     string SenderName,
     string SenderTaxNumber,
-    decimal Amount,
+    decimal GrandTotal,
     DateTime InvoiceDate,
-    string Status);
+    string? PdfUrl,
+    InvoiceStatus Status);

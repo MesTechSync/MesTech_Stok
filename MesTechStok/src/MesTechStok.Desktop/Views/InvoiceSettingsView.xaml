@@ -1,0 +1,262 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.InvoiceSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#343A40"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#495057"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style x:Key="UploadBtn" TargetType="Button">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#545B62"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SaveBtn" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+        <StackPanel>
+
+            <!-- Card 1: Header -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Fatura Ayarlari" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock Text="e-Fatura/e-Arsiv otomatik kesim, KDV ve sablon yapilandirmasi"
+                               FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 2: KDV Ayarlari -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="KDV Ayarlari" Style="{StaticResource SectionHeader}"/>
+
+                    <!-- Genel KDV Orani -->
+                    <TextBlock Text="Genel KDV Orani:" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox x:Name="DefaultKdvRate" SelectedIndex="3" Margin="0,0,0,12" Width="220" HorizontalAlignment="Left">
+                        <ComboBoxItem Content="%0 (KDV'siz)"/>
+                        <ComboBoxItem Content="%1"/>
+                        <ComboBoxItem Content="%10"/>
+                        <ComboBoxItem Content="%20 (Standart)"/>
+                    </ComboBox>
+
+                    <!-- Mikro Ihracat Istisna Kodu -->
+                    <TextBlock Text="Mikro Ihracat Istisna Kodu:" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="IstisnaSebebi" Text="301-11/1-a" Width="220" HorizontalAlignment="Left"
+                             Padding="8,6" BorderBrush="#CED4DA" BorderThickness="1"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 3: Otomatik Fatura Ayarlari -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Otomatik Fatura Ayarlari" Style="{StaticResource SectionHeader}"/>
+
+                    <CheckBox x:Name="AutoCutOnDelivery"
+                              Content="Siparis teslim edildiginde otomatik fatura kes"
+                              IsChecked="True"
+                              Margin="0,0,0,8" FontSize="12" Foreground="#495057"/>
+
+                    <CheckBox x:Name="AutoCancelOnOrderCancel"
+                              Content="Siparis iptalinde fatura otomatik iptal"
+                              Margin="0,0,0,8" FontSize="12" Foreground="#495057"/>
+
+                    <CheckBox x:Name="AutoCancelOnReturn"
+                              Content="Iade durumunda fatura otomatik iptal"
+                              Margin="0,0,0,8" FontSize="12" Foreground="#495057"/>
+
+                    <CheckBox x:Name="AutoEmailToAccounting"
+                              Content="Muhasebe birimine otomatik e-posta gonder"
+                              Margin="0,0,0,8" FontSize="12" Foreground="#495057"
+                              Checked="AutoEmail_Checked"
+                              Unchecked="AutoEmail_Unchecked"/>
+
+                    <!-- Accounting Email Panel (collapsed until checkbox checked) -->
+                    <Grid x:Name="AccountingEmailPanel" Visibility="Collapsed" Margin="24,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="E-posta:" Style="{StaticResource FieldLabel}"
+                                   Margin="0,0,12,0"/>
+                        <TextBox Grid.Column="1" x:Name="AccountingEmail"
+                                 Text="muhasebe@firma.com"
+                                 Padding="8,6" BorderBrush="#CED4DA" BorderThickness="1"
+                                 MaxWidth="320" HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 4: Fatura Sablonu -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Fatura Sablonu" Style="{StaticResource SectionHeader}"/>
+
+                    <!-- Design Type -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Tasarim:" Style="{StaticResource FieldLabel}"
+                                   Margin="0,0,16,0"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <RadioButton x:Name="DesignStandart" Content="Standart"
+                                         IsChecked="True" Margin="0,0,20,0"
+                                         FontSize="12" Foreground="#495057"/>
+                            <RadioButton x:Name="DesignPlatform" Content="Platform Temali"
+                                         FontSize="12" Foreground="#495057"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Logo Upload Row -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Sirket Logosu:" Style="{StaticResource FieldLabel}"
+                                   Margin="0,0,12,0"/>
+                        <Border Grid.Column="1" Width="64" Height="64"
+                                BorderBrush="#CED4DA" BorderThickness="1"
+                                CornerRadius="4" Margin="0,0,8,0" Background="#F8F9FA">
+                            <Image x:Name="LogoPreview" Stretch="Uniform"/>
+                        </Border>
+                        <Button Grid.Column="2" Content="Logo Yukle"
+                                Style="{StaticResource UploadBtn}"
+                                Click="UploadLogo_Click"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0"/>
+                        <TextBlock Grid.Column="3" x:Name="LogoFileName"
+                                   Text="Dosya secilmedi"
+                                   FontSize="11" Foreground="#6C757D"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Signature Upload Row -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Islak Imza:" Style="{StaticResource FieldLabel}"
+                                   Margin="0,0,12,0"/>
+                        <Border Grid.Column="1" Width="64" Height="64"
+                                BorderBrush="#CED4DA" BorderThickness="1"
+                                CornerRadius="4" Margin="0,0,8,0" Background="#F8F9FA">
+                            <Image x:Name="SignaturePreview" Stretch="Uniform"/>
+                        </Border>
+                        <Button Grid.Column="2" Content="Imza Yukle"
+                                Style="{StaticResource UploadBtn}"
+                                Click="UploadSignature_Click"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0"/>
+                        <TextBlock Grid.Column="3" x:Name="SignatureFileName"
+                                   Text="Dosya secilmedi"
+                                   FontSize="11" Foreground="#6C757D"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Faturada Gorunecek Alanlar -->
+                    <TextBlock Text="Faturada Gorunecek Alanlar:" Style="{StaticResource SectionHeader}"
+                               Margin="0,0,0,8"/>
+
+                    <CheckBox x:Name="ShowPhone" Content="Telefon numarasi"
+                              IsChecked="True" Margin="0,0,0,6"
+                              FontSize="12" Foreground="#495057"/>
+                    <CheckBox x:Name="ShowEmail" Content="E-posta adresi"
+                              Margin="0,0,0,6" FontSize="12" Foreground="#495057"/>
+                    <CheckBox x:Name="ShowKargoBarkod" Content="Kargo barkodu"
+                              IsChecked="True" Margin="0,0,0,6"
+                              FontSize="12" Foreground="#495057"/>
+                    <CheckBox x:Name="ShowAmountInWords" Content="Fatura tutari yazi ile"
+                              IsChecked="True" Margin="0,0,0,12"
+                              FontSize="12" Foreground="#495057"/>
+
+                    <!-- Ticaret Sicil Numarasi -->
+                    <TextBlock Text="Ticaret Sicil Numarasi:" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="TicaretSicilNo" Width="220" HorizontalAlignment="Left"
+                             Padding="8,6" BorderBrush="#CED4DA" BorderThickness="1"
+                             Margin="0,0,0,12"/>
+
+                    <!-- Fatura Notu -->
+                    <TextBlock Text="Fatura Notu:" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="InvoiceNote" AcceptsReturn="True" Height="60"
+                             Padding="8,6" BorderBrush="#CED4DA" BorderThickness="1"
+                             TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Footer: Save Button (right-aligned) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,4,8,16">
+                <Button Content="Ayarlari Kaydet" Style="{StaticResource SaveBtn}" Click="Save_Click"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

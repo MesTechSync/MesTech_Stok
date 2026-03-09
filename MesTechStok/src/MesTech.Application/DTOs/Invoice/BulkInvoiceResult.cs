@@ -1,6 +1,13 @@
 namespace MesTech.Application.DTOs.Invoice;
 
 public record BulkInvoiceResult(
-    IReadOnlyList<MesTech.Application.DTOs.InvoiceResult> Results,
+    int TotalRequested,
     int SuccessCount,
-    int FailCount);
+    int FailedCount,
+    IReadOnlyList<BulkInvoiceItemResult> Results);
+
+public record BulkInvoiceItemResult(
+    Guid OrderId,
+    bool Success,
+    string? GibInvoiceId,
+    string? ErrorMessage);

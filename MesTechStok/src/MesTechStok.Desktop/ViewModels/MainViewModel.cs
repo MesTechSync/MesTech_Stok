@@ -1474,5 +1474,29 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        [RelayCommand]
+        private void ShowInvoiceSettings()
+        {
+            NavigationTimingService.Instance.StartTiming("Fatura Ayarlari");
+            try
+            {
+                CurrentView = new Views.InvoiceSettingsView();
+                CurrentModule = "Fatura Ayarlari";
+                StatusMessage = "⚙️ Fatura Ayarlari yüklendi";
+                GlobalLogger.Instance.LogInfo("Fatura ayarları ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fatura Ayarlari");
+                ToastManager.ShowSuccess("Fatura ayarları modülü aktif!", "Fatura Ayarları");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Fatura ayarları yüklenemedi";
+                GlobalLogger.Instance.LogError($"Fatura ayarları yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fatura Ayarlari");
+                ToastManager.ShowError("Fatura ayarları yüklenemedi!", "Hata");
+                MessageBox.Show($"Fatura ayarları yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
