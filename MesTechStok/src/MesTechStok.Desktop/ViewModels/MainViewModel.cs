@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 // ALPHA TEAM: Core services integration
 using MesTechStok.Core.Services.Abstract;
+using MesTech.Application.Interfaces;
 using MesTechStok.Core.Data.Models;
 
 // Desktop services
@@ -44,6 +45,8 @@ namespace MesTechStok.Desktop.ViewModels
         private readonly IDatabaseService _databaseService;
         private readonly ISystemResourceService _systemResourceService;
         private readonly ILogger<MainViewModel> _logger;
+        private readonly IInvoiceProvider? _invoiceProvider;
+        private readonly IInvoiceCapableAdapter? _invoiceCapableAdapter;
 
         [ObservableProperty]
         private ObservableCollection<MesTechStok.Core.Data.Models.Product> products = new();
@@ -153,7 +156,9 @@ namespace MesTechStok.Desktop.ViewModels
             MesTechStok.Core.Services.Abstract.IMobileWarehouseService? mobileWarehouseService, // ALPHA ACTIVATION
             IDatabaseService databaseService,
             ISystemResourceService systemResourceService,
-            ILogger<MainViewModel> logger)
+            ILogger<MainViewModel> logger,
+            IInvoiceProvider? invoiceProvider = null,
+            IInvoiceCapableAdapter? invoiceCapableAdapter = null)
         {
             _productService = productService;
             _inventoryService = inventoryService;
@@ -166,6 +171,8 @@ namespace MesTechStok.Desktop.ViewModels
             _databaseService = databaseService;
             _systemResourceService = systemResourceService;
             _logger = logger;
+            _invoiceProvider = invoiceProvider;
+            _invoiceCapableAdapter = invoiceCapableAdapter;
 
             _ = InitializeAsync();
         }
@@ -1402,7 +1409,7 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("Fatura Yönetimi");
             try
             {
-                CurrentView = new Views.InvoiceManagementView(invoiceProvider: null, trendyolAdapter: null);
+                CurrentView = new Views.InvoiceManagementView(invoiceProvider: _invoiceProvider, invoiceCapableAdapter: _invoiceCapableAdapter);
                 CurrentModule = "Fatura Yönetimi";
                 StatusMessage = "🧾 Fatura Yönetimi yüklendi";
                 GlobalLogger.Instance.LogInfo("Fatura yönetimi ekranı açıldı", "MainViewModel");

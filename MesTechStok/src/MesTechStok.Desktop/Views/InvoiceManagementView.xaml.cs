@@ -6,25 +6,24 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using MesTech.Application.Interfaces;
-using MesTech.Infrastructure.Integration.Adapters;
 
 namespace MesTechStok.Desktop.Views
 {
     public partial class InvoiceManagementView : UserControl
     {
         private readonly IInvoiceProvider? _invoiceProvider;
-        private readonly TrendyolAdapter? _trendyolAdapter;
+        private readonly IInvoiceCapableAdapter? _invoiceCapableAdapter;
         private readonly ObservableCollection<InvoiceDisplayItem> _invoices = new();
 
         // Null defaults allow the WPF designer to call the constructor without arguments.
-        public InvoiceManagementView(IInvoiceProvider? invoiceProvider = null, TrendyolAdapter? trendyolAdapter = null)
+        public InvoiceManagementView(IInvoiceProvider? invoiceProvider = null, IInvoiceCapableAdapter? invoiceCapableAdapter = null)
         {
             InitializeComponent();
             InvStartDate.SelectedDate = DateTime.Today.AddMonths(-1);
             InvEndDate.SelectedDate = DateTime.Today;
 
             _invoiceProvider = invoiceProvider;
-            _trendyolAdapter = trendyolAdapter;
+            _invoiceCapableAdapter = invoiceCapableAdapter;
 
             InvoicesGrid.ItemsSource = _invoices;
             LoadSampleData();
@@ -126,9 +125,9 @@ namespace MesTechStok.Desktop.Views
 
             if (result != MessageBoxResult.Yes) return;
 
-            if (_trendyolAdapter == null)
+            if (_invoiceCapableAdapter == null)
             {
-                MessageBox.Show("Trendyol adapter bulunamadi. Baglanti ekranindan yapilandirin.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Platform adapter bulunamadi. Baglanti ekranindan yapilandirin.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -138,7 +137,7 @@ namespace MesTechStok.Desktop.Views
                 try
                 {
                     // Use invoice link approach
-                    var ok = await _trendyolAdapter.SendInvoiceLinkAsync(
+                    var ok = await _invoiceCapableAdapter.SendInvoiceLinkAsync(
                         item.GibInvoiceId, $"https://efatura.gov.tr/view/{item.GibInvoiceId}");
                     if (ok) { item.Status = "Gonderildi"; sent++; }
                 }
