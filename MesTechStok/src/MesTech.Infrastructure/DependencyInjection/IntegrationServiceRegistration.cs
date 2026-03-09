@@ -3,8 +3,10 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Infrastructure.Integration.Invoice;
+using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Infrastructure.Integration.Webhooks;
+using MesTech.Infrastructure.Middleware;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -76,6 +78,24 @@ public static class IntegrationServiceRegistration
             new ParasutInvoiceProvider(new HttpClient(), sp.GetRequiredService<ILogger<ParasutInvoiceProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ParasutInvoiceProvider>());
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
+
+        // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
+        if (configuration is not null)
+        {
+            services.Configure<ELogoInvoiceConfig>(opt =>
+                configuration.GetSection(ELogoInvoiceConfig.Section).Bind(opt));
+            services.Configure<BirFaturaInvoiceConfig>(opt =>
+                configuration.GetSection(BirFaturaInvoiceConfig.Section).Bind(opt));
+            services.Configure<DijiitalPlanetInvoiceConfig>(opt =>
+                configuration.GetSection(DijiitalPlanetInvoiceConfig.Section).Bind(opt));
+            services.Configure<GibPortalInvoiceConfig>(opt =>
+                configuration.GetSection(GibPortalInvoiceConfig.Section).Bind(opt));
+            services.Configure<HBFaturaInvoiceConfig>(opt =>
+                configuration.GetSection(HBFaturaInvoiceConfig.Section).Bind(opt));
+
+            // API Key middleware options — Dalga 5 (IP-6): protects MesTech Web API (port 5100)
+            services.AddApiKeyAuthentication(configuration);
+        }
 
         return services;
     }
