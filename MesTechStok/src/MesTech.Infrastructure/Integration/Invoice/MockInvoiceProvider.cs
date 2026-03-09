@@ -1,11 +1,11 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 
-namespace MesTech.Infrastructure.Integration.Adapters;
+namespace MesTech.Infrastructure.Integration.Invoice;
 
 /// <summary>
 /// Mock IInvoiceProvider — returns realistic sample data so the Fatura Yonetimi
-/// screen is functional. Will be replaced by real Sovos/Parasut providers (Dalga 4).
+/// screen is functional. Will be replaced by real Sovos/Parasut providers in production.
 /// </summary>
 public class MockInvoiceProvider : IInvoiceProvider
 {

@@ -1,0 +1,321 @@
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Auth;
+using Microsoft.Extensions.Logging;
+
+namespace MesTech.Infrastructure.Integration.Invoice;
+
+/// <summary>
+/// Parasut e-Fatura entegrasyonu — OAuth 2.0 + JSON:API format.
+/// Content-Type: application/vnd.api+json
+/// Request/response wrapped in { data: { type, attributes } }
+/// </summary>
+public class ParasutInvoiceProvider : IInvoiceProvider
+{
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<ParasutInvoiceProvider> _logger;
+    private string? _companyId;
+    private string? _baseUrl;
+    private OAuth2AuthProvider? _authProvider;
+    private bool _isConfigured;
+
+    public string ProviderName => "Parasut e-Fatura";
+    public InvoiceProvider Provider => InvoiceProvider.Parasut;
+
+    private static readonly MediaTypeHeaderValue JsonApiMediaType =
+        new("application/vnd.api+json");
+
+    public ParasutInvoiceProvider(HttpClient httpClient, ILogger<ParasutInvoiceProvider> logger)
+    {
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// OAuth2 auth provider + company ID ile yapilandirir.
+    /// </summary>
+    public void Configure(string companyId, OAuth2AuthProvider authProvider, string baseUrl)
+    {
+        _companyId = companyId ?? throw new ArgumentNullException(nameof(companyId));
+        _authProvider = authProvider ?? throw new ArgumentNullException(nameof(authProvider));
+        _baseUrl = baseUrl?.TrimEnd('/') ?? throw new ArgumentNullException(nameof(baseUrl));
+        _isConfigured = true;
+
+        _logger.LogInformation("ParasutInvoiceProvider configured for company {CompanyId} at {BaseUrl}",
+            _companyId, _baseUrl);
+    }
+
+    public async Task<InvoiceResult> CreateEFaturaAsync(InvoiceDto invoice, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut CreateEFatura for invoice {InvoiceNumber}", invoice.InvoiceNumber);
+
+        var payload = BuildEInvoicePayload(invoice, "e_invoice");
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct);
+    }
+
+    public async Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut CreateEArsiv for invoice {InvoiceNumber}", invoice.InvoiceNumber);
+
+        var payload = BuildEArchivePayload(invoice);
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_archives", payload, ct);
+    }
+
+    public async Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut CreateEIrsaliye for invoice {InvoiceNumber}", invoice.InvoiceNumber);
+
+        var payload = BuildEInvoicePayload(invoice, "e_dispatch");
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct);
+    }
+
+    public async Task<InvoiceStatusResult> CheckStatusAsync(string gibInvoiceId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut CheckStatus for {GibInvoiceId}", gibInvoiceId);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Parasut CheckStatus failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                return new InvoiceStatusResult(gibInvoiceId, "Error", null, errorBody);
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(json);
+
+            // JSON:API format: { data: { attributes: { status, ... } } }
+            var attributes = doc.RootElement
+                .GetProperty("data")
+                .GetProperty("attributes");
+
+            var status = attributes.TryGetProperty("status", out var s)
+                ? s.GetString() ?? "Unknown" : "Unknown";
+            DateTime? acceptedAt = attributes.TryGetProperty("accepted_at", out var a) && a.ValueKind != JsonValueKind.Null
+                ? a.GetDateTime()
+                : null;
+            var error = attributes.TryGetProperty("error_message", out var e) ? e.GetString() : null;
+
+            return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parasut CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
+            return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
+        }
+    }
+
+    public async Task<byte[]> GetPdfAsync(string gibInvoiceId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut GetPdf for {GibInvoiceId}", gibInvoiceId);
+
+        await SetAuthHeaderAsync(ct);
+
+        var response = await _httpClient.GetAsync(
+            $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct);
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync(ct);
+    }
+
+    public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Parasut taxpayer check returned {Status} for {TaxNumber}",
+                    response.StatusCode, taxNumber);
+                return false;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(json);
+
+            // JSON:API: { data: [...] } — non-empty data means taxpayer is registered
+            var data = doc.RootElement.GetProperty("data");
+            return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parasut taxpayer check exception for {TaxNumber}", taxNumber);
+            return false;
+        }
+    }
+
+    public async Task<InvoiceResult> CancelInvoiceAsync(string gibInvoiceId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Parasut CancelInvoice for {GibInvoiceId}", gibInvoiceId);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var request = new HttpRequestMessage(HttpMethod.Delete,
+                $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}");
+
+            var response = await _httpClient.SendAsync(request, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Parasut CancelInvoice failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                return new InvoiceResult(false, gibInvoiceId, null, errorBody);
+            }
+
+            return new InvoiceResult(true, gibInvoiceId, null, null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parasut CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
+            return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
+        }
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────
+
+    private void EnsureConfigured()
+    {
+        if (!_isConfigured)
+            throw new InvalidOperationException(
+                "ParasutInvoiceProvider is not configured. Call Configure(companyId, authProvider, baseUrl) first.");
+    }
+
+    private async Task SetAuthHeaderAsync(CancellationToken ct)
+    {
+        var token = await _authProvider!.GetTokenAsync(ct);
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(token.TokenType, token.AccessToken);
+    }
+
+    private static object BuildEInvoicePayload(InvoiceDto invoice, string invoiceType)
+    {
+        return new
+        {
+            data = new
+            {
+                type = invoiceType,
+                attributes = new
+                {
+                    invoice_number = invoice.InvoiceNumber,
+                    customer_name = invoice.CustomerName,
+                    customer_tax_number = invoice.CustomerTaxNumber,
+                    customer_tax_office = invoice.CustomerTaxOffice,
+                    customer_address = invoice.CustomerAddress,
+                    sub_total = invoice.SubTotal,
+                    tax_total = invoice.TaxTotal,
+                    grand_total = invoice.GrandTotal,
+                    lines = invoice.Lines.Select(l => new
+                    {
+                        product_name = l.ProductName,
+                        sku = l.SKU,
+                        quantity = l.Quantity,
+                        unit_price = l.UnitPrice,
+                        tax_rate = l.TaxRate,
+                        tax_amount = l.TaxAmount,
+                        line_total = l.LineTotal
+                    }).ToArray()
+                }
+            }
+        };
+    }
+
+    private static object BuildEArchivePayload(InvoiceDto invoice)
+    {
+        return new
+        {
+            data = new
+            {
+                type = "e_archives",
+                attributes = new
+                {
+                    invoice_number = invoice.InvoiceNumber,
+                    customer_name = invoice.CustomerName,
+                    customer_tax_number = invoice.CustomerTaxNumber,
+                    customer_tax_office = invoice.CustomerTaxOffice,
+                    customer_address = invoice.CustomerAddress,
+                    sub_total = invoice.SubTotal,
+                    tax_total = invoice.TaxTotal,
+                    grand_total = invoice.GrandTotal,
+                    lines = invoice.Lines.Select(l => new
+                    {
+                        product_name = l.ProductName,
+                        sku = l.SKU,
+                        quantity = l.Quantity,
+                        unit_price = l.UnitPrice,
+                        tax_rate = l.TaxRate,
+                        tax_amount = l.TaxAmount,
+                        line_total = l.LineTotal
+                    }).ToArray()
+                }
+            }
+        };
+    }
+
+    private async Task<InvoiceResult> PostJsonApiAsync(string url, object payload, CancellationToken ct)
+    {
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+            });
+            var content = new StringContent(json, Encoding.UTF8);
+            content.Headers.ContentType = JsonApiMediaType;
+
+            var response = await _httpClient.PostAsync(url, content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Parasut POST {Url} failed: {Status} — {Error}",
+                    url, response.StatusCode, errorBody);
+                return new InvoiceResult(false, null, null, errorBody);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+
+            // JSON:API: { data: { id, attributes: { gib_invoice_id, pdf_url } } }
+            var data = doc.RootElement.GetProperty("data");
+            var attrs = data.GetProperty("attributes");
+
+            var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib) ? gib.GetString() : null;
+            var pdfUrl = attrs.TryGetProperty("pdf_url", out var pdf) ? pdf.GetString() : null;
+
+            return new InvoiceResult(true, gibId, pdfUrl, null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parasut POST {Url} exception", url);
+            return new InvoiceResult(false, null, null, ex.Message);
+        }
+    }
+}
