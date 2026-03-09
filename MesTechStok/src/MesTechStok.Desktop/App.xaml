@@ -2,12 +2,21 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:MesTechStok.Desktop"
-             xmlns:converters="clr-namespace:MesTechStok.Desktop.Converters">
+             xmlns:converters="clr-namespace:MesTechStok.Desktop.Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
-        <!-- 🎨 BRAVO TİMİ - MesTech Modern Theme System -->
+        <!-- 🎨 MesTech Antigravity Theme System -->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- BRAVO TİMİ Modern Styles -->
+                <!-- ═══ Material Design 3 Temel Kaynakları ═══ -->
+                <materialDesign:BundledTheme
+                    BaseTheme="Light"
+                    PrimaryColor="Blue"
+                    SecondaryColor="Teal"
+                    ColorAdjustment="{materialDesign:ColorAdjustment}"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
+
+                <!-- ═══ BRAVO TİMİ Modern Styles (korunuyor) ═══ -->
                 <ResourceDictionary Source="Styles/Colors.xaml"/>
                 <ResourceDictionary Source="Styles/Typography.xaml"/>
                 <ResourceDictionary Source="Styles/Animations.xaml"/>
@@ -15,18 +24,21 @@
                 <ResourceDictionary Source="Styles/NavigationStyles.xaml"/>
                 <!-- Modern input bileşenleri (TextBox/PasswordBox vb.) -->
                 <ResourceDictionary Source="Themes/ModernInputs.xaml"/>
+
+                <!-- ═══ MesTech Antigravity Tema Kaynakları ═══ -->
+                <ResourceDictionary Source="Resources/Themes/MesTechTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <!-- Converters -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-            
+
             <!-- BRAVO TİMİ Custom Converters -->
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:StockStatusToColorConverter x:Key="StockStatusToColorConverter"/>
-            
+
             <!-- Global Font Definitions -->
             <FontFamily x:Key="PrimaryFont">Segoe UI</FontFamily>
             <FontFamily x:Key="MonoFont">Consolas</FontFamily>
         </ResourceDictionary>
     </Application.Resources>
-</Application> 
+</Application>
