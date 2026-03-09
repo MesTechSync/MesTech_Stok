@@ -14,6 +14,7 @@ public class Invoice : BaseEntity, ITenantEntity
     public InvoiceType Type { get; set; }
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
     public InvoiceDirection Direction { get; set; } = InvoiceDirection.Outgoing;
+    public InvoiceProvider Provider { get; set; } = InvoiceProvider.None;
 
     public string CustomerName { get; set; } = string.Empty;
     public string? CustomerTaxNumber { get; set; }

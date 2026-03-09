@@ -1,14 +1,16 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
 /// Mock IInvoiceProvider — returns realistic sample data so the Fatura Yonetimi
-/// screen is functional. Will be replaced by real GIB integration (Dalga 3).
+/// screen is functional. Will be replaced by real Sovos/Parasut providers (Dalga 4).
 /// </summary>
 public class MockInvoiceProvider : IInvoiceProvider
 {
     public string ProviderName => "Mock e-Fatura (Test)";
+    public InvoiceProvider Provider => InvoiceProvider.Manual;
 
     public Task<InvoiceResult> CreateEFaturaAsync(InvoiceDto invoice, CancellationToken ct = default)
     {

@@ -1,8 +1,11 @@
+using MesTech.Domain.Enums;
+
 namespace MesTech.Application.Interfaces;
 
 public interface IInvoiceProvider
 {
     string ProviderName { get; }
+    InvoiceProvider Provider { get; }
     Task<InvoiceResult> CreateEFaturaAsync(InvoiceDto invoice, CancellationToken ct = default);
     Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default);
     Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default);
