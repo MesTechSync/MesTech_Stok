@@ -35,6 +35,11 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<CiceksepetiAdapter>());
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<HepsiburadaAdapter>());
 
+        // Dalga 4: Pazarama marketplace adapter — OAuth2, async batch, 2-stage cargo
+        services.AddSingleton<PazaramaAdapter>(sp =>
+            new PazaramaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PazaramaAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PazaramaAdapter>());
+
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>
             new YurticiKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<YurticiKargoAdapter>>()));
