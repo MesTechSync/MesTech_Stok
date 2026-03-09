@@ -211,7 +211,7 @@ file static class N11TestData
             Barcode = sku,
             Name = name,
             SalePrice = price,
-            StockQuantity = stock,
+            Stock = stock,
             IsActive = true
         };
     }
