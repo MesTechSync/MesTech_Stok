@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class InvoiceLine : BaseEntity
+public class InvoiceLine : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid InvoiceId { get; set; }
     public Guid? ProductId { get; set; }
 

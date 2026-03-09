@@ -5,8 +5,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// İade talebindeki ürün kalemi.
 /// </summary>
-public class ReturnRequestLine : BaseEntity
+public class ReturnRequestLine : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid ReturnRequestId { get; set; }
     public Guid? ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;

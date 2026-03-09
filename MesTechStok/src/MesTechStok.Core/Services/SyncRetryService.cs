@@ -277,7 +277,12 @@ namespace MesTechStok.Core.Services
 
         public void Dispose()
         {
-            try { _timer?.Dispose(); } catch { }
+            try { _timer?.Dispose(); }
+            catch (Exception ex)
+            {
+                // Intentional: timer disposal during shutdown — suppress all exceptions.
+                System.Diagnostics.Debug.WriteLine($"[SyncRetryService] Dispose timer failed (non-critical): {ex.Message}");
+            }
         }
     }
 }

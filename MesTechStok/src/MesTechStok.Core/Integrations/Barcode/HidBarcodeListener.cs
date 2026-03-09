@@ -185,7 +185,10 @@ namespace MesTechStok.Core.Integrations.Barcode
                 {
                     System.Diagnostics.Debug.WriteLine($"[HID] Key received: {key} ({(int)key})");
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: Debug.WriteLine during HID key processing — defensive only, should never throw.
+                }
 
                 // Eğer son girişten çok zaman geçtiyse, buffer'ı temizle
                 if (now - _lastInputTime > _barcodeTimeout)

@@ -459,7 +459,8 @@ namespace MesTechStok.Core.Services.Security
 
         public void Dispose()
         {
-            try { _timer?.Dispose(); } catch { }
+            try { _timer?.Dispose(); }
+            catch { /* Intentional: timer disposal during shutdown — suppress all exceptions */ }
         }
 
         /// <summary>

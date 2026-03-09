@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http;
 using FluentAssertions;
+using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
@@ -347,5 +349,293 @@ public class SovosInvoiceProviderTests : IClassFixture<WireMockFixture>, IDispos
         // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
+    }
+
+    // ════ 13. CreateBulkInvoice — All success ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_Success_ReturnsAllResults()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[] { CreateTestInvoice("BULK-001"), CreateTestInvoice("BULK-002") };
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/invoices/outgoing/bulk").UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""results"": [
+                        { ""success"": true, ""gibInvoiceId"": ""GIB-BULK-001"", ""pdfUrl"": ""https://sovos.example.com/pdf/GIB-BULK-001"", ""errorMessage"": null },
+                        { ""success"": true, ""gibInvoiceId"": ""GIB-BULK-002"", ""pdfUrl"": ""https://sovos.example.com/pdf/GIB-BULK-002"", ""errorMessage"": null }
+                    ]
+                }"));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(2);
+        result.FailCount.Should().Be(0);
+        result.Results[0].Success.Should().BeTrue();
+        result.Results[0].GibInvoiceId.Should().Be("GIB-BULK-001");
+        result.Results[1].Success.Should().BeTrue();
+        result.Results[1].GibInvoiceId.Should().Be("GIB-BULK-002");
+    }
+
+    // ════ 14. CreateBulkInvoice — Partial failure ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_PartialFailure_ReturnsCorrectCounts()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[] { CreateTestInvoice("BULK-003"), CreateTestInvoice("BULK-004") };
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/invoices/outgoing/bulk").UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""results"": [
+                        { ""success"": true, ""gibInvoiceId"": ""GIB-BULK-003"", ""pdfUrl"": null, ""errorMessage"": null },
+                        { ""success"": false, ""gibInvoiceId"": null, ""pdfUrl"": null, ""errorMessage"": ""Invalid tax number"" }
+                    ]
+                }"));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(1);
+        result.FailCount.Should().Be(1);
+        result.Results[0].Success.Should().BeTrue();
+        result.Results[1].Success.Should().BeFalse();
+        result.Results[1].ErrorMessage.Should().Be("Invalid tax number");
+    }
+
+    // ════ 15. CreateBulkInvoice — HTTP error returns all-fail ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_HttpError_ReturnsAllFail()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[] { CreateTestInvoice("BULK-005"), CreateTestInvoice("BULK-006") };
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/invoices/outgoing/bulk").UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody(@"{""error"": ""Internal Server Error""}"));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(0);
+        result.FailCount.Should().Be(2);
+        result.Results.Should().AllSatisfy(r => r.Success.Should().BeFalse());
+    }
+
+    // ════ 16. GetIncomingInvoices — Returns list ════
+
+    [Fact]
+    public async Task GetIncomingInvoices_ReturnsInvoiceList()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var from = new DateTime(2026, 3, 1);
+        var to = new DateTime(2026, 3, 9);
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/api/invoices/incoming")
+                .WithParam("from", "2026-03-01")
+                .WithParam("to", "2026-03-09")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""invoices"": [
+                        {
+                            ""gibInvoiceId"": ""GIB-IN-001"",
+                            ""senderName"": ""Tedarikci A.S."",
+                            ""senderTaxNumber"": ""9876543210"",
+                            ""amount"": 5000.00,
+                            ""invoiceDate"": ""2026-03-05T00:00:00Z"",
+                            ""status"": ""Pending""
+                        }
+                    ]
+                }"));
+
+        // Act
+        var result = await provider.GetIncomingInvoicesAsync(from, to);
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].GibInvoiceId.Should().Be("GIB-IN-001");
+        result[0].SenderName.Should().Be("Tedarikci A.S.");
+        result[0].SenderTaxNumber.Should().Be("9876543210");
+        result[0].Amount.Should().Be(5000.00m);
+        result[0].Status.Should().Be("Pending");
+    }
+
+    // ════ 17. GetIncomingInvoices — Server error returns empty ════
+
+    [Fact]
+    public async Task GetIncomingInvoices_ServerError_ReturnsEmptyList()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/invoices/incoming").UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody(@"{""error"": ""Internal Server Error""}"));
+
+        // Act
+        var result = await provider.GetIncomingInvoicesAsync(
+            new DateTime(2026, 3, 1), new DateTime(2026, 3, 9));
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    // ════ 18. AcceptInvoice — Returns true ════
+
+    [Fact]
+    public async Task AcceptInvoice_ReturnsTrue()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"/api/invoices/incoming/{TestGibInvoiceId}/accept")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""success"": true}"));
+
+        // Act
+        var result = await provider.AcceptInvoiceAsync(TestGibInvoiceId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    // ════ 19. RejectInvoice — Returns true ════
+
+    [Fact]
+    public async Task RejectInvoice_ReturnsTrue()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"/api/invoices/incoming/{TestGibInvoiceId}/reject")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""success"": true}"));
+
+        // Act
+        var result = await provider.RejectInvoiceAsync(TestGibInvoiceId, "Yanlis tutar");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    // ════ 20. GetKontorBalance — Returns info ════
+
+    [Fact]
+    public async Task GetKontorBalance_ReturnsInfo()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/account/kontor").UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""remaining"": 450,
+                    ""total"": 500,
+                    ""lastChecked"": ""2026-03-09T12:00:00Z""
+                }"));
+
+        // Act
+        var result = await provider.GetKontorBalanceAsync();
+
+        // Assert
+        result.Remaining.Should().Be(450);
+        result.Total.Should().Be(500);
+        result.LastChecked.Should().NotBeNull();
+    }
+
+    // ════ 21. GetKontorBalance — Server error returns zero ════
+
+    [Fact]
+    public async Task GetKontorBalance_ServerError_ReturnsZero()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/account/kontor").UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody(@"{""error"": ""Internal Server Error""}"));
+
+        // Act
+        var result = await provider.GetKontorBalanceAsync();
+
+        // Assert
+        result.Remaining.Should().Be(0);
+        result.Total.Should().Be(0);
+        result.LastChecked.Should().BeNull();
+    }
+
+    // ════ 22. SetInvoiceTemplate — Returns true ════
+
+    [Fact]
+    public async Task SetInvoiceTemplate_ReturnsTrue()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var template = new InvoiceTemplateDto(
+            LogoImage: new byte[] { 0x89, 0x50, 0x4E, 0x47 },
+            SignatureImage: new byte[] { 0xFF, 0xD8, 0xFF },
+            PhoneNumber: "+90 212 555 0000",
+            Email: "fatura@mestech.com",
+            TicaretSicilNo: "123456",
+            ShowKargoBarkodu: true,
+            ShowFaturaTutariYaziyla: true,
+            DefaultKdv: KdvRate.Yuzde20);
+
+        _fixture.Server
+            .Given(Request.Create().WithPath("/api/invoices/template").UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""success"": true}"));
+
+        // Act
+        var result = await provider.SetInvoiceTemplateAsync(template);
+
+        // Assert
+        result.Should().BeTrue();
     }
 }

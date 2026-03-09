@@ -1,10 +1,13 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using Microsoft.Extensions.Logging;
+using DtoInvoiceResult = MesTech.Application.DTOs.InvoiceResult;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
 
@@ -13,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Content-Type: application/vnd.api+json
 /// Request/response wrapped in { data: { type, attributes } }
 /// </summary>
-public class ParasutInvoiceProvider : IInvoiceProvider
+public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ParasutInvoiceProvider> _logger;
@@ -194,6 +197,116 @@ public class ParasutInvoiceProvider : IInvoiceProvider
         {
             _logger.LogError(ex, "Parasut CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
+        }
+    }
+
+    // ── IBulkInvoiceCapable ────────────────────────────────────────────
+
+    public async Task<BulkInvoiceResult> CreateBulkInvoiceAsync(
+        IEnumerable<InvoiceDto> invoices, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var invoiceList = invoices.ToList();
+        _logger.LogInformation("Parasut CreateBulkInvoice for {Count} invoices", invoiceList.Count);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var dataArray = invoiceList.Select(inv => new
+            {
+                type = "e_invoice",
+                attributes = new
+                {
+                    invoice_number = inv.InvoiceNumber,
+                    customer_name = inv.CustomerName,
+                    customer_tax_number = inv.CustomerTaxNumber,
+                    customer_tax_office = inv.CustomerTaxOffice,
+                    customer_address = inv.CustomerAddress,
+                    sub_total = inv.SubTotal.ToString(CultureInfo.InvariantCulture),
+                    tax_total = inv.TaxTotal.ToString(CultureInfo.InvariantCulture),
+                    grand_total = inv.GrandTotal.ToString(CultureInfo.InvariantCulture),
+                    lines = inv.Lines.Select(l => new
+                    {
+                        product_name = l.ProductName,
+                        sku = l.SKU,
+                        quantity = l.Quantity,
+                        unit_price = l.UnitPrice.ToString(CultureInfo.InvariantCulture),
+                        tax_rate = l.TaxRate.ToString(CultureInfo.InvariantCulture),
+                        tax_amount = l.TaxAmount.ToString(CultureInfo.InvariantCulture),
+                        line_total = l.LineTotal.ToString(CultureInfo.InvariantCulture)
+                    }).ToArray()
+                }
+            }).ToArray();
+
+            var payload = new { data = dataArray };
+
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+            });
+            var content = new StringContent(json, Encoding.UTF8);
+            content.Headers.ContentType = JsonApiMediaType;
+
+            var url = $"{_baseUrl}/v4/{_companyId}/e_invoices/bulk";
+            var response = await _httpClient.PostAsync(url, content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Parasut bulk POST failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+
+                var failResults = invoiceList.Select(_ => new DtoInvoiceResult
+                {
+                    Success = false,
+                    ErrorMessage = errorBody
+                }).ToList();
+
+                return new BulkInvoiceResult(failResults, 0, invoiceList.Count);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+
+            var dataElement = doc.RootElement.GetProperty("data");
+            var results = new List<DtoInvoiceResult>();
+
+            foreach (var item in dataElement.EnumerateArray())
+            {
+                var attrs = item.GetProperty("attributes");
+                var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib)
+                    && gib.ValueKind != JsonValueKind.Null
+                    ? gib.GetString() : null;
+                var pdfUrl = attrs.TryGetProperty("pdf_url", out var pdf)
+                    && pdf.ValueKind != JsonValueKind.Null
+                    ? pdf.GetString() : null;
+
+                var success = !string.IsNullOrEmpty(gibId);
+                results.Add(new DtoInvoiceResult
+                {
+                    Success = success,
+                    GibInvoiceId = gibId,
+                    PdfUrl = pdfUrl,
+                    ErrorMessage = success ? null : "Missing gib_invoice_id in response"
+                });
+            }
+
+            var successCount = results.Count(r => r.Success);
+            return new BulkInvoiceResult(results, successCount, results.Count - successCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parasut CreateBulkInvoice exception");
+
+            var failResults = invoiceList.Select(_ => new DtoInvoiceResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            }).ToList();
+
+            return new BulkInvoiceResult(failResults, 0, invoiceList.Count);
         }
     }
 

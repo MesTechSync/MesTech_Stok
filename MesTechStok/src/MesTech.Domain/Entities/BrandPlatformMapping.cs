@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Marka-Platform eşleştirme — platformdaki marka ID'si.
 /// </summary>
-public class BrandPlatformMapping : BaseEntity
+public class BrandPlatformMapping : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid BrandId { get; set; }
     public Guid StoreId { get; set; }
     public PlatformType PlatformType { get; set; }

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http;
 using FluentAssertions;
+using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Invoice;
@@ -422,5 +423,137 @@ public class ParasutInvoiceProviderTests : IClassFixture<WireMockFixture>, IDisp
         // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
+    }
+
+    // ════ 13. CreateBulkInvoice — Success ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_Success_ReturnsAllResults()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[]
+        {
+            CreateTestInvoice("BULK-001"),
+            CreateTestInvoice("BULK-002")
+        };
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"/v4/{TestCompanyId}/e_invoices/bulk")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(201)
+                .WithHeader("Content-Type", "application/vnd.api+json")
+                .WithBody(JsonApiHelper.BuildCollection("e_invoice",
+                    new List<(string, Dictionary<string, object>)>
+                    {
+                        ("bulk-inv-001", new Dictionary<string, object>
+                        {
+                            ["gib_invoice_id"] = "GIB-BULK-001",
+                            ["pdf_url"] = "https://parasut.example.com/pdf/bulk-001"
+                        }),
+                        ("bulk-inv-002", new Dictionary<string, object>
+                        {
+                            ["gib_invoice_id"] = "GIB-BULK-002",
+                            ["pdf_url"] = "https://parasut.example.com/pdf/bulk-002"
+                        })
+                    }, 2, 1, 25)));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(2);
+        result.FailCount.Should().Be(0);
+        result.Results[0].Success.Should().BeTrue();
+        result.Results[0].GibInvoiceId.Should().Be("GIB-BULK-001");
+        result.Results[0].PdfUrl.Should().Contain("bulk-001");
+        result.Results[1].Success.Should().BeTrue();
+        result.Results[1].GibInvoiceId.Should().Be("GIB-BULK-002");
+    }
+
+    // ════ 14. CreateBulkInvoice — Partial response ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_PartialResponse_CountsCorrectly()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[]
+        {
+            CreateTestInvoice("PART-001"),
+            CreateTestInvoice("PART-002")
+        };
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"/v4/{TestCompanyId}/e_invoices/bulk")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(201)
+                .WithHeader("Content-Type", "application/vnd.api+json")
+                .WithBody(JsonApiHelper.BuildCollection("e_invoice",
+                    new List<(string, Dictionary<string, object>)>
+                    {
+                        ("part-inv-001", new Dictionary<string, object>
+                        {
+                            ["gib_invoice_id"] = "GIB-PART-001",
+                            ["pdf_url"] = "https://parasut.example.com/pdf/part-001"
+                        }),
+                        ("part-inv-002", new Dictionary<string, object>
+                        {
+                            ["gib_invoice_id"] = (object)null!,
+                            ["pdf_url"] = (object)null!
+                        })
+                    }, 2, 1, 25)));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(1);
+        result.FailCount.Should().Be(1);
+        result.Results[0].Success.Should().BeTrue();
+        result.Results[0].GibInvoiceId.Should().Be("GIB-PART-001");
+        result.Results[1].Success.Should().BeFalse();
+        result.Results[1].ErrorMessage.Should().Contain("Missing gib_invoice_id");
+    }
+
+    // ════ 15. CreateBulkInvoice — HTTP error ════
+
+    [Fact]
+    public async Task CreateBulkInvoice_HttpError_ReturnsAllFail()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+        var invoices = new[]
+        {
+            CreateTestInvoice("ERR-001"),
+            CreateTestInvoice("ERR-002")
+        };
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"/v4/{TestCompanyId}/e_invoices/bulk")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody(@"{""error"": ""Internal Server Error""}"));
+
+        // Act
+        var result = await provider.CreateBulkInvoiceAsync(invoices);
+
+        // Assert
+        result.Results.Should().HaveCount(2);
+        result.SuccessCount.Should().Be(0);
+        result.FailCount.Should().Be(2);
+        result.Results.Should().AllSatisfy(r =>
+        {
+            r.Success.Should().BeFalse();
+            r.ErrorMessage.Should().NotBeNullOrEmpty();
+        });
     }
 }

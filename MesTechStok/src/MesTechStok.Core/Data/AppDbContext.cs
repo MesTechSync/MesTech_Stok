@@ -819,7 +819,13 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
 
         foreach (var sql in commands)
         {
-            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+            try { await Database.ExecuteSqlRawAsync(sql); }
+            catch (Exception ex)
+            {
+                // Intentional: DDL "IF NOT EXISTS" ops are non-critical — schema already guarded.
+                // Log to debug output for dev visibility; does not affect runtime behavior.
+                System.Diagnostics.Debug.WriteLine($"[AppDbContext] Optional DDL op failed (non-critical): {ex.Message}");
+            }
         }
     }
 
@@ -843,7 +849,13 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
 
         foreach (var sql in commands)
         {
-            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+            try { await Database.ExecuteSqlRawAsync(sql); }
+            catch (Exception ex)
+            {
+                // Intentional: DDL "IF NOT EXISTS" ops are non-critical — schema already guarded.
+                // Log to debug output for dev visibility; does not affect runtime behavior.
+                System.Diagnostics.Debug.WriteLine($"[AppDbContext] Optional DDL op failed (non-critical): {ex.Message}");
+            }
         }
     }
 
@@ -861,7 +873,13 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
         };
         foreach (var sql in commands)
         {
-            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+            try { await Database.ExecuteSqlRawAsync(sql); }
+            catch (Exception ex)
+            {
+                // Intentional: DDL "IF NOT EXISTS" ops are non-critical — schema already guarded.
+                // Log to debug output for dev visibility; does not affect runtime behavior.
+                System.Diagnostics.Debug.WriteLine($"[AppDbContext] Optional DDL op failed (non-critical): {ex.Message}");
+            }
         }
     }
 
@@ -885,7 +903,13 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
         };
         foreach (var sql in commands)
         {
-            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+            try { await Database.ExecuteSqlRawAsync(sql); }
+            catch (Exception ex)
+            {
+                // Intentional: DDL "IF NOT EXISTS" ops are non-critical — schema already guarded.
+                // Log to debug output for dev visibility; does not affect runtime behavior.
+                System.Diagnostics.Debug.WriteLine($"[AppDbContext] Optional DDL op failed (non-critical): {ex.Message}");
+            }
         }
     }
 
@@ -963,7 +987,13 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
 
         foreach (var sql in commands)
         {
-            try { await Database.ExecuteSqlRawAsync(sql); } catch { }
+            try { await Database.ExecuteSqlRawAsync(sql); }
+            catch (Exception ex)
+            {
+                // Intentional: DDL "IF NOT EXISTS" ops are non-critical — schema already guarded.
+                // Log to debug output for dev visibility; does not affect runtime behavior.
+                System.Diagnostics.Debug.WriteLine($"[AppDbContext] Optional DDL op failed (non-critical): {ex.Message}");
+            }
         }
     }
 

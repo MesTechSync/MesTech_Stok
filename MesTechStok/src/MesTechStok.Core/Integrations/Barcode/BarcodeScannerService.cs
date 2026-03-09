@@ -637,7 +637,11 @@ namespace MesTechStok.Core.Integrations.Barcode
                     db.SaveChanges();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Intentional: scan-log persistence is non-critical telemetry — must not crash barcode scanning.
+                System.Diagnostics.Debug.WriteLine($"[BarcodeScannerService] Scan log persist failed (non-critical): {ex.Message}");
+            }
         }
 
         /// <summary>

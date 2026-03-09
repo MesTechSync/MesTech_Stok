@@ -646,7 +646,12 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 return false;
             }
             _autoSyncCts.Cancel();
-            try { if (_autoSyncTask != null) await _autoSyncTask; } catch { }
+            try { if (_autoSyncTask != null) await _autoSyncTask; }
+            catch (Exception ex)
+            {
+                // Intentional: awaiting cancelled task raises OperationCanceledException — expected and harmless.
+                _logger.LogDebug(ex, "[OpenCartSyncService] Auto sync task cancelled as expected.");
+            }
             _autoSyncCts.Dispose();
             _autoSyncCts = null; _autoSyncTask = null;
             _logger.LogInformation("Auto sync stopped");

@@ -9,5 +9,10 @@ public enum InvoiceProvider
     Sovos = 1,
     Parasut = 2,
     Manual = 3,
-    ELogo = 4
+    ELogo = 4,
+    TrendyolEFaturam = 5,
+    BirFatura = 6,
+    DijitalPlanet = 7,
+    GibPortal = 8,
+    HepsiburadaFatura = 9
 }

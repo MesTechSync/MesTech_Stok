@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Kategori-Platform eşleştirme — platformdaki kategori ID'si.
 /// </summary>
-public class CategoryPlatformMapping : BaseEntity
+public class CategoryPlatformMapping : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid CategoryId { get; set; }
     public Guid StoreId { get; set; }
     public PlatformType PlatformType { get; set; }

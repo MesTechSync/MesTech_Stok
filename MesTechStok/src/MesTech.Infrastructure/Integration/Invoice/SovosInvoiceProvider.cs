@@ -1,9 +1,12 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using DtoInvoiceResult = MesTech.Application.DTOs.InvoiceResult;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
 
@@ -12,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Sovos otomatik UBL olusturur, biz JSON gonderiyoruz.
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, iptal.
 /// </summary>
-public class SovosInvoiceProvider : IInvoiceProvider
+public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
@@ -175,6 +178,253 @@ public class SovosInvoiceProvider : IInvoiceProvider
         {
             _logger.LogError(ex, "Sovos CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
+        }
+    }
+
+    // ── IBulkInvoiceCapable ────────────────────────────────────────────
+
+    public async Task<BulkInvoiceResult> CreateBulkInvoiceAsync(
+        IEnumerable<InvoiceDto> invoices, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var invoiceList = invoices.ToList();
+        _logger.LogInformation("Sovos CreateBulkInvoice for {Count} invoices", invoiceList.Count);
+
+        try
+        {
+            var payloads = invoiceList.Select(inv => BuildInvoicePayload(inv, "SATIS")).ToArray();
+            var payload = new { invoices = payloads };
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(
+                $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Sovos CreateBulkInvoice failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                var allFail = invoiceList.Select(_ =>
+                    new DtoInvoiceResult { Success = false, ErrorMessage = errorBody }).ToList();
+                return new BulkInvoiceResult(allFail, 0, invoiceList.Count);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+            var results = new List<DtoInvoiceResult>();
+
+            if (doc.RootElement.TryGetProperty("results", out var resultsArray))
+            {
+                foreach (var item in resultsArray.EnumerateArray())
+                {
+                    var success = item.TryGetProperty("success", out var s) && s.GetBoolean();
+                    var gibId = item.TryGetProperty("gibInvoiceId", out var g) ? g.GetString() : null;
+                    var pdfUrl = item.TryGetProperty("pdfUrl", out var p) ? p.GetString() : null;
+                    var error = item.TryGetProperty("errorMessage", out var e) ? e.GetString() : null;
+                    results.Add(new DtoInvoiceResult
+                    {
+                        Success = success,
+                        GibInvoiceId = gibId,
+                        PdfUrl = pdfUrl,
+                        ErrorMessage = error
+                    });
+                }
+            }
+
+            var successCount = results.Count(r => r.Success);
+            return new BulkInvoiceResult(results, successCount, results.Count - successCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos CreateBulkInvoice exception");
+            var allFail = invoiceList.Select(_ =>
+                new DtoInvoiceResult { Success = false, ErrorMessage = ex.Message }).ToList();
+            return new BulkInvoiceResult(allFail, 0, invoiceList.Count);
+        }
+    }
+
+    // ── IIncomingInvoiceCapable ──────────────────────────────────────────
+
+    public async Task<IReadOnlyList<IncomingInvoiceDto>> GetIncomingInvoicesAsync(
+        DateTime from, DateTime to, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos GetIncomingInvoices from {From} to {To}",
+            from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+
+        try
+        {
+            var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos GetIncomingInvoices failed: {Status}", response.StatusCode);
+                return Array.Empty<IncomingInvoiceDto>();
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(json);
+            var list = new List<IncomingInvoiceDto>();
+
+            if (doc.RootElement.TryGetProperty("invoices", out var invoicesArray))
+            {
+                foreach (var item in invoicesArray.EnumerateArray())
+                {
+                    var gibId = item.GetProperty("gibInvoiceId").GetString()!;
+                    var senderName = item.GetProperty("senderName").GetString()!;
+                    var senderTax = item.GetProperty("senderTaxNumber").GetString()!;
+                    var amount = item.GetProperty("amount").GetDecimal();
+                    var invoiceDate = item.GetProperty("invoiceDate").GetDateTime();
+                    var status = item.GetProperty("status").GetString()!;
+                    list.Add(new IncomingInvoiceDto(gibId, senderName, senderTax, amount, invoiceDate, status));
+                }
+            }
+
+            return list;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos GetIncomingInvoices exception");
+            return Array.Empty<IncomingInvoiceDto>();
+        }
+    }
+
+    public async Task<bool> AcceptInvoiceAsync(string gibInvoiceId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos AcceptInvoice for {GibInvoiceId}", gibInvoiceId);
+
+        try
+        {
+            var content = new StringContent("{}", Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(
+                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/accept", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos AcceptInvoice failed: {Status}", response.StatusCode);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos AcceptInvoice exception for {GibInvoiceId}", gibInvoiceId);
+            return false;
+        }
+    }
+
+    public async Task<bool> RejectInvoiceAsync(string gibInvoiceId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos RejectInvoice for {GibInvoiceId}", gibInvoiceId);
+
+        try
+        {
+            var payload = new { reason };
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(
+                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/reject", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos RejectInvoice failed: {Status}", response.StatusCode);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos RejectInvoice exception for {GibInvoiceId}", gibInvoiceId);
+            return false;
+        }
+    }
+
+    // ── IKontorCapable ──────────────────────────────────────────────────
+
+    public async Task<KontorInfo> GetKontorBalanceAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos GetKontorBalance");
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/api/account/kontor", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos GetKontorBalance failed: {Status}", response.StatusCode);
+                return new KontorInfo(0, 0, null);
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var remaining = root.TryGetProperty("remaining", out var r) ? r.GetInt32() : 0;
+            var total = root.TryGetProperty("total", out var t) ? t.GetInt32() : 0;
+            DateTime? lastChecked = root.TryGetProperty("lastChecked", out var lc)
+                && lc.ValueKind != JsonValueKind.Null
+                ? lc.GetDateTime()
+                : null;
+
+            return new KontorInfo(remaining, total, lastChecked);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos GetKontorBalance exception");
+            return new KontorInfo(0, 0, null);
+        }
+    }
+
+    // ── IInvoiceTemplateCapable ─────────────────────────────────────────
+
+    public async Task<bool> SetInvoiceTemplateAsync(InvoiceTemplateDto template, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos SetInvoiceTemplate");
+
+        try
+        {
+            var payload = new
+            {
+                phone = template.PhoneNumber,
+                email = template.Email,
+                ticaretSicilNo = template.TicaretSicilNo,
+                showKargoBarkodu = template.ShowKargoBarkodu,
+                showTutarYaziyla = template.ShowFaturaTutariYaziyla,
+                defaultKdv = (int)template.DefaultKdv,
+                logoBase64 = template.LogoImage != null ? Convert.ToBase64String(template.LogoImage) : null,
+                signatureBase64 = template.SignatureImage != null ? Convert.ToBase64String(template.SignatureImage) : null
+            };
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync(
+                $"{_baseUrl}/api/invoices/template", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos SetInvoiceTemplate failed: {Status}", response.StatusCode);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos SetInvoiceTemplate exception");
+            return false;
         }
     }
 

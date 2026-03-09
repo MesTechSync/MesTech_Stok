@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class OfflineQueueItem : BaseEntity
+public class OfflineQueueItem : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Channel { get; set; } = "Generic";
     public string Direction { get; set; } = "Out";
     public string? Payload { get; set; }
