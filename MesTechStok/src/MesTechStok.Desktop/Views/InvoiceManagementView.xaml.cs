@@ -276,7 +276,11 @@ namespace MesTechStok.Desktop.Views
                 MessageBox.Show("Durumu guncellenecek faturayi seciniz.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (_invoiceProvider == null) return;
+            if (_invoiceProvider == null)
+            {
+                MessageBox.Show("Fatura servisi yapilandirilmamis. Lutfen baglanti ayarlarini kontrol ediniz.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             int updated = 0;
             foreach (var item in selected)
@@ -305,7 +309,11 @@ namespace MesTechStok.Desktop.Views
                 MessageBox.Show("Iptal edilecek faturayi seciniz.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (_invoiceProvider == null) return;
+            if (_invoiceProvider == null)
+            {
+                MessageBox.Show("Fatura servisi yapilandirilmamis. Lutfen baglanti ayarlarini kontrol ediniz.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var confirm = MessageBox.Show($"Fatura {selected.InvoiceNumber} iptal edilecek. Emin misiniz?",
                 "Fatura Iptal", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -355,6 +363,7 @@ namespace MesTechStok.Desktop.Views
 
         private void ClosePdfPanel_Click(object sender, RoutedEventArgs e)
         {
+            PdfWebBrowser.Navigate("about:blank");  // Release file lock first
             PdfPanelColumn.Width = new System.Windows.GridLength(0);
             PdfPreviewBorder.Visibility = System.Windows.Visibility.Collapsed;
         }

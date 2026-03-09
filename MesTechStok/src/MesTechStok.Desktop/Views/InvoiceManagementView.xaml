@@ -150,7 +150,7 @@
                     <ComboBoxItem Content="Tumu"/>
                     <ComboBoxItem Content="Taslak"/>
                     <ComboBoxItem Content="Gonderildi"/>
-                    <ComboBoxItem Content="Kabul Edildi"/>
+                    <ComboBoxItem Content="Onaylandi"/>
                     <ComboBoxItem Content="Reddedildi"/>
                     <ComboBoxItem Content="Iptal"/>
                 </ComboBox>
