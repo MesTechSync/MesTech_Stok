@@ -84,7 +84,10 @@ namespace MesTechStok.Desktop.Views
                 BtnPrev.IsEnabled = _currentPage > 1;
                 BtnNext.IsEnabled = _currentPage < totalPages;
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI element update — element may not be loaded during early data binding.
+            }
         }
 
         private async void AddCategory_Click(object sender, RoutedEventArgs e)
@@ -173,7 +176,10 @@ namespace MesTechStok.Desktop.Views
                 ChkActive.IsChecked = true;
                 CategoriesGrid.SelectedItem = null;
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (form clear) — UI elements may not be initialized.
+            }
         }
 
         private void CategoriesGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -188,12 +194,16 @@ namespace MesTechStok.Desktop.Views
                     ChkActive.IsChecked = c.IsActive;
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (grid selection) — UI element access may fail during teardown.
+            }
         }
 
         private void TxtSearchCat_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            try { _currentPage = 1; _ = LoadAsync(); } catch { }
+            try { _currentPage = 1; _ = LoadAsync(); }
+            catch { /* Intentional: search keyup event handler — async load must not crash event chain. */ }
         }
 
         private void CmbCatPageSize_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -207,7 +217,10 @@ namespace MesTechStok.Desktop.Views
                     _ = LoadAsync();
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (page-size selector) — ComboBox may fire during teardown.
+            }
         }
 
         private void PrevPage_Click(object sender, RoutedEventArgs e)

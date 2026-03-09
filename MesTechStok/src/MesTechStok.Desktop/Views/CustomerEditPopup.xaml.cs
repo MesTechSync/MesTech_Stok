@@ -50,7 +50,10 @@ namespace MesTechStok.Desktop.Views
                 var docs = ParseDocs(existing.DocumentUrls);
                 foreach (var d in docs) DocsList.Items.Add(d);
             }
-            catch { }
+            catch
+            {
+                // Intentional: document list parse and UI load — non-critical initial population.
+            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
@@ -113,7 +116,10 @@ namespace MesTechStok.Desktop.Views
                         }
                         c.DocumentUrls = JsonSerializer.Serialize(saved);
                     }
-                    catch { }
+                    catch
+                    {
+                        // Intentional: document save to storage — non-critical; customer record is still saved.
+                    }
                 }
 
                 if (_editingCustomerId.HasValue)
@@ -138,7 +144,10 @@ namespace MesTechStok.Desktop.Views
                 if (!string.IsNullOrWhiteSpace(TxtBilling.Text)) TxtShipping.Text = TxtBilling.Text;
                 if (!string.IsNullOrWhiteSpace(TxtCity.Text)) { /* şimdilik tek alan */ }
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (copy billing to shipping) — UI element access during lifecycle.
+            }
         }
 
         private void AddDocs_Click(object sender, RoutedEventArgs e)
@@ -166,7 +175,8 @@ namespace MesTechStok.Desktop.Views
         {
             var sel = DocsList.SelectedItem as string;
             if (string.IsNullOrWhiteSpace(sel)) return;
-            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = sel, UseShellExecute = true }); } catch { }
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = sel, UseShellExecute = true }); }
+            catch { /* Intentional: shell file open — OS may reject the file type or path. */ }
         }
 
         private void OpenDocFolder_Click(object sender, RoutedEventArgs e)
@@ -178,7 +188,10 @@ namespace MesTechStok.Desktop.Views
                 Directory.CreateDirectory(folder);
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
-            catch { }
+            catch
+            {
+                // Intentional: shell folder open — Explorer launch may fail if path is unavailable.
+            }
         }
 
         private static List<string> ParseDocs(string? json)

@@ -144,7 +144,10 @@ public partial class App : Application
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: Win32 P/Invoke (ShowWindow/SetForegroundWindow) — target process may exit between enumeration and call.
+                }
             }
             Shutdown(0);
             return;
@@ -189,7 +192,10 @@ public partial class App : Application
                 Log.Information("Startup EXE: {ExePath} (PID={Pid})", exePath, pid);
                 GlobalLogger.Instance.LogInfo($"🆔 EXE: {exePath} | PID: {pid}", "Application");
             }
-            catch { }
+            catch
+            {
+                // Intentional: diagnostic Process.GetCurrentProcess() — non-critical startup telemetry.
+            }
 
             // 30 günlük log temizliği (günlük dosyaları)
             try
@@ -203,10 +209,16 @@ public partial class App : Application
                         var fi = new FileInfo(lf);
                         if (fi.LastWriteTime < threshold) fi.Delete();
                     }
-                    catch { }
+                    catch
+                    {
+                        // Intentional: log file cleanup — file may be locked or already deleted concurrently.
+                    }
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: log cleanup block — failure must not abort app startup.
+            }
 
             // ALPHA TEAM: Build the host with proper Core integration
             _host = Host.CreateDefaultBuilder()
@@ -339,8 +351,10 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        try { _activateEvent?.Dispose(); } catch { }
-        try { _singleInstanceMutex?.ReleaseMutex(); _singleInstanceMutex?.Dispose(); } catch { }
+        try { _activateEvent?.Dispose(); }
+        catch { /* Intentional: named-pipe event disposal during shutdown — suppress all exceptions. */ }
+        try { _singleInstanceMutex?.ReleaseMutex(); _singleInstanceMutex?.Dispose(); }
+        catch { /* Intentional: mutex release/disposal during shutdown — suppress all exceptions. */ }
         base.OnExit(e);
     }
 

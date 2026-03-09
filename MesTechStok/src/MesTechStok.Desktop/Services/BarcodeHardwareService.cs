@@ -185,7 +185,10 @@ namespace MesTechStok.Desktop.Services
                     _barcodeReader.Options.PossibleFormats = allowed;
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: ZXing reader options config — non-critical; defaults remain intact on failure.
+            }
         }
 
         public Task<bool> ConnectAsync()
@@ -470,7 +473,10 @@ namespace MesTechStok.Desktop.Services
                                     result = new ZXing.Result(decoded, null, null, ZXing.BarcodeFormat.QR_CODE);
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // Intentional: OpenCV QR fallback decode — may fail silently on low-quality or unsupported frames.
+                            }
                         }
 
                         if (result != null && !string.IsNullOrEmpty(result.Text))

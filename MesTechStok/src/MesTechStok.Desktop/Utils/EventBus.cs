@@ -9,12 +9,14 @@ namespace MesTechStok.Desktop.Utils
 
         public static void PublishProductsChanged(string? barcode)
         {
-            try { ProductsChanged?.Invoke(barcode); } catch { }
+            try { ProductsChanged?.Invoke(barcode); }
+            catch { /* Intentional: event invocation — subscriber exceptions must not propagate to the publisher. */ }
         }
 
         public static void PublishCompanySettingsChanged(string? companyName)
         {
-            try { CompanySettingsChanged?.Invoke(companyName); } catch { }
+            try { CompanySettingsChanged?.Invoke(companyName); }
+            catch { /* Intentional: event invocation — subscriber exceptions must not propagate to the publisher. */ }
         }
     }
 }

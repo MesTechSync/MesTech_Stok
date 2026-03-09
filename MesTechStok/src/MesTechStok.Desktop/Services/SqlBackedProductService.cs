@@ -306,7 +306,10 @@ namespace MesTechStok.Desktop.Services
                     await _db.SaveChangesAsync();
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: image variant save is non-critical — product was already persisted above.
+            }
 
             return true;
         }
@@ -398,7 +401,10 @@ namespace MesTechStok.Desktop.Services
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"PriceChanged Id={p.Id} Old={oldSale} New={p.SalePrice}", nameof(SqlBackedProductService));
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: audit telemetry (LogEvent) — must not crash primary update operation.
+            }
             MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün güncellendi Id={p.Id}, SKU={p.SKU}, Barkod={p.Barcode}", nameof(SqlBackedProductService));
 
             // Görsel değişmiş olabilir; varyantları güncelle
@@ -421,7 +427,10 @@ namespace MesTechStok.Desktop.Services
                     await _db.SaveChangesAsync();
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: image variant update is non-critical — primary product fields were already saved above.
+            }
 
             // Entegrasyon: OpenCart stok güncellemesini offline kuyruğa ekle (Out kanal)
             try
@@ -445,7 +454,10 @@ namespace MesTechStok.Desktop.Services
                     }
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: optional OpenCart offline-queue enqueue — integration channel may be unavailable.
+            }
 
             return true;
         }
@@ -472,7 +484,10 @@ namespace MesTechStok.Desktop.Services
                 if (oldDisc != (p.DiscountRate ?? 0))
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"DiscountChanged Id={p.Id} Old={oldDisc} New={p.DiscountRate}", nameof(SqlBackedProductService));
             }
-            catch { }
+            catch
+            {
+                // Intentional: finance audit telemetry — must not crash the primary finance update.
+            }
             return true;
         }
 

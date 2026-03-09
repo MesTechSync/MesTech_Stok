@@ -99,15 +99,20 @@ namespace MesTechStok.Desktop
                         companyText.Text = "MesChain Tekstil";
 
                     // Canlı güncelleme için EventBus dinleyicisi
-                    try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged += OnCompanySettingsChanged; } catch { }
+                    try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged += OnCompanySettingsChanged; }
+                    catch { /* Intentional: EventBus subscription — static event may be in torn-down state during tests. */ }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: header company name UI setup — non-critical, must not crash constructor.
+                }
 
                 // APPLICATION READY: Trigger application ready event for monitoring
                 TriggerApplicationReady();
 
                 // Setup global exception handling early
-                try { SetupGlobalExceptionHandling(); } catch { }
+                try { SetupGlobalExceptionHandling(); }
+                catch { /* Intentional: global exception handler setup — must not itself throw and crash startup. */ }
 
                 // Authentication: Skip overlay if configured
                 try
@@ -156,7 +161,10 @@ namespace MesTechStok.Desktop
                     }
                 });
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (EventBus callback) — exceptions must not propagate to WPF dispatcher.
+            }
         }
 
         private void MainWindow_ProgressiveLoad(object? sender, RoutedEventArgs e)
@@ -335,7 +343,10 @@ namespace MesTechStok.Desktop
                         logoImage.Source = new BitmapImage(new Uri(logoPath));
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: optional logo asset load — file may be missing in some deployments.
+                }
 
                 // Initialize ekran koruyucu (config'e bağlı)
                 if (_screensaverEnabled)

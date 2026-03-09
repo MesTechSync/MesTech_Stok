@@ -26,7 +26,8 @@ namespace MesTechStok.Desktop.Services
                 w.Closed += (_, __) => Cleanup();
                 OpenWindows.Add(w);
                 w.Show();
-                try { w.Activate(); w.Focus(); } catch { }
+                try { w.Activate(); w.Focus(); }
+                catch { /* Intentional: window activation/focus — window may have been closed/disposed before this call. */ }
                 return true;
             }
             catch (Exception ex)
@@ -52,7 +53,8 @@ namespace MesTechStok.Desktop.Services
                 w.Closed += (_, __) => Cleanup();
                 OpenWindows.Add(w);
                 w.Show();
-                try { w.Activate(); w.Focus(); } catch { }
+                try { w.Activate(); w.Focus(); }
+                catch { /* Intentional: window activation/focus — window may have been closed/disposed before this call. */ }
                 return true;
             }
             catch (Exception ex)
@@ -88,7 +90,8 @@ namespace MesTechStok.Desktop.Services
                 w.Closed += (_, __) => Cleanup();
                 OpenWindows.Add(w);
                 w.Show();
-                try { w.Activate(); w.Focus(); } catch { }
+                try { w.Activate(); w.Focus(); }
+                catch { /* Intentional: window activation/focus — window may have been closed/disposed before this call. */ }
                 return true;
             }
             catch (Exception ex)

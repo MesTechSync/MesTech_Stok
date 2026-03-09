@@ -94,7 +94,10 @@ namespace MesTechStok.Desktop.Views
                     headerCompany.Text = CompanyNameTextBox.Text.Trim();
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: header company name update — MainWindow FindName may fail if window is closing.
+            }
         }
 
         private async System.Threading.Tasks.Task LoadCompanyFromSqlAsync()
@@ -128,7 +131,10 @@ namespace MesTechStok.Desktop.Views
                         headerCompany.Text = SqlCompanyName.Text.Trim();
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: header company name update from SQL — non-critical; main DB load must not fail.
+                }
 
                 var warehouses = await db.Warehouses.AsNoTracking().ToListAsync();
                 WarehousesList.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem>(
@@ -259,7 +265,10 @@ namespace MesTechStok.Desktop.Views
                     {
                         MesTechStok.Desktop.Utils.EventBus.PublishCompanySettingsChanged(effectiveCompanyName);
                     }
-                    catch { }
+                    catch
+                    {
+                        // Intentional: EventBus publish after settings save — subscriber exceptions must not block save completion.
+                    }
                 }
 
                 LastUpdateText.Text = DateTime.Now.ToString("dd.MM.yyyy");
@@ -276,7 +285,10 @@ namespace MesTechStok.Desktop.Views
                         headerCompany.Text = headerName;
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: header company name update after save — MainWindow FindName may fail if window is closing.
+                }
                 MessageBox.Show("✅ Ayarlar kaydedildi ve SQL ile senkronize edildi.",
                                 "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
             }

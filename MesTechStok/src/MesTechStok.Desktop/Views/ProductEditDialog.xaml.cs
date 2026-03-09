@@ -151,7 +151,10 @@ namespace MesTechStok.Desktop.Views
                         await storage.SaveAsync(id, ProductImageUrl);
                     }
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: image storage save is non-critical — dialog result is not blocked by image failure.
+                }
 
                 DialogResult = true;
             }
@@ -175,7 +178,10 @@ namespace MesTechStok.Desktop.Views
                     ImageTextBox.Text = ofd.FileName;
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (file dialog) — dialog may throw on unusual system states.
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

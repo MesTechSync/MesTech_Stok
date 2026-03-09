@@ -289,7 +289,10 @@ namespace MesTechStok.Desktop.Views
                 if (PaymentFilterComboBox != null) PaymentFilterComboBox.SelectedIndex = 0;
                 if (DateFilterComboBox != null) DateFilterComboBox.SelectedIndex = 0;
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (filter clear) — UI elements may not be available during template loading.
+            }
 
             _currentStatusFilter = OrderStatusFilter.All;
             _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);

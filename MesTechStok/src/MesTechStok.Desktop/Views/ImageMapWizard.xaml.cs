@@ -66,7 +66,8 @@ namespace MesTechStok.Desktop.Views
 
         private void FilterToggles_Changed(object sender, RoutedEventArgs e)
         {
-            try { ApplyFilters(); } catch { }
+            try { ApplyFilters(); }
+            catch { /* Intentional: filter toggle event handler — must not crash on early UI access before ItemsSource is set. */ }
         }
 
         private void ApplyFilters()
@@ -96,7 +97,10 @@ namespace MesTechStok.Desktop.Views
                 }
                 view.Refresh();
             }
-            catch { }
+            catch
+            {
+                // Intentional: CollectionView filter apply — ItemsSource may not be set yet.
+            }
         }
 
         private void BuildPreview(List<string> files)
@@ -130,7 +134,10 @@ namespace MesTechStok.Desktop.Views
                     row.Status = "Eşleşmedi"; _rows.Add(row);
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: image-product match preview build — DB may be unavailable on first open.
+            }
         }
 
         private async void Apply_Click(object sender, RoutedEventArgs e)
@@ -191,7 +198,10 @@ namespace MesTechStok.Desktop.Views
                     }
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: CSV export click event handler — file write may fail if path is read-only.
+            }
         }
 
         private bool HasImageExt(string f)

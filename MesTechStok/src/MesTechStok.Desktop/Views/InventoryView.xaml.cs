@@ -365,10 +365,14 @@ namespace MesTechStok.Desktop.Views
                 svc.BarcodeScanned += Inventory_BarcodeScanned;
                 if (!svc.IsConnected) await svc.ConnectAsync();
                 await svc.StartScanningAsync();
-                try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeListenText.Text = "Aktif"; } catch { }
+                try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeListenText.Text = "Aktif"; }
+                catch { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ }
                 ToastManager.ShowInfo("Barkod dinleme aktif", "Barkod");
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (barcode listener enable) — async barcode service ops must not crash event chain.
+            }
         }
 
         private async void ChkBarcodeListenInv_Unchecked(object sender, RoutedEventArgs e)
@@ -381,10 +385,14 @@ namespace MesTechStok.Desktop.Views
                 await svc.StopScanningAsync();
                 svc.BarcodeScanned -= Inventory_BarcodeScanned;
                 await svc.DisconnectAsync();
-                try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.Gray; BarcodeListenText.Text = "Kapalı"; } catch { }
+                try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.Gray; BarcodeListenText.Text = "Kapalı"; }
+                catch { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ }
                 ToastManager.ShowInfo("Barkod dinleme kapalı", "Barkod");
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (barcode listener disable) — async barcode service ops must not crash event chain.
+            }
         }
 
         private async void Inventory_BarcodeScanned(object? sender, BarcodeScannedEventArgs e)
@@ -398,7 +406,10 @@ namespace MesTechStok.Desktop.Views
                     await ProcessScannedBarcodeAsync();
                 });
             }
-            catch { }
+            catch
+            {
+                // Intentional: barcode scanned event callback — Dispatcher.InvokeAsync must not crash on window close.
+            }
         }
 
         private void ScannerSettings_Click(object sender, RoutedEventArgs e)

@@ -191,7 +191,10 @@ namespace MesTechStok.Desktop.Utils
                         Color = System.Windows.Media.Colors.Red
                     });
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: in-process logger event — the logger itself must never throw.
+                }
             }
         }
 

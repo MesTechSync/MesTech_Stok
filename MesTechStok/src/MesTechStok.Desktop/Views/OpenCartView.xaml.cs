@@ -99,7 +99,10 @@ namespace MesTechStok.Desktop.Views
                     ConsecutiveFailuresText.Text = $"Fail: {health.ConsecutiveFailures}";
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: health service UI init — optional DI service, element may not be loaded.
+            }
         }
 
         private void UpdateStatistics(object? sender, EventArgs e)
@@ -233,7 +236,10 @@ namespace MesTechStok.Desktop.Views
                         ApiKeyTextBox.Text = new string('*', Math.Min(12, opts.ApiKey.Length));
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: populate config from app settings — optional DI service, UI elements may not be ready.
+            }
         }
 
         #region Header Events

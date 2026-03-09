@@ -17,7 +17,10 @@ namespace MesTechStok.Desktop.Views
                     return index == cover ? Visibility.Visible : Visibility.Collapsed;
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: XAML value converter — exceptions must not propagate to the WPF binding engine.
+            }
             return Visibility.Collapsed;
         }
 

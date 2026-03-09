@@ -158,7 +158,10 @@ namespace MesTechStok.Desktop.Views
                 }
                 if (!insideCard) Close();
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (click-outside close) — VisualTreeHelper walk may fail on partial templates.
+            }
         }
     }
 }

@@ -16,7 +16,10 @@ namespace MesTechStok.Desktop.Views
                     return d >= 0 ? new SolidColorBrush(Color.FromRgb(41, 180, 111)) : new SolidColorBrush(Color.FromRgb(244, 67, 54));
                 }
             }
-            catch { }
+            catch
+            {
+                // Intentional: XAML value converter — exceptions must not propagate to the WPF binding engine.
+            }
             return new SolidColorBrush(Color.FromRgb(33, 33, 33));
         }
 

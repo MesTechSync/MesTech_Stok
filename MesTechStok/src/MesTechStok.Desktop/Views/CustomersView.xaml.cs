@@ -495,7 +495,10 @@ namespace MesTechStok.Desktop.Views
                         }
                     });
                 }
-                catch { }
+                catch
+                {
+                    // Intentional: UI event handler (edit customer click) — async Dispatcher.InvokeAsync must not crash event chain.
+                }
             }
         }
 

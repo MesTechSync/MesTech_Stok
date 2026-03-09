@@ -24,7 +24,10 @@ namespace MesTechStok.Desktop.Services
             {
                 _loggingService = MesTechStok.Desktop.App.ServiceProvider?.GetService<ILoggingService>();
             }
-            catch { }
+            catch
+            {
+                // Intentional: optional DI service resolve — ILoggingService may not be registered in all deployments.
+            }
         }
 
         #region Public Methods

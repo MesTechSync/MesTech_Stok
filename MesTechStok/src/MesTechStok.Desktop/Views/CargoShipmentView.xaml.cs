@@ -477,7 +477,10 @@ namespace MesTechStok.Desktop.Views
                 if (StartDatePicker != null) StartDatePicker.SelectedDate = null;
                 if (EndDatePicker != null) EndDatePicker.SelectedDate = null;
             }
-            catch { }
+            catch
+            {
+                // Intentional: UI event handler (filter clear) — UI element access may fail if not yet loaded.
+            }
 
             _ = LoadShipmentsAsync();
             ToastManager.ShowInfo("🗑️ Filtreler temizlendi", "Kargo Yonetimi");

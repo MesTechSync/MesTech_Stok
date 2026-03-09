@@ -187,7 +187,8 @@ namespace MesTechStok.Desktop.Views
 
                     GlobalLogger.Instance.LogInfo($"Excel raporu oluşturuldu: {Path.GetFileName(saveFileDialog.FileName)}", "ExportsView");
                     ToastManager.ShowSuccess($"✅ Excel raporu başarıyla oluşturuldu! Dosya: {Path.GetFileName(saveFileDialog.FileName)}", "Excel Dışa Aktarma");
-                    try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); } catch { }
+                    try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); }
+                    catch { /* Intentional: shell file open after export — OS may reject or file may be locked. */ }
                 }
             }
             catch (Exception ex)
@@ -283,7 +284,8 @@ namespace MesTechStok.Desktop.Views
 
                     GlobalLogger.Instance.LogInfo($"PDF raporu oluşturuldu: {Path.GetFileName(saveFileDialog.FileName)}", "ExportsView");
                     ToastManager.ShowSuccess($"✅ PDF raporu başarıyla oluşturuldu! Dosya: {Path.GetFileName(saveFileDialog.FileName)}", "PDF Dışa Aktarma");
-                    try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); } catch { }
+                    try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); }
+                    catch { /* Intentional: shell file open after export — OS may reject or file may be locked. */ }
                 }
             }
             catch (Exception ex)
