@@ -79,6 +79,25 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ParasutInvoiceProvider>());
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
 
+        // Dalga 5: Invoice Adapters — wrap existing providers via composition
+        services.AddScoped<MockInvoiceAdapter>(sp =>
+            new MockInvoiceAdapter(sp.GetRequiredService<MockInvoiceProvider>()));
+        services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<MockInvoiceAdapter>());
+
+        services.AddScoped<SovosInvoiceAdapter>(sp =>
+            new SovosInvoiceAdapter(
+                sp.GetRequiredService<SovosInvoiceProvider>(),
+                sp.GetRequiredService<ILogger<SovosInvoiceAdapter>>()));
+        services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<SovosInvoiceAdapter>());
+
+        services.AddScoped<ParasutInvoiceAdapter>(sp =>
+            new ParasutInvoiceAdapter(
+                sp.GetRequiredService<ParasutInvoiceProvider>(),
+                sp.GetRequiredService<ILogger<ParasutInvoiceAdapter>>()));
+        services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<ParasutInvoiceAdapter>());
+
+        services.AddScoped<IInvoiceAdapterFactory, InvoiceAdapterFactory>();
+
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
         {
