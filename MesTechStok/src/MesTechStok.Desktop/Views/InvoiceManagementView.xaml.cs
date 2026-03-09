@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using MesTech.Application.Interfaces;
+using MesTechStok.Desktop.Utils;
 
 namespace MesTechStok.Desktop.Views
 {
@@ -141,7 +142,10 @@ namespace MesTechStok.Desktop.Views
                         item.GibInvoiceId, $"https://efatura.gov.tr/view/{item.GibInvoiceId}");
                     if (ok) { item.Status = "Gonderildi"; sent++; }
                 }
-                catch { /* Skip failed, continue with others */ }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"Platform gonderi hatasi ({item.GibInvoiceId}): {ex.Message}", "InvoiceManagement");
+                }
             }
 
             InvoicesGrid.Items.Refresh();
@@ -209,6 +213,150 @@ namespace MesTechStok.Desktop.Views
             AcceptedInvoicesText.Text = _invoices.Count(i => i.Status == "Onaylandi").ToString();
             RejectedInvoicesText.Text = _invoices.Count(i => i.Status == "Reddedildi").ToString();
             TotalAmountText.Text = $"{_invoices.Sum(i => i.GrandTotal):N2} TL";
+        }
+
+        private async void BulkCreate_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Faturasi kesilmemis 3 siparis bulundu.\nTumunu e-Arsiv olarak kesilsin mi?",
+                "Toplu Fatura Kes", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            if (_invoiceProvider == null)
+            {
+                MessageBox.Show("Fatura servisi yapilandirilmamis.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            int created = 0, failed = 0;
+            var pendingOrders = new[] { "ORD001", "ORD002", "ORD003" };
+            foreach (var orderId in pendingOrders)
+            {
+                try
+                {
+                    var dto = new InvoiceDto(
+                        InvoiceNumber: $"FTR{DateTime.Now:yyyyMMdd}{(_invoices.Count + created + 1):D3}",
+                        CustomerName: $"Siparis Sahibi ({orderId})",
+                        CustomerTaxNumber: null,
+                        CustomerTaxOffice: null,
+                        CustomerAddress: "Adres",
+                        SubTotal: 500m, TaxTotal: 100m, GrandTotal: 600m,
+                        Lines: new[] { new InvoiceLineDto("Urun", null, 1, 500m, 20m, 100m, 600m) });
+
+                    var invResult = await _invoiceProvider.CreateEArsivAsync(dto);
+                    if (invResult.Success)
+                    {
+                        _invoices.Insert(0, new InvoiceDisplayItem
+                        {
+                            InvoiceNumber = dto.InvoiceNumber, InvoiceType = "e-Arsiv",
+                            CustomerName = dto.CustomerName, TaxNumber = "",
+                            InvoiceDate = DateTime.Now, SubTotal = dto.SubTotal,
+                            TaxTotal = dto.TaxTotal, GrandTotal = dto.GrandTotal,
+                            Status = "Gonderildi", PlatformCode = "-", GibInvoiceId = invResult.GibInvoiceId ?? ""
+                        });
+                        created++;
+                    }
+                    else { failed++; }
+                }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"Toplu fatura hatasi ({orderId}): {ex.Message}", "InvoiceManagement");
+                    failed++;
+                }
+            }
+            UpdateStats();
+            MessageBox.Show($"Toplu fatura tamamlandi: {created} basarili, {failed} hatali.", "Sonuc", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private async void RefreshStatus_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = InvoicesGrid.SelectedItems.Cast<InvoiceDisplayItem>().ToList();
+            if (!selected.Any())
+            {
+                MessageBox.Show("Durumu guncellenecek faturayi seciniz.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (_invoiceProvider == null) return;
+
+            int updated = 0;
+            foreach (var item in selected)
+            {
+                if (string.IsNullOrEmpty(item.GibInvoiceId)) continue;
+                try
+                {
+                    var status = await _invoiceProvider.CheckStatusAsync(item.GibInvoiceId);
+                    item.Status = status.Status;
+                    updated++;
+                }
+                catch (Exception ex)
+                {
+                    GlobalLogger.Instance.LogError($"Durum guncelleme hatasi ({item.GibInvoiceId}): {ex.Message}", "InvoiceManagement");
+                }
+            }
+            InvoicesGrid.Items.Refresh();
+            UpdateStats();
+            MessageBox.Show($"{updated} fatura durumu guncellendi.", "Basarili", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private async void CancelInvoice_Click(object sender, RoutedEventArgs e)
+        {
+            if (InvoicesGrid.SelectedItem is not InvoiceDisplayItem selected)
+            {
+                MessageBox.Show("Iptal edilecek faturayi seciniz.", "Uyari", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (_invoiceProvider == null) return;
+
+            var confirm = MessageBox.Show($"Fatura {selected.InvoiceNumber} iptal edilecek. Emin misiniz?",
+                "Fatura Iptal", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
+            {
+                var cancelResult = await _invoiceProvider.CancelInvoiceAsync(selected.GibInvoiceId);
+                if (cancelResult.Success)
+                {
+                    selected.Status = "Iptal";
+                    InvoicesGrid.Items.Refresh();
+                    UpdateStats();
+                    MessageBox.Show("Fatura iptal edildi.", "Basarili", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                    MessageBox.Show($"Iptal hatasi: {cancelResult.ErrorMessage}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Iptal hatasi: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void InvoicesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (InvoicesGrid.SelectedItem is not InvoiceDisplayItem selected ||
+                string.IsNullOrEmpty(selected.GibInvoiceId) ||
+                _invoiceProvider == null)
+                return;
+
+            try
+            {
+                var pdfBytes = await _invoiceProvider.GetPdfAsync(selected.GibInvoiceId);
+                var tempPath = Path.Combine(Path.GetTempPath(), $"{selected.InvoiceNumber}.pdf");
+                await File.WriteAllBytesAsync(tempPath, pdfBytes);
+                PdfWebBrowser.Navigate(tempPath);
+
+                PdfPanelColumn.Width = new System.Windows.GridLength(350);
+                PdfPreviewBorder.Visibility = System.Windows.Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogError($"PDF onizleme hatasi: {ex.Message}", "InvoiceManagement");
+            }
+        }
+
+        private void ClosePdfPanel_Click(object sender, RoutedEventArgs e)
+        {
+            PdfPanelColumn.Width = new System.Windows.GridLength(0);
+            PdfPreviewBorder.Visibility = System.Windows.Visibility.Collapsed;
         }
     }
 

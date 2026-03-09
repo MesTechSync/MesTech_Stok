@@ -75,7 +75,10 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Yeni Fatura" Style="{StaticResource SuccessBtn}" Click="NewInvoice_Click" Margin="0,0,8,0"/>
                     <Button Content="PDF Indir" Style="{StaticResource ActionBtn}" Click="DownloadPdf_Click" Margin="0,0,8,0"/>
-                    <Button Content="Platforma Gonder" Style="{StaticResource ActionBtn}" Click="SendToPlatform_Click"/>
+                    <Button Content="Platforma Gonder" Style="{StaticResource ActionBtn}" Click="SendToPlatform_Click" Margin="0,0,8,0"/>
+                    <Button Content="Toplu Kes" Style="{StaticResource SuccessBtn}" Click="BulkCreate_Click" Margin="0,0,8,0"/>
+                    <Button Content="Durumu Guncelle" Style="{StaticResource ActionBtn}" Click="RefreshStatus_Click" Margin="0,0,8,0"/>
+                    <Button Content="Iptal Et" Style="{StaticResource DangerBtn}" Click="CancelInvoice_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -161,28 +164,62 @@
             </StackPanel>
         </Border>
 
-        <!-- Invoice DataGrid -->
-        <Border Grid.Row="3" Style="{StaticResource CardBorder}" Padding="0" Margin="8,4,8,8">
-            <DataGrid x:Name="InvoicesGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                      CanUserSortColumns="True" SelectionMode="Extended"
-                      GridLinesVisibility="Horizontal" HeadersVisibility="Column"
-                      BorderThickness="0" FontSize="12"
-                      RowHeight="36" ColumnHeaderHeight="38">
-                <DataGrid.Columns>
-                    <DataGridCheckBoxColumn Width="36"/>
-                    <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="140"/>
-                    <DataGridTextColumn Header="Tur" Binding="{Binding InvoiceType}" Width="80"/>
-                    <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="180"/>
-                    <DataGridTextColumn Header="VKN/TCKN" Binding="{Binding TaxNumber}" Width="110"/>
-                    <DataGridTextColumn Header="Tarih" Binding="{Binding InvoiceDate, StringFormat=dd.MM.yyyy}" Width="100"/>
-                    <DataGridTextColumn Header="KDV Haric" Binding="{Binding SubTotal, StringFormat='{}{0:N2}'}" Width="100"/>
-                    <DataGridTextColumn Header="KDV" Binding="{Binding TaxTotal, StringFormat='{}{0:N2}'}" Width="80"/>
-                    <DataGridTextColumn Header="Toplam" Binding="{Binding GrandTotal, StringFormat='{}{0:N2} TL'}" Width="110"/>
-                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
-                    <DataGridTextColumn Header="Platform" Binding="{Binding PlatformCode}" Width="90"/>
-                    <DataGridTextColumn Header="GIB ID" Binding="{Binding GibInvoiceId}" Width="120"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Border>
+        <!-- Invoice DataGrid + PDF Preview split panel -->
+        <Grid Grid.Row="3" Margin="8,4,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="PdfPanelColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Invoice DataGrid -->
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="0">
+                <DataGrid x:Name="InvoicesGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserSortColumns="True" SelectionMode="Extended"
+                          GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                          BorderThickness="0" FontSize="12"
+                          RowHeight="36" ColumnHeaderHeight="38"
+                          SelectionChanged="InvoicesGrid_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Width="36"/>
+                        <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="140"/>
+                        <DataGridTextColumn Header="Tur" Binding="{Binding InvoiceType}" Width="80"/>
+                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="180"/>
+                        <DataGridTextColumn Header="VKN/TCKN" Binding="{Binding TaxNumber}" Width="110"/>
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding InvoiceDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                        <DataGridTextColumn Header="KDV Haric" Binding="{Binding SubTotal, StringFormat='{}{0:N2}'}" Width="100"/>
+                        <DataGridTextColumn Header="KDV" Binding="{Binding TaxTotal, StringFormat='{}{0:N2}'}" Width="80"/>
+                        <DataGridTextColumn Header="Toplam" Binding="{Binding GrandTotal, StringFormat='{}{0:N2} TL'}" Width="110"/>
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
+                        <DataGridTextColumn Header="Platform" Binding="{Binding PlatformCode}" Width="90"/>
+                        <DataGridTextColumn Header="GIB ID" Binding="{Binding GibInvoiceId}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- PDF Preview Panel -->
+            <Border Grid.Column="1" Style="{StaticResource CardBorder}" x:Name="PdfPreviewBorder" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="PDF Onizleme" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#212529"/>
+                        <Button Content="X" Width="22" Height="22" Margin="8,0,0,0"
+                                Click="ClosePdfPanel_Click"
+                                Background="#DC3545" Foreground="White" BorderThickness="0" Padding="0" FontSize="10">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                    <WebBrowser Grid.Row="1" x:Name="PdfWebBrowser" MinHeight="400"/>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
