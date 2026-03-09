@@ -1,3 +1,4 @@
+using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -53,4 +54,89 @@ public class ProductRepository : IProductRepository
 
     public async Task<int> GetCountAsync()
         => await _context.Products.CountAsync().ConfigureAwait(false);
+
+    // ── Dalga 4: Batch + Pagination ──
+
+    public async Task<PagedResult<Product>> GetPagedAsync(int page = 1, int pageSize = 50, bool activeOnly = true)
+    {
+        var query = activeOnly ? _context.Products.Where(p => p.IsActive) : _context.Products.AsQueryable();
+        var totalCount = await query.CountAsync().ConfigureAwait(false);
+        var items = await query
+            .OrderBy(p => p.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync()
+            .ConfigureAwait(false);
+        return PagedResult<Product>.Create(items, totalCount, page, pageSize);
+    }
+
+    public async Task<IReadOnlyList<Product>> GetBySKUsAsync(IEnumerable<string> skus)
+    {
+        var skuList = skus.ToList();
+        return await _context.Products
+            .Where(p => skuList.Contains(p.SKU))
+            .ToListAsync()
+            .ConfigureAwait(false);
+    }
+
+    public async Task AddRangeAsync(IEnumerable<Product> products)
+        => await _context.Products.AddRangeAsync(products).ConfigureAwait(false);
+
+    public Task UpdateRangeAsync(IEnumerable<Product> products)
+    {
+        _context.Products.UpdateRange(products);
+        return Task.CompletedTask;
+    }
+
+    public async Task BatchUpdateStockAsync(
+        IReadOnlyList<(Guid ProductId, int NewStock)> updates,
+        CancellationToken ct = default)
+    {
+        const int batchSize = 100;
+        foreach (var batch in updates.Chunk(batchSize))
+        {
+            var ids = batch.Select(b => b.ProductId).ToList();
+            var products = await _context.Products
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync(ct)
+                .ConfigureAwait(false);
+
+            foreach (var (productId, newStock) in batch)
+            {
+                var product = products.FirstOrDefault(p => p.Id == productId);
+                if (product != null)
+                {
+                    var delta = newStock - product.Stock;
+                    if (delta != 0)
+                        product.AdjustStock(delta, Domain.Enums.StockMovementType.PlatformSync, "Batch sync");
+                }
+            }
+
+            await _context.SaveChangesAsync(ct).ConfigureAwait(false);
+        }
+    }
+
+    public async Task BatchUpdatePriceAsync(
+        IReadOnlyList<(Guid ProductId, decimal NewPrice)> updates,
+        CancellationToken ct = default)
+    {
+        const int batchSize = 100;
+        foreach (var batch in updates.Chunk(batchSize))
+        {
+            var ids = batch.Select(b => b.ProductId).ToList();
+            var products = await _context.Products
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync(ct)
+                .ConfigureAwait(false);
+
+            foreach (var (productId, newPrice) in batch)
+            {
+                var product = products.FirstOrDefault(p => p.Id == productId);
+                product?.UpdatePrice(newPrice);
+            }
+
+            await _context.SaveChangesAsync(ct).ConfigureAwait(false);
+        }
+    }
 }
