@@ -346,8 +346,11 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Core Database Context (PRIMARY) – PostgreSQL 17 + pgvector
-        // DALGA 1: Tek provider — PostgreSQL (SqlServer/SQLite fallback kaldırıldı)
+        // [DALGA 4] Core DbContext — FROZEN, backward compat only
+        // Kanonik context: MesTech.Infrastructure.Persistence.AppDbContext (aşağıda)
+        // Bu registration mevcut Core servisleri (ProductService vb.) için korunuyor.
+        // Yeni entity/repo/servis Infrastructure.AppDbContext kullanmalıdır.
+        #pragma warning disable CS0618 // Obsolete Core.AppDbContext — intentional backward compat
         services.AddDbContext<AppDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -364,9 +367,10 @@ public partial class App : Application
             options.AddInterceptors(new MesTech.Infrastructure.Persistence.AuditInterceptor(
                 new MesTech.Infrastructure.Security.DevelopmentUserService()));
         }, ServiceLifetime.Scoped);
+        #pragma warning restore CS0618
 
 
-        // ALPHA TEAM: Core Business Services
+        // ALPHA TEAM: Core Business Services (FROZEN — use Clean Architecture for new code)
         services.AddScoped<MesTechStok.Core.Services.Abstract.IProductService, ProductService>();
         services.AddScoped<MesTechStok.Core.Services.Abstract.IInventoryService, InventoryService>();
         services.AddScoped<IOrderService, OrderService>();
@@ -501,6 +505,10 @@ public partial class App : Application
         services.AddSingleton<MesTech.Domain.Services.StockCalculationService>();
         services.AddSingleton<MesTech.Domain.Services.PricingService>();
         services.AddSingleton<MesTech.Domain.Services.BarcodeValidationService>();
+
+        // Dalga 4 Domain Services — finansal modüller
+        services.AddSingleton<MesTech.Domain.Services.BalanceCalculationService>();
+        services.AddSingleton<MesTech.Domain.Services.ReturnPolicyService>();
 
         // Tenant Provider — DesktopTenantProvider (login sonrasi SetTenant ile tenant degisir)
         services.AddSingleton<MesTech.Infrastructure.Security.DesktopTenantProvider>();

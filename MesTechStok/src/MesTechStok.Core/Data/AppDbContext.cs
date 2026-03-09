@@ -11,9 +11,23 @@ using System.Collections.Generic;
 namespace MesTechStok.Core.Data;
 
 /// <summary>
-/// Ana veritabanı context sınıfı
-/// Tüm veritabanı işlemleri bu sınıf üzerinden gerçekleştirilir
+/// [OBSOLETE] Legacy veritabanı context — YENİ KOD YAZMAK İÇİN KULLANMAYIN.
+/// Tüm yeni entity/repo/servis MesTech.Infrastructure.Persistence.AppDbContext kullanmalıdır.
+///
+/// Dalga 4 konsolidasyon planı:
+///   1. Bu context FROZEN — yeni DbSet eklenmeyecek
+///   2. Mevcut Core servisleri (ProductService, OrderService vb.) backward compat için çalışmaya devam eder
+///   3. int→Guid PK migration (1.D4-11) tamamlandıktan sonra Core.Models silinecek
+///   4. Core servisleri Clean Architecture CQRS handler'larıyla değiştirilecek
+///   5. Son aşamada bu context tamamen kaldırılacak
+///
+/// Kanonik context: MesTech.Infrastructure.Persistence.AppDbContext
+///   - Multi-tenant query filter (ITenantEntity)
+///   - Soft-delete filter (BaseEntity.IsDeleted)
+///   - Domain events (GetDomainEvents)
+///   - 68+ DbSet (tüm Domain entity'leri)
 /// </summary>
+[Obsolete("Use MesTech.Infrastructure.Persistence.AppDbContext — this context is frozen (Dalga 4).")]
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

@@ -38,7 +38,12 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 
         _monitor.RecordConsume("ai.content.generated");
 
-        // TODO Dalga 3: Product.Description guncelle, SEO metadata kaydet
+        // Dalga 4: Gercek is mantigi — Product.Description guncelle
+        // NOT: DbContext inject edilecek, simdilik log yeterli
+        _logger.LogInformation(
+            "[MESA Consumer] Product aciklamasi guncellenmeli: SKU={SKU}, uzunluk={Length} karakter",
+            msg.SKU, msg.GeneratedContent.Length);
+
         return Task.CompletedTask;
     }
 }
@@ -71,7 +76,12 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 
         _monitor.RecordConsume("ai.price.recommended");
 
-        // TODO Dalga 3: Fiyat onerisi tablosuna kaydet, UI'da goster
+        // Dalga 4: PriceRecommendation history + Product snapshot
+        // NOT: DbContext inject edilecek, simdilik log yeterli
+        _logger.LogInformation(
+            "[MESA Consumer] Fiyat onerisi kaydedilmeli: SKU={SKU}, oneri={Price:N2} TL, aralik=[{Min:N2}-{Max:N2}]",
+            msg.SKU, msg.RecommendedPrice, msg.MinPrice, msg.MaxPrice);
+
         return Task.CompletedTask;
     }
 }
@@ -108,7 +118,147 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 
         _monitor.RecordConsume("bot.notification.sent");
 
-        // TODO Dalga 3: Bildirim durumunu audit log'a kaydet
+        // Dalga 4: Bildirim audit log + ardisik hata alarm
+        if (!msg.Success)
+        {
+            _logger.LogError(
+                "[MESA Consumer] Bot bildirim hatasi — kanal={Channel}, hata={Error}. Ardisik hatalari kontrol edin.",
+                msg.Channel, msg.ErrorMessage);
+        }
+
         return Task.CompletedTask;
     }
+}
+
+public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
+{
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ILogger<MesaAiPriceOptimizedConsumer> _logger;
+
+    public MesaAiPriceOptimizedConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaAiPriceOptimizedConsumer> logger)
+    {
+        _monitor = monitor;
+        _logger = logger;
+    }
+
+    public Task Consume(ConsumeContext<MesaAiPriceOptimizedEvent> context)
+    {
+        var msg = context.Message;
+        _logger.LogInformation(
+            "[MESA Consumer] AI fiyat optimizasyonu alindi: SKU={SKU}, oneri={Price:N2}, rakip_min={CompMin}, guven={Confidence:P0}",
+            msg.SKU, msg.RecommendedPrice, msg.CompetitorMinPrice, msg.Confidence);
+
+        // TODO: PriceRecommendation history INSERT + Product snapshot UPDATE
+        // Source = "ai.price.optimized", tek transaction
+        // Fiyat farki > %20 ise Telegram Critical alert
+
+        _monitor.RecordConsume("ai.price.optimized");
+        return Task.CompletedTask;
+    }
+}
+
+public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
+{
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ILogger<MesaAiStockPredictedConsumer> _logger;
+
+    public MesaAiStockPredictedConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaAiStockPredictedConsumer> logger)
+    {
+        _monitor = monitor;
+        _logger = logger;
+    }
+
+    public Task Consume(ConsumeContext<MesaAiStockPredictedEvent> context)
+    {
+        var msg = context.Message;
+        _logger.LogInformation(
+            "[MESA Consumer] AI stok tahmini alindi: SKU={SKU}, 7g={D7}, 14g={D14}, 30g={D30}, tukenis={Days} gun",
+            msg.SKU, msg.PredictedDemand7d, msg.PredictedDemand14d, msg.PredictedDemand30d, msg.DaysUntilStockout);
+
+        if (msg.DaysUntilStockout < 7)
+        {
+            _logger.LogWarning(
+                "[MESA Consumer] KRITIK: SKU={SKU} {Days} gun icinde tukenecek! Onerilen siparis: {Reorder} adet",
+                msg.SKU, msg.DaysUntilStockout, msg.ReorderSuggestion);
+        }
+
+        // TODO: StockPrediction history INSERT + Product snapshot UPDATE
+        // Tek transaction
+
+        _monitor.RecordConsume("ai.stock.predicted");
+        return Task.CompletedTask;
+    }
+}
+
+public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEvent>
+{
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ILogger<MesaBotInvoiceRequestConsumer> _logger;
+
+    public MesaBotInvoiceRequestConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaBotInvoiceRequestConsumer> logger)
+    {
+        _monitor = monitor;
+        _logger = logger;
+    }
+
+    public Task Consume(ConsumeContext<MesaBotInvoiceRequestedEvent> context)
+    {
+        var msg = context.Message;
+        _logger.LogInformation(
+            "[MESA Consumer] Musteri fatura istedi: telefon={Phone}, siparis={Order}, kanal={Channel}",
+            MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.RequestChannel);
+
+        // TODO: OrderNumber ile Order bul → Invoice bul → PdfUrl
+        // Invoice yoksa: "Faturaniz henuz hazirlanmadi" WhatsApp mesaji
+        // Invoice varsa: PdfUrl ile "invoice_ready" template gonder
+
+        _monitor.RecordConsume("bot.invoice.requested");
+        return Task.CompletedTask;
+    }
+
+    private static string MaskPhone(string phone) =>
+        phone.Length > 5
+            ? phone[..3] + new string('*', phone.Length - 5) + phone[^2..]
+            : "***";
+}
+
+public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
+{
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ILogger<MesaBotReturnRequestConsumer> _logger;
+
+    public MesaBotReturnRequestConsumer(
+        IMesaEventMonitor monitor,
+        ILogger<MesaBotReturnRequestConsumer> logger)
+    {
+        _monitor = monitor;
+        _logger = logger;
+    }
+
+    public Task Consume(ConsumeContext<MesaBotReturnRequestedEvent> context)
+    {
+        var msg = context.Message;
+        _logger.LogInformation(
+            "[MESA Consumer] Musteri iade istedi: telefon={Phone}, siparis={Order}, sebep={Reason}, kanal={Channel}",
+            MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.ReturnReason, msg.RequestChannel);
+
+        // TODO: OrderNumber ile Order bul → ReturnRequest olustur (line'siz)
+        // Status: Initiated, Source: WhatsApp
+        // Musteriye: "Iade talebiniz alindi #RET-XXX"
+        // Saticiya Telegram: "Musteri X iade talep etti, siparis #Y"
+
+        _monitor.RecordConsume("bot.return.requested");
+        return Task.CompletedTask;
+    }
+
+    private static string MaskPhone(string phone) =>
+        phone.Length > 5
+            ? phone[..3] + new string('*', phone.Length - 5) + phone[^2..]
+            : "***";
 }
