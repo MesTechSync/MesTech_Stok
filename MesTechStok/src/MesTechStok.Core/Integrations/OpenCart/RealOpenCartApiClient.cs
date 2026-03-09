@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -388,7 +389,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 Name = ocProduct.Name ?? string.Empty,
                 Description = ocProduct.Description ?? string.Empty,
                 Barcode = ocProduct.Ean ?? ocProduct.Upc ?? ocProduct.Sku ?? string.Empty,
-                Price = decimal.TryParse(ocProduct.Price, out var price) ? price : 0,
+                Price = decimal.TryParse(ocProduct.Price, NumberStyles.Number, CultureInfo.InvariantCulture, out var price) ? price : 0,
                 StockQuantity = int.TryParse(ocProduct.Quantity, out var qty) ? qty : 0,
                 CategoryId = ocProduct.CategoryId?.ToString(),
                 SKU = ocProduct.Sku ?? string.Empty,
@@ -421,7 +422,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 Id = ocOrder.OrderId?.ToString() ?? Guid.NewGuid().ToString(),
                 OrderNumber = ocOrder.OrderId?.ToString() ?? string.Empty,
                 CustomerId = ocOrder.CustomerId?.ToString(),
-                TotalAmount = decimal.TryParse(ocOrder.Total, out var total) ? total : 0,
+                TotalAmount = decimal.TryParse(ocOrder.Total, NumberStyles.Number, CultureInfo.InvariantCulture, out var total) ? total : 0,
                 Status = MapOrderStatusFromOpenCart(ocOrder.OrderStatusId),
                 OrderDate = DateTime.TryParse(ocOrder.DateAdded, out var date) ? date : DateTime.UtcNow,
                 LastModified = DateTime.TryParse(ocOrder.DateModified, out var modified) ? modified : DateTime.UtcNow,
@@ -437,8 +438,8 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 ProductId = ocOrderProduct.ProductId?.ToString() ?? string.Empty,
                 ProductName = ocOrderProduct.Name ?? string.Empty,
                 Quantity = int.TryParse(ocOrderProduct.Quantity, out var qty) ? qty : 0,
-                UnitPrice = decimal.TryParse(ocOrderProduct.Price, out var price) ? price : 0,
-                TotalPrice = decimal.TryParse(ocOrderProduct.Total, out var total) ? total : 0
+                UnitPrice = decimal.TryParse(ocOrderProduct.Price, NumberStyles.Number, CultureInfo.InvariantCulture, out var price) ? price : 0,
+                TotalPrice = decimal.TryParse(ocOrderProduct.Total, NumberStyles.Number, CultureInfo.InvariantCulture, out var total) ? total : 0
             };
         }
 

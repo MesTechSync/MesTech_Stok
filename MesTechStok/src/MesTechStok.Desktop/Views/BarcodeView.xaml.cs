@@ -297,7 +297,7 @@ namespace MesTechStok.Desktop.Views
 
                     if (this.FindName("WidthMulSlider") is Slider wsl && this.FindName("WidthMulValueText") is TextBlock wtx)
                     {
-                        if (double.TryParse(config["BarcodeView:Overscan:WidthMultiplier"], out var wm))
+                        if (double.TryParse(config["BarcodeView:Overscan:WidthMultiplier"], NumberStyles.Any, CultureInfo.InvariantCulture, out var wm))
                         {
                             wsl.Value = Math.Min(Math.Max(wm, wsl.Minimum), wsl.Maximum);
                             wtx.Text = $"{wsl.Value:F2}x";
@@ -305,7 +305,7 @@ namespace MesTechStok.Desktop.Views
                     }
                     if (this.FindName("HeightMulSlider") is Slider hsl && this.FindName("HeightMulValueText") is TextBlock htx)
                     {
-                        if (double.TryParse(config["BarcodeView:Overscan:HeightMultiplier"], out var hm))
+                        if (double.TryParse(config["BarcodeView:Overscan:HeightMultiplier"], NumberStyles.Any, CultureInfo.InvariantCulture, out var hm))
                         {
                             hsl.Value = Math.Min(Math.Max(hm, hsl.Minimum), hsl.Maximum);
                             htx.Text = $"{hsl.Value:F2}x";
@@ -380,8 +380,8 @@ namespace MesTechStok.Desktop.Views
                     var config = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                     if (config != null)
                     {
-                        widthMul = double.TryParse(config["BarcodeView:Overscan:WidthMultiplier"], out var wm) ? wm : widthMul;
-                        heightMul = double.TryParse(config["BarcodeView:Overscan:HeightMultiplier"], out var hm) ? hm : heightMul;
+                        widthMul = double.TryParse(config["BarcodeView:Overscan:WidthMultiplier"], NumberStyles.Any, CultureInfo.InvariantCulture, out var wm) ? wm : widthMul;
+                        heightMul = double.TryParse(config["BarcodeView:Overscan:HeightMultiplier"], NumberStyles.Any, CultureInfo.InvariantCulture, out var hm) ? hm : heightMul;
                     }
                 }
                 catch (Exception ex)
@@ -1386,8 +1386,8 @@ namespace MesTechStok.Desktop.Views
                         if (config != null)
                         {
                             useRoi = bool.TryParse(config["BarcodeView:Reader:UseROI"], out var ur) ? ur : useRoi;
-                            roiTopPercent = double.TryParse(config["BarcodeView:Reader:RoiTopPercent"], out var rtp) ? rtp : roiTopPercent;
-                            roiHeightPercent = double.TryParse(config["BarcodeView:Reader:RoiHeightPercent"], out var rhp) ? rhp : roiHeightPercent;
+                            roiTopPercent = double.TryParse(config["BarcodeView:Reader:RoiTopPercent"], NumberStyles.Any, CultureInfo.InvariantCulture, out var rtp) ? rtp : roiTopPercent;
+                            roiHeightPercent = double.TryParse(config["BarcodeView:Reader:RoiHeightPercent"], NumberStyles.Any, CultureInfo.InvariantCulture, out var rhp) ? rhp : roiHeightPercent;
                             decodeCooldownMs = int.TryParse(config["BarcodeView:Reader:DecodeCooldownMs"], out var dcm) ? dcm : decodeCooldownMs;
                         }
                     }

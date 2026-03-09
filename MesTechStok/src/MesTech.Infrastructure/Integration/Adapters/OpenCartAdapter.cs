@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
@@ -223,7 +224,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                         {
                             Name = item.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
                             SKU = item.TryGetProperty("sku", out var s) ? s.GetString() ?? "" : "",
-                            SalePrice = item.TryGetProperty("price", out var p) && decimal.TryParse(p.GetString(), out var pv) ? pv : 0,
+                            SalePrice = item.TryGetProperty("price", out var p) && decimal.TryParse(p.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var pv) ? pv : 0,
                             Stock = item.TryGetProperty("quantity", out var q) && int.TryParse(q.GetString(), out var qv) ? qv : 0,
                             Description = item.TryGetProperty("description", out var d) ? d.GetString() : null
                         });
@@ -410,7 +411,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                         CustomerPhone = item.TryGetProperty("telephone", out var tel) ? tel.GetString() : null,
                         CustomerAddress = BuildAddress(item),
                         CustomerCity = item.TryGetProperty("shipping_city", out var city) ? city.GetString() : null,
-                        TotalAmount = item.TryGetProperty("total", out var tot) && decimal.TryParse(tot.GetString(), out var tv) ? tv : 0,
+                        TotalAmount = item.TryGetProperty("total", out var tot) && decimal.TryParse(tot.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var tv) ? tv : 0,
                         Currency = item.TryGetProperty("currency_code", out var cur) ? cur.GetString() ?? "TRY" : "TRY",
                         OrderDate = orderDate
                     };
@@ -425,9 +426,9 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                                 SKU = line.TryGetProperty("model", out var model) ? model.GetString() : null,
                                 ProductName = line.TryGetProperty("name", out var ln) ? ln.GetString() ?? "" : "",
                                 Quantity = line.TryGetProperty("quantity", out var lq) && int.TryParse(lq.GetString(), out var lqv) ? lqv : 1,
-                                UnitPrice = line.TryGetProperty("price", out var lp) && decimal.TryParse(lp.GetString(), out var lpv) ? lpv : 0,
-                                TaxRate = line.TryGetProperty("tax", out var ltax) && decimal.TryParse(ltax.GetString(), out var ltv) ? ltv : 0,
-                                LineTotal = line.TryGetProperty("total", out var lt) && decimal.TryParse(lt.GetString(), out var ltov) ? ltov : 0
+                                UnitPrice = line.TryGetProperty("price", out var lp) && decimal.TryParse(lp.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var lpv) ? lpv : 0,
+                                TaxRate = line.TryGetProperty("tax", out var ltax) && decimal.TryParse(ltax.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ltv) ? ltv : 0,
+                                LineTotal = line.TryGetProperty("total", out var lt) && decimal.TryParse(lt.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ltov) ? ltov : 0
                             });
                         }
                     }
