@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MassTransit;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,16 +12,26 @@ namespace MesTech.Tests.Unit.Mesa;
 /// MESA OS consumer unit testleri — DEV 5 Dalga 3 Hafta 12.
 /// Mock ConsumeContext ile MassTransit pipeline dogrulama.
 /// RabbitMQ Docker bagimli degil — tamamen unit test.
+/// Dalga 5 IP-5: ITenantProvider eklendi.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Feature", "MesaBridge")]
 [Trait("Phase", "Dalga3")]
 public class MesaConsumerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
+
     private static Mock<IMesaEventMonitor> CreateMonitor() => new();
 
     private static ILogger<T> CreateLogger<T>() =>
         new Mock<ILogger<T>>().Object;
+
+    private static ITenantProvider CreateTenantProvider()
+    {
+        var mock = new Mock<ITenantProvider>();
+        mock.Setup(x => x.GetCurrentTenantId()).Returns(TestTenantId);
+        return mock.Object;
+    }
 
     // ══════════════════════════════════════════════
     //  MesaAiContentConsumer (4 tests)
@@ -30,7 +41,7 @@ public class MesaConsumerTests
     public async Task AiContent_Consume_CallsMonitorRecordConsume()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaAiContentConsumer(monitorMock.Object, CreateLogger<MesaAiContentConsumer>());
+        var consumer = new MesaAiContentConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaAiContentConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiContentGeneratedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiContentGeneratedEvent(
@@ -39,6 +50,7 @@ public class MesaConsumerTests
             "Generated content text",
             null,
             "GPT-4",
+            TestTenantId,
             DateTime.UtcNow));
 
         await consumer.Consume(context.Object);
@@ -49,7 +61,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task AiContent_Consume_WithMetadata_DoesNotThrow()
     {
-        var consumer = new MesaAiContentConsumer(CreateMonitor().Object, CreateLogger<MesaAiContentConsumer>());
+        var consumer = new MesaAiContentConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaAiContentConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiContentGeneratedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiContentGeneratedEvent(
@@ -58,6 +70,7 @@ public class MesaConsumerTests
             "Generated content with metadata",
             new Dictionary<string, string> { ["lang"] = "tr", ["tone"] = "formal" },
             "GPT-4",
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -68,7 +81,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task AiContent_Consume_NullMetadata_DoesNotThrow()
     {
-        var consumer = new MesaAiContentConsumer(CreateMonitor().Object, CreateLogger<MesaAiContentConsumer>());
+        var consumer = new MesaAiContentConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaAiContentConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiContentGeneratedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiContentGeneratedEvent(
@@ -77,6 +90,7 @@ public class MesaConsumerTests
             "Generated content no metadata",
             null,
             "Claude",
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -88,7 +102,7 @@ public class MesaConsumerTests
     public async Task AiContent_Consume_SetsConsumeKey()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaAiContentConsumer(monitorMock.Object, CreateLogger<MesaAiContentConsumer>());
+        var consumer = new MesaAiContentConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaAiContentConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiContentGeneratedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiContentGeneratedEvent(
@@ -97,6 +111,7 @@ public class MesaConsumerTests
             "Content for key verification",
             null,
             "GPT-4",
+            TestTenantId,
             DateTime.UtcNow));
 
         await consumer.Consume(context.Object);
@@ -114,7 +129,7 @@ public class MesaConsumerTests
     public async Task AiPrice_Consume_CallsMonitorRecordConsume()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaAiPriceConsumer(monitorMock.Object, CreateLogger<MesaAiPriceConsumer>());
+        var consumer = new MesaAiPriceConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaAiPriceConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiPriceRecommendedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiPriceRecommendedEvent(
@@ -124,6 +139,7 @@ public class MesaConsumerTests
             120.00m,
             180.00m,
             null,
+            TestTenantId,
             DateTime.UtcNow));
 
         await consumer.Consume(context.Object);
@@ -134,7 +150,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task AiPrice_Consume_WithReasoning_DoesNotThrow()
     {
-        var consumer = new MesaAiPriceConsumer(CreateMonitor().Object, CreateLogger<MesaAiPriceConsumer>());
+        var consumer = new MesaAiPriceConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaAiPriceConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiPriceRecommendedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiPriceRecommendedEvent(
@@ -144,6 +160,7 @@ public class MesaConsumerTests
             250.00m,
             350.00m,
             "Rakip fiyatlari ve mevsimsel trend analizi",
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -154,7 +171,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task AiPrice_Consume_NullReasoning_DoesNotThrow()
     {
-        var consumer = new MesaAiPriceConsumer(CreateMonitor().Object, CreateLogger<MesaAiPriceConsumer>());
+        var consumer = new MesaAiPriceConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaAiPriceConsumer>());
 
         var context = new Mock<ConsumeContext<MesaAiPriceRecommendedEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaAiPriceRecommendedEvent(
@@ -164,6 +181,7 @@ public class MesaConsumerTests
             70.00m,
             110.00m,
             null,
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -175,7 +193,7 @@ public class MesaConsumerTests
     public async Task AiPrice_Consume_PriceFieldsAvailableInMessage()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaAiPriceConsumer(monitorMock.Object, CreateLogger<MesaAiPriceConsumer>());
+        var consumer = new MesaAiPriceConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaAiPriceConsumer>());
 
         var expectedRecommended = 199.99m;
         var expectedMin = 150.00m;
@@ -190,6 +208,7 @@ public class MesaConsumerTests
             expectedMin,
             expectedMax,
             null,
+            TestTenantId,
             DateTime.UtcNow));
 
         capturedMessage = context.Object.Message;
@@ -208,7 +227,7 @@ public class MesaConsumerTests
     public async Task BotStatus_Success_CallsMonitorRecordConsume()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaBotStatusConsumer(monitorMock.Object, CreateLogger<MesaBotStatusConsumer>());
+        var consumer = new MesaBotStatusConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaBotStatusConsumer>());
 
         var context = new Mock<ConsumeContext<MesaBotNotificationSentEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaBotNotificationSentEvent(
@@ -216,6 +235,7 @@ public class MesaConsumerTests
             "+905551234567",
             true,
             null,
+            TestTenantId,
             DateTime.UtcNow));
 
         await consumer.Consume(context.Object);
@@ -227,7 +247,7 @@ public class MesaConsumerTests
     public async Task BotStatus_Failure_CallsMonitorRecordConsume()
     {
         var monitorMock = CreateMonitor();
-        var consumer = new MesaBotStatusConsumer(monitorMock.Object, CreateLogger<MesaBotStatusConsumer>());
+        var consumer = new MesaBotStatusConsumer(monitorMock.Object, CreateTenantProvider(), CreateLogger<MesaBotStatusConsumer>());
 
         var context = new Mock<ConsumeContext<MesaBotNotificationSentEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaBotNotificationSentEvent(
@@ -235,6 +255,7 @@ public class MesaConsumerTests
             "@testuser",
             false,
             "Connection timeout",
+            TestTenantId,
             DateTime.UtcNow));
 
         await consumer.Consume(context.Object);
@@ -245,7 +266,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task BotStatus_Success_DoesNotThrow()
     {
-        var consumer = new MesaBotStatusConsumer(CreateMonitor().Object, CreateLogger<MesaBotStatusConsumer>());
+        var consumer = new MesaBotStatusConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaBotStatusConsumer>());
 
         var context = new Mock<ConsumeContext<MesaBotNotificationSentEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaBotNotificationSentEvent(
@@ -253,6 +274,7 @@ public class MesaConsumerTests
             "+905559876543",
             true,
             null,
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -263,7 +285,7 @@ public class MesaConsumerTests
     [Fact]
     public async Task BotStatus_Failure_WithErrorMessage_DoesNotThrow()
     {
-        var consumer = new MesaBotStatusConsumer(CreateMonitor().Object, CreateLogger<MesaBotStatusConsumer>());
+        var consumer = new MesaBotStatusConsumer(CreateMonitor().Object, CreateTenantProvider(), CreateLogger<MesaBotStatusConsumer>());
 
         var context = new Mock<ConsumeContext<MesaBotNotificationSentEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaBotNotificationSentEvent(
@@ -271,6 +293,7 @@ public class MesaConsumerTests
             "@erroruser",
             false,
             "Some error",
+            TestTenantId,
             DateTime.UtcNow));
 
         var act = async () => await consumer.Consume(context.Object);
@@ -286,10 +309,10 @@ public class MesaConsumerTests
     public async Task AiPriceOptimized_ShouldRecordConsume()
     {
         var monitor = CreateMonitor();
-        var consumer = new MesaAiPriceOptimizedConsumer(monitor.Object, CreateLogger<MesaAiPriceOptimizedConsumer>());
+        var consumer = new MesaAiPriceOptimizedConsumer(monitor.Object, CreateTenantProvider(), CreateLogger<MesaAiPriceOptimizedConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaAiPriceOptimizedEvent>>();
         mockContext.Setup(x => x.Message).Returns(new MesaAiPriceOptimizedEvent(
-            Guid.NewGuid(), "SKU-OPT-001", 139.90m, 120m, 160m, 135m, 0.85, "Buybox bazli", DateTime.UtcNow));
+            Guid.NewGuid(), "SKU-OPT-001", 139.90m, 120m, 160m, 135m, 0.85, "Buybox bazli", TestTenantId, DateTime.UtcNow));
 
         await consumer.Consume(mockContext.Object);
 
@@ -304,10 +327,10 @@ public class MesaConsumerTests
     public async Task AiStockPredicted_ShouldRecordConsume()
     {
         var monitor = CreateMonitor();
-        var consumer = new MesaAiStockPredictedConsumer(monitor.Object, CreateLogger<MesaAiStockPredictedConsumer>());
+        var consumer = new MesaAiStockPredictedConsumer(monitor.Object, CreateTenantProvider(), CreateLogger<MesaAiStockPredictedConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaAiStockPredictedEvent>>();
         mockContext.Setup(x => x.Message).Returns(new MesaAiStockPredictedEvent(
-            Guid.NewGuid(), "SKU-PRED-001", 70, 140, 300, 15, 100, 0.80, "Yeterli stok", DateTime.UtcNow));
+            Guid.NewGuid(), "SKU-PRED-001", 70, 140, 300, 15, 100, 0.80, "Yeterli stok", TestTenantId, DateTime.UtcNow));
 
         await consumer.Consume(mockContext.Object);
 
@@ -322,10 +345,10 @@ public class MesaConsumerTests
     public async Task BotInvoiceRequest_ShouldRecordConsume()
     {
         var monitor = CreateMonitor();
-        var consumer = new MesaBotInvoiceRequestConsumer(monitor.Object, CreateLogger<MesaBotInvoiceRequestConsumer>());
+        var consumer = new MesaBotInvoiceRequestConsumer(monitor.Object, CreateTenantProvider(), CreateLogger<MesaBotInvoiceRequestConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaBotInvoiceRequestedEvent>>();
         mockContext.Setup(x => x.Message).Returns(new MesaBotInvoiceRequestedEvent(
-            "+905551234567", "ORD-2026-001", "WhatsApp", DateTime.UtcNow));
+            "+905551234567", "ORD-2026-001", "WhatsApp", TestTenantId, DateTime.UtcNow));
 
         await consumer.Consume(mockContext.Object);
 
@@ -340,10 +363,10 @@ public class MesaConsumerTests
     public async Task BotReturnRequest_ShouldRecordConsume()
     {
         var monitor = CreateMonitor();
-        var consumer = new MesaBotReturnRequestConsumer(monitor.Object, CreateLogger<MesaBotReturnRequestConsumer>());
+        var consumer = new MesaBotReturnRequestConsumer(monitor.Object, CreateTenantProvider(), CreateLogger<MesaBotReturnRequestConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaBotReturnRequestedEvent>>();
         mockContext.Setup(x => x.Message).Returns(new MesaBotReturnRequestedEvent(
-            "+905559876543", "ORD-2026-002", "Urun arizali", "WhatsApp", DateTime.UtcNow));
+            "+905559876543", "ORD-2026-002", "Urun arizali", "WhatsApp", TestTenantId, DateTime.UtcNow));
 
         await consumer.Consume(mockContext.Object);
 

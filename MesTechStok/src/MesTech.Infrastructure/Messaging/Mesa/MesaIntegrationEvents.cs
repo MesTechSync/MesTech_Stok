@@ -124,6 +124,7 @@ public record MesaAiContentGeneratedEvent(
     string GeneratedContent,
     Dictionary<string, string>? Metadata,
     string AiProvider,
+    Guid TenantId,
     DateTime GeneratedAt);
 
 /// <summary>MESA AI fiyat onerisi uretildi.</summary>
@@ -134,6 +135,7 @@ public record MesaAiPriceRecommendedEvent(
     decimal MinPrice,
     decimal MaxPrice,
     string? Reasoning,
+    Guid TenantId,
     DateTime GeneratedAt);
 
 /// <summary>MESA Bot bildirim gonderim durumu.</summary>
@@ -142,6 +144,7 @@ public record MesaBotNotificationSentEvent(
     string Recipient,
     bool Success,
     string? ErrorMessage,
+    Guid TenantId,
     DateTime SentAt);
 
 /// <summary>MESA AI buybox bazli fiyat optimizasyonu hesaplandi.</summary>
@@ -154,6 +157,7 @@ public record MesaAiPriceOptimizedEvent(
     decimal? CompetitorMinPrice,
     double Confidence,
     string? Reasoning,
+    Guid TenantId,
     DateTime GeneratedAt);
 
 /// <summary>MESA AI stok tahmini hazir.</summary>
@@ -167,6 +171,7 @@ public record MesaAiStockPredictedEvent(
     int ReorderSuggestion,
     double Confidence,
     string? Reasoning,
+    Guid TenantId,
     DateTime GeneratedAt);
 
 /// <summary>Musteri WhatsApp'tan fatura istedi.</summary>
@@ -174,6 +179,7 @@ public record MesaBotInvoiceRequestedEvent(
     string CustomerPhone,
     string OrderNumber,
     string RequestChannel,
+    Guid TenantId,
     DateTime RequestedAt);
 
 /// <summary>Musteri WhatsApp'tan iade istedi.</summary>
@@ -182,4 +188,5 @@ public record MesaBotReturnRequestedEvent(
     string OrderNumber,
     string? ReturnReason,
     string RequestChannel,
+    Guid TenantId,
     DateTime RequestedAt);

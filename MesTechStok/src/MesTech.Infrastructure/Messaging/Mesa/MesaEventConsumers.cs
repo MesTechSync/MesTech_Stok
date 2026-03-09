@@ -1,5 +1,6 @@
 using MassTransit;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
@@ -8,23 +9,34 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// MESA OS'tan gelen event'leri consume eder.
 /// Dalga 1: Sadece log'a yazar.
 /// Dalga 2+: Gercek is mantigi eklenir (Product.Description guncelle, fiyat onerisi kaydet vb.)
+/// Dalga 5 IP-5: TenantId eklendi — fallback: ITenantProvider.
 /// </summary>
 public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaAiContentConsumer> _logger;
 
     public MesaAiContentConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaAiContentConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaAiContentGeneratedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] AI icerik alindi: SKU={SKU}, provider={Provider}, icerik uzunlugu={Length}",
             msg.SKU, msg.AiProvider, msg.GeneratedContent.Length);
@@ -51,19 +63,29 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaAiPriceConsumer> _logger;
 
     public MesaAiPriceConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaAiPriceConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaAiPriceRecommendedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] AI fiyat onerisi alindi: SKU={SKU}, oneri={Price}, aralik=[{Min}-{Max}]",
             msg.SKU, msg.RecommendedPrice, msg.MinPrice, msg.MaxPrice);
@@ -89,19 +111,28 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaBotStatusConsumer> _logger;
 
     public MesaBotStatusConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaBotStatusConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaBotNotificationSentEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
 
         if (msg.Success)
         {
@@ -124,19 +155,29 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaAiPriceOptimizedConsumer> _logger;
 
     public MesaAiPriceOptimizedConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaAiPriceOptimizedConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaAiPriceOptimizedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] AI fiyat optimizasyonu alindi: SKU={SKU}, oneri={Price:N2}, rakip_min={CompMin}, guven={Confidence:P0}",
             msg.SKU, msg.RecommendedPrice, msg.CompetitorMinPrice, msg.Confidence);
@@ -153,19 +194,29 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaAiStockPredictedConsumer> _logger;
 
     public MesaAiStockPredictedConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaAiStockPredictedConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaAiStockPredictedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] AI stok tahmini alindi: SKU={SKU}, 7g={D7}, 14g={D14}, 30g={D30}, tukenis={Days} gun",
             msg.SKU, msg.PredictedDemand7d, msg.PredictedDemand14d, msg.PredictedDemand30d, msg.DaysUntilStockout);
@@ -188,19 +239,29 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaBotInvoiceRequestConsumer> _logger;
 
     public MesaBotInvoiceRequestConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaBotInvoiceRequestConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaBotInvoiceRequestedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] Musteri fatura istedi: telefon={Phone}, siparis={Order}, kanal={Channel}",
             MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.RequestChannel);
@@ -217,19 +278,29 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
 public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<MesaBotReturnRequestConsumer> _logger;
 
     public MesaBotReturnRequestConsumer(
         IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
         ILogger<MesaBotReturnRequestConsumer> logger)
     {
         _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public Task Consume(ConsumeContext<MesaBotReturnRequestedEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] Musteri iade istedi: telefon={Phone}, siparis={Order}, sebep={Reason}, kanal={Channel}",
             MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.ReturnReason, msg.RequestChannel);
