@@ -26,6 +26,11 @@ public static class MassTransitConfig
             bus.AddConsumer<MesaAiContentConsumer>();
             bus.AddConsumer<MesaAiPriceConsumer>();
             bus.AddConsumer<MesaBotStatusConsumer>();
+            bus.AddConsumer<MesaAiPriceOptimizedConsumer>();
+            bus.AddConsumer<MesaAiStockPredictedConsumer>();
+            bus.AddConsumer<MesaBotInvoiceRequestConsumer>();
+            bus.AddConsumer<MesaBotReturnRequestConsumer>();
+            bus.AddConsumer<MesaDlqConsumer>();
 
             bus.UsingRabbitMq((context, cfg) =>
             {
@@ -54,6 +59,18 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.mesa.order.received"));
                 cfg.Message<MesaPriceChangedEvent>(x =>
                     x.SetEntityName("mestech.mesa.price.changed"));
+                cfg.Message<MesaInvoiceGeneratedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.invoice.generated"));
+                cfg.Message<MesaInvoiceCancelledEvent>(x =>
+                    x.SetEntityName("mestech.mesa.invoice.cancelled"));
+                cfg.Message<MesaReturnCreatedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.return.created"));
+                cfg.Message<MesaReturnResolvedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.return.resolved"));
+                cfg.Message<MesaBuyboxLostEvent>(x =>
+                    x.SetEntityName("mestech.mesa.buybox.lost"));
+                cfg.Message<MesaSupplierFeedSyncedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.supplier.feed.synced"));
 
                 // MESA OS exchange'ler — MESA -> MesTech
                 cfg.Message<MesaAiContentGeneratedEvent>(x =>
@@ -62,6 +79,14 @@ public static class MassTransitConfig
                     x.SetEntityName("mesa.ai.price.recommended"));
                 cfg.Message<MesaBotNotificationSentEvent>(x =>
                     x.SetEntityName("mesa.bot.notification.sent"));
+                cfg.Message<MesaAiPriceOptimizedEvent>(x =>
+                    x.SetEntityName("mesa.ai.price.optimized"));
+                cfg.Message<MesaAiStockPredictedEvent>(x =>
+                    x.SetEntityName("mesa.ai.stock.predicted"));
+                cfg.Message<MesaBotInvoiceRequestedEvent>(x =>
+                    x.SetEntityName("mesa.bot.invoice.requested"));
+                cfg.Message<MesaBotReturnRequestedEvent>(x =>
+                    x.SetEntityName("mesa.bot.return.requested"));
 
                 cfg.ConfigureEndpoints(context);
             });

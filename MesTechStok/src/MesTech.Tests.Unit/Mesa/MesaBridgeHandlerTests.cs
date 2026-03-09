@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
@@ -209,6 +210,203 @@ public class MesaBridgeHandlerTests
         publisherMock.Verify(
             x => x.PublishProductCreatedAsync(
                 It.Is<MesaProductCreatedEvent>(e => e.TenantId == tenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  InvoiceGeneratedBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task InvoiceSent_ShouldPublishMesaInvoiceGeneratedEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new InvoiceGeneratedBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<InvoiceGeneratedBridgeHandler>>().Object);
+
+        var domainEvent = new InvoiceSentEvent(
+            Guid.NewGuid(), "GIB-2026-001", "https://example.com/invoice.pdf", DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<InvoiceSentEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishInvoiceGeneratedAsync(
+                It.Is<MesaInvoiceGeneratedEvent>(e =>
+                    e.InvoiceId == domainEvent.InvoiceId &&
+                    e.PdfUrl == "https://example.com/invoice.pdf" &&
+                    e.TenantId == TestTenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  InvoiceCancelledBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task InvoiceCancelled_ShouldPublishMesaInvoiceCancelledEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new InvoiceCancelledBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<InvoiceCancelledBridgeHandler>>().Object);
+
+        var domainEvent = new InvoiceCancelledEvent(
+            Guid.NewGuid(), Guid.NewGuid(), "FTR-2026-001", "Musteri talebi", DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<InvoiceCancelledEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishInvoiceCancelledAsync(
+                It.Is<MesaInvoiceCancelledEvent>(e =>
+                    e.InvoiceNumber == "FTR-2026-001" &&
+                    e.CancelReason == "Musteri talebi" &&
+                    e.TenantId == TestTenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  ReturnCreatedBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task ReturnCreated_ShouldPublishMesaReturnCreatedEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new ReturnCreatedBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<ReturnCreatedBridgeHandler>>().Object);
+
+        var domainEvent = new ReturnCreatedEvent(
+            Guid.NewGuid(), Guid.NewGuid(),
+            PlatformType.Trendyol,
+            ReturnReason.DefectiveProduct,
+            DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<ReturnCreatedEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishReturnCreatedAsync(
+                It.Is<MesaReturnCreatedEvent>(e =>
+                    e.ReturnRequestId == domainEvent.ReturnRequestId &&
+                    e.PlatformCode == "Trendyol" &&
+                    e.ReturnReason == "DefectiveProduct" &&
+                    e.TenantId == TestTenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  ReturnResolvedBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task ReturnResolved_ShouldPublishMesaReturnResolvedEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new ReturnResolvedBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<ReturnResolvedBridgeHandler>>().Object);
+
+        var domainEvent = new ReturnResolvedEvent(
+            Guid.NewGuid(), Guid.NewGuid(),
+            ReturnStatus.Refunded,
+            149.90m, DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<ReturnResolvedEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishReturnResolvedAsync(
+                It.Is<MesaReturnResolvedEvent>(e =>
+                    e.Resolution == "Refunded" &&
+                    e.RefundAmount == 149.90m &&
+                    e.TenantId == TestTenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  BuyboxLostBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task BuyboxLost_ShouldPublishMesaBuyboxLostEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new BuyboxLostBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<BuyboxLostBridgeHandler>>().Object);
+
+        var domainEvent = new BuyboxLostEvent(
+            Guid.NewGuid(), "SKU-BB-001", 149.90m, 139.90m, "TeknoMarket", DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<BuyboxLostEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishBuyboxLostAsync(
+                It.Is<MesaBuyboxLostEvent>(e =>
+                    e.SKU == "SKU-BB-001" &&
+                    e.CompetitorPrice == 139.90m &&
+                    e.CompetitorName == "TeknoMarket" &&
+                    e.PriceDifference == 10m &&
+                    e.TenantId == TestTenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  SupplierFeedSyncedBridgeHandler (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task SupplierFeedSynced_ShouldPublishMesaSupplierFeedSyncedEvent()
+    {
+        var publisherMock = new Mock<IMesaEventPublisher>();
+        var handler = new SupplierFeedSyncedBridgeHandler(
+            publisherMock.Object,
+            CreateMonitor().Object,
+            CreateTenantProvider().Object,
+            new Mock<ILogger<SupplierFeedSyncedBridgeHandler>>().Object);
+
+        var domainEvent = new SupplierFeedSyncedEvent(
+            Guid.NewGuid(), Guid.NewGuid(), 150, 30, 5,
+            FeedSyncStatus.Completed,
+            DateTime.UtcNow);
+
+        await handler.Handle(
+            new DomainEventNotification<SupplierFeedSyncedEvent>(domainEvent),
+            CancellationToken.None);
+
+        publisherMock.Verify(
+            x => x.PublishSupplierFeedSyncedAsync(
+                It.Is<MesaSupplierFeedSyncedEvent>(e =>
+                    e.SupplierId == domainEvent.SupplierId &&
+                    e.ProductsTotal == 150 &&
+                    e.ProductsUpdated == 30 &&
+                    e.TenantId == TestTenantId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

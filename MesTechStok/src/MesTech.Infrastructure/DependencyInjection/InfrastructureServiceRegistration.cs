@@ -94,6 +94,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IMesaEventPublisher, MesaEventPublisher>();
         services.AddSingleton<IMesaEventMonitor, MesaEventMonitor>();
 
+        // Dalga 4: AI servisleri (Mock — Dalga 5'te Real swap)
+        services.AddScoped<IBuyboxService, MockBuyboxService>();
+        services.AddScoped<IStockPredictionService, MockStockPredictionService>();
+        services.AddScoped<IPriceOptimizationService, MockPriceOptimizationService>();
+        services.AddScoped<IProductSearchService, MockProductSearchService>();
+
         // MESA Status Endpoint (http://localhost:5101/api/mesa/status)
         services.AddHostedService(sp =>
             new MesaStatusEndpoint(

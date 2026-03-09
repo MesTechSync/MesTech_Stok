@@ -277,4 +277,76 @@ public class MesaConsumerTests
 
         await act.Should().NotThrowAsync();
     }
+
+    // ══════════════════════════════════════════════
+    //  MesaAiPriceOptimizedConsumer (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task AiPriceOptimized_ShouldRecordConsume()
+    {
+        var monitor = CreateMonitor();
+        var consumer = new MesaAiPriceOptimizedConsumer(monitor.Object, CreateLogger<MesaAiPriceOptimizedConsumer>());
+        var mockContext = new Mock<ConsumeContext<MesaAiPriceOptimizedEvent>>();
+        mockContext.Setup(x => x.Message).Returns(new MesaAiPriceOptimizedEvent(
+            Guid.NewGuid(), "SKU-OPT-001", 139.90m, 120m, 160m, 135m, 0.85, "Buybox bazli", DateTime.UtcNow));
+
+        await consumer.Consume(mockContext.Object);
+
+        monitor.Verify(x => x.RecordConsume("ai.price.optimized"), Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  MesaAiStockPredictedConsumer (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task AiStockPredicted_ShouldRecordConsume()
+    {
+        var monitor = CreateMonitor();
+        var consumer = new MesaAiStockPredictedConsumer(monitor.Object, CreateLogger<MesaAiStockPredictedConsumer>());
+        var mockContext = new Mock<ConsumeContext<MesaAiStockPredictedEvent>>();
+        mockContext.Setup(x => x.Message).Returns(new MesaAiStockPredictedEvent(
+            Guid.NewGuid(), "SKU-PRED-001", 70, 140, 300, 15, 100, 0.80, "Yeterli stok", DateTime.UtcNow));
+
+        await consumer.Consume(mockContext.Object);
+
+        monitor.Verify(x => x.RecordConsume("ai.stock.predicted"), Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  MesaBotInvoiceRequestConsumer (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task BotInvoiceRequest_ShouldRecordConsume()
+    {
+        var monitor = CreateMonitor();
+        var consumer = new MesaBotInvoiceRequestConsumer(monitor.Object, CreateLogger<MesaBotInvoiceRequestConsumer>());
+        var mockContext = new Mock<ConsumeContext<MesaBotInvoiceRequestedEvent>>();
+        mockContext.Setup(x => x.Message).Returns(new MesaBotInvoiceRequestedEvent(
+            "+905551234567", "ORD-2026-001", "WhatsApp", DateTime.UtcNow));
+
+        await consumer.Consume(mockContext.Object);
+
+        monitor.Verify(x => x.RecordConsume("bot.invoice.requested"), Times.Once);
+    }
+
+    // ══════════════════════════════════════════════
+    //  MesaBotReturnRequestConsumer (Dalga 4)
+    // ══════════════════════════════════════════════
+
+    [Fact]
+    public async Task BotReturnRequest_ShouldRecordConsume()
+    {
+        var monitor = CreateMonitor();
+        var consumer = new MesaBotReturnRequestConsumer(monitor.Object, CreateLogger<MesaBotReturnRequestConsumer>());
+        var mockContext = new Mock<ConsumeContext<MesaBotReturnRequestedEvent>>();
+        mockContext.Setup(x => x.Message).Returns(new MesaBotReturnRequestedEvent(
+            "+905559876543", "ORD-2026-002", "Urun arizali", "WhatsApp", DateTime.UtcNow));
+
+        await consumer.Consume(mockContext.Object);
+
+        monitor.Verify(x => x.RecordConsume("bot.return.requested"), Times.Once);
+    }
 }
