@@ -91,6 +91,13 @@ public class Product : BaseEntity, ITenantEntity
     public string? Tags { get; set; }
     public string? Code { get; set; }
 
+    // AI Snapshot (JOIN'siz dashboard gosterim)
+    public decimal? RecommendedPrice { get; set; }
+    public DateTime? LastAiPriceAt { get; set; }
+    public int? PredictedDemand7d { get; set; }
+    public int? DaysUntilStockout { get; set; }
+    public DateTime? LastAiStockAt { get; set; }
+
     // Concurrency
     public byte[]? RowVersion { get; set; }
 
