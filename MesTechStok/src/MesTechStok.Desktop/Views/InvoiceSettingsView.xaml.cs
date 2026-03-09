@@ -65,7 +65,9 @@ namespace MesTechStok.Desktop.Views
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             var kdvRates = new[] { 0, 1, 10, 20 };
-            var selectedKdv = kdvRates[DefaultKdvRate.SelectedIndex];
+            var idx = DefaultKdvRate.SelectedIndex;
+            if (idx < 0 || idx >= kdvRates.Length) return;
+            var selectedKdv = kdvRates[idx];
 
             MessageBox.Show(
                 $"Ayarlar kaydedildi.\n" +
