@@ -416,6 +416,12 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        private void BulkLabel_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new BulkCargoLabelDialog { Owner = Window.GetWindow(this) };
+            dialog.ShowDialog();
+        }
+
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             try

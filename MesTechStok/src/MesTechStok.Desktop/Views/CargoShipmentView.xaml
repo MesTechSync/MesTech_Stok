@@ -158,6 +158,10 @@
                                    Style="{StaticResource InfoButton}"
                                    Click="Export_Click"
                                    Margin="5,0"/>
+                            <Button Content="&#x1F3F7; Toplu Etiket"
+                                   Style="{StaticResource WarningButton}"
+                                   Click="BulkLabel_Click"
+                                   Margin="5,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
