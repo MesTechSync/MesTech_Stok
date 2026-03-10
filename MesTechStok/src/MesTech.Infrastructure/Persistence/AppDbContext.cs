@@ -101,6 +101,10 @@ public class AppDbContext : DbContext
     public DbSet<ProductSet> ProductSets => Set<ProductSet>();
     public DbSet<ProductSetItem> ProductSetItems => Set<ProductSetItem>();
 
+    // ── Dalga 6: Teklif (Quotation) ──
+    public DbSet<Quotation> Quotations => Set<Quotation>();
+    public DbSet<QuotationLine> QuotationLines => Set<QuotationLine>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -488,6 +492,35 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ProductSetItem>(e =>
         {
             e.Property(psi => psi.Quantity).HasDefaultValue(1);
+        });
+
+        // ── Dalga 6: Quotation ──
+        modelBuilder.Entity<Quotation>(e =>
+        {
+            e.HasIndex(q => q.QuotationNumber).IsUnique();
+            e.HasIndex(q => new { q.TenantId, q.Status });
+            e.Property(q => q.QuotationNumber).HasMaxLength(50);
+            e.Property(q => q.CustomerName).HasMaxLength(300);
+            e.Property(q => q.SubTotal).HasPrecision(18, 2);
+            e.Property(q => q.TaxTotal).HasPrecision(18, 2);
+            e.Property(q => q.GrandTotal).HasPrecision(18, 2);
+            e.Property(q => q.Currency).HasMaxLength(3);
+
+            e.HasMany(q => q.Lines)
+                .WithOne(l => l.Quotation)
+                .HasForeignKey(l => l.QuotationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // QuotationLine
+        modelBuilder.Entity<QuotationLine>(e =>
+        {
+            e.Property(l => l.UnitPrice).HasPrecision(18, 2);
+            e.Property(l => l.TaxRate).HasPrecision(5, 2);
+            e.Property(l => l.ProductName).HasMaxLength(300);
+            e.Property(l => l.SKU).HasMaxLength(100);
+            e.Ignore(l => l.TaxAmount);
+            e.Ignore(l => l.LineTotal);
         });
     }
 
