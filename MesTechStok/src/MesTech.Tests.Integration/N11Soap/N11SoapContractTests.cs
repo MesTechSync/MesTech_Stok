@@ -10,9 +10,8 @@ using WireMock.Server;
 namespace MesTech.Tests.Integration.N11Soap;
 
 /// <summary>
-/// N11 SOAP adapter contract testleri — TDD RED.
-/// N11Adapter iskelet olduğu için tüm testler SKIP.
-/// DEV3 H25'te N11Adapter implement edilince SKIP kaldırılacak.
+/// N11 SOAP adapter contract testleri — D-16 SKIP->GREEN.
+/// N11Adapter WireMock ile test: ProductService.wsdl, OrderService.wsdl, CategoryService.wsdl.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Feature", "N11Soap")]
@@ -28,18 +27,17 @@ public class N11SoapContractTests : IDisposable
         _server = WireMockServer.Start();
         _baseUrl = _server.Url!;
         _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object);
+        _adapter.Configure("test-app-key", "test-app-secret", _baseUrl);
     }
 
     public void Dispose() => _server.Stop();
 
-    // ─────────────────────────────────────────────────
-    // TDD RED testleri: N11Adapter iskelet — DEV3 H25'te implement edilecek
-    // ─────────────────────────────────────────────────
+    // ════ 1. GetProductList — 3 products ════
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    [Fact]
     public async Task GetProductList_WithProducts_ReturnsNonEmptyList()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -50,10 +48,12 @@ public class N11SoapContractTests : IDisposable
         result.Should().HaveCount(3);
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 2. GetProductList — empty store ════
+
+    [Fact]
     public async Task GetProductList_EmptyStore_ReturnsEmpty()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -64,41 +64,46 @@ public class N11SoapContractTests : IDisposable
         result.Should().BeEmpty();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 3. PushProduct — success ════
+
+    [Fact]
     public async Task PushProduct_ValidProduct_ReturnsTrue()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapWireMockHelper.BuildN11SaveProductResponse("123456")));
 
-        var product = N11TestData.BuildProduct("TEST-001", "Test Ürün", 100m, 10);
+        var product = N11TestData.BuildProduct("TEST-001", "Test Urun", 100m, 10);
         var result = await _adapter.PushProductAsync(product);
 
         result.Should().BeTrue();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 4. PushProduct — SOAP Fault returns false ════
+
+    [Fact]
     public async Task PushProduct_SoapFault_ReturnsFalse()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapWireMockHelper.BuildSoapFault("Server", "Kimlik dogrulanamadi")));
 
-        var product = N11TestData.BuildProduct("TEST-002", "Test Ürün", 100m, 5);
+        var product = N11TestData.BuildProduct("TEST-002", "Test Urun", 100m, 5);
         var result = await _adapter.PushProductAsync(product);
 
-        // N11Adapter SOAP Fault'u exception değil false olarak dönmeli
         result.Should().BeFalse();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 5. PushStockUpdate — success ════
+
+    [Fact]
     public async Task PushStockUpdate_ValidUpdate_ReturnsTrue()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductStockService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -109,10 +114,12 @@ public class N11SoapContractTests : IDisposable
         result.Should().BeTrue();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 6. PushPriceUpdate — success ════
+
+    [Fact]
     public async Task PushPriceUpdate_ValidUpdate_ReturnsTrue()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductPriceService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/ProductService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -123,20 +130,22 @@ public class N11SoapContractTests : IDisposable
         result.Should().BeTrue();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 7. TestConnection — valid credentials ════
+
+    [Fact]
     public async Task TestConnection_ValidCredentials_ReturnsSuccess()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/CategoryService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
-                .WithBody(SoapWireMockHelper.BuildN11GetProductListResponse(0)));
+                .WithBody(SoapWireMockHelper.BuildN11GetCategoryListResponse(5)));
 
         var credentials = new Dictionary<string, string>
         {
-            ["appKey"] = "test-app-key",
-            ["appSecret"] = "test-app-secret",
-            ["baseUrl"] = _baseUrl
+            ["N11AppKey"] = "test-app-key",
+            ["N11AppSecret"] = "test-app-secret",
+            ["N11BaseUrl"] = _baseUrl
         };
 
         var result = await _adapter.TestConnectionAsync(credentials);
@@ -145,10 +154,12 @@ public class N11SoapContractTests : IDisposable
         result.PlatformCode.Should().Be("N11");
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 8. TestConnection — SOAP fault returns error ════
+
+    [Fact]
     public async Task TestConnection_InvalidCredentials_ReturnsError()
     {
-        _server.Given(Request.Create().WithPath("/ws/ProductService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/CategoryService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -156,9 +167,9 @@ public class N11SoapContractTests : IDisposable
 
         var credentials = new Dictionary<string, string>
         {
-            ["appKey"] = "wrong-key",
-            ["appSecret"] = "wrong-secret",
-            ["baseUrl"] = _baseUrl
+            ["N11AppKey"] = "wrong-key",
+            ["N11AppSecret"] = "wrong-secret",
+            ["N11BaseUrl"] = _baseUrl
         };
 
         var result = await _adapter.TestConnectionAsync(credentials);
@@ -167,10 +178,12 @@ public class N11SoapContractTests : IDisposable
         result.ErrorMessage.Should().NotBeNullOrEmpty();
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 9. GetCategories — returns list ════
+
+    [Fact]
     public async Task GetCategories_ReturnsCategoryList()
     {
-        _server.Given(Request.Create().WithPath("/ws/CategoryService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/CategoryService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -181,25 +194,25 @@ public class N11SoapContractTests : IDisposable
         result.Should().HaveCount(5);
     }
 
-    [Fact(Skip = "N11Adapter iskelet — DEV3 H25'te implement edilecek")]
+    // ════ 10. GetOrderList — returns orders ════
+
+    [Fact]
     public async Task GetOrderList_ReturnsOrders()
     {
-        // N11 siparişleri için IOrderCapableAdapter implement edilince aktif olacak
-        _server.Given(Request.Create().WithPath("/ws/OrderService").UsingPost())
+        _server.Given(Request.Create().WithPath("/ws/OrderService.wsdl").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapWireMockHelper.BuildN11GetOrderListResponse(2)));
 
-        // TODO: N11Adapter IOrderCapableAdapter implemente ettiğinde
-        // var orders = await _adapter.GetOrdersAsync(DateTime.UtcNow.AddDays(-1), CancellationToken.None);
-        // orders.Should().HaveCount(2);
-        await Task.CompletedTask; // placeholder
+        var orders = await _adapter.PullOrdersAsync();
+
+        orders.Should().HaveCount(2);
     }
 }
 
 /// <summary>
-/// N11 kontrakt testleri için test data factory.
+/// N11 kontrakt testleri icin test data factory.
 /// </summary>
 file static class N11TestData
 {
@@ -208,7 +221,7 @@ file static class N11TestData
     {
         return new MesTech.Domain.Entities.Product
         {
-            Barcode = sku,
+            SKU = sku,
             Name = name,
             SalePrice = price,
             Stock = stock,
