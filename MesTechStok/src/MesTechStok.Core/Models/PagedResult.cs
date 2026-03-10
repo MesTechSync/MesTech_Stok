@@ -7,7 +7,7 @@ namespace MesTechStok.Core.Data.Models;
 /// Server-side pagination ve büyük veri setleri için optimize edilmiştir
 /// </summary>
 /// <typeparam name="T">Sonuç verisi türü</typeparam>
-[Obsolete("Use MesTech.Domain.Common.PagedResult<T> — this class is frozen (Dalga 4).")]
+[Obsolete("MIGRATE: Use MesTech.Domain.Common.PagedResult<T>. Will be removed in Dalga 6.")]
 public class PagedResult<T>
 {
     /// <summary>

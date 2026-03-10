@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MesTechStok.Core.Data.Models
 {
-    [Obsolete("Use MesTech.Domain.Entities.Customer — Dalga 4'te kaldırılacak")]
+    [Obsolete("MIGRATE: Use MesTech.Domain.Entities.Customer (Guid PK). Map via ICoreEntityMapper.ToDomainCustomer(). Will be removed in Dalga 6.")]
     public class Customer
     {
         [Key]

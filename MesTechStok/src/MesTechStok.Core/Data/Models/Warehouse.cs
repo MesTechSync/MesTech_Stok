@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MesTechStok.Core.Data.Models
 {
-    [Obsolete("Use MesTech.Domain.Entities.Warehouse — Dalga 4'te kaldırılacak")]
+    [Obsolete("MIGRATE: Use MesTech.Domain.Entities.Warehouse (Guid PK). Bridge via ExternalId property. Will be removed in Dalga 6.")]
     public class Warehouse
     {
         [Key]

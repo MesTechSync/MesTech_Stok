@@ -27,7 +27,7 @@ namespace MesTechStok.Core.Data;
 ///   - Domain events (GetDomainEvents)
 ///   - 68+ DbSet (tüm Domain entity'leri)
 /// </summary>
-[Obsolete("Use MesTech.Infrastructure.Persistence.AppDbContext — this context is frozen (Dalga 4).")]
+[Obsolete("MIGRATE: Use MesTech.Infrastructure.Persistence.AppDbContext (PostgreSQL, multi-tenant). Desktop SQLite access via CoreDbContext alias. Will be removed in Dalga 6.")]
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

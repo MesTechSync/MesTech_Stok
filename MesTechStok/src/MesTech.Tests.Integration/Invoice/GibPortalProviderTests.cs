@@ -513,4 +513,30 @@ public class GibPortalProviderTests : IClassFixture<WireMockFixture>, IDisposabl
         // Assert
         await act.Should().ThrowAsync<HttpRequestException>();
     }
+
+    // ════ 17. GetPdf_MissingPdfBase64Element_ThrowsInvalidOperation ════
+
+    [Fact]
+    public async Task GetPdf_MissingPdfBase64Element_ThrowsInvalidOperation()
+    {
+        // Arrange
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/earsiv-services/dispatch")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "text/xml")
+                .WithBody(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
+                    <soapenv:Body>
+                        <getInvoicePdfResponse>
+                        </getInvoicePdfResponse>
+                    </soapenv:Body>
+                </soapenv:Envelope>"));
+
+        var provider = CreateConfiguredProvider();
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<Exception>(() => provider.GetPdfAsync("GIB-TEST-001"));
+    }
 }

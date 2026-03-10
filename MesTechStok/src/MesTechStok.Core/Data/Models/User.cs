@@ -5,7 +5,7 @@ namespace MesTechStok.Core.Data.Models;
 /// <summary>
 /// Kullanıcı varlığı - Authentication ve Authorization için temel model
 /// </summary>
-[Obsolete("Use MesTech.Domain.Entities.User — Dalga 4'te kaldırılacak")]
+[Obsolete("MIGRATE: Use MesTech.Domain.Entities.User (Guid PK). Bridge via ExternalId property. Will be removed in Dalga 6.")]
 public class User
 {
     public int Id { get; set; }

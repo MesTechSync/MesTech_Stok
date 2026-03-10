@@ -21,7 +21,7 @@ public enum OrderStatus
 /// Sipariş bilgilerini tutan model
 /// OpenCart entegrasyonu ile senkronize edilir
 /// </summary>
-[Obsolete("Use MesTech.Domain.Entities.Order — Dalga 4'te kaldırılacak")]
+[Obsolete("MIGRATE: Use MesTech.Domain.Entities.Order (Guid PK, DDD aggregate). Map via ICoreEntityMapper.ToDomainOrder(). Will be removed in Dalga 6.")]
 public class Order
 {
     [Key]
