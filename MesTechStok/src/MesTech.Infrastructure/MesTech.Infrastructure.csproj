@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="MesTech.Tests.Unit" />
+    <InternalsVisibleTo Include="MesTech.Tests.Integration" />
   </ItemGroup>
 
 </Project>

@@ -48,6 +48,13 @@ public static class IntegrationServiceRegistration
             new PazaramaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PazaramaAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PazaramaAdapter>());
 
+        // Dalga 6: Amazon TR (SP-API) — LWA OAuth2, catalog, orders, feeds
+        services.AddSingleton<AmazonTrAdapter>(sp =>
+            new AmazonTrAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<AmazonTrAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonTrAdapter>());
+
         // Dalga 5: N11 SOAP adapter — Scoped (multi-tenant credential isolation)
         services.AddScoped<N11Adapter>();
         services.AddScoped<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
