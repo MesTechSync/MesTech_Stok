@@ -5,8 +5,10 @@ using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
+using MesTech.Infrastructure.Integration.Soap;
 using MesTech.Infrastructure.Integration.Webhooks;
 using MesTech.Infrastructure.Middleware;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -81,6 +83,20 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ParasutInvoiceProvider>(sp =>
             new ParasutInvoiceProvider(new HttpClient(), sp.GetRequiredService<ILogger<ParasutInvoiceProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ParasutInvoiceProvider>());
+
+        // Dalga 5 DEV3 delivery: TrendyolEFaturam + ELogo providers
+        services.AddScoped<TrendyolEFaturamProvider>(sp =>
+            new TrendyolEFaturamProvider(new HttpClient(), sp.GetRequiredService<ILogger<TrendyolEFaturamProvider>>()));
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<TrendyolEFaturamProvider>());
+
+        services.AddScoped<ELogoInvoiceProvider>(sp =>
+        {
+            var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+            var soapClient = new SimpleSoapClient(new HttpClient(), loggerFactory.CreateLogger<SimpleSoapClient>());
+            return new ELogoInvoiceProvider(new HttpClient(), soapClient, sp.GetRequiredService<ILogger<ELogoInvoiceProvider>>());
+        });
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ELogoInvoiceProvider>());
+
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
 
         // Dalga 5: Invoice Adapters — wrap existing providers via composition
@@ -91,6 +107,7 @@ public static class IntegrationServiceRegistration
         services.AddScoped<SovosInvoiceAdapter>(sp =>
             new SovosInvoiceAdapter(
                 sp.GetRequiredService<SovosInvoiceProvider>(),
+                sp.GetRequiredService<IGibMukellefService>(),
                 sp.GetRequiredService<ILogger<SovosInvoiceAdapter>>()));
         services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<SovosInvoiceAdapter>());
 
@@ -101,6 +118,10 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<ParasutInvoiceAdapter>());
 
         services.AddScoped<IInvoiceAdapterFactory, InvoiceAdapterFactory>();
+
+        // Dalga 5 A-04: GIB mukellef sorgu servisi — cached VKN lookup
+        services.AddMemoryCache();
+        services.AddScoped<IGibMukellefService, GibMukellefService>();
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
