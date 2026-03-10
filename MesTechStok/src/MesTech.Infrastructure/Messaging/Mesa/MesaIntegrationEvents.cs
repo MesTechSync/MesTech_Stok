@@ -112,6 +112,24 @@ public record MesaSupplierFeedSyncedEvent(
     Guid TenantId,
     DateTime OccurredAt);
 
+/// <summary>Gunluk ozet rapor — MESA OS dashboard + bildirim tetikler.</summary>
+public record MesaDailySummaryEvent(
+    Guid TenantId,
+    DateTime Date,
+    int OrderCount,
+    decimal Revenue,
+    int StockAlerts,
+    int InvoiceCount,
+    DateTime OccurredAt);
+
+/// <summary>Senkronizasyon hatasi — MESA OS hata izleme + alarm tetikler.</summary>
+public record MesaSyncErrorEvent(
+    Guid TenantId,
+    string Platform,
+    string ErrorType,
+    string Message,
+    DateTime OccurredAt);
+
 // ══════════════════════════════════════════════════════════════
 // MESA OS → MesTech yonunde consume edilen integration event'ler
 // Exchange prefix: mesa.*

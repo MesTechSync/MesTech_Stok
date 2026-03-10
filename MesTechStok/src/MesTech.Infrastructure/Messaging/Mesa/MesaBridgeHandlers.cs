@@ -384,3 +384,75 @@ public class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventN
         _monitor.RecordPublish("supplier.feed.synced");
     }
 }
+
+public class DailySummaryBridgeHandler : INotificationHandler<DomainEventNotification<DailySummaryGeneratedEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<DailySummaryBridgeHandler> _logger;
+
+    public DailySummaryBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<DailySummaryBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<DailySummaryGeneratedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] DailySummary yakalandi: {Date}", e.Date);
+
+        var mesaEvent = new MesaDailySummaryEvent(
+            _tenantProvider.GetCurrentTenantId(),
+            e.Date, e.OrderCount, e.Revenue, e.StockAlerts, e.InvoiceCount,
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct);
+        _monitor.RecordPublish("daily.summary");
+    }
+}
+
+public class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotification<SyncErrorOccurredEvent>>
+{
+    private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ILogger<SyncErrorBridgeHandler> _logger;
+
+    public SyncErrorBridgeHandler(
+        IMesaEventPublisher mesaPublisher,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<SyncErrorBridgeHandler> logger)
+    {
+        _mesaPublisher = mesaPublisher;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<SyncErrorOccurredEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogDebug(
+            "[MESA Bridge] SyncError yakalandi: {Platform} — {ErrorType}", e.Platform, e.ErrorType);
+
+        var mesaEvent = new MesaSyncErrorEvent(
+            _tenantProvider.GetCurrentTenantId(),
+            e.Platform, e.ErrorType, e.Message,
+            e.OccurredAt);
+
+        await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct);
+        _monitor.RecordPublish("sync.error");
+    }
+}

@@ -19,6 +19,8 @@ public interface IMesaEventPublisher
     Task PublishReturnResolvedAsync(MesaReturnResolvedEvent evt, CancellationToken ct = default);
     Task PublishBuyboxLostAsync(MesaBuyboxLostEvent evt, CancellationToken ct = default);
     Task PublishSupplierFeedSyncedAsync(MesaSupplierFeedSyncedEvent evt, CancellationToken ct = default);
+    Task PublishDailySummaryAsync(MesaDailySummaryEvent evt, CancellationToken ct = default);
+    Task PublishSyncErrorAsync(MesaSyncErrorEvent evt, CancellationToken ct = default);
 }
 
 public class MesaEventPublisher : IMesaEventPublisher
@@ -122,5 +124,23 @@ public class MesaEventPublisher : IMesaEventPublisher
         _logger.LogInformation(
             "[MESA] SupplierFeedSynced yayinlandi: {Supplier}, toplam={Total}, yeni={New} (Tenant: {TenantId})",
             evt.SupplierName, evt.ProductsTotal, evt.ProductsNew, evt.TenantId);
+    }
+
+    public async Task PublishDailySummaryAsync(
+        MesaDailySummaryEvent evt, CancellationToken ct = default)
+    {
+        await _publishEndpoint.Publish(evt, ct);
+        _logger.LogInformation(
+            "[MESA] DailySummary yayinlandi: {Date} — {OrderCount} siparis, {Revenue:C} gelir (Tenant: {TenantId})",
+            evt.Date, evt.OrderCount, evt.Revenue, evt.TenantId);
+    }
+
+    public async Task PublishSyncErrorAsync(
+        MesaSyncErrorEvent evt, CancellationToken ct = default)
+    {
+        await _publishEndpoint.Publish(evt, ct);
+        _logger.LogWarning(
+            "[MESA] SyncError yayinlandi: {Platform} — {ErrorType}: {Message} (Tenant: {TenantId})",
+            evt.Platform, evt.ErrorType, evt.Message, evt.TenantId);
     }
 }
