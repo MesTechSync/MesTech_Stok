@@ -1,4 +1,6 @@
+using MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Middleware;
+using MesTech.WebApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,14 @@ builder.Services.AddApiKeyAuthentication(builder.Configuration);
 
 // Memory cache for future endpoint use
 builder.Services.AddMemoryCache();
+
+// MediatR — Application CQRS handlers
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(
+        typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+
+// Infrastructure (DbContext, Repositories, Domain Services, etc.)
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -23,5 +33,9 @@ app.MapGet("/health", () => Results.Ok(new
 // Metrics placeholder (no auth — bypass path)
 app.MapGet("/metrics", () => Results.Text(
     "# MesTech WebApi metrics placeholder\n", "text/plain"));
+
+// API v1 endpoints
+ProductEndpoints.Map(app);
+StockEndpoints.Map(app);
 
 app.Run();
