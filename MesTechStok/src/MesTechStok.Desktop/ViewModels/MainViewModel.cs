@@ -1498,5 +1498,53 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        [RelayCommand]
+        private void ShowIncomingInvoices()
+        {
+            NavigationTimingService.Instance.StartTiming("Gelen Faturalar");
+            try
+            {
+                CurrentView = new Views.IncomingInvoicesView(invoiceProvider: _invoiceProvider);
+                CurrentModule = "Gelen Faturalar";
+                StatusMessage = "📥 Gelen Faturalar yüklendi";
+                GlobalLogger.Instance.LogInfo("Gelen faturalar ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Gelen Faturalar");
+                ToastManager.ShowSuccess("Gelen faturalar modülü aktif!", "Gelen Faturalar");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Gelen faturalar yüklenemedi";
+                GlobalLogger.Instance.LogError($"Gelen faturalar yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Gelen Faturalar");
+                ToastManager.ShowError("Gelen faturalar yüklenemedi!", "Hata");
+                MessageBox.Show($"Gelen faturalar yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowOnMuhasebe()
+        {
+            NavigationTimingService.Instance.StartTiming("On Muhasebe");
+            try
+            {
+                CurrentView = new Views.OnMuhasebeView();
+                CurrentModule = "Ön Muhasebe";
+                StatusMessage = "📊 Ön Muhasebe yüklendi";
+                GlobalLogger.Instance.LogInfo("Ön muhasebe ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("On Muhasebe");
+                ToastManager.ShowSuccess("Ön muhasebe modülü aktif!", "Ön Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ön muhasebe yüklenemedi";
+                GlobalLogger.Instance.LogError($"Ön muhasebe yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("On Muhasebe");
+                ToastManager.ShowError("Ön muhasebe yüklenemedi!", "Hata");
+                MessageBox.Show($"Ön muhasebe yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
