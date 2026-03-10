@@ -55,6 +55,13 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<IIncomeRepository, IncomeRepository>();
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<ICariHesapRepository, CariHesapRepository>();
+        services.AddScoped<ICariHareketRepository, CariHareketRepository>();
+        services.AddScoped<IProductSetRepository, ProductSetRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -139,6 +146,14 @@ public static class InfrastructureServiceRegistration
             sp.GetRequiredService<ILogger<RealtimeDashboardEndpoint>>(),
             port: configuration.GetValue<int>("Realtime:WebSocketPort", 5102)
         ));
+
+        // XML Import / Export
+        services.AddScoped<IXmlImportService, XmlImportService>();
+        services.AddScoped<IXmlExportService, XmlExportService>();
+
+        // Excel Import / Export
+        services.AddScoped<IExcelImportService, ExcelImportService>();
+        services.AddScoped<IExcelExportService, ExcelExportService>();
 
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();
