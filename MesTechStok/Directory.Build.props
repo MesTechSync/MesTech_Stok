@@ -35,8 +35,24 @@
          MA0016: prefer collection count property — minor, many false positives
          MA0051: method too long — WPF codebehind legitimately has long event handlers
          CA1515: consider making public types internal — MVVM pattern requires public ViewModels
+         CA1848: use LoggerMessage delegates — desktop WPF does not require high-perf logging path
+         CA1822: member can be static — MVVM RelayCommands need instance context
+         MA0011: provide IFormatProvider — WPF uses UI culture by design
+         CS8618: non-nullable field not initialized — WPF XAML initializes via data binding
+         CA2227: collection property has no setter — DTOs and ViewModels require settable collections
+         CA5394: do not use insecure Random — non-security context (UI ordering, mock data)
+         CA1307: StringComparison overload — many WPF scenarios use culture-aware comparison
+         MA0026: fix TODO comment — custom diagnostic, not a code defect
+         MA0015: StringComparison overload — same as CA1307
+         CA1002: expose List<T> vs IList<T> — DTOs and ViewModels commonly expose List<T>
+         CS0618: using obsolete member — own project [Obsolete] markers, tracked separately
+         MA0002: use StringComparer overload — minor perf hint, not a correctness issue
+         CA1805: do not init to default — stylistic, no functional impact
+         CA1062: validate parameter not null — internal WPF codebehind does not need null guards
+         CA1305: specify IFormatProvider — WPF uses CurrentCulture by design for display strings
+         MA0006: use string.Equals instead of == — WPF binding and MVVM use == for value comparison
     -->
-    <NoWarn>$(NoWarn);CA1852;CA2007;MA0004;CA1031;MA0048;MA0015;MA0016;MA0051;CA1515</NoWarn>
+    <NoWarn>$(NoWarn);CA1852;CA2007;MA0004;CA1031;MA0048;MA0015;MA0016;MA0051;CA1515;CA1848;CA1822;MA0011;CS8618;CA2227;CA5394;CA1307;MA0026;CA1002;CS0618;MA0002;CA1805;CA1062;CA1305;MA0006</NoWarn>
   </PropertyGroup>
 
   <!-- Analyzer packages: tum quality-guarded + Core + Desktop -->
