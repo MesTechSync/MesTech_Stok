@@ -5,6 +5,7 @@
 .env.*
 !.env.example
 !.env.template
+!.env.production.template
 **/appsettings.Development.json
 **/appsettings.user.json
 **/appsettings.Production.json
