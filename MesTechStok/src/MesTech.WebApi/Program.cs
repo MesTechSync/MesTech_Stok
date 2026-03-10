@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Middleware;
 using MesTech.WebApi.Endpoints;
@@ -42,6 +43,20 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+// Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
+if (app.Environment.IsProduction())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
+    var pending = await db.Database.GetPendingMigrationsAsync();
+    if (pending.Any())
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("PENDING MIGRATIONS: {Count} migration(s) need manual apply before deploy: {Migrations}",
+            pending.Count(), string.Join(", ", pending));
+    }
+}
 
 // API Key middleware — bypass paths skip validation (/health, /metrics)
 app.UseApiKeyAuthentication();
