@@ -11,11 +11,13 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
 {
     private readonly SovosInvoiceProvider _provider;
+    private readonly IGibMukellefService _gibService;
     private readonly ILogger<SovosInvoiceAdapter> _logger;
 
-    public SovosInvoiceAdapter(SovosInvoiceProvider provider, ILogger<SovosInvoiceAdapter> logger)
+    public SovosInvoiceAdapter(SovosInvoiceProvider provider, IGibMukellefService gibService, ILogger<SovosInvoiceAdapter> logger)
     {
         _provider = provider;
+        _gibService = gibService;
         _logger = logger;
     }
 
@@ -43,9 +45,9 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
         {
             if (!string.IsNullOrEmpty(request.Customer.TaxNumber))
             {
-                var isMukellef = await _provider.IsEInvoiceTaxpayerAsync(request.Customer.TaxNumber, ct);
+                var isMukellef = await _gibService.IsEFaturaMukellefAsync(request.Customer.TaxNumber, ct);
                 type = isMukellef ? InvoiceType.EFatura : InvoiceType.EArsiv;
-                _logger.LogInformation("Auto type detection: VKN={VKN} -> {Type}", request.Customer.TaxNumber, type);
+                _logger.LogInformation("Auto type detection via GibService: VKN={VKN} -> {Type}", request.Customer.TaxNumber, type);
             }
             else
             {
@@ -80,7 +82,7 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
     }
 
     public Task<bool> IsEFaturaMukellefAsync(string vknOrTckn, CancellationToken ct = default)
-        => _provider.IsEInvoiceTaxpayerAsync(vknOrTckn, ct);
+        => _gibService.IsEFaturaMukellefAsync(vknOrTckn, ct);
 
     // ── IBulkInvoiceCapable ──
 
