@@ -7,7 +7,7 @@ public static class CategoryEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/categories").WithTags("Categories");
+        var group = app.MapGroup("/api/v1/categories").WithTags("Categories").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/categories — list categories (optional active-only filter, default true)
         group.MapGet("/", async (

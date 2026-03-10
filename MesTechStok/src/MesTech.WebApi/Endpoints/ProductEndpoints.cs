@@ -12,7 +12,7 @@ public static class ProductEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/products").WithTags("Products");
+        var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/products/status — DB connectivity + counts
         group.MapGet("/status", async (ISender mediator, CancellationToken ct) =>

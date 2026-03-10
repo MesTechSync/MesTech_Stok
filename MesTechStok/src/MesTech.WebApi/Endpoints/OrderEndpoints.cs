@@ -7,7 +7,7 @@ public static class OrderEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/orders").WithTags("Orders");
+        var group = app.MapGroup("/api/v1/orders").WithTags("Orders").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/orders — list orders (optional date range + status filter)
         group.MapGet("/", async (

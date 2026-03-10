@@ -13,6 +13,12 @@ public interface IInvoiceProvider
     Task<byte[]> GetPdfAsync(string gibInvoiceId, CancellationToken ct = default);
     Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default);
     Task<InvoiceResult> CancelInvoiceAsync(string gibInvoiceId, CancellationToken ct = default);
+
+    Task<InvoiceResult> CreateESMMAsync(InvoiceDto invoice, CancellationToken ct = default)
+        => Task.FromResult(new InvoiceResult(false, null, null, "e-SMM not supported by this provider."));
+
+    Task<InvoiceResult> CreateEIhracatAsync(InvoiceDto invoice, CancellationToken ct = default)
+        => Task.FromResult(new InvoiceResult(false, null, null, "e-İhracat not supported by this provider."));
 }
 
 public record InvoiceDto(

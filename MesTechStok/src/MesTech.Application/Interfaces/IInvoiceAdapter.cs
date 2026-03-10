@@ -23,6 +23,8 @@ public interface IInvoiceAdapter
     bool SupportsAutoTypeDetection { get; }
     bool SupportsTemplateCustomization { get; }
     bool SupportsKontorBalance { get; }
+    bool SupportsESMM => false;
+    bool SupportsEIhracat => false;
 
     // ── Evrensel 6 Metod ──
     Task<InvoiceResult> CreateInvoiceAsync(InvoiceCreateRequest request, CancellationToken ct = default);

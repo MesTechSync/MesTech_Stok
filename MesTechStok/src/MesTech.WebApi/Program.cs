@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Middleware;
 using MesTech.WebApi.Endpoints;
@@ -24,10 +25,29 @@ var healthCheckDescriptor = builder.Services.FirstOrDefault(d =>
 if (healthCheckDescriptor != null)
     builder.Services.Remove(healthCheckDescriptor);
 
+// Rate limiting — 100 requests per minute per API key (multi-tenant friendly)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("PerApiKey", context =>
+    {
+        var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault() ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(apiKey, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+});
+
 var app = builder.Build();
 
 // API Key middleware — bypass paths skip validation (/health, /metrics)
 app.UseApiKeyAuthentication();
+
+// Rate limiter middleware — after auth so API key is available
+app.UseRateLimiter();
 
 // Health + Metrics endpoints (HealthCheckService + Prometheus — no auth bypass paths)
 HealthEndpoints.Map(app);

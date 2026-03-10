@@ -16,7 +16,7 @@ public static class QuotationEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/quotations").WithTags("Quotations");
+        var group = app.MapGroup("/api/v1/quotations").WithTags("Quotations").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/quotations — list quotations (optional status filter)
         group.MapGet("/", async (ISender mediator, [FromQuery] string? status, CancellationToken ct) =>

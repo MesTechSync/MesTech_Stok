@@ -12,7 +12,7 @@ public static class InvoiceEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/invoices").WithTags("Invoices");
+        var group = app.MapGroup("/api/v1/invoices").WithTags("Invoices").RequireRateLimiting("PerApiKey");
 
         // POST /api/v1/invoices — create an invoice via the resolved provider adapter
         group.MapPost("/", async (

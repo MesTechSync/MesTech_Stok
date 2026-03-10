@@ -7,7 +7,7 @@ public static class SyncStatusEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/sync-status").WithTags("SyncStatus");
+        var group = app.MapGroup("/api/v1/sync-status").WithTags("SyncStatus").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/sync-status — get sync status (optional platform filter)
         group.MapGet("/", async (

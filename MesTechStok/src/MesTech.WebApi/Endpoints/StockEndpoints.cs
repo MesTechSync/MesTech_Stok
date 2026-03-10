@@ -10,7 +10,7 @@ public static class StockEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/stock").WithTags("Stock");
+        var group = app.MapGroup("/api/v1/stock").WithTags("Stock").RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/stock/movements — list stock movements (optional filters)
         group.MapGet("/movements", async (
