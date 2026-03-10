@@ -97,6 +97,23 @@ public static class IntegrationServiceRegistration
         });
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ELogoInvoiceProvider>());
 
+        // Dalga 5 DEV3 delivery: BirFatura, DijitalPlanet, GibPortal, HBFatura providers
+        services.AddScoped<BirFaturaProvider>(sp =>
+            new BirFaturaProvider(new HttpClient(), sp.GetRequiredService<ILogger<BirFaturaProvider>>()));
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<BirFaturaProvider>());
+
+        services.AddScoped<DijitalPlanetProvider>(sp =>
+            new DijitalPlanetProvider(new HttpClient(), sp.GetRequiredService<ILogger<DijitalPlanetProvider>>()));
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<DijitalPlanetProvider>());
+
+        services.AddScoped<GibPortalProvider>(sp =>
+            new GibPortalProvider(new HttpClient(), sp.GetRequiredService<ILogger<GibPortalProvider>>()));
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<GibPortalProvider>());
+
+        services.AddScoped<HBFaturaProvider>(sp =>
+            new HBFaturaProvider(new HttpClient(), sp.GetRequiredService<ILogger<HBFaturaProvider>>()));
+        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<HBFaturaProvider>());
+
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
 
         // Dalga 5: Invoice Adapters — wrap existing providers via composition
