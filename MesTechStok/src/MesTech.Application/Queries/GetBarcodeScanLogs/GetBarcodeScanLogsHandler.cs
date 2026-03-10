@@ -11,12 +11,13 @@ public class GetBarcodeScanLogsHandler : IRequestHandler<GetBarcodeScanLogsQuery
 
     public GetBarcodeScanLogsHandler(IBarcodeScanLogRepository repository)
     {
-        _repository = repository;
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
     public async Task<GetBarcodeScanLogsResult> Handle(
         GetBarcodeScanLogsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var items = await _repository.GetPagedAsync(
             request.Page, request.PageSize,
             request.BarcodeFilter, request.SourceFilter,

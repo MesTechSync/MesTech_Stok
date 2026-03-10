@@ -13,13 +13,14 @@ public class CreateBarcodeScanLogHandler
     public CreateBarcodeScanLogHandler(
         IBarcodeScanLogRepository repository, IUnitOfWork unitOfWork)
     {
-        _repository = repository;
-        _unitOfWork = unitOfWork;
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public async Task<CreateBarcodeScanLogResult> Handle(
         CreateBarcodeScanLogCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var log = new BarcodeScanLog
         {
             Barcode = request.Barcode,
