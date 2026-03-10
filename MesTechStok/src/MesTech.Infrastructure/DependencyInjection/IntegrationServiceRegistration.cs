@@ -117,6 +117,12 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<ParasutInvoiceAdapter>>()));
         services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<ParasutInvoiceAdapter>());
 
+        services.AddScoped<TrendyolEFaturamAdapter>(sp =>
+            new TrendyolEFaturamAdapter(
+                sp.GetRequiredService<TrendyolEFaturamProvider>(),
+                sp.GetRequiredService<ILogger<TrendyolEFaturamAdapter>>()));
+        services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<TrendyolEFaturamAdapter>());
+
         services.AddScoped<IInvoiceAdapterFactory, InvoiceAdapterFactory>();
 
         // Dalga 5 A-04: GIB mukellef sorgu servisi — cached VKN lookup
