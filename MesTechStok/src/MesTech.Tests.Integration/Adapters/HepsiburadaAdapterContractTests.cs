@@ -453,6 +453,160 @@ public class HepsiburadaAdapterContractTests : IClassFixture<WireMockFixture>, I
             .WithMessage("*konfigure*");
     }
 
+    // ══════════════════════════════════════
+    // 15. PullProductsAsync — Empty Listings
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullProductsAsync_EmptyListings_ReturnsEmptyList()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath($"/listings/merchantid/{MerchantId}")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""totalCount"":0,""listings"":[]}"));
+
+        // Act
+        var products = await adapter.PullProductsAsync();
+
+        // Assert
+        products.Should().NotBeNull();
+        products.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 16. PullOrdersAsync — Empty Orders
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullOrdersAsync_EmptyOrders_ReturnsEmptyList()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath($"/orders/merchantid/{MerchantId}")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""totalCount"":0,""orders"":[]}"));
+
+        // Act
+        var orders = await adapter.PullOrdersAsync();
+
+        // Assert
+        orders.Should().NotBeNull();
+        orders.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 17. SendShipmentAsync — Server Error
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task SendShipmentAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/packages/PKG-ERR-001/shipment")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.SendShipmentAsync("PKG-ERR-001", "AK999999999", CargoProvider.YurticiKargo);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 18. UpdateOrderStatusAsync — Server Error
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/packages/PKG-ERR-002/status")
+                .UsingPut())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.UpdateOrderStatusAsync("PKG-ERR-002", "Shipped");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════
+    // 19. PullProductsAsync — Multiple Statuses
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullProductsAsync_MultipleListingStatuses_MapsActiveCorrectly()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath($"/listings/merchantid/{MerchantId}")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""totalCount"": 4,
+                    ""listings"": [
+                        {""hepsiburadaSku"":""HB-A"",""merchantSku"":""M-A"",""productName"":""Active Item"",""price"":50,""availableStock"":10,""listingStatus"":""Active"",""commissionRate"":5},
+                        {""hepsiburadaSku"":""HB-P"",""merchantSku"":""M-P"",""productName"":""Passive Item"",""price"":60,""availableStock"":3,""listingStatus"":""Passive"",""commissionRate"":5},
+                        {""hepsiburadaSku"":""HB-U"",""merchantSku"":""M-U"",""productName"":""Unlisted Item"",""price"":70,""availableStock"":0,""listingStatus"":""Unlisted"",""commissionRate"":5},
+                        {""hepsiburadaSku"":""HB-B"",""merchantSku"":""M-B"",""productName"":""Banned Item"",""price"":80,""availableStock"":0,""listingStatus"":""Banned"",""commissionRate"":5}
+                    ]
+                }"));
+
+        // Act
+        var products = await adapter.PullProductsAsync();
+
+        // Assert — Banned is skipped, 3 products returned
+        products.Should().HaveCount(3);
+
+        // Active → IsActive=true
+        var active = products.Single(p => p.Name == "Active Item");
+        active.IsActive.Should().BeTrue();
+        active.SKU.Should().Be("M-A");
+
+        // Passive → IsActive=false
+        var passive = products.Single(p => p.Name == "Passive Item");
+        passive.IsActive.Should().BeFalse();
+
+        // Unlisted → IsActive=false (only "Active" maps to true)
+        var unlisted = products.Single(p => p.Name == "Unlisted Item");
+        unlisted.IsActive.Should().BeFalse();
+
+        // Banned is NOT in the list
+        products.Should().NotContain(p => p.Name == "Banned Item");
+    }
+
     public void Dispose()
     {
         _fixture.Reset();

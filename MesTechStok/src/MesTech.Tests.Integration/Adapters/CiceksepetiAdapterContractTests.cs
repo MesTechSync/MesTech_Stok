@@ -552,6 +552,176 @@ public class CiceksepetiAdapterContractTests : IClassFixture<WireMockFixture>, I
             .WithMessage("*konfigure*");
     }
 
+    // ══════════════════════════════════════
+    // 12. Edge Cases — Empty Results
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullProductsAsync_EmptyResult_ReturnsEmptyList()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""totalCount"":0,""products"":[]}"));
+
+        // Act
+        var products = await adapter.PullProductsAsync();
+
+        // Assert
+        products.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PullOrdersAsync_EmptyResult_ReturnsEmptyList()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""totalCount"":0,""orders"":[]}"));
+
+        // Act
+        var orders = await adapter.PullOrdersAsync();
+
+        // Assert
+        orders.Should().BeEmpty();
+    }
+
+    // ══════════════════════════════════════
+    // 13. Edge Cases — Server Errors
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task SendShipmentAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order/Shipping")
+                .UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        // Act
+        var result = await adapter.SendShipmentAsync("2001", "YK123456789", CargoProvider.YurticiKargo);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TestConnectionAsync_ServerError_ReturnsFalse()
+    {
+        // Arrange
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(500)
+                .WithBody("Internal Server Error"));
+
+        var adapter = CreateAdapter();
+
+        // Act
+        var result = await adapter.TestConnectionAsync(ValidCredentials);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.HttpStatusCode.Should().Be(500);
+        result.ErrorMessage.Should().Contain("Ciceksepeti API hatasi");
+        result.ErrorMessage.Should().Contain("InternalServerError");
+    }
+
+    // ══════════════════════════════════════
+    // 14. Edge Cases — Single SubOrder Mapping
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task PullOrdersAsync_SingleSubOrder_MapsCorrectly()
+    {
+        // Arrange
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Order")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{
+                    ""totalCount"": 1,
+                    ""orders"": [{
+                        ""orderId"": 5001,
+                        ""orderNumber"": ""CS-ORD-005"",
+                        ""orderDate"": ""2026-03-05T14:30:00"",
+                        ""customerName"": ""Ayse Yilmaz"",
+                        ""customerEmail"": ""ayse@test.com"",
+                        ""deliveryAddress"": ""Ataturk Cad. No:1"",
+                        ""deliveryCity"": ""Istanbul"",
+                        ""subOrders"": [
+                            {
+                                ""subOrderId"": 9001,
+                                ""status"": ""Preparing"",
+                                ""totalPrice"": 75.50,
+                                ""cargoCompany"": ""Yurtici Kargo"",
+                                ""trackingNumber"": ""YK999888777"",
+                                ""items"": [
+                                    {""itemId"":10,""stockCode"":""SK-ROSE"",""barcode"":""8690001112223"",""productName"":""Kirmizi Gul Buketi"",""quantity"":2,""unitPrice"":37.75,""totalPrice"":75.50}
+                                ]
+                            }
+                        ]
+                    }]
+                }"));
+
+        // Act
+        var orders = await adapter.PullOrdersAsync();
+
+        // Assert — single sub-order produces exactly 1 ExternalOrderDto
+        orders.Should().HaveCount(1);
+
+        var order = orders[0];
+        order.PlatformOrderId.Should().Be("9001");
+        order.PlatformCode.Should().Be("Ciceksepeti");
+        order.OrderNumber.Should().Be("CS-ORD-005");
+        order.Status.Should().Be("Preparing");
+        order.CustomerName.Should().Be("Ayse Yilmaz");
+        order.CustomerEmail.Should().Be("ayse@test.com");
+        order.CustomerAddress.Should().Be("Ataturk Cad. No:1");
+        order.CustomerCity.Should().Be("Istanbul");
+        order.TotalAmount.Should().Be(75.50m);
+        order.CargoProviderName.Should().Be("Yurtici Kargo");
+        order.CargoTrackingNumber.Should().Be("YK999888777");
+        order.ShipmentPackageId.Should().Be("9001");
+
+        order.Lines.Should().HaveCount(1);
+        var line = order.Lines[0];
+        line.PlatformLineId.Should().Be("10");
+        line.SKU.Should().Be("SK-ROSE");
+        line.Barcode.Should().Be("8690001112223");
+        line.ProductName.Should().Be("Kirmizi Gul Buketi");
+        line.Quantity.Should().Be(2);
+        line.UnitPrice.Should().Be(37.75m);
+        line.LineTotal.Should().Be(75.50m);
+    }
+
     public void Dispose()
     {
         _fixture.Reset();
