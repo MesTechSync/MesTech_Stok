@@ -86,6 +86,9 @@ public class Product : BaseEntity, ITenantEntity
     public string? ImporterInfo { get; set; }
     public string? ManufacturerInfo { get; set; }
 
+    // Görsel
+    public string? ImageUrl { get; set; }
+
     // Notlar/Etiketler
     public string? Notes { get; set; }
     public string? Tags { get; set; }

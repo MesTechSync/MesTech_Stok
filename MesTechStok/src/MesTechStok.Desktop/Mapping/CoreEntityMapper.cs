@@ -62,6 +62,7 @@ public class CoreEntityMapper : ICoreEntityMapper
             UsageInstructions = core.UsageInstructions,
             ImporterInfo = core.ImporterInfo,
             ManufacturerInfo = core.ManufacturerInfo,
+            ImageUrl = core.ImageUrl,
             Notes = core.Notes,
             Tags = core.Tags,
             Code = core.Code
@@ -118,6 +119,7 @@ public class CoreEntityMapper : ICoreEntityMapper
             UsageInstructions = domain.UsageInstructions,
             ImporterInfo = domain.ImporterInfo,
             ManufacturerInfo = domain.ManufacturerInfo,
+            ImageUrl = domain.ImageUrl,
             Notes = domain.Notes,
             Tags = domain.Tags,
             Code = domain.Code
