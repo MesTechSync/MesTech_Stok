@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -22,12 +23,15 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
     <ProjectReference Include="..\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
+    <ProjectReference Include="..\MesTechStok.Core\MesTechStok.Core.csproj" />
+    <ProjectReference Include="..\MesTechStok.Desktop\MesTechStok.Desktop.csproj" />
   </ItemGroup>
 
 </Project>
