@@ -132,8 +132,8 @@ public class GapFillQueryHandlerTests
         var productId = Guid.NewGuid();
         var movements = new List<StockMovement>
         {
-            new() { ProductId = productId, Quantity = 10, MovementType = StockMovementType.StockIn },
-            new() { ProductId = productId, Quantity = -3, MovementType = StockMovementType.StockOut }
+            new() { ProductId = productId, Quantity = 10, MovementType = StockMovementType.StockIn.ToString() },
+            new() { ProductId = productId, Quantity = -3, MovementType = StockMovementType.StockOut.ToString() }
         };
         _movementRepo.Setup(r => r.GetByProductIdAsync(productId))
             .ReturnsAsync(movements);
@@ -154,7 +154,7 @@ public class GapFillQueryHandlerTests
         _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to))
             .ReturnsAsync(new List<StockMovement>
             {
-                new() { MovementType = StockMovementType.StockIn, Quantity = 20 }
+                new() { MovementType = StockMovementType.StockIn.ToString(), Quantity = 20 }
             });
 
         var result = await MovementsHandler().Handle(
@@ -179,7 +179,7 @@ public class GapFillQueryHandlerTests
     // ── GetSyncStatus ──
 
     [Fact]
-    public void GetSyncStatus_TwoAdapters_ReturnsTwoPlatforms()
+    public async Task GetSyncStatus_TwoAdapters_ReturnsTwoPlatforms()
     {
         var adapter1 = new Mock<IIntegratorAdapter>();
         adapter1.Setup(a => a.PlatformCode).Returns("TRENDYOL");
@@ -189,8 +189,8 @@ public class GapFillQueryHandlerTests
         _orchestrator.Setup(o => o.RegisteredAdapters)
             .Returns(new List<IIntegratorAdapter> { adapter1.Object, adapter2.Object });
 
-        var result = SyncStatusHandler().Handle(
-            new GetSyncStatusQuery(), CancellationToken.None).Result;
+        var result = await SyncStatusHandler().Handle(
+            new GetSyncStatusQuery(), CancellationToken.None);
 
         result.Platforms.Should().HaveCount(2);
         result.Platforms.Select(p => p.PlatformCode)
@@ -199,7 +199,7 @@ public class GapFillQueryHandlerTests
     }
 
     [Fact]
-    public void GetSyncStatus_FilterByPlatformCode_ReturnsOnlyMatching()
+    public async Task GetSyncStatus_FilterByPlatformCode_ReturnsOnlyMatching()
     {
         var adapter1 = new Mock<IIntegratorAdapter>();
         adapter1.Setup(a => a.PlatformCode).Returns("TRENDYOL");
@@ -209,21 +209,21 @@ public class GapFillQueryHandlerTests
         _orchestrator.Setup(o => o.RegisteredAdapters)
             .Returns(new List<IIntegratorAdapter> { adapter1.Object, adapter2.Object });
 
-        var result = SyncStatusHandler().Handle(
-            new GetSyncStatusQuery(PlatformCode: "TRENDYOL"), CancellationToken.None).Result;
+        var result = await SyncStatusHandler().Handle(
+            new GetSyncStatusQuery(PlatformCode: "TRENDYOL"), CancellationToken.None);
 
         result.Platforms.Should().HaveCount(1);
         result.Platforms[0].PlatformCode.Should().Be("TRENDYOL");
     }
 
     [Fact]
-    public void GetSyncStatus_NoAdapters_ReturnsEmptyPlatforms()
+    public async Task GetSyncStatus_NoAdapters_ReturnsEmptyPlatforms()
     {
         _orchestrator.Setup(o => o.RegisteredAdapters)
             .Returns(new List<IIntegratorAdapter>());
 
-        var result = SyncStatusHandler().Handle(
-            new GetSyncStatusQuery(), CancellationToken.None).Result;
+        var result = await SyncStatusHandler().Handle(
+            new GetSyncStatusQuery(), CancellationToken.None);
 
         result.Platforms.Should().BeEmpty();
     }
