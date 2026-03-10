@@ -1,0 +1,196 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.OnMuhasebeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SuccessBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#DC3545"/>
+        </Style>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Ön Muhasebe" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock Text="Gelir, gider ve cari hesap yönetim paneli" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <DatePicker x:Name="PeriodStart" Width="120" Margin="0,0,4,0"/>
+                    <TextBlock Text="-" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <DatePicker x:Name="PeriodEnd" Width="120" Margin="0,0,8,0"/>
+                    <Button Content="Filtrele" Style="{StaticResource ActionBtn}" Click="ApplyFilter_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: KPI Strip — 4 stat cards -->
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Toplam Gelir" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TotalIncomeText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Toplam Gider" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TotalExpenseText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Net Kâr" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="NetProfitText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#007ACC" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Vadesi Gelen" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="OverdueText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: TabControl -->
+        <TabControl Grid.Row="2" Margin="8,4,8,8" Background="White">
+
+            <!-- TAB 1: Gelir -->
+            <TabItem Header="  Gelir  ">
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Toolbar -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="Gelir Ekle" Style="{StaticResource SuccessBtn}" Click="AddIncome_Click" Margin="0,0,8,0"/>
+                        <Button Content="Sil" Style="{StaticResource DangerBtn}" Click="DeleteIncome_Click"/>
+                    </StackPanel>
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1" x:Name="IncomeGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Single"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Açıklama" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="130"/>
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="110"/>
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding Amount, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: Gider -->
+            <TabItem Header="  Gider  ">
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="Gider Ekle" Style="{StaticResource DangerBtn}" Click="AddExpense_Click" Margin="0,0,8,0"/>
+                        <Button Content="Sil" Style="{StaticResource DangerBtn}" Click="DeleteExpense_Click"/>
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" x:Name="ExpenseGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Single"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Açıklama" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="130"/>
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding Amount, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: Cari Hesap -->
+            <TabItem Header="  Cari Hesap  ">
+                <Grid Margin="0,8,0,0">
+                    <DataGrid x:Name="CariGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Single"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Hesap Adı" Binding="{Binding AccountName}" Width="*"/>
+                            <DataGridTextColumn Header="VKN/TCKN" Binding="{Binding TaxNumber}" Width="120"/>
+                            <DataGridTextColumn Header="Tür" Binding="{Binding AccountType}" Width="100"/>
+                            <DataGridTextColumn Header="Borç" Binding="{Binding Debt, StringFormat='{}{0:N2}'}" Width="110"/>
+                            <DataGridTextColumn Header="Alacak" Binding="{Binding Credit, StringFormat='{}{0:N2}'}" Width="110"/>
+                            <DataGridTextColumn Header="Bakiye" Binding="{Binding Balance, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+</UserControl>
