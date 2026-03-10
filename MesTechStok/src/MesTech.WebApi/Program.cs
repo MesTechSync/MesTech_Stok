@@ -39,5 +39,6 @@ CategoryEndpoints.Map(app);
 OrderEndpoints.Map(app);
 SyncStatusEndpoints.Map(app);
 InvoiceEndpoints.Map(app);
+QuotationEndpoints.Map(app);
 
 app.Run();
