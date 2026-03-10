@@ -98,13 +98,14 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"PDF indirme hatasi ({item.GibInvoiceId}): {ex.Message}", "IncomingInvoices");
+                MessageBox.Show($"PDF indirme hatasi: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void IncomingGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) { /* future use */ }
     }
 
-    internal class IncomingInvoiceItem
+    internal sealed class IncomingInvoiceItem
     {
         public string InvoiceNumber { get; set; } = "";
         public string SenderName { get; set; } = "";
