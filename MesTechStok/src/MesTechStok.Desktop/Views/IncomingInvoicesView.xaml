@@ -1,0 +1,167 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.IncomingInvoicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005a9e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SuccessBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#28A745"/>
+        </Style>
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#DC3545"/>
+        </Style>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0 — Header card -->
+        <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Gelen Faturalar" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock Text="İşletmenize gelen e-Fatura ve e-Arşiv faturaları" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Tarih:" VerticalAlignment="Center" FontSize="12" Margin="0,0,6,0" Foreground="#495057"/>
+                    <DatePicker x:Name="InvStartDate" Width="120" Margin="0,0,4,0"/>
+                    <TextBlock Text="-" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <DatePicker x:Name="InvEndDate" Width="120" Margin="0,0,10,0"/>
+                    <Button Content="Yenile" Style="{StaticResource ActionBtn}" Click="RefreshInvoices_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1 — Stats row (4 StatCard columns) -->
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Toplam" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TotalText" Text="0" FontSize="22" FontWeight="Bold" Foreground="#212529" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Bekliyor" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="PendingText" Text="0" FontSize="22" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Kabul Edildi" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="AcceptedText" Text="0" FontSize="22" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Reddedildi" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="RejectedText" Text="0" FontSize="22" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 2 — DataGrid card -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="0" Margin="8,4,8,8">
+            <DataGrid x:Name="IncomingGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserSortColumns="True" SelectionMode="Single"
+                      GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                      BorderThickness="0" FontSize="12"
+                      RowHeight="36" ColumnHeaderHeight="38"
+                      SelectionChanged="IncomingGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Width="36"/>
+                    <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="140"/>
+                    <DataGridTextColumn Header="Gönderen" Binding="{Binding SenderName}" Width="180"/>
+                    <DataGridTextColumn Header="VKN/TCKN" Binding="{Binding VKN}" Width="110"/>
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding InvoiceDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                    <DataGridTextColumn Header="Tutar" Binding="{Binding GrandTotal, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="90"/>
+                    <DataGridTemplateColumn Header="İşlemler" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0">
+                                    <Button Content="Kabul Et"
+                                            Style="{StaticResource SuccessBtn}"
+                                            FontSize="10" Padding="6,4"
+                                            Margin="0,0,4,0"
+                                            CommandParameter="{Binding}"
+                                            Click="AcceptInvoice_Click"/>
+                                    <Button Content="Reddet"
+                                            Style="{StaticResource DangerBtn}"
+                                            FontSize="10" Padding="6,4"
+                                            Margin="0,0,4,0"
+                                            CommandParameter="{Binding}"
+                                            Click="RejectInvoice_Click"/>
+                                    <Button Content="PDF"
+                                            Style="{StaticResource ActionBtn}"
+                                            FontSize="10" Padding="6,4"
+                                            CommandParameter="{Binding}"
+                                            Click="DownloadPdf_Click"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>
