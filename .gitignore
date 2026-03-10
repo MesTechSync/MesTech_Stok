@@ -91,3 +91,4 @@ appsettings.user.json
 *.json
 !MesTechStok/src/MesTechStok.Desktop/appsettings.json
 !MesTechStok/src/MesTechStok.Desktop/appsettings.Staging.json
+!MesTechStok/src/MesTech.WebApi/appsettings.json

@@ -8,10 +8,12 @@ namespace MesTech.Tests.Integration.Regression;
 
 /// <summary>
 /// 5.D1-02 / 5.D2-04: Mock Bagimlilik Haritasi — documents and verifies the mock service landscape.
-/// Active mocks: 6 (3 Desktop + 2 Infrastructure MESA + 1 Integration Invoice)
+/// Active mocks: 11 (3 Desktop + 6 Infrastructure AI/MESA + 2 Integration Invoice)
 /// Obsolete mocks: 0 (4 deleted in Dalga 2: MockBarcodeService, MockInventoryService,
 ///   MockProductService, MockOpenCartService)
 /// If a new mock is added or an existing one removed, these tests must be updated.
+/// Dalga 4 added: MockBuyboxService, MockStockPredictionService, MockPriceOptimizationService, MockProductSearchService
+/// Dalga 5 added: MockInvoiceAdapter
 /// </summary>
 [Trait("Category", "Regression")]
 [Trait("Category", "MockMap")]
@@ -25,8 +27,13 @@ public class MockDependencyMapTests
     // InfrastructureServiceRegistration.cs:
     //   IMesaAIService → MockMesaAIService
     //   IMesaBotService → MockMesaBotService
+    //   IBuyboxService → MockBuyboxService                      (Dalga 4)
+    //   IStockPredictionService → MockStockPredictionService    (Dalga 4)
+    //   IPriceOptimizationService → MockPriceOptimizationService (Dalga 4)
+    //   IProductSearchService → MockProductSearchService        (Dalga 4)
     // IntegrationServiceRegistration.cs:
     //   IInvoiceProvider → MockInvoiceProvider
+    //   IInvoiceAdapter → MockInvoiceAdapter                    (Dalga 5)
 
     private static readonly string[] ActiveMockFiles =
     {
@@ -35,7 +42,12 @@ public class MockDependencyMapTests
         "MockMobileWarehouseService.cs",
         "MockMesaAIService.cs",
         "MockMesaBotService.cs",
+        "MockBuyboxService.cs",
+        "MockStockPredictionService.cs",
+        "MockPriceOptimizationService.cs",
+        "MockProductSearchService.cs",
         "MockInvoiceProvider.cs",
+        "MockInvoiceAdapter.cs",
     };
 
     // ── Deleted obsolete mock class names (verify they stay deleted) ──
@@ -90,9 +102,9 @@ public class MockDependencyMapTests
     }
 
     [Fact]
-    public void TotalMockCount_ShouldBe6()
+    public void TotalMockCount_ShouldBe11()
     {
-        // 6 active + 0 obsolete = 6 mock service files
+        // 11 active + 0 obsolete = 11 mock service files
         // If this fails, someone added/removed a mock without updating this map
         var srcRoot = FindSrcRoot();
         var allMocks = Directory.GetFiles(srcRoot, "Mock*.cs", SearchOption.AllDirectories)
