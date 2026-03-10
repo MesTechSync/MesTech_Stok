@@ -40,3 +40,19 @@ public record InvoiceCreatedIntegrationEvent(
     Guid TenantId,
     DateTime OccurredAt
 );
+
+public record OrderShippedIntegrationEvent(
+    Guid OrderId,
+    string TrackingNumber,
+    string CargoProvider,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+public record ProductUpdatedIntegrationEvent(
+    Guid ProductId,
+    string SKU,
+    string UpdatedField,
+    Guid TenantId,
+    DateTime OccurredAt
+);
