@@ -3,11 +3,23 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace MesTechStok.Desktop.Views
 {
     public partial class OnMuhasebeView : UserControl
     {
+        private static readonly SolidColorBrush _profitBrush;
+        private static readonly SolidColorBrush _lossBrush;
+
+        static OnMuhasebeView()
+        {
+            _profitBrush = new SolidColorBrush(Color.FromRgb(0x28, 0xA7, 0x45));
+            _profitBrush.Freeze();
+            _lossBrush = new SolidColorBrush(Color.FromRgb(0xDC, 0x35, 0x45));
+            _lossBrush.Freeze();
+        }
+
         private readonly ObservableCollection<IncomeItem> _incomes = new();
         private readonly ObservableCollection<ExpenseItem> _expenses = new();
         private readonly ObservableCollection<CariHesapItem> _cariAccounts = new();
@@ -56,18 +68,14 @@ namespace MesTechStok.Desktop.Views
             TotalIncomeText.Text = $"{totalIncome:N2} TL";
             TotalExpenseText.Text = $"{totalExpense:N2} TL";
             NetProfitText.Text = $"{netProfit:N2} TL";
-            // Color net profit based on sign
-            NetProfitText.Foreground = new System.Windows.Media.SolidColorBrush(
-                netProfit >= 0
-                    ? System.Windows.Media.Color.FromRgb(0x28, 0xA7, 0x45)   // green
-                    : System.Windows.Media.Color.FromRgb(0xDC, 0x35, 0x45)); // red
+            NetProfitText.Foreground = netProfit >= 0 ? _profitBrush : _lossBrush;
             OverdueText.Text = overdue.ToString();
         }
 
         private void ApplyFilter_Click(object sender, RoutedEventArgs e)
         {
-            // Filter integration pending (no domain entities yet)
-            // For now, reload mock data
+            // Intentional: reloads mock data on filter — any UI-only deletes are reset.
+            // Real date-range filtering will be wired when DEV 1 Income/Expense domain entities are complete.
             LoadMockData();
         }
 
