@@ -64,9 +64,9 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "customerTaxNumber", invoice.CustomerTaxNumber ?? string.Empty),
                 new XElement(EarNs + "customerTaxOffice", invoice.CustomerTaxOffice ?? string.Empty),
                 new XElement(EarNs + "customerAddress", invoice.CustomerAddress),
-                new XElement(EarNs + "subTotal", invoice.SubTotal.ToString("F2")),
-                new XElement(EarNs + "taxTotal", invoice.TaxTotal.ToString("F2")),
-                new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2")),
+                new XElement(EarNs + "subTotal", invoice.SubTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "taxTotal", invoice.TaxTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
                 BuildInvoiceLines(invoice.Lines));
 
             var response = await SendSoapAsync("createInvoice", bodyContent, ct);
@@ -105,9 +105,9 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "customerTaxNumber", invoice.CustomerTaxNumber ?? string.Empty),
                 new XElement(EarNs + "customerTaxOffice", invoice.CustomerTaxOffice ?? string.Empty),
                 new XElement(EarNs + "customerAddress", invoice.CustomerAddress),
-                new XElement(EarNs + "subTotal", invoice.SubTotal.ToString("F2")),
-                new XElement(EarNs + "taxTotal", invoice.TaxTotal.ToString("F2")),
-                new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2")),
+                new XElement(EarNs + "subTotal", invoice.SubTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "taxTotal", invoice.TaxTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
                 BuildInvoiceLines(invoice.Lines));
 
             var response = await SendSoapAsync("createInvoice", bodyContent, ct);
@@ -351,10 +351,10 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "productName", line.ProductName),
                 new XElement(EarNs + "sku", line.SKU ?? string.Empty),
                 new XElement(EarNs + "quantity", line.Quantity),
-                new XElement(EarNs + "unitPrice", line.UnitPrice.ToString("F2")),
-                new XElement(EarNs + "taxRate", line.TaxRate.ToString("F2")),
-                new XElement(EarNs + "taxAmount", line.TaxAmount.ToString("F2")),
-                new XElement(EarNs + "lineTotal", line.LineTotal.ToString("F2"))));
+                new XElement(EarNs + "unitPrice", line.UnitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "taxRate", line.TaxRate.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "taxAmount", line.TaxAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                new XElement(EarNs + "lineTotal", line.LineTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))));
         }
         return linesEl;
     }
@@ -368,7 +368,7 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "productName", line.ProductName),
                 new XElement(EarNs + "sku", line.SKU ?? string.Empty),
                 new XElement(EarNs + "quantity", line.Quantity),
-                new XElement(EarNs + "unitPrice", line.UnitPrice.ToString("F2"))));
+                new XElement(EarNs + "unitPrice", line.UnitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))));
         }
         return linesEl;
     }

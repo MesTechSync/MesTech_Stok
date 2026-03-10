@@ -18,6 +18,12 @@ builder.Services.AddMediatR(cfg =>
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Remove HealthCheckEndpoint BackgroundService — WebApi provides its own /health and /metrics on port 5100
+var healthCheckDescriptor = builder.Services.FirstOrDefault(d =>
+    d.ImplementationType?.Name == "HealthCheckEndpoint");
+if (healthCheckDescriptor != null)
+    builder.Services.Remove(healthCheckDescriptor);
+
 var app = builder.Build();
 
 // API Key middleware — bypass paths skip validation (/health, /metrics)
