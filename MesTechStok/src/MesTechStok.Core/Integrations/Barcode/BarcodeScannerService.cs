@@ -18,6 +18,7 @@ namespace MesTechStok.Core.Integrations.Barcode
         private bool _disposed = false;
         private BarcodeScannerSettings? _currentSettings;
         private readonly HidBarcodeListener _hidListener;
+        private readonly IServiceScopeFactory? _scopeFactory;
 
         // Interface Events
         public event EventHandler<BarcodeScannedEventArgs>? BarcodeScanned;
@@ -41,11 +42,12 @@ namespace MesTechStok.Core.Integrations.Barcode
             }
         }
 
-        public BarcodeScannerService()
+        public BarcodeScannerService(IServiceScopeFactory? scopeFactory = null)
         {
             _connectedDevices = new Dictionary<string, BarcodeDeviceInfo>();
             _serialPorts = new Dictionary<string, SerialPort>();
             _currentSettings = new BarcodeScannerSettings();
+            _scopeFactory = scopeFactory;
 
             // HID listener'ı başlat
             _hidListener = new HidBarcodeListener();
@@ -618,23 +620,26 @@ namespace MesTechStok.Core.Integrations.Barcode
             // Persist scan log
             try
             {
-                using var scope = MesTechStok.Core.Diagnostics.ServiceLocator.CreateScope();
-                var db = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();
-                if (db != null)
+                if (_scopeFactory != null)
                 {
-                    db.BarcodeScanLogs.Add(new MesTechStok.Core.Data.Models.BarcodeScanLog
+                    using var scope = _scopeFactory.CreateScope();
+                    var db = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();
+                    if (db != null)
                     {
-                        Barcode = barcode,
-                        Format = DetectBarcodeFormat(barcode).ToString(),
-                        Source = "USB_HID",
-                        DeviceId = "USB_HID_DEFAULT",
-                        IsValid = validation.IsValid,
-                        ValidationMessage = string.Join(";", validation.ValidationErrors ?? new List<string>()),
-                        RawLength = barcode?.Length ?? 0,
-                        TimestampUtc = DateTime.UtcNow,
-                        CorrelationId = MesTechStok.Core.Diagnostics.CorrelationContext.CurrentId
-                    });
-                    db.SaveChanges();
+                        db.BarcodeScanLogs.Add(new MesTechStok.Core.Data.Models.BarcodeScanLog
+                        {
+                            Barcode = barcode,
+                            Format = DetectBarcodeFormat(barcode).ToString(),
+                            Source = "USB_HID",
+                            DeviceId = "USB_HID_DEFAULT",
+                            IsValid = validation.IsValid,
+                            ValidationMessage = string.Join(";", validation.ValidationErrors ?? new List<string>()),
+                            RawLength = barcode?.Length ?? 0,
+                            TimestampUtc = DateTime.UtcNow,
+                            CorrelationId = MesTechStok.Core.Diagnostics.CorrelationContext.CurrentId
+                        });
+                        db.SaveChanges();
+                    }
                 }
             }
             catch (Exception ex)

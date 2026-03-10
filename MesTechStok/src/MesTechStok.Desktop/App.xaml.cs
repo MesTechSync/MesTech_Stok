@@ -286,9 +286,6 @@ public partial class App : Application
 
             ServiceProvider = _host.Services;
 
-            // Bridge Core ServiceLocator with application's service provider
-            MesTechStok.Core.Diagnostics.ServiceLocator.SetProvider(ServiceProvider);
-
             // ALPHA TEAM: Initialize database (bloklu) – şema garanti edilmeden UI işlemlerine başlanmasın
             InitializeDatabaseAsync().GetAwaiter().GetResult();
 
@@ -464,7 +461,8 @@ public partial class App : Application
         // Barcode services
         services.AddSingleton<MesTechStok.Desktop.Services.IBarcodeService, MesTechStok.Desktop.Services.BarcodeHardwareService>();
         // USB HID barcode (Core) – global keystroke wedge desteği
-        services.AddSingleton<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService, MesTechStok.Core.Integrations.Barcode.BarcodeScannerService>();
+        services.AddSingleton<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService>(sp =>
+            new MesTechStok.Core.Integrations.Barcode.BarcodeScannerService(sp.GetRequiredService<IServiceScopeFactory>()));
         services.AddSingleton<IGlobalBarcodeService, GlobalBarcodeService>();
 
         // WAREHOUSE & LOCATION SERVICES: LocationService fix tamamlandı
