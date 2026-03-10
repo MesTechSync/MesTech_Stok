@@ -119,14 +119,15 @@ public static class CargoWireMockHelper
     // SOAP (Yurtici Kargo) — delegates to SoapWireMockHelper
     // ══════════════════════════════════════
 
-    private const string YkNs = "http://yurticikargo.com/";
+    // Note: Yurtici adapter uses Descendants("cargoKey") etc. without namespace,
+    // so response body XML must NOT have a default xmlns — keep elements unqualified.
 
     /// <summary>
     /// Builds a SOAP envelope for Yurtici Kargo CreateShipment response.
     /// </summary>
     public static string BuildSoapCreateShipmentResponse(string trackingNumber, string jobId)
     {
-        var body = $@"<createShipmentResponse xmlns=""{YkNs}"">
+        var body = $@"<createShipmentResponse>
       <return>
         <cargoKey>{trackingNumber}</cargoKey>
         <invDocId>INV-{trackingNumber}</invDocId>
@@ -143,7 +144,7 @@ public static class CargoWireMockHelper
     /// </summary>
     public static string BuildSoapTrackingResponse(string trackingNumber, string status, string description)
     {
-        var body = $@"<queryShipmentResponse xmlns=""{YkNs}"">
+        var body = $@"<queryShipmentResponse>
       <return>
         <operationCode>{status}</operationCode>
         <estimatedArrivalDate>2026-03-15</estimatedArrivalDate>
@@ -165,7 +166,7 @@ public static class CargoWireMockHelper
     /// </summary>
     public static string BuildSoapCancelResponse(bool success)
     {
-        var body = $@"<cancelShipmentResponse xmlns=""{YkNs}"">
+        var body = $@"<cancelShipmentResponse>
       <return>
         <success>{success.ToString().ToLowerInvariant()}</success>
       </return>
@@ -179,7 +180,7 @@ public static class CargoWireMockHelper
     /// </summary>
     public static string BuildSoapLabelResponse(string base64Pdf)
     {
-        var body = $@"<createShipmentLabelResponse xmlns=""{YkNs}"">
+        var body = $@"<createShipmentLabelResponse>
       <return>
         <labelData>{base64Pdf}</labelData>
         <labelFormat>PDF</labelFormat>
