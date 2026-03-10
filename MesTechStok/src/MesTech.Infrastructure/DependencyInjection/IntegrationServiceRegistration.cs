@@ -6,6 +6,7 @@ using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Infrastructure.Integration.Soap;
+using MesTech.Infrastructure.Integration.Scraping;
 using MesTech.Infrastructure.Integration.Webhooks;
 using MesTech.Infrastructure.Middleware;
 using Microsoft.Extensions.Caching.Memory;
@@ -145,6 +146,10 @@ public static class IntegrationServiceRegistration
         // Dalga 5 A-04: GIB mukellef sorgu servisi — cached VKN lookup
         services.AddMemoryCache();
         services.AddScoped<IGibMukellefService, GibMukellefService>();
+
+        // Product scraper service — URL-based product info via platform APIs
+        services.AddScoped<IProductScraperService>(sp =>
+            new ProductScraperService(new HttpClient(), sp.GetRequiredService<ILogger<ProductScraperService>>()));
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
