@@ -22,6 +22,8 @@
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Testcontainers.RabbitMq" />
     <PackageReference Include="Testcontainers.Redis" />
+    <!-- GHSA-4cv2: force safe version, overrides WireMock.Net transitive -->
+    <PackageReference Include="System.Linq.Dynamic.Core" />
     <PackageReference Include="WireMock.Net" />
     <PackageReference Include="FlaUI.UIA3" />
     <PackageReference Include="xunit" />
