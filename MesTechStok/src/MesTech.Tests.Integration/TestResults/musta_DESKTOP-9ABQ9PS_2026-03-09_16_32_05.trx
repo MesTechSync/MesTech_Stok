@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="5eabaf52-463d-4257-8b5b-ad136272ed64" name="musta@DESKTOP-9ABQ9PS 2026-03-09 16:32:05" runUser="DESKTOP-9ABQ9PS\musta" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-03-09T16:32:05.9372327+03:00" queuing="2026-03-09T16:32:05.9372339+03:00" start="2026-03-09T16:32:02.0405960+03:00" finish="2026-03-09T16:32:05.9520539+03:00" />
+  <TestSettings name="default" id="e6c32a12-4b1c-4374-a69c-fce6a9d8e9a6">
+    <Deployment runDeploymentRoot="musta_DESKTOP-9ABQ9PS_2026-03-09_16_32_05" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="87cfb28a-8ab1-4faf-91fc-ae044dcbc689" testId="1a73b45d-7704-41d8-1fc7-dcfbf2ea3bb5" testName="MesTech.Tests.Integration.Adapters.PazaramaAdapterContractTests.PullOrdersAsync_POST_ReturnsMappedOrders" computerName="DESKTOP-9ABQ9PS" duration="00:00:00.7238450" startTime="2026-03-09T16:32:05.6453211+03:00" endTime="2026-03-09T16:32:05.6453666+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="87cfb28a-8ab1-4faf-91fc-ae044dcbc689" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="MesTech.Tests.Integration.Adapters.PazaramaAdapterContractTests.PullOrdersAsync_POST_ReturnsMappedOrders" storage="c:\meschain-sync-enterprise\meschain\mestech\mestech_stok\mestechstok\src\mestech.tests.integration\bin\debug\net9.0-windows\mestech.tests.integration.dll" id="1a73b45d-7704-41d8-1fc7-dcfbf2ea3bb5">
+      <Execution id="87cfb28a-8ab1-4faf-91fc-ae044dcbc689" />
+      <TestMethod codeBase="C:\MesChain-Sync-Enterprise\MesChain\MesTech\MesTech_Stok\MesTechStok\src\MesTech.Tests.Integration\bin\Debug\net9.0-windows\MesTech.Tests.Integration.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesTech.Tests.Integration.Adapters.PazaramaAdapterContractTests" name="PullOrdersAsync_POST_ReturnsMappedOrders" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1a73b45d-7704-41d8-1fc7-dcfbf2ea3bb5" executionId="87cfb28a-8ab1-4faf-91fc-ae044dcbc689" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Bir Listede Olmayan Sonuçlar" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Yüklenen Tüm Sonuçlar" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.01] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.13)&#xD;
+[xUnit.net 00:00:00.32]   Discovering: MesTech.Tests.Integration&#xD;
+[xUnit.net 00:00:00.69]   Discovered:  MesTech.Tests.Integration&#xD;
+[xUnit.net 00:00:00.70]   Starting:    MesTech.Tests.Integration&#xD;
+[xUnit.net 00:00:01.90]   Finished:    MesTech.Tests.Integration&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

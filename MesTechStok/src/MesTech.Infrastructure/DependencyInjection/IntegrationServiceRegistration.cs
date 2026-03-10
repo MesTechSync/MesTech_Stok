@@ -1,4 +1,6 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Integration.Accounting;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Factory;
@@ -150,6 +152,14 @@ public static class IntegrationServiceRegistration
         // Product scraper service — URL-based product info via platform APIs
         services.AddScoped<IProductScraperService>(sp =>
             new ProductScraperService(new HttpClient(), sp.GetRequiredService<ILogger<ProductScraperService>>()));
+
+        // G10 A-08: Paraşüt accounting integration
+        services.AddScoped<IParasutAccountingService>(sp =>
+            new ParasutAccountingService(
+                new HttpClient { BaseAddress = new Uri("https://api.parasut.com/v4/") },
+                sp.GetRequiredService<IIncomeRepository>(),
+                sp.GetRequiredService<IExpenseRepository>(),
+                sp.GetRequiredService<ILogger<ParasutAccountingService>>()));
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)

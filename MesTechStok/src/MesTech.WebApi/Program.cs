@@ -29,19 +29,15 @@ var app = builder.Build();
 // API Key middleware — bypass paths skip validation (/health, /metrics)
 app.UseApiKeyAuthentication();
 
-// Health endpoint (no auth — bypass path)
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "healthy",
-    timestamp = DateTime.UtcNow
-}));
-
-// Metrics placeholder (no auth — bypass path)
-app.MapGet("/metrics", () => Results.Text(
-    "# MesTech WebApi metrics placeholder\n", "text/plain"));
+// Health + Metrics endpoints (HealthCheckService + Prometheus — no auth bypass paths)
+HealthEndpoints.Map(app);
 
 // API v1 endpoints
 ProductEndpoints.Map(app);
 StockEndpoints.Map(app);
+CategoryEndpoints.Map(app);
+OrderEndpoints.Map(app);
+SyncStatusEndpoints.Map(app);
+InvoiceEndpoints.Map(app);
 
 app.Run();

@@ -91,6 +91,16 @@ public class AppDbContext : DbContext
     public DbSet<PriceRecommendation> PriceRecommendations => Set<PriceRecommendation>();
     public DbSet<StockPrediction> StockPredictions => Set<StockPrediction>();
 
+    // ── Dalga 5: OnMuhasebe Entity'leri (A-05) ──
+    public DbSet<Income> Incomes => Set<Income>();
+    public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<CariHesap> CariHesaplar => Set<CariHesap>();
+    public DbSet<CariHareket> CariHareketler => Set<CariHareket>();
+
+    // ── G7 C-05: ProductSet (ürün seti) ──
+    public DbSet<ProductSet> ProductSets => Set<ProductSet>();
+    public DbSet<ProductSetItem> ProductSetItems => Set<ProductSetItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -401,6 +411,83 @@ public class AppDbContext : DbContext
         {
             e.HasIndex(s => new { s.ProductId, s.CreatedAt })
                 .HasDatabaseName("IX_StockPredictions_Product_Created");
+        });
+
+        // ── Dalga 5: OnMuhasebe Entity'leri (A-05) ──
+
+        // Income
+        modelBuilder.Entity<Income>(e =>
+        {
+            e.Property(i => i.Description).HasMaxLength(500);
+            e.HasIndex(i => new { i.TenantId, i.Date })
+                .HasDatabaseName("IX_Incomes_TenantId_Date");
+        });
+
+        // Expense
+        modelBuilder.Entity<Expense>(e =>
+        {
+            e.Property(ex => ex.Description).HasMaxLength(500);
+            e.HasIndex(ex => new { ex.TenantId, ex.Date })
+                .HasDatabaseName("IX_Expenses_TenantId_Date");
+        });
+
+        // CariHesap
+        modelBuilder.Entity<CariHesap>(e =>
+        {
+            e.Property(c => c.Name).HasMaxLength(200);
+            e.Property(c => c.TaxNumber).HasMaxLength(20);
+            e.Property(c => c.Phone).HasMaxLength(20);
+            e.Property(c => c.Email).HasMaxLength(200);
+            e.Property(c => c.Address).HasMaxLength(500);
+            e.HasIndex(c => new { c.TenantId, c.Type })
+                .HasDatabaseName("IX_CariHesaplar_TenantId_Type");
+        });
+
+        // CariHareket
+        modelBuilder.Entity<CariHareket>(e =>
+        {
+            e.Property(h => h.Description).HasMaxLength(500);
+            e.HasIndex(h => new { h.TenantId, h.CariHesapId })
+                .HasDatabaseName("IX_CariHareketler_TenantId_CariHesapId");
+
+            e.HasOne(h => h.CariHesap)
+                .WithMany(c => c.Hareketler)
+                .HasForeignKey(h => h.CariHesapId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── G9 C-07: ProductVariant — flexible JSON attributes ──
+        modelBuilder.Entity<ProductVariant>(b =>
+        {
+            b.HasKey(v => v.Id);
+            b.Property(v => v.SKU).HasMaxLength(100).IsRequired();
+            b.Property(v => v.Stock).HasDefaultValue(0);
+            b.HasIndex(v => v.SKU).IsUnique();
+            b.HasIndex(v => v.ProductId);
+
+            // JSON value conversion for attributes (SQLite TEXT / PostgreSQL TEXT)
+            b.Property(v => v.AttributesJson)
+             .HasColumnName("Attributes")
+             .HasDefaultValue("{}");
+        });
+
+        // ── G7 C-05: ProductSet ──
+        modelBuilder.Entity<ProductSet>(e =>
+        {
+            e.Property(ps => ps.Name).HasMaxLength(200);
+            e.Property(ps => ps.Description).HasMaxLength(500);
+            e.HasIndex(ps => ps.TenantId).HasDatabaseName("IX_ProductSets_TenantId");
+
+            e.HasMany(ps => ps.Items)
+                .WithOne()
+                .HasForeignKey(psi => psi.ProductSetId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ProductSetItem
+        modelBuilder.Entity<ProductSetItem>(e =>
+        {
+            e.Property(psi => psi.Quantity).HasDefaultValue(1);
         });
     }
 

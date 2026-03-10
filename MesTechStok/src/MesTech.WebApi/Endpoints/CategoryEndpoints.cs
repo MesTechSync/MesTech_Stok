@@ -9,11 +9,11 @@ public static class CategoryEndpoints
     {
         var group = app.MapGroup("/api/v1/categories").WithTags("Categories");
 
-        // GET /api/v1/categories — list categories (optional active-only filter)
+        // GET /api/v1/categories — list categories (optional active-only filter, default true)
         group.MapGet("/", async (
-            bool activeOnly,
             ISender mediator,
-            CancellationToken ct) =>
+            CancellationToken ct,
+            bool activeOnly = true) =>
         {
             var result = await mediator.Send(
                 new GetCategoriesQuery(activeOnly), ct);
