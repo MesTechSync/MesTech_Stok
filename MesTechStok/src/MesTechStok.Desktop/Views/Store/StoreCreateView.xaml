@@ -75,6 +75,7 @@
                     <Button Style="{StaticResource PrimaryButton}" Content="Olustur" Margin="0,0,8,0"
                             Command="{Binding CreateCommand}"/>
                     <Button Content="Iptal" Padding="20,10" FontSize="14" Cursor="Hand"
+                            Style="{StaticResource MaterialDesignFlatButton}"
                             Command="{Binding CancelCommand}"/>
                 </StackPanel>
             </StackPanel>
