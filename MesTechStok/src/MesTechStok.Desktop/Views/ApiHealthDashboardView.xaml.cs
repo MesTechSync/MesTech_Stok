@@ -6,19 +6,45 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Application.Interfaces;
 
 namespace MesTechStok.Desktop.Views
 {
+    /// <summary>
+    /// API Health Dashboard — TCP probe + adapter availability check.
+    /// D-11 pattern: optional ctor params (null default) for WPF designer compat.
+    /// </summary>
     public partial class ApiHealthDashboardView : UserControl
     {
         private readonly DispatcherTimer _refreshTimer;
 
+        // D-11: injected dependencies (nullable for designer compat)
+        private readonly TrendyolAdapter? _trendyolAdapter;
+        private readonly OpenCartAdapter? _openCartAdapter;
+        private readonly IInvoiceProvider? _invoiceProvider;
+
+        /// <summary>
+        /// WPF designer / parameter-less constructor — services resolved lazily via App.ServiceProvider.
+        /// Use the DI-injected overload in production.
+        /// </summary>
         public ApiHealthDashboardView()
+            : this(null, null, null)
         {
+        }
+
+        /// <summary>
+        /// DI constructor — called when view is registered via services.AddTransient.
+        /// </summary>
+        public ApiHealthDashboardView(
+            TrendyolAdapter? trendyolAdapter,
+            OpenCartAdapter? openCartAdapter,
+            IInvoiceProvider? invoiceProvider)
+        {
+            _trendyolAdapter = trendyolAdapter;
+            _openCartAdapter = openCartAdapter;
+            _invoiceProvider = invoiceProvider;
+
             InitializeComponent();
 
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
@@ -69,32 +95,29 @@ namespace MesTechStok.Desktop.Views
             if (rmqResult.Up) upCount++;
             AddHealthEvent($"RabbitMQ: {(rmqResult.Up ? "UP" : "DOWN")} ({rmqResult.LatencyMs}ms)");
 
-            // Trendyol Adapter
-            var trendyolAdapter = App.ServiceProvider?.GetService<TrendyolAdapter>();
-            TrendyolStatusText.Text = trendyolAdapter != null ? "Hazir" : "Kayitli Degil";
-            TrendyolLatencyText.Text = trendyolAdapter != null ? "Adapter aktif" : "DI'da yok";
+            // Trendyol Adapter (D-11: use injected field, not ServiceLocator)
+            TrendyolStatusText.Text = _trendyolAdapter != null ? "Hazir" : "Kayitli Degil";
+            TrendyolLatencyText.Text = _trendyolAdapter != null ? "Adapter aktif" : "DI'da yok";
             TrendyolLastSyncText.Text = "Baglanti testi icin Trendyol ekranini kullanin";
-            TrendyolRateLimitText.Text = trendyolAdapter != null ? "Rate limit: 100 RPS" : "--";
-            if (trendyolAdapter != null) upCount++;
-            AddHealthEvent($"Trendyol Adapter: {(trendyolAdapter != null ? "REGISTERED" : "NOT FOUND")}");
+            TrendyolRateLimitText.Text = _trendyolAdapter != null ? "Rate limit: 100 RPS" : "--";
+            if (_trendyolAdapter != null) upCount++;
+            AddHealthEvent($"Trendyol Adapter: {(_trendyolAdapter != null ? "REGISTERED" : "NOT FOUND")}");
 
-            // OpenCart Adapter
-            var openCartAdapter = App.ServiceProvider?.GetService<OpenCartAdapter>();
-            OpenCartStatusText.Text = openCartAdapter != null ? "Hazir" : "Kayitli Degil";
-            OpenCartLatencyText.Text = openCartAdapter != null ? "Adapter aktif" : "DI'da yok";
+            // OpenCart Adapter (D-11: use injected field, not ServiceLocator)
+            OpenCartStatusText.Text = _openCartAdapter != null ? "Hazir" : "Kayitli Degil";
+            OpenCartLatencyText.Text = _openCartAdapter != null ? "Adapter aktif" : "DI'da yok";
             OpenCartLastSyncText.Text = "--";
-            OpenCartProductCountText.Text = openCartAdapter != null ? "Yapilandirilmadi" : "--";
-            if (openCartAdapter != null) upCount++;
-            AddHealthEvent($"OpenCart Adapter: {(openCartAdapter != null ? "REGISTERED" : "NOT FOUND")}");
+            OpenCartProductCountText.Text = _openCartAdapter != null ? "Yapilandirilmadi" : "--";
+            if (_openCartAdapter != null) upCount++;
+            AddHealthEvent($"OpenCart Adapter: {(_openCartAdapter != null ? "REGISTERED" : "NOT FOUND")}");
 
-            // Invoice Service
-            var invoiceProvider = App.ServiceProvider?.GetService<IInvoiceProvider>();
-            InvoiceServiceStatusText.Text = invoiceProvider != null ? "Aktif" : "Kayitli Degil";
-            InvoiceServiceLatencyText.Text = invoiceProvider != null ? $"Provider: {invoiceProvider.ProviderName}" : "DI'da yok";
+            // Invoice Service (D-11: use injected field, not ServiceLocator)
+            InvoiceServiceStatusText.Text = _invoiceProvider != null ? "Aktif" : "Kayitli Degil";
+            InvoiceServiceLatencyText.Text = _invoiceProvider != null ? $"Provider: {_invoiceProvider.ProviderName}" : "DI'da yok";
             InvoiceTodayCountText.Text = "--";
             InvoiceErrorCountText.Text = "--";
-            if (invoiceProvider != null) upCount++;
-            AddHealthEvent($"Invoice Service: {(invoiceProvider != null ? invoiceProvider.ProviderName : "NOT FOUND")}");
+            if (_invoiceProvider != null) upCount++;
+            AddHealthEvent($"Invoice Service: {(_invoiceProvider != null ? _invoiceProvider.ProviderName : "NOT FOUND")}");
 
             // Overall status
             if (upCount == totalCount)

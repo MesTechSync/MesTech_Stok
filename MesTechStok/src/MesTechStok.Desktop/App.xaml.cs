@@ -535,6 +535,8 @@ public partial class App : Application
 
         // ALPHA TEAM: Views (DI registration for constructor injection support)
         services.AddTransient<Views.QuotationView>();
+        // D-11 follow-up: ApiHealthDashboardView — constructor injection (no ServiceLocator)
+        services.AddTransient<Views.ApiHealthDashboardView>();
 
         // Telemetry query service
         services.AddScoped<ITelemetryQueryService, TelemetryQueryService>();

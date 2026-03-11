@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 // ALPHA TEAM: Core services integration
 using MesTechStok.Core.Services.Abstract;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Adapters;
 using MesTechStok.Core.Data.Models;
 
 // Desktop services
@@ -47,6 +48,9 @@ namespace MesTechStok.Desktop.ViewModels
         private readonly ILogger<MainViewModel> _logger;
         private readonly IInvoiceProvider? _invoiceProvider;
         private readonly IInvoiceCapableAdapter? _invoiceCapableAdapter;
+        // D-11 follow-up: adapter refs forwarded to ApiHealthDashboardView ctor
+        private readonly TrendyolAdapter? _trendyolAdapter;
+        private readonly OpenCartAdapter? _openCartAdapter;
 
         [ObservableProperty]
         private ObservableCollection<MesTechStok.Core.Data.Models.Product> products = new();
@@ -158,7 +162,9 @@ namespace MesTechStok.Desktop.ViewModels
             ISystemResourceService systemResourceService,
             ILogger<MainViewModel> logger,
             IInvoiceProvider? invoiceProvider = null,
-            IInvoiceCapableAdapter? invoiceCapableAdapter = null)
+            IInvoiceCapableAdapter? invoiceCapableAdapter = null,
+            TrendyolAdapter? trendyolAdapter = null,
+            OpenCartAdapter? openCartAdapter = null)
         {
             _productService = productService;
             _inventoryService = inventoryService;
@@ -173,6 +179,8 @@ namespace MesTechStok.Desktop.ViewModels
             _logger = logger;
             _invoiceProvider = invoiceProvider;
             _invoiceCapableAdapter = invoiceCapableAdapter;
+            _trendyolAdapter = trendyolAdapter;
+            _openCartAdapter = openCartAdapter;
 
             _ = InitializeAsync();
         }
@@ -1433,7 +1441,11 @@ namespace MesTechStok.Desktop.ViewModels
             NavigationTimingService.Instance.StartTiming("API Sağlık Durumu");
             try
             {
-                CurrentView = new Views.ApiHealthDashboardView();
+                // D-11: pass injected adapters — no ServiceLocator in view
+                CurrentView = new Views.ApiHealthDashboardView(
+                    trendyolAdapter: _trendyolAdapter,
+                    openCartAdapter: _openCartAdapter,
+                    invoiceProvider: _invoiceProvider);
                 CurrentModule = "API Sağlık Durumu";
                 StatusMessage = "💓 API Sağlık Durumu yüklendi - Tüm servisler izleniyor";
                 GlobalLogger.Instance.LogInfo("API sağlık durumu ekranı açıldı", "MainViewModel");
