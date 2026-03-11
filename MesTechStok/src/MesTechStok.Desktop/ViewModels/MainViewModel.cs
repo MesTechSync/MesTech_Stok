@@ -1546,5 +1546,11 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        [RelayCommand]
+        private void ShowQuotations()
+        {
+            CurrentView = new Views.QuotationView();
+        }
     }
 }

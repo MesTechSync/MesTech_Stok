@@ -533,6 +533,9 @@ public partial class App : Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<TelemetryViewModel>();
 
+        // ALPHA TEAM: Views (DI registration for constructor injection support)
+        services.AddTransient<Views.QuotationView>();
+
         // Telemetry query service
         services.AddScoped<ITelemetryQueryService, TelemetryQueryService>();
 
