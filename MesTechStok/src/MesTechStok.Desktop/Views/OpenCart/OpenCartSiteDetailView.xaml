@@ -30,7 +30,7 @@
             <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
         <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="16,10"/>
@@ -135,7 +135,7 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
                             <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Margin="0,0,8,0"
-                                    Command="{Binding SaveCommand}" Background="#28A745"/>
+                                    Command="{Binding SaveCommand}" Background="{DynamicResource PrimaryHueMidBrush}"/>
                             <Button Content="Iptal" Padding="16,10" FontSize="13" Cursor="Hand"
                                     Style="{StaticResource MaterialDesignFlatButton}"
                                     Command="{Binding CancelCommand}"/>
