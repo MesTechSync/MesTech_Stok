@@ -49,12 +49,12 @@ if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
-    var pending = await db.Database.GetPendingMigrationsAsync();
-    if (pending.Any())
+    var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
+    if (pending.Count > 0)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogWarning("PENDING MIGRATIONS: {Count} migration(s) need manual apply before deploy: {Migrations}",
-            pending.Count(), string.Join(", ", pending));
+            pending.Count, string.Join(", ", pending));
     }
 }
 

@@ -16,4 +16,10 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:5100
+
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "MesTech.WebApi.dll"]
