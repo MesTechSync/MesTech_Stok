@@ -47,9 +47,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
-        </Style>
         <Style x:Key="TestButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
             <Setter Property="Background" Value="#F27A1A"/>
         </Style>
@@ -96,7 +93,7 @@
                         <TextBlock Text="{Binding CredentialHelpText}" FontSize="11" Foreground="#6C757D" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
                         <!-- Trendyol Credentials -->
-                        <StackPanel Visibility="{Binding IsTrendyol, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Visibility="{Binding IsTrendyol, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Style="{StaticResource FormLabel}" Text="API Key *"/>
                             <TextBox Style="{StaticResource FormTextBox}" Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Style="{StaticResource FormLabel}" Text="API Secret *"/>
@@ -106,7 +103,7 @@
                         </StackPanel>
 
                         <!-- N11 Credentials -->
-                        <StackPanel Visibility="{Binding IsN11, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Visibility="{Binding IsN11, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Style="{StaticResource FormLabel}" Text="App Key *"/>
                             <TextBox Style="{StaticResource FormTextBox}" Text="{Binding AppKey, UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Style="{StaticResource FormLabel}" Text="App Secret *"/>
@@ -114,7 +111,7 @@
                         </StackPanel>
 
                         <!-- Hepsiburada Credentials -->
-                        <StackPanel Visibility="{Binding IsHepsiburada, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Visibility="{Binding IsHepsiburada, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Style="{StaticResource FormLabel}" Text="Username *"/>
                             <TextBox Style="{StaticResource FormTextBox}" Text="{Binding HbUsername, UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Style="{StaticResource FormLabel}" Text="Password *"/>
@@ -124,7 +121,7 @@
                         </StackPanel>
 
                         <!-- Amazon Credentials -->
-                        <StackPanel Visibility="{Binding IsAmazon, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Visibility="{Binding IsAmazon, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Style="{StaticResource FormLabel}" Text="Client ID *"/>
                             <TextBox Style="{StaticResource FormTextBox}" Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Style="{StaticResource FormLabel}" Text="Client Secret *"/>
@@ -141,7 +138,7 @@
                                 <Button Style="{StaticResource TestButton}" Content="Baglantiyi Test Et" HorizontalAlignment="Stretch"
                                         Command="{Binding TestConnectionCommand}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Center"
-                                            Visibility="{Binding ShowTestResult, Converter={StaticResource BoolToVisibility}}">
+                                            Visibility="{Binding ShowTestResult, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Ellipse Width="12" Height="12" Fill="{Binding TestResultColor}" Margin="0,0,8,0"/>
                                     <TextBlock Text="{Binding TestResultMessage}" FontSize="13" FontWeight="SemiBold"
                                                Foreground="{Binding TestResultColor}"/>
@@ -150,7 +147,7 @@
                         </Border>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                            <Button Style="{StaticResource SuccessButton}" Content="Kaydet" Margin="0,0,8,0"
+                            <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Margin="0,0,8,0"
                                     Command="{Binding SaveCommand}"/>
                             <Button Content="Iptal" Padding="16,10" FontSize="13" Cursor="Hand"
                                     Style="{StaticResource MaterialDesignFlatButton}"

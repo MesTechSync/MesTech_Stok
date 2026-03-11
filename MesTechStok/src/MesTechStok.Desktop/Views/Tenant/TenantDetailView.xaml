@@ -111,7 +111,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock Text="Henuz magaza eklenmemis" Foreground="#ADB5BD" FontStyle="Italic" Margin="0,8,0,0"
-                                   Visibility="{Binding HasNoStores, Converter={StaticResource BoolToVisibility}}"/>
+                                   Visibility="{Binding HasNoStores, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

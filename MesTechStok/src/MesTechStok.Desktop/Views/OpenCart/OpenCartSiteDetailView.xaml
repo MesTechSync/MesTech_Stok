@@ -135,7 +135,7 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
                             <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Margin="0,0,8,0"
-                                    Command="{Binding SaveCommand}" Background="{DynamicResource PrimaryHueMidBrush}"/>
+                                    Command="{Binding SaveCommand}"/>
                             <Button Content="Iptal" Padding="16,10" FontSize="13" Cursor="Hand"
                                     Style="{StaticResource MaterialDesignFlatButton}"
                                     Command="{Binding CancelCommand}"/>
