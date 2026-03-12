@@ -462,7 +462,16 @@ public partial class App : Application
         services.AddSingleton<MesTechStok.Desktop.Services.IBarcodeService, MesTechStok.Desktop.Services.BarcodeHardwareService>();
         // USB HID barcode (Core) – global keystroke wedge desteği
         services.AddSingleton<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService>(sp =>
-            new MesTechStok.Core.Integrations.Barcode.BarcodeScannerService(sp.GetRequiredService<IServiceScopeFactory>()));
+            new MesTechStok.Core.Integrations.Barcode.BarcodeScannerService(
+                sp.GetRequiredService<IServiceScopeFactory>(),
+                data =>
+                {
+                    using var scope = sp.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                    mediator.Send(new MesTech.Application.Commands.CreateBarcodeScanLog.CreateBarcodeScanLogCommand(
+                        data.Barcode, data.Format, data.Source, data.DeviceId,
+                        data.IsValid, data.ValidationMessage, data.RawLength, data.CorrelationId)).GetAwaiter().GetResult();
+                }));
         services.AddSingleton<IGlobalBarcodeService, GlobalBarcodeService>();
 
         // WAREHOUSE & LOCATION SERVICES: LocationService fix tamamlandı
