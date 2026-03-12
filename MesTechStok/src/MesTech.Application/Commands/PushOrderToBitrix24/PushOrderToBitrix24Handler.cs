@@ -74,6 +74,7 @@ public class PushOrderToBitrix24Handler
             // Create local mapping
             var deal = new Bitrix24Deal
             {
+                TenantId = order.TenantId,
                 OrderId = order.Id,
                 ExternalDealId = externalDealId.Value.ToString(),
                 Title = $"Order #{order.OrderNumber}",

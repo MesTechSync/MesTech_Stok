@@ -134,6 +134,32 @@ public class PushOrderToBitrix24HandlerTests
     }
 
     [Fact]
+    public async Task Handle_AdapterReturnsNull_ShouldReturnError()
+    {
+        // Arrange — adapter returns null Guid (push failed silently)
+        var orderId = Guid.NewGuid();
+        var order = new Order { OrderNumber = "ORD-NULL", TotalAmount = 250m };
+        EntityTestHelper.SetEntityId(order, orderId);
+
+        _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Bitrix24Deal?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
+
+        var handler = CreateHandler();
+        var command = new PushOrderToBitrix24Command(orderId);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("null deal ID");
+        _dealRepo.Verify(r => r.AddAsync(It.IsAny<Bitrix24Deal>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_NullRequest_ShouldThrowArgumentNullException()
     {
         var handler = CreateHandler();
@@ -222,6 +248,16 @@ public class SyncBitrix24ContactsHandlerTests
         result.ErrorCount.Should().Be(1);
         result.Errors.Should().Contain("Connection refused");
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_NullRequest_ShouldThrowArgumentNullException()
+    {
+        var handler = CreateHandler();
+
+        var act = () => handler.Handle(null!, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 }
 
