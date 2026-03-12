@@ -38,6 +38,7 @@ public static class HangfireConfig
         services.AddScoped<HealthCheckJob>();
         services.AddScoped<SettlementSyncJob>();
         services.AddScoped<CategorySyncJob>();
+        services.AddScoped<SupplierFeedSyncJob>();
 
         return services;
     }
@@ -46,7 +47,7 @@ public static class HangfireConfig
     /// Uygulama basladiginda recurring job'lari register eder.
     /// Her job kendi CronExpression'ini tanimlar.
     /// </summary>
-    public static void RegisterRecurringJobs()
+    public static void RegisterRecurringJobs(IServiceProvider? serviceProvider = null)
     {
         RecurringJob.AddOrUpdate<TrendyolOrderSyncJob>(
             "trendyol-order-sync",
@@ -92,5 +93,11 @@ public static class HangfireConfig
             "category-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "0 4 * * *");
+
+        // Data-driven supplier feed jobs (one per active feed)
+        if (serviceProvider != null)
+        {
+            SupplierFeedSyncJob.RegisterSupplierFeedJobs(serviceProvider);
+        }
     }
 }

@@ -35,4 +35,10 @@
     <ProjectReference Include="..\MesTechStok.Desktop\MesTechStok.Desktop.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="FeedParsers\FeedParserTestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

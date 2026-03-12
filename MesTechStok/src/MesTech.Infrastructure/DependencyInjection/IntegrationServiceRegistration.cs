@@ -8,8 +8,10 @@ using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Infrastructure.Integration.Soap;
+using MesTech.Infrastructure.Integration.FeedParsers;
 using MesTech.Infrastructure.Integration.Scraping;
 using MesTech.Infrastructure.Integration.Webhooks;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Middleware;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -172,6 +174,25 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<IIncomeRepository>(),
                 sp.GetRequiredService<IExpenseRepository>(),
                 sp.GetRequiredService<ILogger<ParasutAccountingService>>()));
+
+        // Dalga 7.5: Feed parsers — keyed by FeedFormat for SupplierFeedSyncJob resolution
+        services.AddKeyedScoped<IFeedParserService, XmlFeedParser>(FeedFormat.Xml);
+        services.AddKeyedScoped<IFeedParserService, CsvFeedParser>(FeedFormat.Csv);
+        services.AddKeyedScoped<IFeedParserService, ExcelFeedParser>(FeedFormat.Excel);
+        services.AddKeyedScoped<IFeedParserService, JsonFeedParser>(FeedFormat.Json);
+
+        // Also register as IEnumerable<IFeedParserService> for FeedHealthCheckService
+        services.AddScoped<IFeedParserService, XmlFeedParser>();
+        services.AddScoped<IFeedParserService, CsvFeedParser>();
+        services.AddScoped<IFeedParserService, ExcelFeedParser>();
+        services.AddScoped<IFeedParserService, JsonFeedParser>();
+
+        // Dalga 7.5: Feed health check service
+        services.AddScoped<FeedHealthCheckService>(sp =>
+            new FeedHealthCheckService(
+                new HttpClient(),
+                sp.GetServices<IFeedParserService>(),
+                sp.GetRequiredService<ILogger<FeedHealthCheckService>>()));
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
