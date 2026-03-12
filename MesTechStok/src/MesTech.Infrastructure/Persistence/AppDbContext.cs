@@ -105,6 +105,11 @@ public class AppDbContext : DbContext
     public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<QuotationLine> QuotationLines => Set<QuotationLine>();
 
+    // ── Dalga 7: Bitrix24 CRM ──
+    public DbSet<Bitrix24Deal> Bitrix24Deals => Set<Bitrix24Deal>();
+    public DbSet<Bitrix24Contact> Bitrix24Contacts => Set<Bitrix24Contact>();
+    public DbSet<Bitrix24DealProductRow> Bitrix24DealProductRows => Set<Bitrix24DealProductRow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
