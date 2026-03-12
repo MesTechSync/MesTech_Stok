@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Web;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ namespace MesTech.Infrastructure.Integration.Webhooks;
 /// <summary>
 /// Platform webhook bildirimlerini isleyen servis.
 /// Trendyol: OrderCreated, OrderStatusChanged, ClaimCreated
+/// Bitrix24: ONCRMDEALADD, ONCRMDEALUPDATE, ONCRMCONTACTADD, ONCRMCONTACTUPDATE (form-encoded)
 /// Diger platformlar: generic event routing
 /// </summary>
 public class WebhookReceiverService : IWebhookReceiverService
@@ -118,6 +120,10 @@ public class WebhookReceiverService : IWebhookReceiverService
     {
         _logger.LogInformation("Webhook received: Platform={Platform} Type={EventType}", platformCode, eventType);
 
+        // Bitrix24: form-encoded CRM events
+        if (platformCode.Equals("Bitrix24", StringComparison.OrdinalIgnoreCase))
+            return await ProcessBitrix24WebhookAsync(payload, ct).ConfigureAwait(false);
+
         return eventType.ToLowerInvariant() switch
         {
             "ordercreated" or "orderstatuschanged" or "order" =>
@@ -128,6 +134,59 @@ public class WebhookReceiverService : IWebhookReceiverService
 
             _ => await ProcessUnknownEventAsync(platformCode, eventType, payload, ct).ConfigureAwait(false)
         };
+    }
+
+    /// <summary>
+    /// Bitrix24 CRM webhook handler.
+    /// Payload is form-encoded: event=ONCRMDEALADD&amp;data[FIELDS][ID]=123&amp;auth[application_token]=xxx
+    /// Validates application_token, routes to appropriate CRM event handler.
+    /// </summary>
+    public async Task<WebhookProcessResult> ProcessBitrix24WebhookAsync(
+        string payload, CancellationToken ct = default)
+    {
+        try
+        {
+            var fields = HttpUtility.ParseQueryString(payload);
+            var eventType = fields["event"] ?? "";
+            var entityId = fields["data[FIELDS][ID]"];
+            var appToken = fields["auth[application_token]"];
+
+            _logger.LogInformation(
+                "Bitrix24 webhook: Event={Event} EntityId={Id} HasToken={HasToken}",
+                eventType, entityId, !string.IsNullOrEmpty(appToken));
+
+            // Delegate to adapter for full processing
+            var adapter = FindWebhookAdapter("Bitrix24");
+            if (adapter != null)
+                await adapter.ProcessWebhookPayloadAsync(payload, ct).ConfigureAwait(false);
+
+            var mappedEventType = eventType.ToUpperInvariant() switch
+            {
+                "ONCRMDEALADD" => "DealCreated",
+                "ONCRMDEALUPDATE" => "DealUpdated",
+                "ONCRMCONTACTADD" => "ContactCreated",
+                "ONCRMCONTACTUPDATE" => "ContactUpdated",
+                _ => eventType
+            };
+
+            return new WebhookProcessResult
+            {
+                Success = true,
+                EventType = mappedEventType,
+                PlatformOrderId = entityId,
+                ProcessedCount = 1,
+                Message = $"Bitrix24 {mappedEventType} webhook islendi (ID: {entityId})."
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Bitrix24 webhook processing failed");
+            return new WebhookProcessResult
+            {
+                Success = false,
+                Message = $"Bitrix24 webhook hatasi: {ex.Message}"
+            };
+        }
     }
 
     private async Task<WebhookProcessResult> ProcessUnknownEventAsync(

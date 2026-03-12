@@ -55,6 +55,11 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<AmazonTrAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonTrAdapter>());
 
+        // Dalga 7: Bitrix24 CRM adapter — OAuth2, deal/contact sync, batch API
+        services.AddSingleton<Bitrix24Adapter>(sp =>
+            new Bitrix24Adapter(new HttpClient(), sp.GetRequiredService<ILogger<Bitrix24Adapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
+
         // Dalga 5: N11 SOAP adapter — Scoped (multi-tenant credential isolation)
         services.AddScoped<N11Adapter>();
         services.AddScoped<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
