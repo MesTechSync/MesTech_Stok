@@ -27,6 +27,9 @@
 
                 <!-- ═══ MesTech Antigravity Tema Kaynakları ═══ -->
                 <ResourceDictionary Source="Resources/Themes/MesTechTheme.xaml"/>
+
+                <!-- ═══ Bitrix24 Marka Renkleri (mestech-tokens.css sync) ═══ -->
+                <ResourceDictionary Source="Resources/Themes/Bitrix24Theme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->

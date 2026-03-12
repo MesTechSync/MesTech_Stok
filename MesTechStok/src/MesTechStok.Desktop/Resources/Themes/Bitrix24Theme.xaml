@@ -1,0 +1,94 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ Bitrix24 Marka Renkleri (mestech-tokens.css ile sync) ═══ -->
+
+    <!-- Ana Renkler -->
+    <Color x:Key="Bitrix24Primary">#2855AC</Color>
+    <Color x:Key="Bitrix24PrimaryDark">#1e4490</Color>
+    <Color x:Key="Bitrix24PrimaryLight">#e8eef8</Color>
+
+    <!-- Sidebar & Navigation -->
+    <Color x:Key="Bitrix24SidebarBg">#1a2332</Color>
+    <Color x:Key="Bitrix24SidebarHover">#243347</Color>
+    <Color x:Key="Bitrix24SidebarActive">#2855AC</Color>
+    <Color x:Key="Bitrix24SidebarText">#8899aa</Color>
+
+    <!-- İçerik Alanları -->
+    <Color x:Key="Bitrix24ContentBg">#f4f6f9</Color>
+    <Color x:Key="Bitrix24CardBg">#FFFFFF</Color>
+    <Color x:Key="Bitrix24DividerColor">#e0e4ea</Color>
+
+    <!-- Metin -->
+    <Color x:Key="Bitrix24TextPrimary">#1a1a2e</Color>
+    <Color x:Key="Bitrix24TextSecondary">#545a6d</Color>
+    <Color x:Key="Bitrix24TextMuted">#7c8db0</Color>
+
+    <!-- Durum Renkleri -->
+    <Color x:Key="Bitrix24Success">#10b981</Color>
+    <Color x:Key="Bitrix24Warning">#f59e0b</Color>
+    <Color x:Key="Bitrix24Danger">#dc3545</Color>
+    <Color x:Key="Bitrix24Info">#3b82f6</Color>
+
+    <!-- Platform Renkleri -->
+    <Color x:Key="Bitrix24Trendyol">#FF6600</Color>
+    <Color x:Key="Bitrix24Hepsiburada">#FF6000</Color>
+    <Color x:Key="Bitrix24N11">#2855AC</Color>
+    <Color x:Key="Bitrix24Ciceksepeti">#6B3FA0</Color>
+    <Color x:Key="Bitrix24Pazarama">#00B900</Color>
+    <Color x:Key="Bitrix24Amazon">#FF9900</Color>
+    <Color x:Key="Bitrix24OpenCart">#23A8E0</Color>
+
+    <!-- Input -->
+    <Color x:Key="Bitrix24InputBorder">#d0d5dd</Color>
+    <Color x:Key="Bitrix24InputFocusBorder">#2855AC</Color>
+
+    <!-- ═══ SolidColorBrush Kaynakları ═══ -->
+    <SolidColorBrush x:Key="Bitrix24PrimaryBrush" Color="{StaticResource Bitrix24Primary}" />
+    <SolidColorBrush x:Key="Bitrix24PrimaryDarkBrush" Color="{StaticResource Bitrix24PrimaryDark}" />
+    <SolidColorBrush x:Key="Bitrix24PrimaryLightBrush" Color="{StaticResource Bitrix24PrimaryLight}" />
+    <SolidColorBrush x:Key="Bitrix24SidebarBgBrush" Color="{StaticResource Bitrix24SidebarBg}" />
+    <SolidColorBrush x:Key="Bitrix24SidebarHoverBrush" Color="{StaticResource Bitrix24SidebarHover}" />
+    <SolidColorBrush x:Key="Bitrix24SidebarActiveBrush" Color="{StaticResource Bitrix24SidebarActive}" />
+    <SolidColorBrush x:Key="Bitrix24SidebarTextBrush" Color="{StaticResource Bitrix24SidebarText}" />
+    <SolidColorBrush x:Key="Bitrix24ContentBgBrush" Color="{StaticResource Bitrix24ContentBg}" />
+    <SolidColorBrush x:Key="Bitrix24CardBgBrush" Color="{StaticResource Bitrix24CardBg}" />
+    <SolidColorBrush x:Key="Bitrix24DividerBrush" Color="{StaticResource Bitrix24DividerColor}" />
+    <SolidColorBrush x:Key="Bitrix24TextPrimaryBrush" Color="{StaticResource Bitrix24TextPrimary}" />
+    <SolidColorBrush x:Key="Bitrix24TextSecondaryBrush" Color="{StaticResource Bitrix24TextSecondary}" />
+    <SolidColorBrush x:Key="Bitrix24TextMutedBrush" Color="{StaticResource Bitrix24TextMuted}" />
+    <SolidColorBrush x:Key="Bitrix24SuccessBrush" Color="{StaticResource Bitrix24Success}" />
+    <SolidColorBrush x:Key="Bitrix24WarningBrush" Color="{StaticResource Bitrix24Warning}" />
+    <SolidColorBrush x:Key="Bitrix24DangerBrush" Color="{StaticResource Bitrix24Danger}" />
+    <SolidColorBrush x:Key="Bitrix24InfoBrush" Color="{StaticResource Bitrix24Info}" />
+    <SolidColorBrush x:Key="Bitrix24InputBorderBrush" Color="{StaticResource Bitrix24InputBorder}" />
+    <SolidColorBrush x:Key="Bitrix24InputFocusBorderBrush" Color="{StaticResource Bitrix24InputFocusBorder}" />
+
+    <!-- Platform Brushes -->
+    <SolidColorBrush x:Key="Bitrix24TrendyolBrush" Color="{StaticResource Bitrix24Trendyol}" />
+    <SolidColorBrush x:Key="Bitrix24HepsiburadaBrush" Color="{StaticResource Bitrix24Hepsiburada}" />
+    <SolidColorBrush x:Key="Bitrix24N11Brush" Color="{StaticResource Bitrix24N11}" />
+    <SolidColorBrush x:Key="Bitrix24CiceksepetiBrush" Color="{StaticResource Bitrix24Ciceksepeti}" />
+    <SolidColorBrush x:Key="Bitrix24PazaramaBrush" Color="{StaticResource Bitrix24Pazarama}" />
+    <SolidColorBrush x:Key="Bitrix24AmazonBrush" Color="{StaticResource Bitrix24Amazon}" />
+    <SolidColorBrush x:Key="Bitrix24OpenCartBrush" Color="{StaticResource Bitrix24OpenCart}" />
+
+    <!-- ═══ Gradient Arka Planlar ═══ -->
+    <LinearGradientBrush x:Key="Bitrix24PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#2855AC" Offset="0"/>
+        <GradientStop Color="#1e4490" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Bitrix24SidebarGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1a2332" Offset="0"/>
+        <GradientStop Color="#0f1923" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- ═══ Dimension Constants ═══ -->
+    <CornerRadius x:Key="Bitrix24CardRadius">8</CornerRadius>
+    <CornerRadius x:Key="Bitrix24ButtonRadius">6</CornerRadius>
+    <CornerRadius x:Key="Bitrix24InputRadius">6</CornerRadius>
+    <Thickness x:Key="Bitrix24CardPadding">16</Thickness>
+    <Thickness x:Key="Bitrix24SectionSpacing">0,0,0,20</Thickness>
+
+</ResourceDictionary>
