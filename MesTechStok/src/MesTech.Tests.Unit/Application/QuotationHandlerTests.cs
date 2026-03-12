@@ -7,6 +7,7 @@ using MesTech.Application.Queries.GetQuotationById;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using MesTech.Tests.Unit._Shared;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -100,13 +101,8 @@ public class AcceptQuotationHandlerTests
             QuotationNumber = "QT-ACCEPT-001",
             CustomerName = "Accept Test",
         };
-        // Use reflection to set Id if provided
         if (id.HasValue)
-        {
-            typeof(Quotation).BaseType!
-                .GetProperty("Id")!
-                .SetValue(q, id.Value);
-        }
+            EntityTestHelper.SetEntityId(q, id.Value);
         q.Send(); // Draft → Sent
         return q;
     }
@@ -162,9 +158,7 @@ public class AcceptQuotationHandlerTests
             QuotationNumber = "QT-DRAFT",
             CustomerName = "Draft Customer",
         };
-        typeof(Quotation).BaseType!
-            .GetProperty("Id")!
-            .SetValue(quotation, quotationId);
+        EntityTestHelper.SetEntityId(quotation, quotationId);
 
         _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
             .ReturnsAsync(quotation);
@@ -199,9 +193,7 @@ public class RejectQuotationHandlerTests
             QuotationNumber = "QT-REJECT-001",
             CustomerName = "Reject Test",
         };
-        typeof(Quotation).BaseType!
-            .GetProperty("Id")!
-            .SetValue(quotation, quotationId);
+        EntityTestHelper.SetEntityId(quotation, quotationId);
         quotation.Send(); // Draft → Sent
 
         _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
@@ -260,11 +252,7 @@ public class ConvertQuotationToInvoiceHandlerTests
             Currency = "TRY",
         };
         if (id.HasValue)
-        {
-            typeof(Quotation).BaseType!
-                .GetProperty("Id")!
-                .SetValue(q, id.Value);
-        }
+            EntityTestHelper.SetEntityId(q, id.Value);
 
         // Add lines
         q.AddLine(new QuotationLine
@@ -361,9 +349,7 @@ public class GetQuotationByIdHandlerTests
             Currency = "TRY",
             Notes = "Test notes",
         };
-        typeof(Quotation).BaseType!
-            .GetProperty("Id")!
-            .SetValue(quotation, quotationId);
+        EntityTestHelper.SetEntityId(quotation, quotationId);
 
         quotation.AddLine(new QuotationLine
         {
