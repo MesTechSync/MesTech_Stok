@@ -15,5 +15,6 @@ public enum PlatformType
     PttAVM = 7,
     Ozon = 8,
     eBay = 9,
-    Etsy = 10
+    Etsy = 10,
+    Bitrix24 = 11
 }
