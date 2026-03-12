@@ -31,7 +31,7 @@ public class PushOrderToBitrix24HandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var externalDealGuid = Guid.NewGuid();
+        var externalDealId = "12345";
         var order = new Order { OrderNumber = "ORD-100", TotalAmount = 500m };
         EntityTestHelper.SetEntityId(order, orderId);
 
@@ -39,7 +39,7 @@ public class PushOrderToBitrix24HandlerTests
             .ReturnsAsync((Bitrix24Deal?)null);
         _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
         _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(externalDealGuid);
+            .ReturnsAsync(externalDealId);
 
         var handler = CreateHandler();
         var command = new PushOrderToBitrix24Command(orderId);
@@ -49,7 +49,7 @@ public class PushOrderToBitrix24HandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.ExternalDealId.Should().Be(externalDealGuid.ToString());
+        result.ExternalDealId.Should().Be("12345");
         _dealRepo.Verify(r => r.AddAsync(It.IsAny<Bitrix24Deal>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -136,7 +136,7 @@ public class PushOrderToBitrix24HandlerTests
     [Fact]
     public async Task Handle_AdapterReturnsNull_ShouldReturnError()
     {
-        // Arrange — adapter returns null Guid (push failed silently)
+        // Arrange — adapter returns null string (push failed silently)
         var orderId = Guid.NewGuid();
         var order = new Order { OrderNumber = "ORD-NULL", TotalAmount = 250m };
         EntityTestHelper.SetEntityId(order, orderId);
@@ -145,7 +145,7 @@ public class PushOrderToBitrix24HandlerTests
             .ReturnsAsync((Bitrix24Deal?)null);
         _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
         _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid?)null);
+            .ReturnsAsync((string?)null);
 
         var handler = CreateHandler();
         var command = new PushOrderToBitrix24Command(orderId);

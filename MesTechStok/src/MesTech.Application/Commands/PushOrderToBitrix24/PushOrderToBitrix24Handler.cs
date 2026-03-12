@@ -62,7 +62,7 @@ public class PushOrderToBitrix24Handler
             var externalDealId = await _adapter.PushDealAsync(order, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (externalDealId is null)
+            if (string.IsNullOrWhiteSpace(externalDealId))
             {
                 return new PushOrderToBitrix24Result
                 {
@@ -76,7 +76,7 @@ public class PushOrderToBitrix24Handler
             {
                 TenantId = order.TenantId,
                 OrderId = order.Id,
-                ExternalDealId = externalDealId.Value.ToString(),
+                ExternalDealId = externalDealId,
                 Title = $"Order #{order.OrderNumber}",
                 Opportunity = order.TotalAmount,
                 SyncStatus = SyncStatus.Synced,

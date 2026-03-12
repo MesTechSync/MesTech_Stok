@@ -9,8 +9,8 @@ namespace MesTech.Application.Interfaces;
 /// </summary>
 public interface IBitrix24Adapter : IIntegratorAdapter
 {
-    /// <summary>Push a MesTech Order as a Bitrix24 Deal (crm.deal.add + crm.deal.productrows.set).</summary>
-    Task<Guid?> PushDealAsync(Order order, CancellationToken ct = default);
+    /// <summary>Push a MesTech Order as a Bitrix24 Deal (crm.deal.add + crm.deal.productrows.set). Returns external deal ID string.</summary>
+    Task<string?> PushDealAsync(Order order, CancellationToken ct = default);
 
     /// <summary>Sync MesTech Customers ↔ Bitrix24 Contacts (crm.contact.list/add/update).</summary>
     Task<int> SyncContactsAsync(CancellationToken ct = default);
