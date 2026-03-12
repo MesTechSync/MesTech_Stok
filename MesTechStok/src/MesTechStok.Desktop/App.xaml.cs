@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -368,7 +368,7 @@ public partial class App : Application
         // Kanonik context: MesTech.Infrastructure.Persistence.AppDbContext (aşağıda)
         // Bu registration mevcut Core servisleri (ProductService vb.) için korunuyor.
         // Yeni entity/repo/servis Infrastructure.AppDbContext kullanmalıdır.
-        #pragma warning disable CS0618 // Obsolete Core.AppDbContext — intentional backward compat
+#pragma warning disable CS0618 // Obsolete Core.AppDbContext — intentional backward compat
         services.AddDbContext<AppDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -385,7 +385,7 @@ public partial class App : Application
             options.AddInterceptors(new MesTech.Infrastructure.Persistence.AuditInterceptor(
                 new MesTech.Infrastructure.Security.DevelopmentUserService()));
         }, ServiceLifetime.Scoped);
-        #pragma warning restore CS0618
+#pragma warning restore CS0618
 
 
         // ALPHA TEAM: Core Business Services (FROZEN — use Clean Architecture for new code)
@@ -521,6 +521,19 @@ public partial class App : Application
         services.AddScoped<MesTech.Domain.Interfaces.IStoreRepository, MesTech.Infrastructure.Persistence.Repositories.StoreRepository>();
         services.AddScoped<MesTech.Domain.Interfaces.ICategoryRepository, MesTech.Infrastructure.Persistence.Repositories.CategoryRepository>();
         services.AddScoped<MesTech.Domain.Interfaces.ISupplierRepository, MesTech.Infrastructure.Persistence.Repositories.SupplierRepository>();
+
+        // Dalga 4–7 Repositories (Accounting, Barcode, Quotation, Invoice, Bitrix24)
+        services.AddScoped<MesTech.Domain.Interfaces.IIncomeRepository, MesTech.Infrastructure.Persistence.Repositories.IncomeRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IExpenseRepository, MesTech.Infrastructure.Persistence.Repositories.ExpenseRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.ICariHesapRepository, MesTech.Infrastructure.Persistence.Repositories.CariHesapRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.ICariHareketRepository, MesTech.Infrastructure.Persistence.Repositories.CariHareketRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IBarcodeScanLogRepository, MesTech.Infrastructure.Persistence.Repositories.BarcodeScanLogRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IQuotationRepository, MesTech.Infrastructure.Persistence.Repositories.QuotationRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IInvoiceRepository, MesTech.Infrastructure.Persistence.Repositories.InvoiceRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IProductSetRepository, MesTech.Infrastructure.Persistence.Repositories.ProductSetRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IProductVariantRepository, MesTech.Infrastructure.Persistence.Repositories.ProductVariantRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IBitrix24DealRepository, MesTech.Infrastructure.Persistence.Repositories.Bitrix24DealRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IBitrix24ContactRepository, MesTech.Infrastructure.Persistence.Repositories.Bitrix24ContactRepository>();
 
         // Integration Layer (Adapters, Factory, Orchestrator, Webhook, TokenCache)
         MesTech.Infrastructure.DependencyInjection.IntegrationServiceRegistration.AddIntegrationServices(services, configuration);

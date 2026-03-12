@@ -117,13 +117,13 @@ public class ProtectionTests
     // ── PlatformType Enum ──
 
     [Fact]
-    public void PlatformType_ShouldHave11Members()
+    public void PlatformType_ShouldHave12Members()
     {
         // OpenCart=0, Trendyol=1, N11=2, Hepsiburada=3, Amazon=4,
-        // Ciceksepeti=5, Pazarama=6, PttAVM=7, Ozon=8, eBay=9, Etsy=10
+        // Ciceksepeti=5, Pazarama=6, PttAVM=7, Ozon=8, eBay=9, Etsy=10, Bitrix24=11
         var values = Enum.GetValues<PlatformType>();
-        values.Length.Should().Be(11,
-            "PlatformType enum should have 11 members (0-10). " +
+        values.Length.Should().Be(12,
+            "PlatformType enum should have 12 members (0-11). " +
             $"Current: {string.Join(", ", values)}");
     }
 

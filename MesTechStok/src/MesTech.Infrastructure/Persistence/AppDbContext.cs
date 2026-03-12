@@ -396,14 +396,6 @@ public class AppDbContext : DbContext
             e.Property(p => p.NetAmount).HasPrecision(18, 2);
         });
 
-        // SupplierFeed
-        modelBuilder.Entity<SupplierFeed>(e =>
-        {
-            e.HasIndex(f => new { f.TenantId, f.SupplierId })
-                .HasDatabaseName("IX_SupplierFeeds_Tenant_Supplier");
-            e.Property(f => f.PriceMarkupPercent).HasPrecision(5, 2);
-            e.Property(f => f.PriceMarkupFixed).HasPrecision(18, 2);
-        });
 
         // AI — PriceRecommendation
         modelBuilder.Entity<PriceRecommendation>(e =>

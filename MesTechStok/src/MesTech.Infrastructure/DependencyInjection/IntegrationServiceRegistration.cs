@@ -1,4 +1,4 @@
-using MesTech.Application.Interfaces;
+﻿using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Accounting;
 using MesTech.Infrastructure.Integration.Adapters;
@@ -62,9 +62,9 @@ public static class IntegrationServiceRegistration
             new Bitrix24Adapter(new HttpClient(), sp.GetRequiredService<ILogger<Bitrix24Adapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
 
-        // Dalga 5: N11 SOAP adapter — Scoped (multi-tenant credential isolation)
-        services.AddScoped<N11Adapter>();
-        services.AddScoped<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
+        // Dalga 5: N11 SOAP adapter — Singleton (IAdapterFactory is singleton)
+        services.AddSingleton<N11Adapter>();
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
 
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>

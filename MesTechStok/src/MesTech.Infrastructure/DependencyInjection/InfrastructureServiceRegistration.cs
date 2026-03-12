@@ -1,4 +1,4 @@
-using MesTech.Application.Interfaces;
+﻿using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Infrastructure.AI;
@@ -64,6 +64,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
+        services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
