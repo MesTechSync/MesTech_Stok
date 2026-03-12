@@ -202,7 +202,7 @@ namespace MesTechStok.Desktop.Views
                 var list = JsonSerializer.Deserialize<List<string>>(json);
                 return list ?? new List<string>();
             }
-            catch { return new List<string>(); }
+            catch { /* Intentional: file listing fallback — return empty list on failure */ return new List<string>(); }
         }
     }
 }

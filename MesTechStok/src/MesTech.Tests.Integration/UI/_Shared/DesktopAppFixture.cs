@@ -109,7 +109,7 @@ public class DesktopAppFixture : IDisposable
         }
         catch
         {
-            try { dialog.Close(); } catch { }
+            try { dialog.Close(); } catch { /* Intentional: test cleanup — FlaUI resource disposal failure non-critical */ }
         }
     }
 
@@ -137,9 +137,9 @@ public class DesktopAppFixture : IDisposable
 
     public void Dispose()
     {
-        try { _app?.Close(); } catch { }
-        try { _app?.Dispose(); } catch { }
-        try { _automation?.Dispose(); } catch { }
+        try { _app?.Close(); } catch { /* Intentional: test cleanup — FlaUI resource disposal failure non-critical */ }
+        try { _app?.Dispose(); } catch { /* Intentional: test cleanup — FlaUI resource disposal failure non-critical */ }
+        try { _automation?.Dispose(); } catch { /* Intentional: test cleanup — FlaUI resource disposal failure non-critical */ }
     }
 }
 

@@ -127,7 +127,7 @@ namespace MesTechStok.Desktop
                         HidePasswordOverlay();
                     }
                 }
-                catch { /* ignore */ }
+                catch { /* Intentional: window initialization — non-critical feature failure swallowed */ }
 
                 // CHOOSE STARTUP MODE: Welcome vs Main System
                 if (_isWelcomeMode)

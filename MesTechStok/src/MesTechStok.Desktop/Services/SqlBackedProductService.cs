@@ -280,7 +280,7 @@ namespace MesTechStok.Desktop.Services
                         await _db.SaveChangesAsync();
                         return true;
                     }
-                    catch { return false; }
+                    catch { /* Intentional: database operation fallback — return false on failure */ return false; }
                 }
             }
 
@@ -391,7 +391,7 @@ namespace MesTechStok.Desktop.Services
                         await _db.SaveChangesAsync();
                         return true;
                     }
-                    catch { return false; }
+                    catch { /* Intentional: database operation fallback — return false on failure */ return false; }
                 }
             }
             try
@@ -591,7 +591,7 @@ namespace MesTechStok.Desktop.Services
                 if (arr == null || arr.Length == 0) return string.Empty;
                 return string.Join(",", arr);
             }
-            catch { return string.Empty; }
+            catch { /* Intentional: data extraction fallback — return empty on failure */ return string.Empty; }
         }
     }
 }

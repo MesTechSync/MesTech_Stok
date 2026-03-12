@@ -384,7 +384,7 @@ namespace MesTechStok.Desktop.Services
                                 var roi = new Rect(roiLeft, roiTop, roiWidth, roiHeight);
                                 decodeMat = new Mat(frame, roi);
                             }
-                            catch { decodeMat = frame; }
+                            catch { /* Intentional: frame processing fallback — use raw frame on decode failure */ decodeMat = frame; }
                         }
 
                         // 2D okuma iyileştirmesi: preset 2D içeriyorsa gri + eşitleme uygula
@@ -420,7 +420,7 @@ namespace MesTechStok.Desktop.Services
                                     Cv2.Threshold(procMat, procMat, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
                                 }
                             }
-                            catch { decodeMat.CopyTo(procMat); }
+                            catch { /* Intentional: frame processing fallback — copy raw frame on processing failure */ decodeMat.CopyTo(procMat); }
                         }
                         else
                         {
@@ -433,7 +433,7 @@ namespace MesTechStok.Desktop.Services
                                 Cv2.MorphologyEx(procMat, procMat, MorphTypes.Close, kernel);
                                 Cv2.Threshold(procMat, procMat, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
                             }
-                            catch { decodeMat.CopyTo(procMat); }
+                            catch { /* Intentional: frame processing fallback — copy raw frame on processing failure */ decodeMat.CopyTo(procMat); }
                         }
 
                         using var bitmap = MatToBitmap(procMat);

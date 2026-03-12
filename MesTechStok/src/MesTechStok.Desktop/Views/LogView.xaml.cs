@@ -350,7 +350,7 @@ namespace MesTechStok.Desktop.Views
                                 foreach (var f in files)
                                 {
                                     try { File.Delete(f); deleted++; }
-                                    catch { failed++; }
+                                    catch { /* Intentional: batch operation error tracking — count failure and continue */ failed++; }
                                 }
                                 StatusText.Text = $"Disk logları temizlendi: {deleted} silindi, {failed} başarısız";
                                 AddLog("ℹ️", StatusText.Text, "System", Colors.Blue);
@@ -437,7 +437,7 @@ namespace MesTechStok.Desktop.Views
                 foreach (var f in files)
                 {
                     try { File.Delete(f); deleted++; }
-                    catch { failed++; }
+                    catch { /* Intentional: batch operation error tracking — count failure and continue */ failed++; }
                 }
 
                 // 3) Audit + UI

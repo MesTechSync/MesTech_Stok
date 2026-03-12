@@ -155,7 +155,7 @@ public class SystemResourceService : ISystemResourceService
 
                         TryThrottleProcessCpu(p.Id, cpuCapPercent);
                     }
-                    catch { /* ignore one-by-one errors */ }
+                    catch { /* Intentional: resource enumeration — skip individual item errors, continue iteration */ }
                     finally { p.Dispose(); }
                 }
             }

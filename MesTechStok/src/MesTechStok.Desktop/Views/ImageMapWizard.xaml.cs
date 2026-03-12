@@ -162,7 +162,7 @@ namespace MesTechStok.Desktop.Views
                             MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={p.Id} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard));
                         }
                     }
-                    catch { fail++; r.Status = "Hata"; }
+                    catch { /* Intentional: image upload error tracking — count failure and continue batch */ fail++; r.Status = "Hata"; }
                 }
                 PreviewGrid.Items.Refresh();
                 SummaryText.Text = $"Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)} · Güncellendi={ok} · Hata={fail}";

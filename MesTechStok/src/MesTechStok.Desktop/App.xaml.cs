@@ -78,7 +78,7 @@ public partial class App : Application
             target.Focus();
             SetForegroundWindow(handle);
         }
-        catch { /* ignore */ }
+        catch { /* Intentional: startup cleanup — exception swallowed by design */ }
     }
 
     private static void StartActivationListener()
@@ -96,12 +96,12 @@ public partial class App : Application
                         Application.Current?.Dispatcher?.Invoke(BringAppToForeground);
                     }
                 }
-                catch { /* exit loop on dispose */ }
+                catch { /* Intentional: background loop exit on dispose — exception swallowed by design */ }
             })
             { IsBackground = true, Name = "ActivationListener" };
             thread.Start();
         }
-        catch { /* ignore */ }
+        catch { /* Intentional: startup cleanup — exception swallowed by design */ }
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -116,7 +116,7 @@ public partial class App : Application
         {
             _singleInstanceMutex = new Mutex(true, "Global\\MesTechStok.Desktop.SingleInstance", out createdNew);
         }
-        catch { /* ignore and proceed */ }
+        catch { /* Intentional: startup configuration — exception swallowed, proceed with defaults */ }
         if (!createdNew)
         {
             // Signal running instance to bring itself to foreground, then exit silently

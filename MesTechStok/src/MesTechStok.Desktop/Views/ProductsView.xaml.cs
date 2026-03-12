@@ -532,7 +532,7 @@ namespace MesTechStok.Desktop.Views
 
         private static string GetComboValueOrEmpty(ComboBox combo)
         {
-            try { return (combo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty; } catch { return string.Empty; }
+            try { return (combo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty; } catch { /* Intentional: combo selection fallback — return empty on UI access failure */ return string.Empty; }
         }
 
         // Gelişmiş Filtreler UI
@@ -877,7 +877,7 @@ namespace MesTechStok.Desktop.Views
                 }
                 DbStatusText.Text = $"DB: OK · Aktif={status.ActiveCount} · Toplam={status.TotalCount} · Gösterilen={_displayedProducts.Count}";
             }
-            catch { DbStatusText.Text = "DB: fail"; }
+            catch { /* Intentional: DB status display fallback — show error text on connection failure */ DbStatusText.Text = "DB: fail"; }
         }
 
         private async void ResetFilters_Click(object sender, RoutedEventArgs e)

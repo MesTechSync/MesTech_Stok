@@ -426,7 +426,7 @@ namespace MesTechStok.Desktop.Models
                     bmp.Freeze();
                     return bmp;
                 }
-                catch { return null; }
+                catch { /* Intentional: image decode fallback — return null on failure */ return null; }
             }
         }
 
@@ -450,7 +450,7 @@ namespace MesTechStok.Desktop.Models
                     }
                     return ImageSource;
                 }
-                catch { return ImageSource; }
+                catch { /* Intentional: image decode fallback — return cached source on failure */ return ImageSource; }
             }
         }
 
@@ -476,7 +476,7 @@ namespace MesTechStok.Desktop.Models
                     }
                     return ImageSource;
                 }
-                catch { return ImageSource; }
+                catch { /* Intentional: image decode fallback — return cached source on failure */ return ImageSource; }
             }
         }
 
@@ -515,7 +515,7 @@ namespace MesTechStok.Desktop.Models
                     var p256 = Path.Combine(local, "MesTechStok", "Images", "Products", Id.ToString(), "thumb_256.jpg");
                     return File.Exists(thumb) || File.Exists(p768) || File.Exists(p256);
                 }
-                catch { return false; }
+                catch { /* Intentional: image validation fallback — return false on failure */ return false; }
             }
         }
 

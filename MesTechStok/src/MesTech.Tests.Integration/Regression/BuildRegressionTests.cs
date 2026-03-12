@@ -102,7 +102,7 @@ public class BuildRegressionTests
         var exited = process.WaitForExit(180_000); // 3 minute timeout per project
         if (!exited)
         {
-            try { process.Kill(); } catch { }
+            try { process.Kill(); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
             return (-1, "Build timed out after 3 minutes");
         }
 

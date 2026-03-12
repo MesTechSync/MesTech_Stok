@@ -81,7 +81,7 @@ namespace MesTechStok.Desktop.Views
                     ConnectionStringTextBox.Text = cs;
                 }
             }
-            catch { /* ignore */ }
+            catch { /* Intentional: settings load fallback — proceed with defaults on load failure */ }
             CompanyNameTextBox.Text = string.IsNullOrWhiteSpace(CompanyNameTextBox.Text) ? "" : CompanyNameTextBox.Text;
             LastUpdateText.Text = DateTime.Now.ToString("dd.MM.yyyy");
             // Header şirket adını güncelle

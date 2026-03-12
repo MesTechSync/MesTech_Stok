@@ -54,8 +54,8 @@ public class StartupPerformanceTests
         sw.ElapsedMilliseconds.Should().BeLessThan(5000,
             $"Startup took {sw.ElapsedMilliseconds}ms, Emirname limit is 5000ms (S13)");
 
-        try { process!.Kill(); process.WaitForExit(5000); } catch { }
-        try { process!.Dispose(); } catch { }
+        try { process!.Kill(); process.WaitForExit(5000); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
+        try { process!.Dispose(); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
     }
 
     [Fact]
@@ -92,8 +92,8 @@ public class StartupPerformanceTests
         workingSetMB.Should().BeLessThan(300,
             $"Working set is {workingSetMB:F1}MB, Emirname limit is 300MB (S14)");
 
-        try { process.Kill(); process.WaitForExit(5000); } catch { }
-        try { process.Dispose(); } catch { }
+        try { process.Kill(); process.WaitForExit(5000); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
+        try { process.Dispose(); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
     }
 
     /// <summary>
