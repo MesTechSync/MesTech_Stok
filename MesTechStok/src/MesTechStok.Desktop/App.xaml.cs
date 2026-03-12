@@ -241,7 +241,7 @@ public partial class App : Application
                         // Add in-memory configuration as fallback
                         config.AddInMemoryCollection(new Dictionary<string, string?>
                         {
-                            ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=mestech_postgres_dev",
+                            ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=CONFIGURE_VIA_USER_SECRETS",
                             ["Logging:LogLevel:Default"] = "Information",
                             ["Application:Name"] = "MesTech Stok Takip Sistemi",
                             ["Application:Version"] = "2.0 Professional",
@@ -285,6 +285,13 @@ public partial class App : Application
                 .Build();
 
             ServiceProvider = _host.Services;
+
+            // DALGA 7.5 Gemini P1: DB bağlantı testi — crash yerine ConnectionErrorWindow göster
+            if (!TestDatabaseConnection())
+            {
+                Shutdown(-1);
+                return;
+            }
 
             // ALPHA TEAM: Initialize database (bloklu) – şema garanti edilmeden UI işlemlerine başlanmasın
             InitializeDatabaseAsync().GetAwaiter().GetResult();
@@ -560,6 +567,92 @@ public partial class App : Application
     }
 
 
+
+    /// <summary>
+    /// DALGA 7.5 Gemini P1: DB bağlantı testi — crash yerine kullanıcıya retry imkanı sunar.
+    /// </summary>
+    private bool TestDatabaseConnection()
+    {
+        if (ServiceProvider == null)
+            return false;
+
+        try
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+
+            // First attempt
+            try
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                if (context.Database.CanConnect())
+                {
+                    Log.Information("Database connection test: SUCCESS");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Database connection test: FAILED on first attempt");
+            }
+
+            // Connection failed — show ConnectionErrorWindow with retry
+            var connInfo = MaskConnectionString(connectionString);
+            var errorMsg = "Veritabanına bağlanılamıyor. PostgreSQL servisi çalıştığından ve bağlantı bilgilerinin doğru olduğundan emin olun.\n\nDocker kullanıyorsanız: docker compose up -d";
+
+            var window = new Views.ConnectionErrorWindow(connInfo, errorMsg, () =>
+            {
+                try
+                {
+                    using var retryScope = ServiceProvider.CreateScope();
+                    var retryContext = retryScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var canConnect = retryContext.Database.CanConnect();
+                    if (canConnect)
+                        Log.Information("Database connection test: SUCCESS (retry)");
+                    return canConnect;
+                }
+                catch (Exception retryEx)
+                {
+                    Log.Warning(retryEx, "Database connection retry failed");
+                    return false;
+                }
+            });
+
+            var result = window.ShowDialog();
+            return result == true && window.ConnectionSucceeded;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Database connection test: unexpected error");
+            MessageBox.Show(
+                $"Veritabanı bağlantı testi sırasında beklenmeyen hata:\n{ex.Message}",
+                "Bağlantı Hatası", MessageBoxButton.OK, MessageBoxImage.Error);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Bağlantı dizesindeki şifreyi gizler (Password=***).
+    /// </summary>
+    private static string MaskConnectionString(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return "(boş bağlantı dizesi)";
+
+        try
+        {
+            return System.Text.RegularExpressions.Regex.Replace(
+                connectionString,
+                @"(Password|Pwd)\s*=\s*[^;]+",
+                "$1=***",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+        catch
+        {
+            return "(bağlantı dizesi okunamadı)";
+        }
+    }
 
     private async System.Threading.Tasks.Task InitializeDatabaseAsync()
     {

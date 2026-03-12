@@ -70,6 +70,70 @@ dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates (premat
 dotnet_diagnostic.CA1716.severity = none       # Identifier naming (intentional)
 dotnet_diagnostic.CA1711.severity = none       # Suffix naming conventions (Queue, Stack etc. intentional)
 
+# ── Desktop Layer: WPF needs SynchronizationContext ──
+[src/MesTechStok.Desktop/**.cs]
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait(false) is WRONG in WPF (breaks UI thread)
+dotnet_diagnostic.CA2007.severity = none       # Same: WPF needs SynchronizationContext
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates (premature optimization for desktop app)
+dotnet_diagnostic.MA0048.severity = none       # File name != type name (XAML code-behind pattern)
+dotnet_diagnostic.CA1062.severity = none       # WPF event handlers: sender/e are framework-provided
+dotnet_diagnostic.MA0051.severity = none       # Method length: WPF event handlers are naturally long
+dotnet_diagnostic.MA0011.severity = none       # IFormatProvider: WPF display formatting is locale-aware by design
+dotnet_diagnostic.MA0006.severity = none       # String equality: UI string comparisons
+dotnet_diagnostic.MA0002.severity = none       # StringComparer: UI code simplicity
+dotnet_diagnostic.MA0016.severity = none       # Collection return types: WPF data binding uses concrete types
+dotnet_diagnostic.CS0618.severity = none       # Obsolete: migration markers from prior waves
+dotnet_diagnostic.NX0001.severity = none       # NuGet-related false positives
+dotnet_diagnostic.NX0002.severity = none       # NuGet-related false positives
+
+# ── Infrastructure Layer: Adapter + Integration patterns ──
+[src/MesTech.Infrastructure/**.cs]
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait: library code, not critical
+dotnet_diagnostic.CA2007.severity = none       # Same as MA0004
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates (premature optimization)
+dotnet_diagnostic.MA0048.severity = none       # Multiple types per file (adapter + helper)
+dotnet_diagnostic.MA0051.severity = none       # Method length: DI registration methods are naturally long
+dotnet_diagnostic.MA0011.severity = none       # IFormatProvider: internal adapter code
+dotnet_diagnostic.MA0006.severity = none       # String equality: adapter internals
+dotnet_diagnostic.MA0002.severity = none       # StringComparer: internal collections
+dotnet_diagnostic.MA0016.severity = none       # Collection return types: adapter results
+dotnet_diagnostic.NX0001.severity = none       # NuGet-related false positives
+dotnet_diagnostic.NX0002.severity = none       # NuGet-related false positives
+
+# ── Core Layer (legacy): Reduced strictness ──
+[src/MesTechStok.Core/**.cs]
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait
+dotnet_diagnostic.CA2007.severity = none       # ConfigureAwait
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates
+dotnet_diagnostic.MA0048.severity = none       # File naming
+dotnet_diagnostic.NX0001.severity = none       # NuGet
+dotnet_diagnostic.NX0002.severity = none       # NuGet
+
+# ── Test Projects: Focus on test logic, not code style ──
+[src/MesTech.Tests.*/**.cs]
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait irrelevant in tests
+dotnet_diagnostic.CA2007.severity = none       # ConfigureAwait irrelevant in tests
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage in tests: unnecessary
+dotnet_diagnostic.MA0048.severity = none       # File naming: test organization is flexible
+dotnet_diagnostic.MA0016.severity = none       # Return types: test helpers use concrete types
+dotnet_diagnostic.MA0011.severity = none       # IFormatProvider: test data doesn't need culture
+dotnet_diagnostic.CA1062.severity = none       # Parameter validation: xUnit framework handles
+dotnet_diagnostic.MA0006.severity = none       # String equality: test assertions use ==
+dotnet_diagnostic.MA0002.severity = none       # StringComparer: test code simplicity
+dotnet_diagnostic.CA2234.severity = none       # URI overloads: test URLs are strings
+dotnet_diagnostic.CA2000.severity = none       # Dispose: test fixtures handle cleanup
+dotnet_diagnostic.CA1307.severity = none       # StringComparison: test code simplicity
+dotnet_diagnostic.NX0001.severity = none       # NuGet
+dotnet_diagnostic.NX0002.severity = none       # NuGet
+
+# ── WebApi: Minimal API patterns ──
+[src/MesTech.WebApi/**.cs]
+dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait: ASP.NET Core handles
+dotnet_diagnostic.CA2007.severity = none       # Same
+dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates
+dotnet_diagnostic.NX0001.severity = none       # NuGet
+dotnet_diagnostic.NX0002.severity = none       # NuGet
+
 [*.{csproj,props,targets}]
 indent_style = space
 indent_size = 2

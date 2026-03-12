@@ -79,7 +79,7 @@ services:
     restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
-      SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:-MesTech_Seq_Dev}"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:?SEQ_ADMIN_PASSWORD zorunlu - .env dosyasini olusturun}"
     ports:
       - "5341:5341"
       - "8080:80"

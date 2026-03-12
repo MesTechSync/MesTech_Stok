@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     command: >
       redis-server
-      --requirepass ${REDIS_PASSWORD:-mestech_redis_dev}
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
@@ -54,7 +54,7 @@ services:
     volumes:
       - mestech_redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-mestech_redis_dev}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5

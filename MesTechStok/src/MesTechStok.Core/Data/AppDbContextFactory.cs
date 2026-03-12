@@ -30,7 +30,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            connectionString = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=mestech_postgres_dev";
+            connectionString = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=CONFIGURE_VIA_USER_SECRETS";
         }
 
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
