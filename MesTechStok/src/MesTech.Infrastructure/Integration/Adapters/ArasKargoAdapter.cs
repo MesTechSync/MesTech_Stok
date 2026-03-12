@@ -298,6 +298,14 @@ public class ArasKargoAdapter : ICargoAdapter
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
+        catch (BrokenCircuitException ex)
+        {
+            _logger.LogWarning(ex, "ArasKargo circuit breaker is open — returning 503");
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent("Circuit breaker open")
+            };
+        }
         finally
         {
             _rateLimitSemaphore.Release();

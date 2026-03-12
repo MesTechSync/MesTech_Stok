@@ -851,6 +851,14 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
+        catch (BrokenCircuitException ex)
+        {
+            _logger.LogWarning(ex, "{Platform} circuit breaker is open — returning 503", PlatformCode);
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent("Circuit breaker open")
+            };
+        }
         finally
         {
             _rateLimitSemaphore.Release();
