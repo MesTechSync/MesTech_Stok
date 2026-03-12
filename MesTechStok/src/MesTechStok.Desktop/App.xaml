@@ -30,6 +30,9 @@
 
                 <!-- ═══ Bitrix24 Marka Renkleri (mestech-tokens.css sync) ═══ -->
                 <ResourceDictionary Source="Resources/Themes/Bitrix24Theme.xaml"/>
+
+                <!-- ═══ DPI FIX: Render ayarlari (PerMonitorV2 destegi) ═══ -->
+                <ResourceDictionary Source="Resources/Themes/DpiRenderSettings.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->

@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ DPI FIX: Per-Monitor V2 Render Quality Settings ═══ -->
+    <!-- Applied globally via App.xaml MergedDictionaries to ALL windows -->
+
+    <!-- Implicit Window style: pixel-grid snapping + display-optimized text -->
+    <Style x:Key="MesTechDpiAwareWindow" TargetType="Window">
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Implicit style for UserControl — catches all custom controls -->
+    <Style x:Key="MesTechDpiAwareControl" TargetType="UserControl">
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+</ResourceDictionary>

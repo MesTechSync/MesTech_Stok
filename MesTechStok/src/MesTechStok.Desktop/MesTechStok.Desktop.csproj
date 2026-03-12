@@ -19,6 +19,9 @@
     <!-- Prevent .NET runtime installation requests -->
     <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
     <UserSecretsId>920e4b89-b8eb-4290-a7c9-8845ef312ee0</UserSecretsId>
+
+    <!-- ✅ DPI FIX: Per-Monitor V2 DPI awareness manifest -->
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <!-- Configuration Files - ALPHA TEAM CRITICAL FIX -->
