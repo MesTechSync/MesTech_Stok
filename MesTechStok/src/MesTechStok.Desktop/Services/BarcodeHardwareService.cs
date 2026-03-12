@@ -74,14 +74,22 @@ namespace MesTechStok.Desktop.Services
         private string _thresholding = "Adaptive"; // None | Adaptive | Otsu
         private bool _qrFallbackOpenCV = true;
 
+        private readonly IConfiguration? _configuration;
+        private readonly IServiceScopeFactory? _scopeFactory;
+
         public event EventHandler<BarcodeScannedEventArgs>? BarcodeScanned;
         public event EventHandler<string>? DeviceStatusChanged;
 
         public bool IsConnected => _isConnected;
 
-        public BarcodeHardwareService(ILogger<BarcodeHardwareService> logger)
+        public BarcodeHardwareService(
+            ILogger<BarcodeHardwareService> logger,
+            IConfiguration? configuration = null,
+            IServiceScopeFactory? scopeFactory = null)
         {
             _logger = logger;
+            _configuration = configuration;
+            _scopeFactory = scopeFactory;
 
             // CHARLIE TEAM: Modern ZXing.Net Configuration
             _barcodeReader = new BarcodeReader
@@ -116,8 +124,7 @@ namespace MesTechStok.Desktop.Services
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
-                var config = sp?.GetService<IConfiguration>();
+                var config = _configuration;
                 if (config != null)
                 {
                     _formatPreset = config["BarcodeView:Reader:FormatPreset"] ?? _formatPreset;
@@ -225,8 +232,7 @@ namespace MesTechStok.Desktop.Services
                     // Kamera parametreleri konfigürasyondan
                     try
                     {
-                        var sp = MesTechStok.Desktop.App.ServiceProvider;
-                        var cfg = sp?.GetService<IConfiguration>();
+                        var cfg = _configuration;
                         int camW = int.TryParse(cfg?["BarcodeView:Camera:FrameWidth"], out var cw) ? cw : 640;
                         int camH = int.TryParse(cfg?["BarcodeView:Camera:FrameHeight"], out var ch) ? ch : 480;
                         int camFps = int.TryParse(cfg?["BarcodeView:Camera:Fps"], out var cf) ? cf : 30;
@@ -491,10 +497,9 @@ namespace MesTechStok.Desktop.Services
                             // Persist to SQL (service-level persistence; UI bağımsız)
                             try
                             {
-                                var sp = MesTechStok.Desktop.App.ServiceProvider;
-                                if (sp != null)
+                                if (_scopeFactory != null)
                                 {
-                                    using var scope = sp.CreateScope();
+                                    using var scope = _scopeFactory.CreateScope();
                                     var db = scope.ServiceProvider.GetService<AppDbContext>();
                                     if (db != null)
                                     {

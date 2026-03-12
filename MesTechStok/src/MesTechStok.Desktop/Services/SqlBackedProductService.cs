@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using MesTechStok.Core.Data;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Utils;
@@ -13,10 +12,12 @@ namespace MesTechStok.Desktop.Services
     public class SqlBackedProductService : IProductDataService
     {
         private readonly AppDbContext _db;
+        private readonly IOfflineQueueService? _offlineQueueService;
 
-        public SqlBackedProductService(AppDbContext db)
+        public SqlBackedProductService(AppDbContext db, IOfflineQueueService? offlineQueueService = null)
         {
             _db = db;
+            _offlineQueueService = offlineQueueService;
         }
 
         private static string? Clamp(string? s, int max)
@@ -438,7 +439,7 @@ namespace MesTechStok.Desktop.Services
                 var ocProductId = p.OpenCartProductId;
                 if (ocProductId.HasValue)
                 {
-                    var queue = MesTechStok.Desktop.App.ServiceProvider?.GetService<IOfflineQueueService>();
+                    var queue = _offlineQueueService;
                     if (queue != null)
                     {
                         var payload = System.Text.Json.JsonSerializer.Serialize(new { ProductId = ocProductId.Value, Quantity = p.Stock });

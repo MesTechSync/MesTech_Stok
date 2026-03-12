@@ -21,9 +21,9 @@ namespace MesTechStok.Desktop.ViewModels
         private string _commandOutput = string.Empty;
         private bool _isExecuting = false;
 
-        public LogCommandViewModel()
+        public LogCommandViewModel(IServiceProvider? serviceProvider = null)
         {
-            var serviceProvider = App.ServiceProvider;
+            serviceProvider ??= App.ServiceProvider;
             _logAnalysisService = serviceProvider?.GetService<LogAnalysisService>()
                 ?? throw new InvalidOperationException("LogAnalysisService servisi bulunamadı");
             _logger = serviceProvider.GetService<ILogger<LogCommandViewModel>>()

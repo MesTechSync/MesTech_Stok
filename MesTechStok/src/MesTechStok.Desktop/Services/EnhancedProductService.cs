@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Core.Services.Abstract;
 
@@ -16,18 +15,10 @@ namespace MesTechStok.Desktop.Services
         private readonly Random _random = new();
         private readonly ILoggingService? _loggingService;
 
-        public EnhancedProductService()
+        public EnhancedProductService(ILoggingService? loggingService = null)
         {
             _allProducts = GenerateEnhancedDemoData();
-            // Dependency Injection'dan logging service'i al (opsiyonel)
-            try
-            {
-                _loggingService = MesTechStok.Desktop.App.ServiceProvider?.GetService<ILoggingService>();
-            }
-            catch
-            {
-                // Intentional: optional DI service resolve — ILoggingService may not be registered in all deployments.
-            }
+            _loggingService = loggingService;
         }
 
         #region Public Methods
