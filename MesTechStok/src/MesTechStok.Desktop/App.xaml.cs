@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Serilog;
 using Microsoft.Extensions.Options;
 using System.Threading;
@@ -679,9 +680,32 @@ public partial class App : Application
 
                 var connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
 
-                // Yalnızca SQL Server stratejisi
-                // İlk kurulumda tablo var ise migration gereksiz; yoksa oluştur
-                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                // DALGA 7.7 FIX: EnsureCreatedAsync() does nothing when DB already exists
+                // (Docker creates the empty database via POSTGRES_DB). Telemetry tables are
+                // created by raw SQL (EnsureTelemetryTablesCreatedAsync), but entity tables
+                // (Products, Categories, etc.) never get created.
+                // Fix: Check if "Products" table exists; if not, force CreateTables().
+                var conn = context.Database.GetDbConnection();
+                await conn.OpenAsync().ConfigureAwait(false);
+                bool coreTablesExist;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='Products')";
+                    coreTablesExist = (bool)(await cmd.ExecuteScalarAsync().ConfigureAwait(false))!;
+                }
+
+                if (!coreTablesExist)
+                {
+                    Log.Information("Core entity tables missing — creating schema from Core model");
+                    var dbCreator = context
+                        .GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>();
+                    await dbCreator.CreateTablesAsync().ConfigureAwait(false);
+                    Log.Information("Core database schema created successfully");
+                }
+                else
+                {
+                    Log.Information("Core entity tables already exist, skipping schema creation");
+                }
 
                 // 1) Telemetry tabloları – migration gelene kadar güvenli oluştur
                 await context.EnsureTelemetryTablesCreatedAsync().ConfigureAwait(false);

@@ -164,15 +164,14 @@ public class ShellUiSmokeTests
     [InlineData("Dashboard", "dashboard")]
     [InlineData("Stok Yonetimi", "stock")]
     [InlineData("Siparisler", "orders")]
-    [InlineData("Faturalar", "invoices")]
+    [InlineData("Finans", "finance-commission")]
     [InlineData("Kargo", "shipping")]
     [InlineData("Raporlar", "reports")]
     [InlineData("Entegrasyonlar", "integrations")]
     [InlineData("Dropshipping", "dropshipping")]
     [InlineData("MESA AI", "mesa-ai")]
-    [InlineData("MES Akademi", "akademi")]
-    [InlineData("Musteriler", "customers")]
     [InlineData("Ayarlar", "settings")]
+    [InlineData("Yardim", "help-center")]
     public void Sidebar_HasMenuItem(string label, string page)
     {
         var js = ReadShellFile("mestech-sidebar.js");
