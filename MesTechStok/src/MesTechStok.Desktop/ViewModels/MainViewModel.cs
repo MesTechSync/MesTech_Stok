@@ -1638,5 +1638,127 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // GÖREV & TAKVİM KOMUTLARI — Dalga 8 H27
+        [RelayCommand]
+        private void ShowTasksProjects()
+        {
+            NavigationTimingService.Instance.StartTiming("Tasks Projects");
+            try
+            {
+                CurrentView = new Views.Tasks.ProjectsView();
+                CurrentModule = "Projeler";
+                StatusMessage = "Projeler yüklendi";
+                GlobalLogger.Instance.LogInfo("Projeler ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tasks Projects");
+                ToastManager.ShowSuccess("Projeler modülü aktif!", "Görevler");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Projeler yüklenemedi";
+                GlobalLogger.Instance.LogError($"Projeler yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tasks Projects");
+                ToastManager.ShowError("Projeler yüklenemedi!", "Hata");
+                MessageBox.Show($"Projeler yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowTasksKanban()
+        {
+            NavigationTimingService.Instance.StartTiming("Tasks Kanban");
+            try
+            {
+                CurrentView = new Views.Tasks.KanbanBoardView();
+                CurrentModule = "Kanban Board";
+                StatusMessage = "Kanban Board yüklendi";
+                GlobalLogger.Instance.LogInfo("Kanban Board ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tasks Kanban");
+                ToastManager.ShowSuccess("Kanban Board modülü aktif!", "Görevler");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Kanban Board yüklenemedi";
+                GlobalLogger.Instance.LogError($"Kanban yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tasks Kanban");
+                ToastManager.ShowError("Kanban Board yüklenemedi!", "Hata");
+                MessageBox.Show($"Kanban Board yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowCalendar()
+        {
+            NavigationTimingService.Instance.StartTiming("Calendar");
+            try
+            {
+                CurrentView = new Views.Calendar.CalendarView();
+                CurrentModule = "Takvim";
+                StatusMessage = "Takvim yüklendi";
+                GlobalLogger.Instance.LogInfo("Takvim ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Calendar");
+                ToastManager.ShowSuccess("Takvim modülü aktif!", "Takvim");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Takvim yüklenemedi";
+                GlobalLogger.Instance.LogError($"Takvim yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Calendar");
+                ToastManager.ShowError("Takvim yüklenemedi!", "Hata");
+                MessageBox.Show($"Takvim yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // DROPSHIPPING KOMUTLARI — Sprint D
+        [RelayCommand]
+        private void ShowExportView()
+        {
+            NavigationTimingService.Instance.StartTiming("Dropshipping Export");
+            try
+            {
+                CurrentView = new Views.Dropshipping.DropshippingExportView();
+                CurrentModule = "Dropshipping İhracat";
+                StatusMessage = "Dropshipping İhracat Sihirbazı yüklendi";
+                GlobalLogger.Instance.LogInfo("Dropshipping İhracat ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Dropshipping Export");
+                ToastManager.ShowSuccess("İhracat sihirbazı aktif!", "Dropshipping");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Dropshipping İhracat yüklenemedi";
+                GlobalLogger.Instance.LogError($"Dropshipping İhracat yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Dropshipping Export");
+                ToastManager.ShowError("İhracat yüklenemedi!", "Hata");
+                MessageBox.Show($"Dropshipping İhracat yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowSupplierView()
+        {
+            NavigationTimingService.Instance.StartTiming("Dropshipping Supplier");
+            try
+            {
+                CurrentView = new Views.Dropshipping.DropshippingSupplierView();
+                CurrentModule = "Tedarikçi Profili";
+                StatusMessage = "Tedarikçi Profili yüklendi";
+                GlobalLogger.Instance.LogInfo("Tedarikçi Profili ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Dropshipping Supplier");
+                ToastManager.ShowSuccess("Tedarikçi profili aktif!", "Dropshipping");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Tedarikçi Profili yüklenemedi";
+                GlobalLogger.Instance.LogError($"Tedarikçi Profili yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Dropshipping Supplier");
+                ToastManager.ShowError("Tedarikçi profili yüklenemedi!", "Hata");
+                MessageBox.Show($"Tedarikçi Profili yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
