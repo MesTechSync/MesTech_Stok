@@ -1,5 +1,6 @@
 using MassTransit;
 using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Messaging.Mesa.Consumers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +32,7 @@ public static class MassTransitConfig
             bus.AddConsumer<MesaBotInvoiceRequestConsumer>();
             bus.AddConsumer<MesaBotReturnRequestConsumer>();
             bus.AddConsumer<MesaDlqConsumer>();
+            bus.AddConsumer<MesaMeetingScheduledConsumer>();
 
             bus.UsingRabbitMq((context, cfg) =>
             {
@@ -87,6 +89,8 @@ public static class MassTransitConfig
                     x.SetEntityName("mesa.bot.invoice.requested"));
                 cfg.Message<MesaBotReturnRequestedEvent>(x =>
                     x.SetEntityName("mesa.bot.return.requested"));
+                cfg.Message<MesaMeetingScheduledEvent>(x =>
+                    x.SetEntityName("mesa.meeting.scheduled"));
 
                 cfg.ConfigureEndpoints(context);
             });

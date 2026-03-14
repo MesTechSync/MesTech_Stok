@@ -208,3 +208,26 @@ public record MesaBotReturnRequestedEvent(
     string RequestChannel,
     Guid TenantId,
     DateTime RequestedAt);
+
+// ══════════════════════════════════════════════════════════════
+// DALGA 8 — H27: MESA → MesTech Takvim + Lead Scoring
+// ══════════════════════════════════════════════════════════════
+
+/// <summary>MESA Bot WhatsApp/Telegram üzerinden randevu ayarladı → MesTech CalendarEvent oluştur.</summary>
+public record MesaMeetingScheduledEvent(
+    string Title,
+    DateTime StartAt,
+    DateTime EndAt,
+    string? Location,
+    IReadOnlyList<Guid> AttendeeUserIds,
+    Guid TenantId,
+    Guid? RelatedDealId,
+    DateTime OccurredAt);
+
+/// <summary>MESA AI lead'e skor atadı — UI'da göster.</summary>
+public record MesaLeadScoredEvent(
+    Guid LeadId,
+    int Score,          // 0-100
+    string Reasoning,   // "Büyük şirket, WhatsApp kanalı, bütçe işareti var"
+    Guid TenantId,
+    DateTime OccurredAt);

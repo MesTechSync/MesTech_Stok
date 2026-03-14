@@ -1,24 +1,28 @@
 using MediatR;
-using MesTech.Domain.Events.Crm;
-using MesTech.Infrastructure.Messaging.Mesa;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MesTech.Domain.Entities.Crm;
+using MesTech.Domain.Events.Crm;
+using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Messaging.Handlers;
 
-/// <summary>
-/// Domain event DealWonEvent → MESA integration event yayını.
-/// MESA Bot bu event'i alınca WhatsApp üzerinden satıcıya tebrik gönderir.
-/// </summary>
 public class DealWonBridgeHandler : INotificationHandler<DomainEventNotification<DealWonEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly AppDbContext _context;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DealWonBridgeHandler> _logger;
 
     public DealWonBridgeHandler(
-        IMesaEventPublisher mesaPublisher,
-        ILogger<DealWonBridgeHandler> logger)
+        IMesaEventPublisher mesaPublisher, AppDbContext context,
+        ITenantProvider tenantProvider, ILogger<DealWonBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
+        _context = context;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
@@ -27,17 +31,33 @@ public class DealWonBridgeHandler : INotificationHandler<DomainEventNotification
         CancellationToken cancellationToken)
     {
         var e = notification.DomainEvent;
+
+        // Deal entity'sini DB'den çek — Title ve CrmContactId için
+        var deal = await _context.Set<Deal>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == e.DealId, cancellationToken);
+
+        if (deal is null)
+        {
+            _logger.LogWarning("DealWonBridge: Deal {DealId} not found in DB", e.DealId);
+            return;
+        }
+
+        var tenantId = _tenantProvider.GetCurrentTenantId() != Guid.Empty
+            ? _tenantProvider.GetCurrentTenantId()
+            : deal.TenantId;
+
         _logger.LogInformation(
-            "DealWon bridge: DealId={DealId}, Amount={Amount}",
-            e.DealId, e.Amount);
+            "DealWon bridge: Deal='{Title}' Amount={Amount} TenantId={TenantId}",
+            deal.Title, e.Amount, tenantId);
 
         await _mesaPublisher.PublishDealWonAsync(new DealWonIntegrationEvent(
             DealId: e.DealId,
-            DealTitle: string.Empty,    // H27'de Deal entity'den title çekilecek
+            DealTitle: deal.Title,
             Amount: e.Amount,
             OrderId: e.OrderId,
-            CrmContactId: null,         // H27'de Deal'den ContactId alınacak
-            TenantId: Guid.Empty,       // H27'de ITenantProvider inject edilecek
+            CrmContactId: deal.CrmContactId,
+            TenantId: tenantId,
             OccurredAt: e.OccurredAt
         ), cancellationToken);
     }

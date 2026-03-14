@@ -1,5 +1,6 @@
 using Hangfire;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;

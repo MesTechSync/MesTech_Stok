@@ -1,6 +1,10 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Events.Crm;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Messaging.Handlers;
 
@@ -10,9 +14,16 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotification<LeadConvertedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
+    private readonly AppDbContext _context;
+    private readonly ITenantProvider _tenantProvider;
 
-    public LeadConvertedBridgeHandler(IMesaEventPublisher mesaPublisher)
-        => _mesaPublisher = mesaPublisher;
+    public LeadConvertedBridgeHandler(
+        IMesaEventPublisher mesaPublisher, AppDbContext context, ITenantProvider tenantProvider)
+    {
+        _mesaPublisher = mesaPublisher;
+        _context = context;
+        _tenantProvider = tenantProvider;
+    }
 
     public async Task Handle(
         DomainEventNotification<LeadConvertedEvent> notification,
@@ -20,12 +31,20 @@ public class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotifi
     {
         var e = notification.DomainEvent;
 
+        var lead = await _context.Set<Lead>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l => l.Id == e.LeadId, cancellationToken);
+
+        var tenantId = _tenantProvider.GetCurrentTenantId() != Guid.Empty
+            ? _tenantProvider.GetCurrentTenantId()
+            : lead?.TenantId ?? Guid.Empty;
+
         await _mesaPublisher.PublishLeadConvertedAsync(new LeadConvertedIntegrationEvent(
             LeadId: e.LeadId,
             CrmContactId: e.CrmContactId,
-            FullName: string.Empty,   // H27'de Lead entity'den alınacak
-            Email: null,
-            TenantId: Guid.Empty,     // H27'de ITenantProvider inject edilecek
+            FullName: lead?.FullName ?? "Bilinmeyen",
+            Email: lead?.Email,
+            TenantId: tenantId,
             OccurredAt: e.OccurredAt
         ), cancellationToken);
     }

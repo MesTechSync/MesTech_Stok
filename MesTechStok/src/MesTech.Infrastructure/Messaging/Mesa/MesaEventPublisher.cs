@@ -25,6 +25,10 @@ public interface IMesaEventPublisher
     Task PublishLeadConvertedAsync(LeadConvertedIntegrationEvent @event, CancellationToken ct = default);
     Task PublishDealWonAsync(DealWonIntegrationEvent @event, CancellationToken ct = default);
     Task PublishDealLostAsync(DealLostIntegrationEvent @event, CancellationToken ct = default);
+
+    /// <summary>MESA AI'dan lead için skor isteği — AI async skoru döndürür.</summary>
+    Task RequestLeadScoringAsync(Guid leadId, Guid tenantId, string fullName,
+        string? company, string source, CancellationToken ct = default);
 }
 
 public class MesaEventPublisher : IMesaEventPublisher
@@ -169,6 +173,15 @@ public class MesaEventPublisher : IMesaEventPublisher
         _logger.LogInformation(
             "[MOCK-MESA] DealLost: '{Title}' — Sebep: {Reason}",
             @event.DealTitle, @event.Reason);
+        return Task.CompletedTask;
+    }
+
+    public Task RequestLeadScoringAsync(Guid leadId, Guid tenantId, string fullName,
+        string? company, string source, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] LeadScoring isteği: {FullName} ({Source}) — LeadId: {LeadId}",
+            fullName, source, leadId);
         return Task.CompletedTask;
     }
 }
