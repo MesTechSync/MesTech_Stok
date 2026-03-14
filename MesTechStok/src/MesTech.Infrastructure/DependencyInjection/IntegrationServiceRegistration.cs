@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Formatters.Dropshipping;
 using MesTech.Infrastructure.Integration.Accounting;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Auth;
+using MesTech.Infrastructure.Integration.Dropshipping;
 using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
@@ -12,6 +13,7 @@ using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Infrastructure.Integration.Soap;
 using MesTech.Infrastructure.Integration.FeedParsers;
 using MesTech.Infrastructure.Integration.Scraping;
+using MesTech.Infrastructure.Integration.Security;
 using MesTech.Infrastructure.Integration.Webhooks;
 using MesTech.Infrastructure.Services;
 using MesTech.Domain.Enums;
@@ -69,6 +71,21 @@ public static class IntegrationServiceRegistration
         // Dalga 5: N11 SOAP adapter — Singleton (IAdapterFactory is singleton)
         services.AddSingleton<N11Adapter>();
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
+
+        // Dalga 8: eBay — OAuth2 Client Credentials (foundation, full impl TODO H28)
+        services.AddSingleton<EbayAdapter>(sp =>
+            new EbayAdapter(new HttpClient(), sp.GetRequiredService<ILogger<EbayAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
+
+        // Dalga 8: Ozon — Client-Id + Api-Key header auth (foundation, full impl TODO H28)
+        services.AddSingleton<OzonAdapter>(sp =>
+            new OzonAdapter(new HttpClient(), sp.GetRequiredService<ILogger<OzonAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OzonAdapter>());
+
+        // Dalga 8: PTT AVM — username/password Bearer token (foundation, full impl TODO H28)
+        services.AddSingleton<PttAvmAdapter>(sp =>
+            new PttAvmAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
 
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>
@@ -210,8 +227,28 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IDropshippingExportFormatter, HepsisellerDropshippingFormatter>();
         services.AddScoped<IDropshippingExportFormatter, N11DropshippingFormatter>();
 
+        // ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-08: Ozon formatter (9/9)
+        services.AddScoped<IDropshippingExportFormatter, OzonDropshippingFormatter>();
+
         // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B: FeedReliabilityScoreService (saf hesaplama)
         services.AddScoped<FeedReliabilityScoreService>();
+
+        // ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-06: Image downloader (Polly + SHA256 dedup)
+        services.AddHttpClient("ImageDownloader", client =>
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "MesTech/1.0");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+        services.AddScoped<IImageDownloadService, ImageDownloadService>();
+
+        // ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-07: Feed credential şifreleme (AES-256-GCM)
+        // Encryption key: "FeedCredentials:EncryptionKey" config değerinden okunur.
+        // Yoksa ephemeral key (development only — her restart'ta yeni key).
+        services.AddSingleton<IFeedCredentialProtector>(sp =>
+        {
+            var key = configuration?["FeedCredentials:EncryptionKey"];
+            return new FeedCredentialProtector(key);
+        });
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
@@ -230,6 +267,12 @@ public static class IntegrationServiceRegistration
             // API Key middleware options — Dalga 5 (IP-6): protects MesTech Web API (port 5100)
             services.AddApiKeyAuthentication(configuration);
         }
+
+        // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-02: Category fuzzy mapper (Levenshtein + keyword overlap)
+        services.AddScoped<ICategoryMapperService, CategoryAutoMapper>();
+
+        // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-01: IServiceLocatorBridge (sadece App.xaml.cs için)
+        services.AddSingleton<IServiceLocatorBridge>(sp => new ServiceLocatorBridge(sp));
 
         return services;
     }
