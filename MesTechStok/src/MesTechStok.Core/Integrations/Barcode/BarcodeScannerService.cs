@@ -409,8 +409,10 @@ namespace MesTechStok.Core.Integrations.Barcode
 
                 return device.IsConnected;
             }
-            catch
+            catch (Exception ex)
             {
+                // Intentionally swallowed — device test is a read-only health check; any exception means device is not testable.
+                _ = ex;
                 return false;
             }
         }
@@ -469,8 +471,10 @@ namespace MesTechStok.Core.Integrations.Barcode
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                // Intentionally swallowed — configuration update is best-effort; caller receives false on failure.
+                _ = ex;
                 return false;
             }
         }

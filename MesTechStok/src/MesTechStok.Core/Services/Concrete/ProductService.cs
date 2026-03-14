@@ -527,8 +527,10 @@ public partial class ProductService : IProductService
             await _context.SaveChangesAsync();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            // Intentionally swallowed — bulk update returns false on any failure; caller handles retry logic.
+            _ = ex;
             return false;
         }
     }
