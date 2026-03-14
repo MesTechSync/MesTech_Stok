@@ -1,0 +1,80 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Dropshipping.DropshippingDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="16,12">
+            <StackPanel Orientation="Horizontal">
+                <md:PackIcon Kind="LayersTriple" Foreground="White" Width="20" Height="20" VerticalAlignment="Center"/>
+                <TextBlock Text="Dropshipping" Foreground="White" FontSize="16"
+                           FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- KPI Satırı (3 kart) -->
+        <UniformGrid Grid.Row="1" Rows="1" Margin="16,12,16,0">
+            <!-- Havuz Toplam -->
+            <Border Background="White" CornerRadius="8" Margin="0,0,6,0" Padding="14,12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Havuz Ürünleri" FontSize="11" Foreground="#64748b"/>
+                    <TextBlock x:Name="TxtPoolTotal" Text="&#x2014;" FontSize="24"
+                               FontWeight="Bold" Foreground="#1e293b" Margin="0,3,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <Ellipse Width="8" Height="8" Fill="#10b981" Margin="0,0,3,0"/>
+                        <TextBlock x:Name="TxtGreen"  FontSize="11" Foreground="#64748b" Text="&#x2014;"/>
+                        <Ellipse Width="8" Height="8" Fill="#f59e0b" Margin="6,0,3,0"/>
+                        <TextBlock x:Name="TxtYellow" FontSize="11" Foreground="#64748b" Text="&#x2014;"/>
+                        <Ellipse Width="8" Height="8" Fill="#ef4444" Margin="6,0,3,0"/>
+                        <TextBlock x:Name="TxtRed"    FontSize="11" Foreground="#64748b" Text="&#x2014;"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <!-- Aktif Feed -->
+            <Border Background="White" CornerRadius="8" Margin="3,0,3,0" Padding="14,12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Aktif Feed" FontSize="11" Foreground="#64748b"/>
+                    <TextBlock x:Name="TxtFeeds" Text="&#x2014;" FontSize="24"
+                               FontWeight="Bold" Foreground="#1e293b" Margin="0,3,0,0"/>
+                    <TextBlock x:Name="TxtLastSync" Text="Son sync: &#x2014;"
+                               FontSize="11" Foreground="#94a3b8" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <!-- Ort. Skor -->
+            <Border Background="White" CornerRadius="8" Margin="6,0,0,0" Padding="14,12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Ort. Güvenilirlik" FontSize="11" Foreground="#64748b"/>
+                    <TextBlock x:Name="TxtAvgScore" Text="&#x2014;" FontSize="24"
+                               FontWeight="Bold" Foreground="#1e293b" Margin="0,3,0,0"/>
+                    <TextBlock x:Name="TxtScoreColor" Text="&#x2014;"
+                               FontSize="11" Foreground="#94a3b8" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Hızlı Linkler -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="16,12" VerticalAlignment="Top">
+            <Button Content="&#x1F3CA; Ürün Havuzu" Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="0,0,8,0" x:Name="BtnPool" Click="BtnPool_Click"/>
+            <Button Content="&#x1F4E5; Feed Yönetimi" Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="0,0,8,0" x:Name="BtnFeeds" Click="BtnFeeds_Click"/>
+            <Button Content="&#x1F4E4; İhracat" Style="{StaticResource MaterialDesignOutlinedButton}"
+                    x:Name="BtnExport" Click="BtnExport_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
