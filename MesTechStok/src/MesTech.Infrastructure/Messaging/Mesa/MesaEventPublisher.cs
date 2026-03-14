@@ -1,4 +1,5 @@
 using MassTransit;
+using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
@@ -21,6 +22,9 @@ public interface IMesaEventPublisher
     Task PublishSupplierFeedSyncedAsync(MesaSupplierFeedSyncedEvent evt, CancellationToken ct = default);
     Task PublishDailySummaryAsync(MesaDailySummaryEvent evt, CancellationToken ct = default);
     Task PublishSyncErrorAsync(MesaSyncErrorEvent evt, CancellationToken ct = default);
+    Task PublishLeadConvertedAsync(LeadConvertedIntegrationEvent @event, CancellationToken ct = default);
+    Task PublishDealWonAsync(DealWonIntegrationEvent @event, CancellationToken ct = default);
+    Task PublishDealLostAsync(DealLostIntegrationEvent @event, CancellationToken ct = default);
 }
 
 public class MesaEventPublisher : IMesaEventPublisher
@@ -142,5 +146,29 @@ public class MesaEventPublisher : IMesaEventPublisher
         _logger.LogWarning(
             "[MESA] SyncError yayinlandi: {Platform} — {ErrorType}: {Message} (Tenant: {TenantId})",
             evt.Platform, evt.ErrorType, evt.Message, evt.TenantId);
+    }
+
+    public Task PublishLeadConvertedAsync(LeadConvertedIntegrationEvent @event, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] LeadConverted: {FullName} → Contact {ContactId}",
+            @event.FullName, @event.CrmContactId);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishDealWonAsync(DealWonIntegrationEvent @event, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] DealWon: '{Title}' — ₺{Amount:N0} — OrderId: {OrderId}",
+            @event.DealTitle, @event.Amount, @event.OrderId?.ToString() ?? "bağlantısız");
+        return Task.CompletedTask;
+    }
+
+    public Task PublishDealLostAsync(DealLostIntegrationEvent @event, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] DealLost: '{Title}' — Sebep: {Reason}",
+            @event.DealTitle, @event.Reason);
+        return Task.CompletedTask;
     }
 }

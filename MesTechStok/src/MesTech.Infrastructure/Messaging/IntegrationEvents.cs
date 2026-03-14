@@ -56,3 +56,38 @@ public record ProductUpdatedIntegrationEvent(
     Guid TenantId,
     DateTime OccurredAt
 );
+
+// ════════════════════════════════════════
+// DALGA 8 — CRM Integration Events
+// ════════════════════════════════════════
+
+/// <summary>Lead CrmContact'a dönüştürüldü — MESA AI'ya bildir.</summary>
+public record LeadConvertedIntegrationEvent(
+    Guid LeadId,
+    Guid CrmContactId,
+    string FullName,
+    string? Email,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+/// <summary>Deal kazanıldı — MESA Bot WhatsApp tebrik gönderecek.</summary>
+public record DealWonIntegrationEvent(
+    Guid DealId,
+    string DealTitle,
+    decimal Amount,
+    Guid? OrderId,
+    Guid? CrmContactId,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+/// <summary>Deal kaybedildi — MESA AI kayıp analizi yapacak.</summary>
+public record DealLostIntegrationEvent(
+    Guid DealId,
+    string DealTitle,
+    string Reason,
+    decimal Amount,
+    Guid TenantId,
+    DateTime OccurredAt
+);
