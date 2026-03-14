@@ -1,4 +1,4 @@
-using MesTech.Application.DTOs.Invoice;
+﻿using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Invoice;
@@ -45,10 +45,10 @@ public class MockInvoiceAdapterTests
     [Fact]
     public void Should_Not_Implement_Any_Capability()
     {
-        Assert.IsNotType<IBulkInvoiceCapable>(_adapter);
-        Assert.IsNotType<IIncomingInvoiceCapable>(_adapter);
-        Assert.IsNotType<IKontorCapable>(_adapter);
-        Assert.IsNotType<IInvoiceTemplateCapable>(_adapter);
+        Assert.IsNotAssignableFrom<IBulkInvoiceCapable>(_adapter);
+        Assert.IsNotAssignableFrom<IIncomingInvoiceCapable>(_adapter);
+        Assert.IsNotAssignableFrom<IKontorCapable>(_adapter);
+        Assert.IsNotAssignableFrom<IInvoiceTemplateCapable>(_adapter);
     }
 
     [Fact]

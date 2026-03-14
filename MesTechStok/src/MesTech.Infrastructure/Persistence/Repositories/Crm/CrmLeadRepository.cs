@@ -2,8 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Enums;
 
-// DEV1-DEPENDENCY: ICrmLeadRepository interface must be added to MesTech.Domain.Interfaces
-// using MesTech.Domain.Interfaces;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 
@@ -11,7 +10,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 /// EF Core implementation for Lead aggregate persistence.
 /// DEV1-DEPENDENCY: Implements ICrmLeadRepository once DEV 1 creates it in Domain.Interfaces.
 /// </summary>
-public class CrmLeadRepository // : ICrmLeadRepository (DEV1-DEPENDENCY)
+public class CrmLeadRepository : ICrmLeadRepository
 {
     private readonly AppDbContext _context;
 

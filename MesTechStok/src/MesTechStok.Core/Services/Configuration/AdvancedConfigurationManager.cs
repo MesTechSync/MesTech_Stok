@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -172,6 +172,8 @@ namespace MesTechStok.Core.Services.Configuration
         private readonly string _basePath;
         private readonly ILogger<FileConfigurationPersistence> _logger;
         private readonly object _fileLock = new object();
+
+        private static readonly JsonSerializerOptions _writeIndentedOptions = new() { WriteIndented = true };
 
         public FileConfigurationPersistence(string basePath, ILogger<FileConfigurationPersistence> logger)
         {
@@ -358,7 +360,7 @@ namespace MesTechStok.Core.Services.Configuration
                     changes = changes.OrderByDescending(c => c.Timestamp).Take(1000).ToList();
                 }
 
-                var newJson = JsonSerializer.Serialize(changes, new JsonSerializerOptions { WriteIndented = true });
+                var newJson = JsonSerializer.Serialize(changes, _writeIndentedOptions);
                 await File.WriteAllTextAsync(logPath, newJson);
             }
             catch (Exception ex)
@@ -391,7 +393,7 @@ namespace MesTechStok.Core.Services.Configuration
             try
             {
                 var backupPath = Path.Combine(_basePath, "backups", $"{backup.Id}.json");
-                var json = JsonSerializer.Serialize(backup, new JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(backup, _writeIndentedOptions);
 
                 await File.WriteAllTextAsync(backupPath, json);
 

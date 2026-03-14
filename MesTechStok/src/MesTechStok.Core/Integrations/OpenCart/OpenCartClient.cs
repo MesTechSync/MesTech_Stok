@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
@@ -947,9 +947,9 @@ namespace MesTechStok.Core.Integrations.OpenCart
             {
                 var startTime = DateTime.UtcNow;
                 var json = JsonSerializer.Serialize(priceUpdates, _jsonOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var endpoint = "/api/products/bulk-price-update";
-                var response = await _httpClient.PostAsync($"{_baseUrl}{endpoint}", content);
+                var response = await _httpClient.PostAsync(new Uri($"{_baseUrl}{endpoint}"), content);
                 var duration = DateTime.UtcNow - startTime;
                 if (response.IsSuccessStatusCode)
                 {
@@ -977,7 +977,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
             {
                 var startTime = DateTime.UtcNow;
                 var endpoint = "/api/inventory";
-                var response = await _httpClient.GetAsync($"{_baseUrl}{endpoint}");
+                var response = await _httpClient.GetAsync(new Uri($"{_baseUrl}{endpoint}"));
                 var duration = DateTime.UtcNow - startTime;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1006,10 +1006,10 @@ namespace MesTechStok.Core.Integrations.OpenCart
             try
             {
                 var json = JsonSerializer.Serialize(inventoryUpdate, _jsonOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var startTime = DateTime.UtcNow;
                 var endpoint = $"/api/inventory/{productId}";
-                var response = await _httpClient.PutAsync($"{_baseUrl}{endpoint}", content);
+                var response = await _httpClient.PutAsync(new Uri($"{_baseUrl}{endpoint}"), content);
                 var duration = DateTime.UtcNow - startTime;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1037,7 +1037,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
             {
                 var startTime = DateTime.UtcNow;
                 var endpoint = "/api/system/info";
-                var response = await _httpClient.GetAsync($"{_baseUrl}{endpoint}");
+                var response = await _httpClient.GetAsync(new Uri($"{_baseUrl}{endpoint}"));
                 var duration = DateTime.UtcNow - startTime;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1067,7 +1067,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
             {
                 var startTime = DateTime.UtcNow;
                 var endpoint = "/api/validate";
-                var response = await _httpClient.GetAsync($"{_baseUrl}{endpoint}");
+                var response = await _httpClient.GetAsync(new Uri($"{_baseUrl}{endpoint}"));
                 var duration = DateTime.UtcNow - startTime;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1095,6 +1095,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 _httpClient?.Dispose();
                 _disposed = true;
             }
+            GC.SuppressFinalize(this);
         }
 
         #region SyncState Persistence
@@ -1126,7 +1127,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 lock (_syncStateFileLock)
                 {
                     var dict = _syncStateCache.ToDictionary(k => k.Key, v => v.Value.ToString("o"));
-                    var json = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                    var json = JsonSerializer.Serialize(dict, _jsonOptions);
                     File.WriteAllText(_syncStateFilePath, json);
                 }
             }

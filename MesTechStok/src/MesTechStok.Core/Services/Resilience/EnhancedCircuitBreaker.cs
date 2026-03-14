@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -120,7 +120,7 @@ namespace MesTechStok.Core.Services.Resilience
     /// Enhanced Circuit Breaker implementasyonu
     /// Gelişmiş özellikler: metric collection, health check, fallback, sliding window
     /// </summary>
-    public class EnhancedCircuitBreaker : IEnhancedCircuitBreaker
+    public class EnhancedCircuitBreaker : IEnhancedCircuitBreaker, IDisposable
     {
         private readonly CircuitBreakerSettings _settings;
         private readonly ILogger<EnhancedCircuitBreaker> _logger;
@@ -523,6 +523,7 @@ namespace MesTechStok.Core.Services.Resilience
         public void Dispose()
         {
             _halfOpenSemaphore?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 

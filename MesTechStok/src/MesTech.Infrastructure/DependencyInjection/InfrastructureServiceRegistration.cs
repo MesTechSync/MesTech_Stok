@@ -9,9 +9,11 @@ using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
+using Crm = MesTech.Infrastructure.Persistence.Repositories.Crm;
 using MesTech.Infrastructure.Realtime;
 using MesTech.Infrastructure.Security;
 using MesTech.Infrastructure.Services;
+using MesTech.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,11 +70,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
         // CRM Repositories (Dalga 8)
-        // DEV1-DEPENDENCY: ICrmLeadRepository + ICrmContactRepository + ICrmDealRepository
-        // interfaces must be added to MesTech.Domain.Interfaces before these lines can be restored:
-        // services.AddScoped<ICrmLeadRepository, CrmLeadRepository>();
-        // services.AddScoped<ICrmContactRepository, CrmContactRepository>();
-        // services.AddScoped<ICrmDealRepository, CrmDealRepository>();
+        services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
+        services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
+        services.AddScoped<ICrmDealRepository, Crm.CrmDealRepository>();
+
+        // Dropshipping Pool Repository (Sprint-B)
+        services.AddScoped<IDropshippingPoolRepository, DropshippingPoolRepository>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -165,6 +168,9 @@ public static class InfrastructureServiceRegistration
         // Excel Import / Export
         services.AddScoped<IExcelImportService, ExcelImportService>();
         services.AddScoped<IExcelExportService, ExcelExportService>();
+
+        // Document Storage (Dalga 8 — MinIO stub, tam impl Dalga 8 H27)
+        services.AddSingleton<IDocumentStorageService, MinioDocumentStorageService>();
 
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();

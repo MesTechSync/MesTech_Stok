@@ -2,16 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Entities;
 
-// DEV1-DEPENDENCY: ICrmContactRepository interface must be added to MesTech.Domain.Interfaces
-// using MesTech.Domain.Interfaces;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 
 /// <summary>
 /// EF Core implementation for CrmContact aggregate persistence.
-/// DEV1-DEPENDENCY: Implements ICrmContactRepository once DEV 1 creates it in Domain.Interfaces.
 /// </summary>
-public class CrmContactRepository // : ICrmContactRepository (DEV1-DEPENDENCY)
+public class CrmContactRepository : ICrmContactRepository
 {
     private readonly AppDbContext _context;
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,6 +103,8 @@ namespace MesTechStok.Core.Services.Security
         private readonly string _filePath;
         private readonly ILogger<FileTokenStorage> _logger;
         private readonly object _fileLock = new object();
+
+        private static readonly JsonSerializerOptions _writeIndentedOptions = new() { WriteIndented = true };
 
         public FileTokenStorage(string filePath, ILogger<FileTokenStorage> logger)
         {
@@ -217,7 +219,9 @@ namespace MesTechStok.Core.Services.Security
 
             lock (_fileLock)
             {
+#pragma warning disable CA1849 // Sync IO required inside lock — cannot await in lock block
                 var json = File.ReadAllText(_filePath);
+#pragma warning restore CA1849
                 return JsonSerializer.Deserialize<Dictionary<string, SecurityToken>>(json)
                        ?? new Dictionary<string, SecurityToken>();
             }
@@ -225,11 +229,13 @@ namespace MesTechStok.Core.Services.Security
 
         private async Task SaveTokensAsync(Dictionary<string, SecurityToken> tokens)
         {
-            var json = JsonSerializer.Serialize(tokens, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(tokens, _writeIndentedOptions);
 
             lock (_fileLock)
             {
+#pragma warning disable CA1849 // Sync IO required inside lock — cannot await in lock block
                 File.WriteAllText(_filePath, json);
+#pragma warning restore CA1849
             }
         }
 

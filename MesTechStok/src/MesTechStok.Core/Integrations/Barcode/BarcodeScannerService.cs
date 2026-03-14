@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
@@ -455,17 +455,16 @@ namespace MesTechStok.Core.Integrations.Barcode
 
         public async Task<BarcodeDeviceInfo?> GetDeviceInfoAsync(string deviceId)
         {
-            return _connectedDevices.ContainsKey(deviceId) ? _connectedDevices[deviceId] : null;
+            return _connectedDevices.TryGetValue(deviceId, out var info) ? info : null;
         }
 
         public async Task<bool> SetDeviceConfigurationAsync(string deviceId, BarcodeDeviceConfiguration config)
         {
             try
             {
-                if (!_connectedDevices.ContainsKey(deviceId))
+                if (!_connectedDevices.TryGetValue(deviceId, out var device))
                     return false;
 
-                var device = _connectedDevices[deviceId];
                 device.Configuration = config;
 
                 return true;
@@ -478,7 +477,7 @@ namespace MesTechStok.Core.Integrations.Barcode
 
         public async Task<BarcodeDeviceConfiguration?> GetDeviceConfigurationAsync(string deviceId)
         {
-            var device = _connectedDevices.ContainsKey(deviceId) ? _connectedDevices[deviceId] : null;
+            var device = _connectedDevices.TryGetValue(deviceId, out var d) ? d : null;
             return device?.Configuration ?? new BarcodeDeviceConfiguration();
         }
 
@@ -677,6 +676,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                 _connectedDevices.Clear();
                 _disposed = true;
             }
+            GC.SuppressFinalize(this);
         }
     }
 }

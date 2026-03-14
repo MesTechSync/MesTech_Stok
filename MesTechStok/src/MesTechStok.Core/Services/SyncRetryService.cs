@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -214,7 +214,7 @@ namespace MesTechStok.Core.Services
                             retryItem.SyncType, retryItem.ItemId, retryItem.RetryCount, retryItem.MaxRetries);
                     }
 
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(CancellationToken.None);
                 }
                 catch (Exception ex)
                 {
@@ -222,7 +222,7 @@ namespace MesTechStok.Core.Services
                         retryItem.SyncType, retryItem.ItemId);
 
                     retryItem.IncrementRetry($"Exception: {ex.Message}", "Exception");
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(CancellationToken.None);
                 }
             }
         }
@@ -283,6 +283,7 @@ namespace MesTechStok.Core.Services
                 // Intentional: timer disposal during shutdown — suppress all exceptions.
                 System.Diagnostics.Debug.WriteLine($"[SyncRetryService] Dispose timer failed (non-critical): {ex.Message}");
             }
+            GC.SuppressFinalize(this);
         }
     }
 }
