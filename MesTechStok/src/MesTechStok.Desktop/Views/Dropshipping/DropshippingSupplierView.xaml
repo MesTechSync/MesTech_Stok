@@ -1,0 +1,236 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Dropshipping.DropshippingSupplierView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:conv="clr-namespace:MesTechStok.Desktop.Converters">
+
+    <UserControl.Resources>
+        <conv:ReliabilityColorConverter x:Key="ScoreColor" ConvertMode="Foreground"/>
+        <conv:ReliabilityColorConverter x:Key="ScoreBg"    ConvertMode="Background"/>
+        <conv:ReliabilityLabelConverter x:Key="ScoreLabel"/>
+        <BooleanToVisibilityConverter  x:Key="BoolVis"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Header -->
+            <RowDefinition Height="*"/>     <!-- İçerik -->
+        </Grid.RowDefinitions>
+
+        <!-- ── Header ── -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="16,12">
+            <DockPanel>
+                <md:PackIcon Kind="AccountTie" Foreground="White"
+                             Width="22" Height="22" VerticalAlignment="Center"/>
+                <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtSupplierName"
+                               Text="Tedarikçi Profili"
+                               Foreground="White" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="TxtSupplierCode"
+                               Text="— seçim bekleniyor —"
+                               Foreground="#bfdbfe" FontSize="11"/>
+                </StackPanel>
+
+                <!-- Genel Skor Badge -->
+                <Border DockPanel.Dock="Right"
+                        x:Name="ScoreBadge"
+                        CornerRadius="20" Padding="14,6"
+                        Background="#10b981"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="TxtOverallScoreLabel"
+                                   Text="Yeşil"
+                                   Foreground="White" FontWeight="SemiBold"
+                                   FontSize="13" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtOverallScore"
+                                   Text=" 95"
+                                   Foreground="White" FontWeight="Bold"
+                                   FontSize="18" VerticalAlignment="Center"
+                                   Margin="4,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Button DockPanel.Dock="Right"
+                        Content="Yenile"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Foreground="White" BorderBrush="White"
+                        Margin="0,0,12,0"
+                        Click="BtnRefresh_Click"/>
+            </DockPanel>
+        </Border>
+
+        <!-- ── İçerik ── -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16">
+
+                <!-- Skor Breakdown Kartı -->
+                <Border Background="White" CornerRadius="8" Padding="16"
+                        Margin="0,0,0,12"
+                        Effect="{StaticResource MaterialDesignShadowDepth1}">
+                    <StackPanel>
+                        <TextBlock Text="Skor Breakdown"
+                                   FontWeight="Bold" FontSize="14"
+                                   Foreground="#1e293b" Margin="0,0,0,12"/>
+
+                        <ItemsControl x:Name="ScoreBreakdownList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Label}"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="#64748b" FontSize="12"/>
+
+                                        <ProgressBar Grid.Column="1"
+                                                     Value="{Binding Score}" Maximum="100"
+                                                     Height="10" Margin="0,0,8,0"
+                                                     Style="{StaticResource MaterialDesignLinearProgressBar}"
+                                                     Foreground="{Binding Score,
+                                                         Converter={StaticResource ScoreColor}}"/>
+
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Score, StringFormat='{}{0:F0}'}"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{Binding Score,
+                                                       Converter={StaticResource ScoreColor}}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Son 30 Gün Tablosu -->
+                <Border Background="White" CornerRadius="8" Padding="16"
+                        Margin="0,0,0,12"
+                        Effect="{StaticResource MaterialDesignShadowDepth1}">
+                    <StackPanel>
+                        <TextBlock Text="Son 30 Gün — Import Geçmişi"
+                                   FontWeight="Bold" FontSize="14"
+                                   Foreground="#1e293b" Margin="0,0,0,12"/>
+
+                        <DataGrid x:Name="HistoryGrid"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  MaxHeight="250"
+                                  Style="{StaticResource MaterialDesignDataGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Import Tarihi"
+                                    Binding="{Binding ImportDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                    Width="130"/>
+                                <DataGridTextColumn Header="İşlenen"
+                                    Binding="{Binding Processed}" Width="90"/>
+                                <DataGridTextColumn Header="Başarılı"
+                                    Binding="{Binding Successful}" Width="90"/>
+                                <DataGridTemplateColumn Header="Hatalı" Width="90">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Text="{Binding Failed}"
+                                                FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#10b981"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasErrors}" Value="True">
+                                                                <Setter Property="Foreground" Value="#ef4444"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Durum"
+                                    Binding="{Binding StatusText}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Ürün Listesi -->
+                <Border Background="White" CornerRadius="8" Padding="16"
+                        Effect="{StaticResource MaterialDesignShadowDepth1}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,12">
+                            <TextBlock Text="Tedarikçi Ürünleri"
+                                       FontWeight="Bold" FontSize="14"
+                                       Foreground="#1e293b"/>
+                            <TextBox x:Name="TxtProductSearch"
+                                     DockPanel.Dock="Right" Width="200"
+                                     md:HintAssist.Hint="SKU, ürün adı..."
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     TextChanged="TxtProductSearch_TextChanged"/>
+                        </DockPanel>
+
+                        <DataGrid x:Name="ProductGrid"
+                                  Height="280"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Extended"
+                                  GridLinesVisibility="Horizontal"
+                                  Style="{StaticResource MaterialDesignDataGrid}">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow"
+                                       BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                                    <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="{Binding ReliabilityScore,
+                                                   Converter={StaticResource ScoreColor}}"/>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ürün Adı"
+                                    Binding="{Binding ProductName}" Width="*" MinWidth="150"/>
+                                <DataGridTextColumn Header="SKU"
+                                    Binding="{Binding Sku}" Width="110"/>
+                                <DataGridTextColumn Header="Fiyat"
+                                    Binding="{Binding PoolPrice, StringFormat='{}{0:N2} ₺'}"
+                                    Width="90"/>
+                                <DataGridTextColumn Header="Son Güncelleme"
+                                    Binding="{Binding LastUpdated, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                    Width="120"/>
+                                <DataGridTemplateColumn Header="Skor" Width="90"
+                                    SortMemberPath="ReliabilityScore">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="10"
+                                                    Background="{Binding ReliabilityScore,
+                                                                 Converter={StaticResource ScoreBg}}"
+                                                    Padding="5,2" HorizontalAlignment="Center">
+                                                <TextBlock
+                                                    Text="{Binding ReliabilityScore,
+                                                           Converter={StaticResource ScoreLabel}}"
+                                                    FontWeight="Bold" FontSize="11"
+                                                    Foreground="{Binding ReliabilityScore,
+                                                                 Converter={StaticResource ScoreColor}}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock x:Name="TxtProductCount"
+                                   Text="— ürün"
+                                   Foreground="#64748b" FontSize="12"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
