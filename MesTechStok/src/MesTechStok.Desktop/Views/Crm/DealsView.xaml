@@ -1,0 +1,110 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Crm.DealsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1200">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Fırsatlar — Kanban" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Grid.Column="0"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <Button Content="+ Yeni Fırsat" Command="{Binding CreateDealCommand}"
+                            Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                            Padding="14,8" BorderThickness="0"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="Liste" Command="{Binding SwitchToListCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderBrush="White" BorderThickness="1" Padding="12,8"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Kanban Kolonları -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      Background="#F4F6F9">
+            <ItemsControl ItemsSource="{Binding Stages}" Margin="16">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Tek Kanban Kolonu -->
+                        <Border Width="260" Margin="0,0,12,0" VerticalAlignment="Top"
+                                Background="White" CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.12" Color="Black"/>
+                            </Border.Effect>
+                            <DockPanel>
+                                <!-- Kolon Başlığı -->
+                                <Border DockPanel.Dock="Top" CornerRadius="8,8,0,0"
+                                        Background="{Binding Color}"
+                                        Padding="14,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" Foreground="White"
+                                                   FontWeight="SemiBold" FontSize="13"
+                                                   Grid.Column="0"/>
+                                        <Border Grid.Column="1" Background="#FFFFFF33"
+                                                CornerRadius="10" Padding="6,2">
+                                            <TextBlock Text="{Binding DealCount}" Foreground="White"
+                                                       FontSize="11" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Deal Kartları -->
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+                                    <ItemsControl ItemsSource="{Binding Deals}" Margin="8">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,0,0,8" Padding="12"
+                                                        Background="#F8F9FB" CornerRadius="6"
+                                                        BorderBrush="#E2E8F0" BorderThickness="1"
+                                                        Cursor="Hand">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding ContactName}"
+                                                                   FontSize="11" Foreground="#64748B"
+                                                                   Margin="0,4,0,0"/>
+                                                        <TextBlock Text="{Binding Amount, StringFormat='₺ {0:N0}'}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#2855AC" Margin="0,6,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
