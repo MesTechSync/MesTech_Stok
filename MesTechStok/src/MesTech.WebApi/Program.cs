@@ -77,5 +77,7 @@ InvoiceEndpoints.Map(app);
 QuotationEndpoints.Map(app);
 DashboardEndpoints.Map(app);
 CrmEndpoints.Map(app);
+SupplierFeedsEndpoints.Map(app);
+DropshippingPoolEndpoints.Map(app);
 
 app.Run();
