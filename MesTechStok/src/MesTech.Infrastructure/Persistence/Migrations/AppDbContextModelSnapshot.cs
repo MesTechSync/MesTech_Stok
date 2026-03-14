@@ -4668,6 +4668,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("DeletedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("EncryptedCredential")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<string>("FeedUrl")
                         .IsRequired()
                         .HasMaxLength(2000)

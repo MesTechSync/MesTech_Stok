@@ -136,6 +136,7 @@ public class AppDbContext : DbContext
     // ═══════════════════════════════════════
     public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
     public DbSet<GLTransaction> GLTransactions => Set<GLTransaction>();
+    public DbSet<FinanceExpense> FinanceExpenses => Set<FinanceExpense>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — GÖREVLER & PROJELER
@@ -144,6 +145,7 @@ public class AppDbContext : DbContext
     public DbSet<Milestone> Milestones => Set<Milestone>();
     public DbSet<WorkTask> WorkTasks => Set<WorkTask>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — TAKVİM

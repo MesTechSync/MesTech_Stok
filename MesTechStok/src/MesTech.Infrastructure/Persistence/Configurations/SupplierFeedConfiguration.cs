@@ -16,6 +16,9 @@ public class SupplierFeedConfiguration : IEntityTypeConfiguration<SupplierFeed>
         builder.Property(f => f.LastSyncError).HasMaxLength(2000);
         builder.Property(f => f.TargetPlatforms).HasMaxLength(500);
 
+        // ENT-DROP-IMP-SPRINT-D D-07: Şifrelenmiş credential alanı (nullable, base64 AES-256-GCM blob)
+        builder.Property(f => f.EncryptedCredential).HasMaxLength(1000);
+
         builder.Property(f => f.PriceMarkupPercent).HasPrecision(5, 2);
         builder.Property(f => f.PriceMarkupFixed).HasPrecision(18, 2);
 
