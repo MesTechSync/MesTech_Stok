@@ -12,6 +12,7 @@ namespace MesTech.Tests.Unit.Shell;
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Category", "Shell")]
+[Trait("Category", "UIAutomation")]
 public class ShellUiSmokeTests
 {
     private readonly string _repoRoot;

@@ -12,6 +12,7 @@ namespace MesTech.Tests.Unit.Shell;
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Category", "Sidebar")]
+[Trait("Category", "UIAutomation")]
 public class SidebarInteractionTests
 {
     private readonly string _shellDir;

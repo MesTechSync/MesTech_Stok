@@ -16,6 +16,7 @@ namespace MesTech.Tests.Unit.Shell;
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Category", "InnerHeader")]
+[Trait("Category", "UIAutomation")]
 public class InnerHeaderStructureTests
 {
     private readonly string _shellDir;

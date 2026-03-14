@@ -12,6 +12,7 @@ namespace MesTech.Tests.Unit.Shell;
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Category", "Theme")]
+[Trait("Category", "UIAutomation")]
 public class ThemeToggleTests
 {
     private readonly string _shellDir;
