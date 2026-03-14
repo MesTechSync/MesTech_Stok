@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
+using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -109,6 +110,24 @@ public class AppDbContext : DbContext
     public DbSet<Bitrix24Deal> Bitrix24Deals => Set<Bitrix24Deal>();
     public DbSet<Bitrix24Contact> Bitrix24Contacts => Set<Bitrix24Contact>();
     public DbSet<Bitrix24DealProductRow> Bitrix24DealProductRows => Set<Bitrix24DealProductRow>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — CRM
+    // ═══════════════════════════════════════
+    public DbSet<Pipeline> Pipelines => Set<Pipeline>();
+    public DbSet<PipelineStage> PipelineStages => Set<PipelineStage>();
+    public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<CrmContact> CrmContacts => Set<CrmContact>();
+    // DEV1-DEPENDENCY: requires Deal entity (MesTech.Domain.Entities.Crm.Deal)
+    // public DbSet<Deal> Deals => Set<Deal>();
+    // DEV1-DEPENDENCY: requires Activity entity (MesTech.Domain.Entities.Crm.Activity)
+    // public DbSet<Activity> Activities => Set<Activity>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — FİNANS
+    // ═══════════════════════════════════════
+    // DEV1-DEPENDENCY: requires BankAccount entity (MesTech.Domain.Entities.Finance.BankAccount)
+    // public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -519,6 +538,57 @@ public class AppDbContext : DbContext
             e.Ignore(l => l.TaxAmount);
             e.Ignore(l => l.LineTotal);
         });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — CRM CONFIG
+        // ═══════════════════════════════════════
+
+        modelBuilder.Entity<Pipeline>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Name).HasMaxLength(100).IsRequired();
+            e.HasIndex(p => p.TenantId).HasDatabaseName("IX_Pipelines_TenantId");
+            e.HasMany(p => p.Stages).WithOne(s => s.Pipeline)
+             .HasForeignKey(s => s.PipelineId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PipelineStage>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Name).HasMaxLength(100).IsRequired();
+            e.Property(s => s.Color).HasMaxLength(7);
+            e.HasIndex(s => s.TenantId).HasDatabaseName("IX_PipelineStages_TenantId");
+        });
+
+        modelBuilder.Entity<Lead>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.FullName).HasMaxLength(200).IsRequired();
+            e.Property(l => l.Email).HasMaxLength(200);
+            e.Property(l => l.Phone).HasMaxLength(30);
+            e.Property(l => l.Company).HasMaxLength(200);
+            e.Property(l => l.Notes).HasMaxLength(2000);
+            e.HasIndex(l => l.TenantId).HasDatabaseName("IX_Leads_TenantId");
+            e.HasIndex(l => new { l.TenantId, l.Status }).HasDatabaseName("IX_Leads_TenantId_Status");
+        });
+
+        modelBuilder.Entity<CrmContact>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.FullName).HasMaxLength(200).IsRequired();
+            e.Property(c => c.Email).HasMaxLength(200);
+            e.Property(c => c.Phone).HasMaxLength(30);
+            e.Property(c => c.TaxNumber).HasMaxLength(11);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CrmContacts_TenantId");
+            // Customer FK — nullable, Customer silinirse null olur
+            e.HasOne<Customer>().WithMany()
+             .HasForeignKey(c => c.CustomerId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        // DEV1-DEPENDENCY: Deal, Activity, BankAccount EF configs commented until entities are created
+        // modelBuilder.Entity<Deal>(e => { ... });
+        // modelBuilder.Entity<Activity>(e => { ... });
+        // modelBuilder.Entity<BankAccount>(e => { ... });
     }
 
     /// <summary>

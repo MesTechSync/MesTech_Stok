@@ -1564,5 +1564,79 @@ namespace MesTechStok.Desktop.ViewModels
         {
             CurrentView = new Views.QuotationView();
         }
+
+        // CRM KOMUTLARI — Dalga 8
+        [RelayCommand]
+        private void ShowCrmLeads()
+        {
+            NavigationTimingService.Instance.StartTiming("CRM Leads");
+            try
+            {
+                CurrentView = new Views.Crm.LeadsView();
+                CurrentModule = "Potansiyel Müşteriler";
+                StatusMessage = "👤 CRM Leads yüklendi";
+                GlobalLogger.Instance.LogInfo("CRM Leads ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Leads");
+                ToastManager.ShowSuccess("Potansiyel Müşteriler modülü aktif!", "CRM");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "CRM Leads yüklenemedi";
+                GlobalLogger.Instance.LogError($"CRM Leads yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Leads");
+                ToastManager.ShowError("CRM Leads yüklenemedi!", "Hata");
+                MessageBox.Show($"CRM Leads yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowCrmContacts()
+        {
+            NavigationTimingService.Instance.StartTiming("CRM Contacts");
+            try
+            {
+                // Dalga 8 H27'de ContactsView eklenecek — şimdilik ComingSoon
+                CurrentView = new Views.ComingSoonView();
+                CurrentModule = "CRM Kişiler";
+                StatusMessage = "👥 CRM Kişiler yüklendi";
+                GlobalLogger.Instance.LogInfo("CRM Contacts ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Contacts");
+                ToastManager.ShowInfo("CRM Kişiler — H27'de tamamlanacak", "CRM");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "CRM Kişiler yüklenemedi";
+                GlobalLogger.Instance.LogError($"CRM Contacts yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Contacts");
+                ToastManager.ShowError("CRM Kişiler yüklenemedi!", "Hata");
+                MessageBox.Show($"CRM Kişiler yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowCrmDeals()
+        {
+            NavigationTimingService.Instance.StartTiming("CRM Deals");
+            try
+            {
+                CurrentView = new Views.Crm.DealsView();
+                CurrentModule = "Fırsatlar";
+                StatusMessage = "🤝 Fırsatlar — Kanban yüklendi";
+                GlobalLogger.Instance.LogInfo("CRM Deals Kanban ekranı açıldı", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Deals");
+                ToastManager.ShowSuccess("Fırsatlar Kanban modülü aktif!", "CRM");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "CRM Deals yüklenemedi";
+                GlobalLogger.Instance.LogError($"CRM Deals yükleme hatası: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("CRM Deals");
+                ToastManager.ShowError("Fırsatlar yüklenemedi!", "Hata");
+                MessageBox.Show($"CRM Deals yükleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

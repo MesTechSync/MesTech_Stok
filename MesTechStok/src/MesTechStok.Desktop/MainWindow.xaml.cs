@@ -1496,6 +1496,58 @@ namespace MesTechStok.Desktop
             }
         }
 
+        // CRM MENÜ GRUBU — Dalga 8
+        private void NavCrmLeads_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowCrmLeadsCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavCrmLeads });
+                    UpdateStatusBar("👤 Potansiyel Müşteriler yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"CRM Leads hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavCrmContacts_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowCrmContactsCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavCrmContacts });
+                    UpdateStatusBar("👥 CRM Kişiler yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"CRM Kişiler hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavCrmDeals_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowCrmDealsCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavCrmDeals });
+                    UpdateStatusBar("🤝 Fırsatlar — Kanban yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"CRM Fırsatlar hatası: {ex.Message}", "Hata");
+            }
+        }
+
         private void NavReturnToWelcome_Click(object sender, RoutedEventArgs e)
         {
             try

@@ -1901,6 +1901,100 @@
 
                                 </Button>
 
+                                <!-- CRM MENÜ GRUBU — Dalga 8 -->
+                                <Separator Margin="16,10"
+                                        Background="#E0E0E0"/>
+
+                                <Button x:Name="NavCrmLeads"
+                                        Style="{StaticResource NavMenuItemStyle}"
+                                        Click="NavCrmLeads_Click"
+                                        ToolTipService.Placement="Right"
+                                        ToolTip="Potansiyel Müşteriler">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="AccountSearchOutline"
+                                                Width="20"
+                                                Height="20"
+                                                Foreground="#F57C00"
+                                                Margin="0,0,12,0"/>
+                                        <TextBlock Text="Potansiyel Müşteriler"
+                                                VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}"
+                                                                Value="True">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="NavCrmContacts"
+                                        Style="{StaticResource NavMenuItemStyle}"
+                                        Click="NavCrmContacts_Click"
+                                        ToolTipService.Placement="Right"
+                                        ToolTip="CRM Kişiler">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="AccountGroupOutline"
+                                                Width="20"
+                                                Height="20"
+                                                Foreground="#F57C00"
+                                                Margin="0,0,12,0"/>
+                                        <TextBlock Text="CRM Kişiler"
+                                                VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}"
+                                                                Value="True">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="NavCrmDeals"
+                                        Style="{StaticResource NavMenuItemStyle}"
+                                        Click="NavCrmDeals_Click"
+                                        ToolTipService.Placement="Right"
+                                        ToolTip="Fırsatlar">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIconMaterial Kind="HandshakeOutline"
+                                                Width="20"
+                                                Height="20"
+                                                Foreground="#F57C00"
+                                                Margin="0,0,12,0"/>
+                                        <TextBlock Text="Fırsatlar"
+                                                VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=SidebarToggle, Path=IsChecked}"
+                                                                Value="True">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Button>
+
                                 <Separator Margin="16,10"
                                         Background="#E0E0E0"/>
 
