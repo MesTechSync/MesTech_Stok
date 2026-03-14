@@ -43,6 +43,9 @@ public static class HangfireConfig
         // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B
         services.AddScoped<ReliabilityScoreRecalcJob>();
 
+        // H27 DEV 4 — CRM periyodik job'ları
+        services.AddScoped<CrmHangfireJobs>();
+
         return services;
     }
 
@@ -108,5 +111,18 @@ public static class HangfireConfig
             "reliability-score-recalc",
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Daily(3));
+
+        // H27 DEV 4 — CRM periyodik job'ları
+        // Her gece 02:00 — lead süresi kontrolü
+        RecurringJob.AddOrUpdate<CrmHangfireJobs>(
+            "crm-overdue-leads",
+            job => job.CheckOverdueLeadsAsync(),
+            "0 2 * * *");
+
+        // Her gece 03:00 — görev süresi kontrolü
+        RecurringJob.AddOrUpdate<CrmHangfireJobs>(
+            "crm-overdue-tasks",
+            job => job.CheckOverdueTasksAsync(),
+            "0 3 * * *");
     }
 }
