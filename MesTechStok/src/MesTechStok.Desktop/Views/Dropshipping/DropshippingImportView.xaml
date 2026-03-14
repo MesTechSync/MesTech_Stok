@@ -1,0 +1,160 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Dropshipping.DropshippingImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <TextBlock Grid.Row="0" Text="Feed İthalat" FontSize="18"
+                   FontWeight="Bold" Foreground="#1e293b" Margin="0,0,0,16"/>
+
+        <!-- Feed URL Formu -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="20"
+                Margin="0,0,0,16">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1" Color="#000000"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Yeni Feed Kaynağı" FontWeight="SemiBold"
+                           FontSize="14" Foreground="#1e293b" Margin="0,0,0,12"/>
+
+                <TextBox x:Name="TxtFeedName"
+                         md:HintAssist.Hint="Feed adı (örn: Teknotok XML)"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="0,0,0,10"/>
+
+                <DockPanel Margin="0,0,0,10">
+                    <Button DockPanel.Dock="Right" Content="Test Et"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Margin="8,0,0,0" Click="BtnTestUrl_Click"/>
+                    <TextBox x:Name="TxtFeedUrl"
+                             md:HintAssist.Hint="https://tedarikci.com/feed.xml"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                </DockPanel>
+
+                <TextBlock x:Name="TxtUrlStatus" Visibility="Collapsed"
+                           FontSize="12" Margin="0,0,0,8"/>
+
+                <DockPanel Margin="0,0,0,10">
+                    <TextBlock DockPanel.Dock="Left" Text="Format:"
+                               VerticalAlignment="Center" Width="80"
+                               Foreground="#64748b"/>
+                    <ComboBox x:Name="CmbFormat"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                        <ComboBoxItem Content="XML"   IsSelected="True"/>
+                        <ComboBoxItem Content="CSV"/>
+                        <ComboBoxItem Content="Excel"/>
+                        <ComboBoxItem Content="JSON"/>
+                    </ComboBox>
+                </DockPanel>
+
+                <DockPanel Margin="0,0,0,10">
+                    <TextBlock DockPanel.Dock="Left" Text="Encoding:"
+                               VerticalAlignment="Center" Width="80"
+                               Foreground="#64748b"/>
+                    <ComboBox x:Name="CmbEncoding"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                        <ComboBoxItem Content="UTF-8"                  IsSelected="True"/>
+                        <ComboBoxItem Content="ISO-8859-9 (Latin-5)"/>
+                        <ComboBoxItem Content="Windows-1254"/>
+                        <ComboBoxItem Content="Otomatik Tespit"/>
+                    </ComboBox>
+                </DockPanel>
+
+                <DockPanel Margin="0,0,0,10">
+                    <TextBlock DockPanel.Dock="Left" Text="Markup %:"
+                               VerticalAlignment="Center" Width="80"
+                               Foreground="#64748b"/>
+                    <TextBox x:Name="TxtMarkup" Text="15"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Width="80" DockPanel.Dock="Left" Margin="0,0,16,0"/>
+                    <TextBlock Text="Sync sıklığı (dk):"
+                               VerticalAlignment="Center" Width="120"
+                               Foreground="#64748b" DockPanel.Dock="Left"/>
+                    <TextBox x:Name="TxtInterval" Text="60"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Width="80"/>
+                </DockPanel>
+
+                <Button Content="Feed Ekle" HorizontalAlignment="Right"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="#2855AC" Foreground="White"
+                        Margin="0,8,0,0" Click="BtnSaveFeed_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Sync Progress -->
+        <Border Grid.Row="2" x:Name="ProgressCard"
+                Background="White" CornerRadius="8" Padding="16"
+                Margin="0,0,0,16" Visibility="Collapsed">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1" Color="#000000"/>
+            </Border.Effect>
+            <StackPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock x:Name="TxtSyncTitle"
+                               Text="Feed sync çalışıyor…"
+                               FontWeight="SemiBold" FontSize="13"
+                               Foreground="#1e293b"/>
+                    <TextBlock x:Name="TxtSyncPct" DockPanel.Dock="Right"
+                               Text="0%" Foreground="#2855AC"
+                               FontWeight="Bold"/>
+                </DockPanel>
+                <ProgressBar x:Name="SyncProgress" Value="0" Maximum="100"
+                             Height="8"
+                             Style="{StaticResource MaterialDesignLinearProgressBar}"
+                             Foreground="#2855AC"/>
+                <TextBlock x:Name="TxtSyncStep" Text="Hazırlanıyor…"
+                           FontSize="11" Foreground="#64748b" Margin="0,6,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Aktif Feed Listesi -->
+        <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="16">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1" Color="#000000"/>
+            </Border.Effect>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Aktif Feed Kaynakları"
+                           FontWeight="SemiBold" FontSize="14"
+                           Foreground="#1e293b" Margin="0,0,0,12"/>
+                <DataGrid x:Name="FeedGrid"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          Style="{StaticResource MaterialDesignDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Feed Adı"
+                                            Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Format"
+                                            Binding="{Binding Format}" Width="70"/>
+                        <DataGridTextColumn Header="Son Sync"
+                                            Binding="{Binding LastSyncAt,
+                                                      StringFormat='{}{0:dd/MM HH:mm}'}"
+                                            Width="110"/>
+                        <DataGridTextColumn Header="Durum"
+                                            Binding="{Binding LastSyncStatus}" Width="90"/>
+                        <DataGridTemplateColumn Header="" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Sync"
+                                            FontSize="11" Padding="6,2"
+                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                            Click="BtnSyncFeed_Click"
+                                            Tag="{Binding Id}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>
