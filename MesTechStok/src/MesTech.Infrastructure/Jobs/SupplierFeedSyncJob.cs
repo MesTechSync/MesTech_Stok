@@ -3,6 +3,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Integration.FeedParsers;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -104,8 +105,27 @@ public class SupplierFeedSyncJob
 
             totalProducts = parseResult.Products.Count;
 
+            // 4a. Delta sync: sadece değişen ürünleri tespit et (N+1 yerine tek sorgu)
+            var feedSkus = parseResult.Products
+                .Where(p => !string.IsNullOrWhiteSpace(p.SKU))
+                .Select(p => p.SKU!)
+                .Distinct()
+                .ToList();
+
+            var existingBySku = await _dbContext.Products
+                .Where(p => feedSkus.Contains(p.SKU) && !p.IsDeleted)
+                .ToDictionaryAsync(p => p.SKU, StringComparer.OrdinalIgnoreCase, ct);
+
+            var changedProducts = FeedDeltaDetector
+                .GetChangedProducts(parseResult.Products, existingBySku, feed.ApplyMarkup)
+                .ToList();
+
+            _logger.LogInformation(
+                "[SupplierFeedSync] Delta sync: {Total} ürün parse edildi, {Changed} değişiklik tespit edildi ({FeedName}).",
+                totalProducts, changedProducts.Count, feed.Name);
+
             // 4. Process each parsed product
-            foreach (var parsedProduct in parseResult.Products)
+            foreach (var parsedProduct in changedProducts.Select(c => c.Incoming))
             {
                 ct.ThrowIfCancellationRequested();
 
