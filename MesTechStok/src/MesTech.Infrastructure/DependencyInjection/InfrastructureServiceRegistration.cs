@@ -67,6 +67,13 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
+        // CRM Repositories (Dalga 8)
+        // DEV1-DEPENDENCY: ICrmLeadRepository + ICrmContactRepository + ICrmDealRepository
+        // interfaces must be added to MesTech.Domain.Interfaces before these lines can be restored:
+        // services.AddScoped<ICrmLeadRepository, CrmLeadRepository>();
+        // services.AddScoped<ICrmContactRepository, CrmContactRepository>();
+        // services.AddScoped<ICrmDealRepository, CrmDealRepository>();
+
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
