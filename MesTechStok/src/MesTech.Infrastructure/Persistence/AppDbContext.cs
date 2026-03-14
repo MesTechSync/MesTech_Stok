@@ -2,7 +2,12 @@ using System.Linq.Expressions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
+using MesTech.Domain.Entities.Calendar;
 using MesTech.Domain.Entities.Crm;
+using MesTech.Domain.Entities.Documents;
+using MesTech.Domain.Entities.Finance;
+using MesTech.Domain.Entities.Hr;
+using MesTech.Domain.Entities.Tasks;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -88,6 +93,11 @@ public class AppDbContext : DbContext
     // ── Dalga 4: Dropshipping ──
     public DbSet<SupplierFeed> SupplierFeeds => Set<SupplierFeed>();
 
+    // ── Dalga 8: Dropshipping Pool ──
+    public DbSet<DropshippingPool> DropshippingPools => Set<DropshippingPool>();
+    public DbSet<DropshippingPoolProduct> DropshippingPoolProducts => Set<DropshippingPoolProduct>();
+    public DbSet<FeedImportLog> FeedImportLogs => Set<FeedImportLog>();
+
     // ── Dalga 4: AI ──
     public DbSet<PriceRecommendation> PriceRecommendations => Set<PriceRecommendation>();
     public DbSet<StockPrediction> StockPredictions => Set<StockPrediction>();
@@ -118,16 +128,42 @@ public class AppDbContext : DbContext
     public DbSet<PipelineStage> PipelineStages => Set<PipelineStage>();
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<CrmContact> CrmContacts => Set<CrmContact>();
-    // DEV1-DEPENDENCY: requires Deal entity (MesTech.Domain.Entities.Crm.Deal)
-    // public DbSet<Deal> Deals => Set<Deal>();
-    // DEV1-DEPENDENCY: requires Activity entity (MesTech.Domain.Entities.Crm.Activity)
-    // public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<Deal> Deals => Set<Deal>();
+    public DbSet<Activity> Activities => Set<Activity>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — FİNANS
     // ═══════════════════════════════════════
-    // DEV1-DEPENDENCY: requires BankAccount entity (MesTech.Domain.Entities.Finance.BankAccount)
-    // public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
+    public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
+    public DbSet<GLTransaction> GLTransactions => Set<GLTransaction>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — GÖREVLER & PROJELER
+    // ═══════════════════════════════════════
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Milestone> Milestones => Set<Milestone>();
+    public DbSet<WorkTask> WorkTasks => Set<WorkTask>();
+    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — TAKVİM
+    // ═══════════════════════════════════════
+    public DbSet<CalendarEvent> CalendarEvents => Set<CalendarEvent>();
+    public DbSet<CalendarEventAttendee> CalendarEventAttendees => Set<CalendarEventAttendee>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — BELGELER
+    // ═══════════════════════════════════════
+    public DbSet<DocumentFolder> DocumentFolders => Set<DocumentFolder>();
+    public DbSet<Document> Documents => Set<Document>();
+
+    // ═══════════════════════════════════════
+    // DALGA 8 — İNSAN KAYNAKLARI
+    // ═══════════════════════════════════════
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Leave> Leaves => Set<Leave>();
+    public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -585,10 +621,174 @@ public class AppDbContext : DbContext
              .HasForeignKey(c => c.CustomerId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
         });
 
-        // DEV1-DEPENDENCY: Deal, Activity, BankAccount EF configs commented until entities are created
-        // modelBuilder.Entity<Deal>(e => { ... });
-        // modelBuilder.Entity<Activity>(e => { ... });
-        // modelBuilder.Entity<BankAccount>(e => { ... });
+        // ═══════════════════════════════════════
+        // DALGA 8 — DEAL & ACTIVITY CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<Deal>(e =>
+        {
+            e.HasKey(d => d.Id);
+            e.Property(d => d.Title).HasMaxLength(200).IsRequired();
+            e.Property(d => d.Amount).HasPrecision(18, 2);
+            e.Property(d => d.Currency).HasMaxLength(3);
+            e.Property(d => d.LostReason).HasMaxLength(1000);
+            e.HasIndex(d => d.TenantId).HasDatabaseName("IX_Deals_TenantId");
+            e.HasIndex(d => new { d.TenantId, d.PipelineId, d.Status }).HasDatabaseName("IX_Deals_Tenant_Pipeline_Status");
+            e.HasOne(d => d.Pipeline).WithMany().HasForeignKey(d => d.PipelineId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(d => d.Stage).WithMany().HasForeignKey(d => d.StageId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(d => d.Contact).WithMany().HasForeignKey(d => d.CrmContactId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        modelBuilder.Entity<Activity>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Subject).HasMaxLength(300).IsRequired();
+            e.Property(a => a.Description).HasMaxLength(2000);
+            e.HasIndex(a => a.TenantId).HasDatabaseName("IX_Activities_TenantId");
+            e.HasIndex(a => new { a.TenantId, a.DealId }).HasDatabaseName("IX_Activities_Tenant_Deal");
+        });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — FİNANS CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<BankAccount>(e =>
+        {
+            e.HasKey(b => b.Id);
+            e.Property(b => b.AccountName).HasMaxLength(200).IsRequired();
+            e.Property(b => b.BankName).HasMaxLength(100);
+            e.Property(b => b.IBAN).HasMaxLength(34);
+            e.Property(b => b.AccountNumber).HasMaxLength(50);
+            e.Property(b => b.Currency).HasMaxLength(3);
+            e.Property(b => b.Balance).HasPrecision(18, 2);
+            e.HasIndex(b => b.TenantId).HasDatabaseName("IX_BankAccounts_TenantId");
+        });
+
+        modelBuilder.Entity<GLTransaction>(e =>
+        {
+            e.HasKey(g => g.Id);
+            e.Property(g => g.Description).HasMaxLength(500).IsRequired();
+            e.Property(g => g.Currency).HasMaxLength(3);
+            e.Property(g => g.Amount).HasPrecision(18, 2);
+            e.Property(g => g.ExchangeRate).HasPrecision(10, 6);
+            e.Property(g => g.ReferenceNumber).HasMaxLength(100);
+            e.HasIndex(g => g.TenantId).HasDatabaseName("IX_GLTransactions_TenantId");
+            e.HasIndex(g => new { g.TenantId, g.TransactionDate }).HasDatabaseName("IX_GLTransactions_Tenant_Date");
+        });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — GÖREVLER & PROJELER CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<Project>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Name).HasMaxLength(200).IsRequired();
+            e.Property(p => p.Color).HasMaxLength(7);
+            e.HasIndex(p => p.TenantId).HasDatabaseName("IX_Projects_TenantId");
+        });
+
+        modelBuilder.Entity<Milestone>(e =>
+        {
+            e.HasKey(m => m.Id);
+            e.Property(m => m.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(m => m.TenantId).HasDatabaseName("IX_Milestones_TenantId");
+            e.HasIndex(m => m.ProjectId);
+        });
+
+        modelBuilder.Entity<WorkTask>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Title).HasMaxLength(300).IsRequired();
+            e.Property(t => t.Tags).HasMaxLength(500);
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_WorkTasks_TenantId");
+            e.HasIndex(t => new { t.TenantId, t.Status }).HasDatabaseName("IX_WorkTasks_Tenant_Status");
+        });
+
+        modelBuilder.Entity<TimeEntry>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.HourlyRate).HasPrecision(18, 2);
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_TimeEntries_TenantId");
+            e.HasIndex(t => t.WorkTaskId);
+        });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — TAKVİM CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<CalendarEvent>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Title).HasMaxLength(300).IsRequired();
+            e.Property(c => c.Location).HasMaxLength(300);
+            e.Property(c => c.Color).HasMaxLength(7);
+            e.Property(c => c.RecurrenceRule).HasMaxLength(500);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CalendarEvents_TenantId");
+            e.HasIndex(c => new { c.TenantId, c.StartAt }).HasDatabaseName("IX_CalendarEvents_Tenant_Start");
+        });
+
+        modelBuilder.Entity<CalendarEventAttendee>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.HasIndex(a => new { a.CalendarEventId, a.UserId }).IsUnique().HasDatabaseName("IX_CalendarEventAttendees_Event_User");
+        });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — BELGELER CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<DocumentFolder>(e =>
+        {
+            e.HasKey(f => f.Id);
+            e.Property(f => f.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(f => f.TenantId).HasDatabaseName("IX_DocumentFolders_TenantId");
+        });
+
+        modelBuilder.Entity<Document>(e =>
+        {
+            e.HasKey(d => d.Id);
+            e.Property(d => d.FileName).HasMaxLength(500).IsRequired();
+            e.Property(d => d.OriginalFileName).HasMaxLength(500);
+            e.Property(d => d.ContentType).HasMaxLength(100);
+            e.Property(d => d.StoragePath).HasMaxLength(1000);
+            e.Property(d => d.Tags).HasMaxLength(500);
+            e.HasIndex(d => d.TenantId).HasDatabaseName("IX_Documents_TenantId");
+            e.HasIndex(d => new { d.TenantId, d.FolderId }).HasDatabaseName("IX_Documents_Tenant_Folder");
+        });
+
+        // ═══════════════════════════════════════
+        // DALGA 8 — İNSAN KAYNAKLARI CONFIG
+        // ═══════════════════════════════════════
+        modelBuilder.Entity<Department>(e =>
+        {
+            e.HasKey(d => d.Id);
+            e.Property(d => d.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(d => d.TenantId).HasDatabaseName("IX_Departments_TenantId");
+        });
+
+        modelBuilder.Entity<Employee>(e =>
+        {
+            e.HasKey(em => em.Id);
+            e.Property(em => em.EmployeeCode).HasMaxLength(50).IsRequired();
+            e.Property(em => em.JobTitle).HasMaxLength(100);
+            e.Property(em => em.WorkEmail).HasMaxLength(200);
+            e.Property(em => em.WorkPhone).HasMaxLength(30);
+            e.Property(em => em.HourlyRate).HasPrecision(18, 2);
+            e.Property(em => em.MonthlySalary).HasPrecision(18, 2);
+            e.HasIndex(em => em.TenantId).HasDatabaseName("IX_Employees_TenantId");
+            e.HasIndex(em => new { em.TenantId, em.EmployeeCode }).IsUnique().HasDatabaseName("IX_Employees_Tenant_Code");
+        });
+
+        modelBuilder.Entity<Leave>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.HasIndex(l => l.TenantId).HasDatabaseName("IX_Leaves_TenantId");
+            e.HasIndex(l => new { l.TenantId, l.EmployeeId, l.Status }).HasDatabaseName("IX_Leaves_Tenant_Employee_Status");
+        });
+
+        modelBuilder.Entity<WorkSchedule>(e =>
+        {
+            e.HasKey(ws => ws.Id);
+            e.Property(ws => ws.Notes).HasMaxLength(500);
+            e.HasIndex(ws => ws.TenantId).HasDatabaseName("IX_WorkSchedules_TenantId");
+            e.HasIndex(ws => new { ws.EmployeeId, ws.DayOfWeek }).IsUnique().HasDatabaseName("IX_WorkSchedules_Employee_Day");
+        });
     }
 
     /// <summary>

@@ -40,6 +40,9 @@ public static class HangfireConfig
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
 
+        // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B
+        services.AddScoped<ReliabilityScoreRecalcJob>();
+
         return services;
     }
 
@@ -99,5 +102,11 @@ public static class HangfireConfig
         {
             SupplierFeedSyncJob.RegisterSupplierFeedJobs(serviceProvider);
         }
+
+        // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B: Güvenilirlik skoru her gece 03:00
+        RecurringJob.AddOrUpdate<ReliabilityScoreRecalcJob>(
+            "reliability-score-recalc",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(3));
     }
 }

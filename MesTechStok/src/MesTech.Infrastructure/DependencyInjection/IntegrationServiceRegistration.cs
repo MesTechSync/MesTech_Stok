@@ -1,5 +1,7 @@
 ﻿using MesTech.Application.Interfaces;
+using MesTech.Application.Services;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Formatters.Dropshipping;
 using MesTech.Infrastructure.Integration.Accounting;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Auth;
@@ -11,6 +13,7 @@ using MesTech.Infrastructure.Integration.Soap;
 using MesTech.Infrastructure.Integration.FeedParsers;
 using MesTech.Infrastructure.Integration.Scraping;
 using MesTech.Infrastructure.Integration.Webhooks;
+using MesTech.Infrastructure.Services;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Middleware;
 using Microsoft.Extensions.Caching.Memory;
@@ -194,6 +197,21 @@ public static class IntegrationServiceRegistration
                 new HttpClient(),
                 sp.GetServices<IFeedParserService>(),
                 sp.GetRequiredService<ILogger<FeedHealthCheckService>>()));
+
+        // ENT-DROP-SENTEZ-001 Sprint A: CSV export + encoding detector
+        services.AddScoped<ICsvExportService, CsvExportService>();
+        services.AddScoped<IEncodingDetectorService, EncodingDetectorService>();
+
+        // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev A: Dropshipping export formatters (6 platform)
+        services.AddScoped<IDropshippingExportFormatter, XmlDropshippingFormatter>();
+        services.AddScoped<IDropshippingExportFormatter, CsvDropshippingFormatter>();
+        services.AddScoped<IDropshippingExportFormatter, ExcelDropshippingFormatter>();
+        services.AddScoped<IDropshippingExportFormatter, TrendyolDropshippingFormatter>();
+        services.AddScoped<IDropshippingExportFormatter, HepsisellerDropshippingFormatter>();
+        services.AddScoped<IDropshippingExportFormatter, N11DropshippingFormatter>();
+
+        // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B: FeedReliabilityScoreService (saf hesaplama)
+        services.AddScoped<FeedReliabilityScoreService>();
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
         if (configuration is not null)
