@@ -76,5 +76,6 @@ SyncStatusEndpoints.Map(app);
 InvoiceEndpoints.Map(app);
 QuotationEndpoints.Map(app);
 DashboardEndpoints.Map(app);
+CrmEndpoints.Map(app);
 
 app.Run();
