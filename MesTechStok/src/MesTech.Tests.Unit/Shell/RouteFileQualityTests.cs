@@ -251,13 +251,18 @@ public class RouteFileQualityTests
             return new Dictionary<string, string>();
 
         var js = File.ReadAllText(routerPath);
-        var pattern = new Regex(@"'([^']+)'\s*:\s*'([^']+)'");
+        // Match both quoted and unquoted route keys with path: B.xxx + "relative/path.html"
+        var pattern = new Regex(
+            @"(?:""([^""]+)""|([a-z][a-z0-9\-]*))\s*:\s*\{[^}]*path\s*:\s*\w+\.\w+\s*\+\s*""([^""]+)""",
+            RegexOptions.Singleline);
         var matches = pattern.Matches(js);
 
         var routes = new Dictionary<string, string>();
         foreach (Match m in matches)
         {
-            routes.TryAdd(m.Groups[1].Value, m.Groups[2].Value);
+            var key = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
+            var path = m.Groups[3].Value;
+            routes.TryAdd(key, path);
         }
         return routes;
     }
@@ -276,30 +281,23 @@ public class RouteFileQualityTests
 
     private string? ResolveRoutePath(string routePath)
     {
-        // All paths are resolved relative to shell dir (where mestech-shell.html lives)
-        var resolved = Path.GetFullPath(Path.Combine(_shellDir, routePath.Replace('/', Path.DirectorySeparatorChar)));
-        if (File.Exists(resolved)) return resolved;
+        var rel = routePath.Replace('/', Path.DirectorySeparatorChar);
 
-        // Legacy: /src/pages/* → panel or Trendyol submodule
-        if (routePath.StartsWith("/src/"))
-        {
-            var withoutSrc = routePath.Substring(5);
-            var panelPath = Path.Combine(_panelDir, withoutSrc.Replace('/', Path.DirectorySeparatorChar));
-            if (File.Exists(panelPath)) return panelPath;
+        // Primary: relative path from B.panel → panel/pages/
+        var panelPagesPath = Path.Combine(_panelDir, "pages", rel);
+        if (File.Exists(panelPagesPath)) return panelPagesPath;
 
-            var trendyolPath = Path.Combine(_trendyolSrcDir, withoutSrc.Replace('/', Path.DirectorySeparatorChar));
-            if (File.Exists(trendyolPath)) return trendyolPath;
-        }
+        // Top-level panel dir (for dashboard.html etc.)
+        var panelDirPath = Path.Combine(_panelDir, rel);
+        if (File.Exists(panelDirPath)) return panelDirPath;
 
-        if (routePath.StartsWith("/"))
-        {
-            var stripped = routePath.TrimStart('/');
-            var panelPath = Path.Combine(_panelDir, stripped.Replace('/', Path.DirectorySeparatorChar));
-            if (File.Exists(panelPath)) return panelPath;
+        // Shell dir (for B.shell paths like pages/shell-dashboard.html)
+        var shellRelPath = Path.Combine(_shellDir, rel);
+        if (File.Exists(shellRelPath)) return shellRelPath;
 
-            var trendyolPath = Path.Combine(_trendyolSrcDir, stripped.Replace('/', Path.DirectorySeparatorChar));
-            if (File.Exists(trendyolPath)) return trendyolPath;
-        }
+        // Trendyol src dir
+        var trendyolPath = Path.Combine(_trendyolSrcDir, rel);
+        if (File.Exists(trendyolPath)) return trendyolPath;
 
         return null;
     }
