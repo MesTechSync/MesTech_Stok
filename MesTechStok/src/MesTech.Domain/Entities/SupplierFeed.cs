@@ -43,6 +43,26 @@ public class SupplierFeed : BaseEntity, ITenantEntity
     // Hedef platformlar (virgülle ayrılmış PlatformType değerleri)
     public string? TargetPlatforms { get; set; }
 
+    // ENT-DROP-IMP-SPRINT-D D-07: Şifrelenmiş HTTP Basic Auth credential
+    // Repoda asla plain-text gözükmez; IFeedCredentialProtector ile yönetilir.
+    // EF Core backing field pattern: private setter, public read.
+
+    /// <summary>
+    /// AES-256-GCM ile şifrelenmiş credential blob.
+    /// Plain-text asla bu alana yazılmaz — IFeedCredentialProtector.Protect() çıktısı gelir.
+    /// </summary>
+    public string? EncryptedCredential { get; private set; }
+
+    /// <summary>Feed için credential tanımlı mı?</summary>
+    public bool HasCredential => !string.IsNullOrEmpty(EncryptedCredential);
+
+    /// <summary>Şifrelenmiş credential'ı set eder (şifreli değer dışarıdan gelir).</summary>
+    public void SetCredential(string? encryptedValue)
+    {
+        EncryptedCredential = encryptedValue;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     // Navigation
     public Supplier? Supplier { get; set; }
 

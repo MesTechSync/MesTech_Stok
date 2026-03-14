@@ -2,12 +2,12 @@ namespace MesTech.Domain.Enums;
 
 public enum ExpenseCategory
 {
-    CargoFee = 0,
-    MarketplaceFee = 1,
-    AdvertisingFee = 2,
-    SoftwareFee = 3,
-    RentFee = 4,
-    StaffCost = 5,
-    Utilities = 6,
+    Accommodation = 0,
+    Travel = 1,
+    Meals = 2,
+    Software = 3,
+    Hardware = 4,
+    Marketing = 5,
+    Salary = 6,
     Other = 99
 }

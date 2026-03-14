@@ -1,2 +1,10 @@
 namespace MesTech.Domain.Enums;
-public enum WorkTaskStatus { Backlog, Todo, InProgress, InReview, Done, Cancelled }
+public enum WorkTaskStatus
+{
+    Backlog = 0,
+    Todo = 1,
+    InProgress = 2,
+    InReview = 3,
+    Done = 4,
+    Cancelled = 5
+}

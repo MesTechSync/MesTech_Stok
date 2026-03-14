@@ -22,7 +22,17 @@ public class CalendarEvent : BaseEntity, ITenantEntity
     public Guid? RelatedDealId { get; private set; }
     public Guid? RelatedWorkTaskId { get; private set; }
 
+    private readonly List<CalendarEventAttendee> _attendees = [];
+    public IReadOnlyCollection<CalendarEventAttendee> Attendees => _attendees.AsReadOnly();
+
     private CalendarEvent() { }
+
+    public void AddAttendee(Guid userId)
+    {
+        if (_attendees.Any(a => a.UserId == userId)) return;
+        _attendees.Add(CalendarEventAttendee.Create(Id, userId));
+        UpdatedAt = DateTime.UtcNow;
+    }
 
     public static CalendarEvent Create(
         Guid tenantId, string title, DateTime startAt, DateTime endAt,
@@ -33,7 +43,8 @@ public class CalendarEvent : BaseEntity, ITenantEntity
         Guid? relatedWorkTaskId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        if (endAt <= startAt) throw new ArgumentException("EndAt must be after StartAt.");
+        if (!isAllDay && endAt <= startAt)
+            throw new ArgumentException("End time must be after start time.");
         var ev = new CalendarEvent
         {
             Id = Guid.NewGuid(),
