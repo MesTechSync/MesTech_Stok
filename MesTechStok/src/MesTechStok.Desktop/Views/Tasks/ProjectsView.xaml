@@ -1,0 +1,78 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Tasks.ProjectsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Projeler" Foreground="White" FontSize="18"
+                           FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="+ Yeni Proje" Command="{Binding CreateProjectCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" BorderThickness="0"
+                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+            </Grid>
+        </Border>
+
+        <!-- Proje Kartları Grid -->
+        <ScrollViewer Grid.Row="1" Background="#F4F6F9">
+            <ItemsControl ItemsSource="{Binding Projects}" Margin="20">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="300" Margin="0,0,16,16" Padding="20"
+                                Background="White" CornerRadius="8"
+                                Cursor="Hand"
+                                Effect="{StaticResource MaterialDesignShadowDepth1}">
+                            <Border.InputBindings>
+                                <MouseBinding Gesture="LeftClick"
+                                              Command="{Binding DataContext.OpenKanbanCommand,
+                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              CommandParameter="{Binding Id}"/>
+                            </Border.InputBindings>
+                            <StackPanel>
+                                <!-- Renk şerit -->
+                                <Border Height="4" CornerRadius="2" Margin="0,0,0,14"
+                                        Background="{Binding Color, FallbackValue='#2855AC'}"/>
+                                <TextBlock Text="{Binding Name}" FontSize="16"
+                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Status}" FontSize="12"
+                                           Foreground="#64748B" Margin="0,4,0,0"/>
+                                <Separator Margin="0,12"/>
+                                <!-- İlerleme -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ProgressBar Grid.Column="0" Height="6"
+                                                 Value="{Binding CompletionPercent}"
+                                                 Maximum="100" VerticalAlignment="Center"
+                                                 Foreground="#2855AC" Background="#E2E8F0"/>
+                                    <TextBlock Grid.Column="1" Margin="8,0,0,0"
+                                               Text="{Binding CompletionPercent, StringFormat='{}{0:F0}%'}"
+                                               FontSize="12" Foreground="#64748B"/>
+                                </Grid>
+                                <TextBlock Text="{Binding TaskSummary}" FontSize="11"
+                                           Foreground="#94A3B8" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

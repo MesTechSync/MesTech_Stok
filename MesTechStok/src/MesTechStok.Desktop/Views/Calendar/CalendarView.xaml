@@ -1,0 +1,89 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Calendar.CalendarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="&#x2190;" Command="{Binding PrevMonthCommand}"
+                        Background="Transparent" Foreground="White" FontSize="16"
+                        BorderThickness="0" Width="36" Height="36"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding CurrentMonthLabel}"
+                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="&#x2192;" Command="{Binding NextMonthCommand}"
+                        Background="Transparent" Foreground="White" FontSize="16"
+                        BorderThickness="0" Width="36" Height="36"/>
+                <Button Grid.Column="3" Content="+ Etkinlik" Margin="12,0,0,0"
+                        Command="{Binding CreateEventCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="14,8" BorderThickness="0"
+                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+            </Grid>
+        </Border>
+
+        <!-- Gün başlıkları (Pzt Sal Çar ...) -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <UniformGrid Rows="1" Columns="7" Margin="0,6">
+                <TextBlock Text="Pzt" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#64748B" FontSize="12"/>
+                <TextBlock Text="Sal" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#64748B" FontSize="12"/>
+                <TextBlock Text="Çar" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#64748B" FontSize="12"/>
+                <TextBlock Text="Per" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#64748B" FontSize="12"/>
+                <TextBlock Text="Cum" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#64748B" FontSize="12"/>
+                <TextBlock Text="Cmt" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#94A3B8" FontSize="12"/>
+                <TextBlock Text="Paz" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#94A3B8" FontSize="12"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- Takvim Grid — 6 satır x 7 sütun -->
+        <ScrollViewer Grid.Row="2" Background="#F4F6F9">
+            <ItemsControl ItemsSource="{Binding CalendarDays}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="6" Columns="7"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="1" MinHeight="90"
+                                Background="{Binding Background}"
+                                BorderBrush="#E2E8F0" BorderThickness="0,0,1,1">
+                            <StackPanel>
+                                <TextBlock Text="{Binding DayNumber}"
+                                           FontSize="13" Margin="6,4,0,2"
+                                           FontWeight="{Binding DayFontWeight}"
+                                           Foreground="{Binding DayColor}"/>
+                                <!-- Etkinlik noktaları -->
+                                <ItemsControl ItemsSource="{Binding Events}" Margin="4,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="3" Padding="4,2" Margin="0,1"
+                                                    Background="{Binding Color}">
+                                                <TextBlock Text="{Binding Title}" FontSize="10"
+                                                           Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

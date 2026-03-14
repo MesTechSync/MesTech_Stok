@@ -1548,6 +1548,58 @@ namespace MesTechStok.Desktop
             }
         }
 
+        // GÖREV & TAKVİM MENÜ GRUBU — Dalga 8 H27
+        private void NavTasksProjects_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowTasksProjectsCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavTasksProjects });
+                    UpdateStatusBar("Projeler yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Projeler hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavTasksKanban_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowTasksKanbanCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavTasksKanban });
+                    UpdateStatusBar("Kanban Board yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Kanban hatası: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavCalendar_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowCalendarCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavCalendar });
+                    UpdateStatusBar("Takvim yüklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Takvim hatası: {ex.Message}", "Hata");
+            }
+        }
+
         private void NavReturnToWelcome_Click(object sender, RoutedEventArgs e)
         {
             try

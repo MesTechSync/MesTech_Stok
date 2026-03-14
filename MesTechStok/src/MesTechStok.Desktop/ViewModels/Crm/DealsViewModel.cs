@@ -1,28 +1,59 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Domain.Interfaces;
 
 namespace MesTechStok.Desktop.ViewModels.Crm;
 
 public partial class DealsViewModel : ObservableObject
 {
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+
+    [ObservableProperty] private bool isLoading;
+
     public ObservableCollection<KanbanStageVm> Stages { get; } = [];
 
-    [RelayCommand]
-    private void CreateDeal() { /* H27'de implement */ }
-
-    [RelayCommand]
-    private void SwitchToList() { /* Liste görünümüne geç */ }
-
-    // Örnek veri — H27'de MediatR ile değiştirilir
-    public DealsViewModel()
+    public DealsViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
-        Stages.Add(new KanbanStageVm { Name = "İlk İletişim", Color = "#3B82F6", DealCount = 3 });
-        Stages.Add(new KanbanStageVm { Name = "Teklif Verildi", Color = "#F59E0B", DealCount = 2 });
-        Stages.Add(new KanbanStageVm { Name = "Müzakere", Color = "#8B5CF6", DealCount = 1 });
-        Stages.Add(new KanbanStageVm { Name = "Kazanıldı ✓", Color = "#10B981", DealCount = 0 });
-        Stages.Add(new KanbanStageVm { Name = "Kaybedildi ✗", Color = "#EF4444", DealCount = 0 });
+        _mediator = mediator;
+        _currentUser = currentUser;
+        InitDefaultStages();
     }
+
+    private void InitDefaultStages()
+    {
+        Stages.Clear();
+        Stages.Add(new KanbanStageVm { Name = "İlk İletişim",   Color = "#3B82F6" });
+        Stages.Add(new KanbanStageVm { Name = "Teklif Verildi", Color = "#F59E0B" });
+        Stages.Add(new KanbanStageVm { Name = "Müzakere",       Color = "#8B5CF6" });
+        Stages.Add(new KanbanStageVm { Name = "Kazanıldı ✓",    Color = "#10B981" });
+        Stages.Add(new KanbanStageVm { Name = "Kaybedildi ✗",   Color = "#EF4444" });
+    }
+
+    // GetDealsQuery pipeline H28 DEV1 + DEV3 tamamlayınca tam aktif olacak
+    public async Task LoadAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            // TODO H28: await _mediator.Send(new GetPipelineKanbanQuery(...));
+            // Şimdilik: stage yapısı hazır, deal kartları H28'de dolacak
+            await Task.Delay(10);
+        }
+        finally { IsLoading = false; }
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync() => await LoadAsync();
+
+    [RelayCommand]
+    private void CreateDeal()
+        => System.Windows.MessageBox.Show("Yeni Fırsat formu yakında.", "MesTech CRM");
+
+    [RelayCommand]
+    private void SwitchToList() { /* H28 liste görünümü */ }
 }
 
 public partial class KanbanStageVm : ObservableObject
