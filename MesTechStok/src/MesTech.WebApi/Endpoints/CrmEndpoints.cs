@@ -10,6 +10,8 @@
 // using MesTech.Application.Features.Crm.Queries.GetLeads;
 // using MesTech.Domain.Enums;
 
+using MesTech.Application.Interfaces;
+
 namespace MesTech.WebApi.Endpoints;
 
 /// <summary>
@@ -108,5 +110,27 @@ public static class CrmEndpoints
             }))
             .WithName("CreateDeal")
             .WithSummary("Yeni fırsat oluştur (DEV1-DEPENDENCY)");
+
+        // POST /api/v1/crm/deals/{dealId}/win-and-create-order
+        group.MapPost("/deals/{dealId:guid}/win-and-create-order",
+            async (Guid dealId, ICrmOrderBridgeService bridge, CancellationToken ct) =>
+            {
+                var orderId = await bridge.CreateOrderFromDealAsync(dealId, ct);
+                return Results.Ok(new { dealId, orderId });
+            })
+            .WithName("WinDealAndCreateOrder")
+            .WithSummary("Deal kazanildi — Order baglantisi olustur (H27-3.4)");
+
+        // POST /api/v1/crm/orders/{orderId}/create-lead
+        group.MapPost("/orders/{orderId:guid}/create-lead",
+            async (Guid orderId, ICrmOrderBridgeService bridge, CancellationToken ct) =>
+            {
+                var leadId = await bridge.CreateLeadFromOrderAsync(orderId, ct);
+                return leadId.HasValue
+                    ? Results.Created($"/api/v1/crm/leads/{leadId}", new { orderId, leadId })
+                    : Results.Ok(new { orderId, message = "Lead zaten mevcut" });
+            })
+            .WithName("CreateLeadFromOrder")
+            .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)");
     }
 }

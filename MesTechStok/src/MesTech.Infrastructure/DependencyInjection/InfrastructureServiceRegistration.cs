@@ -4,12 +4,16 @@ using MesTech.Domain.Services;
 using MesTech.Infrastructure.AI;
 using MesTech.Infrastructure.Caching;
 using MesTech.Infrastructure.HealthChecks;
+using MesTech.Infrastructure.Integration.Crm;
 using MesTech.Infrastructure.Jobs;
 using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
 using Crm = MesTech.Infrastructure.Persistence.Repositories.Crm;
+using Tasks = MesTech.Infrastructure.Persistence.Repositories.Tasks;
+using Cal = MesTech.Infrastructure.Persistence.Repositories.Calendar;
+using Finance = MesTech.Infrastructure.Persistence.Repositories.Finance;
 using MesTech.Infrastructure.Realtime;
 using MesTech.Infrastructure.Security;
 using MesTech.Infrastructure.Services;
@@ -18,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Minio;
 
 namespace MesTech.Infrastructure.DependencyInjection;
 
@@ -73,6 +78,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
         services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
         services.AddScoped<ICrmDealRepository, Crm.CrmDealRepository>();
+
+        // Task / Calendar Repositories (Dalga 8 H27)
+        services.AddScoped<IProjectRepository, Tasks.ProjectRepository>();
+        services.AddScoped<IWorkTaskRepository, Tasks.WorkTaskRepository>();
+        services.AddScoped<ICalendarEventRepository, Cal.CalendarEventRepository>();
+        services.AddScoped<IFinanceExpenseRepository, Finance.ExpenseRepository>();
 
         // Dropshipping Pool Repository (Sprint-B)
         services.AddScoped<IDropshippingPoolRepository, DropshippingPoolRepository>();
@@ -169,8 +180,21 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IExcelImportService, ExcelImportService>();
         services.AddScoped<IExcelExportService, ExcelExportService>();
 
-        // Document Storage (Dalga 8 — MinIO stub, tam impl Dalga 8 H27)
-        services.AddSingleton<IDocumentStorageService, MinioDocumentStorageService>();
+        // CRM-Order Kopru Servisi (Dalga 8 H27)
+        services.AddScoped<ICrmOrderBridgeService, CrmOrderBridgeService>();
+
+        // Document Storage (Dalga 8 H27 — MinIO SDK gercek implementasyon)
+        services.AddSingleton<IMinioClient>(sp =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            return new MinioClient()
+                .WithEndpoint(config["MinIO:Endpoint"] ?? "localhost:9000")
+                .WithCredentials(
+                    config["MinIO:AccessKey"] ?? "mestech_minio",
+                    config["MinIO:SecretKey"] ?? "changeme")
+                .Build();
+        });
+        services.AddScoped<IDocumentStorageService, MinioDocumentStorageService>();
 
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();

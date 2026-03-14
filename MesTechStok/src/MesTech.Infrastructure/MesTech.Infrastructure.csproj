@@ -35,6 +35,7 @@
     <PackageReference Include="Hangfire.PostgreSql" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="prometheus-net" />
+    <PackageReference Include="Minio" />
   </ItemGroup>
 
   <PropertyGroup>

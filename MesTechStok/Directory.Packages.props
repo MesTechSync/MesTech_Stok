@@ -46,6 +46,7 @@
   <ItemGroup Label="Infrastructure">
     <!-- GHSA-4cv2 fix: override transitive dep from WireMock.Net → Handlebars.Net.Helpers.DynamicLinq -->
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.1" />
+    <PackageVersion Include="Minio" Version="6.0.3" />
     <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageVersion Include="Hangfire.Core" Version="1.8.20" />
     <PackageVersion Include="Hangfire.PostgreSql" Version="1.20.10" />
