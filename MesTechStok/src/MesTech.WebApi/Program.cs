@@ -1,5 +1,7 @@
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.DependencyInjection;
@@ -53,6 +55,35 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+// Swagger/OpenAPI — API documentation with API Key auth support
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MesTech API", Version = "v1" });
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "X-API-Key",
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// CORS — React SaaS frontend + development origins
+builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
+    policy.WithOrigins("https://app.mestech.tr", "http://localhost:5173", "http://localhost:3000")
+          .AllowAnyHeader()
+          .AllowAnyMethod()));
+
 var app = builder.Build();
 
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
@@ -67,6 +98,38 @@ if (app.Environment.IsProduction())
         logger.LogWarning("PENDING MIGRATIONS: {Count} migration(s) need manual apply before deploy: {Migrations}",
             pending.Count, string.Join(", ", pending));
     }
+}
+
+// CORS middleware — before auth and exception handler
+app.UseCors("SaaS");
+
+// Global exception handler — ProblemDetails response
+app.UseExceptionHandler(error =>
+{
+    error.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/problem+json";
+        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(exceptionFeature?.Error, "Unhandled exception");
+        await context.Response.WriteAsJsonAsync(new
+        {
+            type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            title = "Internal Server Error",
+            status = 500,
+            detail = app.Environment.IsDevelopment()
+                ? exceptionFeature?.Error?.Message
+                : "An unexpected error occurred"
+        });
+    });
+});
+
+// Swagger UI — development only
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // API Key middleware — bypass paths skip validation (/health, /metrics)
@@ -96,5 +159,10 @@ AccountingEndpoints.Map(app);
 DropshippingEndpoints.Map(app);
 NotificationEndpoints.Map(app);
 ShippingEndpoints.Map(app);
+SocialFeedEndpoints.Map(app);
+PaymentEndpoints.Map(app);
 
 app.Run();
+
+// Required for WebApplicationFactory<Program> in integration tests (E03)
+public partial class Program { }
