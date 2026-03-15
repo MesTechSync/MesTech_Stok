@@ -1,10 +1,17 @@
 using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Middleware;
+using MesTech.Infrastructure.Security;
 using MesTech.WebApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// JWT Options — bind from appsettings "Jwt" section (E01)
+builder.Services.Configure<JwtTokenOptions>(
+    builder.Configuration.GetSection(JwtTokenOptions.SectionName));
 
 // API Key authentication (reads ApiSecurity section from appsettings.json)
 builder.Services.AddApiKeyAuthentication(builder.Configuration);
@@ -19,6 +26,10 @@ builder.Services.AddMediatR(cfg =>
 
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Override ITenantProvider for WebApi: JWT claim-based tenant resolution (E02)
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantProvider, ApiTenantProvider>();
 
 // Remove HealthCheckEndpoint BackgroundService — WebApi provides its own /health and /metrics on port 5100
 var healthCheckDescriptor = builder.Services.FirstOrDefault(d =>
@@ -68,6 +79,7 @@ app.UseRateLimiter();
 HealthEndpoints.Map(app);
 
 // API v1 endpoints
+AuthEndpoints.Map(app);
 ProductEndpoints.Map(app);
 StockEndpoints.Map(app);
 CategoryEndpoints.Map(app);
@@ -77,7 +89,12 @@ InvoiceEndpoints.Map(app);
 QuotationEndpoints.Map(app);
 DashboardEndpoints.Map(app);
 CrmEndpoints.Map(app);
+FinanceEndpoints.Map(app);
 SupplierFeedsEndpoints.Map(app);
 DropshippingPoolEndpoints.Map(app);
+AccountingEndpoints.Map(app);
+DropshippingEndpoints.Map(app);
+NotificationEndpoints.Map(app);
+ShippingEndpoints.Map(app);
 
 app.Run();
