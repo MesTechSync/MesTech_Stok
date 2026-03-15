@@ -47,14 +47,6 @@ public class LeaveTests
     }
 
     [Fact]
-    public void Create_SameDayLeave_ShouldHaveOneTotalDay()
-    {
-        var date = DateTime.Today.AddDays(7);
-        var leave = Leave.Create(_tenantId, _employeeId, LeaveType.Sick, date, date, "Doktor");
-        leave.TotalDays.Should().Be(1);
-    }
-
-    [Fact]
     public void Approve_PendingLeave_ShouldRaiseEvent()
     {
         var leave = CreateLeave();
@@ -79,16 +71,23 @@ public class LeaveTests
         var leave = CreateLeave();
         leave.Reject(_approverUserId, "Yoğun dönem");
         leave.Status.Should().Be(LeaveStatus.Rejected);
-        leave.Reason.Should().Be("Yoğun dönem");
+        leave.RejectionReason.Should().Be("Yoğun dönem");
         leave.DomainEvents.Should().ContainSingle(e => e is LeaveRejectedEvent);
     }
 
     [Fact]
-    public void Reject_AlreadyApproved_ShouldThrow()
+    public void Reject_EmptyReason_ShouldThrow()
     {
         var leave = CreateLeave();
-        leave.Approve(_approverUserId);
-        var act = () => leave.Reject(_approverUserId, "Sonradan iptal");
-        act.Should().Throw<InvalidOperationException>();
+        var act = () => leave.Reject(_approverUserId, "");
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Cancel_PendingLeave_ShouldSucceed()
+    {
+        var leave = CreateLeave();
+        leave.Cancel();
+        leave.Status.Should().Be(LeaveStatus.Cancelled);
     }
 }

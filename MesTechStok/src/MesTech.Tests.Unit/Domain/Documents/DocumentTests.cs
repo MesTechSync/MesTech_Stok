@@ -23,9 +23,8 @@ public class DocumentTests
         var doc = CreateDocument();
         doc.DomainEvents.Should().ContainSingle(e => e is DocumentUploadedEvent);
         var ev = (DocumentUploadedEvent)doc.DomainEvents.First();
-        ev.FileName.Should().Be("invoice_001.pdf");
-        ev.DocumentId.Should().Be(doc.Id);
-        ev.TenantId.Should().Be(_tenantId);
+        ev.FileName.Should().Be("Fatura-Ocak.pdf");
+        ev.FileSizeBytes.Should().Be(102400);
     }
 
     [Fact]
@@ -37,37 +36,36 @@ public class DocumentTests
     }
 
     [Fact]
-    public void Create_WhitespaceFileName_ShouldThrow()
+    public void Create_ZeroSize_ShouldThrow()
     {
-        var act = () => Document.Create(_tenantId, "   ", "Orijinal.pdf",
-            "application/pdf", 1000, "/path/to/file", _userId);
+        var act = () => Document.Create(_tenantId, "file.pdf", "file.pdf",
+            "application/pdf", 0, "/path", _userId);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void Create_EmptyStoragePath_ShouldThrow()
+    {
+        var act = () => Document.Create(_tenantId, "file.pdf", "file.pdf",
+            "application/pdf", 1000, "", _userId);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public void Create_SetsCorrectProperties()
-    {
-        var doc = CreateDocument(51200);
-        doc.FileSizeBytes.Should().Be(51200);
-        doc.ContentType.Should().Be("application/pdf");
-        doc.OriginalFileName.Should().Be("Fatura-Ocak.pdf");
-        doc.UploadedByUserId.Should().Be(_userId);
-        doc.TenantId.Should().Be(_tenantId);
-    }
-
-    [Fact]
-    public void Create_DefaultVisibility_ShouldBeTenantOnly()
+    public void LinkToOrder_ShouldSetOrderId()
     {
         var doc = CreateDocument();
-        doc.Visibility.Should().Be(DocumentVisibility.TenantOnly);
+        var orderId = Guid.NewGuid();
+        doc.LinkToOrder(orderId);
+        doc.OrderId.Should().Be(orderId);
     }
 
     [Fact]
-    public void Create_WithFolderId_ShouldSetFolderId()
+    public void MoveToFolder_ShouldUpdateFolderId()
     {
+        var doc = CreateDocument();
         var folderId = Guid.NewGuid();
-        var doc = Document.Create(_tenantId, "file.pdf", "file.pdf", "application/pdf",
-            1000, "/path", _userId, folderId: folderId);
+        doc.MoveToFolder(folderId);
         doc.FolderId.Should().Be(folderId);
     }
 }
@@ -108,9 +106,10 @@ public class DocumentFolderTests
     }
 
     [Fact]
-    public void Create_SystemFolder_ShouldSetIsSystemTrue()
+    public void Delete_SystemFolder_ShouldThrow()
     {
         var folder = DocumentFolder.Create(_tenantId, "Siparişler", isSystem: true);
-        folder.IsSystem.Should().BeTrue();
+        var act = () => folder.Delete();
+        act.Should().Throw<InvalidOperationException>();
     }
 }

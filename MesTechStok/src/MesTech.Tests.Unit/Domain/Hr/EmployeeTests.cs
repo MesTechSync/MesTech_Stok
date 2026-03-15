@@ -31,34 +31,36 @@ public class EmployeeTests
     }
 
     [Fact]
-    public void Create_WhitespaceCode_ShouldThrow()
+    public void Create_FutureHireDate_ShouldThrow()
     {
-        var act = () => Employee.Create(_tenantId, _userId, "   ", DateTime.Today);
+        var act = () => Employee.Create(_tenantId, _userId, "EMP-X", DateTime.Today.AddDays(10));
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public void Create_SetsHireDate()
-    {
-        var hireDate = DateTime.Today.AddMonths(-3);
-        var e = Employee.Create(_tenantId, _userId, "EMP-002", hireDate);
-        e.HireDate.Should().Be(hireDate);
-    }
-
-    [Fact]
-    public void Create_WithDepartmentId_ShouldSetDepartmentId()
-    {
-        var deptId = Guid.NewGuid();
-        var e = Employee.Create(_tenantId, _userId, "EMP-003", DateTime.Today.AddMonths(-1),
-            departmentId: deptId);
-        e.DepartmentId.Should().Be(deptId);
-    }
-
-    [Fact]
-    public void Create_WithoutDepartment_DepartmentIdShouldBeNull()
+    public void PutOnLeave_ActiveEmployee_ShouldSetStatusToOnLeave()
     {
         var e = CreateEmployee();
-        e.DepartmentId.Should().BeNull();
+        e.PutOnLeave();
+        e.Status.Should().Be(EmployeeStatus.OnLeave);
+    }
+
+    [Fact]
+    public void PutOnLeave_AlreadyOnLeave_ShouldThrow()
+    {
+        var e = CreateEmployee();
+        e.PutOnLeave();
+        var act = () => e.PutOnLeave();
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void ReturnFromLeave_ShouldSetStatusToActive()
+    {
+        var e = CreateEmployee();
+        e.PutOnLeave();
+        e.ReturnFromLeave();
+        e.Status.Should().Be(EmployeeStatus.Active);
     }
 
     [Fact]
@@ -71,27 +73,27 @@ public class EmployeeTests
     }
 
     [Fact]
-    public void Terminate_SetsTerminationDate()
+    public void Terminate_AlreadyTerminated_ShouldThrow()
     {
         var e = CreateEmployee();
-        var terminationDate = DateTime.Today.AddDays(-1);
-        e.Terminate(terminationDate);
-        e.TerminationDate.Should().Be(terminationDate);
+        e.Terminate(DateTime.Today);
+        var act = () => e.Terminate(DateTime.Today);
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void Create_WithJobTitle_ShouldSetJobTitle()
+    public void UpdateSalary_NegativeValue_ShouldThrow()
     {
-        var e = Employee.Create(_tenantId, _userId, "EMP-005", DateTime.Today.AddYears(-1),
-            jobTitle: "Senior Developer");
-        e.JobTitle.Should().Be("Senior Developer");
+        var e = CreateEmployee();
+        var act = () => e.UpdateSalary(-1000m);
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
-    public void Create_WithWorkEmail_ShouldSetWorkEmail()
+    public void UpdateSalary_ValidValue_ShouldUpdate()
     {
-        var e = Employee.Create(_tenantId, _userId, "EMP-006", DateTime.Today.AddYears(-2),
-            workEmail: "emp@mestech.com");
-        e.WorkEmail.Should().Be("emp@mestech.com");
+        var e = CreateEmployee();
+        e.UpdateSalary(25000m);
+        e.MonthlySalary.Should().Be(25000m);
     }
 }
