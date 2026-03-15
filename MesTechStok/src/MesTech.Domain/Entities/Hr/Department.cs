@@ -1,5 +1,4 @@
 using MesTech.Domain.Common;
-
 namespace MesTech.Domain.Entities.Hr;
 
 public class Department : BaseEntity, ITenantEntity
@@ -16,14 +15,11 @@ public class Department : BaseEntity, ITenantEntity
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new Department
         {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            Name = name,
-            ParentDepartmentId = parentDepartmentId,
-            CreatedAt = DateTime.UtcNow
+            Id = Guid.NewGuid(), TenantId = tenantId, Name = name,
+            ParentDepartmentId = parentDepartmentId, CreatedAt = DateTime.UtcNow
         };
     }
 
     public void SetManager(Guid employeeId) { ManagerEmployeeId = employeeId; UpdatedAt = DateTime.UtcNow; }
-    public void Rename(string name) { ArgumentException.ThrowIfNullOrWhiteSpace(name); Name = name; UpdatedAt = DateTime.UtcNow; }
+    public void Rename(string newName) { ArgumentException.ThrowIfNullOrWhiteSpace(newName); Name = newName; UpdatedAt = DateTime.UtcNow; }
 }
