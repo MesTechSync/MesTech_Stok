@@ -52,7 +52,9 @@ public class AdapterHealthCheckTests
     [InlineData(typeof(CiceksepetiAdapter), "_rateLimitSemaphore", 10)]
     [InlineData(typeof(HepsiburadaAdapter), "_rateLimitSemaphore", 20)]
     [InlineData(typeof(PazaramaAdapter), "_rateLimitSemaphore", 10)]
-    [InlineData(typeof(Bitrix24Adapter), "_rateLimitSemaphore", 50)]
+    // Bitrix24Adapter excluded: ConfigureRateLimit() replaces the static semaphore object,
+    // causing a race when parallel unit tests (ConfigureRateLimit_SetsConcurrency) run
+    // concurrently with integration tests. Configurable limit is verified in unit tests.
     public void PlatformAdapter_HasRateLimitSemaphore(Type adapterType, string fieldName, int expectedConcurrency)
     {
         var field = adapterType.GetField(fieldName, PrivateStatic);
@@ -61,8 +63,22 @@ public class AdapterHealthCheckTests
 
         var semaphore = field!.GetValue(null) as SemaphoreSlim;
         semaphore.Should().NotBeNull();
-        semaphore!.CurrentCount.Should().Be(expectedConcurrency,
-            $"{adapterType.Name} rate limit should default to {expectedConcurrency} concurrent requests");
+        // Use m_maxCount (design-time capacity) instead of CurrentCount (runtime available slots)
+        // to avoid flakiness when integration tests run in parallel and consume semaphore slots.
+        GetSemaphoreMaxCount(semaphore!).Should().Be(expectedConcurrency,
+            $"{adapterType.Name} rate limit capacity should be {expectedConcurrency} concurrent requests");
+    }
+
+    [Fact]
+    public void Bitrix24Adapter_HasRateLimitSemaphore_FieldExists()
+    {
+        // Bitrix24 has a configurable static semaphore (ConfigureRateLimit replaces the object).
+        // We only verify the field exists and is initialized; exact capacity is tested in unit tests.
+        var field = typeof(Bitrix24Adapter).GetField("_rateLimitSemaphore", PrivateStatic);
+        field.Should().NotBeNull("Bitrix24Adapter should have static '_rateLimitSemaphore' for rate limiting");
+
+        var semaphore = field!.GetValue(null) as SemaphoreSlim;
+        semaphore.Should().NotBeNull("Bitrix24Adapter._rateLimitSemaphore should be initialized");
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -117,8 +133,10 @@ public class AdapterHealthCheckTests
 
         var semaphore = field!.GetValue(null) as SemaphoreSlim;
         semaphore.Should().NotBeNull();
-        semaphore!.CurrentCount.Should().Be(expectedConcurrency,
-            $"{adapterType.Name} rate limit should default to {expectedConcurrency} concurrent requests");
+        // Use m_maxCount (design-time capacity) instead of CurrentCount (runtime available slots)
+        // to avoid flakiness when integration tests run in parallel and consume semaphore slots.
+        GetSemaphoreMaxCount(semaphore!).Should().Be(expectedConcurrency,
+            $"{adapterType.Name} rate limit capacity should be {expectedConcurrency} concurrent requests");
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -202,5 +220,16 @@ public class AdapterHealthCheckTests
         var loggerType = typeof(NullLogger<>).MakeGenericType(adapterType);
         var logger = Activator.CreateInstance(loggerType)!;
         return Activator.CreateInstance(adapterType, new HttpClient(), logger)!;
+    }
+
+    /// <summary>
+    /// Returns the design-time max capacity of a SemaphoreSlim via reflection on the internal
+    /// m_maxCount field. Unlike CurrentCount, this value is immutable after construction and
+    /// is not affected by concurrent WaitAsync/Release calls during parallel test execution.
+    /// </summary>
+    private static int GetSemaphoreMaxCount(SemaphoreSlim semaphore)
+    {
+        var field = typeof(SemaphoreSlim).GetField("m_maxCount", BindingFlags.NonPublic | BindingFlags.Instance);
+        return field is not null ? (int)field.GetValue(semaphore)! : -1;
     }
 }

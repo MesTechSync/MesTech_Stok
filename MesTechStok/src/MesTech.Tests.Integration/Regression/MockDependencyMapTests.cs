@@ -8,12 +8,13 @@ namespace MesTech.Tests.Integration.Regression;
 
 /// <summary>
 /// 5.D1-02 / 5.D2-04: Mock Bagimlilik Haritasi — documents and verifies the mock service landscape.
-/// Active mocks: 11 (3 Desktop + 6 Infrastructure AI/MESA + 2 Integration Invoice)
+/// Active mocks: 14 (3 Desktop + 9 Infrastructure AI/MESA/Accounting + 2 Integration Invoice)
 /// Obsolete mocks: 0 (4 deleted in Dalga 2: MockBarcodeService, MockInventoryService,
 ///   MockProductService, MockOpenCartService)
 /// If a new mock is added or an existing one removed, these tests must be updated.
 /// Dalga 4 added: MockBuyboxService, MockStockPredictionService, MockPriceOptimizationService, MockProductSearchService
 /// Dalga 5 added: MockInvoiceAdapter
+/// Dalga 8 (MUH-01/MUH-02) added: MockAdvisoryAgentClient, MockAdvisoryAgentV2, MockMesaAccountingService
 /// </summary>
 [Trait("Category", "Regression")]
 [Trait("Category", "MockMap")]
@@ -34,6 +35,10 @@ public class MockDependencyMapTests
     // IntegrationServiceRegistration.cs:
     //   IInvoiceProvider → MockInvoiceProvider
     //   IInvoiceAdapter → MockInvoiceAdapter                    (Dalga 5)
+    // AI/Accounting/Infrastructure:
+    //   IAdvisoryAgentClient → MockAdvisoryAgentClient          (Dalga 8 MUH-01)
+    //   IAdvisoryAgent → MockAdvisoryAgentV2                    (Dalga 8 MUH-01)
+    //   IMesaAccountingService → MockMesaAccountingService      (Dalga 8 MUH-01)
 
     private static readonly string[] ActiveMockFiles =
     {
@@ -48,6 +53,9 @@ public class MockDependencyMapTests
         "MockProductSearchService.cs",
         "MockInvoiceProvider.cs",
         "MockInvoiceAdapter.cs",
+        "MockAdvisoryAgentClient.cs",
+        "MockAdvisoryAgentV2.cs",
+        "MockMesaAccountingService.cs",
     };
 
     // ── Deleted obsolete mock class names (verify they stay deleted) ──
