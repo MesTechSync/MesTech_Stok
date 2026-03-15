@@ -1,17 +1,27 @@
-﻿using MesTech.Application.Interfaces;
+﻿using Hangfire;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Application.Interfaces.Erp;
 using MesTech.Application.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Formatters.Dropshipping;
 using MesTech.Infrastructure.Integration.Accounting;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Auth;
+using Microsoft.Extensions.Options;
 using MesTech.Infrastructure.Integration.Dropshipping;
 using MesTech.Infrastructure.Integration.Factory;
+using MesTech.Infrastructure.Integration.Feed;
+using MesTech.Infrastructure.Integration.Fulfillment;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
+using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Integration.Orchestration;
+using MesTech.Infrastructure.Integration.Payment;
 using MesTech.Infrastructure.Integration.ERP;
+using MesTech.Infrastructure.Integration.ERP.BizimHesap;
+using MesTech.Infrastructure.Integration.ERP.Logo;
+using MesTech.Infrastructure.Integration.ERP.Netsis;
 using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Infrastructure.Integration.Settlement;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -67,6 +77,13 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<AmazonTrAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonTrAdapter>());
 
+        // Dalga 11: Amazon EU (SP-API) — 7 EU marketplaces (DE, FR, IT, ES, NL, SE, PL)
+        services.AddSingleton<AmazonEuAdapter>(sp =>
+            new AmazonEuAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<AmazonEuAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonEuAdapter>());
+
         // Dalga 7: Bitrix24 CRM adapter — OAuth2, deal/contact sync, batch API
         services.AddSingleton<Bitrix24Adapter>(sp =>
             new Bitrix24Adapter(new HttpClient(), sp.GetRequiredService<ILogger<Bitrix24Adapter>>()));
@@ -78,8 +95,13 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
 
         // Dalga 8: eBay — OAuth2 Client Credentials (foundation, full impl TODO H28)
+        if (configuration is not null)
+            services.Configure<EbayOptions>(configuration.GetSection(EbayOptions.Section));
         services.AddSingleton<EbayAdapter>(sp =>
-            new EbayAdapter(new HttpClient(), sp.GetRequiredService<ILogger<EbayAdapter>>()));
+            new EbayAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<EbayAdapter>>(),
+                sp.GetService<IOptions<EbayOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
 
         // Dalga 8: Ozon — Client-Id + Api-Key header auth (foundation, full impl TODO H28)
@@ -99,6 +121,16 @@ public static class IntegrationServiceRegistration
             new ArasKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new SuratKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
+
+        // Phase B: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo)
+        services.AddScoped<ICargoAdapter>(sp =>
+            new MngKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<MngKargoAdapter>>()));
+        services.AddScoped<ICargoAdapter>(sp =>
+            new PttKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttKargoAdapter>>()));
+        services.AddScoped<ICargoAdapter>(sp =>
+            new HepsiJetCargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<HepsiJetCargoAdapter>>()));
+        services.AddScoped<ICargoAdapter>(sp =>
+            new SendeoCargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<SendeoCargoAdapter>>()));
 
         // Factory — receives IEnumerable<IIntegratorAdapter>
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
@@ -120,9 +152,17 @@ public static class IntegrationServiceRegistration
         // Invoice providers — factory pattern (replaces feature flag)
         services.AddScoped<MockInvoiceProvider>();
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<MockInvoiceProvider>());
+
+        // Dalga 9: UBL-TR 1.2 XML builder
+        services.AddSingleton<IUblTrXmlBuilder, UblTrXmlBuilder>();
+
         services.AddScoped<SovosInvoiceProvider>(sp =>
-            new SovosInvoiceProvider(new HttpClient(), sp.GetRequiredService<ILogger<SovosInvoiceProvider>>()));
+            new SovosInvoiceProvider(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<SovosInvoiceProvider>>(),
+                sp.GetRequiredService<IUblTrXmlBuilder>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
+        services.AddScoped<IEInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
         services.AddScoped<ParasutInvoiceProvider>(sp =>
             new ParasutInvoiceProvider(new HttpClient(), sp.GetRequiredService<ILogger<ParasutInvoiceProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ParasutInvoiceProvider>());
@@ -158,6 +198,17 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<HBFaturaProvider>());
 
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
+
+        // Dalga 10 E-10: GibPortalEInvoiceProvider — REST token-based e-Arsiv Portal (IEInvoiceProvider)
+        if (configuration is not null)
+            services.Configure<GibPortalEInvoiceOptions>(configuration.GetSection(GibPortalEInvoiceOptions.Section));
+        services.AddScoped<GibPortalEInvoiceProvider>(sp =>
+            new GibPortalEInvoiceProvider(
+                new HttpClient { Timeout = TimeSpan.FromSeconds(30) },
+                sp.GetRequiredService<ILogger<GibPortalEInvoiceProvider>>(),
+                sp.GetService<IOptions<GibPortalEInvoiceOptions>>()));
+        if (configuration?.GetValue<bool>("Invoice:GibPortalEInvoice:Enabled") == true)
+            services.AddScoped<IEInvoiceProvider>(sp => sp.GetRequiredService<GibPortalEInvoiceProvider>());
 
         // Dalga 5: Invoice Adapters — wrap existing providers via composition
         services.AddScoped<MockInvoiceAdapter>(sp =>
@@ -300,11 +351,174 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<ParasutERPAdapter>>()));
         services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ParasutERPAdapter>());
 
-        // MUH-02: ERP adapter factory — Scoped (depends on scoped IERPAdapter instances)
-        services.AddScoped<IERPAdapterFactory, ERPAdapterFactory>();
+        // MUH-03 + Dalga 12: Logo ERP adapter — L-Object REST API Bearer token + JSON sync
+        // Implements both IERPAdapter (legacy batch) and IErpAdapter (Dalga 11 ID-based)
+        services.AddSingleton<LogoTokenService>();
+        services.AddScoped<LogoERPAdapter>(sp =>
+            new LogoERPAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<LogoTokenService>(),
+                sp.GetRequiredService<IOrderRepository>(),
+                sp.GetRequiredService<IInvoiceRepository>(),
+                sp.GetRequiredService<ILogger<LogoERPAdapter>>()));
+        services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<LogoERPAdapter>());
+        services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<LogoERPAdapter>());
+
+        // MUH-03: BizimHesap ERP adapter — API Key auth + REST JSON sync
+        services.AddScoped<BizimHesapApiClient>();
+        services.AddScoped<BizimHesapERPAdapter>(sp =>
+            new BizimHesapERPAdapter(
+                sp.GetRequiredService<BizimHesapApiClient>(),
+                sp.GetRequiredService<ILogger<BizimHesapERPAdapter>>()));
+        services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<BizimHesapERPAdapter>());
+
+        // Dalga 13: Netsis ERP adapter — Basic Auth REST API + JSON sync
+        services.AddScoped<NetsisERPAdapter>(sp =>
+            new NetsisERPAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<IOrderRepository>(),
+                sp.GetRequiredService<ILogger<NetsisERPAdapter>>()));
+        services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<NetsisERPAdapter>());
+
+        // MUH-02 + Dalga 12: ERP adapter factory — Scoped (depends on scoped IERPAdapter + IErpAdapter instances)
+        // Implements both IERPAdapterFactory (legacy) and IErpAdapterFactory (Dalga 11)
+        services.AddScoped<ERPAdapterFactory>();
+        services.AddScoped<IERPAdapterFactory>(sp => sp.GetRequiredService<ERPAdapterFactory>());
+        services.AddScoped<IErpAdapterFactory>(sp => sp.GetRequiredService<ERPAdapterFactory>());
 
         // MUH-02: Canonical finance mapper — normalizes entities for ERP sync
         services.AddSingleton<CanonicalFinanceMapper>();
+
+        // -----------------------------------------------------------------------
+        // DALGA 9 — On Muhasebe & Kargo Genisletme
+        // -----------------------------------------------------------------------
+        // Phase B DONE: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo) registered above.
+        //
+        // TODO DAL9-CARGO: KolayGelsin adapter — when API documentation available
+        //
+        // TODO DAL9-MUH: FinancialTransaction + CariHesap + KomisyonHesaplama repositories
+        //   services.AddScoped<IFinancialTransactionRepository, FinancialTransactionRepository>();
+        //   services.AddScoped<ICariHesapRepository, CariHesapRepository>();
+        //   services.AddScoped<IKomisyonHesaplamaRepository, KomisyonHesaplamaRepository>();
+        //
+        // TODO DAL9-ERP: Sovos e-invoice provider upgrade (SandboxUrl + DefaultScenario support)
+        //   IEInvoiceProvider implementations registered here when Sovos extended.
+        //
+        // TODO DAL9-PLATFORM: Platform hakedis cekme + karlilik raporu query handlers
+        // -----------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------
+        // DALGA 10 — Sosyal Ticaret Feed Adapter'lari + PayTR Odeme
+        // -----------------------------------------------------------------------
+
+        // Social feed adapters — Scoped (multi-tenant credential isolation)
+        services.AddScoped<GoogleMerchantFeedAdapter>();
+        services.AddScoped<ISocialFeedAdapter>(sp => sp.GetRequiredService<GoogleMerchantFeedAdapter>());
+
+        services.AddScoped<FacebookShopFeedAdapter>();
+        services.AddScoped<ISocialFeedAdapter>(sp => sp.GetRequiredService<FacebookShopFeedAdapter>());
+
+        services.AddScoped<InstagramShopFeedAdapter>();
+        services.AddScoped<ISocialFeedAdapter>(sp => sp.GetRequiredService<InstagramShopFeedAdapter>());
+
+        // PayTR payment adapters — Scoped (config may vary per tenant in future)
+        services.AddScoped<PayTRDirectAdapter>(sp =>
+            new PayTRDirectAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(),
+                sp.GetRequiredService<ILogger<PayTRDirectAdapter>>()));
+        services.AddScoped<IPaymentProvider>(sp => sp.GetRequiredService<PayTRDirectAdapter>());
+
+        services.AddScoped<PayTRiFrameAdapter>(sp =>
+            new PayTRiFrameAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(),
+                sp.GetRequiredService<ILogger<PayTRiFrameAdapter>>()));
+        services.AddScoped<IPaymentProvider>(sp => sp.GetRequiredService<PayTRiFrameAdapter>());
+
+        // Dalga 10 C-01: Shopify — X-Shopify-Access-Token, cursor pagination, HMAC-SHA256 webhooks
+        if (configuration is not null)
+            services.Configure<ShopifyOptions>(configuration.GetSection(ShopifyOptions.Section));
+        services.AddSingleton<ShopifyAdapter>(sp =>
+            new ShopifyAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<ShopifyAdapter>>(),
+                sp.GetService<IOptions<ShopifyOptions>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<ShopifyAdapter>());
+
+        // Dalga 10 C-02: WooCommerce — Basic Auth (ConsumerKey:ConsumerSecret), page-based pagination
+        if (configuration is not null)
+            services.Configure<WooCommerceOptions>(configuration.GetSection(WooCommerceOptions.Section));
+        services.AddSingleton<WooCommerceAdapter>(sp =>
+            new WooCommerceAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<WooCommerceAdapter>>(),
+                sp.GetService<IOptions<WooCommerceOptions>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<WooCommerceAdapter>());
+
+        // Dalga 10 C-03: Etsy — stub (full OAuth2 PKCE impl Sprint D)
+        services.AddSingleton<EtsyAdapter>(sp =>
+            new EtsyAdapter(sp.GetRequiredService<ILogger<EtsyAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EtsyAdapter>());
+
+        // Dalga 10 C-03: Zalando — stub (full OAuth2 CC impl Sprint D)
+        services.AddSingleton<ZalandoAdapter>(sp =>
+            new ZalandoAdapter(sp.GetRequiredService<ILogger<ZalandoAdapter>>()));
+        services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<ZalandoAdapter>());
+
+        // SocialFeedRefreshJob — Scoped (depends on AppDbContext + feed adapters)
+        services.AddScoped<SocialFeedRefreshJob>();
+
+        // -----------------------------------------------------------------------
+        // DALGA 11 — Fulfillment Centers + ERP Event-Driven Sync
+        // -----------------------------------------------------------------------
+
+        // B1: AmazonFBAAdapter — SP-API Inbound + Inventory (Scoped: credentials may vary per tenant)
+        // NOTE: Credentials are injected from IConfiguration / user-secrets at runtime.
+        // Registration uses a factory lambda to allow configuration binding.
+        services.AddScoped<AmazonFBAAdapter>(sp =>
+        {
+            var cfg = sp.GetService<IConfiguration>();
+            var refreshToken = cfg?["Amazon:FBA:RefreshToken"] ?? string.Empty;
+            var clientId = cfg?["Amazon:FBA:ClientId"] ?? string.Empty;
+            var clientSecret = cfg?["Amazon:FBA:ClientSecret"] ?? string.Empty;
+            var sellerId = cfg?["Amazon:FBA:SellerId"] ?? string.Empty;
+            return new AmazonFBAAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<AmazonFBAAdapter>>(),
+                refreshToken,
+                clientId,
+                clientSecret,
+                sellerId);
+        });
+        services.AddScoped<IFulfillmentProvider>(sp => sp.GetRequiredService<AmazonFBAAdapter>());
+
+        // B2: HepsilojistikAdapter — Basic Auth (Scoped: credentials may vary per tenant)
+        services.AddScoped<HepsilojistikAdapter>(sp =>
+        {
+            var cfg = sp.GetService<IConfiguration>();
+            var merchantId = cfg?["Hepsilojistik:MerchantId"] ?? string.Empty;
+            var apiKey = cfg?["Hepsilojistik:ApiKey"] ?? string.Empty;
+            return new HepsilojistikAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<HepsilojistikAdapter>>(),
+                merchantId,
+                apiKey);
+        });
+        services.AddScoped<IFulfillmentProvider>(sp => sp.GetRequiredService<HepsilojistikAdapter>());
+
+        // B4: FulfillmentProviderFactory — Scoped (depends on scoped IFulfillmentProvider instances)
+        services.AddScoped<IFulfillmentProviderFactory, FulfillmentProviderFactory>();
+
+        // B3: ERPSyncHandler — Scoped + registered as IERPSyncHandler
+        services.AddScoped<ERPSyncHandler>();
+        services.AddScoped<IERPSyncHandler>(sp => sp.GetRequiredService<ERPSyncHandler>());
+
+        // B5: FulfillmentStockSyncJob — Scoped (depends on IFulfillmentProviderFactory + AppDbContext)
+        services.AddScoped<FulfillmentStockSyncJob>();
+
+        // -----------------------------------------------------------------------
 
         return services;
     }
