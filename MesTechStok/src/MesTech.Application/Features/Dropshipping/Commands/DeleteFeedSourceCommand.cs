@@ -12,10 +12,10 @@ public class DeleteFeedSourceCommandHandler(
 ) : IRequestHandler<DeleteFeedSourceCommand, bool>
 {
     public async Task<bool> Handle(
-        DeleteFeedSourceCommand req, CancellationToken ct)
+        DeleteFeedSourceCommand request, CancellationToken cancellationToken)
     {
-        var feed = await feedRepo.GetByIdAsync(req.Id, ct)
-            ?? throw new KeyNotFoundException($"SupplierFeed '{req.Id}' bulunamadı.");
+        var feed = await feedRepo.GetByIdAsync(request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException($"SupplierFeed '{request.Id}' bulunamadı.");
 
         feed.IsDeleted = true;
         feed.DeletedAt = DateTime.UtcNow;
@@ -24,7 +24,7 @@ public class DeleteFeedSourceCommandHandler(
         feed.UpdatedAt = DateTime.UtcNow;
         feed.UpdatedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await feedRepo.UpdateAsync(feed, ct);
+        await feedRepo.UpdateAsync(feed, cancellationToken);
         return true;
     }
 }

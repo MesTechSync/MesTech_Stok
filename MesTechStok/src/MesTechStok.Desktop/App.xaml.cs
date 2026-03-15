@@ -29,6 +29,8 @@ using MesTechStok.Core.Interfaces;
 using MesTechStok.Desktop.ViewModels;
 using MesTechStok.Desktop.Views; // Other views
 using GlobalLogger = MesTechStok.Desktop.Utils.GlobalLogger;
+using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Services;
 // duplicate using removed
 
 namespace MesTechStok.Desktop;
@@ -42,6 +44,8 @@ public partial class App : Application
 {
     private IHost? _host;
     public static IServiceProvider? ServiceProvider { get; private set; }
+    /// <summary>WPF code-behind için izole DI köprüsü — SINIF B ServiceLocator yerine (D-01)</summary>
+    public static IServiceLocatorBridge Services { get; private set; } = null!;
     public static WelcomeWindow? WelcomeWindowInstance { get; set; }
     private static Mutex? _singleInstanceMutex;
     private static EventWaitHandle? _activateEvent;
@@ -286,6 +290,7 @@ public partial class App : Application
                 .Build();
 
             ServiceProvider = _host.Services;
+            Services = new ServiceLocatorBridge(_host.Services); // D-01: IServiceLocatorBridge köprüsü
 
             // DALGA 7.5 Gemini P1: DB bağlantı testi — crash yerine ConnectionErrorWindow göster
             if (!TestDatabaseConnection())
@@ -434,7 +439,7 @@ public partial class App : Application
         services.AddScoped<SimpleSecurityService>();
         // TODO: Basit güvenlik sistemi kullanılıyor (SimpleSecurityService)
         // services.AddScoped<IAuthorizationService, AuthorizationService>();
-        services.AddScoped<IOfflineQueueService, OfflineQueueService>();
+        services.AddScoped<IOfflineQueueService, MesTechStok.Desktop.Services.OfflineQueueService>();
         services.AddSingleton<IOpenCartQueueWorker, OpenCartQueueWorker>();
         services.AddSingleton<IOpenCartInitializer, OpenCartInitializer>();
         services.AddSingleton<IOpenCartHealthService, OpenCartHealthService>();
