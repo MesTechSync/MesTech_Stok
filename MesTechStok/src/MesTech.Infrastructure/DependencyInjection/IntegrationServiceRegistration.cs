@@ -1,4 +1,5 @@
 ﻿using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Accounting;
 using MesTech.Application.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Formatters.Dropshipping;
@@ -10,6 +11,8 @@ using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
+using MesTech.Infrastructure.Integration.Settlement;
+using MesTech.Infrastructure.Integration.Settlement.Parsers;
 using MesTech.Infrastructure.Integration.Soap;
 using MesTech.Infrastructure.Integration.FeedParsers;
 using MesTech.Infrastructure.Integration.Scraping;
@@ -270,6 +273,12 @@ public static class IntegrationServiceRegistration
 
         // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-01: IServiceLocatorBridge (sadece App.xaml.cs için)
         services.AddSingleton<IServiceLocatorBridge, ServiceLocatorBridge>();
+
+        // MUH-01: Settlement parsers — platform-specific settlement data parsers (Singleton — stateless)
+        services.AddSingleton<ISettlementParser, TrendyolSettlementParser>();
+        services.AddSingleton<ISettlementParser, AmazonSettlementParser>();
+        services.AddSingleton<ISettlementParser, HepsiburadaSettlementParser>();
+        services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
         return services;
     }

@@ -29,6 +29,10 @@ public interface IMesaEventPublisher
     /// <summary>MESA AI'dan lead için skor isteği — AI async skoru döndürür.</summary>
     Task RequestLeadScoringAsync(Guid leadId, Guid tenantId, string fullName,
         string? company, string source, CancellationToken ct = default);
+
+    /// <summary>İzin onayı MESA Bot'a bildirir — WhatsApp bildirimi tetikler.</summary>
+    Task PublishLeaveApprovedAsync(Guid leaveId, Guid employeeId,
+        DateTime occurredAt, CancellationToken ct = default);
 }
 
 public class MesaEventPublisher : IMesaEventPublisher
@@ -182,6 +186,15 @@ public class MesaEventPublisher : IMesaEventPublisher
         _logger.LogInformation(
             "[MOCK-MESA] LeadScoring isteği: {FullName} ({Source}) — LeadId: {LeadId}",
             fullName, source, leadId);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishLeaveApprovedAsync(Guid leaveId, Guid employeeId,
+        DateTime occurredAt, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] LeaveApproved: LeaveId={LeaveId} EmployeeId={EmployeeId}",
+            leaveId, employeeId);
         return Task.CompletedTask;
     }
 }

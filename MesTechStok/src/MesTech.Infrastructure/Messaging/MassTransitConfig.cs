@@ -1,5 +1,7 @@
 using MassTransit;
 using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
+using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using MesTech.Infrastructure.Messaging.Mesa.Consumers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +35,10 @@ public static class MassTransitConfig
             bus.AddConsumer<MesaBotReturnRequestConsumer>();
             bus.AddConsumer<MesaDlqConsumer>();
             bus.AddConsumer<MesaMeetingScheduledConsumer>();
+
+            // Muhasebe MESA Consumers (MUH-01)
+            bus.AddConsumer<DocumentClassifiedConsumer>();
+            bus.AddConsumer<AccountingApprovalConsumer>();
 
             bus.UsingRabbitMq((context, cfg) =>
             {
@@ -91,6 +97,18 @@ public static class MassTransitConfig
                     x.SetEntityName("mesa.bot.return.requested"));
                 cfg.Message<MesaMeetingScheduledEvent>(x =>
                     x.SetEntityName("mesa.meeting.scheduled"));
+
+                // Muhasebe MESA exchange'ler (MUH-01)
+                // MesTech -> MESA (publish)
+                cfg.Message<FinanceSettlementImportedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.settlement.imported.v1"));
+                cfg.Message<FinanceDocumentReceivedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.document.received.v1"));
+                // MESA -> MesTech (consume)
+                cfg.Message<AiDocumentClassifiedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.ai.document.classified.v1"));
+                cfg.Message<BotAccountingApprovedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.bot.accounting.approved.v1"));
 
                 cfg.ConfigureEndpoints(context);
             });

@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using MesTech.Infrastructure.Jobs.Accounting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -124,5 +125,31 @@ public static class HangfireConfig
             "crm-overdue-tasks",
             job => job.CheckOverdueTasksAsync(),
             "0 3 * * *");
+
+        // === MUH-01 DEV 4 — Muhasebe Accounting Workers ===
+
+        // Her gun 03:30 — platform settlement sync
+        RecurringJob.AddOrUpdate<SettlementSyncWorker>(
+            "accounting-settlement-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "30 3 * * *");
+
+        // Her 15 dakika — komisyon hesaplama
+        RecurringJob.AddOrUpdate<CommissionCalculatorWorker>(
+            "accounting-commission-calculator",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/15 * * * *");
+
+        // Her gun 04:00 — banka ekstre import
+        RecurringJob.AddOrUpdate<BankStatementImportWorker>(
+            "accounting-bank-statement-import",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 4 * * *");
+
+        // Her gun 23:59 — gunluk kar/zarar raporu
+        RecurringJob.AddOrUpdate<DailyProfitWorker>(
+            "accounting-daily-profit",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "59 23 * * *");
     }
 }

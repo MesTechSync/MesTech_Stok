@@ -1760,5 +1760,150 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // MUHASEBE EKRANLARI — MUH-01 DEV 2
+        [RelayCommand]
+        private void ShowCariHesaplar()
+        {
+            NavigationTimingService.Instance.StartTiming("Cari Hesaplar");
+            try
+            {
+                CurrentView = new Views.Accounting.CariHesaplarView();
+                CurrentModule = "Cari Hesaplar";
+                StatusMessage = "Cari Hesaplar yuklendi";
+                GlobalLogger.Instance.LogInfo("Cari Hesaplar ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Cari Hesaplar");
+                ToastManager.ShowSuccess("Cari Hesaplar aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Cari Hesaplar yuklenemedi";
+                GlobalLogger.Instance.LogError($"Cari Hesaplar yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Cari Hesaplar");
+                ToastManager.ShowError("Cari Hesaplar yuklenemedi!", "Hata");
+                MessageBox.Show($"Cari Hesaplar yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowGelirGider()
+        {
+            NavigationTimingService.Instance.StartTiming("Gelir Gider");
+            try
+            {
+                CurrentView = new Views.Accounting.GelirGiderView();
+                CurrentModule = "Gelir / Gider";
+                StatusMessage = "Gelir/Gider yuklendi";
+                GlobalLogger.Instance.LogInfo("Gelir/Gider ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Gelir Gider");
+                ToastManager.ShowSuccess("Gelir/Gider aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Gelir/Gider yuklenemedi";
+                GlobalLogger.Instance.LogError($"Gelir/Gider yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Gelir Gider");
+                ToastManager.ShowError("Gelir/Gider yuklenemedi!", "Hata");
+                MessageBox.Show($"Gelir/Gider yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowBankaHesaplari()
+        {
+            NavigationTimingService.Instance.StartTiming("Banka Hesaplari");
+            try
+            {
+                CurrentView = new Views.Accounting.BankaHesaplariView();
+                CurrentModule = "Banka Hesaplari";
+                StatusMessage = "Banka Hesaplari yuklendi";
+                GlobalLogger.Instance.LogInfo("Banka Hesaplari ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Banka Hesaplari");
+                ToastManager.ShowSuccess("Banka Hesaplari aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Banka Hesaplari yuklenemedi";
+                GlobalLogger.Instance.LogError($"Banka Hesaplari yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Banka Hesaplari");
+                ToastManager.ShowError("Banka Hesaplari yuklenemedi!", "Hata");
+                MessageBox.Show($"Banka Hesaplari yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowKarZarar()
+        {
+            NavigationTimingService.Instance.StartTiming("Kar Zarar");
+            try
+            {
+                CurrentView = new Views.Accounting.KarZararView();
+                CurrentModule = "Kar / Zarar Analizi";
+                StatusMessage = "Kar/Zarar Analizi yuklendi";
+                GlobalLogger.Instance.LogInfo("Kar/Zarar ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Kar Zarar");
+                ToastManager.ShowSuccess("Kar/Zarar aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Kar/Zarar yuklenemedi";
+                GlobalLogger.Instance.LogError($"Kar/Zarar yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Kar Zarar");
+                ToastManager.ShowError("Kar/Zarar yuklenemedi!", "Hata");
+                MessageBox.Show($"Kar/Zarar yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowMutabakat()
+        {
+            NavigationTimingService.Instance.StartTiming("Mutabakat");
+            try
+            {
+                CurrentView = new Views.Accounting.MutabakatView();
+                CurrentModule = "Mutabakat";
+                StatusMessage = "Mutabakat yuklendi";
+                GlobalLogger.Instance.LogInfo("Mutabakat ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Mutabakat");
+                ToastManager.ShowSuccess("Mutabakat aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Mutabakat yuklenemedi";
+                GlobalLogger.Instance.LogError($"Mutabakat yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Mutabakat");
+                ToastManager.ShowError("Mutabakat yuklenemedi!", "Hata");
+                MessageBox.Show($"Mutabakat yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowBelgeler()
+        {
+            NavigationTimingService.Instance.StartTiming("Belgeler");
+            try
+            {
+                CurrentView = new Views.Accounting.BelgelerView();
+                CurrentModule = "Belgeler";
+                StatusMessage = "Belgeler yuklendi";
+                GlobalLogger.Instance.LogInfo("Belgeler ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Belgeler");
+                ToastManager.ShowSuccess("Belgeler aktif!", "Muhasebe");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Belgeler yuklenemedi";
+                GlobalLogger.Instance.LogError($"Belgeler yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Belgeler");
+                ToastManager.ShowError("Belgeler yuklenemedi!", "Hata");
+                MessageBox.Show($"Belgeler yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
