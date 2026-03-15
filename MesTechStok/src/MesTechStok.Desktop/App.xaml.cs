@@ -290,7 +290,7 @@ public partial class App : Application
                 .Build();
 
             ServiceProvider = _host.Services;
-            Services = new ServiceLocatorBridge(_host.Services); // D-01: IServiceLocatorBridge köprüsü
+            Services = _host.Services.GetRequiredService<IServiceLocatorBridge>(); // D-01: IServiceLocatorBridge köprüsü
 
             // DALGA 7.5 Gemini P1: DB bağlantı testi — crash yerine ConnectionErrorWindow göster
             if (!TestDatabaseConnection())
