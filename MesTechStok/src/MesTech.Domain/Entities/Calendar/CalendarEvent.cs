@@ -44,7 +44,7 @@ public class CalendarEvent : BaseEntity, ITenantEntity
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (!isAllDay && endAt <= startAt)
-            throw new ArgumentException("End time must be after start time.");
+            throw new ArgumentException("End time must be after start time.", nameof(endAt));
         var ev = new CalendarEvent
         {
             Id = Guid.NewGuid(),

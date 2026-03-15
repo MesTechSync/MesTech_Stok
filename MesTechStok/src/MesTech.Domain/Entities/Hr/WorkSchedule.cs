@@ -1,5 +1,4 @@
 using MesTech.Domain.Common;
-
 namespace MesTech.Domain.Entities.Hr;
 
 public class WorkSchedule : BaseEntity, ITenantEntity
@@ -11,24 +10,20 @@ public class WorkSchedule : BaseEntity, ITenantEntity
     public TimeSpan EndTime { get; private set; }
     public bool IsWorkDay { get; private set; }
     public string? Notes { get; private set; }
+    public Employee Employee { get; private set; } = null!;
 
     private WorkSchedule() { }
 
-    public static WorkSchedule Create(
-        Guid tenantId, Guid employeeId, DayOfWeek dayOfWeek,
-        TimeSpan startTime, TimeSpan endTime, bool isWorkDay = true, string? notes = null)
+    public static WorkSchedule Create(Guid tenantId, Guid employeeId,
+        DayOfWeek dayOfWeek, TimeSpan startTime, TimeSpan endTime, bool isWorkDay = true)
     {
+        if (isWorkDay && endTime <= startTime)
+            throw new ArgumentException("End time must be after start time on work days.", nameof(endTime));
         return new WorkSchedule
         {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            EmployeeId = employeeId,
-            DayOfWeek = dayOfWeek,
-            StartTime = startTime,
-            EndTime = endTime,
-            IsWorkDay = isWorkDay,
-            Notes = notes,
-            CreatedAt = DateTime.UtcNow
+            Id = Guid.NewGuid(), TenantId = tenantId, EmployeeId = employeeId,
+            DayOfWeek = dayOfWeek, StartTime = startTime, EndTime = endTime,
+            IsWorkDay = isWorkDay, CreatedAt = DateTime.UtcNow
         };
     }
 }

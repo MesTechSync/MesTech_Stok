@@ -25,7 +25,7 @@ namespace MesTechStok.Desktop.Views
         private readonly IInvoiceProvider? _invoiceProvider;
 
         /// <summary>
-        /// WPF designer / parameter-less constructor — services resolved lazily via App.ServiceProvider.
+        /// WPF designer / parameter-less constructor — services resolved lazily via App.Services.
         /// Use the DI-injected overload in production.
         /// </summary>
         public ApiHealthDashboardView()

@@ -94,7 +94,7 @@ public class Deal : BaseEntity, ITenantEntity
 
     public void UpdateAmount(decimal newAmount)
     {
-        if (newAmount < 0) throw new ArgumentOutOfRangeException(nameof(newAmount));
+        ArgumentOutOfRangeException.ThrowIfNegative(newAmount);
         Amount = newAmount;
         UpdatedAt = DateTime.UtcNow;
     }

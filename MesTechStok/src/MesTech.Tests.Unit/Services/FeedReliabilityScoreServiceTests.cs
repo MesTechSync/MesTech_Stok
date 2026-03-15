@@ -14,8 +14,6 @@ namespace MesTech.Tests.Unit.Services;
 [Trait("Category", "FeedReliability")]
 public class FeedReliabilityScoreServiceTests
 {
-    private readonly FeedReliabilityScoreService _sut = new();
-
     // ─────────────────────────────────────────────────────────────
     // Yardımcı: mükemmel giriş verisi oluştur
     // ─────────────────────────────────────────────────────────────
@@ -38,7 +36,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_AllPerfect_Returns100AndGreen()
     {
         // Arrange & Act
-        var result = _sut.Calculate(PerfectInput());
+        var result = FeedReliabilityScoreService.Calculate(PerfectInput());
 
         // Assert
         result.Score.Should().Be(100);
@@ -49,7 +47,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_AllZero_Returns0AndRed()
     {
         // Arrange & Act
-        var result = _sut.Calculate(ZeroInput());
+        var result = FeedReliabilityScoreService.Calculate(ZeroInput());
 
         // Assert
         result.Score.Should().Be(0);
@@ -75,7 +73,7 @@ public class FeedReliabilityScoreServiceTests
             FeedAvailabilityPercent: 90, ProductStabilityPercent: 90,
             AverageResponseTimeMs: 500); // responseTime score = 100
 
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         // weighted = 90*0.85 + 100*0.15 = 91.5 → 92 → Green
         result.Color.Should().Be(ReliabilityColor.Green);
@@ -117,7 +115,7 @@ public class FeedReliabilityScoreServiceTests
             FeedAvailabilityPercent: 89, ProductStabilityPercent: 89,
             AverageResponseTimeMs: 6000);
 
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Color.Should().Be(ReliabilityColor.Yellow);
         result.Score.Should().BeInRange(75, 89);
@@ -133,7 +131,7 @@ public class FeedReliabilityScoreServiceTests
             FeedAvailabilityPercent: 40, ProductStabilityPercent: 40,
             AverageResponseTimeMs: 9999);
 
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Color.Should().Be(ReliabilityColor.Red);
         result.Score.Should().BeLessThan(50);
@@ -151,7 +149,7 @@ public class FeedReliabilityScoreServiceTests
             FeedAvailabilityPercent: 60, ProductStabilityPercent: 60,
             AverageResponseTimeMs: 5000);
 
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Color.Should().Be(ReliabilityColor.Orange);
         result.Score.Should().BeInRange(50, 74);
@@ -166,7 +164,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // 0ms → responseTimeScore = 100
         var input = new FeedReliabilityInput(100, 100, 100, 100, AverageResponseTimeMs: 0);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().Be(100);
     }
 
@@ -175,7 +173,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // 500ms → sınır: score = 100
         var input = new FeedReliabilityInput(100, 100, 100, 100, AverageResponseTimeMs: 500);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().Be(100);
     }
 
@@ -184,7 +182,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // 2000ms → linear interpolation: 500→100, 2000→50 sınır noktası
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 2000);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().Be(50);
     }
 
@@ -193,7 +191,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // 5000ms → linear interpolation: 2000→50, 5000→20 sınır noktası
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 5000);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().Be(20);
     }
 
@@ -202,7 +200,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // >5000ms → score = 0
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 5001);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().Be(0);
     }
 
@@ -214,7 +212,7 @@ public class FeedReliabilityScoreServiceTests
         //       = 100 - 750 / 1500 * 50
         //       = 100 - 25 = 75
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 1250);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().BeApproximately(75.0, precision: 0.1);
     }
 
@@ -226,7 +224,7 @@ public class FeedReliabilityScoreServiceTests
         //       = 50 - 1500 / 3000 * 30
         //       = 50 - 15 = 35
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 3500);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
         result.ResponseTimeScore.Should().BeApproximately(35.0, precision: 0.1);
     }
 
@@ -246,7 +244,7 @@ public class FeedReliabilityScoreServiceTests
             ProductStabilityPercent: 0,
             AverageResponseTimeMs: 9999);
 
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(25);
         result.StockAccuracyScore.Should().Be(100);
@@ -258,7 +256,7 @@ public class FeedReliabilityScoreServiceTests
         // UpdateFrequency=100 (w=0.20), diğerleri 0
         // weighted = 0 + 100*0.20 + 0 + 0 + 0 = 20
         var input = new FeedReliabilityInput(0, 100, 0, 0, 9999);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(20);
         result.UpdateFrequencyScore.Should().Be(100);
@@ -270,7 +268,7 @@ public class FeedReliabilityScoreServiceTests
         // FeedAvailability=100 (w=0.20), diğerleri 0
         // weighted = 0 + 0 + 100*0.20 + 0 + 0 = 20
         var input = new FeedReliabilityInput(0, 0, 100, 0, 9999);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(20);
         result.FeedAvailabilityScore.Should().Be(100);
@@ -282,7 +280,7 @@ public class FeedReliabilityScoreServiceTests
         // ProductStability=100 (w=0.20), diğerleri 0
         // weighted = 0 + 0 + 0 + 100*0.20 + 0 = 20
         var input = new FeedReliabilityInput(0, 0, 0, 100, 9999);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(20);
         result.ProductStabilityScore.Should().Be(100);
@@ -294,7 +292,7 @@ public class FeedReliabilityScoreServiceTests
         // ResponseTime score = 100 (≤ 500ms), diğer % bileşenler 0
         // weighted = 0 + 0 + 0 + 0 + 100*0.15 = 15
         var input = new FeedReliabilityInput(0, 0, 0, 0, AverageResponseTimeMs: 0);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(15);
         result.ResponseTimeScore.Should().Be(100);
@@ -304,7 +302,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_WeightsSum_AllAt100_Gives100()
     {
         // Tüm bileşenler 100 → 25 + 20 + 20 + 20 + 15 = 100
-        var result = _sut.Calculate(PerfectInput());
+        var result = FeedReliabilityScoreService.Calculate(PerfectInput());
         result.Score.Should().Be(100);
     }
 
@@ -316,7 +314,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_Green_ColorLabel_IsAltinTedarikci()
     {
         // score ≥ 90 → "Altın Tedarikçi"
-        var result = _sut.Calculate(PerfectInput());
+        var result = FeedReliabilityScoreService.Calculate(PerfectInput());
 
         result.Color.Should().Be(ReliabilityColor.Green);
         result.ColorLabel.Should().Be("Altın Tedarikçi");
@@ -330,7 +328,7 @@ public class FeedReliabilityScoreServiceTests
         // weighted = 80*0.85 = 68 → Red. responseTime 0ms → 80*0.85 + 100*0.15 = 83 → Yellow
         var input = new FeedReliabilityInput(80, 80, 80, 80, AverageResponseTimeMs: 500);
         // weighted = 80*0.85 + 100*0.15 = 68 + 15 = 83 → Yellow
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Color.Should().Be(ReliabilityColor.Yellow);
         result.ColorLabel.Should().Be("Güvenilir");
@@ -343,7 +341,7 @@ public class FeedReliabilityScoreServiceTests
         // Tüm bileşenler 60, responseTime 5000ms (score=20)
         // weighted = 60*0.85 + 20*0.15 = 51 + 3 = 54 → Orange ✓
         var input = new FeedReliabilityInput(60, 60, 60, 60, AverageResponseTimeMs: 5000);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Color.Should().Be(ReliabilityColor.Orange);
         result.ColorLabel.Should().Be("Dikkatli");
@@ -353,7 +351,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_Red_ColorLabel_IsRiskli()
     {
         // score < 50 → "Riskli"
-        var result = _sut.Calculate(ZeroInput());
+        var result = FeedReliabilityScoreService.Calculate(ZeroInput());
 
         result.Color.Should().Be(ReliabilityColor.Red);
         result.ColorLabel.Should().Be("Riskli");
@@ -375,7 +373,7 @@ public class FeedReliabilityScoreServiceTests
             AverageResponseTimeMs: 500);
 
         // Act
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         // Assert — her bileşen skoru sonuç nesnesinde mevcut olmalı
         result.StockAccuracyScore.Should().Be(80);
@@ -396,7 +394,7 @@ public class FeedReliabilityScoreServiceTests
         var feedId = Guid.NewGuid();
 
         // Act
-        var result = _sut.CalculateForFeed(feedId, PerfectInput());
+        var result = FeedReliabilityScoreService.CalculateForFeed(feedId, PerfectInput());
 
         // Assert
         result.SupplierFeedId.Should().Be(feedId);
@@ -406,7 +404,7 @@ public class FeedReliabilityScoreServiceTests
     public void Calculate_WithoutFeedId_SupplierFeedIdIsEmpty()
     {
         // Calculate() overloadu Guid.Empty kullanır
-        var result = _sut.Calculate(PerfectInput());
+        var result = FeedReliabilityScoreService.Calculate(PerfectInput());
 
         result.SupplierFeedId.Should().Be(Guid.Empty);
     }
@@ -422,8 +420,8 @@ public class FeedReliabilityScoreServiceTests
         var input = new FeedReliabilityInput(75, 80, 85, 70, 1000);
 
         // Act
-        var result1 = _sut.Calculate(input);
-        var result2 = _sut.Calculate(input);
+        var result1 = FeedReliabilityScoreService.Calculate(input);
+        var result2 = FeedReliabilityScoreService.Calculate(input);
 
         // Assert
         result1.Score.Should().Be(result2.Score);
@@ -439,7 +437,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // 200% gibi geçersiz değerler 100'e kenetlenmeli
         var input = new FeedReliabilityInput(200, 200, 200, 200, AverageResponseTimeMs: 0);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(100);
     }
@@ -449,7 +447,7 @@ public class FeedReliabilityScoreServiceTests
     {
         // Negatif değerler 0'a kenetlenmeli
         var input = new FeedReliabilityInput(-50, -10, -30, -20, AverageResponseTimeMs: 9999);
-        var result = _sut.Calculate(input);
+        var result = FeedReliabilityScoreService.Calculate(input);
 
         result.Score.Should().Be(0);
         result.Color.Should().Be(ReliabilityColor.Red);

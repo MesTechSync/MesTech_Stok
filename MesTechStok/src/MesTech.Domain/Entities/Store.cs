@@ -14,6 +14,10 @@ public class Store : BaseEntity, ITenantEntity
     public string? ExternalStoreId { get; set; }
     public bool IsActive { get; set; } = true;
 
+    // ── Muhasebe Modulu (MUH-01) ──
+    public decimal? CurrentAccountBalance { get; set; }
+    public DateTime? LastSettlementDate { get; set; }
+
     // Navigation
     public Tenant Tenant { get; set; } = null!;
     public ICollection<StoreCredential> Credentials { get; set; } = new List<StoreCredential>();

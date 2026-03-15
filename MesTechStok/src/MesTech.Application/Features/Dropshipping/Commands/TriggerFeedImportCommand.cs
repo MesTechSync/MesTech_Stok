@@ -12,9 +12,9 @@ public class TriggerFeedImportCommandHandler(
 ) : IRequestHandler<TriggerFeedImportCommand, string>
 {
     public async Task<string> Handle(
-        TriggerFeedImportCommand req, CancellationToken ct)
+        TriggerFeedImportCommand req, CancellationToken cancellationToken)
     {
-        var feed = await feedRepo.GetByIdAsync(req.FeedId, ct)
+        var feed = await feedRepo.GetByIdAsync(req.FeedId, cancellationToken)
             ?? throw new KeyNotFoundException($"SupplierFeed '{req.FeedId}' bulunamadı.");
 
         // Background job olarak tetikle — blocking değil

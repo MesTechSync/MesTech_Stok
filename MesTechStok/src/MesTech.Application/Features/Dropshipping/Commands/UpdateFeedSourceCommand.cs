@@ -39,9 +39,9 @@ public class UpdateFeedSourceCommandHandler(
 ) : IRequestHandler<UpdateFeedSourceCommand, bool>
 {
     public async Task<bool> Handle(
-        UpdateFeedSourceCommand req, CancellationToken ct)
+        UpdateFeedSourceCommand req, CancellationToken cancellationToken)
     {
-        var feed = await feedRepo.GetByIdAsync(req.Id, ct)
+        var feed = await feedRepo.GetByIdAsync(req.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"SupplierFeed '{req.Id}' bulunamadı.");
 
         feed.Name = req.Name;
@@ -57,7 +57,7 @@ public class UpdateFeedSourceCommandHandler(
         feed.UpdatedAt = DateTime.UtcNow;
         feed.UpdatedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await feedRepo.UpdateAsync(feed, ct);
+        await feedRepo.UpdateAsync(feed, cancellationToken);
         return true;
     }
 }

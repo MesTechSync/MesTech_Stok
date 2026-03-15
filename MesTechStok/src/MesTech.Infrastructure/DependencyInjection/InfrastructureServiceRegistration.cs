@@ -199,6 +199,63 @@ public static class InfrastructureServiceRegistration
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();
 
+        // === Muhasebe Modulu (MUH-01) ===
+        services.AddAccountingServices();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Muhasebe modulu servis ve repository kayitlari.
+    /// </summary>
+    public static IServiceCollection AddAccountingServices(this IServiceCollection services)
+    {
+        // ── Domain Services ──
+        services.AddSingleton<MesTech.Domain.Accounting.Services.ICommissionCalculationService,
+            MesTech.Domain.Accounting.Services.CommissionCalculationService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.ITaxWithholdingService,
+            MesTech.Domain.Accounting.Services.TaxWithholdingService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.IProfitCalculationService,
+            MesTech.Domain.Accounting.Services.ProfitCalculationService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
+            MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
+
+        // ── Repositories ──
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IChartOfAccountsRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.ChartOfAccountsRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ICounterpartyRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.CounterpartyRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.JournalEntryRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ISettlementBatchRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.SettlementBatchRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IBankTransactionRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.BankTransactionRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IReconciliationMatchRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.ReconciliationMatchRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingDocumentRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingDocumentRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ICashFlowEntryRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.CashFlowEntryRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IExpenseCategoryRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.ExpenseCategoryRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ICommissionRecordRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.CommissionRecordRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ICargoExpenseRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.CargoExpenseRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IPersonalExpenseRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.PersonalExpenseRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ITaxRecordRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.TaxRecordRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ITaxWithholdingRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.TaxWithholdingRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IFinancialGoalRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.FinancialGoalRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IProfitReportRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.ProfitReportRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingSupplierAccountRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingSupplierAccountRepository>();
+
         return services;
     }
 }

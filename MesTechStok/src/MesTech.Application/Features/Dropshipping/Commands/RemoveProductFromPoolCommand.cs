@@ -21,9 +21,9 @@ public class RemoveProductFromPoolCommandHandler(
 ) : IRequestHandler<RemoveProductFromPoolCommand, bool>
 {
     public async Task<bool> Handle(
-        RemoveProductFromPoolCommand req, CancellationToken ct)
+        RemoveProductFromPoolCommand req, CancellationToken cancellationToken)
     {
-        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, ct)
+        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPoolProduct '{req.PoolProductId}' bulunamadı.");
 
         poolProduct.Deactivate();
@@ -31,7 +31,7 @@ public class RemoveProductFromPoolCommandHandler(
         poolProduct.DeletedAt = DateTime.UtcNow;
         poolProduct.DeletedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await poolRepo.RemovePoolProductAsync(poolProduct, ct);
+        await poolRepo.RemovePoolProductAsync(poolProduct, cancellationToken);
         return true;
     }
 }

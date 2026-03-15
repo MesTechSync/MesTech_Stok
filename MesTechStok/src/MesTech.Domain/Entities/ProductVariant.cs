@@ -27,7 +27,7 @@ public class ProductVariant : BaseEntity, ITenantEntity
 
     // ── Flexible attributes stored as JSON text ──
     // Backing field is a Dictionary; AttributesJson is the EF-mapped column.
-    private Dictionary<string, string> _attributes = new();
+    private Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Serialised JSON stored in the DB column "Attributes".
@@ -39,9 +39,11 @@ public class ProductVariant : BaseEntity, ITenantEntity
         set
         {
             _attributes = string.IsNullOrWhiteSpace(value)
-                ? new Dictionary<string, string>()
-                : JsonSerializer.Deserialize<Dictionary<string, string>>(value)
-                  ?? new Dictionary<string, string>();
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(value)
+                    ?? new Dictionary<string, string>(StringComparer.Ordinal),
+                    StringComparer.Ordinal);
         }
     }
 

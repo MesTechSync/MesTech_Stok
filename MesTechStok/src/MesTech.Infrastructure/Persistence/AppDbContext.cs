@@ -6,6 +6,7 @@ using MesTech.Domain.Entities.Calendar;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Entities.Documents;
 using MesTech.Domain.Entities.Finance;
+using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Entities.Hr;
 using MesTech.Domain.Entities.Tasks;
 using MesTech.Domain.Interfaces;
@@ -166,6 +167,30 @@ public class AppDbContext : DbContext
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Leave> Leaves => Set<Leave>();
     public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
+
+    // ═══════════════════════════════════════
+    // MUHASEBE MODULU (MUH-01)
+    // ═══════════════════════════════════════
+    public DbSet<ChartOfAccounts> ChartOfAccounts => Set<ChartOfAccounts>();
+    public DbSet<Counterparty> Counterparties => Set<Counterparty>();
+    public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
+    public DbSet<JournalLine> JournalLines => Set<JournalLine>();
+    public DbSet<SettlementBatch> SettlementBatches => Set<SettlementBatch>();
+    public DbSet<SettlementLine> SettlementLines => Set<SettlementLine>();
+    public DbSet<CommissionRecord> CommissionRecords => Set<CommissionRecord>();
+    public DbSet<CargoExpense> CargoExpenses => Set<CargoExpense>();
+    public DbSet<BankTransaction> AccountingBankTransactions => Set<BankTransaction>();
+    public DbSet<ReconciliationMatch> ReconciliationMatches => Set<ReconciliationMatch>();
+    public DbSet<AccountingDocument> AccountingDocuments => Set<AccountingDocument>();
+    public DbSet<PersonalExpense> PersonalExpenses => Set<PersonalExpense>();
+    public DbSet<ExpenseCategory> AccountingExpenseCategories => Set<ExpenseCategory>();
+    public DbSet<TaxRecord> TaxRecords => Set<TaxRecord>();
+    public DbSet<TaxWithholding> TaxWithholdings => Set<TaxWithholding>();
+    public DbSet<CashFlowEntry> CashFlowEntries => Set<CashFlowEntry>();
+    public DbSet<ProfitReport> ProfitReports => Set<ProfitReport>();
+    public DbSet<FinancialGoal> FinancialGoals => Set<FinancialGoal>();
+    public DbSet<AccountingSupplierAccount> AccountingSupplierAccounts => Set<AccountingSupplierAccount>();
+    public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -790,6 +815,234 @@ public class AppDbContext : DbContext
             e.Property(ws => ws.Notes).HasMaxLength(500);
             e.HasIndex(ws => ws.TenantId).HasDatabaseName("IX_WorkSchedules_TenantId");
             e.HasIndex(ws => new { ws.EmployeeId, ws.DayOfWeek }).IsUnique().HasDatabaseName("IX_WorkSchedules_Employee_Day");
+        });
+
+        // ═══════════════════════════════════════
+        // MUHASEBE MODULU (MUH-01) CONFIG
+        // ═══════════════════════════════════════
+
+        modelBuilder.Entity<ChartOfAccounts>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Code).HasMaxLength(20).IsRequired();
+            e.Property(a => a.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(a => a.TenantId).HasDatabaseName("IX_ChartOfAccounts_TenantId");
+            e.HasIndex(a => new { a.TenantId, a.Code }).IsUnique().HasDatabaseName("IX_ChartOfAccounts_Tenant_Code");
+            e.HasOne(a => a.Parent).WithMany().HasForeignKey(a => a.ParentId).OnDelete(DeleteBehavior.Restrict).IsRequired(false);
+        });
+
+        modelBuilder.Entity<Counterparty>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Name).HasMaxLength(200).IsRequired();
+            e.Property(c => c.VKN).HasMaxLength(20);
+            e.Property(c => c.Phone).HasMaxLength(30);
+            e.Property(c => c.Email).HasMaxLength(200);
+            e.Property(c => c.Address).HasMaxLength(500);
+            e.Property(c => c.Platform).HasMaxLength(50);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Counterparties_TenantId");
+            e.HasIndex(c => new { c.TenantId, c.CounterpartyType }).HasDatabaseName("IX_Counterparties_Tenant_Type");
+        });
+
+        modelBuilder.Entity<JournalEntry>(e =>
+        {
+            e.HasKey(j => j.Id);
+            e.Property(j => j.Description).HasMaxLength(500).IsRequired();
+            e.Property(j => j.ReferenceNumber).HasMaxLength(100);
+            e.HasIndex(j => j.TenantId).HasDatabaseName("IX_JournalEntries_TenantId");
+            e.HasIndex(j => new { j.TenantId, j.EntryDate }).HasDatabaseName("IX_JournalEntries_Tenant_Date");
+            e.HasMany(j => j.Lines).WithOne(l => l.JournalEntry).HasForeignKey(l => l.JournalEntryId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<JournalLine>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.Debit).HasPrecision(18, 2);
+            e.Property(l => l.Credit).HasPrecision(18, 2);
+            e.Property(l => l.Description).HasMaxLength(500);
+            e.HasOne(l => l.Account).WithMany().HasForeignKey(l => l.AccountId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<SettlementBatch>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Platform).HasMaxLength(50).IsRequired();
+            e.Property(s => s.TotalGross).HasPrecision(18, 2);
+            e.Property(s => s.TotalCommission).HasPrecision(18, 2);
+            e.Property(s => s.TotalNet).HasPrecision(18, 2);
+            e.HasIndex(s => s.TenantId).HasDatabaseName("IX_SettlementBatches_TenantId");
+            e.HasIndex(s => new { s.TenantId, s.Platform, s.PeriodStart }).HasDatabaseName("IX_SettlementBatches_Tenant_Platform_Period");
+            e.HasMany(s => s.Lines).WithOne(l => l.SettlementBatch).HasForeignKey(l => l.SettlementBatchId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SettlementLine>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.OrderId).HasMaxLength(100);
+            e.Property(l => l.GrossAmount).HasPrecision(18, 2);
+            e.Property(l => l.CommissionAmount).HasPrecision(18, 2);
+            e.Property(l => l.ServiceFee).HasPrecision(18, 2);
+            e.Property(l => l.CargoDeduction).HasPrecision(18, 2);
+            e.Property(l => l.RefundDeduction).HasPrecision(18, 2);
+            e.Property(l => l.NetAmount).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<CommissionRecord>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Platform).HasMaxLength(50).IsRequired();
+            e.Property(c => c.OrderId).HasMaxLength(100);
+            e.Property(c => c.Category).HasMaxLength(200);
+            e.Property(c => c.GrossAmount).HasPrecision(18, 2);
+            e.Property(c => c.CommissionRate).HasPrecision(5, 4);
+            e.Property(c => c.CommissionAmount).HasPrecision(18, 2);
+            e.Property(c => c.ServiceFee).HasPrecision(18, 2);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CommissionRecords_TenantId");
+            e.HasIndex(c => new { c.TenantId, c.Platform }).HasDatabaseName("IX_CommissionRecords_Tenant_Platform");
+        });
+
+        modelBuilder.Entity<CargoExpense>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.CarrierName).HasMaxLength(100).IsRequired();
+            e.Property(c => c.OrderId).HasMaxLength(100);
+            e.Property(c => c.TrackingNumber).HasMaxLength(100);
+            e.Property(c => c.Cost).HasPrecision(18, 2);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CargoExpenses_TenantId");
+        });
+
+        modelBuilder.Entity<BankTransaction>(e =>
+        {
+            e.ToTable("AccountingBankTransactions");
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Amount).HasPrecision(18, 2);
+            e.Property(t => t.Description).HasMaxLength(500).IsRequired();
+            e.Property(t => t.ReferenceNumber).HasMaxLength(100);
+            e.Property(t => t.IdempotencyKey).HasMaxLength(100);
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_AccountingBankTransactions_TenantId");
+            e.HasIndex(t => new { t.TenantId, t.IdempotencyKey }).IsUnique()
+                .HasFilter("\"IdempotencyKey\" IS NOT NULL")
+                .HasDatabaseName("IX_AccountingBankTransactions_Tenant_IdempotencyKey");
+        });
+
+        modelBuilder.Entity<ReconciliationMatch>(e =>
+        {
+            e.HasKey(m => m.Id);
+            e.Property(m => m.Confidence).HasPrecision(5, 4);
+            e.Property(m => m.ReviewedBy).HasMaxLength(200);
+            e.HasIndex(m => m.TenantId).HasDatabaseName("IX_ReconciliationMatches_TenantId");
+            e.HasIndex(m => new { m.TenantId, m.Status }).HasDatabaseName("IX_ReconciliationMatches_Tenant_Status");
+        });
+
+        modelBuilder.Entity<AccountingDocument>(e =>
+        {
+            e.HasKey(d => d.Id);
+            e.Property(d => d.FileName).HasMaxLength(500).IsRequired();
+            e.Property(d => d.MimeType).HasMaxLength(100);
+            e.Property(d => d.StoragePath).HasMaxLength(1000).IsRequired();
+            e.Property(d => d.ExtractedData).HasColumnType("text");
+            e.HasIndex(d => d.TenantId).HasDatabaseName("IX_AccountingDocuments_TenantId");
+            e.HasIndex(d => new { d.TenantId, d.DocumentType }).HasDatabaseName("IX_AccountingDocuments_Tenant_Type");
+            e.HasOne(d => d.Counterparty).WithMany().HasForeignKey(d => d.CounterpartyId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        modelBuilder.Entity<PersonalExpense>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Title).HasMaxLength(300).IsRequired();
+            e.Property(p => p.Amount).HasPrecision(18, 2);
+            e.Property(p => p.Category).HasMaxLength(200);
+            e.Property(p => p.ApprovedBy).HasMaxLength(200);
+            e.HasIndex(p => p.TenantId).HasDatabaseName("IX_PersonalExpenses_TenantId");
+            e.HasIndex(p => new { p.TenantId, p.ExpenseDate }).HasDatabaseName("IX_PersonalExpenses_Tenant_Date");
+        });
+
+        modelBuilder.Entity<ExpenseCategory>(e =>
+        {
+            e.ToTable("AccountingExpenseCategories");
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Name).HasMaxLength(200).IsRequired();
+            e.Property(c => c.Code).HasMaxLength(20);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_AccountingExpenseCategories_TenantId");
+            e.HasOne(c => c.Parent).WithMany().HasForeignKey(c => c.ParentId).OnDelete(DeleteBehavior.Restrict).IsRequired(false);
+        });
+
+        modelBuilder.Entity<TaxRecord>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Period).HasMaxLength(20).IsRequired();
+            e.Property(t => t.TaxType).HasMaxLength(50).IsRequired();
+            e.Property(t => t.TaxableAmount).HasPrecision(18, 2);
+            e.Property(t => t.TaxAmount).HasPrecision(18, 2);
+            e.HasIndex(t => t.TenantId).HasDatabaseName("IX_TaxRecords_TenantId");
+            e.HasIndex(t => new { t.TenantId, t.Period }).HasDatabaseName("IX_TaxRecords_Tenant_Period");
+        });
+
+        modelBuilder.Entity<TaxWithholding>(e =>
+        {
+            e.HasKey(w => w.Id);
+            e.Property(w => w.TaxExclusiveAmount).HasPrecision(18, 2);
+            e.Property(w => w.Rate).HasPrecision(5, 4);
+            e.Property(w => w.WithholdingAmount).HasPrecision(18, 2);
+            e.Property(w => w.TaxType).HasMaxLength(50).IsRequired();
+            e.HasIndex(w => w.TenantId).HasDatabaseName("IX_TaxWithholdings_TenantId");
+            e.HasIndex(w => w.InvoiceId).HasDatabaseName("IX_TaxWithholdings_InvoiceId");
+        });
+
+        modelBuilder.Entity<CashFlowEntry>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Amount).HasPrecision(18, 2);
+            e.Property(c => c.Category).HasMaxLength(200);
+            e.Property(c => c.Description).HasMaxLength(500);
+            e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CashFlowEntries_TenantId");
+            e.HasIndex(c => new { c.TenantId, c.EntryDate, c.Direction }).HasDatabaseName("IX_CashFlowEntries_Tenant_Date_Dir");
+            e.HasOne(c => c.Counterparty).WithMany().HasForeignKey(c => c.CounterpartyId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        modelBuilder.Entity<ProfitReport>(e =>
+        {
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Period).HasMaxLength(20).IsRequired();
+            e.Property(r => r.Platform).HasMaxLength(50);
+            e.Property(r => r.TotalRevenue).HasPrecision(18, 2);
+            e.Property(r => r.TotalCost).HasPrecision(18, 2);
+            e.Property(r => r.TotalCommission).HasPrecision(18, 2);
+            e.Property(r => r.TotalCargo).HasPrecision(18, 2);
+            e.Property(r => r.TotalTax).HasPrecision(18, 2);
+            e.Property(r => r.NetProfit).HasPrecision(18, 2);
+            e.HasIndex(r => r.TenantId).HasDatabaseName("IX_ProfitReports_TenantId");
+            e.HasIndex(r => new { r.TenantId, r.Period }).HasDatabaseName("IX_ProfitReports_Tenant_Period");
+        });
+
+        modelBuilder.Entity<FinancialGoal>(e =>
+        {
+            e.HasKey(g => g.Id);
+            e.Property(g => g.Title).HasMaxLength(300).IsRequired();
+            e.Property(g => g.TargetAmount).HasPrecision(18, 2);
+            e.Property(g => g.CurrentAmount).HasPrecision(18, 2);
+            e.HasIndex(g => g.TenantId).HasDatabaseName("IX_FinancialGoals_TenantId");
+        });
+
+        modelBuilder.Entity<AccountingSupplierAccount>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Name).HasMaxLength(200).IsRequired();
+            e.Property(a => a.Balance).HasPrecision(18, 2);
+            e.Property(a => a.Currency).HasMaxLength(3);
+            e.HasIndex(a => a.TenantId).HasDatabaseName("IX_AccountingSupplierAccounts_TenantId");
+            e.HasIndex(a => new { a.TenantId, a.SupplierId }).IsUnique().HasDatabaseName("IX_AccountingSupplierAccounts_Tenant_Supplier");
+        });
+
+        modelBuilder.Entity<LegalEntity>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.Name).HasMaxLength(200).IsRequired();
+            e.Property(l => l.TaxNumber).HasMaxLength(20).IsRequired();
+            e.Property(l => l.Address).HasMaxLength(500);
+            e.Property(l => l.Phone).HasMaxLength(30);
+            e.Property(l => l.Email).HasMaxLength(200);
+            e.HasIndex(l => l.TenantId).HasDatabaseName("IX_LegalEntities_TenantId");
         });
     }
 

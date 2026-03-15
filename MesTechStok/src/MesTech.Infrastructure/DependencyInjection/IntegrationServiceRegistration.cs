@@ -230,9 +230,6 @@ public static class IntegrationServiceRegistration
         // ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-08: Ozon formatter (9/9)
         services.AddScoped<IDropshippingExportFormatter, OzonDropshippingFormatter>();
 
-        // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B: FeedReliabilityScoreService (saf hesaplama)
-        services.AddScoped<FeedReliabilityScoreService>();
-
         // ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-06: Image downloader (Polly + SHA256 dedup)
         services.AddHttpClient("ImageDownloader", client =>
         {

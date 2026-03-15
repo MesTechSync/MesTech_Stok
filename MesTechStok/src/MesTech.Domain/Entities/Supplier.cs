@@ -38,6 +38,9 @@ public class Supplier : BaseEntity, ITenantEntity
     public string? Notes { get; set; }
     public string? DocumentUrls { get; set; }
 
+    // ── Muhasebe Modulu (MUH-01) ──
+    public DateTime? LastPaymentDate { get; set; }
+
     // Navigation
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();

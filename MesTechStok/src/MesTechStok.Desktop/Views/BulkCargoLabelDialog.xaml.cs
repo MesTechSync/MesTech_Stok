@@ -13,7 +13,7 @@ namespace MesTechStok.Desktop.Views
     {
         private readonly ObservableCollection<ShipmentLabelItem> _items = new();
 
-        // No App.ServiceProvider — D-11 pattern
+        // No App.Services — D-11 pattern
         public BulkCargoLabelDialog()
         {
             InitializeComponent();

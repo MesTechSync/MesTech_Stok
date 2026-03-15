@@ -333,8 +333,8 @@ public class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, I
                 showKargoBarkodu = template.ShowKargoBarkodu,
                 showTutarYaziyla = template.ShowFaturaTutariYaziyla,
                 defaultKdv = (int)template.DefaultKdv,
-                logoBase64 = template.LogoImage != null ? Convert.ToBase64String(template.LogoImage) : null,
-                signatureBase64 = template.SignatureImage != null ? Convert.ToBase64String(template.SignatureImage) : null
+                logoBase64 = template.LogoImage != null ? Convert.ToBase64String(template.LogoImage.ToArray()) : null,
+                signatureBase64 = template.SignatureImage != null ? Convert.ToBase64String(template.SignatureImage.ToArray()) : null
             };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");

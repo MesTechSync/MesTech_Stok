@@ -12,7 +12,7 @@ namespace MesTechStok.Desktop.Views
         private byte[]? _logoBytes;
         private byte[]? _signatureBytes;
 
-        // No App.ServiceProvider — D-11 pattern
+        // No App.Services — D-11 pattern
         public InvoiceSettingsView()
         {
             InitializeComponent();

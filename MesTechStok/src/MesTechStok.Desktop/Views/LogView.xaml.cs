@@ -98,7 +98,7 @@ namespace MesTechStok.Desktop.Views
             // USB HID entegrasyonu: Core dinleyicinin olaylarını merkeze köprüle
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var hid = sp?.GetService<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService>();
                 if (hid != null)
                 {
@@ -377,7 +377,7 @@ namespace MesTechStok.Desktop.Views
                 Log.Information("[SelfTest] Starting correlation self-test with CorrelationId={CorrelationId}", corrId);
 
                 // 2) DB telemetry: write a dummy ApiCallLog
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { AddLog("🔴 Hata", "Self-test: ServiceProvider null", nameof(LogView), Colors.Red); return; }
                 using var scope = sp.CreateScope();
                 var telemetry = scope.ServiceProvider.GetService<ITelemetryService>();
@@ -825,7 +825,7 @@ namespace MesTechStok.Desktop.Views
                 DateTime? end = DbEndDate.SelectedDate;
                 string barcodeLike = DbBarcodeFilter.Text?.Trim() ?? string.Empty;
 
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { StatusText.Text = "DB servisine erişilemiyor"; return; }
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();

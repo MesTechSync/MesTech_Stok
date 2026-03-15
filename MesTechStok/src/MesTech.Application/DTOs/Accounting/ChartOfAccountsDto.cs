@@ -1,0 +1,12 @@
+namespace MesTech.Application.DTOs.Accounting;
+
+public class ChartOfAccountsDto
+{
+    public Guid Id { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string AccountType { get; set; } = string.Empty;
+    public Guid? ParentId { get; set; }
+    public bool IsActive { get; set; }
+    public int Level { get; set; }
+}

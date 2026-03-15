@@ -23,33 +23,30 @@ public class Document : BaseEntity, ITenantEntity
 
     private Document() { }
 
-    public static Document Create(
-        Guid tenantId, string fileName, string originalFileName, string contentType,
-        long fileSizeBytes, string storagePath, Guid uploadedByUserId,
+    public static Document Create(Guid tenantId, string fileName,
+        string originalFileName, string contentType, long fileSizeBytes,
+        string storagePath, Guid uploadedByUserId,
+        Guid? folderId = null,
         DocumentVisibility visibility = DocumentVisibility.TenantOnly,
-        Guid? folderId = null, string? description = null,
-        Guid? orderId = null, Guid? invoiceId = null, Guid? productId = null)
+        string? description = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storagePath);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fileSizeBytes);
         var doc = new Document
         {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            FolderId = folderId,
-            FileName = fileName,
-            OriginalFileName = originalFileName,
-            ContentType = contentType,
-            FileSizeBytes = fileSizeBytes,
-            StoragePath = storagePath,
-            UploadedByUserId = uploadedByUserId,
-            Visibility = visibility,
-            Description = description,
-            OrderId = orderId,
-            InvoiceId = invoiceId,
-            ProductId = productId,
-            CreatedAt = DateTime.UtcNow
+            Id = Guid.NewGuid(), TenantId = tenantId, FolderId = folderId,
+            FileName = fileName, OriginalFileName = originalFileName,
+            ContentType = contentType, FileSizeBytes = fileSizeBytes,
+            StoragePath = storagePath, UploadedByUserId = uploadedByUserId,
+            Visibility = visibility, Description = description, CreatedAt = DateTime.UtcNow
         };
-        doc.RaiseDomainEvent(new DocumentUploadedEvent(doc.Id, fileName, tenantId, DateTime.UtcNow));
+        doc.RaiseDomainEvent(new DocumentUploadedEvent(doc.Id, originalFileName, fileSizeBytes, tenantId, DateTime.UtcNow));
         return doc;
     }
+
+    public void LinkToOrder(Guid orderId) { OrderId = orderId; UpdatedAt = DateTime.UtcNow; }
+    public void LinkToInvoice(Guid invoiceId) { InvoiceId = invoiceId; UpdatedAt = DateTime.UtcNow; }
+    public void LinkToProduct(Guid productId) { ProductId = productId; UpdatedAt = DateTime.UtcNow; }
+    public void MoveToFolder(Guid folderId) { FolderId = folderId; UpdatedAt = DateTime.UtcNow; }
 }

@@ -40,6 +40,10 @@ public class Invoice : BaseEntity, ITenantEntity
     public DateTime? SentAt { get; set; }
     public DateTime? AcceptedAt { get; set; }
 
+    // ── Muhasebe Modulu (MUH-01) ──
+    public string? GLAccountCode { get; set; }
+    public Guid? SettlementBatchId { get; set; }
+
     private readonly List<InvoiceLine> _lines = new();
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
     public Order? Order { get; set; }

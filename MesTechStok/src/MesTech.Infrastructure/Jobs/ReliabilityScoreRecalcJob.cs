@@ -21,18 +21,15 @@ public class ReliabilityScoreRecalcJob
     private const int BatchSize = 100;
 
     private readonly AppDbContext _dbContext;
-    private readonly FeedReliabilityScoreService _scoreService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ReliabilityScoreRecalcJob> _logger;
 
     public ReliabilityScoreRecalcJob(
         AppDbContext dbContext,
-        FeedReliabilityScoreService scoreService,
         IUnitOfWork unitOfWork,
         ILogger<ReliabilityScoreRecalcJob> logger)
     {
         _dbContext = dbContext;
-        _scoreService = scoreService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -66,7 +63,7 @@ public class ReliabilityScoreRecalcJob
             try
             {
                 var input = BuildReliabilityInput(feed);
-                var score = _scoreService.Calculate(input);
+                var score = FeedReliabilityScoreService.Calculate(input);
 
                 _logger.LogDebug(
                     "[ReliabilityScoreRecalc] Feed {FeedId} ({FeedName}) → Skor: {Score} ({Color})",

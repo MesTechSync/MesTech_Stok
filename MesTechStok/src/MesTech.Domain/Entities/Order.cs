@@ -47,6 +47,11 @@ public class Order : BaseEntity, ITenantEntity
     public bool AutoShipmentEnabled { get; set; }
     public DateTime? AutoShipmentScheduledAt { get; set; }
 
+    // ── Muhasebe Modulu (MUH-01) ──
+    public decimal? CommissionAmount { get; set; }
+    public decimal? CommissionRate { get; set; }
+    public decimal? CargoExpenseAmount { get; set; }
+
     // Concurrency
     public byte[]? RowVersion { get; set; }
 

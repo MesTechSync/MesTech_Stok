@@ -174,6 +174,6 @@ public class ImageDownloadService(
         var fullPath = Path.Combine(storagePath, fileName);
 
         if (!File.Exists(fullPath) && image.Data is not null)
-            await File.WriteAllBytesAsync(fullPath, image.Data, ct).ConfigureAwait(false);
+            await File.WriteAllBytesAsync(fullPath, image.Data.ToArray(), ct).ConfigureAwait(false);
     }
 }

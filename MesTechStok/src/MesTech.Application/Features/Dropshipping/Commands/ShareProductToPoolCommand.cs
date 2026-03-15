@@ -31,9 +31,9 @@ public class ShareProductToPoolCommandHandler(
 ) : IRequestHandler<ShareProductToPoolCommand, Guid>
 {
     public async Task<Guid> Handle(
-        ShareProductToPoolCommand req, CancellationToken ct)
+        ShareProductToPoolCommand req, CancellationToken cancellationToken)
     {
-        var pool = await poolRepo.GetByIdAsync(req.TargetPoolId, ct)
+        var pool = await poolRepo.GetByIdAsync(req.TargetPoolId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPool '{req.TargetPoolId}' bulunamadı.");
 
         var product = await productRepo.GetByIdAsync(req.ProductId)
@@ -50,7 +50,7 @@ public class ShareProductToPoolCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await poolRepo.AddPoolProductAsync(poolProduct, ct);
+        await poolRepo.AddPoolProductAsync(poolProduct, cancellationToken);
         return poolProduct.Id;
     }
 }

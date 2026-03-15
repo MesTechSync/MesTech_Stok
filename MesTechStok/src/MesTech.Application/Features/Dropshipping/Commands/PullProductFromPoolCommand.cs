@@ -30,9 +30,9 @@ public class PullProductFromPoolCommandHandler(
 ) : IRequestHandler<PullProductFromPoolCommand, bool>
 {
     public async Task<bool> Handle(
-        PullProductFromPoolCommand req, CancellationToken ct)
+        PullProductFromPoolCommand req, CancellationToken cancellationToken)
     {
-        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, ct)
+        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPoolProduct '{req.PoolProductId}' bulunamadı.");
 
         if (!poolProduct.IsActive)
@@ -62,7 +62,7 @@ public class PullProductFromPoolCommandHandler(
 
         await movementRepo.AddAsync(movement);
         await productRepo.UpdateAsync(product);
-        await unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
     }

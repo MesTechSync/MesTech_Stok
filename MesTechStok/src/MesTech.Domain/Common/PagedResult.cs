@@ -15,6 +15,7 @@ public sealed record PagedResult<T>
     public bool HasPrevious => Page > 1;
     public bool HasNext => Page < TotalPages;
 
+#pragma warning disable CA1000 // Factory methods on generic types require explicit type arg — intentional pattern
     public static PagedResult<T> Empty(int page = 1, int pageSize = 50) => new()
     {
         Items = Array.Empty<T>(),
@@ -30,4 +31,5 @@ public sealed record PagedResult<T>
         Page = page,
         PageSize = pageSize
     };
+#pragma warning restore CA1000
 }

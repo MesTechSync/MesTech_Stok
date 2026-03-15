@@ -20,32 +20,48 @@ public class Employee : BaseEntity, ITenantEntity
 
     private Employee() { }
 
-    public static Employee Create(
-        Guid tenantId, Guid userId, string employeeCode, DateTime hireDate,
-        Guid? departmentId = null, string? jobTitle = null,
-        string? workEmail = null, string? workPhone = null)
+    public static Employee Create(Guid tenantId, Guid userId, string employeeCode,
+        DateTime hireDate, Guid? departmentId = null,
+        string? jobTitle = null, decimal? monthlySalary = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(employeeCode);
+        if (hireDate > DateTime.UtcNow.AddDays(1))
+            throw new ArgumentException("Hire date cannot be in the future.", nameof(hireDate));
         return new Employee
         {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            UserId = userId,
-            EmployeeCode = employeeCode,
-            HireDate = hireDate,
-            DepartmentId = departmentId,
-            JobTitle = jobTitle,
-            WorkEmail = workEmail,
-            WorkPhone = workPhone,
-            Status = EmployeeStatus.Active,
-            CreatedAt = DateTime.UtcNow
+            Id = Guid.NewGuid(), TenantId = tenantId, UserId = userId,
+            EmployeeCode = employeeCode, HireDate = hireDate, DepartmentId = departmentId,
+            JobTitle = jobTitle, MonthlySalary = monthlySalary,
+            Status = EmployeeStatus.Active, CreatedAt = DateTime.UtcNow
         };
     }
 
+    public void AssignToDepartment(Guid departmentId) { DepartmentId = departmentId; UpdatedAt = DateTime.UtcNow; }
+
     public void Terminate(DateTime terminationDate)
     {
-        Status = EmployeeStatus.Terminated;
-        TerminationDate = terminationDate;
-        UpdatedAt = DateTime.UtcNow;
+        if (Status == EmployeeStatus.Terminated)
+            throw new InvalidOperationException("Employee is already terminated.");
+        Status = EmployeeStatus.Terminated; TerminationDate = terminationDate; UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void PutOnLeave()
+    {
+        if (Status != EmployeeStatus.Active)
+            throw new InvalidOperationException("Only active employees can go on leave.");
+        Status = EmployeeStatus.OnLeave; UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void ReturnFromLeave()
+    {
+        if (Status != EmployeeStatus.OnLeave)
+            throw new InvalidOperationException("Employee is not on leave.");
+        Status = EmployeeStatus.Active; UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateSalary(decimal monthlySalary)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(monthlySalary);
+        MonthlySalary = monthlySalary; UpdatedAt = DateTime.UtcNow;
     }
 }
