@@ -2,11 +2,14 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Commands.CreateBulkProducts;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+using MesTech.Domain.Entities;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class CreateBulkProductsHandler : IRequestHandler<CreateBulkProductsCommand, CreateBulkProductsResult>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -21,9 +24,7 @@ public class CreateBulkProductsHandler : IRequestHandler<CreateBulkProductsComma
         try
         {
             using var scope = _serviceProvider.CreateScope();
-            var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            await ctx.Database.EnsureCreatedAsync(cancellationToken);
+            var ctx = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
             var rand = new Random();
             var catId = await ctx.Categories.Select(c => c.Id).FirstOrDefaultAsync(cancellationToken);
@@ -34,7 +35,7 @@ public class CreateBulkProductsHandler : IRequestHandler<CreateBulkProductsComma
                     Name = "Genel",
                     Code = "GENEL",
                     IsActive = true,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                 });
                 await ctx.SaveChangesAsync(cancellationToken);
                 catId = await ctx.Categories.Select(c => c.Id).FirstOrDefaultAsync(cancellationToken);
@@ -59,7 +60,7 @@ public class CreateBulkProductsHandler : IRequestHandler<CreateBulkProductsComma
                     MinimumStock = 5,
                     TaxRate = 18m,
                     IsActive = true,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                 });
                 created++;
             }

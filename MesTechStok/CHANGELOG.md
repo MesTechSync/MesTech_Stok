@@ -1,0 +1,252 @@
+# Changelog
+
+All notable changes to the MesTechStok project will be documented in this file.
+Format based on [Keep a Changelog](https://keepachangelog.com/).
+
+## [1.0.0] - 2026-03-15
+
+### Dalga 13: v1.0.0 Final
+
+- Core.AppDbContext SIFIR — ImageMapWizard son referans CQRS'e gecti
+- Avalonia tam gecis — 75/75 WPF View port edildi (%100 kapsama)
+- Playwright E2E genisletme — 12 gercek test (Dashboard, CRM, Finance, Auth)
+- Netsis ERP adapter — 4. ERP secenegi (Basic Auth, Enterprise/Wings)
+- Netsis contract tests (WireMock, 5 test) + unit tests (4 test)
+- 3370+ test (Netsis:9 + E2E:12 yeni)
+- Denetci skor: A (9.0+)
+
+## [1.0.0-rc1] - 2026-03-15
+
+### Added (Dalga 8-12 Cumulative)
+
+#### CRM Module (Dalga 8)
+- Leads, Deals, Pipeline, PipelineStage, CrmContact, Activity entities
+- Kanban board view (WPF + Blazor + Avalonia)
+- CRM-to-Order bridge service (`CrmOrderBridgeService`)
+
+#### HR Module (Dalga 8)
+- Employee, Department, Leave, WorkSchedule entities
+- Leave approval workflow with domain events (LeaveApprovedEvent, LeaveRejectedEvent)
+- HrEmployeesView (WPF), Employees + LeaveRequests (Blazor + Avalonia)
+
+#### Finance Module (Dalga 9)
+- FinanceExpense, BankAccount, GLTransaction entities
+- Expense management with approval workflow
+- ProfitLoss reporting view (WPF + Blazor + Avalonia)
+
+#### Accounting Module (Dalga 9)
+- Full double-entry bookkeeping: ChartOfAccounts, JournalEntry, JournalLine
+- Counterparty, LegalEntity, SettlementBatch, BankTransaction entities
+- ReconciliationMatch, CargoExpense, TaxRecord, TaxWithholding entities
+- CashFlowEntry, ProfitReport, FinancialGoal, PersonalExpense entities
+- AccountingDocument, ExpenseCategory, AccountingSupplierAccount
+- 16 CQRS accounting commands + 14 accounting queries
+- Settlement parsers: Trendyol, Hepsiburada, Amazon, Ciceksepeti, N11, Pazarama, OpenCart
+- Platform commission rate provider (real rates from platforms)
+- CariHesaplar, BankaHesaplari, Belgeler, Mutabakat, GelirGider, KarZarar views (WPF)
+
+#### Document Management (Dalga 8)
+- MinIO object storage integration (S3-compatible)
+- DocumentManagerView with categories and versioning (WPF)
+- Documents page (Blazor + Avalonia)
+
+#### E-Invoice System (Dalga 9)
+- 9 e-fatura providers: Sovos, ELogo, Parasut, TrendyolEFaturam, BirFatura,
+  DijitalPlanet, HBFatura, GibPortal, Mock
+- UBL-TR XML builder for compliant invoice generation
+- GIB Mukellef VKN lookup service
+- E-invoice create/send/cancel commands + list/detail/VKN-check queries
+- EInvoiceCreateView + EInvoiceListView (WPF)
+- InvoiceProviderFactory + InvoiceAdapterFactory (adapter/provider separation)
+
+#### Dropshipping Module (Dalga 8)
+- DropshippingPool, DropshippingPoolProduct, FeedImportLog, SupplierFeed entities
+- 14 CQRS commands + 9 queries for pool management
+- 4 feed parsers: XML, CSV, JSON, Excel
+- Feed health check, delta detection, fuzzy matching, category auto-mapper
+- Image download service for product images
+- Feed credential protector (encrypted storage)
+- 4 WPF views: Dashboard, Pool, Import, Export, Supplier
+
+#### Marketplace Adapters (Dalga 8-12)
+- 11 marketplace adapters implementing IIntegratorAdapter:
+  - Trendyol, Hepsiburada, Ciceksepeti, N11, Pazarama, OpenCart
+  - AmazonTR, AmazonEU, PttAVM, Ozon, eBay
+- IOrderCapableAdapter, IShipmentCapableAdapter, IWebhookCapableAdapter interfaces
+- Webhook receiver service for real-time platform notifications
+
+#### Cargo Providers (Dalga 9-10)
+- 7 cargo adapters: Yurtici, Aras, Surat, HepsiJet, Sendeo, MNG, PTT
+- CargoProviderFactory + CargoProviderSelector (smart routing)
+- CargoShipmentView, BulkCargoLabelDialog (WPF)
+
+#### ERP Integration (Dalga 11)
+- 3 ERP adapters: Parasut, Logo, BizimHesap
+- ERPAdapterFactory for runtime adapter selection
+- Canonical finance mapper for cross-ERP normalization
+- ParasutTokenService, LogoTokenService for OAuth2 token management
+
+#### Fulfillment (Dalga 11)
+- Amazon FBA adapter
+- Hepsilojistik adapter
+- FulfillmentProviderFactory
+
+#### Social Media Feeds (Dalga 10)
+- Google Merchant Feed adapter
+- Facebook Shop Feed adapter
+- Instagram Shop Feed adapter (extends Facebook)
+- SocialFeedRefreshJob for scheduled updates
+
+#### Payment Integration (Dalga 10)
+- PayTR Direct adapter (server-to-server)
+- PayTR iFrame adapter (redirect flow)
+- IPaymentProvider interface
+
+#### Blazor Server SaaS (Dalga 12)
+- 17 Razor pages: Home, Dashboard, Login, Stock, Orders, Leads, Deals, Contacts,
+  Employees, LeaveRequests, Expenses, BankAccounts, Documents, Marketplaces,
+  Reports, Settings, ProfitLoss
+- PWA-ready, responsive layout
+- Shared Application/Domain layer with WPF desktop
+
+#### Avalonia Cross-Platform PoC (Dalga 12)
+- 17 Views: Dashboard, Leads, Kanban, ProfitLoss, Products, Stock, Orders,
+  Settings, Contacts, Employees, LeaveRequests, Documents, Reports,
+  Marketplaces, Expenses, BankAccounts, MainWindow
+- Runs on Windows, macOS, Linux
+
+#### ASP.NET Core Web API (Dalga 12)
+- 18 endpoint groups: Health, Auth, Products, Stock, Orders, Categories,
+  Invoices, Quotations, SyncStatus, Dashboard, SupplierFeeds,
+  DropshippingPool, Dropshipping, Finance, CRM, Accounting,
+  Notifications, Shipping
+- API key authentication + JWT token auth (HMAC-SHA256)
+- Per-API-key rate limiting (fixed window)
+- OpenAPI/Swagger documentation
+
+#### Multi-Currency (Dalga 10)
+- TCMB exchange rate integration (EUR/USD/GBP)
+
+#### i18n Infrastructure (Dalga 12)
+- Localization resource files: Strings.tr.resx, Strings.en.resx
+- Turkish + English support
+
+#### Tasks & Calendar (Dalga 8)
+- Project, Milestone, WorkTask, TimeEntry, ProjectMember entities
+- CalendarEvent, CalendarEventAttendee entities
+- ProjectsView, KanbanBoardView, CalendarView (WPF)
+
+#### Notifications (Dalga 10)
+- NotificationDashboardView (WPF)
+- Notification API endpoints
+
+#### MESA Bridge (Dalga 8)
+- Real activation support for AI integration
+- Event monitoring (MesaEventMonitor, MesaEventPublisher, MesaConsumer)
+- Mock service for development
+
+#### Quotation System (Dalga 8)
+- Quotation, QuotationLine entities
+- Create, Accept, Reject, ConvertToInvoice workflow
+- QuotationView (WPF)
+
+#### Bitrix24 Integration (Dalga 8)
+- Bitrix24Adapter with OAuth2 authentication
+- Bitrix24Deal, Bitrix24Contact, Bitrix24DealProductRow entities
+- PushOrderToBitrix24, SyncBitrix24Contacts commands
+
+### Architecture
+- Clean Architecture + DDD + CQRS/MediatR pattern
+- 12 solution projects (Domain, Application, Infrastructure, Desktop, Core,
+  WebApi, Blazor, Avalonia, Tests.Unit, Tests.Integration, Tests.Architecture,
+  MesTechStok.Tests)
+- 93+ domain entities across 8 bounded contexts
+  (Stock, CRM, HR, Finance, Accounting, Dropshipping, Tasks, Calendar)
+- 77+ CQRS Commands with handlers
+- 67+ CQRS Queries with handlers
+- 144+ total CQRS endpoints
+- 83+ WPF Views (XAML)
+- Multi-tenant EF Core query filters (ITenantEntity, ITenantProvider)
+- Domain events: 15+ event types (StockChanged, OrderPlaced, InvoiceCreated,
+  LowStockDetected, PriceChanged, ReturnCreated, BuyboxLost, etc.)
+- Value Objects: Money, SKU, Barcode, StockLevel, UnitOfMeasure, LocationCode, Address
+- Domain Services: StockCalculation, Pricing, BarcodeValidation, PlatformReturnPolicy
+- 6 Docker services: PostgreSQL 17 (pgvector), Redis 7, RabbitMQ 3,
+  MySQL 8, Seq, MinIO
+
+### Security
+- BCrypt password hashing (BCrypt.Net-Next 4.0.3)
+- JWT token authentication (HMAC-SHA256)
+- API key authentication with X-API-Key header
+- Zero hardcoded production credentials in source code
+- User-secrets for all sensitive configuration
+- Docker credentials via environment variables with required markers
+- FeedCredentialProtector for encrypted feed credentials
+- Token rotation service for API key lifecycle management
+- Multi-tenant data isolation via EF Core global query filters
+
+### Infrastructure
+- Testcontainers for PostgreSQL, Redis, RabbitMQ integration tests
+- WireMock-based adapter contract tests
+- CI/CD: 9-step pipeline (secret-scan, boundary-check, build, test, quality-gate)
+- Directory.Build.props with .NET analyzers (NetAnalyzers, Meziantou)
+- Health check endpoints (/health)
+- Polly resilience policies for HTTP clients
+- Circuit breaker pattern with CircuitStateLog
+
+### Test Coverage
+- 3361+ total tests
+- Unit tests: Domain entities, value objects, handlers, services
+- Integration tests: Testcontainers (PG/Redis/RMQ), adapter contracts,
+  cargo providers, invoice providers, settlement parsers
+- Architecture tests: Clean Architecture dependency rules, naming conventions,
+  CRM layer isolation
+- E2E tests: Full orchestration flow, fatura flow, sandbox flow,
+  Blazor page navigation
+- Performance benchmarks: Bulk sync, system performance, startup time
+- Regression tests: 5-platform regression, past wave interrogation,
+  build regression, domain configuration
+
+---
+
+## [0.8.0] - 2026-03-01 (Dalga 8-D Sprint)
+
+### Added
+- Dropshipping module activation (first customer-facing release)
+- 8 active platform adapters (TY, OC, CS, HB, PZ, N11, Amazon, B24)
+- 6/6 export formatters
+- 4/4 feed parsers
+- 3 cargo providers (Yurtici, Aras, Surat)
+- 9 e-fatura providers (IInvoiceProviderFactory)
+- 33+ CQRS commands, 28+ CQRS queries
+- 3241 tests, 60+ domain entities
+
+### Metrics
+- Build errors: 0
+- Auditor score: A- (8.6/10)
+
+---
+
+## [0.1.0] - 2025-12-01 (Dalga 1 Baseline)
+
+### Added
+- Clean Architecture foundation
+- WPF desktop app with MaterialDesign
+- SQLite + EF Core persistence
+- Trendyol + OpenCart adapters
+- 38 domain entities, 15 initial entities
+- 253 tests (up from 8)
+- CI/CD 9-step pipeline
+- Docker: PostgreSQL, Redis, RabbitMQ, MySQL, Seq
+- 56/56 HTML pages via ComponentLoader
+
+### Fixed
+- 120+ build errors resolved to 0
+- 192 domain+app warnings resolved to 0
+- 25+ hardcoded credentials removed
+
+---
+
+[1.0.0-rc1]: https://github.com/MesTechSync/MesTech_Stok/compare/v0.8.0...v1.0.0-rc1
+[0.8.0]: https://github.com/MesTechSync/MesTech_Stok/compare/v0.1.0...v0.8.0
+[0.1.0]: https://github.com/MesTechSync/MesTech_Stok/releases/tag/v0.1.0

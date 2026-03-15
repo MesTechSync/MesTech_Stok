@@ -17,7 +17,9 @@ using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Utils;
 using Microsoft.Extensions.DependencyInjection;
+#pragma warning disable CS0618 // Core.Data.Models type alias — will migrate to Domain entities in H32
 using CoreCustomer = MesTechStok.Core.Data.Models.Customer;
+#pragma warning restore CS0618
 
 namespace MesTechStok.Desktop.Views
 {

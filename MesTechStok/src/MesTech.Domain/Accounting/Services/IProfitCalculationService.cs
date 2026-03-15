@@ -40,25 +40,3 @@ public interface IProfitCalculationService
     /// </summary>
     decimal CalculateFifoCogs(IReadOnlyList<CostLayerInput> costLayers, int quantitySold);
 }
-
-/// <summary>
-/// Detayli P&amp;L sonucu.
-/// </summary>
-public record DetailedProfitResult
-{
-    public decimal TotalRevenue { get; init; }
-    public decimal TotalCogs { get; init; }
-    public decimal GrossProfit { get; init; }
-    public decimal GrossMargin { get; init; }
-    public decimal TotalCommission { get; init; }
-    public decimal TotalCargo { get; init; }
-    public decimal TotalWithholding { get; init; }
-    public decimal OtherExpenses { get; init; }
-    public decimal NetProfit { get; init; }
-    public decimal NetMargin { get; init; }
-}
-
-/// <summary>
-/// FIFO maliyet katmani — alis partisi bilgisi.
-/// </summary>
-public record CostLayerInput(int Quantity, decimal UnitCost);

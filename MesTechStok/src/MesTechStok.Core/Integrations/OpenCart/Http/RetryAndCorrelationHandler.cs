@@ -95,7 +95,7 @@ namespace MesTechStok.Core.Integrations.OpenCart.Http
                 {
                     await Task.Delay(ComputeDelay(attempt), cancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException) { }
+                catch (OperationCanceledException) { /* Intentional: cancellation during retry delay is expected */ }
             }
 
             if (lastResponse != null) return lastResponse;

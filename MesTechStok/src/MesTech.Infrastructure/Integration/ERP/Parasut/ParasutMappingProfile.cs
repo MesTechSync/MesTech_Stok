@@ -1,5 +1,6 @@
 using System.Globalization;
 using MesTech.Application.DTOs.Accounting;
+using MesTech.Domain.Entities.EInvoice;
 
 using InvoiceEntity = MesTech.Domain.Entities.Invoice;
 
@@ -59,6 +60,38 @@ internal static class ParasutMappingProfile
                     DueDate = expense.ExpenseDate.AddDays(30).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     Currency = "TRL",
                     NetTotal = expense.Amount.ToString("F2", CultureInfo.InvariantCulture)
+                }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Dalga 9: Maps an EInvoiceDocument to Parasut sales_invoice (e-invoice variant).
+    /// GIB ETTN is stored in invoice_series so Parasut can cross-reference the GIB record.
+    /// Currency: Parasut uses "TRL" for Turkish Lira (ISO code TRY).
+    /// </summary>
+    internal static ParasutJsonApiRequest<ParasutEInvoiceAttributes> MapEInvoice(EInvoiceDocument doc)
+    {
+        ArgumentNullException.ThrowIfNull(doc);
+
+        return new ParasutJsonApiRequest<ParasutEInvoiceAttributes>
+        {
+            Data = new ParasutDataWrapper<ParasutEInvoiceAttributes>
+            {
+                Type = "sales_invoices",
+                Attributes = new ParasutEInvoiceAttributes
+                {
+                    Description = $"E-Fatura ETTN:{doc.EttnNo} — {doc.BuyerTitle}",
+                    IssueDate = doc.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    DueDate = doc.DueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    InvoiceSeries = doc.EttnNo,
+                    Currency = doc.CurrencyCode == "TRY" ? "TRL" : doc.CurrencyCode,
+                    NetTotal = doc.TaxExclusiveAmount.ToString("F2", CultureInfo.InvariantCulture),
+                    TaxTotal = doc.TaxAmount.ToString("F2", CultureInfo.InvariantCulture),
+                    GrossTotal = doc.PayableAmount.ToString("F2", CultureInfo.InvariantCulture),
+                    EInvoiceType = "basic",
+                    TaxNumber = doc.BuyerVkn,
+                    ContactName = doc.BuyerTitle
                 }
             }
         };

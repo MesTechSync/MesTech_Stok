@@ -13,6 +13,7 @@ public enum CargoProvider
     MngKargo = 4,
     PttKargo = 5,
     Hepsijet = 6,
-    UPS = 7
+    UPS = 7,
+    Sendeo = 8
 }
 

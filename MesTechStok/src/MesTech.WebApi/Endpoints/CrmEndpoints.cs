@@ -4,12 +4,14 @@
 //   MesTech.Application.Features.Crm.Commands.CreateDeal.CreateDealCommand
 //   MesTech.Application.Features.Crm.Queries.GetLeads.GetLeadsQuery
 
-// using MediatR;
 // using MesTech.Application.Features.Crm.Commands.CreateLead;
 // using MesTech.Application.Features.Crm.Commands.CreateDeal;
 // using MesTech.Application.Features.Crm.Queries.GetLeads;
 // using MesTech.Domain.Enums;
 
+using MediatR;
+using MesTech.Application.Features.Crm.Commands.WinDeal;
+using MesTech.Application.Features.Crm.Commands.LoseDeal;
 using MesTech.Application.Interfaces;
 
 namespace MesTech.WebApi.Endpoints;
@@ -132,5 +134,27 @@ public static class CrmEndpoints
             })
             .WithName("CreateLeadFromOrder")
             .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)");
+
+        // POST /api/v1/crm/deals/{id}/win — Deal kazanıldı (H29-3.3)
+        group.MapPost("/deals/{id:guid}/win", async (
+            Guid id, Guid? orderId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new WinDealCommand(id, orderId), ct);
+            return Results.NoContent();
+        })
+        .WithName("WinDeal")
+        .WithSummary("Deal kazanıldı olarak işaretle");
+
+        // POST /api/v1/crm/deals/{id}/lose — Deal kaybedildi (H29-3.3)
+        group.MapPost("/deals/{id:guid}/lose", async (
+            Guid id, string reason,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new LoseDealCommand(id, reason), ct);
+            return Results.NoContent();
+        })
+        .WithName("LoseDeal")
+        .WithSummary("Deal kaybedildi olarak işaretle");
     }
 }

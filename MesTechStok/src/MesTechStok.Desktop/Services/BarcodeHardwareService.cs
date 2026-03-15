@@ -14,8 +14,7 @@ using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+// Core.Data eliminated — using MediatR CQRS (H30)
 using MesTechStok.Core.Diagnostics;
 using MesTechStok.Desktop.Utils;
 using MesTechStok.Desktop.Models;
@@ -494,28 +493,26 @@ namespace MesTechStok.Desktop.Services
                             BarcodeScanned?.Invoke(this, new BarcodeScannedEventArgs(result.Text));
                             GlobalLogger.Instance.LogEvent("BARCODE", $"Detected value={result.Text} format={result.BarcodeFormat}", "BarcodeHW");
 
-                            // Persist to SQL (service-level persistence; UI bağımsız)
+                            // Persist to SQL via MediatR CQRS (H30: Core.AppDbContext elimination)
                             try
                             {
                                 if (_scopeFactory != null)
                                 {
                                     using var scope = _scopeFactory.CreateScope();
-                                    var db = scope.ServiceProvider.GetService<AppDbContext>();
-                                    if (db != null)
+                                    var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
+                                    if (mediator != null)
                                     {
-                                        db.BarcodeScanLogs.Add(new BarcodeScanLog
-                                        {
-                                            Barcode = result.Text,
-                                            Format = result.BarcodeFormat.ToString(),
-                                            Source = "Camera",
-                                            DeviceId = $"CAM_{_cameraIndex}",
-                                            IsValid = true,
-                                            ValidationMessage = null,
-                                            RawLength = result.Text.Length,
-                                            TimestampUtc = DateTime.UtcNow,
-                                            CorrelationId = CorrelationContext.CurrentId
-                                        });
-                                        db.SaveChanges();
+                                        var cmd = new MesTech.Application.Commands.CreateBarcodeScanLog.CreateBarcodeScanLogCommand(
+                                            Barcode: result.Text,
+                                            Format: result.BarcodeFormat.ToString(),
+                                            Source: "Camera",
+                                            DeviceId: $"CAM_{_cameraIndex}",
+                                            IsValid: true,
+                                            ValidationMessage: null,
+                                            RawLength: result.Text.Length,
+                                            CorrelationId: CorrelationContext.CurrentId
+                                        );
+                                        await mediator.Send(cmd);
                                         GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogged value={result.Text} format={result.BarcodeFormat} corr={CorrelationContext.CurrentId}", "BarcodeHW");
                                     }
                                 }

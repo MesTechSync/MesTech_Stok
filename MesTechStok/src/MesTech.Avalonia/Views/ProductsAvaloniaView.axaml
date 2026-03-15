@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
+             x:DataType="vm:ProductsAvaloniaViewModel">
+
+    <!-- Avalonia simplified port of WPF ProductsView.xaml -->
+    <!-- WPF original is 600+ lines with code-behind heavy logic.
+         This Avalonia version demonstrates MVVM-first approach.
+         Key changes:
+         - xmlns → avaloniaui
+         - Watermark instead of md:HintAssist.Hint
+         - Fluent theme controls
+         - ViewModel: ProductsAvaloniaViewModel (clean MVVM, no code-behind logic) -->
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#1976D2" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Urunler" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#1976D2" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <TextBox Width="320" Watermark="Urun adi, barkod veya kategori ara..."
+                     Text="{Binding SearchText}"
+                     HorizontalAlignment="Left" />
+        </Border>
+
+        <!-- Products DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Products}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Urun Adi" Binding="{Binding Name}" Width="250" />
+                <DataGridTextColumn Header="Barkod" Binding="{Binding Barcode}" Width="160" />
+                <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="130" />
+                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
+                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

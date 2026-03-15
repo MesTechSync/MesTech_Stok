@@ -1,0 +1,65 @@
+@inherits LayoutComponentBase
+
+<div class="d-flex" style="min-height: 100vh;">
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay @(sidebarOpen ? "show" : "")" @onclick="CloseSidebar"></div>
+
+  <div class="@(sidebarOpen ? "show" : "")">
+    <NavMenu />
+  </div>
+
+  <main class="flex-grow-1 bg-light" style="overflow-y: auto;">
+    <div class="top-bar d-flex align-items-center justify-content-between px-3 px-md-4 py-2 bg-white border-bottom">
+      <div class="d-flex align-items-center">
+        <button class="btn btn-sm btn-outline-secondary d-md-none me-2" @onclick="ToggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h5 class="mb-0 text-muted d-none d-sm-block">MesTech Kurumsal Yonetim</h5>
+        <h6 class="mb-0 text-muted d-sm-none">MesTech</h6>
+      </div>
+      <div class="d-flex align-items-center gap-2 gap-md-3">
+        <span class="badge text-dark d-none d-sm-inline-block" style="background-color: rgba(40,85,172,0.1); color: #2855AC !important;">
+          <i class="fas fa-rocket me-1"></i> Dalga 11
+        </span>
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+               style="width: 32px; height: 32px; background-color: #2855AC;">
+            <i class="fas fa-user text-white" style="font-size: 0.75rem;"></i>
+          </div>
+          <div class="d-none d-sm-flex flex-column lh-sm">
+            <small class="fw-semibold">@GetUsername()</small>
+            <small class="text-muted" style="font-size: 0.7rem;">Yonetici</small>
+          </div>
+        </div>
+        <a href="login" class="btn btn-outline-secondary btn-sm" title="Cikis Yap">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
+    </div>
+    <div class="p-2 p-md-4">
+      @Body
+    </div>
+  </main>
+</div>
+
+<!-- Mobile floating sidebar toggle -->
+<button class="sidebar-toggle d-md-none" @onclick="ToggleSidebar" title="Menu">
+  <i class="fas @(sidebarOpen ? "fa-times" : "fa-bars")"></i>
+</button>
+
+@code {
+  private bool sidebarOpen;
+
+  private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
+  private void CloseSidebar() => sidebarOpen = false;
+
+  private string GetUsername()
+  {
+    // Check in-memory auth token store from Login page
+    if (MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.IsAuthenticated)
+    {
+      return MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Username ?? "Kullanici";
+    }
+    return "Demo Kullanici";
+  }
+}

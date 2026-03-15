@@ -37,6 +37,9 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="prometheus-net" />
     <PackageReference Include="Minio" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" />
   </ItemGroup>
 
   <PropertyGroup>

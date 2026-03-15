@@ -1,0 +1,135 @@
+<nav class="mestech-sidebar d-flex flex-column" style="width: 260px; min-height: 100vh;">
+  <!-- Brand -->
+  <div class="sidebar-brand px-3 py-4 text-center border-bottom border-secondary">
+    <a href="dashboard" class="text-decoration-none">
+      <h4 class="text-white mb-0">
+        <i class="fas fa-industry me-2"></i>MesTech
+      </h4>
+      <small class="text-white-50">Kurumsal Yonetim Platformu</small>
+    </a>
+  </div>
+
+  <!-- Navigation Links -->
+  <ul class="nav flex-column mt-3 px-2 flex-grow-1" style="overflow-y: auto;">
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dashboard">
+        <i class="fas fa-tachometer-alt me-2" style="width: 20px; text-align: center;"></i>
+        Dashboard
+      </NavLink>
+    </li>
+
+    <!-- CRM -->
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <small class="text-uppercase text-white-50 fw-bold">CRM</small>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/leads">
+        <i class="fas fa-user-plus me-2" style="width: 20px; text-align: center;"></i>
+        Leadler
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/deals">
+        <i class="fas fa-handshake me-2" style="width: 20px; text-align: center;"></i>
+        Firsatlar
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/contacts">
+        <i class="fas fa-address-book me-2" style="width: 20px; text-align: center;"></i>
+        Kisiler
+      </NavLink>
+    </li>
+
+    <!-- Satis -->
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <small class="text-uppercase text-white-50 fw-bold">Satis</small>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="siparisler">
+        <i class="fas fa-shopping-cart me-2" style="width: 20px; text-align: center;"></i>
+        Siparisler
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="pazaryerleri">
+        <i class="fas fa-globe me-2" style="width: 20px; text-align: center;"></i>
+        Pazaryerleri
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="stok">
+        <i class="fas fa-boxes-stacked me-2" style="width: 20px; text-align: center;"></i>
+        Stok
+      </NavLink>
+    </li>
+
+    <!-- Finans -->
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <small class="text-uppercase text-white-50 fw-bold">Finans</small>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/kar-zarar">
+        <i class="fas fa-chart-line me-2" style="width: 20px; text-align: center;"></i>
+        Kar / Zarar
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/giderler">
+        <i class="fas fa-file-invoice-dollar me-2" style="width: 20px; text-align: center;"></i>
+        Giderler
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/banka">
+        <i class="fas fa-building-columns me-2" style="width: 20px; text-align: center;"></i>
+        Banka Hesaplari
+      </NavLink>
+    </li>
+
+    <!-- IK -->
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <small class="text-uppercase text-white-50 fw-bold">IK</small>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/calisanlar">
+        <i class="fas fa-users me-2" style="width: 20px; text-align: center;"></i>
+        Calisanlar
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/izinler">
+        <i class="fas fa-calendar-check me-2" style="width: 20px; text-align: center;"></i>
+        Izin Talepleri
+      </NavLink>
+    </li>
+
+    <!-- Diger -->
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <small class="text-uppercase text-white-50 fw-bold">Diger</small>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="belgeler">
+        <i class="fas fa-folder-open me-2" style="width: 20px; text-align: center;"></i>
+        Belgeler
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="raporlar">
+        <i class="fas fa-chart-bar me-2" style="width: 20px; text-align: center;"></i>
+        Raporlar
+      </NavLink>
+    </li>
+    <li class="nav-item mb-1">
+      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="ayarlar">
+        <i class="fas fa-cog me-2" style="width: 20px; text-align: center;"></i>
+        Ayarlar
+      </NavLink>
+    </li>
+  </ul>
+
+  <!-- Footer -->
+  <div class="px-3 py-3 border-top border-secondary text-center">
+    <small class="text-white-50">v10.0 &mdash; Dalga 10</small>
+  </div>
+</nav>

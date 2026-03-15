@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -12,11 +13,13 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Sovos e-Fatura entegrasyonu — REST JSON API.
 /// Sovos otomatik UBL olusturur, biz JSON gonderiyoruz.
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, iptal.
+/// Dalga 9: IEInvoiceProvider eklendi — UBL-TR 1.2 XML, VKN mukellef sorgu, kredi bakiye.
 /// </summary>
-public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
+public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
+    private readonly IUblTrXmlBuilder _ublBuilder;
     private string? _apiKey;
     private string? _baseUrl;
     private bool _isConfigured;
@@ -24,10 +27,17 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
     public string ProviderName => "Sovos e-Fatura";
     public InvoiceProvider Provider => InvoiceProvider.Sovos;
 
-    public SovosInvoiceProvider(HttpClient httpClient, ILogger<SovosInvoiceProvider> logger)
+    // IEInvoiceProvider
+    public string ProviderCode => "Sovos";
+
+    public SovosInvoiceProvider(
+        HttpClient httpClient,
+        ILogger<SovosInvoiceProvider> logger,
+        IUblTrXmlBuilder ublBuilder)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _ublBuilder = ublBuilder ?? throw new ArgumentNullException(nameof(ublBuilder));
     }
 
     /// <summary>
@@ -449,6 +459,178 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         {
             _logger.LogError(ex, "Sovos SetInvoiceTemplate exception");
             return false;
+        }
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    /// <summary>
+    /// UBL-TR 1.2 XML uret, Base64 encode et ve Sovos /einvoice/send endpoint'ine POST gonder.
+    /// </summary>
+    public async Task<EInvoiceSendResult> SendAsync(EInvoiceDocument document, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos EInvoice SendAsync for ETTN {EttnNo}", document.EttnNo);
+
+        try
+        {
+            var xmlBytes = await _ublBuilder.BuildAsync(document, ct);
+            var xmlBase64 = Convert.ToBase64String(xmlBytes);
+
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                xmlBase64
+            };
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Sovos SendAsync failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                return new EInvoiceSendResult(false, null, errorBody, 0);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+            var root = doc.RootElement;
+
+            var providerRef = root.TryGetProperty("providerRef", out var pr) ? pr.GetString() : null;
+            var creditUsed = root.TryGetProperty("creditUsed", out var cu) ? cu.GetInt32() : 1;
+
+            return new EInvoiceSendResult(true, providerRef, null, creditUsed);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos SendAsync exception for ETTN {EttnNo}", document.EttnNo);
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    public async Task<string?> GetPdfUrlAsync(string providerRef, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos GetPdfUrlAsync for providerRef {ProviderRef}", providerRef);
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/einvoice/{providerRef}/pdf-url", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos GetPdfUrlAsync failed: {Status}", response.StatusCode);
+                return null;
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var url) ? url.GetString() : null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos GetPdfUrlAsync exception for {ProviderRef}", providerRef);
+            return null;
+        }
+    }
+
+    public async Task<bool> CancelAsync(string providerRef, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos EInvoice CancelAsync for providerRef {ProviderRef}", providerRef);
+
+        try
+        {
+            var payload = new { providerRef, reason };
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(
+                $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos CancelAsync failed: {Status}", response.StatusCode);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos CancelAsync exception for {ProviderRef}", providerRef);
+            return false;
+        }
+    }
+
+    public async Task<VknMukellefResult> CheckVknMukellefAsync(string vkn, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos CheckVknMukellefAsync for VKN {Vkn}", vkn);
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                $"{_baseUrl}/einvoice/taxpayer/{vkn}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos CheckVknMukellefAsync failed: {Status} for VKN {Vkn}",
+                    response.StatusCode, vkn);
+                return new VknMukellefResult(vkn, false, false, null, null);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+            var root = doc.RootElement;
+
+            var isEInvoice = root.TryGetProperty("isEInvoiceMukellef", out var ei) && ei.GetBoolean();
+            var isEArchive = root.TryGetProperty("isEArchiveMukellef", out var ea) && ea.GetBoolean();
+            var title = root.TryGetProperty("title", out var t) && t.ValueKind != JsonValueKind.Null
+                ? t.GetString()
+                : null;
+
+            return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos CheckVknMukellefAsync exception for VKN {Vkn}", vkn);
+            return new VknMukellefResult(vkn, false, false, null, null);
+        }
+    }
+
+    public async Task<int> GetCreditBalanceAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("Sovos GetCreditBalanceAsync");
+
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Sovos GetCreditBalanceAsync failed: {Status}", response.StatusCode);
+                return 0;
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            using var doc = JsonDocument.Parse(responseJson);
+            return doc.RootElement.TryGetProperty("balance", out var b) ? b.GetInt32() : 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sovos GetCreditBalanceAsync exception");
+            return 0;
         }
     }
 

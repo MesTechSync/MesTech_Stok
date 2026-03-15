@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.EmployeesAvaloniaView"
+             x:DataType="vm:EmployeesAvaloniaViewModel">
+
+    <!-- Stub view for HR Employees — Dalga 11 -->
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0891B2" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Calisanlar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} calisan'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0891B2" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Placeholder Content -->
+        <Border Grid.Row="1" Background="#F8FAFC" Margin="24"
+                CornerRadius="12" BorderBrush="#E0E6ED" BorderThickness="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                <Border Background="#ECFEFF" CornerRadius="50" Width="80" Height="80"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#x1F465;" FontSize="36"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Calisan Yonetimi" FontSize="22" FontWeight="Bold"
+                           Foreground="#1E293B" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
+                           TextAlignment="Center" />
+                <TextBlock Text="Personel kaydi | Departman atama | Organizasyon semasi | Performans"
+                           FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"
+                           Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

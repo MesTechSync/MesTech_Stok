@@ -1577,29 +1577,27 @@ namespace MesTechStok.Desktop.Views
                 });
                 TrimScanHistoryUi(10);
 
-                // SQL'e kalıcı barkod logu yaz
+                // SQL'e kalıcı barkod logu yaz — MediatR CQRS
                 try
                 {
                     var sp = MesTechStok.Desktop.App.Services;
                     if (sp != null)
                     {
                         using var scope = sp.CreateScope();
-                        var db = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();
-                        if (db != null)
+                        var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
+                        if (mediator != null)
                         {
-                            db.BarcodeScanLogs.Add(new MesTechStok.Core.Data.Models.BarcodeScanLog
-                            {
-                                Barcode = barcodeText,
-                                Format = format,
-                                Source = "Camera",
-                                DeviceId = "DEFAULT_CAMERA",
-                                IsValid = true,
-                                ValidationMessage = null,
-                                RawLength = barcodeText?.Length ?? 0,
-                                TimestampUtc = DateTime.UtcNow,
-                                CorrelationId = MesTechStok.Core.Diagnostics.CorrelationContext.CurrentId
-                            });
-                            db.SaveChanges();
+                            var cmd = new MesTech.Application.Commands.CreateBarcodeScanLog.CreateBarcodeScanLogCommand(
+                                Barcode: barcodeText ?? string.Empty,
+                                Format: format,
+                                Source: "Camera",
+                                DeviceId: "DEFAULT_CAMERA",
+                                IsValid: true,
+                                ValidationMessage: null,
+                                RawLength: barcodeText?.Length ?? 0,
+                                CorrelationId: MesTechStok.Core.Diagnostics.CorrelationContext.CurrentId
+                            );
+                            mediator.Send(cmd).GetAwaiter().GetResult();
                             MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("DB", $"BarcodeLogged value={barcodeText} format={format} corr={MesTechStok.Core.Diagnostics.CorrelationContext.CurrentId}", "BarcodeView");
                         }
                     }
@@ -1707,8 +1705,8 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // Demo ürününü gerçek Product entity'sine çevir
-                var product = new MesTechStok.Core.Data.Models.Product
+                // Demo ürününü ProductDto'ya çevir (Dalga 14: Core.Data.Models.Product -> ProductDto)
+                var product = new MesTech.Application.DTOs.ProductDto
                 {
                     Id = productInfo.Id,
                     Name = productInfo.Name,
@@ -1721,7 +1719,6 @@ namespace MesTechStok.Desktop.Views
                     MinimumStock = 5,
                     Brand = productInfo.Brand,
                     ImageUrl = productInfo.ImagePath
-                    // Category is an object, not string - leave null for demo
                 };
 
                 // Popup'ı göster

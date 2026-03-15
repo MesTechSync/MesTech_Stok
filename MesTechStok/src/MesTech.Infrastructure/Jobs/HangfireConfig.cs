@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,6 +47,9 @@ public static class HangfireConfig
 
         // H27 DEV 4 — CRM periyodik job'ları
         services.AddScoped<CrmHangfireJobs>();
+
+        // Dalga 10 — SocialFeedRefreshJob (registered via IntegrationServiceRegistration — Scoped)
+        // No AddScoped here; it is already registered in IntegrationServiceRegistration.
 
         return services;
     }
@@ -151,5 +155,40 @@ public static class HangfireConfig
             "accounting-daily-profit",
             job => job.ExecuteAsync(CancellationToken.None),
             "59 23 * * *");
+
+        // === MUH-03 DEV 4 — E-posta Tarama Worker ===
+
+        // Her 2 saatte bir — muhasebe e-posta tarama
+        RecurringJob.AddOrUpdate<EmailScanWorker>(
+            "accounting-email-scan",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 */2 * * *");
+
+        // === MUH-02 DEV 4 — Ek Muhasebe Workers ===
+
+        // Her 4 saatte bir — otomatik mutabakat eslestirme
+        RecurringJob.AddOrUpdate<ReconciliationWorker>(
+            "accounting-reconciliation",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 */4 * * *");
+
+        // Her gun 08:00 — gunluk finansal brifing (WhatsApp/Telegram)
+        RecurringJob.AddOrUpdate<ScheduledBriefingWorker>(
+            "accounting-scheduled-briefing",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 8 * * *");
+
+        // === MUH-03 DEV 6 — Aylik KDV taslagi ===
+
+        // Her ayin 1'i saat 06:00 — onceki ay KDV taslagi
+        RecurringJob.AddOrUpdate<TaxPrepWorker>(
+            "accounting-tax-prep",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 6 1 * *");
+
+        // === Dalga 10 — Sosyal Ticaret Feed Yenileme ===
+
+        // Her 6 saatte bir — aktif SocialFeedConfiguration'lar icin feed uretimi
+        SocialFeedRefreshJob.Register();
     }
 }

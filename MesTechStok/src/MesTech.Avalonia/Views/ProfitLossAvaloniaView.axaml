@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpfvm="using:MesTechStok.Desktop.ViewModels.Finance"
+             x:Class="MesTech.Avalonia.Views.ProfitLossAvaloniaView"
+             x:DataType="wpfvm:ProfitLossViewModel">
+
+    <!-- Avalonia port of WPF Views/Finance/ProfitLossView.xaml -->
+    <!-- Key changes:
+         - xmlns → avaloniaui
+         - DropShadowEffect → BoxShadow
+         - MaterialDesignFlatButton → Fluent default
+         - ViewModel: ProfitLossViewModel — COMPILE-LINKED from WPF Desktop (100% REUSE, ZERO CHANGES) -->
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Row 0: Header with period navigation -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
+                            Spacing="8">
+                    <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                    <TextBlock Text="{Binding PeriodLabel}" Foreground="White"
+                               FontSize="16" FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                    <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: 4 Summary Cards -->
+        <Border Grid.Row="1" Background="#F8FAFC" Padding="16">
+            <Grid ColumnDefinitions="*,*,*,*">
+
+                <!-- Card 1: Gelir -->
+                <Border Grid.Column="0" Background="White" CornerRadius="12"
+                        Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Gelir" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalRevenue, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#10B981"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 2: Gider -->
+                <Border Grid.Column="1" Background="White" CornerRadius="12"
+                        Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Gider" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalExpenses, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#EF4444"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 3: Net Kar -->
+                <Border Grid.Column="2" Background="White" CornerRadius="12"
+                        Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Net Kar" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding NetProfit, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#2563EB"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 4: Kar Marji -->
+                <Border Grid.Column="3" Background="White" CornerRadius="12"
+                        Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Kar Marji" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding ProfitMargin, StringFormat='%{0:N1}'}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#8B5CF6"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Detail placeholder -->
+        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="12"
+                BorderBrush="#E0E6ED" BorderThickness="1">
+            <TextBlock Text="Detayli rapor tablosu — Dalga 10 sonrasinda aktif edilecek"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontSize="14" Foreground="#94A3B8" />
+        </Border>
+    </Grid>
+</UserControl>

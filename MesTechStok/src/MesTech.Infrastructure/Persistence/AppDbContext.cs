@@ -2,6 +2,8 @@ using System.Linq.Expressions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
+using MesTech.Domain.Entities.EInvoice;
+using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Entities.Calendar;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Entities.Documents;
@@ -203,6 +205,24 @@ public class AppDbContext : DbContext
     public DbSet<FinancialGoal> FinancialGoals => Set<FinancialGoal>();
     public DbSet<AccountingSupplierAccount> AccountingSupplierAccounts => Set<AccountingSupplierAccount>();
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
+
+    // ═══════════════════════════════════════
+    // DALGA 9 — E-FATURA
+    // ═══════════════════════════════════════
+    public DbSet<EInvoiceDocument> EInvoiceDocuments => Set<EInvoiceDocument>();
+    public DbSet<EInvoiceLine> EInvoiceLines => Set<EInvoiceLine>();
+    public DbSet<EInvoiceSendLog> EInvoiceSendLogs => Set<EInvoiceSendLog>();
+
+    // ═══════════════════════════════════════
+    // DALGA 10 — SOSYAL TİCARET & ÖDEME
+    // ═══════════════════════════════════════
+    public DbSet<SocialFeedConfiguration> SocialFeedConfigurations => Set<SocialFeedConfiguration>();
+    public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
+
+    // ═══════════════════════════════════════
+    // DALGA 11 — ERP ENTEGRASYONU
+    // ═══════════════════════════════════════
+    public DbSet<ErpSyncLog> ErpSyncLogs => Set<ErpSyncLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

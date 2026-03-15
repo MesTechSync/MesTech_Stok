@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+#pragma warning disable CS0618 // Core.Data.Models type reference — will migrate to Domain entities in H32
 using MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 using MesTechStok.Desktop.Services;
 
 namespace MesTechStok.Desktop.ViewModels;

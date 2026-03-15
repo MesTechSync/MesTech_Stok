@@ -11,13 +11,13 @@ public class CompleteTaskHandler : IRequestHandler<CompleteTaskCommand, Unit>
     public CompleteTaskHandler(IWorkTaskRepository tasks, IUnitOfWork uow)
         => (_tasks, _uow) = (tasks, uow);
 
-    public async Task<Unit> Handle(CompleteTaskCommand req, CancellationToken ct)
+    public async Task<Unit> Handle(CompleteTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = await _tasks.GetByIdAsync(req.TaskId, ct)
-            ?? throw new InvalidOperationException($"WorkTask {req.TaskId} not found.");
+        var task = await _tasks.GetByIdAsync(request.TaskId, cancellationToken)
+            ?? throw new InvalidOperationException($"WorkTask {request.TaskId} not found.");
 
-        task.Complete(req.UserId);
-        await _uow.SaveChangesAsync(ct);
+        task.Complete(request.UserId);
+        await _uow.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }
 }

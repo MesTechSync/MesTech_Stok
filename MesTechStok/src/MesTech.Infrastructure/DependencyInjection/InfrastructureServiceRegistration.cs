@@ -6,9 +6,12 @@ using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Infrastructure.AI;
 using MesTech.Infrastructure.AI.Accounting;
+using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.Banking;
+using MesTech.Infrastructure.Finance;
 using MesTech.Infrastructure.Banking.Parsers;
 using MesTech.Infrastructure.Caching;
+using MesTech.Infrastructure.Email;
 using MesTech.Infrastructure.HealthChecks;
 using MesTech.Infrastructure.Integration.Crm;
 using MesTech.Infrastructure.Jobs;
@@ -21,7 +24,7 @@ using MesTech.Infrastructure.Persistence.Repositories;
 using Crm = MesTech.Infrastructure.Persistence.Repositories.Crm;
 using Tasks = MesTech.Infrastructure.Persistence.Repositories.Tasks;
 using Cal = MesTech.Infrastructure.Persistence.Repositories.Calendar;
-using Finance = MesTech.Infrastructure.Persistence.Repositories.Finance;
+using FinanceRepo = MesTech.Infrastructure.Persistence.Repositories.Finance;
 using Hr = MesTech.Infrastructure.Persistence.Repositories.Hr;
 using Docs = MesTech.Infrastructure.Persistence.Repositories.Documents;
 using MesTech.Infrastructure.Realtime;
@@ -49,6 +52,9 @@ public static class InfrastructureServiceRegistration
         // AuditInterceptor
         services.AddScoped<AuditInterceptor>();
 
+        // TenantContextInterceptor — PostgreSQL RLS tenant context (MUH-03)
+        services.AddScoped<TenantContextInterceptor>();
+
         // DbContext — PostgreSQL
         var connectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
@@ -60,7 +66,9 @@ public static class InfrastructureServiceRegistration
                 npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                 npgsql.EnableRetryOnFailure(3);
             });
-            options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<TenantContextInterceptor>());
         });
 
         // Repositories
@@ -81,6 +89,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<IEInvoiceDocumentRepository, EInvoiceDocumentRepository>();
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
@@ -101,10 +110,16 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProjectRepository, Tasks.ProjectRepository>();
         services.AddScoped<IWorkTaskRepository, Tasks.WorkTaskRepository>();
         services.AddScoped<ICalendarEventRepository, Cal.CalendarEventRepository>();
-        services.AddScoped<IFinanceExpenseRepository, Finance.ExpenseRepository>();
+        services.AddScoped<IFinanceExpenseRepository, FinanceRepo.ExpenseRepository>();
 
         // Dropshipping Pool Repository (Sprint-B)
         services.AddScoped<IDropshippingPoolRepository, DropshippingPoolRepository>();
+
+        // Dropshipping Feed Repositories + Services (Sprint-D — Dalga 8)
+        services.AddScoped<MesTech.Domain.Interfaces.ISupplierFeedRepository, SupplierFeedRepository>();
+        services.AddScoped<IFeedImportLogRepository, FeedImportLogRepository>();
+        services.AddScoped<IFeedSyncJobService, MesTech.Infrastructure.Jobs.FeedSyncJobService>();
+        services.AddScoped<IFeedReliabilityScoreService, MesTech.Infrastructure.Services.FeedReliabilityScoreServiceAdapter>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -122,6 +137,9 @@ public static class InfrastructureServiceRegistration
             ?? AesGcmEncryptionService.GenerateKey();
         services.AddSingleton(new AesGcmEncryptionService(encryptionKey));
 
+        // JWT Token Service (Dalga 9 — Blazor SaaS authentication)
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
         // === FAZ 1: ALTYAPI AKTIFLESTIRME ===
 
         // Redis Cache
@@ -136,12 +154,24 @@ public static class InfrastructureServiceRegistration
         });
         services.AddSingleton<ICacheService, RedisCacheService>();
 
+        // Exchange Rate Service — TCMB XML API, IMemoryCache 1h TTL (Dalga 11 — Multi-currency)
+        services.AddMemoryCache();
+        services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
+
         // RabbitMQ MassTransit Event Bus
         services.AddMesTechMessaging(configuration);
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
         // === MESA OS Bridge (Dalga 1: Mock, Dalga 8 H28: Real HTTP via feature flag) ===
-        services.AddScoped<IMesaAIService, MockMesaAIService>();
+        // Feature flag: Mesa:UseProductionBridge=true → ProductionMesaAIService (HTTP REST)
+        //               Mesa:UseProductionBridge=false (default) → MockMesaAIService
+        var useMesaProd = configuration.GetValue<bool>("Mesa:UseProductionBridge", false);
+        // MockMesaAIService is always registered — ProductionMesaAIService uses it as a fallback
+        services.AddScoped<MockMesaAIService>();
+        if (useMesaProd)
+            services.AddHttpClient<IMesaAIService, ProductionMesaAIService>();
+        else
+            services.AddScoped<IMesaAIService, MockMesaAIService>();
         services.AddScoped<IMesaBotService, MockMesaBotService>();
 
         // Feature flag: Mesa:BridgeEnabled=true → RealMesaEventPublisher (HTTP REST)
@@ -240,8 +270,20 @@ public static class InfrastructureServiceRegistration
         IConfiguration configuration)
     {
         // ── Domain Services ──
-        services.AddSingleton<MesTech.Domain.Accounting.Services.ICommissionCalculationService,
-            MesTech.Domain.Accounting.Services.CommissionCalculationService>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ICommissionRateProvider,
+            MesTech.Infrastructure.Integration.Accounting.PlatformCommissionRateProvider>();
+        services.AddScoped<MesTech.Domain.Accounting.Services.ICommissionCalculationService>(sp =>
+        {
+            var rateProvider = sp.GetRequiredService<MesTech.Application.Interfaces.Accounting.ICommissionRateProvider>();
+            return new MesTech.Domain.Accounting.Services.CommissionCalculationService(
+                async (platform, category, ct) =>
+                {
+                    var info = await rateProvider.GetRateAsync(platform, category, ct);
+                    if (info is null) return null;
+                    return new MesTech.Domain.Accounting.Services.DynamicRateResult(
+                        info.Rate, info.Source, info.CachedUntil);
+                });
+        });
         services.AddSingleton<MesTech.Domain.Accounting.Services.ITaxWithholdingService,
             MesTech.Domain.Accounting.Services.TaxWithholdingService>();
         services.AddSingleton<MesTech.Domain.Accounting.Services.IProfitCalculationService,
@@ -273,6 +315,19 @@ public static class InfrastructureServiceRegistration
         {
             services.AddScoped<IAdvisoryAgentClient, MockAdvisoryAgentClient>();
         }
+
+        // ── MESA Advisory Agent V2 — "Bugun ne sat" (MUH-03: Feature flag swap) ──
+        if (configuration.GetValue<bool>("Mesa:Advisory:UseReal", false))
+        {
+            services.AddHttpClient<IAdvisoryAgentV2, AdvisoryAgentV2>();
+        }
+        else
+        {
+            services.AddScoped<IAdvisoryAgentV2, MockAdvisoryAgentV2>();
+        }
+
+        // ── TaxPrep Agent (MUH-03) ──
+        services.AddScoped<ITaxPrepAgent, TaxPrepAgent>();
 
         // ── Repositories ──
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IChartOfAccountsRepository,
@@ -310,6 +365,10 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingSupplierAccountRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingSupplierAccountRepository>();
 
+        // ── VUK WORM Document Store (MUH-03) ──
+        services.AddScoped<IImmutableDocumentStore,
+            MesTech.Infrastructure.Persistence.Accounting.ImmutableDocumentStore>();
+
         // ── Bank Statement Parsers (MUH-01 DEV 4) ──
         services.AddSingleton<IBankStatementParser, OFXParser>();
         services.AddSingleton<IBankStatementParser, MT940Parser>();
@@ -334,6 +393,14 @@ public static class InfrastructureServiceRegistration
         // ── MUH-02 Accounting Workers ──
         services.AddScoped<ReconciliationWorker>();
         services.AddScoped<ScheduledBriefingWorker>();
+
+        // ── MUH-03 Accounting Workers ──
+        services.AddScoped<TaxPrepWorker>();
+
+        // ── MUH-03 DEV 4 — Ses Muhasebe + E-posta IMAP ──
+        services.AddHttpClient<ISpeechToExpenseService, SpeechToExpenseService>();
+        services.AddScoped<IAccountingEmailScanner, AccountingEmailScanner>();
+        services.AddScoped<EmailScanWorker>();
 
         // ── MUH-02: Anomaly Check Handler (MediatR INotificationHandler) ──
         // Infrastructure assembly MediatR scan'e dahil degil, explicit kayit.

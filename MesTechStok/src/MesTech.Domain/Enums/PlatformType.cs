@@ -16,5 +16,6 @@ public enum PlatformType
     Ozon = 8,
     eBay = 9,
     Etsy = 10,
-    Bitrix24 = 11
+    Bitrix24 = 11,
+    AmazonEu = 12
 }

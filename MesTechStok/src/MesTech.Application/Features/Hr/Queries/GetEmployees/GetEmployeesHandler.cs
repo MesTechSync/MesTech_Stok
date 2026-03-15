@@ -9,9 +9,9 @@ public class GetEmployeesHandler : IRequestHandler<GetEmployeesQuery, IReadOnlyL
 
     public GetEmployeesHandler(IEmployeeRepository employees) => _employees = employees;
 
-    public async Task<IReadOnlyList<EmployeeDto>> Handle(GetEmployeesQuery req, CancellationToken ct)
+    public async Task<IReadOnlyList<EmployeeDto>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
     {
-        var employees = await _employees.GetByTenantAsync(req.TenantId, req.Status, ct);
+        var employees = await _employees.GetByTenantAsync(request.TenantId, request.Status, cancellationToken);
         return employees.Select(e => new EmployeeDto
         {
             Id = e.Id,

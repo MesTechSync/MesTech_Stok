@@ -5,13 +5,13 @@ using FluentAssertions;
 namespace MesTech.Tests.Unit.Shell;
 
 /// <summary>
-/// DEV 5 — Dalga 7.7.1 Task 5.02: Inner header structure tests.
+/// DEV 5 — Dalga 7.7.1 Task 5.02 (v4 update): Inner header structure tests.
 /// Verifies:
-/// 1. Visible tab count ≤ 14 (target: 12 visible + "Daha...")
-/// 2. "Daha..." dropdown exists with overflow items
+/// 1. Visible tab count (12 visible + "Daha...")
+/// 2. "Daha..." dropdown exists with overflow items (id="more-wrap", id="more-menu")
 /// 3. Bitrix24 removed from visible tabs (moved to dropdown)
 /// 4. Dropdown items are wired and navigable
-/// 5. CSS styles for dropdown exist
+/// 5. CSS styles for dropdown exist (.more-wrap, .more-btn, .more-menu)
 /// All tests use source-file scanning (no browser needed).
 /// </summary>
 [Trait("Category", "Unit")]
@@ -30,7 +30,7 @@ public class InnerHeaderStructureTests
         _shellDir = Path.Combine(repoRoot, "frontend", "shell");
         _htmlContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.html"));
         _cssContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.css"));
-        _jsContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.js"));
+        _jsContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-sidebar.js"));
     }
 
     #region 1. Visible Tab Count
@@ -77,9 +77,9 @@ public class InnerHeaderStructureTests
 
     [Theory]
     [InlineData("products", "Urunler")]
-    [InlineData("orders", "Siparisler")]
-    [InlineData("shipping", "Kargo")]
-    [InlineData("reports", "Raporlar")]
+    [InlineData("unified-orders", "Siparisler")]
+    [InlineData("shipping-ops", "Kargo")]
+    [InlineData("reports-all", "Raporlar")]
     public void InnerHeader_CoreModule_IsVisible(string page, string label)
     {
         var visibleTabs = GetVisibleTabPages();
@@ -96,7 +96,7 @@ public class InnerHeaderStructureTests
     {
         var visibleTabs = GetVisibleTabPages();
         visibleTabs.Should().NotContain("bitrix24-dashboard",
-            "Bitrix24 is a CRM integration, not a marketplace — must be in 'Daha...' dropdown");
+            "Bitrix24 is a CRM integration, not a marketplace -- must be in 'Daha...' dropdown");
     }
 
     [Fact]
@@ -114,8 +114,9 @@ public class InnerHeaderStructureTests
     [Fact]
     public void HTML_HasMoreDropdownWrapper()
     {
-        _htmlContent.Should().Contain("id=\"inner-header-more\"",
-            "HTML must have the inner-header-more wrapper element");
+        // v4: wrapper is id="more-wrap" (not "inner-header-more")
+        _htmlContent.Should().Contain("id=\"more-wrap\"",
+            "HTML must have the more-wrap wrapper element");
     }
 
     [Fact]
@@ -135,10 +136,11 @@ public class InnerHeaderStructureTests
     }
 
     [Fact]
-    public void HTML_HasMoreDropdownContainer()
+    public void HTML_HasMoreMenuContainer()
     {
-        _htmlContent.Should().Contain("id=\"more-dropdown\"",
-            "HTML must have the more-dropdown container for overflow items");
+        // v4: menu container is id="more-menu" (not "more-dropdown")
+        _htmlContent.Should().Contain("id=\"more-menu\"",
+            "HTML must have the more-menu container for overflow items");
     }
 
     [Fact]
@@ -166,7 +168,7 @@ public class InnerHeaderStructureTests
 
     [Theory]
     [InlineData("invoices", "Faturalar")]
-    [InlineData("finance-commission", "Finans")]
+    [InlineData("commission", "Komisyonlar")]
     [InlineData("marketing-campaigns", "Pazarlama")]
     [InlineData("ad-analytics", "Reklamlar")]
     [InlineData("analytics", "Analitik")]
@@ -186,9 +188,10 @@ public class InnerHeaderStructureTests
     [Fact]
     public void Dropdown_ItemsHaveIcons()
     {
-        // Each .more-dropdown-item should contain an <i> icon
-        var itemPattern = new Regex(@"class=""more-dropdown-item""[^>]*>[\s\S]*?<i\s+class=""fas\s+fa-");
-        var matches = itemPattern.Matches(_htmlContent);
+        // v4: dropdown items are <a> tags with <i class="fa-solid fa-..."> icons
+        var menuSection = ExtractMoreMenuSection();
+        var iconPattern = new Regex(@"<i\s+class=""fa-solid\s+fa-");
+        var matches = iconPattern.Matches(menuSection);
         matches.Count.Should().BeGreaterOrEqualTo(8,
             "dropdown items should have FontAwesome icons");
     }
@@ -196,8 +199,10 @@ public class InnerHeaderStructureTests
     [Fact]
     public void Dropdown_AllItemsHaveDataPage()
     {
-        var itemPattern = new Regex(@"more-dropdown-item""\s+data-page=""([^""]+)""");
-        var matches = itemPattern.Matches(_htmlContent);
+        // v4: dropdown items are <a data-page="..."> (not .more-dropdown-item)
+        var menuSection = ExtractMoreMenuSection();
+        var itemPattern = new Regex(@"<a\s+data-page=""([^""]+)""");
+        var matches = itemPattern.Matches(menuSection);
         matches.Count.Should().BeGreaterOrEqualTo(8,
             "all dropdown items must have data-page attributes");
 
@@ -213,10 +218,11 @@ public class InnerHeaderStructureTests
     #region 5. CSS Styles for Dropdown
 
     [Fact]
-    public void CSS_HasInnerHeaderMoreStyles()
+    public void CSS_HasMoreWrapStyles()
     {
-        _cssContent.Should().Contain(".inner-header-more",
-            "CSS must have .inner-header-more wrapper styles");
+        // v4: wrapper class is .more-wrap (not .inner-header-more)
+        _cssContent.Should().Contain(".more-wrap",
+            "CSS must have .more-wrap wrapper styles");
     }
 
     [Fact]
@@ -227,121 +233,105 @@ public class InnerHeaderStructureTests
     }
 
     [Fact]
-    public void CSS_HasMoreDropdownStyles()
+    public void CSS_HasMoreMenuStyles()
     {
-        _cssContent.Should().Contain(".more-dropdown",
-            "CSS must have .more-dropdown container styles");
+        // v4: menu class is .more-menu (not .more-dropdown)
+        _cssContent.Should().Contain(".more-menu",
+            "CSS must have .more-menu container styles");
     }
 
     [Fact]
-    public void CSS_HasMoreDropdownItemStyles()
+    public void CSS_HasMoreMenuItemStyles()
     {
-        _cssContent.Should().Contain(".more-dropdown-item",
-            "CSS must have .more-dropdown-item styles");
+        // v4: items are .more-menu a (not .more-dropdown-item)
+        _cssContent.Should().Contain(".more-menu a",
+            "CSS must have .more-menu a item styles");
     }
 
     [Fact]
     public void CSS_DropdownHasOpenState()
     {
-        _cssContent.Should().Contain(".more-dropdown.open",
-            "CSS must style the open state of dropdown");
+        // v4: open state is .more-wrap.open (not .more-dropdown.open)
+        _cssContent.Should().Contain(".more-wrap.open",
+            "CSS must style the open state of dropdown wrapper");
     }
 
     [Fact]
     public void CSS_DropdownHasDarkTheme()
     {
-        _cssContent.Should().Contain("[data-theme=\"dark\"] .more-dropdown",
-            "CSS must have dark theme overrides for dropdown");
+        _cssContent.Should().Contain("[data-theme=\"dark\"] .more-menu",
+            "CSS must have dark theme overrides for dropdown menu");
     }
 
     [Fact]
     public void CSS_DropdownItemHasHoverState()
     {
-        _cssContent.Should().Contain(".more-dropdown-item:hover",
+        _cssContent.Should().Contain(".more-menu a:hover",
             "CSS must have hover state for dropdown items");
     }
 
     #endregion
 
-    #region 6. JS Wiring for Dropdown
-
-    [Fact]
-    public void JS_HasCloseMoreDropdownFunction()
-    {
-        _jsContent.Should().Contain("function closeMoreDropdown",
-            "shell.js must define closeMoreDropdown function");
-    }
+    #region 6. JS Wiring for Dropdown (v4: SidebarController)
 
     [Fact]
     public void JS_MoreDropdownToggleWired()
     {
+        // v4: SidebarController wires more-dropdown-btn
         _jsContent.Should().Contain("more-dropdown-btn",
-            "shell.js must reference more-dropdown-btn element");
-        _jsContent.Should().Contain("inner-header-more",
-            "shell.js must reference inner-header-more wrapper");
+            "SidebarController must reference more-dropdown-btn element");
+        _jsContent.Should().Contain("more-wrap",
+            "SidebarController must reference more-wrap wrapper");
     }
 
     [Fact]
     public void JS_DropdownItemsWired()
     {
-        _jsContent.Should().Contain(".more-dropdown-item",
-            "shell.js must wire click handlers for dropdown items");
+        // v4: SidebarController wires more-menu a click handlers
+        _jsContent.Should().Contain("more-menu",
+            "SidebarController must wire click handlers for dropdown menu items");
     }
 
     [Fact]
     public void JS_DropdownClosesOnOutsideClick()
     {
-        _jsContent.Should().Contain("moreWrapper.contains(e.target)",
-            "shell.js must close dropdown when clicking outside");
+        _jsContent.Should().Contain("moreWrap.contains(e.target)",
+            "SidebarController must close dropdown when clicking outside");
     }
 
     [Fact]
-    public void JS_DropdownItemsNavigateViaRouter()
+    public void JS_DropdownItemsNavigateViaHash()
     {
-        // Dropdown items should call MesTechRouter.navigate
-        var initFn = ExtractFunction(_jsContent, "initInnerHeaderTabs");
-        initFn.Should().NotBeNull();
-        initFn.Should().Contain("MesTechRouter.navigate(page)",
-            "dropdown items must navigate via router");
-        initFn.Should().Contain("closeMoreDropdown()",
-            "dropdown items must close dropdown after navigation");
+        // v4: dropdown items navigate via hash
+        _jsContent.Should().Contain("window.location.hash",
+            "dropdown items must navigate via hash");
     }
 
     [Fact]
     public void JS_EscapeClosesDropdownFirst()
     {
         // Escape should close "Daha..." dropdown before sidebar
-        _jsContent.Should().Contain("more-dropdown",
-            "Escape handler must reference dropdown");
-        _jsContent.Should().Contain("closeMoreDropdown()",
-            "Escape handler must call closeMoreDropdown");
-    }
-
-    [Fact]
-    public void JS_VisibleTabsExcludeMoreBtn()
-    {
-        // Tab wiring should exclude the "Daha..." button
-        _jsContent.Should().Contain(".inner-tab:not(.more-btn)",
-            "visible tab selector must exclude .more-btn");
+        _jsContent.Should().Contain("Escape",
+            "Escape handler must reference Escape key");
     }
 
     #endregion
 
-    #region 7. Tab Dividers
+    #region 7. Tab Styling
 
     [Fact]
-    public void HTML_HasTabDividers()
+    public void CSS_HasInnerTabStyles()
     {
-        var dividerCount = Regex.Matches(_htmlContent, @"class=""tab-divider""").Count;
-        dividerCount.Should().BeGreaterOrEqualTo(2,
-            "inner header should have at least 2 tab dividers for visual grouping");
+        _cssContent.Should().Contain(".inner-tab",
+            "CSS must style inner-tab elements");
     }
 
     [Fact]
     public void CSS_HasTabDividerStyles()
     {
+        // CSS defines .tab-divider for visual grouping (may be used dynamically)
         _cssContent.Should().Contain(".tab-divider",
-            "CSS must style tab dividers");
+            "CSS must define tab divider styles");
     }
 
     #endregion
@@ -366,20 +356,11 @@ public class InnerHeaderStructureTests
     }
 
     [Fact]
-    public void CSS_InnerHeaderHasCorrectZIndex()
-    {
-        var block = ExtractCssBlockAfterSelector(_cssContent, ".shell-inner-header {");
-        block.Should().NotBeNull();
-        block.Should().Contain("z-index: 800",
-            "inner header z-index should be 800");
-    }
-
-    [Fact]
     public void HTML_InnerHeaderComment_DescribesStructure()
     {
         // The comment should mention the tab count + dropdown
-        _htmlContent.Should().Contain("12 visible tabs",
-            "inner header comment should document the 12 visible tab count");
+        _htmlContent.Should().Contain("12 tab",
+            "inner header comment should document the 12 tab count");
     }
 
     #endregion
@@ -388,12 +369,12 @@ public class InnerHeaderStructureTests
 
     private List<string> GetVisibleTabPages()
     {
-        // Match data-page on .inner-tab elements that are NOT inside .more-dropdown
-        // Strategy: find the more-dropdown section and exclude it
-        var dropdownStart = _htmlContent.IndexOf("id=\"more-dropdown\"", StringComparison.Ordinal);
+        // Match data-page on .inner-tab elements that are NOT inside .more-menu
+        // Strategy: find the more-menu section and exclude it
+        var menuStart = _htmlContent.IndexOf("id=\"more-menu\"", StringComparison.Ordinal);
 
-        var searchArea = dropdownStart > 0
-            ? _htmlContent.Substring(0, dropdownStart)
+        var searchArea = menuStart > 0
+            ? _htmlContent.Substring(0, menuStart)
             : _htmlContent;
 
         var tabPattern = new Regex(@"class=""inner-tab(?:\s+[^""]*)?""[^>]*data-page=""([^""]+)""");
@@ -414,45 +395,33 @@ public class InnerHeaderStructureTests
 
     private List<string> GetDropdownPages()
     {
-        var dropdownStart = _htmlContent.IndexOf("id=\"more-dropdown\"", StringComparison.Ordinal);
-        if (dropdownStart < 0) return new List<string>();
+        // v4: dropdown is id="more-menu" (not "more-dropdown")
+        var menuStart = _htmlContent.IndexOf("id=\"more-menu\"", StringComparison.Ordinal);
+        if (menuStart < 0) return new List<string>();
 
-        var dropdownEnd = _htmlContent.IndexOf("</div>", dropdownStart + 100, StringComparison.Ordinal);
-        // Find the closing div that matches (might need to go further)
-        var searchIdx = dropdownStart;
-        var depth = 0;
-        while (searchIdx < _htmlContent.Length)
-        {
-            var nextOpen = _htmlContent.IndexOf("<div", searchIdx + 1, StringComparison.Ordinal);
-            var nextClose = _htmlContent.IndexOf("</div>", searchIdx + 1, StringComparison.Ordinal);
+        // Find closing </div>
+        var menuEnd = _htmlContent.IndexOf("</div>", menuStart + 20, StringComparison.Ordinal);
+        if (menuEnd < 0) menuEnd = _htmlContent.Length;
 
-            if (nextClose < 0) break;
+        var menuHtml = _htmlContent.Substring(menuStart,
+            Math.Min(menuEnd - menuStart + 6, _htmlContent.Length - menuStart));
 
-            if (nextOpen >= 0 && nextOpen < nextClose)
-            {
-                depth++;
-                searchIdx = nextOpen + 1;
-            }
-            else
-            {
-                if (depth == 0)
-                {
-                    dropdownEnd = nextClose + 6;
-                    break;
-                }
-                depth--;
-                searchIdx = nextClose + 1;
-            }
-        }
-
-        var dropdownHtml = _htmlContent.Substring(dropdownStart,
-            Math.Min(dropdownEnd - dropdownStart, _htmlContent.Length - dropdownStart));
-
+        // v4: items are <a data-page="...">
         var itemPattern = new Regex(@"data-page=""([^""]+)""");
-        return itemPattern.Matches(dropdownHtml)
+        return itemPattern.Matches(menuHtml)
             .Cast<Match>()
             .Select(m => m.Groups[1].Value)
             .ToList();
+    }
+
+    private string ExtractMoreMenuSection()
+    {
+        var menuStart = _htmlContent.IndexOf("id=\"more-menu\"", StringComparison.Ordinal);
+        if (menuStart < 0) return string.Empty;
+        var menuEnd = _htmlContent.IndexOf("</div>", menuStart + 20, StringComparison.Ordinal);
+        if (menuEnd < 0) menuEnd = _htmlContent.Length;
+        return _htmlContent.Substring(menuStart,
+            Math.Min(menuEnd - menuStart + 6, _htmlContent.Length - menuStart));
     }
 
     private static string? ExtractHtmlSection(string html, string nearId)

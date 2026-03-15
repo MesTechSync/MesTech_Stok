@@ -105,6 +105,12 @@ public class EInvoiceDocument : BaseEntity
         RaiseDomainEvent(new EInvoiceCancelledEvent(Id, EttnNo, reason, DateTime.UtcNow));
     }
 
+    public void AddLine(EInvoiceLine line)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        Lines.Add(line);
+    }
+
     public void SetFinancials(decimal lineExtension, decimal taxExclusive, decimal taxInclusive,
         decimal allowance, decimal taxAmount, decimal payable, string currency = "TRY")
     {

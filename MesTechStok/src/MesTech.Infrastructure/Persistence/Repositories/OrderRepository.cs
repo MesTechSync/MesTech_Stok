@@ -32,6 +32,16 @@ public class OrderRepository : IOrderRepository
             .OrderByDescending(o => o.OrderDate)
             .ToListAsync().ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(
+        Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
+        => await _context.Orders
+            .Where(o => o.TenantId == tenantId
+                     && o.OrderDate >= from
+                     && o.OrderDate <= to)
+            .OrderByDescending(o => o.OrderDate)
+            .AsNoTracking()
+            .ToListAsync(ct).ConfigureAwait(false);
+
     public async Task AddAsync(Order order)
         => await _context.Orders.AddAsync(order).ConfigureAwait(false);
 

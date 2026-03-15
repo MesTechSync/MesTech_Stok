@@ -462,9 +462,14 @@ public static class IntegrationServiceRegistration
             new EtsyAdapter(sp.GetRequiredService<ILogger<EtsyAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EtsyAdapter>());
 
-        // Dalga 10 C-03: Zalando — stub (full OAuth2 CC impl Sprint D)
+        // Dalga 10 C-03 / D11-09: Zalando — OAuth2 Client Credentials, page-based pagination, EUR currency
+        if (configuration is not null)
+            services.Configure<ZalandoOptions>(configuration.GetSection(ZalandoOptions.Section));
         services.AddSingleton<ZalandoAdapter>(sp =>
-            new ZalandoAdapter(sp.GetRequiredService<ILogger<ZalandoAdapter>>()));
+            new ZalandoAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<ZalandoAdapter>>(),
+                sp.GetService<IOptions<ZalandoOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<ZalandoAdapter>());
 
         // SocialFeedRefreshJob — Scoped (depends on AppDbContext + feed adapters)

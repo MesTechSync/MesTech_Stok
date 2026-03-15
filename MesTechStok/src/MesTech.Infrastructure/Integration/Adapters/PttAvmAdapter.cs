@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
@@ -10,17 +12,20 @@ using Microsoft.Extensions.Logging;
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// PTT AVM platform adaptoru — foundation level.
-/// Username + Password → Bearer token exchange (cached, 5-min buffer).
-/// PTT kargo entegrasyonu tam implementasyon TODO H28.
+/// PTT AVM platform adaptoru — H31 real HTTP implementation.
+/// Username + Password -> Bearer token exchange (cached, 5-min buffer).
+/// Implements IIntegratorAdapter + IOrderCapableAdapter.
+/// Orders: GET /api/orders
+/// Stock: PUT /api/product/stock
+/// Price: PUT /api/product/price
 /// </summary>
-public class PttAvmAdapter : IIntegratorAdapter
+public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    // Username/Password → Bearer token exchange
+    // Username/Password -> Bearer token exchange
     private string _username = string.Empty;
     private string _password = string.Empty;
     private string _accessToken = string.Empty;
@@ -56,14 +61,12 @@ public class PttAvmAdapter : IIntegratorAdapter
 
     /// <summary>
     /// Exchanges username/password for a Bearer token (cached with 5-min buffer).
-    /// TODO H28: wire credentials from IStoreCredentialRepository.GetByStoreAndPlatformAsync
     /// </summary>
     private async Task<string> GetAccessTokenAsync(CancellationToken ct)
     {
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        // TODO H28: use _username + _password from IStoreCredentialRepository
         var loginPayload = JsonSerializer.Serialize(new
         {
             username = _username,
@@ -71,7 +74,7 @@ public class PttAvmAdapter : IIntegratorAdapter
         }, _jsonOptions);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
-        request.Content = new StringContent(loginPayload, System.Text.Encoding.UTF8, "application/json");
+        request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -88,14 +91,12 @@ public class PttAvmAdapter : IIntegratorAdapter
         else
             _tokenExpiry = DateTime.UtcNow.AddHours(1);
 
+        // Set Bearer token on default headers for subsequent calls
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _accessToken);
+
         _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
         return _accessToken;
-    }
-
-    private void SetBearerHeader(string token)
-    {
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)
@@ -113,37 +114,16 @@ public class PttAvmAdapter : IIntegratorAdapter
                         !string.IsNullOrWhiteSpace(_password);
     }
 
+    private void EnsureConfigured()
+    {
+        if (!_isConfigured)
+            throw new InvalidOperationException(
+                "PttAvmAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
     // ═══════════════════════════════════════════
-    // IIntegratorAdapter — method stubs (TODO H28)
+    // IIntegratorAdapter — TestConnection
     // ═══════════════════════════════════════════
-
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
-    {
-        // TODO H28: POST /api/product/create — PTT AVM ürün listeleme
-        _logger.LogWarning("PttAvmAdapter.PushProductAsync — TODO H28 (POST /api/product/create)");
-        return Task.FromResult(false);
-    }
-
-    public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
-    {
-        // TODO H28: GET /api/product/list — sayfalı ürün çekme
-        _logger.LogWarning("PttAvmAdapter.PullProductsAsync — TODO H28 (GET /api/product/list)");
-        return Task.FromResult<IReadOnlyList<Product>>(Array.Empty<Product>());
-    }
-
-    public Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
-    {
-        // TODO H28: PUT /api/product/stock — stok güncelleme
-        _logger.LogWarning("PttAvmAdapter.PushStockUpdateAsync — TODO H28 (PUT /api/product/stock)");
-        return Task.FromResult(false);
-    }
-
-    public Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
-    {
-        // TODO H28: PUT /api/product/price — fiyat güncelleme
-        _logger.LogWarning("PttAvmAdapter.PushPriceUpdateAsync — TODO H28 (PUT /api/product/price)");
-        return Task.FromResult(false);
-    }
 
     public async Task<ConnectionTestResultDto> TestConnectionAsync(
         Dictionary<string, string> credentials, CancellationToken ct = default)
@@ -162,15 +142,13 @@ public class PttAvmAdapter : IIntegratorAdapter
                 return result;
             }
 
-            // TODO H28: make a real probe call after obtaining token
-            // e.g. GET /api/seller/info to verify credentials and retrieve store name
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
             result.IsSuccess = !string.IsNullOrEmpty(token);
-            result.StoreName = "PTT AVM Satıcı (TODO H28 — gerçek mağaza adı)";
+            result.StoreName = "PTT AVM Satici";
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "PttAVM TestConnectionAsync başarısız");
+            _logger.LogError(ex, "PttAVM TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
         }
         finally
@@ -182,10 +160,423 @@ public class PttAvmAdapter : IIntegratorAdapter
         return result;
     }
 
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    // ═══════════════════════════════════════════
+    // IIntegratorAdapter — Products
+    // ═══════════════════════════════════════════
+
+    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // TODO H28: GET /api/category/list
-        _logger.LogWarning("PttAvmAdapter.GetCategoriesAsync — TODO H28 (GET /api/category/list)");
-        return Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+        // POST /api/product/create — full listing creation requires category mapping
+        _logger.LogWarning("PttAvmAdapter.PushProductAsync — full listing creation not yet implemented");
+        return Task.FromResult(false);
+    }
+
+    /// <summary>
+    /// Pulls products from PTT AVM.
+    /// GET /api/product/list?page={page}&amp;size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PullProductsAsync called");
+
+        var products = new List<Product>();
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            const int pageSize = 100;
+            var page = 1;
+            var hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"{_baseUrl}/api/product/list?page={page}&size={pageSize}";
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("PttAVM PullProducts failed: {Status} - {Error}", response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var items))
+                    break;
+
+                var pageCount = 0;
+                foreach (var item in items.EnumerateArray())
+                {
+                    pageCount++;
+                    var name = item.TryGetProperty("productName", out var nameEl)
+                        ? nameEl.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var sku = item.TryGetProperty("barcode", out var skuEl)
+                        ? skuEl.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var stock = item.TryGetProperty("stockQuantity", out var stockEl)
+                        ? stockEl.GetInt32()
+                        : 0;
+
+                    var price = 0m;
+                    if (item.TryGetProperty("salePrice", out var priceEl))
+                    {
+                        decimal.TryParse(priceEl.GetRawText(),
+                            NumberStyles.Any, CultureInfo.InvariantCulture, out price);
+                    }
+
+                    products.Add(new Product
+                    {
+                        Name = name,
+                        SKU = sku,
+                        Stock = stock,
+                        SalePrice = price
+                    });
+                }
+
+                page++;
+                hasMore = pageCount == pageSize;
+            }
+
+            _logger.LogInformation("PttAVM PullProducts: {Count} products retrieved", products.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM PullProducts failed");
+        }
+
+        return products.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Updates stock quantity for a product on PTT AVM.
+    /// PUT /api/product/stock with JSON payload { productId, stockQuantity }.
+    /// Returns true on 2xx, false otherwise.
+    /// </summary>
+    public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
+            productId, newStock);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                productId = productId.ToString(),
+                stockQuantity = newStock
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/product/stock";
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM StockUpdate failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("PttAVM StockUpdate success: ProductId={ProductId} qty={Qty}",
+                productId, newStock);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM StockUpdate exception: {ProductId}", productId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates the price of a product on PTT AVM.
+    /// PUT /api/product/price with JSON payload { productId, price }.
+    /// Returns true on 2xx, false otherwise.
+    /// </summary>
+    public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
+            productId, newPrice);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                productId = productId.ToString(),
+                price = newPrice
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/product/price";
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM PriceUpdate failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("PttAVM PriceUpdate success: ProductId={ProductId} price={Price}",
+                productId, newPrice);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM PriceUpdate exception: {ProductId}", productId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Pulls category tree from PTT AVM.
+    /// GET /api/category/list
+    /// Response: { "data": [ { categoryId, categoryName, parentId, subCategories: [...] } ] }
+    /// </summary>
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.GetCategoriesAsync called");
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var url = $"{_baseUrl}/api/category/list";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM GetCategories failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<CategoryDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (!doc.RootElement.TryGetProperty("data", out var dataArr))
+                return Array.Empty<CategoryDto>();
+
+            var categories = new List<CategoryDto>();
+            foreach (var item in dataArr.EnumerateArray())
+            {
+                categories.Add(ParseCategory(item, parentId: null));
+            }
+
+            _logger.LogInformation("PttAVM GetCategories: {Count} top-level categories", categories.Count);
+            return categories.AsReadOnly();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM GetCategories failed");
+            return Array.Empty<CategoryDto>();
+        }
+    }
+
+    /// <summary>
+    /// Recursively parses a category JSON element into a CategoryDto.
+    /// </summary>
+    private static CategoryDto ParseCategory(JsonElement element, int? parentId)
+    {
+        var categoryId = element.TryGetProperty("categoryId", out var idEl)
+            ? idEl.GetInt32()
+            : 0;
+
+        var name = element.TryGetProperty("categoryName", out var nameEl)
+            ? nameEl.GetString() ?? string.Empty
+            : string.Empty;
+
+        var dto = new CategoryDto
+        {
+            PlatformCategoryId = categoryId,
+            Name = name,
+            ParentId = parentId
+        };
+
+        if (element.TryGetProperty("subCategories", out var subArr))
+        {
+            foreach (var sub in subArr.EnumerateArray())
+            {
+                dto.SubCategories.Add(ParseCategory(sub, parentId: categoryId));
+            }
+        }
+
+        return dto;
+    }
+
+    // ═══════════════════════════════════════════
+    // IOrderCapableAdapter — Orders
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Pulls orders from PTT AVM.
+    /// GET /api/orders?startDate={since}&amp;page={page}&amp;size={size}
+    /// Response: { "data": [ { orderId, status, totalAmount, orderDate, ... } ] }
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PullOrdersAsync since={Since}", since);
+
+        var orders = new List<ExternalOrderDto>();
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
+            var sinceStr = sinceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            const int pageSize = 50;
+            var page = 1;
+            var hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"{_baseUrl}/api/orders?startDate={sinceStr}&page={page}&size={pageSize}";
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("PttAVM PullOrders failed: {Status} - {Error}", response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var dataArr))
+                    break;
+
+                var pageCount = 0;
+                foreach (var orderEl in dataArr.EnumerateArray())
+                {
+                    pageCount++;
+
+                    var orderId = orderEl.TryGetProperty("orderId", out var oidEl)
+                        ? oidEl.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var status = orderEl.TryGetProperty("status", out var stEl)
+                        ? stEl.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var orderDate = DateTime.UtcNow;
+                    if (orderEl.TryGetProperty("orderDate", out var dateEl) &&
+                        DateTime.TryParse(dateEl.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var parsedDate))
+                    {
+                        orderDate = parsedDate;
+                    }
+
+                    var totalAmount = 0m;
+                    if (orderEl.TryGetProperty("totalAmount", out var totalEl))
+                    {
+                        decimal.TryParse(totalEl.GetRawText(),
+                            NumberStyles.Any, CultureInfo.InvariantCulture, out totalAmount);
+                    }
+
+                    var order = new ExternalOrderDto
+                    {
+                        PlatformCode = PlatformCode,
+                        PlatformOrderId = orderId,
+                        OrderNumber = orderId,
+                        Status = status,
+                        OrderDate = orderDate,
+                        TotalAmount = totalAmount,
+                        Currency = "TRY"
+                    };
+
+                    // Customer info
+                    if (orderEl.TryGetProperty("customerName", out var cnEl))
+                        order.CustomerName = cnEl.GetString() ?? string.Empty;
+                    if (orderEl.TryGetProperty("customerPhone", out var cpEl))
+                        order.CustomerPhone = cpEl.GetString();
+                    if (orderEl.TryGetProperty("customerAddress", out var caEl))
+                        order.CustomerAddress = caEl.GetString();
+                    if (orderEl.TryGetProperty("customerCity", out var ccEl))
+                        order.CustomerCity = ccEl.GetString();
+
+                    // Cargo info
+                    if (orderEl.TryGetProperty("cargoTrackingNumber", out var ctnEl))
+                        order.CargoTrackingNumber = ctnEl.GetString();
+
+                    // Line items
+                    if (orderEl.TryGetProperty("lines", out var linesArr))
+                    {
+                        foreach (var lineEl in linesArr.EnumerateArray())
+                        {
+                            var sku = lineEl.TryGetProperty("sku", out var skuEl)
+                                ? skuEl.GetString()
+                                : null;
+                            var productName = lineEl.TryGetProperty("productName", out var pnEl)
+                                ? pnEl.GetString() ?? string.Empty
+                                : string.Empty;
+                            var qty = lineEl.TryGetProperty("quantity", out var qtyEl)
+                                ? qtyEl.GetInt32()
+                                : 1;
+                            var unitPrice = 0m;
+                            if (lineEl.TryGetProperty("unitPrice", out var upEl))
+                            {
+                                decimal.TryParse(upEl.GetRawText(),
+                                    NumberStyles.Any, CultureInfo.InvariantCulture, out unitPrice);
+                            }
+
+                            order.Lines.Add(new ExternalOrderLineDto
+                            {
+                                SKU = sku,
+                                ProductName = productName,
+                                Quantity = qty,
+                                UnitPrice = unitPrice,
+                                LineTotal = unitPrice * qty
+                            });
+                        }
+                    }
+
+                    orders.Add(order);
+                }
+
+                page++;
+                hasMore = pageCount == pageSize;
+            }
+
+            _logger.LogInformation("PttAVM PullOrders: {Count} orders retrieved", orders.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM PullOrders failed");
+        }
+
+        return orders.AsReadOnly();
+    }
+
+    /// <summary>
+    /// PTT AVM does not support arbitrary order status updates via API.
+    /// Returns false.
+    /// </summary>
+    public Task<bool> UpdateOrderStatusAsync(
+        string packageId, string status, CancellationToken ct = default)
+    {
+        _logger.LogWarning(
+            "PttAvmAdapter.UpdateOrderStatusAsync — not supported. Package={PackageId} Status={Status}",
+            packageId, status);
+        return Task.FromResult(false);
     }
 }

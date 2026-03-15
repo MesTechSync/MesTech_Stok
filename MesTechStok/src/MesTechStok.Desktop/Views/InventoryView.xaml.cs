@@ -105,10 +105,8 @@ namespace MesTechStok.Desktop.Views
 
         public InventoryView()
         {
-            // SQL tabanlı servis
-            _inventoryService = new MesTechStok.Desktop.Services.SqlBackedInventoryService(
-                MesTechStok.Desktop.App.Services!.GetRequiredService<MesTechStok.Core.Data.AppDbContext>()
-            );
+            // H31: IInventoryDataService resolved from DI (registered in App.xaml.cs)
+            _inventoryService = MesTechStok.Desktop.App.Services!.GetRequiredService<MesTechStok.Desktop.Services.IInventoryDataService>();
             _displayedInventory = new ObservableCollection<MesTechStok.Desktop.Services.InventoryItem>();
 
             InitializeComponent();

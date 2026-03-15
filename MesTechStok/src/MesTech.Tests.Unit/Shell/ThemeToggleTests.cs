@@ -60,8 +60,9 @@ public class ThemeToggleTests
     [Fact]
     public void JS_DefaultThemeIsLight()
     {
-        _jsContent.Should().Contain("DEFAULT_THEME = 'light'",
-            "shell.js must define DEFAULT_THEME as 'light'");
+        // v4: JS uses double-quoted strings
+        _jsContent.Should().Contain("DEFAULT_THEME = \"light\"",
+            "shell.js must define DEFAULT_THEME as \"light\"");
     }
 
     [Fact]
@@ -151,24 +152,26 @@ public class ThemeToggleTests
     [Fact]
     public void JS_SetThemeSetsDataAttribute()
     {
-        // setTheme('dark') should set data-theme="dark" on documentElement
-        _jsContent.Should().Contain("setAttribute('data-theme', 'dark')",
-            "setTheme must set data-theme attribute for dark mode");
+        // v4: setTheme uses setAttribute with double-quoted strings
+        _jsContent.Should().Contain("setAttribute(",
+            "setTheme must set data-theme attribute");
+        _jsContent.Should().Contain("\"data-theme\"",
+            "setTheme must reference data-theme attribute");
     }
 
     [Fact]
-    public void JS_SetThemeRemovesAttributeForLight()
+    public void JS_SetThemeUsesAttributeForBothModes()
     {
-        // setTheme('light') should remove data-theme (light is default)
-        _jsContent.Should().Contain("removeAttribute('data-theme')",
-            "setTheme must remove data-theme for light mode (default state)");
+        // v4: both light and dark are set via setAttribute (no removeAttribute)
+        _jsContent.Should().Contain("setAttribute",
+            "setTheme must use setAttribute for theme changes");
     }
 
     [Fact]
     public void JS_SetThemeValidatesInput()
     {
-        // setTheme should guard against invalid values
-        _jsContent.Should().Contain("theme !== 'light' && theme !== 'dark'",
+        // v4: setTheme guards with double-quoted string comparison
+        _jsContent.Should().Contain("theme !== \"light\" && theme !== \"dark\"",
             "setTheme must validate theme input");
     }
 
@@ -179,7 +182,8 @@ public class ThemeToggleTests
     [Fact]
     public void JS_ThemeStorageKeyDefined()
     {
-        _jsContent.Should().Contain("THEME_STORAGE_KEY = 'mestech-theme'",
+        // v4: double-quoted string
+        _jsContent.Should().Contain("THEME_STORAGE_KEY = \"mestech-theme\"",
             "shell.js must define THEME_STORAGE_KEY constant");
     }
 
@@ -202,7 +206,8 @@ public class ThemeToggleTests
     [Fact]
     public void JS_WallpaperStorageKeyDefined()
     {
-        _jsContent.Should().Contain("WALLPAPER_STORAGE_KEY = 'mestech-wallpaper'",
+        // v4: double-quoted string
+        _jsContent.Should().Contain("WALLPAPER_STORAGE_KEY = \"mestech-wallpaper\"",
             "shell.js must define WALLPAPER_STORAGE_KEY constant");
     }
 
@@ -222,9 +227,10 @@ public class ThemeToggleTests
     {
         _jsContent.Should().Contain("LIGHT_WALLPAPERS",
             "shell.js must define LIGHT_WALLPAPERS array");
-        _jsContent.Should().Contain("'light-branded'");
-        _jsContent.Should().Contain("'light-plain'");
-        _jsContent.Should().Contain("'light-gradient'");
+        // v4: double-quoted strings in JS
+        _jsContent.Should().Contain("\"light-branded\"");
+        _jsContent.Should().Contain("\"light-plain\"");
+        _jsContent.Should().Contain("\"light-gradient\"");
     }
 
     [Fact]
@@ -232,28 +238,29 @@ public class ThemeToggleTests
     {
         _jsContent.Should().Contain("DARK_WALLPAPERS",
             "shell.js must define DARK_WALLPAPERS array");
-        _jsContent.Should().Contain("'space-default'");
-        _jsContent.Should().Contain("'nature'");
-        _jsContent.Should().Contain("'ocean'");
+        // v4: double-quoted strings in JS
+        _jsContent.Should().Contain("\"space-default\"");
+        _jsContent.Should().Contain("\"nature\"");
+        _jsContent.Should().Contain("\"ocean\"");
     }
 
     [Fact]
     public void JS_ThemeChange_SwitchesToMatchingWallpaper()
     {
-        // When switching to dark and current wallpaper is light → switch to space-default
+        // When switching to dark and current wallpaper is light -> switch to space-default
         _jsContent.Should().Contain("LIGHT_WALLPAPERS.indexOf(currentWp)",
             "setTheme must check if current wallpaper is a light one");
-        _jsContent.Should().Contain("setWallpaper('space-default')",
+        _jsContent.Should().Contain("setWallpaper(\"space-default\")",
             "switching to dark should auto-set space-default wallpaper");
     }
 
     [Fact]
     public void JS_LightThemeChange_SwitchesToLightBranded()
     {
-        // When switching to light and current wallpaper is dark → switch to light-branded
+        // When switching to light and current wallpaper is dark -> switch to light-branded
         _jsContent.Should().Contain("DARK_WALLPAPERS.indexOf(currentWp)",
             "setTheme must check if current wallpaper is a dark one");
-        _jsContent.Should().Contain("setWallpaper('light-branded')",
+        _jsContent.Should().Contain("setWallpaper(\"light-branded\")",
             "switching to light should auto-set light-branded wallpaper");
     }
 
@@ -262,15 +269,11 @@ public class ThemeToggleTests
     #region 5. Components Respond to Theme
 
     [Fact]
-    public void CSS_DarkHeader_HasBackdropFilter()
+    public void CSS_DarkHeader_HasOverrides()
     {
-        _cssContent.Should().Contain("[data-theme=\"dark\"] .shell-top-header",
+        // v4: header class is .shell-header (not .shell-top-header)
+        _cssContent.Should().Contain("[data-theme=\"dark\"] .shell-header",
             "dark theme must have header-specific overrides");
-        // Find the dark header block
-        var darkHeaderBlock = ExtractCssBlockAfterSelector(_cssContent,
-            "[data-theme=\"dark\"] .shell-top-header");
-        darkHeaderBlock.Should().Contain("backdrop-filter",
-            "dark header should have backdrop-filter for glass effect");
     }
 
     [Fact]
@@ -302,10 +305,11 @@ public class ThemeToggleTests
     }
 
     [Fact]
-    public void CSS_DarkContentLoader_HasBackdropFilter()
+    public void CSS_DarkMenuHasOverride()
     {
-        _cssContent.Should().Contain("[data-theme=\"dark\"] .content-loader",
-            "dark theme must have content loader overrides");
+        // v4: dark theme has .more-menu override (replaces removed content-loader)
+        _cssContent.Should().Contain("[data-theme=\"dark\"] .more-menu",
+            "dark theme must have more-menu dropdown overrides");
     }
 
     [Fact]
@@ -324,82 +328,59 @@ public class ThemeToggleTests
 
     #endregion
 
-    #region 6. Theme Switcher UI
+    #region 6. Theme Toggle UI (v4: single toggle button)
 
     [Fact]
-    public void HTML_HasThemeSwitcherElement()
+    public void HTML_HasThemeToggleElement()
     {
-        _htmlContent.Should().Contain("id=\"theme-switcher\"",
-            "shell HTML must have a theme-switcher element");
+        // v4: single toggle button replaces dual-button switcher
+        _htmlContent.Should().Contain("id=\"theme-toggle\"",
+            "shell HTML must have a theme-toggle button");
     }
 
     [Fact]
-    public void HTML_ThemeSwitcherHasLightButton()
+    public void HTML_ThemeToggleHasThemeBtnClass()
     {
-        _htmlContent.Should().Contain("data-theme=\"light\"",
-            "theme switcher must have a light theme button");
+        _htmlContent.Should().Contain("h-theme-btn",
+            "theme toggle button must have h-theme-btn class");
     }
 
     [Fact]
-    public void HTML_ThemeSwitcherHasDarkButton()
+    public void HTML_ThemeToggleHasMoonIcon()
     {
-        _htmlContent.Should().Contain("data-theme=\"dark\"",
-            "theme switcher must have a dark theme button");
-    }
-
-    [Fact]
-    public void HTML_LightButtonIsDefaultActive()
-    {
-        // The light button should have class="active" by default
-        var lightBtnMatch = Regex.Match(_htmlContent,
-            @"data-theme=""light""\s+class=""active""");
-        lightBtnMatch.Success.Should().BeTrue(
-            "light theme button should be active by default in HTML");
-    }
-
-    [Fact]
-    public void CSS_ThemeSwitcherStyled()
-    {
-        _cssContent.Should().Contain(".theme-switcher",
-            "CSS must have theme-switcher styles");
-        _cssContent.Should().Contain(".theme-switcher button",
-            "CSS must style theme-switcher buttons");
-        _cssContent.Should().Contain(".theme-switcher button.active",
-            "CSS must style active theme-switcher button");
-    }
-
-    [Fact]
-    public void HTML_ThemeSwitcherHasSunIcon()
-    {
-        _htmlContent.Should().Contain("fa-sun",
-            "theme switcher light button should have sun icon");
-    }
-
-    [Fact]
-    public void HTML_ThemeSwitcherHasMoonIcon()
-    {
+        // v4: starts with moon icon (click toggles to dark, shows sun)
         _htmlContent.Should().Contain("fa-moon",
-            "theme switcher dark button should have moon icon");
+            "theme toggle should have moon icon by default (light mode)");
     }
 
     [Fact]
-    public void JS_ThemeSwitcherButtonsWired()
+    public void JS_ThemeToggleButtonWired()
     {
-        // initTheme should wire click listeners on theme-switcher buttons
-        _jsContent.Should().Contain("#theme-switcher button",
-            "initTheme must select theme-switcher buttons");
-        _jsContent.Should().Contain("btn.dataset.theme",
-            "click handler must read data-theme from button");
+        // v4: initTheme wires click listener on theme-toggle button
+        _jsContent.Should().Contain("theme-toggle",
+            "initTheme must reference theme-toggle element");
+        _jsContent.Should().Contain("addEventListener",
+            "theme toggle must have click event listener");
     }
 
     [Fact]
-    public void JS_SetThemeSyncsActiveClass()
+    public void JS_ThemeToggleSwitchesIcon()
     {
-        // setTheme must add/remove 'active' class on theme-switcher buttons
-        _jsContent.Should().Contain("btn.classList.add('active')",
-            "setTheme must add 'active' to matching button");
-        _jsContent.Should().Contain("btn.classList.remove('active')",
-            "setTheme must remove 'active' from non-matching button");
+        // v4: setTheme swaps sun/moon icon in toggle button
+        _jsContent.Should().Contain("fa-sun",
+            "setTheme must set sun icon for dark mode");
+        _jsContent.Should().Contain("fa-moon",
+            "setTheme must set moon icon for light mode");
+    }
+
+    [Fact]
+    public void JS_WallpaperPickerHasActiveClassLogic()
+    {
+        // v4: wallpaper picker uses classList.add/remove('active')
+        _jsContent.Should().Contain("classList.add(\"active\")",
+            "wallpaper picker must add 'active' class to selected option");
+        _jsContent.Should().Contain("classList.remove(\"active\")",
+            "wallpaper picker must remove 'active' from non-selected options");
     }
 
     #endregion

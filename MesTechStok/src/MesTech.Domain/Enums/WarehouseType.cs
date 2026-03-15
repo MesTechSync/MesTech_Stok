@@ -9,5 +9,11 @@ public enum WarehouseType
     Branch,
     Transit,
     Return,
-    Quarantine
+    Quarantine,
+
+    /// <summary>Amazon FBA (Fulfillment by Amazon) deposu.</summary>
+    AmazonFBA,
+
+    /// <summary>Hepsilojistik (Hepsiburada fulfillment) deposu.</summary>
+    Hepsilojistik
 }

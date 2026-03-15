@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
@@ -29,7 +30,6 @@ public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, Bala
     {
         var accounts = await _accountRepo.GetAllAsync(request.TenantId, isActive: true, cancellationToken);
 
-        // Get all posted journal entries up to the requested date
         var entries = await _journalRepo.GetByDateRangeAsync(
             request.TenantId,
             DateTime.MinValue,
@@ -41,87 +41,11 @@ public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, Bala
             .SelectMany(e => e.Lines)
             .ToList();
 
-        var assetLines = new List<BalanceSheetLineDto>();
-        var liabilityLines = new List<BalanceSheetLineDto>();
-        var equityLines = new List<BalanceSheetLineDto>();
+        var (assetLines, liabilityLines, equityLines) = ClassifyAccounts(accounts, postedLines);
 
-        decimal totalRevenue = 0;
-        decimal totalExpenses = 0;
-
-        foreach (var account in accounts)
-        {
-            var accountLines = postedLines.Where(l => l.AccountId == account.Id).ToList();
-            var debit = accountLines.Sum(l => l.Debit);
-            var credit = accountLines.Sum(l => l.Credit);
-            var balance = debit - credit;
-
-            // Skip accounts with no activity
-            if (debit == 0 && credit == 0)
-                continue;
-
-            switch (account.AccountType)
-            {
-                case AccountType.Asset:
-                    // Asset accounts: normal balance is debit (positive)
-                    assetLines.Add(new BalanceSheetLineDto
-                    {
-                        AccountId = account.Id,
-                        AccountCode = account.Code,
-                        AccountName = account.Name,
-                        Balance = balance
-                    });
-                    break;
-
-                case AccountType.Liability:
-                    // Liability accounts: normal balance is credit (negative of debit-credit)
-                    liabilityLines.Add(new BalanceSheetLineDto
-                    {
-                        AccountId = account.Id,
-                        AccountCode = account.Code,
-                        AccountName = account.Name,
-                        Balance = -balance
-                    });
-                    break;
-
-                case AccountType.Equity:
-                    // Equity accounts: normal balance is credit
-                    equityLines.Add(new BalanceSheetLineDto
-                    {
-                        AccountId = account.Id,
-                        AccountCode = account.Code,
-                        AccountName = account.Name,
-                        Balance = -balance
-                    });
-                    break;
-
-                case AccountType.Revenue:
-                    // Revenue: normal balance is credit — accumulates into net income
-                    totalRevenue += -balance;
-                    break;
-
-                case AccountType.Expense:
-                    // Expense: normal balance is debit — accumulates into net income
-                    totalExpenses += balance;
-                    break;
-            }
-        }
-
-        // Net income flows into Equity section as retained earnings
-        var netIncome = totalRevenue - totalExpenses;
-        if (netIncome != 0)
-        {
-            equityLines.Add(new BalanceSheetLineDto
-            {
-                AccountId = Guid.Empty,
-                AccountCode = "590",
-                AccountName = "Donem Net Kari (Zarari)",
-                Balance = netIncome
-            });
-        }
-
-        var sortedAssets = assetLines.OrderBy(l => l.AccountCode).ToList();
-        var sortedLiabilities = liabilityLines.OrderBy(l => l.AccountCode).ToList();
-        var sortedEquity = equityLines.OrderBy(l => l.AccountCode).ToList();
+        var sortedAssets = assetLines.OrderBy(l => l.AccountCode, StringComparer.Ordinal).ToList();
+        var sortedLiabilities = liabilityLines.OrderBy(l => l.AccountCode, StringComparer.Ordinal).ToList();
+        var sortedEquity = equityLines.OrderBy(l => l.AccountCode, StringComparer.Ordinal).ToList();
 
         var totalAssetsAmount = sortedAssets.Sum(l => l.Balance);
         var totalLiabilitiesAmount = sortedLiabilities.Sum(l => l.Balance);
@@ -150,5 +74,96 @@ public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, Bala
             },
             IsBalanced = totalAssetsAmount == totalLiabilitiesAmount + totalEquityAmount
         };
+    }
+
+    private static (List<BalanceSheetLineDto> Assets, List<BalanceSheetLineDto> Liabilities, List<BalanceSheetLineDto> Equity)
+        ClassifyAccounts(
+            IReadOnlyList<ChartOfAccounts> accounts,
+            List<JournalLine> postedLines)
+    {
+        var assetLines = new List<BalanceSheetLineDto>();
+        var liabilityLines = new List<BalanceSheetLineDto>();
+        var equityLines = new List<BalanceSheetLineDto>();
+
+        decimal totalRevenue = 0;
+        decimal totalExpenses = 0;
+
+        foreach (var account in accounts)
+        {
+            var accountLines = postedLines.Where(l => l.AccountId == account.Id).ToList();
+            var debit = accountLines.Sum(l => l.Debit);
+            var credit = accountLines.Sum(l => l.Credit);
+
+            if (debit == 0 && credit == 0)
+                continue;
+
+            var balance = debit - credit;
+            ProcessAccount(account, balance, assetLines, liabilityLines, equityLines, ref totalRevenue, ref totalExpenses);
+        }
+
+        var netIncome = totalRevenue - totalExpenses;
+        if (netIncome != 0)
+        {
+            equityLines.Add(new BalanceSheetLineDto
+            {
+                AccountId = Guid.Empty,
+                AccountCode = "590",
+                AccountName = "Donem Net Kari (Zarari)",
+                Balance = netIncome
+            });
+        }
+
+        return (assetLines, liabilityLines, equityLines);
+    }
+
+    private static void ProcessAccount(
+        ChartOfAccounts account,
+        decimal balance,
+        List<BalanceSheetLineDto> assetLines,
+        List<BalanceSheetLineDto> liabilityLines,
+        List<BalanceSheetLineDto> equityLines,
+        ref decimal totalRevenue,
+        ref decimal totalExpenses)
+    {
+        switch (account.AccountType)
+        {
+            case AccountType.Asset:
+                assetLines.Add(new BalanceSheetLineDto
+                {
+                    AccountId = account.Id,
+                    AccountCode = account.Code,
+                    AccountName = account.Name,
+                    Balance = balance
+                });
+                break;
+
+            case AccountType.Liability:
+                liabilityLines.Add(new BalanceSheetLineDto
+                {
+                    AccountId = account.Id,
+                    AccountCode = account.Code,
+                    AccountName = account.Name,
+                    Balance = -balance
+                });
+                break;
+
+            case AccountType.Equity:
+                equityLines.Add(new BalanceSheetLineDto
+                {
+                    AccountId = account.Id,
+                    AccountCode = account.Code,
+                    AccountName = account.Name,
+                    Balance = -balance
+                });
+                break;
+
+            case AccountType.Revenue:
+                totalRevenue += -balance;
+                break;
+
+            case AccountType.Expense:
+                totalExpenses += balance;
+                break;
+        }
     }
 }

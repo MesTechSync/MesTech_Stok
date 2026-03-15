@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "MesTechStok.sln",
+    "projects": [
+      "src\\MesTech.Domain\\MesTech.Domain.csproj",
+      "src\\MesTech.Application\\MesTech.Application.csproj",
+      "src\\MesTech.Infrastructure\\MesTech.Infrastructure.csproj",
+      "src\\MesTechStok.Core\\MesTechStok.Core.csproj",
+      "src\\MesTech.Tests.Unit\\MesTech.Tests.Unit.csproj"
+    ]
+  }
+}

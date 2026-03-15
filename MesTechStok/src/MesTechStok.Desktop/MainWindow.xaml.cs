@@ -18,8 +18,7 @@ using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Core.Services.Abstract;
 using System.Windows.Documents;
-using MesTechStok.Core.Data;
-using Microsoft.EntityFrameworkCore;
+// Core.Data eliminated — using MediatR CQRS (H30)
 using MahApps.Metro.Controls;
 
 namespace MesTechStok.Desktop
@@ -261,14 +260,15 @@ namespace MesTechStok.Desktop
                 var sp = App.Services;
                 if (sp == null) return;
                 using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
 
-                // Bekleyen sipariş sayısı
-                var pendingOrders = await db.Orders.AsNoTracking()
-                    .CountAsync(o => o.Status == MesTechStok.Core.Data.Models.OrderStatus.Pending);
-                // Kritik stok sayısı
-                var lowStock = await db.Products.AsNoTracking()
-                    .CountAsync(p => p.IsActive && p.Stock <= p.MinimumStock);
+                // Bekleyen sipariş sayısı — MediatR ListOrdersQuery
+                var pendingOrdersList = await mediator.Send(new MesTech.Application.Queries.ListOrders.ListOrdersQuery(
+                    Status: "Pending"));
+                var pendingOrders = pendingOrdersList.Count;
+                // Kritik stok sayısı — MediatR GetLowStockProductsQuery
+                var lowStockProducts = await mediator.Send(new MesTech.Application.Queries.GetLowStockProducts.GetLowStockProductsQuery());
+                var lowStock = lowStockProducts.Count;
 
                 // NavOrders badge
                 if (NavOrders != null)

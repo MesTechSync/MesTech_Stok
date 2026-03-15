@@ -2,10 +2,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Queries.GetProductDbStatus;
-using MesTechStok.Core.Data;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class GetProductDbStatusHandler : IRequestHandler<GetProductDbStatusQuery, ProductDbStatusDto>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -20,7 +23,7 @@ public class GetProductDbStatusHandler : IRequestHandler<GetProductDbStatusQuery
         try
         {
             using var scope = _serviceProvider.CreateScope();
-            var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var ctx = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
             var canConnect = await ctx.Database.CanConnectAsync(cancellationToken);
             if (!canConnect)

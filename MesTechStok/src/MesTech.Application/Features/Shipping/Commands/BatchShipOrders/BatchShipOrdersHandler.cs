@@ -22,6 +22,7 @@ public class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersCommand, Ba
 
         foreach (var orderId in request.OrderIds)
         {
+#pragma warning disable CA1031 // Intentional: each order failure must not stop the batch — failures are collected
             try
             {
                 var command = new AutoShipOrderCommand(request.TenantId, orderId);
@@ -33,6 +34,7 @@ public class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersCommand, Ba
                 _logger.LogError(ex, "Failed to auto-ship order {OrderId}", orderId);
                 results.Add(AutoShipResult.Failed($"Unexpected error for order {orderId}: {ex.Message}"));
             }
+#pragma warning restore CA1031
         }
 
         return BatchShipResult.Create(results);

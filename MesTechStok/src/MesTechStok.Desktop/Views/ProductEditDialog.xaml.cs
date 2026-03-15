@@ -7,7 +7,7 @@ using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTechStok.Desktop.Models;
-using MesTechStok.Core.Data;
+// Core.Data eliminated — using MediatR CQRS (H30)
 using MesTechStok.Desktop.Services;
 
 namespace MesTechStok.Desktop.Views
@@ -65,18 +65,14 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // Kategorileri SQL'den yükle - THREADING-SAFE
+                // Kategorileri MediatR CQRS ile yükle - THREADING-SAFE
                 var sp = MesTechStok.Desktop.App.Services;
                 if (sp != null)
                 {
-                    // Her dialog için yeni DbContext instance kullan (threading sorunu çözümü)
                     using var scope = sp.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    var categories = await db.Categories
-                        .AsNoTracking()
-                        .OrderBy(c => c.Name)
-                        .Select(c => c.Name)
-                        .ToListAsync();
+                    var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                    var cats = await mediator.Send(new MesTech.Application.Queries.GetCategories.GetCategoriesQuery(ActiveOnly: true));
+                    var categories = cats.OrderBy(c => c.Name).Select(c => c.Name).ToList();
 
                     // UI thread üzerinde güncelle
                     Dispatcher.Invoke(() =>

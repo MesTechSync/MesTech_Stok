@@ -28,6 +28,8 @@ public record CreateEInvoiceLineRequest(
 
 public class CreateEInvoiceCommandValidator : AbstractValidator<CreateEInvoiceCommand>
 {
+    private static readonly int[] ValidTaxRates = { 0, 1, 8, 10, 18, 20 };
+
     public CreateEInvoiceCommandValidator()
     {
         RuleFor(x => x.BuyerVkn)
@@ -43,7 +45,7 @@ public class CreateEInvoiceCommandValidator : AbstractValidator<CreateEInvoiceCo
             l.RuleFor(li => li.Quantity).GreaterThan(0);
             l.RuleFor(li => li.UnitPrice).GreaterThan(0);
             l.RuleFor(li => li.TaxPercent)
-                .Must(p => new[] { 0, 1, 8, 10, 18, 20 }.Contains(p))
+                .Must(p => ValidTaxRates.Contains(p))
                 .WithMessage("Gecersiz KDV orani.");
         });
         RuleFor(x => x.ProviderId).NotEmpty();

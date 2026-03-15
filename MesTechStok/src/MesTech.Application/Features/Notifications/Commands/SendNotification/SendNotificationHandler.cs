@@ -71,42 +71,28 @@ public class SendNotificationHandler : IRequestHandler<SendNotificationCommand, 
                 "[Notification] MESA Bot'a bildirim istegi yayimlandi: LogId={LogId}, Channel={Channel}",
                 log.Id, request.Channel);
         }
+#pragma warning disable CA1031 // Intentional: publish failure must not prevent returning the persisted log ID
         catch (Exception ex)
         {
             _logger.LogWarning(ex,
                 "[Notification] MESA Bot'a publish basarisiz — bildirim Pending olarak kaldi: LogId={LogId}",
                 log.Id);
         }
+#pragma warning restore CA1031
 
         return log.Id;
     }
 
     private static DomainChannel ParseChannel(string channel)
     {
-        return channel.ToLowerInvariant() switch
+        return channel.ToUpperInvariant() switch
         {
-            "whatsapp" => DomainChannel.WhatsApp,
-            "telegram" => DomainChannel.Telegram,
-            "email" => DomainChannel.Email,
-            "push" => DomainChannel.Push,
-            "sms" => DomainChannel.SMS,
+            "WHATSAPP" => DomainChannel.WhatsApp,
+            "TELEGRAM" => DomainChannel.Telegram,
+            "EMAIL" => DomainChannel.Email,
+            "PUSH" => DomainChannel.Push,
+            "SMS" => DomainChannel.SMS,
             _ => DomainChannel.Email
         };
     }
-}
-
-/// <summary>
-/// MESA Bot'a gonderilecek bildirim istegi mesaji.
-/// Bot bu mesaji consume edip gercek bildirim gonderimini yapar,
-/// sonra BotNotificationSentEvent ile sonucu bildirir.
-/// </summary>
-public record SendNotificationMessage
-{
-    public Guid NotificationLogId { get; init; }
-    public Guid TenantId { get; init; }
-    public string Channel { get; init; } = "";
-    public string Recipient { get; init; } = "";
-    public string TemplateName { get; init; } = "";
-    public string Content { get; init; } = "";
-    public DateTime RequestedAt { get; init; }
 }

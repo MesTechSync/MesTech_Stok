@@ -1,0 +1,52 @@
+@page "/crm/deals"
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-handshake text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Firsatlar (Deals)</h3>
+    <small class="text-muted">Kanban gorunumu ile firsat takibi</small>
+  </div>
+</div>
+
+<!-- Kanban Placeholder -->
+<div class="row g-3 mb-4">
+  @foreach (var stage in stages)
+  {
+    <div class="col">
+      <div class="card shadow-sm h-100" style="border-top: 3px solid @stage.Color;">
+        <div class="card-header bg-white py-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-semibold small">@stage.Name</span>
+            <span class="badge rounded-pill" style="background-color: @stage.Color;">@stage.Count</span>
+          </div>
+        </div>
+        <div class="card-body text-center py-5">
+          <i class="fas fa-inbox fa-2x text-muted mb-2 d-block"></i>
+          <small class="text-muted">Kanban kartlari burada gorunecek</small>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="alert alert-secondary" role="alert">
+  <i class="fas fa-clock me-2"></i>
+  <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Drag-and-drop Kanban board,
+  firsat detay modal, pipeline raporlari eklenecek.
+</div>
+
+@code {
+  private record KanbanStage(string Name, string Color, int Count);
+
+  private List<KanbanStage> stages =
+  [
+    new("Yeni", "#0d6efd", 0),
+    new("Iletisim", "#6f42c1", 0),
+    new("Teklif", "#fd7e14", 0),
+    new("Muzakere", "#ffc107", 0),
+    new("Kazanildi", "#198754", 0),
+  ];
+}

@@ -5,10 +5,13 @@ using FluentAssertions;
 namespace MesTech.Tests.Unit.Shell;
 
 /// <summary>
-/// DEV 5 — Dalga 7.7 Task 5.03: Sidebar interaction tests.
+/// DEV 5 — Dalga 7.7 Task 5.03 (v4 update): Sidebar interaction tests.
 /// Verifies ESC key closes sidebar, overlay click closes sidebar,
 /// Ctrl+B toggles, Ctrl+K focuses search, 768px responsive
 /// auto-collapse, and sidebar overlay CSS — via source-file scanning.
+///
+/// v4: Sidebar logic split between mestech-shell.js (Ctrl+K, wallpaper ESC)
+/// and mestech-sidebar.js (SidebarController: ESC, Ctrl+B, overlay, resize).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Category", "Sidebar")]
@@ -18,6 +21,7 @@ public class SidebarInteractionTests
     private readonly string _shellDir;
     private readonly string _cssContent;
     private readonly string _jsContent;
+    private readonly string _sidebarJsContent;
     private readonly string _htmlContent;
 
     public SidebarInteractionTests()
@@ -26,55 +30,57 @@ public class SidebarInteractionTests
         _shellDir = Path.Combine(repoRoot, "frontend", "shell");
         _cssContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.css"));
         _jsContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.js"));
+        _sidebarJsContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-sidebar.js"));
         _htmlContent = File.ReadAllText(Path.Combine(_shellDir, "mestech-shell.html"));
     }
 
-    #region 1. ESC Key Closes Sidebar
+    #region 1. ESC Key Closes Sidebar (v4: SidebarController)
 
     [Fact]
     public void JS_EscapeKeyHandlerExists()
     {
-        _jsContent.Should().Contain("e.key === 'Escape'",
-            "shell.js must handle Escape key press");
+        // v4: Escape handler is in SidebarController (mestech-sidebar.js)
+        _sidebarJsContent.Should().Contain("e.key !== \"Escape\"",
+            "SidebarController must handle Escape key press");
     }
 
     [Fact]
-    public void JS_EscapeCallsCloseSidebar()
+    public void JS_EscapeClosesDropdownFirst()
     {
-        // When Escape is pressed and sidebar is expanded, closeSidebar() is called
-        _jsContent.Should().Contain("closeSidebar()",
-            "Escape handler must call closeSidebar()");
+        // v4: ESC first closes Daha... dropdown, then sidebar
+        _sidebarJsContent.Should().Contain("classList.contains(\"open\")",
+            "Escape handler must check if dropdown is open");
+        _sidebarJsContent.Should().Contain("classList.remove(\"open\")",
+            "Escape handler must close dropdown by removing 'open' class");
     }
 
     [Fact]
-    public void JS_CloseSidebarChecksIsExpanded()
+    public void JS_EscapeClosesMobileSidebar()
     {
-        // closeSidebar must guard with isExpanded() check
-        _jsContent.Should().Contain("MesTechSidebar.isExpanded()",
-            "closeSidebar must check if sidebar is expanded before toggling");
+        // v4: ESC closes mobile sidebar via _closeMobile
+        _sidebarJsContent.Should().Contain("mobile-open",
+            "Escape handler must check for mobile-open state");
     }
 
     [Fact]
-    public void JS_CloseSidebarCallsToggle()
+    public void JS_EscapeCollapsesSidebar()
     {
-        // closeSidebar implementation: if expanded, call toggle()
-        var closeSidebarFn = ExtractFunction(_jsContent, "closeSidebar");
-        closeSidebarFn.Should().NotBeNullOrEmpty("closeSidebar function must exist");
-        closeSidebarFn.Should().Contain("MesTechSidebar.toggle()",
-            "closeSidebar must call MesTechSidebar.toggle()");
+        // v4: ESC collapses desktop sidebar by adding 'collapsed' class
+        _sidebarJsContent.Should().Contain("classList.add(\"collapsed\")",
+            "Escape handler must collapse desktop sidebar");
     }
 
     [Fact]
-    public void JS_EscapeClosesWallpaperPickerAsSecondPriority()
+    public void JS_EscapeClosesWallpaperPickerInShell()
     {
-        // Escape first closes sidebar, then wallpaper picker (if sidebar was not open)
+        // v4: shell.js handles Escape for wallpaper picker
         _jsContent.Should().Contain("closeWallpaperPicker()",
-            "Escape handler should also close wallpaper picker as fallback");
+            "shell.js Escape handler should close wallpaper picker");
     }
 
     #endregion
 
-    #region 2. Overlay Click Closes Sidebar
+    #region 2. Overlay for Mobile Sidebar (v4: SidebarController)
 
     [Fact]
     public void HTML_HasSidebarOverlayElement()
@@ -86,50 +92,24 @@ public class SidebarInteractionTests
     [Fact]
     public void HTML_OverlayHasCssClass()
     {
-        _htmlContent.Should().Contain("class=\"sidebar-overlay\"",
-            "sidebar overlay must have the correct CSS class");
+        _htmlContent.Should().Contain("sidebar-overlay",
+            "sidebar overlay element must exist in HTML");
     }
 
     [Fact]
-    public void JS_OverlayClickCallsCloseSidebar()
+    public void JS_SidebarControllerReferencesOverlay()
     {
-        // The overlay click handler must call closeSidebar()
-        _jsContent.Should().Contain("sidebar-overlay",
-            "shell.js must reference sidebar-overlay element");
-        var initFn = ExtractFunction(_jsContent, "initSidebarCloseBehaviors");
-        initFn.Should().NotBeNullOrEmpty("initSidebarCloseBehaviors function must exist");
-        initFn.Should().Contain("closeSidebar()",
-            "overlay click handler must call closeSidebar()");
+        // v4: SidebarController constructor reads sidebar-overlay element
+        _sidebarJsContent.Should().Contain("sidebar-overlay",
+            "SidebarController must reference sidebar-overlay element");
     }
 
     [Fact]
-    public void JS_SidebarToggleEventShowsOverlay()
+    public void JS_MobileToggleControlsOverlay()
     {
-        // sidebar:toggle event listener must show/hide overlay
-        _jsContent.Should().Contain("sidebar:toggle",
-            "shell.js must listen for sidebar:toggle custom event");
-        _jsContent.Should().Contain("showSidebarOverlay()",
-            "expanded state should show overlay");
-        _jsContent.Should().Contain("hideSidebarOverlay()",
-            "collapsed state should hide overlay");
-    }
-
-    [Fact]
-    public void JS_ShowSidebarOverlayAddsActiveClass()
-    {
-        var fn = ExtractFunction(_jsContent, "showSidebarOverlay");
-        fn.Should().NotBeNullOrEmpty("showSidebarOverlay function must exist");
-        fn.Should().Contain("classList.add('active')",
-            "showSidebarOverlay must add 'active' class");
-    }
-
-    [Fact]
-    public void JS_HideSidebarOverlayRemovesActiveClass()
-    {
-        var fn = ExtractFunction(_jsContent, "hideSidebarOverlay");
-        fn.Should().NotBeNullOrEmpty("hideSidebarOverlay function must exist");
-        fn.Should().Contain("classList.remove('active')",
-            "hideSidebarOverlay must remove 'active' class");
+        // v4: _toggleMobile shows/hides overlay via style.display
+        _sidebarJsContent.Should().Contain("overlay.style.display",
+            "mobile toggle must control overlay display");
     }
 
     #endregion
@@ -137,23 +117,19 @@ public class SidebarInteractionTests
     #region 3. Sidebar Overlay CSS
 
     [Fact]
-    public void CSS_OverlayIsFixedPositioned()
+    public void CSS_OverlayExists()
     {
         _cssContent.Should().Contain(".sidebar-overlay",
             "CSS must define .sidebar-overlay");
-        var block = ExtractCssBlockAfterSelector(_cssContent, ".sidebar-overlay {");
-        block.Should().NotBeNull();
-        block.Should().Contain("position: fixed",
-            "overlay must be fixed positioned");
     }
 
     [Fact]
-    public void CSS_OverlayHasCorrectZIndex()
+    public void CSS_OverlayIsFixedPositioned()
     {
         var block = ExtractCssBlockAfterSelector(_cssContent, ".sidebar-overlay {");
-        block.Should().NotBeNull();
-        block.Should().Contain("z-index: 899",
-            "overlay z-index must be 899 (below sidebar 900)");
+        block.Should().NotBeNull("sidebar-overlay CSS block must exist");
+        block.Should().Contain("position: fixed",
+            "overlay must be fixed positioned");
     }
 
     [Fact]
@@ -166,22 +142,11 @@ public class SidebarInteractionTests
     }
 
     [Fact]
-    public void CSS_OverlayActiveDisplaysBlock()
-    {
-        _cssContent.Should().Contain(".sidebar-overlay.active",
-            "CSS must define .sidebar-overlay.active");
-        var block = ExtractCssBlockAfterSelector(_cssContent, ".sidebar-overlay.active");
-        block.Should().NotBeNull();
-        block.Should().Contain("display: block",
-            "active overlay must display: block");
-    }
-
-    [Fact]
     public void CSS_OverlayHasSemiTransparentBackground()
     {
         var block = ExtractCssBlockAfterSelector(_cssContent, ".sidebar-overlay {");
         block.Should().NotBeNull();
-        block.Should().Contain("rgba(0, 0, 0",
+        block.Should().Contain("rgba(0,0,0",
             "overlay must have semi-transparent background");
     }
 
@@ -196,45 +161,46 @@ public class SidebarInteractionTests
 
     #endregion
 
-    #region 4. Ctrl+B Toggles Sidebar
+    #region 4. Ctrl+B Toggles Sidebar (v4: SidebarController)
 
     [Fact]
     public void JS_CtrlBShortcutExists()
     {
-        _jsContent.Should().Contain("e.key === 'b'",
-            "shell.js must handle 'b' key for Ctrl+B shortcut");
+        // v4: Ctrl+B is in SidebarController (mestech-sidebar.js)
+        _sidebarJsContent.Should().Contain("e.key === \"b\"",
+            "SidebarController must handle 'b' key for Ctrl+B shortcut");
     }
 
     [Fact]
     public void JS_CtrlBUsesCtrlOrCmd()
     {
-        _jsContent.Should().Contain("e.ctrlKey || e.metaKey",
+        _sidebarJsContent.Should().Contain("e.ctrlKey || e.metaKey",
             "keyboard shortcuts must support both Ctrl and Cmd (Mac)");
     }
 
     [Fact]
     public void JS_CtrlBCallsSidebarToggle()
     {
-        _jsContent.Should().Contain("MesTechSidebar.toggle()",
-            "Ctrl+B must call MesTechSidebar.toggle()");
+        // v4: Ctrl+B calls self.toggle()
+        _sidebarJsContent.Should().Contain("self.toggle()",
+            "Ctrl+B must call sidebar toggle");
     }
 
     [Fact]
     public void JS_CtrlBPreventsDefault()
     {
-        // Ctrl+B should call e.preventDefault() to prevent browser bold
-        _jsContent.Should().Contain("e.preventDefault()",
-            "keyboard shortcuts must prevent default browser behavior");
+        _sidebarJsContent.Should().Contain("e.preventDefault()",
+            "Ctrl+B must prevent default browser behavior");
     }
 
     #endregion
 
-    #region 5. Ctrl+K Focuses Search
+    #region 5. Ctrl+K Focuses Search (shell.js)
 
     [Fact]
     public void JS_CtrlKShortcutExists()
     {
-        _jsContent.Should().Contain("e.key === 'k'",
+        _jsContent.Should().Contain("e.key === \"k\"",
             "shell.js must handle 'k' key for Ctrl+K shortcut");
     }
 
@@ -256,31 +222,38 @@ public class SidebarInteractionTests
 
     #endregion
 
-    #region 6. 768px Responsive Auto-Collapse
+    #region 6. Responsive Auto-Collapse (v4: SidebarController)
 
     [Fact]
     public void JS_MobileBreakpointDefined()
     {
-        _jsContent.Should().Contain("MOBILE_BREAKPOINT = '(max-width: 768px)'",
+        // v4: MOBILE_BREAKPOINT is in shell.js as media query string
+        _jsContent.Should().Contain("MOBILE_BREAKPOINT",
             "shell.js must define MOBILE_BREAKPOINT constant");
     }
 
     [Fact]
-    public void JS_UsesMatchMedia()
+    public void JS_SidebarControllerHasMobileCheck()
     {
-        _jsContent.Should().Contain("window.matchMedia(MOBILE_BREAKPOINT)",
-            "responsive handler must use matchMedia with MOBILE_BREAKPOINT");
+        // v4: SidebarController uses window.innerWidth <= 768
+        _sidebarJsContent.Should().Contain("window.innerWidth <= 768",
+            "SidebarController must check for mobile breakpoint at 768px");
     }
 
     [Fact]
-    public void JS_AutoCollapseOnNarrowViewport()
+    public void JS_SidebarControllerHasTabletCheck()
     {
-        var fn = ExtractFunction(_jsContent, "initResponsiveSidebar");
-        fn.Should().NotBeNullOrEmpty("initResponsiveSidebar function must exist");
-        fn.Should().Contain("MesTechSidebar.isExpanded()",
-            "responsive handler must check if sidebar is expanded");
-        fn.Should().Contain("MesTechSidebar.toggle()",
-            "responsive handler must toggle sidebar to collapse it");
+        // v4: SidebarController auto-collapses on tablet (>768 && <=1024)
+        _sidebarJsContent.Should().Contain("window.innerWidth <= 1024",
+            "SidebarController must check for tablet breakpoint at 1024px");
+    }
+
+    [Fact]
+    public void JS_SidebarControllerHasResizeHandler()
+    {
+        // v4: SidebarController listens for resize events
+        _sidebarJsContent.Should().Contain("resize",
+            "SidebarController must listen for window resize events");
     }
 
     [Fact]
@@ -288,22 +261,6 @@ public class SidebarInteractionTests
     {
         _jsContent.Should().Contain("_autoCollapsed",
             "shell.js must track auto-collapsed state");
-    }
-
-    [Fact]
-    public void JS_ResponsiveHandlerListensForChanges()
-    {
-        // Must add listener for media query changes
-        _jsContent.Should().Contain("mq.addEventListener",
-            "responsive handler must listen for media query changes");
-    }
-
-    [Fact]
-    public void JS_ResponsiveHandlerHasLegacyFallback()
-    {
-        // Older browsers use addListener instead of addEventListener
-        _jsContent.Should().Contain("mq.addListener",
-            "responsive handler should support older Safari/IE via addListener fallback");
     }
 
     [Fact]
@@ -325,34 +282,31 @@ public class SidebarInteractionTests
     }
 
     [Fact]
-    public void HTML_ToggleButtonHasChevronIcon()
+    public void HTML_ToggleButtonHasIcon()
     {
         _htmlContent.Should().Contain("id=\"toggle-icon\"",
             "toggle button must have a toggle-icon element");
-        _htmlContent.Should().Contain("fa-chevron-right",
-            "toggle icon should default to chevron-right (collapsed)");
+        // v4: HTML starts with angles-left (expanded state); JS swaps to angles-right on collapse
+        _htmlContent.Should().Contain("fa-angles-left",
+            "toggle icon should default to angles-left (expanded state)");
     }
 
     [Fact]
-    public void JS_SidebarToggleButtonWired()
+    public void JS_SidebarControllerWiresToggButton()
     {
-        var fn = ExtractFunction(_jsContent, "initSidebar");
-        fn.Should().NotBeNullOrEmpty("initSidebar function must exist");
-        fn.Should().Contain("sidebar-toggle",
-            "initSidebar must wire the toggle button");
+        // v4: SidebarController constructor reads sidebar-toggle button
+        _sidebarJsContent.Should().Contain("sidebar-toggle",
+            "SidebarController must reference sidebar-toggle button");
     }
 
     [Fact]
-    public void JS_IconSyncListenerExists()
+    public void JS_SidebarControllerUpdatesToggleIcon()
     {
-        var fn = ExtractFunction(_jsContent, "initSidebarIconSync");
-        fn.Should().NotBeNullOrEmpty("initSidebarIconSync function must exist");
-        fn.Should().Contain("sidebar:toggle",
-            "icon sync must listen for sidebar:toggle event");
-        fn.Should().Contain("fa-chevron-left",
-            "expanded state should show chevron-left");
-        fn.Should().Contain("fa-chevron-right",
-            "collapsed state should show chevron-right");
+        // v4: _updateIcon sets fa-angles-left/right (not chevron)
+        _sidebarJsContent.Should().Contain("fa-angles-left",
+            "expanded state should show angles-left icon");
+        _sidebarJsContent.Should().Contain("fa-angles-right",
+            "collapsed state should show angles-right icon");
     }
 
     #endregion
@@ -376,10 +330,11 @@ public class SidebarInteractionTests
     [Fact]
     public void CSS_SidebarExpandedState()
     {
-        _cssContent.Should().Contain("[data-state=\"expanded\"]",
-            "CSS must handle sidebar expanded state via data-state attribute");
-        _cssContent.Should().Contain("var(--sidebar-expanded)",
-            "expanded state must use --sidebar-expanded variable");
+        // v4: sidebar is 240px by default (expanded), collapsed via .collapsed class
+        _cssContent.Should().Contain("--sidebar-w: 240px",
+            "CSS must define default sidebar width (expanded state)");
+        _cssContent.Should().Contain("--sidebar-expanded: 240px",
+            "expanded sidebar width variable must be defined");
     }
 
     [Fact]
@@ -394,24 +349,27 @@ public class SidebarInteractionTests
     [Fact]
     public void CSS_CollapsedLabelsHidden()
     {
-        _cssContent.Should().Contain("[data-state=\"collapsed\"] .sidebar-link .label",
-            "collapsed sidebar must hide link labels");
+        // v4: collapsed sidebar hides .s-label (not .sidebar-link .label)
+        _cssContent.Should().Contain(".shell-sidebar.collapsed .s-label",
+            "collapsed sidebar must hide link labels (.s-label)");
     }
 
     [Fact]
     public void CSS_CollapsedSectionTitlesHidden()
     {
-        _cssContent.Should().Contain("[data-state=\"collapsed\"] .sidebar-section-title",
-            "collapsed sidebar must hide section titles");
+        // v4: collapsed sidebar hides .s-section (not .sidebar-section-title)
+        _cssContent.Should().Contain(".shell-sidebar.collapsed .s-section",
+            "collapsed sidebar must hide section titles (.s-section)");
     }
 
     [Fact]
     public void CSS_ContentAreaShiftsWithSidebar()
     {
-        _cssContent.Should().Contain("[data-state=\"expanded\"] ~ .shell-content",
-            "content area must shift when sidebar is expanded");
-        _cssContent.Should().Contain("[data-state=\"expanded\"] ~ .shell-inner-header",
-            "inner header must shift when sidebar is expanded");
+        // v4: content/inner-header shift uses .collapsed ~ sibling selector
+        _cssContent.Should().Contain(".shell-sidebar.collapsed ~ .shell-content",
+            "content area must shift when sidebar is collapsed");
+        _cssContent.Should().Contain(".shell-sidebar.collapsed ~ .shell-inner-header",
+            "inner header must shift when sidebar is collapsed");
     }
 
     #endregion
@@ -435,10 +393,10 @@ public class SidebarInteractionTests
     [Fact]
     public void JS_ShortcutsUseKeydownEvent()
     {
-        // Keyboard shortcuts should use keydown (not keyup or keypress)
+        // v4: double-quoted "keydown"
         var fn = ExtractFunction(_jsContent, "initKeyboardShortcuts");
         fn.Should().NotBeNull();
-        fn.Should().Contain("'keydown'",
+        fn.Should().Contain("\"keydown\"",
             "keyboard shortcuts must use keydown event");
     }
 

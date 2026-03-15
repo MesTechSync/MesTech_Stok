@@ -46,6 +46,9 @@ public class PlatformPayment : BaseEntity, ITenantEntity
 
     public void CalculateNetAmount()
     {
+        if (GrossSales < 0)
+            throw new InvalidOperationException("GrossSales must be non-negative.");
+
         NetAmount = GrossSales - TotalCommission - TotalShippingCost - TotalReturnDeduction - OtherDeductions;
     }
 

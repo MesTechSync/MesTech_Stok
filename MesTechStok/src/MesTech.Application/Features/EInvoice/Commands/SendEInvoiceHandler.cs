@@ -1,0 +1,46 @@
+using MediatR;
+using MesTech.Application.Interfaces;
+using Microsoft.Extensions.Logging;
+
+namespace MesTech.Application.Features.EInvoice.Commands;
+
+public class SendEInvoiceHandler : IRequestHandler<SendEInvoiceCommand, bool>
+{
+    private readonly IEInvoiceDocumentRepository _repository;
+    private readonly IEInvoiceProvider _eInvoiceProvider;
+    private readonly ILogger<SendEInvoiceHandler> _logger;
+
+    public SendEInvoiceHandler(
+        IEInvoiceDocumentRepository repository,
+        IEInvoiceProvider eInvoiceProvider,
+        ILogger<SendEInvoiceHandler> logger)
+    {
+        _repository = repository;
+        _eInvoiceProvider = eInvoiceProvider;
+        _logger = logger;
+    }
+
+    public async Task<bool> Handle(SendEInvoiceCommand request, CancellationToken cancellationToken)
+    {
+        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken);
+        if (doc is null)
+        {
+            _logger.LogWarning("EInvoice {Id} bulunamadi — send islemi atlanadi.", request.EInvoiceId);
+            return false;
+        }
+
+        var result = await _eInvoiceProvider.SendAsync(doc, cancellationToken);
+
+        if (!result.Success)
+        {
+            _logger.LogError("EInvoice {Id} gonderilemedi: {Error}", request.EInvoiceId, result.ErrorMessage);
+            return false;
+        }
+
+        doc.MarkAsSent(result.ProviderRef, result.CreditUsed);
+        await _repository.UpdateAsync(doc, cancellationToken);
+
+        _logger.LogInformation("EInvoice {Id} basariyla gonderildi. ProviderRef={Ref}", request.EInvoiceId, result.ProviderRef);
+        return true;
+    }
+}

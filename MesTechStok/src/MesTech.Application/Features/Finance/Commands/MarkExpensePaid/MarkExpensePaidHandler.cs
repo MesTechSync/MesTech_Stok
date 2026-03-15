@@ -11,13 +11,13 @@ public class MarkExpensePaidHandler : IRequestHandler<MarkExpensePaidCommand, Un
     public MarkExpensePaidHandler(IFinanceExpenseRepository expenses, IUnitOfWork uow)
         => (_expenses, _uow) = (expenses, uow);
 
-    public async Task<Unit> Handle(MarkExpensePaidCommand req, CancellationToken ct)
+    public async Task<Unit> Handle(MarkExpensePaidCommand request, CancellationToken cancellationToken)
     {
-        var expense = await _expenses.GetByIdAsync(req.ExpenseId, ct)
-            ?? throw new InvalidOperationException($"Expense {req.ExpenseId} not found.");
+        var expense = await _expenses.GetByIdAsync(request.ExpenseId, cancellationToken)
+            ?? throw new InvalidOperationException($"Expense {request.ExpenseId} not found.");
 
-        expense.MarkAsPaid(req.BankAccountId);
-        await _uow.SaveChangesAsync(ct);
+        expense.MarkAsPaid(request.BankAccountId);
+        await _uow.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }
 }

@@ -14,7 +14,11 @@ using Microsoft.Extensions.Logging;
 using MesTechStok.Core.Services.Abstract;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
+#pragma warning disable CS0618 // Core.Data.Models type references — will migrate to Domain entities in H32
 using MesTechStok.Core.Data.Models;
+using CoreProduct = MesTechStok.Core.Data.Models.Product;
+using CoreStockMovement = MesTechStok.Core.Data.Models.StockMovement;
+#pragma warning restore CS0618
 
 // Desktop services
 using MesTechStok.Desktop.Services;
@@ -53,10 +57,10 @@ namespace MesTechStok.Desktop.ViewModels
         private readonly OpenCartAdapter? _openCartAdapter;
 
         [ObservableProperty]
-        private ObservableCollection<MesTechStok.Core.Data.Models.Product> products = new();
+        private ObservableCollection<CoreProduct> products = new();
 
         [ObservableProperty]
-        private ObservableCollection<MesTechStok.Core.Data.Models.StockMovement> recentStockMovements = new();
+        private ObservableCollection<CoreStockMovement> recentStockMovements = new();
 
         // System status properties
         [ObservableProperty]
@@ -102,7 +106,7 @@ namespace MesTechStok.Desktop.ViewModels
         private int orderCount = 0;
 
         // Widget test data - Gerçek servisler bağlandığında kaldırılacak
-        private MesTechStok.Core.Data.Models.Product testProduct = new MesTechStok.Core.Data.Models.Product
+        private CoreProduct testProduct = new CoreProduct
         {
             Id = Guid.NewGuid(),
             Name = "Test Ürün",
@@ -126,7 +130,7 @@ namespace MesTechStok.Desktop.ViewModels
         private string lastScannedBarcode = string.Empty;
 
         [ObservableProperty]
-        private MesTechStok.Core.Data.Models.Product? selectedProduct;
+        private CoreProduct? selectedProduct;
 
         [ObservableProperty]
         private string openCartUrl = "";
@@ -210,7 +214,7 @@ namespace MesTechStok.Desktop.ViewModels
             {
                 // Load products from Core service
                 var productList = await _productService.GetAllProductsAsync();
-                Products = new ObservableCollection<MesTechStok.Core.Data.Models.Product>(productList);
+                Products = new ObservableCollection<CoreProduct>(productList);
                 TotalProducts = Products.Count;
 
                 // Load low stock products
@@ -221,7 +225,7 @@ namespace MesTechStok.Desktop.ViewModels
                 var fromDate = DateTime.Today.AddDays(-7);
                 var toDate = DateTime.Now;
                 var movements = await _inventoryService.GetStockMovementsAsync(fromDate, toDate);
-                RecentStockMovements = new ObservableCollection<MesTechStok.Core.Data.Models.StockMovement>(movements.Take(10));
+                RecentStockMovements = new ObservableCollection<CoreStockMovement>(movements.Take(10));
 
                 // Today's movements count
                 var todayMovements = movements.Where(m => m.Date.Date == DateTime.Today);
@@ -395,12 +399,12 @@ namespace MesTechStok.Desktop.ViewModels
         {
             // Test ürünleri ekle
             Products.Add(testProduct);
-            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = Guid.NewGuid(), Name = "Test Ürün 2", SKU = "TEST-002", Stock = 5, MinimumStock = 10, PurchasePrice = 200.00m });
-            Products.Add(new MesTechStok.Core.Data.Models.Product { Id = Guid.NewGuid(), Name = "Test Ürün 3", SKU = "TEST-003", Stock = 50, MinimumStock = 10, PurchasePrice = 75.00m });
+            Products.Add(new CoreProduct { Id = Guid.NewGuid(), Name = "Test Ürün 2", SKU = "TEST-002", Stock = 5, MinimumStock = 10, PurchasePrice = 200.00m });
+            Products.Add(new CoreProduct { Id = Guid.NewGuid(), Name = "Test Ürün 3", SKU = "TEST-003", Stock = 50, MinimumStock = 10, PurchasePrice = 75.00m });
 
             // Test stok hareketleri
-            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { ProductId = testProduct.Id, Quantity = 10, MovementType = "IN", Date = DateTime.Now.AddHours(-1) });
-            RecentStockMovements.Add(new MesTechStok.Core.Data.Models.StockMovement { ProductId = Products[1].Id, Quantity = -2, MovementType = "OUT", Date = DateTime.Now.AddHours(-2) });
+            RecentStockMovements.Add(new CoreStockMovement { ProductId = testProduct.Id, Quantity = 10, MovementType = "IN", Date = DateTime.Now.AddHours(-1) });
+            RecentStockMovements.Add(new CoreStockMovement { ProductId = Products[1].Id, Quantity = -2, MovementType = "OUT", Date = DateTime.Now.AddHours(-2) });
         }
 
         private void UpdateStatistics()

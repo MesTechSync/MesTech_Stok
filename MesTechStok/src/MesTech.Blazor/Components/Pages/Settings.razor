@@ -1,0 +1,58 @@
+@page "/ayarlar"
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-cog text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Ayarlar</h3>
+    <small class="text-muted">Sistem yapilandirmasi ve kullanici tercihleri</small>
+  </div>
+</div>
+
+<!-- Settings Sections -->
+<div class="row g-3 mb-4">
+  @foreach (var s in settingsSections)
+  {
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100 stat-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <div class="stat-icon @s.BgClass @s.TextClass" style="width: 40px; height: 40px; font-size: 1rem;">
+              <i class="@s.Icon"></i>
+            </div>
+            <h6 class="ms-3 mb-0 fw-semibold">@s.Name</h6>
+          </div>
+          <p class="text-muted small mb-0">@s.Description</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="alert alert-secondary" role="alert">
+  <i class="fas fa-clock me-2"></i>
+  <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Kullanici yonetimi,
+  rol/yetki ayarlari, platform API anahtarlari ve bildirim tercihleri eklenecek.
+</div>
+
+@code {
+  private record SettingsSection(string Name, string Description, string Icon, string BgClass, string TextClass);
+
+  private List<SettingsSection> settingsSections =
+  [
+    new("Genel Ayarlar", "Sirket bilgileri, dil, para birimi ve zaman dilimi",
+        "fas fa-sliders-h", "bg-primary bg-opacity-10", "text-primary"),
+    new("Kullanici Yonetimi", "Kullanicilar, roller ve erisim yetkileri",
+        "fas fa-user-shield", "bg-info bg-opacity-10", "text-info"),
+    new("Platform Entegrasyonlari", "API anahtarlari ve senkronizasyon ayarlari",
+        "fas fa-plug", "bg-success bg-opacity-10", "text-success"),
+    new("Bildirimler", "E-posta, SMS ve uygulama ici bildirim tercihleri",
+        "fas fa-bell", "bg-warning bg-opacity-10", "text-warning"),
+    new("Guvenlik", "Sifre politikasi, 2FA, oturum suresi",
+        "fas fa-shield-alt", "bg-danger bg-opacity-10", "text-danger"),
+    new("Yedekleme", "Veritabani yedekleme zamanlamasi ve geri yukleme",
+        "fas fa-database", "bg-secondary bg-opacity-10", "text-secondary"),
+  ];
+}

@@ -18,21 +18,3 @@ public interface IFEFOSortingService
     /// </summary>
     IReadOnlyList<FEFOPickResult> PickForConsumption(IEnumerable<FEFOStockItem> items, decimal requiredQuantity);
 }
-
-/// <summary>
-/// FEFO siralama icin stok kalemi girdi modeli.
-/// </summary>
-public record FEFOStockItem(
-    Guid ProductId,
-    string SKU,
-    DateTime? ExpirationDate,
-    decimal Quantity,
-    string Location,
-    string? LotNumber = null);
-
-/// <summary>
-/// FEFO toplama sonucu — hangi kalemden ne kadar alinacagi.
-/// </summary>
-public record FEFOPickResult(
-    FEFOStockItem Item,
-    decimal PickQuantity);

@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+#pragma warning disable CS0618 // Obsolete Core.AppDbContext — service bridge, will migrate in H32
 using MesTechStok.Core.Data;
 using MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 using MesTechStok.Desktop.Utils;
 
 namespace MesTechStok.Desktop.Services

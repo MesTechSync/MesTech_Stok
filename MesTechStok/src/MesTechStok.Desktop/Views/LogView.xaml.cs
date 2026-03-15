@@ -828,46 +828,21 @@ namespace MesTechStok.Desktop.Views
                 var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { StatusText.Text = "DB servisine erişilemiyor"; return; }
                 using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetService<MesTechStok.Core.Data.AppDbContext>();
-                if (db == null) { StatusText.Text = "AppDbContext yok"; return; }
+                var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
+                if (mediator == null) { StatusText.Text = "MediatR yok"; return; }
 
-                // Bağlantı kontrolü (kullanıcı tarafında SQL Server olmayabilir)
+                IReadOnlyList<MesTech.Application.DTOs.BarcodeScanLogDto> items;
                 try
                 {
-                    if (!await db.Database.CanConnectAsync())
-                    {
-                        StatusText.Text = "DB bağlantısı sağlanamadı (SQL Server ulaşılamıyor)";
-                        AddLog("🔴 Hata", "[DB] Bağlantı kurulamadı. Lütfen SQL Server hizmetini ve bağlantı dizesini kontrol edin.", "LogView", Colors.Red);
-                        return;
-                    }
-                }
-                catch (Exception exConn)
-                {
-                    StatusText.Text = "DB bağlantısı hata verdi";
-                    AddLog("🔴 Hata", $"[DB] Bağlantı kontrol hatası: {exConn.Message}", "LogView", Colors.Red);
-                    return;
-                }
-
-                var q = db.BarcodeScanLogs.AsNoTracking().OrderByDescending(x => x.TimestampUtc).AsQueryable();
-                if (start.HasValue)
-                {
-                    var s = start.Value.Date;
-                    q = q.Where(x => x.TimestampUtc >= s.ToUniversalTime());
-                }
-                if (end.HasValue)
-                {
-                    var e2 = end.Value.Date.AddDays(1).AddTicks(-1);
-                    q = q.Where(x => x.TimestampUtc <= e2.ToUniversalTime());
-                }
-                if (!string.IsNullOrWhiteSpace(barcodeLike))
-                {
-                    q = q.Where(x => x.Barcode.Contains(barcodeLike));
-                }
-
-                List<MesTechStok.Core.Data.Models.BarcodeScanLog> rows;
-                try
-                {
-                    rows = await q.Take(take).ToListAsync();
+                    var query = new MesTech.Application.Queries.GetBarcodeScanLogs.GetBarcodeScanLogsQuery(
+                        Page: 1,
+                        PageSize: take,
+                        BarcodeFilter: string.IsNullOrWhiteSpace(barcodeLike) ? null : barcodeLike,
+                        From: start?.Date.ToUniversalTime(),
+                        To: end?.Date.AddDays(1).AddTicks(-1).ToUniversalTime()
+                    );
+                    var result = await mediator.Send(query);
+                    items = result.Items;
                 }
                 catch (Exception exQuery)
                 {
@@ -875,7 +850,7 @@ namespace MesTechStok.Desktop.Views
                     AddLog("🔴 Hata", $"[DB] Sorgu hatası: {exQuery.Message}", "LogView", Colors.Red);
                     return;
                 }
-                DbLogGrid.ItemsSource = rows.Select(x => new
+                DbLogGrid.ItemsSource = items.Select(x => new
                 {
                     TimestampLocal = x.TimestampUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
                     x.Barcode,
@@ -888,7 +863,7 @@ namespace MesTechStok.Desktop.Views
                     x.CorrelationId
                 }).ToList();
 
-                StatusText.Text = $"DB'den {rows.Count} kayıt yüklendi";
+                StatusText.Text = $"DB'den {items.Count} kayıt yüklendi";
             }
             catch (Exception ex)
             {

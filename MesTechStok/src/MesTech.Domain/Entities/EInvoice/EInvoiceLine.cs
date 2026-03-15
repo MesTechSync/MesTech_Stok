@@ -16,4 +16,34 @@ public class EInvoiceLine : BaseEntity
     public int TaxPercent { get; private set; }
     public string? ProductCode { get; private set; }
     public Guid? ProductId { get; private set; }
+
+    public static EInvoiceLine Create(
+        Guid documentId,
+        int lineNumber,
+        string description,
+        decimal quantity,
+        string unitCode,
+        decimal unitPrice,
+        int taxPercent,
+        decimal allowanceAmount,
+        Guid? productId)
+    {
+        var taxBase = quantity * unitPrice - allowanceAmount;
+        var taxAmount = taxBase * taxPercent / 100m;
+
+        return new EInvoiceLine
+        {
+            EInvoiceDocumentId = documentId,
+            LineNumber = lineNumber,
+            Description = description,
+            Quantity = quantity,
+            UnitCode = unitCode,
+            UnitPrice = unitPrice,
+            LineExtensionAmount = taxBase,
+            AllowanceAmount = allowanceAmount,
+            TaxPercent = taxPercent,
+            TaxAmount = taxAmount,
+            ProductId = productId
+        };
+    }
 }

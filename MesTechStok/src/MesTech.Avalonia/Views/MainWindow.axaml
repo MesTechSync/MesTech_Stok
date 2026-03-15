@@ -1,0 +1,227 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MesTech.Avalonia.ViewModels"
+        xmlns:views="using:MesTech.Avalonia.Views"
+        xmlns:wpfvm="using:MesTechStok.Desktop.ViewModels.Finance"
+        x:Class="MesTech.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="MesTech Stok — Avalonia PoC"
+        Width="1280" Height="800"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Styles>
+        <!-- Sidebar button style -->
+        <Style Selector="Button.sidebar-btn">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#CBD5E1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="20,12" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="Button.sidebar-btn:pointerover">
+            <Setter Property="Background" Value="#334155" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="240,*">
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#1E293B">
+            <DockPanel>
+                <!-- Logo / App Title -->
+                <Border DockPanel.Dock="Top" Padding="20,20,20,16"
+                        BorderBrush="#334155" BorderThickness="0,0,0,1">
+                    <StackPanel>
+                        <TextBlock Text="MesTech Stok" FontSize="20" FontWeight="Bold"
+                                   Foreground="White" />
+                        <TextBlock Text="Avalonia PoC" FontSize="12"
+                                   Foreground="#64748B" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Navigation Buttons -->
+                <StackPanel DockPanel.Dock="Top" Margin="0,8">
+                    <TextBlock Text="GENEL" FontSize="11" Foreground="#64748B"
+                               Margin="20,8,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Kontrol Paneli"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Dashboard" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Urunler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Products" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Stok Yonetimi"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Stock" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Siparisler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Orders" />
+
+                    <TextBlock Text="SATIS" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Pazaryerleri"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Marketplaces" />
+
+                    <TextBlock Text="CRM" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Potansiyel Musteriler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Leads" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Kisiler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Contacts" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Firsatlar — Kanban"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Kanban" />
+
+                    <TextBlock Text="FINANS" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Kar / Zarar Raporu"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="ProfitLoss" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Giderler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Expenses" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Banka Hesaplari"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="BankAccounts" />
+
+                    <TextBlock Text="IK" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Calisanlar"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Employees" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Izin Talepleri"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="LeaveRequests" />
+
+                    <TextBlock Text="DIGER" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Belgeler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Documents" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Raporlar"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Reports" />
+
+                    <TextBlock Text="SISTEM" FontSize="11" Foreground="#64748B"
+                               Margin="20,16,0,8" FontWeight="SemiBold" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Ayarlar"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Settings" />
+                </StackPanel>
+
+                <!-- Footer -->
+                <Border DockPanel.Dock="Bottom" Padding="20,12"
+                        BorderBrush="#334155" BorderThickness="0,1,0,0">
+                    <TextBlock Text="Dalga 11 — Avalonia Expansion" FontSize="11"
+                               Foreground="#475569" />
+                </Border>
+
+                <!-- Spacer -->
+                <Panel />
+            </DockPanel>
+        </Border>
+
+        <!-- Content Area -->
+        <DockPanel Grid.Column="1" Background="#F8FAFC">
+            <!-- Content Header -->
+            <Border DockPanel.Dock="Top" Background="White" Padding="24,16"
+                    BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                <TextBlock Text="{Binding CurrentViewTitle}"
+                           FontSize="20" FontWeight="SemiBold" Foreground="#1E293B" />
+            </Border>
+
+            <!-- Dynamic Content -->
+            <ContentControl Content="{Binding CurrentView}" Margin="0">
+                <ContentControl.DataTemplates>
+                    <DataTemplate DataType="vm:DashboardAvaloniaViewModel">
+                        <views:DashboardAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:LeadsAvaloniaViewModel">
+                        <views:LeadsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:KanbanAvaloniaViewModel">
+                        <views:KanbanAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:ProductsAvaloniaViewModel">
+                        <views:ProductsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="wpfvm:ProfitLossViewModel">
+                        <views:ProfitLossAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:StockAvaloniaViewModel">
+                        <views:StockAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:OrdersAvaloniaViewModel">
+                        <views:OrdersAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:SettingsAvaloniaViewModel">
+                        <views:SettingsAvaloniaView />
+                    </DataTemplate>
+                    <!-- Dalga 11 batch expansion -->
+                    <DataTemplate DataType="vm:ContactsAvaloniaViewModel">
+                        <views:ContactsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:EmployeesAvaloniaViewModel">
+                        <views:EmployeesAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:LeaveRequestsAvaloniaViewModel">
+                        <views:LeaveRequestsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:DocumentsAvaloniaViewModel">
+                        <views:DocumentsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:ReportsAvaloniaViewModel">
+                        <views:ReportsAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:MarketplacesAvaloniaViewModel">
+                        <views:MarketplacesAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:ExpensesAvaloniaViewModel">
+                        <views:ExpensesAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:BankAccountsAvaloniaViewModel">
+                        <views:BankAccountsAvaloniaView />
+                    </DataTemplate>
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </DockPanel>
+    </Grid>
+</Window>

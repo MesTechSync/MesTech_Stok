@@ -1,0 +1,253 @@
+/* ── MesTech Blazor PoC — Dark Sidebar Theme ── */
+
+/* Sidebar */
+.mestech-sidebar {
+  background-color: #1a2332;
+  color: #c2c7d0;
+}
+
+.sidebar-link {
+  color: #c2c7d0 !important;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-link.active {
+  background-color: #0d6efd !important;
+  color: #ffffff !important;
+}
+
+.nav-section-label {
+  list-style: none;
+}
+
+/* Top bar */
+.top-bar {
+  height: 56px;
+}
+
+/* Cards */
+.stat-card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+/* Lead status badges */
+.badge-yeni        { background-color: #0d6efd; color: #fff; }
+.badge-iletisim    { background-color: #6f42c1; color: #fff; }
+.badge-nitelikli   { background-color: #198754; color: #fff; }
+.badge-donusturuldu { background-color: #20c997; color: #fff; }
+.badge-kaybedildi  { background-color: #dc3545; color: #fff; }
+
+/* Period navigation */
+.period-nav .btn {
+  min-width: 40px;
+}
+
+/* Loading spinner */
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Scrollable sidebar */
+.mestech-sidebar ul.nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.mestech-sidebar ul.nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mestech-sidebar ul.nav::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 2px;
+}
+
+/* MesTech brand color utility */
+.text-mestech {
+  color: #2855AC !important;
+}
+
+.bg-mestech {
+  background-color: #2855AC !important;
+}
+
+.border-mestech {
+  border-color: #2855AC !important;
+}
+
+/* Login page */
+.login-container .form-control:focus {
+  border-color: #2855AC;
+  box-shadow: 0 0 0 0.2rem rgba(40, 85, 172, 0.25);
+}
+
+.login-container .input-group-text {
+  border-color: #dee2e6;
+}
+
+.login-container .btn:hover:not(:disabled) {
+  background-color: #1e4490 !important;
+}
+
+/* Page header with icon circle */
+.page-header-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #2855AC;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Body default */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── Responsive / Mobile Enhancements — Dalga 11 ── */
+
+/* Mobile sidebar: collapse to off-canvas on small screens */
+@media (max-width: 767.98px) {
+  .mestech-sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    z-index: 1050;
+    transition: left 0.3s ease;
+    width: 260px !important;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .mestech-sidebar.show {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1040;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* Stack main content full-width */
+  main.flex-grow-1 {
+    width: 100% !important;
+  }
+
+  /* Stat cards: smaller padding on mobile */
+  .stat-card .card-body {
+    padding: 0.5rem !important;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  /* Top bar: compact */
+  .top-bar {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem !important;
+  }
+
+  .top-bar h5 {
+    font-size: 0.9rem;
+  }
+
+  /* Page content: less padding on mobile */
+  main .p-4 {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .mestech-sidebar {
+    width: 200px !important;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile hamburger toggle button */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1060;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #2855AC;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(40, 85, 172, 0.4);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  transform: scale(1.1);
+}
+
+@media (max-width: 767.98px) {
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Ensure tables don't break layout on mobile */
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Quick links: smaller icons on mobile */
+@media (max-width: 575.98px) {
+  .list-group-item .stat-icon {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+  }
+}

@@ -25,4 +25,19 @@ public class CariHesap : BaseEntity, ITenantEntity
         ArgumentNullException.ThrowIfNull(hareket);
         _hareketler.Add(hareket);
     }
+
+    /// <summary>
+    /// Bakiye hesaplama: Borc hareketleri toplami - Alacak hareketleri toplami.
+    /// Pozitif = borclu, Negatif = alacakli.
+    /// </summary>
+    public decimal GetBakiye()
+    {
+        var borc = _hareketler
+            .Where(h => h.Direction == CariDirection.Borc)
+            .Sum(h => h.Amount);
+        var alacak = _hareketler
+            .Where(h => h.Direction == CariDirection.Alacak)
+            .Sum(h => h.Amount);
+        return borc - alacak;
+    }
 }

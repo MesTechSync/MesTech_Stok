@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.SettingsAvaloniaView"
+             x:DataType="vm:SettingsAvaloniaViewModel">
+
+    <!-- Stub view for Settings — Dalga 10 -->
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#6366F1" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Ayarlar"
+                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding AppVersion}"
+                           Foreground="#FFFFFF99" FontSize="12"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Placeholder Content -->
+        <Border Grid.Row="1" Background="#F8FAFC" Margin="24"
+                CornerRadius="12" BorderBrush="#E0E6ED" BorderThickness="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                <Border Background="#EEF2FF" CornerRadius="50" Width="80" Height="80"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#x2699;" FontSize="36"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Ayarlar" FontSize="22" FontWeight="Bold"
+                           Foreground="#1E293B" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
+                           TextAlignment="Center" />
+                <TextBlock Text="Tenant yapisi | Kullanici tercihleri | Entegrasyon ayarlari | Tema"
+                           FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"
+                           Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

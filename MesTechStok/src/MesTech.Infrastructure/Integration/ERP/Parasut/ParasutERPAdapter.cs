@@ -3,7 +3,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.DTOs.ERP;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Entities.EInvoice;
 using Microsoft.Extensions.Logging;
 
 using InvoiceEntity = MesTech.Domain.Entities.Invoice;
@@ -280,5 +282,88 @@ public sealed class ParasutERPAdapter : IERPAdapter
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Dalga 9: Posts a JSON:API payload and returns the Parasut-side record ID on success.
+    /// Returns (true, erpId) on 2xx, (false, null, errorBody) on failure.
+    /// </summary>
+    private async Task<(bool Success, string? ErpId, string? Error)> PostJsonApiWithRefAsync<T>(
+        string endpoint, T payload, CancellationToken ct)
+    {
+        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        var content = new StringContent(json, Encoding.UTF8);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
+
+        var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogDebug(
+                "[ParasutERPAdapter] POST {Endpoint} succeeded: {Response}",
+                endpoint, responseJson);
+
+            var parsed = JsonSerializer.Deserialize<ParasutJsonApiResponse>(responseJson, JsonOptions);
+            var erpId = parsed?.Data?.Id;
+            return (true, erpId, null);
+        }
+
+        var errorBody = await response.Content.ReadAsStringAsync(ct);
+        _logger.LogWarning(
+            "[ParasutERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
+            endpoint, response.StatusCode, errorBody);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            _tokenService.InvalidateToken();
+        }
+
+        return (false, null, errorBody);
+    }
+
+    // ── Dalga 9 Extensions ────────────────────────────────────────────
+
+    /// <summary>
+    /// Dalga 9: Sends an EInvoiceDocument to Parasut as a sales_invoice.
+    /// EXTEND — existing IERPAdapter methods are not modified.
+    /// Returns ErpSyncResult with the Parasut record ID on success.
+    /// </summary>
+    public async Task<ErpSyncResult> SyncEInvoiceAsync(
+        EInvoiceDocument invoice, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        _logger.LogInformation(
+            "[ParasutERPAdapter] SyncEInvoiceAsync — ETTN:{EttnNo} Buyer:{Buyer} Amount:{Amount}",
+            invoice.EttnNo, invoice.BuyerTitle, invoice.PayableAmount);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct);
+
+            var payload = ParasutMappingProfile.MapEInvoice(invoice);
+            var (success, erpId, error) = await PostJsonApiWithRefAsync("sales_invoices", payload, ct);
+
+            if (success)
+            {
+                _logger.LogInformation(
+                    "[ParasutERPAdapter] E-invoice synced — ETTN:{EttnNo} ParasutId:{ErpId}",
+                    invoice.EttnNo, erpId);
+                return new ErpSyncResult(true, erpId, null);
+            }
+
+            _logger.LogWarning(
+                "[ParasutERPAdapter] E-invoice sync failed — ETTN:{EttnNo} Error:{Error}",
+                invoice.EttnNo, error);
+            return new ErpSyncResult(false, null, error);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "[ParasutERPAdapter] SyncEInvoiceAsync exception — ETTN:{EttnNo}",
+                invoice.EttnNo);
+            return new ErpSyncResult(false, null, ex.Message);
+        }
     }
 }

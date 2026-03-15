@@ -67,10 +67,22 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Row 0: Header -->
-            <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+            <!-- Row 0: SMMM Disclaimer -->
+            <Border Grid.Row="0" Background="#FFF3CD" CornerRadius="4" Padding="10" Margin="8,8,8,4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#x26A0;" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#856404" FontSize="14"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="#856404">
+                        <Run FontWeight="Bold">On Muhasebe Verisi</Run>
+                        <Run> — Kesin beyanname ve resmi mali kayitlar SMMM tarafindan hazirlanmalidir.</Run>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Row 1: Header -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -101,8 +113,8 @@
                 </Grid>
             </Border>
 
-            <!-- Row 1: KPI Cards (6 cards) -->
-            <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+            <!-- Row 2: KPI Cards (6 cards) -->
+            <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -155,8 +167,8 @@
                 </Grid>
             </Border>
 
-            <!-- Row 2: Maliyet Ayristirmasi (Stacked Cost Breakdown) -->
-            <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
+            <!-- Row 3: Maliyet Ayristirmasi (Stacked Cost Breakdown) -->
+            <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -210,8 +222,8 @@
                 </Grid>
             </Border>
 
-            <!-- Row 3: Platform Comparison Table -->
-            <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
+            <!-- Row 4: Platform Comparison Table -->
+            <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -240,8 +252,8 @@
                 </Grid>
             </Border>
 
-            <!-- Row 4: Detailed DataGrid -->
-            <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="8,4,8,8" Padding="16">
+            <!-- Row 5: Detailed DataGrid -->
+            <Border Grid.Row="5" Style="{StaticResource CardBorder}" Margin="8,4,8,8" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -271,7 +283,7 @@
             </Border>
 
             <!-- Loading Overlay -->
-            <Border x:Name="LoadingOverlay" Grid.RowSpan="5" Background="#80FFFFFF" Visibility="Collapsed">
+            <Border x:Name="LoadingOverlay" Grid.RowSpan="6" Background="#80FFFFFF" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
                     <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>

@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.IO;
 
+#pragma warning disable CS0618 // Core.Data.Models type references — will migrate to Domain entities in H32
+
 namespace MesTechStok.Desktop.Views
 {
     public partial class CustomerEditPopup : Window

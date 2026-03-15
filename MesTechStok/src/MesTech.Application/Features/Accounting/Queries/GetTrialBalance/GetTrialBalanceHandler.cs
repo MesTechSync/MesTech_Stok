@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Entities;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
 
@@ -28,63 +29,11 @@ public class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuery, Tria
     {
         var accounts = await _accountRepo.GetAllAsync(request.TenantId, isActive: true, cancellationToken);
 
-        // Opening balance: all posted entries before the period start
-        var openingEntries = await _journalRepo.GetByDateRangeAsync(
-            request.TenantId,
-            DateTime.MinValue,
-            request.StartDate.AddDays(-1),
-            cancellationToken);
+        var openingLines = await GetPostedLinesAsync(request.TenantId, DateTime.MinValue, request.StartDate.AddDays(-1), cancellationToken);
+        var periodLines = await GetPostedLinesAsync(request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 
-        var openingLines = openingEntries
-            .Where(e => e.IsPosted)
-            .SelectMany(e => e.Lines)
-            .ToList();
-
-        // Period entries: posted entries within the period
-        var periodEntries = await _journalRepo.GetByDateRangeAsync(
-            request.TenantId,
-            request.StartDate,
-            request.EndDate,
-            cancellationToken);
-
-        var periodLines = periodEntries
-            .Where(e => e.IsPosted)
-            .SelectMany(e => e.Lines)
-            .ToList();
-
-        var lines = new List<TrialBalanceLineDto>();
-
-        foreach (var account in accounts)
-        {
-            var accOpeningLines = openingLines.Where(l => l.AccountId == account.Id).ToList();
-            var accPeriodLines = periodLines.Where(l => l.AccountId == account.Id).ToList();
-
-            var openingDebit = accOpeningLines.Sum(l => l.Debit);
-            var openingCredit = accOpeningLines.Sum(l => l.Credit);
-            var periodDebit = accPeriodLines.Sum(l => l.Debit);
-            var periodCredit = accPeriodLines.Sum(l => l.Credit);
-
-            // Only include accounts with any activity
-            if (openingDebit == 0 && openingCredit == 0 && periodDebit == 0 && periodCredit == 0)
-                continue;
-
-            lines.Add(new TrialBalanceLineDto
-            {
-                AccountId = account.Id,
-                AccountCode = account.Code,
-                AccountName = account.Name,
-                AccountType = account.AccountType.ToString(),
-                OpeningDebit = openingDebit,
-                OpeningCredit = openingCredit,
-                PeriodDebit = periodDebit,
-                PeriodCredit = periodCredit,
-                ClosingDebit = openingDebit + periodDebit,
-                ClosingCredit = openingCredit + periodCredit
-            });
-        }
-
-        // Sort by account code for standard mizan format
-        var sortedLines = lines.OrderBy(l => l.AccountCode).ToList();
+        var lines = BuildTrialBalanceLines(accounts, openingLines, periodLines);
+        var sortedLines = lines.OrderBy(l => l.AccountCode, StringComparer.Ordinal).ToList();
 
         return new TrialBalanceDto
         {
@@ -97,6 +46,67 @@ public class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuery, Tria
             GrandTotalPeriodCredit = sortedLines.Sum(l => l.PeriodCredit),
             GrandTotalClosingDebit = sortedLines.Sum(l => l.ClosingDebit),
             GrandTotalClosingCredit = sortedLines.Sum(l => l.ClosingCredit)
+        };
+    }
+
+    private async Task<List<JournalLine>> GetPostedLinesAsync(
+        Guid tenantId,
+        DateTime from,
+        DateTime to,
+        CancellationToken cancellationToken)
+    {
+        var entries = await _journalRepo.GetByDateRangeAsync(tenantId, from, to, cancellationToken);
+        return entries
+            .Where(e => e.IsPosted)
+            .SelectMany(e => e.Lines)
+            .ToList();
+    }
+
+    private static List<TrialBalanceLineDto> BuildTrialBalanceLines(
+        IReadOnlyList<ChartOfAccounts> accounts,
+        List<JournalLine> openingLines,
+        List<JournalLine> periodLines)
+    {
+        var lines = new List<TrialBalanceLineDto>();
+
+        foreach (var account in accounts)
+        {
+            var lineDto = BuildAccountLine(account, openingLines, periodLines);
+            if (lineDto is not null)
+                lines.Add(lineDto);
+        }
+
+        return lines;
+    }
+
+    private static TrialBalanceLineDto? BuildAccountLine(
+        ChartOfAccounts account,
+        List<JournalLine> openingLines,
+        List<JournalLine> periodLines)
+    {
+        var accOpeningLines = openingLines.Where(l => l.AccountId == account.Id).ToList();
+        var accPeriodLines = periodLines.Where(l => l.AccountId == account.Id).ToList();
+
+        var openingDebit = accOpeningLines.Sum(l => l.Debit);
+        var openingCredit = accOpeningLines.Sum(l => l.Credit);
+        var periodDebit = accPeriodLines.Sum(l => l.Debit);
+        var periodCredit = accPeriodLines.Sum(l => l.Credit);
+
+        if (openingDebit == 0 && openingCredit == 0 && periodDebit == 0 && periodCredit == 0)
+            return null;
+
+        return new TrialBalanceLineDto
+        {
+            AccountId = account.Id,
+            AccountCode = account.Code,
+            AccountName = account.Name,
+            AccountType = account.AccountType.ToString(),
+            OpeningDebit = openingDebit,
+            OpeningCredit = openingCredit,
+            PeriodDebit = periodDebit,
+            PeriodCredit = periodCredit,
+            ClosingDebit = openingDebit + periodDebit,
+            ClosingCredit = openingCredit + periodCredit
         };
     }
 }

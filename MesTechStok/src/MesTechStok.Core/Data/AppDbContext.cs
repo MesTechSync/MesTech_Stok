@@ -11,23 +11,20 @@ using System.Collections.Generic;
 namespace MesTechStok.Core.Data;
 
 /// <summary>
-/// [OBSOLETE] Legacy veritabanı context — YENİ KOD YAZMAK İÇİN KULLANMAYIN.
-/// Tüm yeni entity/repo/servis MesTech.Infrastructure.Persistence.AppDbContext kullanmalıdır.
+/// [OBSOLETE] Legacy veritabani context — YENI KOD YAZMAK ICIN KULLANMAYIN.
+/// Tum yeni entity/repo/servis MesTech.Infrastructure.Persistence.AppDbContext kullanmalidir.
 ///
-/// Dalga 4 konsolidasyon planı:
-///   1. Bu context FROZEN — yeni DbSet eklenmeyecek
-///   2. Mevcut Core servisleri (ProductService, OrderService vb.) backward compat için çalışmaya devam eder
-///   3. int→Guid PK migration (1.D4-11) tamamlandıktan sonra Core.Models silinecek
-///   4. Core servisleri Clean Architecture CQRS handler'larıyla değiştirilecek
-///   5. Son aşamada bu context tamamen kaldırılacak
+/// H32 Status: 9/16 Desktop handlers migrated to Infrastructure.AppDbContext.
+/// Remaining references (App.xaml.cs init, SqlBacked services, Telemetry services,
+/// SeedDemoDataHandler, ImageMapWizard) will be eliminated in H33.
 ///
 /// Kanonik context: MesTech.Infrastructure.Persistence.AppDbContext
 ///   - Multi-tenant query filter (ITenantEntity)
 ///   - Soft-delete filter (BaseEntity.IsDeleted)
 ///   - Domain events (GetDomainEvents)
-///   - 68+ DbSet (tüm Domain entity'leri)
+///   - 68+ DbSet (tum Domain entity'leri)
 /// </summary>
-[Obsolete("MIGRATE: Use MesTech.Infrastructure.Persistence.AppDbContext (PostgreSQL, multi-tenant). Desktop SQLite access via CoreDbContext alias. Will be removed in Dalga 6.")]
+[Obsolete("FROZEN H32: Use MesTech.Infrastructure.Persistence.AppDbContext via MediatR CQRS. 9 handlers migrated in H32. SqlBacked services + App init remain. Will be removed in Dalga 9.")]
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

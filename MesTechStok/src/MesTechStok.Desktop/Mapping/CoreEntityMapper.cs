@@ -1,5 +1,7 @@
+#pragma warning disable CS0618 // Core.Data.Models type aliases — mapper bridge, will be removed in H32
 using CoreProduct = MesTechStok.Core.Data.Models.Product;
 using CoreCategory = MesTechStok.Core.Data.Models.Category;
+#pragma warning restore CS0618
 using DomainProduct = MesTech.Domain.Entities.Product;
 using DomainCategory = MesTech.Domain.Entities.Category;
 

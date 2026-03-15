@@ -18,8 +18,6 @@ using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Utils;
 using Microsoft.Win32;
 using MesTechStok.Core.Services.Abstract;
-using MesTechStok.Core.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace MesTechStok.Desktop.Views
 {
@@ -478,7 +476,7 @@ namespace MesTechStok.Desktop.Views
                     var summaries = await _reportsService.GetDashboardSummariesAsync();
                     var lowStock = summaries.LowStockItems.Select(x => (x.Name, x.Stock)).ToList();
 
-                    // Şirket adını DB'den (CompanySettings) oku; yoksa varsayılan kullan
+                    // H31: Company name via MediatR GetCompanySettingsQuery
                     string company = "MesTech Teknoloji";
                     try
                     {
@@ -486,13 +484,11 @@ namespace MesTechStok.Desktop.Views
                         if (sp != null)
                         {
                             using var scope = sp.CreateScope();
-                            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                            var settings = await db.Set<MesTechStok.Core.Data.Models.CompanySettings>()
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync();
-                            if (settings != null && !string.IsNullOrWhiteSpace(settings.CompanyName))
+                            var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                            var csResult = await mediator.Send(new MesTech.Application.Queries.GetCompanySettings.GetCompanySettingsQuery());
+                            if (csResult != null && !string.IsNullOrWhiteSpace(csResult.CompanyName))
                             {
-                                company = settings.CompanyName;
+                                company = csResult.CompanyName;
                             }
                         }
                     }

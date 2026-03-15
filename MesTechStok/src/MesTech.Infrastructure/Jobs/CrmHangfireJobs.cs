@@ -44,4 +44,20 @@ public class CrmHangfireJobs
         // ITenantProvider.GetAllTenantIds() gerekir — H28'de genişletilecek
         await Task.CompletedTask;
     }
+
+    /// <summary>
+    /// Her 30 dk — son siparişleri tara, CRM lead/contact yoksa oluştur (H29-3.5).
+    /// </summary>
+    [DisableConcurrentExecution(120)]
+    public async Task CreateLeadsFromNewOrdersAsync()
+    {
+        _logger.LogInformation("CRM: Yeni sipariş → Lead tarama başlıyor");
+
+        var since = DateTime.UtcNow.AddMinutes(-35);
+        var tenantId = new Guid("00000000-0000-0000-0000-000000000001");
+
+        // TODO: await _crmBridgeService.CreateLeadsFromRecentOrdersAsync(tenantId, since);
+        await Task.CompletedTask;
+        _logger.LogInformation("CRM: Sipariş → Lead tarama tamamlandı");
+    }
 }

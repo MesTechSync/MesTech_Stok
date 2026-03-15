@@ -4,7 +4,7 @@ namespace MesTechStok.Core.Integrations.Barcode.Models
 {
     public class BarcodeErrorEventArgs : EventArgs
     {
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
         public Exception? Exception { get; set; }
         public string? DeviceId { get; set; }
 

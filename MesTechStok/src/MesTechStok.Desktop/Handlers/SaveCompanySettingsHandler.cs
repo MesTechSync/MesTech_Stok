@@ -2,11 +2,14 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Commands.SaveCompanySettings;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+using MesTech.Domain.Entities;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class SaveCompanySettingsHandler : IRequestHandler<SaveCompanySettingsCommand, SaveCompanySettingsResult>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -21,9 +24,7 @@ public class SaveCompanySettingsHandler : IRequestHandler<SaveCompanySettingsCom
         try
         {
             using var scope = _serviceProvider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            await EnsureCompanySettingsTableAsync(db);
+            var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
             var settings = await db.CompanySettings.FirstOrDefaultAsync(cancellationToken);
             if (settings == null)
@@ -37,7 +38,7 @@ public class SaveCompanySettingsHandler : IRequestHandler<SaveCompanySettingsCom
             settings.Phone = request.Phone;
             settings.Email = request.Email;
             settings.Address = request.Address;
-            settings.ModifiedDate = DateTime.Now;
+            settings.UpdatedAt = DateTime.Now;
 
             var existing = await db.Warehouses.ToListAsync(cancellationToken);
             if (existing.Count > 0)
@@ -69,28 +70,6 @@ public class SaveCompanySettingsHandler : IRequestHandler<SaveCompanySettingsCom
                 IsSuccess = false,
                 ErrorMessage = ex.Message,
             };
-        }
-    }
-
-    private static async Task EnsureCompanySettingsTableAsync(AppDbContext db)
-    {
-        try
-        {
-            var sql = @"CREATE TABLE IF NOT EXISTS ""CompanySettings"" (
-                            ""Id"" SERIAL PRIMARY KEY,
-                            ""CompanyName"" TEXT NOT NULL,
-                            ""TaxNumber"" TEXT,
-                            ""Phone"" TEXT,
-                            ""Email"" TEXT,
-                            ""Address"" TEXT,
-                            ""CreatedDate"" TIMESTAMP NOT NULL,
-                            ""ModifiedDate"" TIMESTAMP
-                        );";
-            await db.Database.ExecuteSqlRawAsync(sql);
-        }
-        catch
-        {
-            // yoksay: EF Migration'lar varsa tablo zaten vardır
         }
     }
 }

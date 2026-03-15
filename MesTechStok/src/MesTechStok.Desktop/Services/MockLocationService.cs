@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MesTechStok.Core.Services.Abstract;
+#pragma warning disable CS0618 // Core.Data.Models type reference — will migrate to Domain entities in H32
 using MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 
 namespace MesTechStok.Desktop.Services
 {

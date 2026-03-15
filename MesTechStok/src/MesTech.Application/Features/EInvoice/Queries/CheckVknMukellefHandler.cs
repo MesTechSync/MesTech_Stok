@@ -1,0 +1,19 @@
+using MediatR;
+using MesTech.Application.Interfaces;
+
+namespace MesTech.Application.Features.EInvoice.Queries;
+
+public class CheckVknMukellefHandler : IRequestHandler<CheckVknMukellefQuery, VknMukellefResult>
+{
+    private readonly IEInvoiceProvider _eInvoiceProvider;
+
+    public CheckVknMukellefHandler(IEInvoiceProvider eInvoiceProvider)
+    {
+        _eInvoiceProvider = eInvoiceProvider;
+    }
+
+    public Task<VknMukellefResult> Handle(CheckVknMukellefQuery request, CancellationToken cancellationToken)
+    {
+        return _eInvoiceProvider.CheckVknMukellefAsync(request.Vkn, cancellationToken);
+    }
+}

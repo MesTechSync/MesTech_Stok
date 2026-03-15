@@ -40,8 +40,8 @@ namespace MesTechStok.Desktop.Models
     public class MaintenanceRecommendation
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public MaintenancePriority Priority { get; set; }
         public DateTime RecommendedDate { get; set; }
         public TimeSpan EstimatedDuration { get; set; }
@@ -83,7 +83,7 @@ namespace MesTechStok.Desktop.Models
     public class CustomerIntelligence
     {
         public Guid CustomerId { get; set; }
-        public string CustomerName { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
         public CustomerSegment Segment { get; set; }
         public double LifetimeValue { get; set; }
         public double ChurnProbability { get; set; }
@@ -97,33 +97,33 @@ namespace MesTechStok.Desktop.Models
     public class BehaviorPattern
     {
         public int Id { get; set; }
-        public string PatternType { get; set; } // "Purchase", "Browse", "Communication", "Return"
-        public string Description { get; set; }
+        public string PatternType { get; set; } = string.Empty; // "Purchase", "Browse", "Communication", "Return"
+        public string Description { get; set; } = string.Empty;
         public double Frequency { get; set; }
         public DateTime LastOccurrence { get; set; }
         public double Confidence { get; set; }
-        public string AIModelUsed { get; set; }
+        public string AIModelUsed { get; set; } = string.Empty;
     }
 
     public class SalesOpportunity
     {
         public int Id { get; set; }
-        public string ProductCategory { get; set; }
-        public string ProductName { get; set; }
+        public string ProductCategory { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
         public double ProbabilityScore { get; set; }
         public decimal EstimatedValue { get; set; }
         public DateTime OptimalContactTime { get; set; }
-        public string RecommendedChannel { get; set; } // "Email", "Phone", "SMS", "InApp"
-        public string PersonalizedMessage { get; set; }
+        public string RecommendedChannel { get; set; } = string.Empty; // "Email", "Phone", "SMS", "InApp"
+        public string PersonalizedMessage { get; set; } = string.Empty;
     }
 
     public class CommunicationStrategy
     {
         public int Id { get; set; }
-        public string StrategyName { get; set; }
-        public string Channel { get; set; }
-        public string Tone { get; set; } // "Professional", "Friendly", "Urgent", "Supportive"
-        public string Language { get; set; }
+        public string StrategyName { get; set; } = string.Empty;
+        public string Channel { get; set; } = string.Empty;
+        public string Tone { get; set; } = string.Empty; // "Professional", "Friendly", "Urgent", "Supportive"
+        public string Language { get; set; } = string.Empty;
         public TimeSpan OptimalFrequency { get; set; }
         public double EffectivenessScore { get; set; }
     }
@@ -137,7 +137,7 @@ namespace MesTechStok.Desktop.Models
         public double Trust { get; set; }
         public double Loyalty { get; set; }
         public DateTime LastAnalysis { get; set; }
-        public string AnalysisMethod { get; set; } // "TextSentiment", "VoiceAnalysis", "BehaviorAnalysis"
+        public string AnalysisMethod { get; set; } = string.Empty; // "TextSentiment", "VoiceAnalysis", "BehaviorAnalysis"
     }
 
     public enum CustomerSegment
@@ -157,8 +157,8 @@ namespace MesTechStok.Desktop.Models
     public class CategoryIntelligence
     {
         public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; }
-        public string ParentCategory { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public string ParentCategory { get; set; } = string.Empty;
         public double PerformanceScore { get; set; }
         public List<AutoClassification> AutoClassifications { get; set; } = new List<AutoClassification>();
         public List<MarketTrend> MarketTrends { get; set; } = new List<MarketTrend>();
@@ -169,13 +169,13 @@ namespace MesTechStok.Desktop.Models
     public class AutoClassification
     {
         public int Id { get; set; }
-        public string ProductName { get; set; }
-        public string ProductDescription { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string ProductDescription { get; set; } = string.Empty;
         public List<string> ImageUrls { get; set; } = new List<string>();
-        public string SuggestedCategory { get; set; }
+        public string SuggestedCategory { get; set; } = string.Empty;
         public double Confidence { get; set; }
         public List<string> ExtractedTags { get; set; } = new List<string>();
-        public string ClassificationMethod { get; set; } // "ComputerVision", "NLP", "Hybrid"
+        public string ClassificationMethod { get; set; } = string.Empty; // "ComputerVision", "NLP", "Hybrid"
         public DateTime ClassificationDate { get; set; }
         public bool RequiresHumanReview { get; set; }
     }
@@ -183,8 +183,8 @@ namespace MesTechStok.Desktop.Models
     public class MarketTrend
     {
         public int Id { get; set; }
-        public string TrendName { get; set; }
-        public string Description { get; set; }
+        public string TrendName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public double TrendStrength { get; set; }
         public TrendDirection Direction { get; set; }
         public DateTime DetectedDate { get; set; }
@@ -197,19 +197,19 @@ namespace MesTechStok.Desktop.Models
     public class CrossSellingOpportunity
     {
         public int Id { get; set; }
-        public string PrimaryCategory { get; set; }
-        public string SuggestedCategory { get; set; }
+        public string PrimaryCategory { get; set; } = string.Empty;
+        public string SuggestedCategory { get; set; } = string.Empty;
         public double AffinityScore { get; set; }
         public decimal PotentialRevenue { get; set; }
         public double ConversionProbability { get; set; }
-        public string OptimalTiming { get; set; }
+        public string OptimalTiming { get; set; } = string.Empty;
         public List<string> SuccessExamples { get; set; } = new List<string>();
     }
 
     public class CategoryOptimization
     {
         public int Id { get; set; }
-        public string CategoryId { get; set; }
+        public string CategoryId { get; set; } = string.Empty;
         public List<string> OptimizationSuggestions { get; set; } = new List<string>();
         public double CurrentPerformance { get; set; }
         public double ProjectedPerformance { get; set; }
@@ -234,14 +234,14 @@ namespace MesTechStok.Desktop.Models
     public class VoiceCommand
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
-        public string RawAudio { get; set; }
-        public string TranscribedText { get; set; }
-        public string Language { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string RawAudio { get; set; } = string.Empty;
+        public string TranscribedText { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
         public double ConfidenceScore { get; set; }
         public VoiceIntent Intent { get; set; }
         public List<VoiceEntity> ExtractedEntities { get; set; } = new List<VoiceEntity>();
-        public string ExecutedAction { get; set; }
+        public string ExecutedAction { get; set; } = string.Empty;
         public bool Success { get; set; }
         public DateTime ProcessedAt { get; set; }
         public TimeSpan ProcessingDuration { get; set; }
@@ -250,19 +250,19 @@ namespace MesTechStok.Desktop.Models
     public class VoiceIntent
     {
         public int Id { get; set; }
-        public string IntentName { get; set; } // "UpdateStock", "FindProduct", "CreateOrder", "GetReport"
+        public string IntentName { get; set; } = string.Empty; // "UpdateStock", "FindProduct", "CreateOrder", "GetReport"
         public double Confidence { get; set; }
-        public string RequiredAction { get; set; }
+        public string RequiredAction { get; set; } = string.Empty;
         public List<string> RequiredParameters { get; set; } = new List<string>();
         public bool IsExecutable { get; set; }
-        public string FeedbackMessage { get; set; }
+        public string FeedbackMessage { get; set; } = string.Empty;
     }
 
     public class VoiceEntity
     {
         public int Id { get; set; }
-        public string EntityType { get; set; } // "Product", "Quantity", "Location", "Date", "Customer"
-        public string Value { get; set; }
+        public string EntityType { get; set; } = string.Empty; // "Product", "Quantity", "Location", "Date", "Customer"
+        public string Value { get; set; } = string.Empty;
         public double Confidence { get; set; }
         public int StartPosition { get; set; }
         public int EndPosition { get; set; }
@@ -289,7 +289,7 @@ namespace MesTechStok.Desktop.Models
     public class ARWarehouseModel
     {
         public int Id { get; set; }
-        public string WarehouseName { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
         public Coordinate3D Dimensions { get; set; }
         public List<ARLocation> Locations { get; set; } = new List<ARLocation>();
         public List<ARAsset> Assets { get; set; } = new List<ARAsset>();
@@ -301,8 +301,8 @@ namespace MesTechStok.Desktop.Models
     public class ARLocation
     {
         public int Id { get; set; }
-        public string LocationCode { get; set; }
-        public string Description { get; set; }
+        public string LocationCode { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public Coordinate3D Position { get; set; }
         public Coordinate3D Rotation { get; set; }
         public ARLocationCategory Category { get; set; }
@@ -315,9 +315,9 @@ namespace MesTechStok.Desktop.Models
     public class ARAsset
     {
         public int Id { get; set; }
-        public string AssetName { get; set; }
-        public string AssetType { get; set; }
-        public string ModelPath { get; set; } // Path to 3D model file
+        public string AssetName { get; set; } = string.Empty;
+        public string AssetType { get; set; } = string.Empty;
+        public string ModelPath { get; set; } = string.Empty; // Path to 3D model file
         public Coordinate3D Scale { get; set; }
         public List<string> TextureUrls { get; set; } = new List<string>();
         public bool IsInteractive { get; set; }
@@ -327,19 +327,19 @@ namespace MesTechStok.Desktop.Models
     public class AROverlay
     {
         public int Id { get; set; }
-        public string OverlayType { get; set; } // "Text", "Icon", "Animation", "Hologram"
-        public string Content { get; set; }
+        public string OverlayType { get; set; } = string.Empty; // "Text", "Icon", "Animation", "Hologram"
+        public string Content { get; set; } = string.Empty;
         public Coordinate3D Position { get; set; }
         public ARDisplayMode DisplayMode { get; set; }
         public bool IsVisible { get; set; }
         public DateTime ExpirationTime { get; set; }
-        public string TriggerCondition { get; set; }
+        public string TriggerCondition { get; set; } = string.Empty;
     }
 
     public class ARConfiguration
     {
         public int Id { get; set; }
-        public string DeviceType { get; set; } // "HoloLens", "MagicLeap", "ARKit", "ARCore"
+        public string DeviceType { get; set; } = string.Empty; // "HoloLens", "MagicLeap", "ARKit", "ARCore"
         public double TrackingAccuracy { get; set; }
         public bool GestureRecognitionEnabled { get; set; }
         public bool VoiceControlEnabled { get; set; }
@@ -350,10 +350,10 @@ namespace MesTechStok.Desktop.Models
     public class ARInteraction
     {
         public int Id { get; set; }
-        public string InteractionType { get; set; } // "Tap", "Pinch", "Swipe", "Voice", "Gesture"
-        public string TriggerEvent { get; set; }
-        public string ActionType { get; set; }
-        public string ActionParameters { get; set; }
+        public string InteractionType { get; set; } = string.Empty; // "Tap", "Pinch", "Swipe", "Voice", "Gesture"
+        public string TriggerEvent { get; set; } = string.Empty;
+        public string ActionType { get; set; } = string.Empty;
+        public string ActionParameters { get; set; } = string.Empty;
         public bool RequiresConfirmation { get; set; }
     }
 
@@ -390,9 +390,9 @@ namespace MesTechStok.Desktop.Models
     public class BlockchainProduct
     {
         public int Id { get; set; }
-        public string ProductId { get; set; }
-        public string BlockchainAddress { get; set; }
-        public string SmartContractAddress { get; set; }
+        public string ProductId { get; set; } = string.Empty;
+        public string BlockchainAddress { get; set; } = string.Empty;
+        public string SmartContractAddress { get; set; } = string.Empty;
         public List<SupplyChainEvent> SupplyChainHistory { get; set; } = new List<SupplyChainEvent>();
         public OriginVerification OriginVerification { get; set; }
         public List<QualityAssurance> QualityRecords { get; set; } = new List<QualityAssurance>();
@@ -404,12 +404,12 @@ namespace MesTechStok.Desktop.Models
     public class SupplyChainEvent
     {
         public int Id { get; set; }
-        public string TransactionHash { get; set; }
-        public string EventType { get; set; } // "Production", "Quality", "Transfer", "Sale"
-        public string ParticipantAddress { get; set; }
-        public string ParticipantName { get; set; }
+        public string TransactionHash { get; set; } = string.Empty;
+        public string EventType { get; set; } = string.Empty; // "Production", "Quality", "Transfer", "Sale"
+        public string ParticipantAddress { get; set; } = string.Empty;
+        public string ParticipantName { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; }
-        public string Location { get; set; }
+        public string Location { get; set; } = string.Empty;
         public Dictionary<string, object> EventData { get; set; } = new Dictionary<string, object>();
         public List<string> DocumentHashes { get; set; } = new List<string>();
         public bool IsVerified { get; set; }
@@ -418,13 +418,13 @@ namespace MesTechStok.Desktop.Models
     public class OriginVerification
     {
         public int Id { get; set; }
-        public string ProducerName { get; set; }
-        public string ProducerAddress { get; set; }
-        public string ProductionLocation { get; set; }
+        public string ProducerName { get; set; } = string.Empty;
+        public string ProducerAddress { get; set; } = string.Empty;
+        public string ProductionLocation { get; set; } = string.Empty;
         public DateTime ProductionDate { get; set; }
         public List<string> RawMaterials { get; set; } = new List<string>();
         public List<string> Certifications { get; set; } = new List<string>();
-        public string VerificationMethod { get; set; }
+        public string VerificationMethod { get; set; } = string.Empty;
         public double VerificationScore { get; set; }
         public bool IsAuthentic { get; set; }
     }
@@ -432,25 +432,25 @@ namespace MesTechStok.Desktop.Models
     public class QualityAssurance
     {
         public int Id { get; set; }
-        public string InspectorName { get; set; }
-        public string InspectorCertification { get; set; }
+        public string InspectorName { get; set; } = string.Empty;
+        public string InspectorCertification { get; set; } = string.Empty;
         public DateTime InspectionDate { get; set; }
         public QualityGrade Grade { get; set; }
         public List<QualityTest> Tests { get; set; } = new List<QualityTest>();
         public List<string> Defects { get; set; } = new List<string>();
         public bool PassedInspection { get; set; }
-        public string BlockchainRecordHash { get; set; }
+        public string BlockchainRecordHash { get; set; } = string.Empty;
     }
 
     public class QualityTest
     {
         public int Id { get; set; }
-        public string TestName { get; set; }
-        public string TestMethod { get; set; }
-        public string ExpectedValue { get; set; }
-        public string ActualValue { get; set; }
+        public string TestName { get; set; } = string.Empty;
+        public string TestMethod { get; set; } = string.Empty;
+        public string ExpectedValue { get; set; } = string.Empty;
+        public string ActualValue { get; set; } = string.Empty;
         public bool Passed { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
     }
 
     public class CarbonFootprint
@@ -462,33 +462,33 @@ namespace MesTechStok.Desktop.Models
         public double PackagingEmissions { get; set; }
         public List<CarbonOffset> Offsets { get; set; } = new List<CarbonOffset>();
         public double NetEmissions { get; set; }
-        public string CalculationMethod { get; set; }
+        public string CalculationMethod { get; set; } = string.Empty;
         public DateTime LastCalculated { get; set; }
     }
 
     public class CarbonOffset
     {
         public int Id { get; set; }
-        public string OffsetType { get; set; } // "Reforestation", "Renewable Energy", "Carbon Capture"
+        public string OffsetType { get; set; } = string.Empty; // "Reforestation", "Renewable Energy", "Carbon Capture"
         public double OffsetAmount { get; set; }
-        public string VerificationStandard { get; set; }
-        public string CertificateNumber { get; set; }
+        public string VerificationStandard { get; set; } = string.Empty;
+        public string CertificateNumber { get; set; } = string.Empty;
         public DateTime PurchaseDate { get; set; }
     }
 
     public class CryptocurrencyPayment
     {
         public int Id { get; set; }
-        public string TransactionHash { get; set; }
-        public string Currency { get; set; } // "BTC", "ETH", "USDT", etc.
+        public string TransactionHash { get; set; } = string.Empty;
+        public string Currency { get; set; } = string.Empty; // "BTC", "ETH", "USDT", etc.
         public decimal Amount { get; set; }
         public decimal USDValue { get; set; }
-        public string FromAddress { get; set; }
-        public string ToAddress { get; set; }
+        public string FromAddress { get; set; } = string.Empty;
+        public string ToAddress { get; set; } = string.Empty;
         public DateTime TransactionTime { get; set; }
         public int Confirmations { get; set; }
         public PaymentStatus Status { get; set; }
-        public string SmartContractAddress { get; set; }
+        public string SmartContractAddress { get; set; } = string.Empty;
     }
 
     public enum QualityGrade
@@ -530,8 +530,8 @@ namespace MesTechStok.Desktop.Models
     public class ImplementationPhase
     {
         public int Id { get; set; }
-        public string PhaseName { get; set; }
-        public string Description { get; set; }
+        public string PhaseName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public List<string> Deliverables { get; set; } = new List<string>();

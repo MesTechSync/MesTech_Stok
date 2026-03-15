@@ -1,0 +1,646 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.EInvoice.EInvoiceListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:MesTechStok.Desktop.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1400">
+
+  <UserControl.Resources>
+    <converters:EInvoiceStatusToBrushConverter x:Key="StatusToBgBrush" BrushTarget="Background"/>
+    <converters:EInvoiceStatusToBrushConverter x:Key="StatusToFgBrush" BrushTarget="Foreground"/>
+
+    <Style x:Key="CardBorder" TargetType="Border">
+      <Setter Property="Background" Value="White"/>
+      <Setter Property="BorderBrush" Value="#E9ECEF"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="20"/>
+      <Setter Property="Margin" Value="8"/>
+      <Setter Property="Effect">
+        <Setter.Value>
+          <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="PrimaryBtn" TargetType="Button">
+      <Setter Property="Background" Value="#2855AC"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Medium"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#1e3f80"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#B0C4DE"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="SecondaryBtn" TargetType="Button">
+      <Setter Property="Background" Value="#E9ECEF"/>
+      <Setter Property="Foreground" Value="#374151"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" CornerRadius="5"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#D1D5DB"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#F3F4F6"/>
+                <Setter Property="Foreground" Value="#9CA3AF"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="DangerBtn" TargetType="Button">
+      <Setter Property="Background" Value="#FEE2E2"/>
+      <Setter Property="Foreground" Value="#991B1B"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" CornerRadius="5"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FCA5A5"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#F3F4F6"/>
+                <Setter Property="Foreground" Value="#9CA3AF"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="PaginationBtn" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#374151"/>
+      <Setter Property="BorderBrush" Value="#D1D5DB"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Width" Value="32"/>
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="6">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F3F4F6"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#D1D5DB"/>
+                <Setter Property="BorderBrush" Value="#E5E7EB"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="AlternatingRowStyle" TargetType="DataGridRow">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Style.Triggers>
+        <Trigger Property="AlternationIndex" Value="1">
+          <Setter Property="Background" Value="#F8FAFC"/>
+        </Trigger>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#EFF6FF"/>
+        </Trigger>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Background" Value="#DBEAFE"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="#F1F5F9"/>
+      <Setter Property="Foreground" Value="#475569"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="10,8"/>
+      <Setter Property="BorderBrush" Value="#E2E8F0"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Margin="20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- Row 0: Header Bar -->
+    <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <md:PackIcon Kind="FileDocumentOutline" Width="28" Height="28"
+                       Foreground="#2855AC" VerticalAlignment="Center" Margin="0,0,10,0"/>
+          <StackPanel>
+            <TextBlock Text="E-Fatura Listesi" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+            <TextBlock Text="Elektronik fatura yonetimi ve entegrator takibi"
+                       FontSize="13" Foreground="#6C757D" Margin="0,2,0,0"/>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+          <Border Background="#DCFCE7" CornerRadius="8" Padding="10,6" Margin="0,0,8,0">
+            <StackPanel Orientation="Horizontal">
+              <md:PackIcon Kind="CheckCircleOutline" Width="16" Height="16"
+                           Foreground="#166534" VerticalAlignment="Center" Margin="0,0,4,0"/>
+              <TextBlock x:Name="TxtAcceptedCount" Text="0 Kabul Edildi"
+                         FontSize="12" FontWeight="Medium" Foreground="#166534"/>
+            </StackPanel>
+          </Border>
+          <Border Background="#FEF9C3" CornerRadius="8" Padding="10,6" Margin="0,0,8,0">
+            <StackPanel Orientation="Horizontal">
+              <md:PackIcon Kind="ClockOutline" Width="16" Height="16"
+                           Foreground="#854D0E" VerticalAlignment="Center" Margin="0,0,4,0"/>
+              <TextBlock x:Name="TxtPendingCount" Text="0 Beklemede"
+                         FontSize="12" FontWeight="Medium" Foreground="#854D0E"/>
+            </StackPanel>
+          </Border>
+          <Border Background="#FEE2E2" CornerRadius="8" Padding="10,6">
+            <StackPanel Orientation="Horizontal">
+              <md:PackIcon Kind="AlertCircleOutline" Width="16" Height="16"
+                           Foreground="#991B1B" VerticalAlignment="Center" Margin="0,0,4,0"/>
+              <TextBlock x:Name="TxtErrorCount" Text="0 Hata"
+                         FontSize="12" FontWeight="Medium" Foreground="#991B1B"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Row 1: Filter Bar -->
+    <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="8,4,8,4">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="12"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="12"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="12"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="12"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Date From -->
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Baslangic Tarihi" FontSize="11" Foreground="#6B7280" Margin="0,0,0,4"/>
+          <DatePicker x:Name="DpFrom" Width="130"
+                      SelectedDate="{Binding FilterDateFrom, Mode=TwoWay}"
+                      md:HintAssist.Hint="gg.aa.yyyy"
+                      Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+        </StackPanel>
+
+        <!-- Date To -->
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Bitis Tarihi" FontSize="11" Foreground="#6B7280" Margin="0,0,0,4"/>
+          <DatePicker x:Name="DpTo" Width="130"
+                      SelectedDate="{Binding FilterDateTo, Mode=TwoWay}"
+                      md:HintAssist.Hint="gg.aa.yyyy"
+                      Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+        </StackPanel>
+
+        <!-- Status ComboBox -->
+        <StackPanel Grid.Column="4">
+          <TextBlock Text="Durum" FontSize="11" Foreground="#6B7280" Margin="0,0,0,4"/>
+          <ComboBox x:Name="CmbStatus" Width="130" SelectedIndex="0"
+                    SelectionChanged="CmbStatus_Changed"
+                    Style="{StaticResource MaterialDesignOutlinedComboBox}">
+            <ComboBoxItem Content="Tum Durumlar"/>
+            <ComboBoxItem Content="Taslak"/>
+            <ComboBoxItem Content="Gonderiliyor"/>
+            <ComboBoxItem Content="Gonderildi"/>
+            <ComboBoxItem Content="Kabul Edildi"/>
+            <ComboBoxItem Content="Reddedildi"/>
+            <ComboBoxItem Content="Iptal Edildi"/>
+            <ComboBoxItem Content="Hata"/>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- Provider ComboBox -->
+        <StackPanel Grid.Column="6">
+          <TextBlock Text="Entegrator" FontSize="11" Foreground="#6B7280" Margin="0,0,0,4"/>
+          <ComboBox x:Name="CmbProvider" Width="150" SelectedIndex="0"
+                    SelectionChanged="CmbProvider_Changed"
+                    Style="{StaticResource MaterialDesignOutlinedComboBox}">
+            <ComboBoxItem Content="Tum Entegratorler"/>
+            <ComboBoxItem Content="Uyumsoft"/>
+            <ComboBoxItem Content="Logo"/>
+            <ComboBoxItem Content="Parasutte"/>
+            <ComboBoxItem Content="Mikro"/>
+            <ComboBoxItem Content="Netsis"/>
+            <ComboBoxItem Content="IdeaSoft"/>
+            <ComboBoxItem Content="Luca"/>
+            <ComboBoxItem Content="Fineksus"/>
+            <ComboBoxItem Content="Dijital Kasa"/>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- Search TextBox -->
+        <StackPanel Grid.Column="8">
+          <TextBlock Text="Ara" FontSize="11" Foreground="#6B7280" Margin="0,0,0,4"/>
+          <TextBox x:Name="TxtSearch" Width="180"
+                   md:HintAssist.Hint="ETTN, VKN, Unvan..."
+                   Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                   TextChanged="TxtSearch_Changed"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Bottom">
+          <Button Content="Filtrele" Style="{StaticResource PrimaryBtn}"
+                  Click="BtnFilter_Click" Margin="0,0,8,0" Padding="16,8">
+            <Button.ContentTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <md:PackIcon Kind="FilterOutline" Width="14" Height="14"
+                               VerticalAlignment="Center" Margin="0,0,4,0"/>
+                  <TextBlock Text="Filtrele" VerticalAlignment="Center"/>
+                </StackPanel>
+              </DataTemplate>
+            </Button.ContentTemplate>
+          </Button>
+          <Button Style="{StaticResource SecondaryBtn}"
+                  Click="BtnClearFilter_Click" Padding="12,8" ToolTip="Filtreleri Temizle">
+            <md:PackIcon Kind="FilterRemoveOutline" Width="16" Height="16"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Row 2: DataGrid -->
+    <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="8,4,8,4">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock x:Name="TxtRecordInfo" Text="Faturalar yukleniiyor..."
+                     FontSize="13" Foreground="#6B7280" VerticalAlignment="Center"/>
+          <Button Grid.Column="1" Style="{StaticResource PrimaryBtn}"
+                  Click="BtnNewInvoice_Click" Padding="14,8">
+            <StackPanel Orientation="Horizontal">
+              <md:PackIcon Kind="Plus" Width="16" Height="16"
+                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+              <TextBlock Text="Yeni Fatura" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <DataGrid Grid.Row="1" x:Name="InvoiceGrid"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserSortColumns="True" CanUserResizeColumns="True"
+                  SelectionMode="Single" AlternationCount="2"
+                  RowStyle="{StaticResource AlternatingRowStyle}"
+                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  BorderThickness="0"
+                  FontSize="12"
+                  RowHeight="42"
+                  ColumnHeaderHeight="40"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  SelectionChanged="InvoiceGrid_SelectionChanged">
+          <DataGrid.Columns>
+
+            <!-- ETTN No -->
+            <DataGridTemplateColumn Header="ETTN No" Width="200">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Ettn}"
+                             FontFamily="Consolas" FontSize="11"
+                             Foreground="#1E40AF"
+                             VerticalAlignment="Center" Margin="10,0"
+                             ToolTip="{Binding Ettn}"
+                             TextTrimming="CharacterEllipsis"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <!-- Tarih -->
+            <DataGridTextColumn Header="Tarih"
+                                Binding="{Binding InvoiceDate, StringFormat=dd.MM.yyyy}"
+                                Width="90">
+              <DataGridTextColumn.ElementStyle>
+                <Style TargetType="TextBlock">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="10,0"/>
+                  <Setter Property="Foreground" Value="#374151"/>
+                </Style>
+              </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+
+            <!-- Alici (VKN + Unvan) -->
+            <DataGridTemplateColumn Header="Alici" Width="220">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="10,4" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BuyerTitle}"
+                               FontSize="12" FontWeight="Medium" Foreground="#111827"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding BuyerVkn}"
+                               FontSize="10" Foreground="#6B7280"/>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <!-- Tutar -->
+            <DataGridTextColumn Header="Tutar"
+                                Binding="{Binding TotalAmount, StringFormat=N2}"
+                                Width="110">
+              <DataGridTextColumn.ElementStyle>
+                <Style TargetType="TextBlock">
+                  <Setter Property="HorizontalAlignment" Value="Right"/>
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="10,0"/>
+                  <Setter Property="FontWeight" Value="SemiBold"/>
+                  <Setter Property="Foreground" Value="#111827"/>
+                </Style>
+              </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+
+            <!-- KDV -->
+            <DataGridTextColumn Header="KDV"
+                                Binding="{Binding TaxAmount, StringFormat=N2}"
+                                Width="100">
+              <DataGridTextColumn.ElementStyle>
+                <Style TargetType="TextBlock">
+                  <Setter Property="HorizontalAlignment" Value="Right"/>
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="10,0"/>
+                  <Setter Property="Foreground" Value="#374151"/>
+                </Style>
+              </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+
+            <!-- Durum (color badge) -->
+            <DataGridTemplateColumn Header="Durum" Width="120" CanUserSort="True" SortMemberPath="Status">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Border Background="{Binding Status, Converter={StaticResource StatusToBgBrush}}"
+                          CornerRadius="6" Padding="8,4" Margin="8,6"
+                          HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StatusDisplay}"
+                               Foreground="{Binding Status, Converter={StaticResource StatusToFgBrush}}"
+                               FontSize="11" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                  </Border>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <!-- Entegrator -->
+            <DataGridTextColumn Header="Entegrator"
+                                Binding="{Binding ProviderName}"
+                                Width="110">
+              <DataGridTextColumn.ElementStyle>
+                <Style TargetType="TextBlock">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="10,0"/>
+                  <Setter Property="Foreground" Value="#374151"/>
+                </Style>
+              </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+
+            <!-- Aksiyonlar -->
+            <DataGridTemplateColumn Header="Aksiyonlar" Width="170" CanUserResize="False">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center">
+                    <!-- Gonder -->
+                    <Button Style="{StaticResource SecondaryBtn}"
+                            Padding="8,5" Margin="0,0,4,0"
+                            ToolTip="Faturay&#x131; G&#xF6;nder"
+                            Click="BtnSend_Click"
+                            Tag="{Binding Ettn}">
+                      <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="Send" Width="12" Height="12"
+                                     VerticalAlignment="Center" Margin="0,0,3,0"/>
+                        <TextBlock Text="G&#xF6;nder" FontSize="11" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </Button>
+                    <!-- PDF -->
+                    <Button Style="{StaticResource SecondaryBtn}"
+                            Padding="8,5" Margin="0,0,4,0"
+                            ToolTip="PDF &#x130;ndir"
+                            Click="BtnPdf_Click"
+                            Tag="{Binding Ettn}">
+                      <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="FilePdfBox" Width="12" Height="12"
+                                     VerticalAlignment="Center" Margin="0,0,3,0"/>
+                        <TextBlock Text="PDF" FontSize="11" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </Button>
+                    <!-- Iptal -->
+                    <Button Style="{StaticResource DangerBtn}"
+                            Padding="8,5"
+                            ToolTip="Faturay&#x131; &#x130;ptal Et"
+                            Click="BtnCancel_Click"
+                            Tag="{Binding Ettn}">
+                      <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="Cancel" Width="12" Height="12"
+                                     VerticalAlignment="Center" Margin="0,0,3,0"/>
+                        <TextBlock Text="&#x130;ptal" FontSize="11" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </Button>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty State overlay -->
+        <Border x:Name="EmptyState" Grid.Row="1"
+                Visibility="Collapsed" Background="White">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <md:PackIcon Kind="FileDocumentRemoveOutline" Width="56" Height="56"
+                         Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+            <TextBlock Text="Fatura bulunamadi" FontSize="16" Foreground="#6B7280"
+                       HorizontalAlignment="Center" Margin="0,12,0,0"/>
+            <TextBlock Text="Filtre kriterlerini degistirin veya yeni fatura ekleyin"
+                       FontSize="12" Foreground="#9CA3AF"
+                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Loading overlay -->
+        <Border x:Name="LoadingOverlay" Grid.Row="1"
+                Background="#A0FFFFFF" Visibility="Collapsed">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="220" Height="4" Foreground="#2855AC"/>
+            <TextBlock Text="Faturalar yukleniiyor..." FontSize="13" Foreground="#6B7280"
+                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- Row 3: Pagination -->
+    <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="8,4,8,8">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: record count info -->
+        <TextBlock x:Name="TxtPageInfo" Grid.Column="0"
+                   Text="Toplam 0 kayit | Sayfa 1 / 1"
+                   FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+
+        <!-- Center: page buttons -->
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="BtnFirstPage" Style="{StaticResource PaginationBtn}"
+                  Click="BtnFirstPage_Click" ToolTip="Ilk Sayfa" Margin="0,0,4,0">
+            <md:PackIcon Kind="PageFirst" Width="16" Height="16"/>
+          </Button>
+          <Button x:Name="BtnPrevPage" Style="{StaticResource PaginationBtn}"
+                  Click="BtnPrevPage_Click" ToolTip="Onceki Sayfa" Margin="0,0,4,0">
+            <md:PackIcon Kind="ChevronLeft" Width="16" Height="16"/>
+          </Button>
+
+          <ItemsControl x:Name="PageButtons" VerticalAlignment="Center">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Content="{Binding Label}"
+                        Width="32" Height="32" Margin="2,0"
+                        FontSize="12" Cursor="Hand"
+                        Click="BtnPageNumber_Click"
+                        Tag="{Binding PageNumber}">
+                  <Button.Style>
+                    <Style TargetType="Button">
+                      <Setter Property="Background" Value="Transparent"/>
+                      <Setter Property="Foreground" Value="#374151"/>
+                      <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                      <Setter Property="BorderThickness" Value="1"/>
+                      <Setter Property="Template">
+                        <Setter.Value>
+                          <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                              <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#EFF6FF"/>
+                                <Setter Property="BorderBrush" Value="#2855AC"/>
+                              </Trigger>
+                            </ControlTemplate.Triggers>
+                          </ControlTemplate>
+                        </Setter.Value>
+                      </Setter>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                          <Setter Property="Background" Value="#2855AC"/>
+                          <Setter Property="Foreground" Value="White"/>
+                          <Setter Property="BorderBrush" Value="#2855AC"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Button.Style>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Button x:Name="BtnNextPage" Style="{StaticResource PaginationBtn}"
+                  Click="BtnNextPage_Click" ToolTip="Sonraki Sayfa" Margin="4,0,0,0">
+            <md:PackIcon Kind="ChevronRight" Width="16" Height="16"/>
+          </Button>
+          <Button x:Name="BtnLastPage" Style="{StaticResource PaginationBtn}"
+                  Click="BtnLastPage_Click" ToolTip="Son Sayfa" Margin="4,0,0,0">
+            <md:PackIcon Kind="PageLast" Width="16" Height="16"/>
+          </Button>
+        </StackPanel>
+
+        <!-- Right: page size selector -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Center">
+          <TextBlock Text="Sayfa basina:" FontSize="12" Foreground="#6B7280"
+                     VerticalAlignment="Center" Margin="0,0,8,0"/>
+          <ComboBox x:Name="CmbPageSize" Width="70" SelectedIndex="1"
+                    SelectionChanged="CmbPageSize_Changed"
+                    Style="{StaticResource MaterialDesignOutlinedComboBox}">
+            <ComboBoxItem Content="10"/>
+            <ComboBoxItem Content="25"/>
+            <ComboBoxItem Content="50"/>
+            <ComboBoxItem Content="100"/>
+          </ComboBox>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

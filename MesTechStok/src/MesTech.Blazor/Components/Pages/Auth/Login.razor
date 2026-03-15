@@ -1,0 +1,170 @@
+@page "/login"
+@layout MesTech.Blazor.Components.Layout.LoginLayout
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+
+<div class="login-container d-flex align-items-center justify-content-center" style="min-height: 100vh; background: linear-gradient(135deg, #1a2332 0%, #2855AC 100%);">
+  <div class="card shadow-lg border-0" style="width: 420px; border-radius: 16px;">
+    <div class="card-body p-5">
+      <!-- Brand -->
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width: 64px; height: 64px; background-color: #2855AC;">
+          <i class="fas fa-industry text-white fa-lg"></i>
+        </div>
+        <h3 class="fw-bold" style="color: #2855AC;">MesTech</h3>
+        <p class="text-muted mb-0">Kurumsal Yonetim Platformu</p>
+      </div>
+
+      <!-- Error Alert -->
+      @if (!string.IsNullOrEmpty(errorMessage))
+      {
+        <div class="alert alert-danger py-2 px-3" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        </div>
+      }
+
+      <!-- Login Form -->
+      <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Kullanici Adi</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="fas fa-user text-muted"></i>
+            </span>
+            <InputText class="form-control border-start-0 ps-0"
+                       placeholder="kullanici@mestech.com"
+                       @bind-Value="loginModel.Username" />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Sifre</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="fas fa-lock text-muted"></i>
+            </span>
+            <InputText type="password" class="form-control border-start-0 ps-0"
+                       placeholder="Sifrenizi girin"
+                       @bind-Value="loginModel.Password" />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="form-check">
+            <InputCheckbox class="form-check-input" @bind-Value="loginModel.RememberMe" />
+            <label class="form-check-label text-muted small">Beni hatirla</label>
+          </div>
+          <a href="#" class="text-decoration-none small" style="color: #2855AC;">Sifremi unuttum</a>
+        </div>
+
+        <button type="submit" class="btn w-100 py-2 fw-semibold text-white"
+                style="background-color: #2855AC; border-radius: 8px;"
+                disabled="@isLoading">
+          @if (isLoading)
+          {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <span>Giris yapiliyor...</span>
+          }
+          else
+          {
+            <i class="fas fa-sign-in-alt me-2"></i>
+            <span>Giris Yap</span>
+          }
+        </button>
+      </EditForm>
+
+      <!-- Footer Info -->
+      <div class="text-center mt-4">
+        <small class="text-muted">
+          <i class="fas fa-shield-alt me-1"></i>
+          JWT Authentication &mdash; WebApi v1
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+  private LoginFormModel loginModel = new();
+  private bool isLoading;
+  private string? errorMessage;
+
+  private async Task HandleLogin()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      // Call WebApi /api/v1/auth/login for JWT token
+      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:5100";
+      using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
+
+      var response = await httpClient.PostAsJsonAsync("/api/v1/auth/login", new
+      {
+        username = loginModel.Username,
+        password = loginModel.Password
+      });
+
+      if (response.IsSuccessStatusCode)
+      {
+        var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        if (result?.Token is not null)
+        {
+          // Store token in-memory (localStorage integration in Dalga 11)
+          AuthTokenStore.Token = result.Token;
+          AuthTokenStore.Username = loginModel.Username;
+          Navigation.NavigateTo("/dashboard", forceLoad: false);
+        }
+        else
+        {
+          errorMessage = "Sunucudan gecersiz yanit alindi.";
+        }
+      }
+      else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+      {
+        errorMessage = "Kullanici adi veya sifre hatali.";
+      }
+      else
+      {
+        errorMessage = $"Sunucu hatasi: {(int)response.StatusCode}";
+      }
+    }
+    catch (HttpRequestException)
+    {
+      // WebApi not available — allow demo mode for PoC
+      AuthTokenStore.Token = "demo-token";
+      AuthTokenStore.Username = loginModel.Username ?? "Demo";
+      Navigation.NavigateTo("/dashboard", forceLoad: false);
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Baglanti hatasi: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private class LoginFormModel
+  {
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public bool RememberMe { get; set; }
+  }
+
+  private record LoginResponse(string? Token, string? Username, DateTime? ExpiresAt);
+
+  /// <summary>
+  /// In-memory token store for Blazor Server PoC.
+  /// Will be replaced with ProtectedLocalStorage + AuthenticationStateProvider in Dalga 11.
+  /// </summary>
+  public static class AuthTokenStore
+  {
+    public static string? Token { get; set; }
+    public static string? Username { get; set; }
+    public static bool IsAuthenticated => !string.IsNullOrEmpty(Token);
+  }
+}

@@ -13,14 +13,14 @@ public class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLo
     public GetProfitLossHandler(IFinanceExpenseRepository expenseRepo, IOrderRepository orderRepo)
         => (_expenseRepo, _orderRepo) = (expenseRepo, orderRepo);
 
-    public async Task<ProfitLossDto> Handle(GetProfitLossQuery req, CancellationToken ct)
+    public async Task<ProfitLossDto> Handle(GetProfitLossQuery request, CancellationToken cancellationToken)
     {
-        var start = new DateTime(req.Year, req.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var start = new DateTime(request.Year, request.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var end = start.AddMonths(1).AddTicks(-1);
 
         // Revenue from orders (IOrderRepository.GetByDateRangeAsync does not take tenantId)
         var orders = await _orderRepo.GetByDateRangeAsync(start, end);
-        var tenantOrders = orders.Where(o => o.TenantId == req.TenantId).ToList();
+        var tenantOrders = orders.Where(o => o.TenantId == request.TenantId).ToList();
 
         var totalRevenue = tenantOrders
             .Where(o => o.Status != OrderStatus.Cancelled)
@@ -28,7 +28,7 @@ public class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLo
 
         var revenueByPlatform = tenantOrders
             .Where(o => o.Status != OrderStatus.Cancelled)
-            .GroupBy(o => o.SourcePlatform?.ToString() ?? "Diger")
+            .GroupBy(o => o.SourcePlatform?.ToString() ?? "Diger", StringComparer.Ordinal)
             .Select(g => new PlatformRevenueDto
             {
                 Platform = g.Key,
@@ -40,14 +40,14 @@ public class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLo
 
         // Expenses from FinanceExpense (supports tenantId + date range)
         var totalExpenses = await _expenseRepo.GetTotalByDateRangeAsync(
-            req.TenantId, start, end, ct);
+            request.TenantId, start, end, cancellationToken);
 
-        var expenses = await _expenseRepo.GetByTenantAsync(req.TenantId, null, ct);
+        var expenses = await _expenseRepo.GetByTenantAsync(request.TenantId, null, cancellationToken);
         var expenseByCategory = expenses
             .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end
                      && e.Status != ExpenseStatus.Rejected
                      && e.Status != ExpenseStatus.Draft)
-            .GroupBy(e => e.Category.ToString())
+            .GroupBy(e => e.Category.ToString(), StringComparer.Ordinal)
             .Select(g => new ExpenseCategoryDto
             {
                 Category = g.Key,
@@ -58,8 +58,8 @@ public class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLo
 
         return new ProfitLossDto
         {
-            Year = req.Year,
-            Month = req.Month,
+            Year = request.Year,
+            Month = request.Month,
             TotalRevenue = totalRevenue,
             TotalExpenses = totalExpenses,
             RevenueByPlatform = revenueByPlatform,

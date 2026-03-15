@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using MesTechStok.Core.Data.Models;
+using MesTech.Application.DTOs;
 using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Models;
 
@@ -13,12 +13,13 @@ namespace MesTechStok.Desktop.Views
 {
     /// <summary>
     /// BarcodeProductPopup.xaml için interaction logic
+    /// Dalga 14: Core.Data.Models.Product -> ProductDto migration
     /// </summary>
     public partial class BarcodeProductPopup : Window
     {
-        private Product? _product;
+        private ProductDto? _product;
 
-        public BarcodeProductPopup(Product product)
+        public BarcodeProductPopup(ProductDto product)
         {
             InitializeComponent();
             _product = product;
@@ -33,7 +34,7 @@ namespace MesTechStok.Desktop.Views
             ProductName.Text = _product.Name;
 
             // Barkod ve SKU
-            BarcodeText.Text = _product.Barcode;
+            BarcodeText.Text = _product.Barcode ?? string.Empty;
             SkuText.Text = _product.SKU ?? "-";
 
             // Fiyatlar
@@ -45,7 +46,7 @@ namespace MesTechStok.Desktop.Views
             UpdateStockStatus();
 
             // Kategori ve Marka
-            CategoryText.Text = _product.Category?.Name ?? "-";
+            CategoryText.Text = _product.CategoryName ?? "-";
             BrandText.Text = _product.Brand ?? "-";
 
             // Açıklama
@@ -181,13 +182,13 @@ namespace MesTechStok.Desktop.Views
         {
             if (_product != null)
             {
-                // Product'ı ProductItem'a dönüştür
+                // ProductDto'yu ProductItem'a dönüştür
                 var productItem = new ProductItem
                 {
                     Id = _product.Id,
                     Name = _product.Name,
-                    Barcode = _product.Barcode,
-                    Category = _product.Category?.Name ?? "",
+                    Barcode = _product.Barcode ?? string.Empty,
+                    Category = _product.CategoryName ?? "",
                     Sku = _product.SKU ?? "",
                     Price = _product.SalePrice,
                     Stock = _product.Stock,
@@ -219,7 +220,7 @@ namespace MesTechStok.Desktop.Views
             Close();
         }
 
-        public Product? GetProduct()
+        public ProductDto? GetProduct()
         {
             return _product;
         }

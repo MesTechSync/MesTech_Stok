@@ -116,6 +116,50 @@ internal sealed class ParasutContactAttributes
     public string AccountType { get; set; } = "customer";
 }
 
+/// <summary>
+/// POST /sales_invoices attributes for e-invoice (Dalga 9).
+/// Maps EInvoiceDocument GIB fields to Parasut sales_invoice.
+/// e_invoice_type: "basic" | "commercial" | "export"
+/// </summary>
+internal sealed class ParasutEInvoiceAttributes
+{
+    [JsonPropertyName("item_type")]
+    public string ItemType { get; set; } = "invoice";
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("issue_date")]
+    public string IssueDate { get; set; } = string.Empty;
+
+    [JsonPropertyName("due_date")]
+    public string? DueDate { get; set; }
+
+    [JsonPropertyName("invoice_series")]
+    public string? InvoiceSeries { get; set; }
+
+    [JsonPropertyName("currency")]
+    public string Currency { get; set; } = "TRL";
+
+    [JsonPropertyName("net_total")]
+    public string NetTotal { get; set; } = "0.00";
+
+    [JsonPropertyName("tax_total")]
+    public string? TaxTotal { get; set; }
+
+    [JsonPropertyName("gross_total")]
+    public string? GrossTotal { get; set; }
+
+    [JsonPropertyName("e_invoice_type")]
+    public string EInvoiceType { get; set; } = "basic";
+
+    [JsonPropertyName("tax_number")]
+    public string? TaxNumber { get; set; }
+
+    [JsonPropertyName("contact_name")]
+    public string? ContactName { get; set; }
+}
+
 // ── Response Models ──────────────────────────────────────────────────
 
 internal sealed class ParasutJsonApiResponse

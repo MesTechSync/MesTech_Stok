@@ -2,11 +2,14 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Commands.CreateCategory;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+using MesTech.Domain.Entities;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, CategoryCommandResult>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -19,7 +22,7 @@ public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Cate
     public async Task<CategoryCommandResult> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
         using var scope = _serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
         if (await db.Categories.AnyAsync(c => c.Name == request.Name || c.Code == request.Code, cancellationToken))
         {
@@ -35,7 +38,7 @@ public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Cate
             Name = request.Name,
             Code = request.Code,
             IsActive = request.IsActive,
-            CreatedDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
         };
 
         db.Categories.Add(category);

@@ -33,68 +33,8 @@ public class GetCargoComparisonHandler
 
         foreach (var adapter in allAdapters)
         {
-            try
-            {
-                var isAvailable = await adapter.IsAvailableAsync(cancellationToken).ConfigureAwait(false);
-
-                if (!isAvailable)
-                {
-                    items.Add(new CargoComparisonItem
-                    {
-                        Provider = adapter.Provider,
-                        IsAvailable = false,
-                        ErrorMessage = "Provider is not available"
-                    });
-                    continue;
-                }
-
-                if (adapter is ICargoRateProvider rateProvider)
-                {
-                    var rate = await rateProvider.GetRateAsync(request.ShipmentRequest, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    if (rate is not null)
-                    {
-                        items.Add(new CargoComparisonItem
-                        {
-                            Provider = rate.Provider,
-                            Price = rate.Price,
-                            Currency = rate.Currency,
-                            EstimatedDelivery = rate.EstimatedDelivery,
-                            IncludesVat = rate.IncludesVat,
-                            IsAvailable = true
-                        });
-                    }
-                    else
-                    {
-                        items.Add(new CargoComparisonItem
-                        {
-                            Provider = adapter.Provider,
-                            IsAvailable = true,
-                            ErrorMessage = "Rate query returned null"
-                        });
-                    }
-                }
-                else
-                {
-                    items.Add(new CargoComparisonItem
-                    {
-                        Provider = adapter.Provider,
-                        IsAvailable = true,
-                        ErrorMessage = "Provider does not support rate queries"
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Cargo comparison failed for provider {Provider}", adapter.Provider);
-                items.Add(new CargoComparisonItem
-                {
-                    Provider = adapter.Provider,
-                    IsAvailable = false,
-                    ErrorMessage = ex.Message
-                });
-            }
+            var item = await BuildComparisonItemAsync(adapter, request, cancellationToken);
+            items.Add(item);
         }
 
         var availableWithRates = items.Where(i => i.IsAvailable && i.ErrorMessage is null).ToList();
@@ -108,6 +48,79 @@ public class GetCargoComparisonHandler
             FastestProvider = availableWithRates.Count > 0
                 ? availableWithRates.OrderBy(i => i.EstimatedDelivery).First().Provider
                 : null
+        };
+    }
+
+    private async Task<CargoComparisonItem> BuildComparisonItemAsync(
+        ICargoAdapter adapter,
+        GetCargoComparisonQuery request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var isAvailable = await adapter.IsAvailableAsync(cancellationToken).ConfigureAwait(false);
+
+            if (!isAvailable)
+            {
+                return new CargoComparisonItem
+                {
+                    Provider = adapter.Provider,
+                    IsAvailable = false,
+                    ErrorMessage = "Provider is not available"
+                };
+            }
+
+            if (adapter is ICargoRateProvider rateProvider)
+                return await GetRateItemAsync(adapter, rateProvider, request, cancellationToken);
+
+            return new CargoComparisonItem
+            {
+                Provider = adapter.Provider,
+                IsAvailable = true,
+                ErrorMessage = "Provider does not support rate queries"
+            };
+        }
+#pragma warning disable CA1031 // Intentional: each provider failure must not stop comparison of others
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cargo comparison failed for provider {Provider}", adapter.Provider);
+            return new CargoComparisonItem
+            {
+                Provider = adapter.Provider,
+                IsAvailable = false,
+                ErrorMessage = ex.Message
+            };
+        }
+#pragma warning restore CA1031
+    }
+
+    private static async Task<CargoComparisonItem> GetRateItemAsync(
+        ICargoAdapter adapter,
+        ICargoRateProvider rateProvider,
+        GetCargoComparisonQuery request,
+        CancellationToken cancellationToken)
+    {
+        var rate = await rateProvider.GetRateAsync(request.ShipmentRequest, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (rate is not null)
+        {
+            return new CargoComparisonItem
+            {
+                Provider = rate.Provider,
+                Price = rate.Price,
+                Currency = rate.Currency,
+                EstimatedDelivery = rate.EstimatedDelivery,
+                IncludesVat = rate.IncludesVat,
+                IsAvailable = true
+            };
+        }
+
+        return new CargoComparisonItem
+        {
+            Provider = adapter.Provider,
+            IsAvailable = true,
+            ErrorMessage = "Rate query returned null"
         };
     }
 }

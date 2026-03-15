@@ -2,6 +2,7 @@ using System.Globalization;
 using MassTransit;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.AI.Accounting;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,8 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// <summary>
 /// Gunluk finansal brifing worker — her gun 08:00'da calisir.
 /// Dunkun ProfitReport, komisyon ozeti ve dusuk stok uyarilarini toplar,
+/// Advisory V2 satis tavsiyeleri ve platform saglik bilgilerini ekler,
+/// ay sonu yaklasiyorsa TaxPrepAgent ile KDV tahmini ekler,
 /// FinanceReportDailyEvent publish eder — MESA Bot Gateway WhatsApp/Telegram iletir.
 /// </summary>
 public class ScheduledBriefingWorker : IAccountingJob
@@ -24,6 +27,8 @@ public class ScheduledBriefingWorker : IAccountingJob
     private readonly IProductRepository _productRepository;
     private readonly ITenantProvider _tenantProvider;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IAdvisoryAgentV2 _advisoryAgentV2;
+    private readonly ITaxPrepAgent _taxPrepAgent;
     private readonly ILogger<ScheduledBriefingWorker> _logger;
 
     public ScheduledBriefingWorker(
@@ -34,6 +39,8 @@ public class ScheduledBriefingWorker : IAccountingJob
         IProductRepository productRepository,
         ITenantProvider tenantProvider,
         IPublishEndpoint publishEndpoint,
+        IAdvisoryAgentV2 advisoryAgentV2,
+        ITaxPrepAgent taxPrepAgent,
         ILogger<ScheduledBriefingWorker> logger)
     {
         _profitReportRepository = profitReportRepository;
@@ -43,6 +50,8 @@ public class ScheduledBriefingWorker : IAccountingJob
         _productRepository = productRepository;
         _tenantProvider = tenantProvider;
         _publishEndpoint = publishEndpoint;
+        _advisoryAgentV2 = advisoryAgentV2;
+        _taxPrepAgent = taxPrepAgent;
         _logger = logger;
     }
 
@@ -113,7 +122,13 @@ public class ScheduledBriefingWorker : IAccountingJob
             if (orderCount == 0)
                 recommendations.Add("Dun siparis gelmedi — platform durumunu kontrol edin.");
 
-            // 5. FinanceReportDailyEvent publish
+            // 5. Advisory V2 — "Bugun ne sat" tavsiyeleri (MUH-03)
+            await EnrichWithSalesAdviceAsync(tenantId, recommendations, stockAlerts, ct);
+
+            // 6. Ay sonu KDV tahmini (MUH-03) — ayin son 5 gununde otomatik hesapla
+            await EnrichWithTaxEstimateAsync(tenantId, today, recommendations, ct);
+
+            // 7. FinanceReportDailyEvent publish
             await _publishEndpoint.Publish(new FinanceReportDailyEvent(
                 Date: yesterday,
                 OrderCount: orderCount,
@@ -137,6 +152,103 @@ public class ScheduledBriefingWorker : IAccountingJob
         {
             _logger.LogError(ex, "[{JobId}] Gunluk brifing hazirlama HATA", JobId);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Advisory V2 satis tavsiyeleri ve platform saglik uyarilarini brifingeekler.
+    /// Hata durumunda brifing basarisiz olmaz — sadece uyari loglanir.
+    /// </summary>
+    private async Task EnrichWithSalesAdviceAsync(
+        Guid tenantId,
+        List<string> recommendations,
+        List<string> stockAlerts,
+        CancellationToken ct)
+    {
+        try
+        {
+            var salesAdvice = await _advisoryAgentV2.GenerateSalesAdviceAsync(tenantId, ct);
+
+            // Satis tavsiyeleri
+            foreach (var rec in salesAdvice.TopRecommendations.Take(5))
+            {
+                var priceInfo = rec.SuggestedPrice > 0
+                    ? $" (onerilen fiyat: {rec.SuggestedPrice:N2} TL)"
+                    : string.Empty;
+                recommendations.Add(
+                    $"[SATIS] {rec.ProductName} ({rec.Platform}){priceInfo} — {rec.Reason}");
+            }
+
+            // Urun uyarilari
+            foreach (var warn in salesAdvice.Warnings.Take(5))
+            {
+                stockAlerts.Add(
+                    $"[UYARI] {warn.ProductName}: {warn.Reason} — Aksiyon: {warn.Action}");
+            }
+
+            // Platform saglik uyarilari
+            foreach (var health in salesAdvice.PlatformHealth)
+            {
+                if (health.MarginTrend is "Negatif" or "Dusuk")
+                {
+                    recommendations.Add(
+                        $"[PLATFORM] {health.Platform}: Marj %{health.AvgMargin:F1} ({health.MarginTrend}) — {health.Suggestion}");
+                }
+            }
+
+            _logger.LogInformation(
+                "[{JobId}] Advisory V2 verileri brifingeeklendi: " +
+                "{RecCount} oneri, {WarnCount} uyari, {PlatformCount} platform",
+                JobId, salesAdvice.TopRecommendations.Count,
+                salesAdvice.Warnings.Count, salesAdvice.PlatformHealth.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "[{JobId}] Advisory V2 verileri alinamadi — brifing Advisory V2'siz devam ediyor",
+                JobId);
+        }
+    }
+
+    /// <summary>
+    /// Ayin son 5 gununde mevcut ay icin KDV tahmini hesaplar ve brifinge ekler.
+    /// </summary>
+    private async Task EnrichWithTaxEstimateAsync(
+        Guid tenantId,
+        DateTime today,
+        List<string> recommendations,
+        CancellationToken ct)
+    {
+        // Sadece ayin son 5 gununde KDV tahmini ekle
+        var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
+        if (today.Day < daysInMonth - 4)
+            return;
+
+        try
+        {
+            var taxReport = await _taxPrepAgent.PrepareMonthlyTaxAsync(
+                tenantId, today.Year, today.Month, ct);
+
+            recommendations.Add(
+                $"[KDV] {today.Year}-{today.Month:D2} ay sonu KDV tahmini — " +
+                $"Hesaplanan: {taxReport.CalculatedVAT:N2} TL, " +
+                $"Indirilecek: {taxReport.DeductibleVAT:N2} TL, " +
+                $"Odenecek: {taxReport.PayableVAT:N2} TL");
+
+            if (taxReport.TotalWithholding > 0)
+            {
+                recommendations.Add(
+                    $"[KDV] Tevkifat toplami: {taxReport.TotalWithholding:N2} TL");
+            }
+
+            _logger.LogInformation(
+                "[{JobId}] KDV tahmini brifingeeklendi — Odenecek: {PayableVAT:F2}",
+                JobId, taxReport.PayableVAT);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "[{JobId}] KDV tahmini alinamadi — brifing KDV'siz devam ediyor", JobId);
         }
     }
 }

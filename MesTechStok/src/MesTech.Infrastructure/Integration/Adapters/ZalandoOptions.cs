@@ -1,0 +1,25 @@
+using System.Diagnostics.CodeAnalysis;
+
+namespace MesTech.Infrastructure.Integration.Adapters;
+
+/// <summary>
+/// Configuration options for ZalandoAdapter.
+/// Bind from appsettings.json section "Integrations:Zalando".
+/// Secrets (ClientId, ClientSecret) must be stored in user-secrets or environment variables.
+/// </summary>
+public sealed class ZalandoOptions
+{
+    /// <summary>Section key in appsettings.json.</summary>
+    public const string Section = "Integrations:Zalando";
+
+    /// <summary>OAuth2 Client ID (partner application credential).</summary>
+    public string ClientId { get; set; } = string.Empty;
+
+    /// <summary>OAuth2 Client Secret (partner application credential).</summary>
+    public string ClientSecret { get; set; } = string.Empty;
+
+    /// <summary>When true, the Zalando integration is active.</summary>
+    [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily",
+        Justification = "Explicit false default documents intent for configuration binding.")]
+    public bool Enabled { get; set; } = false;
+}

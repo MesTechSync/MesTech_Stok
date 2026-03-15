@@ -4,7 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+#pragma warning disable CS0618 // Core.Data.Models type reference — will migrate to Domain entities in H32
 using MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 using MesTechStok.Core.Integrations.OpenCart;
 using MesTechStok.Desktop.Utils;
 

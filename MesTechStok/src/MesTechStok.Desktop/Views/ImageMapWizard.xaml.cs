@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using ClosedXML.Excel;
+using Microsoft.Extensions.DependencyInjection;
 using WinForms = System.Windows.Forms;
 
 namespace MesTechStok.Desktop.Views
@@ -109,23 +110,43 @@ namespace MesTechStok.Desktop.Views
             {
                 var sp = App.Services;
                 if (sp == null) return;
-                var ctx = sp.GetService<MesTechStok.Core.Data.AppDbContext>();
-                if (ctx == null) return;
+                using var scope = sp.CreateScope();
+                var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
+                if (mediator == null) return;
+
+                // Fetch all products via CQRS query (replaces Core.AppDbContext direct access)
+                var products = mediator.Send(
+                    new MesTech.Application.Queries.SearchProductsForImageMatch.SearchProductsForImageMatchQuery())
+                    .GetAwaiter().GetResult();
+                if (products == null || products.Count == 0) return;
+
+                bool matchBarcode = false, matchSku = false, useContains = false;
+                Dispatcher.Invoke(() =>
+                {
+                    matchBarcode = ChkMatchBarcode.IsChecked == true;
+                    matchSku = ChkMatchSku.IsChecked == true;
+                    useContains = ChkContains.IsChecked == true;
+                });
+
                 foreach (var f in files)
                 {
                     var name = Path.GetFileNameWithoutExtension(f);
                     var row = new Row { FileName = Path.GetFileName(f), FullPath = f };
-                    if (ChkMatchBarcode.IsChecked == true)
+                    if (matchBarcode)
                     {
-                        var prod = ctx.Products.FirstOrDefault(p => p.Barcode == name || (ChkContains.IsChecked == true && name.Contains(p.Barcode)));
+                        var prod = products.FirstOrDefault(p =>
+                            !string.IsNullOrEmpty(p.Barcode) &&
+                            (p.Barcode == name || (useContains && name.Contains(p.Barcode))));
                         if (prod != null)
                         {
-                            row.ProductId = prod.Id; row.Barcode = prod.Barcode; row.ProductName = prod.Name; row.MatchedBy = "Barkod"; _rows.Add(row); continue;
+                            row.ProductId = prod.Id; row.Barcode = prod.Barcode ?? string.Empty; row.ProductName = prod.Name; row.MatchedBy = "Barkod"; _rows.Add(row); continue;
                         }
                     }
-                    if (ChkMatchSku.IsChecked == true)
+                    if (matchSku)
                     {
-                        var prod = ctx.Products.FirstOrDefault(p => p.SKU == name || (ChkContains.IsChecked == true && name.Contains(p.SKU)));
+                        var prod = products.FirstOrDefault(p =>
+                            !string.IsNullOrEmpty(p.SKU) &&
+                            (p.SKU == name || (useContains && name.Contains(p.SKU))));
                         if (prod != null)
                         {
                             row.ProductId = prod.Id; row.Sku = prod.SKU; row.ProductName = prod.Name; row.MatchedBy = "SKU"; _rows.Add(row); continue;
@@ -147,7 +168,8 @@ namespace MesTechStok.Desktop.Views
                 if (_rows.Count == 0) return;
                 Busy("Eşleştiriliyor…");
                 var sp = App.Services; if (sp == null) return;
-                var ctx = sp.GetService<MesTechStok.Core.Data.AppDbContext>(); if (ctx == null) return;
+                using var scope = sp.CreateScope();
+                var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>(); if (mediator == null) return;
                 var storage = new MesTechStok.Desktop.Services.ImageStorageService();
                 int ok = 0, fail = 0;
                 foreach (var r in _rows.Where(r => r.ProductId != Guid.Empty))
@@ -155,11 +177,13 @@ namespace MesTechStok.Desktop.Views
                     try
                     {
                         var res = await storage.SaveAsync(r.ProductId, r.FullPath);
-                        var p = ctx.Products.FirstOrDefault(x => x.Id == r.ProductId);
-                        if (p != null && !string.IsNullOrWhiteSpace(res.Full1200))
+                        if (!string.IsNullOrWhiteSpace(res.Full1200))
                         {
-                            p.ImageUrl = res.Full1200; await ctx.SaveChangesAsync(); ok++; r.Status = "Güncellendi";
-                            MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={p.Id} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard));
+                            var cmd = new MesTech.Application.Commands.UpdateProductImage.UpdateProductImageCommand(r.ProductId, res.Full1200);
+                            var result = await mediator.Send(cmd);
+                            if (result.IsSuccess) { ok++; r.Status = "Güncellendi"; }
+                            else { fail++; r.Status = "Hata"; }
+                            MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={r.ProductId} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard));
                         }
                     }
                     catch { /* Intentional: image upload error tracking — count failure and continue batch */ fail++; r.Status = "Hata"; }

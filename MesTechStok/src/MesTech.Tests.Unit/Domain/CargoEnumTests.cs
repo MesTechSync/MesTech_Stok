@@ -8,9 +8,10 @@ namespace MesTech.Tests.Unit.Domain;
 public class CargoEnumTests
 {
     [Fact]
-    public void CargoProvider_ShouldHave8Members()
+    public void CargoProvider_ShouldHave9Members()
     {
-        Enum.GetValues<CargoProvider>().Should().HaveCount(8);
+        // Sendeo=8 was added in Dalga 3 — expected count is now 9
+        Enum.GetValues<CargoProvider>().Should().HaveCount(9);
     }
 
     [Theory]
@@ -22,6 +23,7 @@ public class CargoEnumTests
     [InlineData(CargoProvider.PttKargo, 5)]
     [InlineData(CargoProvider.Hepsijet, 6)]
     [InlineData(CargoProvider.UPS, 7)]
+    [InlineData(CargoProvider.Sendeo, 8)]
     public void CargoProvider_Values_ShouldMatchExpected(CargoProvider provider, int expected)
     {
         ((int)provider).Should().Be(expected);

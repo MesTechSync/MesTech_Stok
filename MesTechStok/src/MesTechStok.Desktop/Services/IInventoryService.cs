@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+#pragma warning disable CS0618 // Core.Data.Models type alias — will migrate to Domain entities in H32
 using CoreModels = MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 
 namespace MesTechStok.Desktop.Services
 {

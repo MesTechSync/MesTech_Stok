@@ -32,13 +32,16 @@ public class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand, AutoSh
 
     public async Task<AutoShipResult> Handle(AutoShipOrderCommand request, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetByIdAsync(request.OrderId);
+        var orderOrNull = await _orderRepository.GetByIdAsync(request.OrderId);
 
-        var validationError = ValidateOrder(order, request);
+        var validationError = ValidateOrder(orderOrNull, request);
         if (validationError is not null)
             return validationError;
 
-        var recommendation = _autoShipmentService.Recommend(BuildDomainRequest(order!));
+        // ValidateOrder guarantees orderOrNull is non-null at this point
+        var order = orderOrNull ?? throw new InvalidOperationException($"Order {request.OrderId} not found.");
+
+        var recommendation = _autoShipmentService.Recommend(BuildDomainRequest(order));
 
         var adapter = _cargoProviderFactory.Resolve(recommendation.Provider);
         if (adapter is null)
@@ -47,7 +50,7 @@ public class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand, AutoSh
                 recommendation.Provider);
 
         var shipmentResult = await adapter.CreateShipmentAsync(
-            BuildShipmentRequest(order!), cancellationToken);
+            BuildShipmentRequest(order), cancellationToken);
 
         if (!shipmentResult.Success)
             return AutoShipResult.Failed(
@@ -55,7 +58,7 @@ public class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand, AutoSh
                 recommendation.Provider);
 
         var trackingNumber = shipmentResult.TrackingNumber ?? string.Empty;
-        order!.MarkAsShipped(trackingNumber, recommendation.Provider);
+        order.MarkAsShipped(trackingNumber, recommendation.Provider);
         await _orderRepository.UpdateAsync(order);
         await _uow.SaveChangesAsync(cancellationToken);
 

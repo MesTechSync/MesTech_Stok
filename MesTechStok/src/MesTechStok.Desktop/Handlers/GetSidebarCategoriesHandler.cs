@@ -2,10 +2,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Queries.GetSidebarCategories;
-using MesTechStok.Core.Data;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class GetSidebarCategoriesHandler : IRequestHandler<GetSidebarCategoriesQuery, IReadOnlyList<SidebarCategoryDto>>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -18,7 +21,7 @@ public class GetSidebarCategoriesHandler : IRequestHandler<GetSidebarCategoriesQ
     public async Task<IReadOnlyList<SidebarCategoryDto>> Handle(GetSidebarCategoriesQuery request, CancellationToken cancellationToken)
     {
         using var scope = _serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
         var query = db.Categories.AsNoTracking().Where(c => c.IsActive);
 

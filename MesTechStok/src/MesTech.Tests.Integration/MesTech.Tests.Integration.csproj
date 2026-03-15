@@ -27,6 +27,11 @@
     <PackageReference Include="System.Linq.Dynamic.Core" />
     <PackageReference Include="WireMock.Net" />
     <PackageReference Include="FlaUI.UIA3" />
+    <!-- Dalga 12: Playwright E2E for Blazor SaaS — activate when ready:
+    <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
+    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.49.0" />
+    Run 'pwsh bin/Debug/net9.0-windows/playwright.ps1 install chromium' after restore.
+    See: src/MesTech.Tests.Integration/E2E/Blazor/BlazorTestConfiguration.cs -->
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="Xunit.SkippableFact" />
@@ -34,6 +39,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestData\**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

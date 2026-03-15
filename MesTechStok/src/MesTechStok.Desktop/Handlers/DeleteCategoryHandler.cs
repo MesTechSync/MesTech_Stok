@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MesTech.Application.Commands.CreateCategory;
 using MesTech.Application.Commands.DeleteCategory;
-using MesTechStok.Core.Data;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
+/// <summary>
+/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// </summary>
 public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, CategoryCommandResult>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -19,7 +22,7 @@ public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Cate
     public async Task<CategoryCommandResult> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
         using var scope = _serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
         var cat = await db.Categories
             .Include(c => c.Products)

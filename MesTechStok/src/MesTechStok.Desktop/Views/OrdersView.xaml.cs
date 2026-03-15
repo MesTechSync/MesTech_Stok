@@ -18,6 +18,9 @@ using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Utils;
 using MesTechStok.Core.Services.Abstract;
 using Microsoft.Extensions.DependencyInjection;
+#pragma warning disable CS0618 // Core.Data.Models type alias — will migrate to Domain entities in H32
+using CoreOrderStatus = MesTechStok.Core.Data.Models.OrderStatus;
+#pragma warning restore CS0618
 
 namespace MesTechStok.Desktop.Views
 {
@@ -372,7 +375,7 @@ namespace MesTechStok.Desktop.Views
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    _ = _orderService.UpdateOrderStatusAsync(order.Id, MesTechStok.Core.Data.Models.OrderStatus.Cancelled);
+                    _ = _orderService.UpdateOrderStatusAsync(order.Id, CoreOrderStatus.Cancelled);
                     _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);
                     ToastManager.ShowWarning($"🗑️ Sipariş iptal edildi: #{order.Id}", "Sipariş Yönetimi");
                 }
@@ -503,9 +506,9 @@ namespace MesTechStok.Desktop.Views
                 // Geçici: Core servis istatistik API sağlamıyor, tümünü çekip hesapla
                 var all = await _orderService.GetAllOrdersAsync();
                 TotalOrders = all.Count().ToString();
-                PendingOrders = all.Count(o => o.Status == MesTechStok.Core.Data.Models.OrderStatus.Pending).ToString();
-                CompletedOrders = all.Count(o => o.Status == MesTechStok.Core.Data.Models.OrderStatus.Delivered).ToString();
-                CancelledOrders = all.Count(o => o.Status == MesTechStok.Core.Data.Models.OrderStatus.Cancelled).ToString();
+                PendingOrders = all.Count(o => o.Status == CoreOrderStatus.Pending).ToString();
+                CompletedOrders = all.Count(o => o.Status == CoreOrderStatus.Delivered).ToString();
+                CancelledOrders = all.Count(o => o.Status == CoreOrderStatus.Cancelled).ToString();
                 DailyRevenue = $"₺{(all.Any() ? all.Average(o => o.TotalAmount) : 0):N0}";
 
                 // Update UI elements
@@ -537,15 +540,15 @@ namespace MesTechStok.Desktop.Views
             GlobalLogger.Instance.LogInfo($"Sipariş detayları görüntülendi: #{order.Id}", "OrdersView");
         }
 
-        private Services.OrderStatus MapToUiStatus(MesTechStok.Core.Data.Models.OrderStatus status)
+        private Services.OrderStatus MapToUiStatus(CoreOrderStatus status)
         {
             return status switch
             {
-                MesTechStok.Core.Data.Models.OrderStatus.Pending => Services.OrderStatus.Pending,
-                MesTechStok.Core.Data.Models.OrderStatus.Confirmed => Services.OrderStatus.Processing,
-                MesTechStok.Core.Data.Models.OrderStatus.Shipped => Services.OrderStatus.Completed,
-                MesTechStok.Core.Data.Models.OrderStatus.Delivered => Services.OrderStatus.Completed,
-                MesTechStok.Core.Data.Models.OrderStatus.Cancelled => Services.OrderStatus.Cancelled,
+                CoreOrderStatus.Pending => Services.OrderStatus.Pending,
+                CoreOrderStatus.Confirmed => Services.OrderStatus.Processing,
+                CoreOrderStatus.Shipped => Services.OrderStatus.Completed,
+                CoreOrderStatus.Delivered => Services.OrderStatus.Completed,
+                CoreOrderStatus.Cancelled => Services.OrderStatus.Cancelled,
                 _ => Services.OrderStatus.Pending
             };
         }
@@ -592,15 +595,15 @@ namespace MesTechStok.Desktop.Views
             _ = LoadOrdersPageAsync(1, e.PageSize);
         }
 
-        private MesTechStok.Core.Data.Models.OrderStatus MapToCoreStatus(Services.OrderStatus status)
+        private CoreOrderStatus MapToCoreStatus(Services.OrderStatus status)
         {
             return status switch
             {
-                Services.OrderStatus.Pending => MesTechStok.Core.Data.Models.OrderStatus.Pending,
-                Services.OrderStatus.Processing => MesTechStok.Core.Data.Models.OrderStatus.Confirmed,
-                Services.OrderStatus.Completed => MesTechStok.Core.Data.Models.OrderStatus.Delivered,
-                Services.OrderStatus.Cancelled => MesTechStok.Core.Data.Models.OrderStatus.Cancelled,
-                _ => MesTechStok.Core.Data.Models.OrderStatus.Pending
+                Services.OrderStatus.Pending => CoreOrderStatus.Pending,
+                Services.OrderStatus.Processing => CoreOrderStatus.Confirmed,
+                Services.OrderStatus.Completed => CoreOrderStatus.Delivered,
+                Services.OrderStatus.Cancelled => CoreOrderStatus.Cancelled,
+                _ => CoreOrderStatus.Pending
             };
         }
 

@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+using MesTech.Application.DTOs;
 using MesTechStok.Core.Integrations.Barcode;
 using CoreBarcodeEventArgs = MesTechStok.Core.Integrations.Barcode.Models.BarcodeScannedEventArgs;
 using MesTechStok.Desktop.Components;
@@ -197,23 +196,23 @@ namespace MesTechStok.Desktop.Services
         {
             try
             {
-                // Veritabanından ürünü ara
+                // Veritabanından ürünü ara — MediatR CQRS (H30)
                 using var scope = _serviceProvider.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
 
-                var product = await Task.Run(() =>
-                    dbContext.Products.FirstOrDefault(p =>
-                        p.Barcode == barcode ||
-                        p.GTIN == barcode ||
-                        p.UPC == barcode ||
-                        p.EAN == barcode));
+                var productDto = await mediator.Send(new MesTech.Application.Queries.GetProductByBarcode.GetProductByBarcodeQuery(barcode));
 
-                if (product != null)
+                if (productDto != null)
                 {
-                    _logger.LogInformation("Product found for barcode {Barcode}: {ProductName}", barcode, product.Name);
+                    _logger.LogInformation("Product found for barcode {Barcode}: {ProductName}", barcode, productDto.Name);
+
+                    // ProductDto doğrudan popup'a geçirilir (Dalga 14: Core.Data.Models.Product kaldırıldı)
+                    // Barcode alanı null ise taranan barkodu kullan
+                    if (string.IsNullOrEmpty(productDto.Barcode))
+                        productDto.Barcode = barcode;
 
                     // Ürün popup'ını göster
-                    var popup = new BarcodeProductPopup(product);
+                    var popup = new BarcodeProductPopup(productDto);
 
                     // Ana pencereyi owner olarak ayarla
                     if (Application.Current.MainWindow != null && Application.Current.MainWindow.IsLoaded)
@@ -223,7 +222,7 @@ namespace MesTechStok.Desktop.Services
 
                     popup.ShowDialog();
 
-                    ToastManager.ShowSuccess($"Ürün bulundu: {product.Name}", "Barkod");
+                    ToastManager.ShowSuccess($"Ürün bulundu: {productDto.Name}", "Barkod");
                 }
                 else
                 {
@@ -241,17 +240,6 @@ namespace MesTechStok.Desktop.Services
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        var newProduct = new Product
-                        {
-                            Barcode = barcode,
-                            Name = "",
-                            SKU = "",
-                            Stock = 0,
-                            MinimumStock = 5,
-                            PurchasePrice = 0,
-                            SalePrice = 0
-                        };
-
                         // ProductItem'a dönüştür
                         var productItem = new ProductItem
                         {

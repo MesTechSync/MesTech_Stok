@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- App -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="App.Title" xml:space="preserve">
+    <value>MesTech Stok Yonetim Platformu</value>
+  </data>
+  <data name="App.Description" xml:space="preserve">
+    <value>Entegre stok, siparis ve pazaryeri yonetim sistemi</value>
+  </data>
+  <data name="App.Version" xml:space="preserve">
+    <value>Surum</value>
+  </data>
+  <data name="App.Copyright" xml:space="preserve">
+    <value>Tum haklari saklidir</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Nav (Navigation) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Kontrol Paneli</value>
+  </data>
+  <data name="Nav.Products" xml:space="preserve">
+    <value>Urunler</value>
+  </data>
+  <data name="Nav.Orders" xml:space="preserve">
+    <value>Siparisler</value>
+  </data>
+  <data name="Nav.Stock" xml:space="preserve">
+    <value>Stok</value>
+  </data>
+  <data name="Nav.Categories" xml:space="preserve">
+    <value>Kategoriler</value>
+  </data>
+  <data name="Nav.Integrations" xml:space="preserve">
+    <value>Entegrasyonlar</value>
+  </data>
+  <data name="Nav.Dropshipping" xml:space="preserve">
+    <value>Dropshipping</value>
+  </data>
+  <data name="Nav.Accounting" xml:space="preserve">
+    <value>Muhasebe</value>
+  </data>
+  <data name="Nav.Invoices" xml:space="preserve">
+    <value>Faturalar</value>
+  </data>
+  <data name="Nav.Cargo" xml:space="preserve">
+    <value>Kargo</value>
+  </data>
+  <data name="Nav.Reports" xml:space="preserve">
+    <value>Raporlar</value>
+  </data>
+  <data name="Nav.Settings" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Nav.Users" xml:space="preserve">
+    <value>Kullanicilar</value>
+  </data>
+  <data name="Nav.Feeds" xml:space="preserve">
+    <value>Urun Besleme</value>
+  </data>
+  <data name="Nav.Payments" xml:space="preserve">
+    <value>Odemeler</value>
+  </data>
+  <data name="Nav.CRM" xml:space="preserve">
+    <value>CRM</value>
+  </data>
+  <data name="Nav.Logout" xml:space="preserve">
+    <value>Cikis Yap</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Lead.Status -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="Lead.Status.New" xml:space="preserve">
+    <value>Yeni</value>
+  </data>
+  <data name="Lead.Status.Contacted" xml:space="preserve">
+    <value>Iletisime Gecildi</value>
+  </data>
+  <data name="Lead.Status.Qualified" xml:space="preserve">
+    <value>Nitelikli</value>
+  </data>
+  <data name="Lead.Status.Proposal" xml:space="preserve">
+    <value>Teklif Verildi</value>
+  </data>
+  <data name="Lead.Status.Negotiation" xml:space="preserve">
+    <value>Muzakere</value>
+  </data>
+  <data name="Lead.Status.Won" xml:space="preserve">
+    <value>Kazanildi</value>
+  </data>
+  <data name="Lead.Status.Lost" xml:space="preserve">
+    <value>Kaybedildi</value>
+  </data>
+  <data name="Lead.Status.Dormant" xml:space="preserve">
+    <value>Pasif</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Deal.Status -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="Deal.Status.Draft" xml:space="preserve">
+    <value>Taslak</value>
+  </data>
+  <data name="Deal.Status.Open" xml:space="preserve">
+    <value>Acik</value>
+  </data>
+  <data name="Deal.Status.InProgress" xml:space="preserve">
+    <value>Devam Ediyor</value>
+  </data>
+  <data name="Deal.Status.WonClosed" xml:space="preserve">
+    <value>Kazanildi / Kapandi</value>
+  </data>
+  <data name="Deal.Status.LostClosed" xml:space="preserve">
+    <value>Kaybedildi / Kapandi</value>
+  </data>
+  <data name="Deal.Status.Cancelled" xml:space="preserve">
+    <value>Iptal Edildi</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Finance -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="Finance.Revenue" xml:space="preserve">
+    <value>Gelir</value>
+  </data>
+  <data name="Finance.Expense" xml:space="preserve">
+    <value>Gider</value>
+  </data>
+  <data name="Finance.Profit" xml:space="preserve">
+    <value>Kar</value>
+  </data>
+  <data name="Finance.Loss" xml:space="preserve">
+    <value>Zarar</value>
+  </data>
+  <data name="Finance.Tax" xml:space="preserve">
+    <value>Vergi</value>
+  </data>
+  <data name="Finance.Commission" xml:space="preserve">
+    <value>Komisyon</value>
+  </data>
+  <data name="Finance.Balance" xml:space="preserve">
+    <value>Bakiye</value>
+  </data>
+  <data name="Finance.Invoice" xml:space="preserve">
+    <value>Fatura</value>
+  </data>
+  <data name="Finance.Settlement" xml:space="preserve">
+    <value>Hakedis</value>
+  </data>
+  <data name="Finance.Currency" xml:space="preserve">
+    <value>Para Birimi</value>
+  </data>
+  <data name="Finance.TotalAmount" xml:space="preserve">
+    <value>Toplam Tutar</value>
+  </data>
+  <data name="Finance.NetAmount" xml:space="preserve">
+    <value>Net Tutar</value>
+  </data>
+  <data name="Finance.GrossAmount" xml:space="preserve">
+    <value>Brut Tutar</value>
+  </data>
+  <data name="Finance.VATRate" xml:space="preserve">
+    <value>KDV Orani</value>
+  </data>
+  <data name="Finance.VATAmount" xml:space="preserve">
+    <value>KDV Tutari</value>
+  </data>
+  <data name="Finance.PaymentMethod" xml:space="preserve">
+    <value>Odeme Yontemi</value>
+  </data>
+  <data name="Finance.PaymentStatus.Pending" xml:space="preserve">
+    <value>Beklemede</value>
+  </data>
+  <data name="Finance.PaymentStatus.Paid" xml:space="preserve">
+    <value>Odendi</value>
+  </data>
+  <data name="Finance.PaymentStatus.Overdue" xml:space="preserve">
+    <value>Gecikti</value>
+  </data>
+  <data name="Finance.PaymentStatus.Refunded" xml:space="preserve">
+    <value>Iade Edildi</value>
+  </data>
+  <data name="Finance.ProfitMargin" xml:space="preserve">
+    <value>Kar Marji</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Common UI -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <data name="Common.Save" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Iptal</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Duzenle</value>
+  </data>
+  <data name="Common.Add" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="Common.Search" xml:space="preserve">
+    <value>Ara</value>
+  </data>
+  <data name="Common.Filter" xml:space="preserve">
+    <value>Filtrele</value>
+  </data>
+  <data name="Common.Export" xml:space="preserve">
+    <value>Disari Aktar</value>
+  </data>
+  <data name="Common.Import" xml:space="preserve">
+    <value>Iceri Aktar</value>
+  </data>
+  <data name="Common.Refresh" xml:space="preserve">
+    <value>Yenile</value>
+  </data>
+  <data name="Common.Loading" xml:space="preserve">
+    <value>Yukleniyor...</value>
+  </data>
+  <data name="Common.NoData" xml:space="preserve">
+    <value>Veri bulunamadi</value>
+  </data>
+  <data name="Common.Confirm" xml:space="preserve">
+    <value>Onayla</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Evet</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>Hayir</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>Geri</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Ileri</value>
+  </data>
+  <data name="Common.Previous" xml:space="preserve">
+    <value>Onceki</value>
+  </data>
+
+</root>

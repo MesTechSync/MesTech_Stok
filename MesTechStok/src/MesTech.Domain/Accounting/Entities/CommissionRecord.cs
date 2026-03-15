@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Accounting.Entities;
 
@@ -15,6 +16,8 @@ public class CommissionRecord : BaseEntity, ITenantEntity
     public decimal CommissionRate { get; private set; }
     public decimal CommissionAmount { get; private set; }
     public decimal ServiceFee { get; private set; }
+    public CommissionType CommissionType { get; private set; }
+    public string? RateSource { get; private set; }
 
     private CommissionRecord() { }
 
@@ -26,9 +29,17 @@ public class CommissionRecord : BaseEntity, ITenantEntity
         decimal commissionAmount,
         decimal serviceFee,
         string? orderId = null,
-        string? category = null)
+        string? category = null,
+        CommissionType commissionType = CommissionType.Percentage,
+        string? rateSource = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(platform);
+
+        if (grossAmount < 0)
+            throw new ArgumentOutOfRangeException(nameof(grossAmount), "Gross amount must be non-negative.");
+
+        if (commissionRate < 0)
+            throw new ArgumentOutOfRangeException(nameof(commissionRate), "Commission rate must be non-negative.");
 
         return new CommissionRecord
         {
@@ -41,7 +52,14 @@ public class CommissionRecord : BaseEntity, ITenantEntity
             CommissionRate = commissionRate,
             CommissionAmount = commissionAmount,
             ServiceFee = serviceFee,
+            CommissionType = commissionType,
+            RateSource = rateSource,
             CreatedAt = DateTime.UtcNow
         };
     }
+
+    /// <summary>
+    /// Net tutar: brut tutar - komisyon - servis ucreti.
+    /// </summary>
+    public decimal GetNetAmount() => GrossAmount - CommissionAmount - ServiceFee;
 }

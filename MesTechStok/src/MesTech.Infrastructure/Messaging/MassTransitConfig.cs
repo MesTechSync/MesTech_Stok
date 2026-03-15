@@ -44,6 +44,11 @@ public static class MassTransitConfig
             bus.AddConsumer<AiReconciliationSuggestedConsumer>();
             bus.AddConsumer<AiAdvisoryRecommendationConsumer>();
 
+            // Dalga 9 — On Muhasebe & E-Fatura MESA Consumers
+            bus.AddConsumer<AiEInvoiceDraftGeneratedConsumer>();
+            bus.AddConsumer<AiErpReconciliationDoneConsumer>();
+            bus.AddConsumer<BotEFaturaRequestedConsumer>();
+
             bus.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(rabbitHost, rabbitPort, "/", h =>
@@ -137,6 +142,14 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.mesa.ai.reconciliation.suggested.v1"));
                 cfg.Message<AiAdvisoryRecommendationEvent>(x =>
                     x.SetEntityName("mestech.mesa.ai.advisory.recommendation.v1"));
+
+                // Dalga 9: MESA -> MesTech (consume — e-fatura + ERP uzlastirma)
+                cfg.Message<AiEInvoiceDraftGeneratedIntegrationEvent>(x =>
+                    x.SetEntityName("mesa.ai.einvoice.draft.generated.v1"));
+                cfg.Message<AiErpReconciliationDoneIntegrationEvent>(x =>
+                    x.SetEntityName("mesa.ai.erp.reconciliation.done.v1"));
+                cfg.Message<BotEFaturaRequestedIntegrationEvent>(x =>
+                    x.SetEntityName("mesa.bot.efatura.requested.v1"));
 
                 cfg.ConfigureEndpoints(context);
             });

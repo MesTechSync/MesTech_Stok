@@ -43,98 +43,122 @@ public class RunReconciliationHandler : IRequestHandler<RunReconciliationCommand
         var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(request.TenantId, cancellationToken);
         var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(request.TenantId, cancellationToken);
 
-        var autoMatchedCount = 0;
-        var needsReviewCount = 0;
-        var unmatchedCount = 0;
-        var autoMatchedTotal = 0m;
-        var needsReviewTotal = 0m;
-
-        // Track which bank transactions have been matched to avoid double-matching
+        var counters = new ReconciliationCounters();
         var matchedTxIds = new HashSet<Guid>();
 
         foreach (var batch in unmatchedBatches)
         {
-            var bestScore = 0m;
-            BankTransaction? bestTx = null;
-
-            foreach (var tx in unreconciledTxs)
-            {
-                if (matchedTxIds.Contains(tx.Id))
-                    continue;
-
-                var score = _scoringService.CalculateConfidence(
-                    tx.Amount,
-                    batch.TotalNet,
-                    tx.TransactionDate,
-                    batch.PeriodEnd,
-                    tx.Description,
-                    batch.Platform);
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestTx = tx;
-                }
-            }
-
-            if (bestScore >= _scoringService.AutoMatchThreshold && bestTx != null)
-            {
-                // AutoMatched
-                var match = ReconciliationMatch.Create(
-                    request.TenantId,
-                    DateTime.UtcNow,
-                    bestScore,
-                    ReconciliationStatus.AutoMatched,
-                    batch.Id,
-                    bestTx.Id);
-
-                await _matchRepo.AddAsync(match, cancellationToken);
-
-                // Mark bank transaction as reconciled
-                bestTx.MarkReconciled();
-                await _bankTxRepo.UpdateAsync(bestTx, cancellationToken);
-
-                // Mark settlement batch as reconciled
-                batch.MarkReconciled();
-                await _settlementRepo.UpdateAsync(batch, cancellationToken);
-
-                matchedTxIds.Add(bestTx.Id);
-                autoMatchedCount++;
-                autoMatchedTotal += batch.TotalNet;
-            }
-            else if (bestScore >= _scoringService.ReviewThreshold && bestTx != null)
-            {
-                // NeedsReview
-                var match = ReconciliationMatch.Create(
-                    request.TenantId,
-                    DateTime.UtcNow,
-                    bestScore,
-                    ReconciliationStatus.NeedsReview,
-                    batch.Id,
-                    bestTx.Id);
-
-                await _matchRepo.AddAsync(match, cancellationToken);
-
-                matchedTxIds.Add(bestTx.Id);
-                needsReviewCount++;
-                needsReviewTotal += batch.TotalNet;
-            }
-            else
-            {
-                // Unmatched — no match record created
-                unmatchedCount++;
-            }
+            await ProcessBatchAsync(batch, unreconciledTxs, matchedTxIds, counters, request.TenantId, cancellationToken);
         }
 
         await _uow.SaveChangesAsync(cancellationToken);
 
         return new RunReconciliationResult
         {
-            AutoMatchedCount = autoMatchedCount,
-            NeedsReviewCount = needsReviewCount,
-            UnmatchedCount = unmatchedCount,
-            AutoMatchedTotal = autoMatchedTotal,
-            NeedsReviewTotal = needsReviewTotal
+            AutoMatchedCount = counters.AutoMatchedCount,
+            NeedsReviewCount = counters.NeedsReviewCount,
+            UnmatchedCount = counters.UnmatchedCount,
+            AutoMatchedTotal = counters.AutoMatchedTotal,
+            NeedsReviewTotal = counters.NeedsReviewTotal
         };
+    }
+
+    private async Task ProcessBatchAsync(
+        SettlementBatch batch,
+        IReadOnlyList<BankTransaction> unreconciledTxs,
+        HashSet<Guid> matchedTxIds,
+        ReconciliationCounters counters,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var (bestScore, bestTx) = FindBestMatch(batch, unreconciledTxs, matchedTxIds);
+
+        if (bestScore >= _scoringService.AutoMatchThreshold && bestTx != null)
+        {
+            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.AutoMatched, batch, bestTx, matchedTxIds, cancellationToken);
+            counters.AutoMatchedCount++;
+            counters.AutoMatchedTotal += batch.TotalNet;
+        }
+        else if (bestScore >= _scoringService.ReviewThreshold && bestTx != null)
+        {
+            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.NeedsReview, batch, bestTx, matchedTxIds, cancellationToken);
+            counters.NeedsReviewCount++;
+            counters.NeedsReviewTotal += batch.TotalNet;
+        }
+        else
+        {
+            counters.UnmatchedCount++;
+        }
+    }
+
+    private (decimal BestScore, BankTransaction? BestTx) FindBestMatch(
+        SettlementBatch batch,
+        IReadOnlyList<BankTransaction> unreconciledTxs,
+        HashSet<Guid> matchedTxIds)
+    {
+        var bestScore = 0m;
+        BankTransaction? bestTx = null;
+
+        foreach (var tx in unreconciledTxs)
+        {
+            if (matchedTxIds.Contains(tx.Id))
+                continue;
+
+            var score = _scoringService.CalculateConfidence(
+                tx.Amount,
+                batch.TotalNet,
+                tx.TransactionDate,
+                batch.PeriodEnd,
+                tx.Description,
+                batch.Platform);
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTx = tx;
+            }
+        }
+
+        return (bestScore, bestTx);
+    }
+
+    private async Task CreateMatchAsync(
+        Guid tenantId,
+        decimal score,
+        ReconciliationStatus status,
+        SettlementBatch batch,
+        BankTransaction bestTx,
+        HashSet<Guid> matchedTxIds,
+        CancellationToken cancellationToken)
+    {
+        var match = ReconciliationMatch.Create(
+            tenantId,
+            DateTime.UtcNow,
+            score,
+            status,
+            batch.Id,
+            bestTx.Id);
+
+        await _matchRepo.AddAsync(match, cancellationToken);
+
+        bestTx.MarkReconciled();
+        await _bankTxRepo.UpdateAsync(bestTx, cancellationToken);
+
+        if (status == ReconciliationStatus.AutoMatched)
+        {
+            batch.MarkReconciled();
+            await _settlementRepo.UpdateAsync(batch, cancellationToken);
+        }
+
+        matchedTxIds.Add(bestTx.Id);
+    }
+
+    private sealed class ReconciliationCounters
+    {
+        public int AutoMatchedCount { get; set; }
+        public int NeedsReviewCount { get; set; }
+        public int UnmatchedCount { get; set; }
+        public decimal AutoMatchedTotal { get; set; }
+        public decimal NeedsReviewTotal { get; set; }
     }
 }

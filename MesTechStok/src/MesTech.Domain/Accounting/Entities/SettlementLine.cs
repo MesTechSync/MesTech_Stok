@@ -48,4 +48,10 @@ public class SettlementLine : BaseEntity, ITenantEntity
             CreatedAt = DateTime.UtcNow
         };
     }
+
+    /// <summary>
+    /// Hesaplanan net tutar: brut - komisyon - servis - kargo - iade.
+    /// </summary>
+    public decimal CalculateNetAmount() =>
+        GrossAmount - CommissionAmount - ServiceFee - CargoDeduction - RefundDeduction;
 }

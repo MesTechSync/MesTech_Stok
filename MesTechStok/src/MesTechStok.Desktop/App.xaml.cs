@@ -429,6 +429,7 @@ public partial class App : Application
 
         // Product Data Services (SqlBacked primary, Enhanced as fallback)
         services.AddScoped<IProductDataService, SqlBackedProductService>();
+        services.AddScoped<IInventoryDataService, SqlBackedInventoryService>(); // H31: InventoryView DI
         services.AddSingleton<ImageStorageService>();
         services.AddScoped<SqlBackedReportsService>();
         services.AddSingleton<PdfReportService>();
@@ -570,6 +571,10 @@ public partial class App : Application
         services.AddTransient<MesTechStok.Desktop.ViewModels.Tasks.ProjectsViewModel>();
         services.AddScoped<MesTechStok.Desktop.ViewModels.Documents.DocumentManagerViewModel>();
 
+        // C-04: EInvoice ViewModel + View
+        services.AddTransient<MesTechStok.Desktop.ViewModels.EInvoice.EInvoiceListViewModel>();
+        services.AddTransient<Views.EInvoice.EInvoiceListView>();
+
         // ALPHA TEAM: Views (DI registration for constructor injection support)
         services.AddTransient<Views.QuotationView>();
         // D-11 follow-up: ApiHealthDashboardView — constructor injection (no ServiceLocator)
@@ -603,10 +608,10 @@ public partial class App : Application
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
             var connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
 
-            // First attempt
+            // First attempt — use Infrastructure AppDbContext (Clean Architecture)
             try
             {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var context = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
                 if (context.Database.CanConnect())
                 {
                     Log.Information("Database connection test: SUCCESS");
@@ -627,7 +632,7 @@ public partial class App : Application
                 try
                 {
                     using var retryScope = ServiceProvider.CreateScope();
-                    var retryContext = retryScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var retryContext = retryScope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
                     var canConnect = retryContext.Database.CanConnect();
                     if (canConnect)
                         Log.Information("Database connection test: SUCCESS (retry)");

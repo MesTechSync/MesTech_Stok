@@ -11,13 +11,13 @@ public class ApproveLeaveHandler : IRequestHandler<ApproveLeaveCommand, Unit>
     public ApproveLeaveHandler(ILeaveRepository leaves, IUnitOfWork uow)
         => (_leaves, _uow) = (leaves, uow);
 
-    public async Task<Unit> Handle(ApproveLeaveCommand req, CancellationToken ct)
+    public async Task<Unit> Handle(ApproveLeaveCommand request, CancellationToken cancellationToken)
     {
-        var leave = await _leaves.GetByIdAsync(req.LeaveId, ct)
-            ?? throw new InvalidOperationException($"Leave {req.LeaveId} not found.");
+        var leave = await _leaves.GetByIdAsync(request.LeaveId, cancellationToken)
+            ?? throw new InvalidOperationException($"Leave {request.LeaveId} not found.");
 
-        leave.Approve(req.ApproverUserId);
-        await _uow.SaveChangesAsync(ct);
+        leave.Approve(request.ApproverUserId);
+        await _uow.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }
 }

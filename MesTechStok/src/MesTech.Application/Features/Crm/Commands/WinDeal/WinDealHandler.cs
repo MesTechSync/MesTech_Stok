@@ -11,13 +11,13 @@ public class WinDealHandler : IRequestHandler<WinDealCommand, Unit>
     public WinDealHandler(ICrmDealRepository deals, IUnitOfWork uow)
         => (_deals, _uow) = (deals, uow);
 
-    public async Task<Unit> Handle(WinDealCommand req, CancellationToken ct)
+    public async Task<Unit> Handle(WinDealCommand request, CancellationToken cancellationToken)
     {
-        var deal = await _deals.GetByIdAsync(req.DealId, ct)
-            ?? throw new InvalidOperationException($"Deal {req.DealId} not found.");
+        var deal = await _deals.GetByIdAsync(request.DealId, cancellationToken)
+            ?? throw new InvalidOperationException($"Deal {request.DealId} not found.");
 
-        deal.MarkAsWon(req.OrderId);
-        await _uow.SaveChangesAsync(ct);
+        deal.MarkAsWon(request.OrderId);
+        await _uow.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }
 }

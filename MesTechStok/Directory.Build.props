@@ -3,7 +3,14 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Dalga 13: v1.0.0 FINAL -->
+    <MesTechVersion>1.0.0</MesTechVersion>
+    <InformationalVersion>$(MesTechVersion)</InformationalVersion>
     <IsQualityGuardedProject>false</IsQualityGuardedProject>
+    <!-- H30 DEV4 T4.1: suppress pre-existing warnings
+         CS1591 = XML doc missing (will be fixed in H31)
+         CS0612 = Obsolete usage (Core elimination ongoing) -->
+    <NoWarn>$(NoWarn);CS1591;CS0612</NoWarn>
   </PropertyGroup>
 
   <!-- Strict quality guard: nullable warnings → errors -->

@@ -8,10 +8,12 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using MesTechStok.Core.Data;
+#pragma warning disable CS0618 // Core.Data.Models.AIConfiguration — no Domain equivalent yet (TODO H33)
 using MesTechStok.Core.Data.Models;
+#pragma warning restore CS0618
 // AI Services will be added after migration
 using MesTechStok.Core.Services;
+using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -100,16 +102,18 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        // H31: Company settings via MediatR GetCompanySettingsQuery
         private async System.Threading.Tasks.Task LoadCompanyFromSqlAsync()
         {
             try
             {
                 var sp = Desktop.App.Services;
                 if (sp == null) return;
-                using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                var settings = await db.CompanySettings.AsNoTracking().FirstOrDefaultAsync();
+                // H31: Load company settings via MediatR CQRS
+                using var scope = sp.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                var settings = await mediator.Send(new MesTech.Application.Queries.GetCompanySettings.GetCompanySettingsQuery());
                 if (settings != null)
                 {
                     SqlCompanyName.Text = settings.CompanyName ?? string.Empty;
@@ -136,14 +140,15 @@ namespace MesTechStok.Desktop.Views
                     // Intentional: header company name update from SQL — non-critical; main DB load must not fail.
                 }
 
-                var warehouses = await db.Warehouses.AsNoTracking().ToListAsync();
+                // H32: Migrated to MediatR GetWarehousesQuery (Infrastructure.Persistence.AppDbContext)
+                var warehouseDtos = await mediator.Send(new MesTech.Application.Queries.GetWarehouses.GetWarehousesQuery(ActiveOnly: false));
                 WarehousesList.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem>(
-                    warehouses.Select(w => new TempWarehouseItem
+                    warehouseDtos.Select(w => new TempWarehouseItem
                     {
                         Name = w.Name,
                         Address = w.Address ?? string.Empty,
                         City = w.City ?? string.Empty,
-                        Phone = w.Phone ?? string.Empty
+                        Phone = string.Empty // WarehouseListDto does not expose Phone yet
                     })
                 );
             }
@@ -170,6 +175,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        // H32: Migrated SaveSettings_Click to Infrastructure.Persistence.AppDbContext + Domain entities
         private async void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -185,12 +191,12 @@ namespace MesTechStok.Desktop.Views
                 if (sp != null)
                 {
                     using var scope = sp.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
                     var s = await db.CompanySettings.FirstOrDefaultAsync();
                     if (s == null)
                     {
-                        s = new CompanySettings { CreatedDate = DateTime.Now };
+                        s = new MesTech.Domain.Entities.CompanySettings { CreatedAt = DateTime.Now };
                         db.CompanySettings.Add(s);
                     }
 
@@ -202,7 +208,7 @@ namespace MesTechStok.Desktop.Views
                     s.Phone = string.IsNullOrWhiteSpace(SqlPhone.Text) ? null : SqlPhone.Text.Trim();
                     s.Email = string.IsNullOrWhiteSpace(SqlEmail.Text) ? null : SqlEmail.Text.Trim();
                     s.Address = string.IsNullOrWhiteSpace(SqlAddress.Text) ? null : SqlAddress.Text.Trim();
-                    s.ModifiedDate = DateTime.Now;
+                    s.UpdatedAt = DateTime.Now;
 
                     // Güvenli UPSERT: Var olan depoları güncelle, olmayanı ekle; ilişkisi olanı silme
                     var existing = await db.Warehouses.ToListAsync();
@@ -228,7 +234,7 @@ namespace MesTechStok.Desktop.Views
                         }
                         else
                         {
-                            db.Warehouses.Add(new Warehouse
+                            db.Warehouses.Add(new MesTech.Domain.Entities.Warehouse
                             {
                                 Name = key,
                                 Address = string.IsNullOrWhiteSpace(w.Address) ? null : w.Address.Trim(),
@@ -289,12 +295,12 @@ namespace MesTechStok.Desktop.Views
                 {
                     // Intentional: header company name update after save — MainWindow FindName may fail if window is closing.
                 }
-                MessageBox.Show("✅ Ayarlar kaydedildi ve SQL ile senkronize edildi.",
-                                "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Ayarlar kaydedildi ve SQL ile senkronize edildi.",
+                                "Basarili", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Ayarlar kaydedilemedi: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ayarlar kaydedilemedi: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -384,31 +390,32 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        // H32: Migrated to Infrastructure.Persistence.AppDbContext
         private async void TestDatabaseConnection_Click(object sender, RoutedEventArgs e)
         {
-            DatabaseStatusText.Text = "🔄 Test ediliyor...";
+            DatabaseStatusText.Text = "Test ediliyor...";
             try
             {
                 var sp = Desktop.App.Services;
                 if (sp == null) throw new Exception("ServiceProvider yok");
                 using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
                 var can = await db.Database.CanConnectAsync();
                 if (can)
                 {
-                    DatabaseStatusText.Text = "✅ Bağlı";
-                    MessageBox.Show("✅ Veritabanı bağlantısı başarılı!", "Bağlantı Testi", MessageBoxButton.OK, MessageBoxImage.Information);
+                    DatabaseStatusText.Text = "Bagli";
+                    MessageBox.Show("Veritabani baglantisi basarili!", "Baglanti Testi", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    DatabaseStatusText.Text = "❌ Bağlantı Hatası";
-                    MessageBox.Show("❌ Veritabanı bağlantısı sağlanamadı!", "Bağlantı Hatası", MessageBoxButton.OK, MessageBoxImage.Error);
+                    DatabaseStatusText.Text = "Baglanti Hatasi";
+                    MessageBox.Show("Veritabani baglantisi saglanamadi!", "Baglanti Hatasi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                DatabaseStatusText.Text = "❌ Bağlantı Hatası";
-                MessageBox.Show($"❌ Bağlantı testi sırasında hata: {ex.Message}", "Bağlantı Hatası", MessageBoxButton.OK, MessageBoxImage.Error);
+                DatabaseStatusText.Text = "Baglanti Hatasi";
+                MessageBox.Show($"Baglanti testi sirasinda hata: {ex.Message}", "Baglanti Hatasi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -494,13 +501,14 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        // H32: Migrated to Infrastructure.Persistence.AppDbContext
         private async void BackupDatabase_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 var saveFileDialog = new SaveFileDialog
                 {
-                    Filter = "SQL Server Yedeği (*.bak)|*.bak|Tüm Dosyalar (*.*)|*.*",
+                    Filter = "SQL Server Yedegi (*.bak)|*.bak|Tum Dosyalar (*.*)|*.*",
                     DefaultExt = "bak",
                     FileName = $"mestechstok_backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak"
                 };
@@ -512,30 +520,30 @@ namespace MesTechStok.Desktop.Views
                     var sp = Desktop.App.Services;
                     if (sp == null) throw new Exception("ServiceProvider yok");
                     using var scope = sp.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var db = scope.ServiceProvider.GetRequiredService<InfraDbContext>();
 
                     var dbName = db.Database.GetDbConnection().Database;
                     if (string.IsNullOrWhiteSpace(dbName))
-                        throw new Exception("Veritabanı adı okunamadı");
+                        throw new Exception("Veritabani adi okunamadi");
 
-                    // Yedekleme komutu (SQL Server) - GÜVENLİ
+                    // Yedekleme komutu (SQL Server) - GUVENLI
                     var backupSql = $"BACKUP DATABASE [{dbName}] TO DISK = @targetPath WITH INIT, NAME = N'MesTechStok Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10";
 
-                    // Yedekleme işlemini çalıştır
+                    // Yedekleme islemini calistir
                     var pathParam = new Npgsql.NpgsqlParameter("@targetPath", targetPath);
                     await db.Database.ExecuteSqlRawAsync(backupSql, pathParam);
 
                     // Dosya bilgisi
                     var sizeText = File.Exists(targetPath) ? $"{new FileInfo(targetPath).Length / (1024 * 1024.0):F1} MB" : "?";
-                    MessageBox.Show($"✅ Veritabanı yedeği tamamlandı!\n\nDosya: {Path.GetFileName(targetPath)}\nBoyut: {sizeText}",
-                                      "Yedekleme Başarılı",
+                    MessageBox.Show($"Veritabani yedegi tamamlandi!\n\nDosya: {Path.GetFileName(targetPath)}\nBoyut: {sizeText}",
+                                      "Yedekleme Basarili",
                                       MessageBoxButton.OK,
                                       MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Yedekleme sırasında hata oluştu:\n{ex.Message}",
+                MessageBox.Show($"Yedekleme sirasinda hata olustu:\n{ex.Message}",
                               "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

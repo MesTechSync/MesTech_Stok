@@ -10,8 +10,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using Microsoft.Extensions.DependencyInjection;
-using MesTechStok.Core.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using MesTechStok.Desktop.Components;
 using MesTechStok.Desktop.Services;
@@ -99,6 +97,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
+        // H31: Company settings via MediatR GetCompanySettingsQuery
         private async Task LoadCompanySettingsAsync()
         {
             try
@@ -107,12 +106,9 @@ namespace MesTechStok.Desktop.Views
                 if (sp == null) return;
 
                 using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var cfg = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
 
-                var settings = await db.Set<MesTechStok.Core.Data.Models.CompanySettings>()
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync();
+                var settings = await mediator.Send(new MesTech.Application.Queries.GetCompanySettings.GetCompanySettingsQuery());
 
                 if (settings != null)
                 {
@@ -992,15 +988,15 @@ namespace MesTechStok.Desktop.Views
                 var result = dlg.ShowDialog();
                 if (result == true)
                 {
-                    // Firma adını footer'a yansıtma (varsa)
+                    // Firma adını footer'a yansıtma (varsa) — H31: MediatR CQRS
                     try
                     {
                         var sp = App.Services;
                         if (sp != null)
                         {
                             using var scope = sp.CreateScope();
-                            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                            var settings = await db.Set<MesTechStok.Core.Data.Models.CompanySettings>().FirstOrDefaultAsync();
+                            var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                            var settings = await mediator.Send(new MesTech.Application.Queries.GetCompanySettings.GetCompanySettingsQuery());
                             if (settings != null)
                             {
                                 // Footer sol metnini güncelle

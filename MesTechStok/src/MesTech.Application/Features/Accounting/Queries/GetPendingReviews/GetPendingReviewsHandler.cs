@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Entities;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetPendingReviews;
 
@@ -34,46 +35,7 @@ public class GetPendingReviewsHandler : IRequestHandler<GetPendingReviewsQuery, 
 
         foreach (var match in matches)
         {
-            var dto = new PendingReviewMatchDto
-            {
-                MatchId = match.Id,
-                Confidence = match.Confidence,
-                MatchDate = match.MatchDate,
-                SettlementBatchId = match.SettlementBatchId,
-                BankTransactionId = match.BankTransactionId
-            };
-
-            // Enrich with settlement batch info
-            if (match.SettlementBatchId.HasValue)
-            {
-                var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
-                if (batch != null)
-                {
-                    dto = dto with
-                    {
-                        SettlementPlatform = batch.Platform,
-                        SettlementPeriodStart = batch.PeriodStart,
-                        SettlementPeriodEnd = batch.PeriodEnd,
-                        SettlementTotalNet = batch.TotalNet
-                    };
-                }
-            }
-
-            // Enrich with bank transaction info
-            if (match.BankTransactionId.HasValue)
-            {
-                var tx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken);
-                if (tx != null)
-                {
-                    dto = dto with
-                    {
-                        BankTransactionDate = tx.TransactionDate,
-                        BankTransactionAmount = tx.Amount,
-                        BankTransactionDescription = tx.Description
-                    };
-                }
-            }
-
+            var dto = await EnrichMatchAsync(match, cancellationToken);
             items.Add(dto);
         }
 
@@ -89,5 +51,50 @@ public class GetPendingReviewsHandler : IRequestHandler<GetPendingReviewsQuery, 
             PageSize = request.PageSize,
             TotalPages = totalPages
         };
+    }
+
+    private async Task<PendingReviewMatchDto> EnrichMatchAsync(
+        ReconciliationMatch match,
+        CancellationToken cancellationToken)
+    {
+        var dto = new PendingReviewMatchDto
+        {
+            MatchId = match.Id,
+            Confidence = match.Confidence,
+            MatchDate = match.MatchDate,
+            SettlementBatchId = match.SettlementBatchId,
+            BankTransactionId = match.BankTransactionId
+        };
+
+        if (match.SettlementBatchId.HasValue)
+        {
+            var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
+            if (batch != null)
+            {
+                dto = dto with
+                {
+                    SettlementPlatform = batch.Platform,
+                    SettlementPeriodStart = batch.PeriodStart,
+                    SettlementPeriodEnd = batch.PeriodEnd,
+                    SettlementTotalNet = batch.TotalNet
+                };
+            }
+        }
+
+        if (match.BankTransactionId.HasValue)
+        {
+            var tx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken);
+            if (tx != null)
+            {
+                dto = dto with
+                {
+                    BankTransactionDate = tx.TransactionDate,
+                    BankTransactionAmount = tx.Amount,
+                    BankTransactionDescription = tx.Description
+                };
+            }
+        }
+
+        return dto;
     }
 }

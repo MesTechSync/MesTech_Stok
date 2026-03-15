@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.KanbanAvaloniaView"
+             x:DataType="vm:KanbanAvaloniaViewModel">
+
+    <!-- Avalonia port of WPF Views/Crm/DealsView.xaml -->
+    <!-- Key changes:
+         - xmlns → avaloniaui
+         - DropShadowEffect → BoxShadow (Avalonia uses CSS-like shadows)
+         - Cursor="Hand" → Cursor="Hand" (same)
+         - ViewModel: KanbanAvaloniaViewModel (97% identical to WPF DealsViewModel) -->
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Firsatlar — Kanban" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Grid.Column="0" />
+                <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
+                    <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
+                            Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                            Padding="14,8" CornerRadius="6" />
+                    <Button Content="Liste" Command="{Binding SwitchToListCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderBrush="White" BorderThickness="1" Padding="12,8"
+                            CornerRadius="6" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Kanban Columns -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      Background="#F4F6F9">
+            <ItemsControl ItemsSource="{Binding Stages}" Margin="16">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="12" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:KanbanStageVm">
+                        <!-- Single Kanban Column -->
+                        <Border Width="260" VerticalAlignment="Top"
+                                Background="White" CornerRadius="8"
+                                BoxShadow="0 1 6 0 #1F000000">
+                            <DockPanel>
+                                <!-- Column Header — uses stage Color property -->
+                                <Border DockPanel.Dock="Top" CornerRadius="8,8,0,0"
+                                        Padding="14,10">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{Binding Color}" />
+                                    </Border.Background>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="{Binding Name}" Foreground="White"
+                                                   FontWeight="SemiBold" FontSize="13"
+                                                   Grid.Column="0" />
+                                        <Border Grid.Column="1" Background="#FFFFFF33"
+                                                CornerRadius="10" Padding="6,2">
+                                            <TextBlock Text="{Binding DealCount}" Foreground="White"
+                                                       FontSize="11" FontWeight="Bold" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Deal Cards -->
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+                                    <ItemsControl ItemsSource="{Binding Deals}" Margin="8">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:DealCardVm">
+                                                <Border Margin="0,0,0,8" Padding="12"
+                                                        Background="#F8F9FB" CornerRadius="6"
+                                                        BorderBrush="#E2E8F0" BorderThickness="1"
+                                                        Cursor="Hand">
+                                                    <StackPanel Spacing="4">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding ContactName}"
+                                                                   FontSize="11" Foreground="#64748B" />
+                                                        <TextBlock Text="{Binding Amount, StringFormat='TL {0:N0}'}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#2855AC" Margin="0,2,0,0" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

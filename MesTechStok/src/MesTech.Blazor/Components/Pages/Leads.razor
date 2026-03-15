@@ -1,0 +1,203 @@
+@page "/crm/leads"
+@using MesTech.Domain.Interfaces
+@using MesTech.Domain.Entities.Crm
+@using MesTech.Domain.Enums
+@inject ICrmLeadRepository LeadRepository
+@inject ICurrentUserService CurrentUser
+
+<h3 class="mb-4">
+    <i class="fas fa-user-plus me-2 text-primary"></i>CRM Leadler
+</h3>
+
+<!-- Toolbar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Lead ara..."
+                           @bind="searchText" @bind:event="oninput" @bind:after="OnSearchChanged" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-3 col-md-3">
+                <select class="form-select form-select-sm" @bind="selectedStatus" @bind:after="OnFilterChanged">
+                    <option value="">Tum Durumlar</option>
+                    <option value="New">Yeni</option>
+                    <option value="Contacted">Iletisime Gecildi</option>
+                    <option value="Qualified">Nitelikli</option>
+                    <option value="Converted">Donusturuldu</option>
+                    <option value="Lost">Kaybedildi</option>
+                </select>
+            </div>
+            <div class="col-3 col-sm-1 col-md-3">
+                <span class="badge bg-secondary">Toplam: @totalCount</span>
+            </div>
+            <div class="col-3 col-sm-2 col-md-2 text-end">
+                <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync">
+                    <i class="fas fa-sync-alt me-1"></i><span class="d-none d-sm-inline"> Yenile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yukleniyor...</span>
+        </div>
+    </div>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (leads.Count == 0)
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+        <p>Henuz lead bulunamadi.</p>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ad Soyad</th>
+                            <th class="d-none d-md-table-cell">Sirket</th>
+                            <th class="d-none d-lg-table-cell">E-posta</th>
+                            <th class="d-none d-lg-table-cell">Telefon</th>
+                            <th class="d-none d-sm-table-cell">Kaynak</th>
+                            <th>Durum</th>
+                            <th class="d-none d-sm-table-cell">Olusturma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lead in filteredLeads)
+                        {
+                            <tr>
+                                <td class="fw-bold">@lead.FullName</td>
+                                <td class="d-none d-md-table-cell">@(lead.Company ?? "-")</td>
+                                <td class="d-none d-lg-table-cell">
+                                    @if (lead.Email is not null)
+                                    {
+                                        <a href="mailto:@lead.Email">@lead.Email</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="d-none d-lg-table-cell">@(lead.Phone ?? "-")</td>
+                                <td class="d-none d-sm-table-cell">
+                                    <span class="badge bg-secondary">@GetSourceLabel(lead.Source)</span>
+                                </td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(lead.Status)">
+                                        @GetStatusLabel(lead.Status)
+                                    </span>
+                                </td>
+                                <td class="d-none d-sm-table-cell">
+                                    <small class="text-muted">@lead.CreatedAt.ToString("dd.MM.yyyy")</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Lead> leads = [];
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string searchText = string.Empty;
+    private string selectedStatus = string.Empty;
+    private int totalCount;
+
+    private IReadOnlyList<Lead> filteredLeads => string.IsNullOrWhiteSpace(searchText)
+        ? leads
+        : leads.Where(l =>
+            l.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            (l.Company?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (l.Email?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false))
+          .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            LeadStatus? statusFilter = string.IsNullOrEmpty(selectedStatus)
+                ? null
+                : Enum.Parse<LeadStatus>(selectedStatus);
+
+            var (items, count) = await LeadRepository.GetPagedAsync(
+                CurrentUser.TenantId, statusFilter, null, 1, 100);
+
+            leads = items.ToList();
+            totalCount = count;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Leadler yuklenirken hata olustu: {ex.Message}";
+            leads = [];
+            totalCount = 0;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnFilterChanged() => await LoadDataAsync();
+    private void OnSearchChanged() { /* filteredLeads computed property handles filtering */ }
+
+    private static string GetStatusLabel(LeadStatus status) => status switch
+    {
+        LeadStatus.New => "Yeni",
+        LeadStatus.Contacted => "Iletisime Gecildi",
+        LeadStatus.Qualified => "Nitelikli",
+        LeadStatus.Converted => "Donusturuldu",
+        LeadStatus.Lost => "Kaybedildi",
+        _ => status.ToString()
+    };
+
+    private static string GetStatusBadgeClass(LeadStatus status) => status switch
+    {
+        LeadStatus.New => "badge-yeni",
+        LeadStatus.Contacted => "badge-iletisim",
+        LeadStatus.Qualified => "badge-nitelikli",
+        LeadStatus.Converted => "badge-donusturuldu",
+        LeadStatus.Lost => "badge-kaybedildi",
+        _ => "bg-secondary"
+    };
+
+    private static string GetSourceLabel(LeadSource source) => source switch
+    {
+        LeadSource.Manual => "Manuel",
+        LeadSource.Web => "Web",
+        LeadSource.WhatsApp => "WhatsApp",
+        LeadSource.Telegram => "Telegram",
+        LeadSource.MarketplaceInquiry => "Pazaryeri",
+        LeadSource.Referral => "Referans",
+        _ => source.ToString()
+    };
+}

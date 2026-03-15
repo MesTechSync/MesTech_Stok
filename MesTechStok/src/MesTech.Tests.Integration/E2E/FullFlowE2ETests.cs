@@ -4,6 +4,8 @@ using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
 using InvoiceDto = MesTech.Application.Interfaces.InvoiceDto;
 using InvoiceLineDto = MesTech.Application.Interfaces.InvoiceLineDto;
+using ShipmentRequest = MesTech.Application.DTOs.Cargo.ShipmentRequest;
+using AutoShipmentService = MesTech.Infrastructure.Integration.Orchestration.AutoShipmentService;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;

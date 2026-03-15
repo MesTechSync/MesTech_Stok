@@ -1,0 +1,220 @@
+@page "/finans/kar-zarar"
+@using MediatR
+@using MesTech.Application.Features.Finance.Queries.GetProfitLoss
+@using MesTech.Application.DTOs.Finance
+@using MesTech.Domain.Interfaces
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+
+<h3 class="mb-4">
+    <i class="fas fa-chart-line me-2 text-success"></i>Kar / Zarar Raporu
+</h3>
+
+<!-- Period Navigation -->
+<div class="d-flex align-items-center mb-4 period-nav">
+    <button class="btn btn-outline-secondary btn-sm" @onclick="PrevMonth" disabled="@isLoading">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <h5 class="mx-3 mb-0 text-primary fw-bold">@periodLabel</h5>
+    <button class="btn btn-outline-secondary btn-sm" @onclick="NextMonth" disabled="@isLoading">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yukleniyor...</span>
+        </div>
+    </div>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (data is not null)
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm border-start border-4 border-success">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="ms-0 ms-sm-3">
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Gelir</small>
+                            <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@data.TotalRevenue.ToString("N2") TL</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm border-start border-4 border-danger">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="ms-0 ms-sm-3">
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Gider</small>
+                            <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@data.TotalExpenses.ToString("N2") TL</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm border-start border-4 border-primary">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="ms-0 ms-sm-3">
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Net Kar</small>
+                            <h4 class="mb-0 fw-bold fs-6 fs-md-4 @(data.NetProfit >= 0 ? "text-primary" : "text-danger")">
+                                @data.NetProfit.ToString("N2") TL
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm border-start border-4 border-info">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="ms-0 ms-sm-3">
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Kar Marji</small>
+                            <h4 class="mb-0 fw-bold text-info fs-6 fs-md-4">%@data.ProfitMarginPercent.ToString("N1")</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Revenue Breakdown -->
+    @if (data.RevenueByPlatform.Count > 0)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="fas fa-store me-2"></i>Platform Bazli Gelir</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Platform</th>
+                                <th class="text-end">Gelir</th>
+                                <th class="text-end d-none d-sm-table-cell">Siparis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in data.RevenueByPlatform)
+                            {
+                                <tr>
+                                    <td>@p.Platform</td>
+                                    <td class="text-end fw-bold">@p.Revenue.ToString("N2") TL</td>
+                                    <td class="text-end d-none d-sm-table-cell">@p.OrderCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Expense Category Breakdown -->
+    @if (data.ExpenseByCategory.Count > 0)
+    {
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="fas fa-tags me-2"></i>Gider Kategorileri</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Kategori</th>
+                                <th class="text-end">Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var e in data.ExpenseByCategory)
+                            {
+                                <tr>
+                                    <td>@e.Category</td>
+                                    <td class="text-end fw-bold text-danger">@e.Amount.ToString("N2") TL</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private ProfitLossDto? data;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string periodLabel = string.Empty;
+    private int _year = DateTime.Today.Year;
+    private int _month = DateTime.Today.Month;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        periodLabel = new DateTime(_year, _month, 1).ToString("MMMM yyyy",
+            new System.Globalization.CultureInfo("tr-TR"));
+
+        try
+        {
+            data = await Mediator.Send(
+                new GetProfitLossQuery(CurrentUser.TenantId, _year, _month));
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Veri yuklenirken hata olustu: {ex.Message}";
+            data = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task PrevMonth()
+    {
+        _month--;
+        if (_month < 1) { _month = 12; _year--; }
+        await LoadDataAsync();
+    }
+
+    private async Task NextMonth()
+    {
+        _month++;
+        if (_month > 12) { _month = 1; _year++; }
+        await LoadDataAsync();
+    }
+}

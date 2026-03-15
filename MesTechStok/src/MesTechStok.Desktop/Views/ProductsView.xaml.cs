@@ -64,8 +64,9 @@ namespace MesTechStok.Desktop.Views
                 _productService = sp.GetRequiredService<IProductDataService>();
                 _usingDemoService = false;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[ProductsView] Error at ProductsView ctor (DI fallback): {ex.Message}");
                 _productService = new EnhancedProductService();
                 _usingDemoService = true;
             }
@@ -487,9 +488,10 @@ namespace MesTechStok.Desktop.Views
                         MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogInfo("[UI] DB erişilemedi, demo veri ile dolduruldu", nameof(ProductsView));
                     }
                 }
-                catch
+                catch (Exception fallbackEx)
                 {
                     // Both primary and fallback failed — show error state
+                    System.Diagnostics.Debug.WriteLine($"[ProductsView] Error at LoadProductsAsync (demo fallback): {fallbackEx.Message}");
                     ProductsErrorText.Text = $"Ürünler yüklenemedi: {ex.Message}";
                     ProductsErrorState.Visibility = Visibility.Visible;
                 }
@@ -532,7 +534,7 @@ namespace MesTechStok.Desktop.Views
 
         private static string GetComboValueOrEmpty(ComboBox combo)
         {
-            try { return (combo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty; } catch { /* Intentional: combo selection fallback — return empty on UI access failure */ return string.Empty; }
+            try { return (combo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty; } catch (Exception ex) { GlobalLogger.Instance.LogWarning($"[ProductsView] GetComboValueOrEmpty: combo selection fallback — {ex.Message}", "ProductsView"); return string.Empty; }
         }
 
         // Gelişmiş Filtreler UI
@@ -877,7 +879,7 @@ namespace MesTechStok.Desktop.Views
                 }
                 DbStatusText.Text = $"DB: OK · Aktif={status.ActiveCount} · Toplam={status.TotalCount} · Gösterilen={_displayedProducts.Count}";
             }
-            catch { /* Intentional: DB status display fallback — show error text on connection failure */ DbStatusText.Text = "DB: fail"; }
+            catch (Exception ex) { GlobalLogger.Instance.LogWarning($"[ProductsView] UpdateDbStatusAsync: DB status query failed — {ex.Message}", "ProductsView"); DbStatusText.Text = "DB: fail"; }
         }
 
         private async void ResetFilters_Click(object sender, RoutedEventArgs e)
@@ -995,7 +997,7 @@ namespace MesTechStok.Desktop.Views
                 await LoadProductsAsync();
                 await UpdateStatisticsAsync();
             }
-            catch (TaskCanceledException) { }
+            catch (TaskCanceledException) { /* Intentional: search debounce cancellation is expected */ }
             catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] SearchTextBox_TextChanged: {ex.Message}"); }
         }
 
@@ -1728,8 +1730,9 @@ namespace MesTechStok.Desktop.Views
                 {
                     ProductUploadWindowManager.TryOpen(Window.GetWindow(this), item);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ProductsView] Error at ProductsDataGrid_MouseDoubleClick: {ex.Message}");
                     OpenImageViewerForRow(item);
                 }
             }
