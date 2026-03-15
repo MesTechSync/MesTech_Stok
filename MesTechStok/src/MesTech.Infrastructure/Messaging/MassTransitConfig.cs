@@ -36,9 +36,13 @@ public static class MassTransitConfig
             bus.AddConsumer<MesaDlqConsumer>();
             bus.AddConsumer<MesaMeetingScheduledConsumer>();
 
-            // Muhasebe MESA Consumers (MUH-01)
+            // Muhasebe MESA Consumers (MUH-01 + MUH-02)
             bus.AddConsumer<DocumentClassifiedConsumer>();
             bus.AddConsumer<AccountingApprovalConsumer>();
+            bus.AddConsumer<AccountingRejectionConsumer>();
+            bus.AddConsumer<AiDocumentExtractedConsumer>();
+            bus.AddConsumer<AiReconciliationSuggestedConsumer>();
+            bus.AddConsumer<AiAdvisoryRecommendationConsumer>();
 
             bus.UsingRabbitMq((context, cfg) =>
             {
@@ -109,6 +113,30 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.mesa.ai.document.classified.v1"));
                 cfg.Message<BotAccountingApprovedEvent>(x =>
                     x.SetEntityName("mestech.mesa.bot.accounting.approved.v1"));
+                // MUH-02: MESA -> MesTech (rejection consume)
+                cfg.Message<BotAccountingRejectedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.bot.accounting.rejected.v1"));
+                // MUH-02: MesTech -> MESA (anomaly publish)
+                cfg.Message<FinanceAnomalyDetectedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.anomaly.detected.v1"));
+
+                // MUH-02: MesTech -> MESA (publish — 4 yeni event)
+                cfg.Message<FinanceLedgerPostedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.ledger.posted.v1"));
+                cfg.Message<FinanceReconciliationPendingEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.reconciliation.pending.v1"));
+                cfg.Message<FinanceBankImportedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.bank.imported.v1"));
+                cfg.Message<FinanceReportDailyEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.report.daily.v1"));
+
+                // MUH-02: MESA -> MesTech (consume — 3 yeni event)
+                cfg.Message<AiDocumentExtractedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.ai.document.extracted.v1"));
+                cfg.Message<AiReconciliationSuggestedEvent>(x =>
+                    x.SetEntityName("mestech.mesa.ai.reconciliation.suggested.v1"));
+                cfg.Message<AiAdvisoryRecommendationEvent>(x =>
+                    x.SetEntityName("mestech.mesa.ai.advisory.recommendation.v1"));
 
                 cfg.ConfigureEndpoints(context);
             });

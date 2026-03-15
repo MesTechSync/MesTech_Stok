@@ -52,116 +52,231 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="CostBarStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
     </UserControl.Resources>
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Row 0: Header -->
-        <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="Kar / Zarar Analizi" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
-                    <TextBlock Text="Platform bazli kar-zarar raporu ve trend analizi" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+            <!-- Row 0: Header -->
+            <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Kar / Zarar Analizi" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                        <TextBlock Text="Platform bazli kar-zarar raporu ve trend analizi" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Platform:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Foreground="#495057"/>
+                        <ComboBox x:Name="PlatformFilter" Width="140" SelectedIndex="0" SelectionChanged="PlatformFilter_Changed">
+                            <ComboBoxItem Content="Tumu"/>
+                            <ComboBoxItem Content="Trendyol"/>
+                            <ComboBoxItem Content="Hepsiburada"/>
+                            <ComboBoxItem Content="N11"/>
+                            <ComboBoxItem Content="Ciceksepeti"/>
+                            <ComboBoxItem Content="Pazarama"/>
+                            <ComboBoxItem Content="OpenCart"/>
+                        </ComboBox>
+                        <TextBlock Text="Donem:" VerticalAlignment="Center" Margin="16,0,8,0" FontSize="12" Foreground="#495057"/>
+                        <ComboBox x:Name="PeriodFilter" Width="120" SelectedIndex="2" SelectionChanged="PeriodFilter_Changed">
+                            <ComboBoxItem Content="Gunluk"/>
+                            <ComboBoxItem Content="Haftalik"/>
+                            <ComboBoxItem Content="Aylik"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Row 1: KPI Cards (6 cards) -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Toplam Ciro" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RevenueText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RevenueTrendText" Text="" FontSize="10" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="COGS (Maliyet)" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CostText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CostTrendText" Text="" FontSize="10" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Komisyon" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CommissionText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Kargo" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ShippingText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Brut Marj" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="GrossMarginText" Text="0,0%" FontSize="16" FontWeight="Bold" Foreground="#17A2B8" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="GrossMarginTrendText" Text="" FontSize="10" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="5" Style="{StaticResource StatCard}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Net Kar" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NetProfitText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NetProfitTrendText" Text="" FontSize="10" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Row 2: Maliyet Ayristirmasi (Stacked Cost Breakdown) -->
+            <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Maliyet Ayristirmasi" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,12"/>
+                    <ItemsControl Grid.Row="1" x:Name="CostBreakdownPanel">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="60"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Platform}" FontSize="12" FontWeight="SemiBold" Foreground="#495057" VerticalAlignment="Center"/>
+                                    <Grid Grid.Column="1" Margin="8,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="{Binding CogsWidth}"/>
+                                            <ColumnDefinition Width="{Binding CommissionWidth}"/>
+                                            <ColumnDefinition Width="{Binding CargoWidth}"/>
+                                            <ColumnDefinition Width="{Binding TaxWidth}"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Background="#EF4444" Style="{StaticResource CostBarStyle}" ToolTip="{Binding CogsTooltip}"/>
+                                        <Border Grid.Column="1" Background="#F59E0B" Style="{StaticResource CostBarStyle}" ToolTip="{Binding CommissionTooltip}"/>
+                                        <Border Grid.Column="2" Background="#6366F1" Style="{StaticResource CostBarStyle}" ToolTip="{Binding CargoTooltip}"/>
+                                        <Border Grid.Column="3" Background="#8B5CF6" Style="{StaticResource CostBarStyle}" ToolTip="{Binding TaxTooltip}"/>
+                                        <Border Grid.Column="4" Background="#10B981" Style="{StaticResource CostBarStyle}" ToolTip="{Binding NetTooltip}"/>
+                                    </Grid>
+                                    <TextBlock Grid.Column="2" Text="{Binding TotalCostText}" FontSize="11" Foreground="#6C757D" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding MarginText}" FontSize="11" FontWeight="Bold" Foreground="{Binding MarginColor}" VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <!-- Legend -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0" VerticalAlignment="Bottom">
+                        <Border Background="#EF4444" Width="12" Height="12" CornerRadius="2" Margin="0,0,4,0"/>
+                        <TextBlock Text="COGS" FontSize="10" Foreground="#6C757D" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <Border Background="#F59E0B" Width="12" Height="12" CornerRadius="2" Margin="0,0,4,0"/>
+                        <TextBlock Text="Komisyon" FontSize="10" Foreground="#6C757D" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <Border Background="#6366F1" Width="12" Height="12" CornerRadius="2" Margin="0,0,4,0"/>
+                        <TextBlock Text="Kargo" FontSize="10" Foreground="#6C757D" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <Border Background="#8B5CF6" Width="12" Height="12" CornerRadius="2" Margin="0,0,4,0"/>
+                        <TextBlock Text="Vergi" FontSize="10" Foreground="#6C757D" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <Border Background="#10B981" Width="12" Height="12" CornerRadius="2" Margin="0,0,4,0"/>
+                        <TextBlock Text="Net" FontSize="10" Foreground="#6C757D" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Row 3: Platform Comparison Table -->
+            <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="8,4" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Platform Karsilastirmasi" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,8"/>
+                    <DataGrid Grid.Row="1" x:Name="PlatformComparisonGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Single"
+                              AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36"
+                              MaxHeight="250">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="110"/>
+                            <DataGridTextColumn Header="Ciro" Binding="{Binding Revenue, StringFormat='{}{0:N2}'}" Width="110"/>
+                            <DataGridTextColumn Header="COGS" Binding="{Binding Cost, StringFormat='{}{0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Komisyon" Binding="{Binding Commission, StringFormat='{}{0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Kargo" Binding="{Binding Shipping, StringFormat='{}{0:N2}'}" Width="90"/>
+                            <DataGridTextColumn Header="Vergi" Binding="{Binding Tax, StringFormat='{}{0:N2}'}" Width="90"/>
+                            <DataGridTextColumn Header="Net Kar" Binding="{Binding NetProfit, StringFormat='{}{0:N2} TL'}" Width="110"/>
+                            <DataGridTextColumn Header="Brut Marj" Binding="{Binding GrossMarginText}" Width="80"/>
+                            <DataGridTextColumn Header="Net Marj" Binding="{Binding ProfitMargin, StringFormat='{}{0:F1}%'}" Width="80"/>
+                            <DataGridTextColumn Header="Degisim" Binding="{Binding TrendText}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Row 4: Detailed DataGrid -->
+            <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="8,4,8,8" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Kar/Zarar Detayi" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,8"/>
+                    <DataGrid Grid.Row="1" x:Name="ProfitGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Single"
+                              AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36"
+                              MaxHeight="300">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Donem" Binding="{Binding Period}" Width="120"/>
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>
+                            <DataGridTextColumn Header="Ciro" Binding="{Binding Revenue, StringFormat='{}{0:N2}'}" Width="120"/>
+                            <DataGridTextColumn Header="COGS" Binding="{Binding Cost, StringFormat='{}{0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Komisyon" Binding="{Binding Commission, StringFormat='{}{0:N2}'}" Width="110"/>
+                            <DataGridTextColumn Header="Kargo" Binding="{Binding Shipping, StringFormat='{}{0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Vergi" Binding="{Binding Tax, StringFormat='{}{0:N2}'}" Width="90"/>
+                            <DataGridTextColumn Header="Net Kar" Binding="{Binding NetProfit, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                            <DataGridTextColumn Header="Brut Marj" Binding="{Binding GrossMarginText}" Width="80"/>
+                            <DataGridTextColumn Header="Net Marj" Binding="{Binding ProfitMargin, StringFormat='{}{0:F1}%'}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Loading Overlay -->
+            <Border x:Name="LoadingOverlay" Grid.RowSpan="5" Background="#80FFFFFF" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                    <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Platform:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Foreground="#495057"/>
-                    <ComboBox x:Name="PlatformFilter" Width="140" SelectedIndex="0" SelectionChanged="PlatformFilter_Changed">
-                        <ComboBoxItem Content="Tumu"/>
-                        <ComboBoxItem Content="Trendyol"/>
-                        <ComboBoxItem Content="Hepsiburada"/>
-                        <ComboBoxItem Content="N11"/>
-                        <ComboBoxItem Content="Ciceksepeti"/>
-                        <ComboBoxItem Content="Pazarama"/>
-                        <ComboBoxItem Content="OpenCart"/>
-                    </ComboBox>
-                    <TextBlock Text="Donem:" VerticalAlignment="Center" Margin="16,0,8,0" FontSize="12" Foreground="#495057"/>
-                    <ComboBox x:Name="PeriodFilter" Width="120" SelectedIndex="2" SelectionChanged="PeriodFilter_Changed">
-                        <ComboBoxItem Content="Gunluk"/>
-                        <ComboBoxItem Content="Haftalik"/>
-                        <ComboBoxItem Content="Aylik"/>
-                    </ComboBox>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Row 1: KPI Cards -->
-        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Style="{StaticResource StatCard}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Toplam Ciro" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="RevenueText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="1" Style="{StaticResource StatCard}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Urun Maliyeti" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="CostText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="2" Style="{StaticResource StatCard}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Komisyon" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="CommissionText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="3" Style="{StaticResource StatCard}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Net Kar" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="NetProfitText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- Row 2: DataGrid -->
-        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="8,4,8,8" Padding="16">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Kar/Zarar Detayi" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,8"/>
-                <DataGrid Grid.Row="1" x:Name="ProfitGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserSortColumns="True" SelectionMode="Single"
-                          AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
-                          GridLinesVisibility="Horizontal" HeadersVisibility="Column"
-                          BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Donem" Binding="{Binding Period}" Width="120"/>
-                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>
-                        <DataGridTextColumn Header="Ciro" Binding="{Binding Revenue, StringFormat='{}{0:N2}'}" Width="120"/>
-                        <DataGridTextColumn Header="Maliyet" Binding="{Binding Cost, StringFormat='{}{0:N2}'}" Width="120"/>
-                        <DataGridTextColumn Header="Komisyon" Binding="{Binding Commission, StringFormat='{}{0:N2}'}" Width="110"/>
-                        <DataGridTextColumn Header="Kargo" Binding="{Binding Shipping, StringFormat='{}{0:N2}'}" Width="100"/>
-                        <DataGridTextColumn Header="Net Kar" Binding="{Binding NetProfit, StringFormat='{}{0:N2} TL'}" Width="120"/>
-                        <DataGridTextColumn Header="Kar Marji" Binding="{Binding ProfitMargin, StringFormat='{}{0:F1}%'}" Width="90"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-        </Border>
-
-        <!-- Loading Overlay -->
-        <Border x:Name="LoadingOverlay" Grid.RowSpan="3" Background="#80FFFFFF" Visibility="Collapsed">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
-                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

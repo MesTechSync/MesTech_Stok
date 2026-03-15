@@ -45,6 +45,13 @@
         <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
             <Setter Property="Background" Value="#DC3545"/>
         </Style>
+        <Style x:Key="WarningBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Setter Property="Foreground" Value="#212529"/>
+        </Style>
+        <Style x:Key="InfoBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="#17A2B8"/>
+        </Style>
         <Style x:Key="StatCard" TargetType="Border">
             <Setter Property="Background" Value="#F8F9FA"/>
             <Setter Property="CornerRadius" Value="10"/>
@@ -57,6 +64,26 @@
                     <Setter Property="Background" Value="#F8F9FA"/>
                 </Trigger>
             </Style.Triggers>
+        </Style>
+        <Style x:Key="SkorBadgeGreen" TargetType="Border">
+            <Setter Property="Background" Value="#D1FAE5"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="6,2"/>
+        </Style>
+        <Style x:Key="SkorBadgeYellow" TargetType="Border">
+            <Setter Property="Background" Value="#FEF3C7"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="6,2"/>
+        </Style>
+        <Style x:Key="SkorBadgeRed" TargetType="Border">
+            <Setter Property="Background" Value="#FEE2E2"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="6,2"/>
+        </Style>
+        <Style x:Key="PlatformBadge" TargetType="Border">
+            <Setter Property="Background" Value="#EBF5FF"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8,2"/>
         </Style>
     </UserControl.Resources>
 
@@ -79,6 +106,16 @@
                     <TextBlock Text="Banka ekstre ve siparis eslestirme paneli" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Platform:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" Foreground="#495057"/>
+                    <ComboBox x:Name="PlatformFilterCombo" Width="130" SelectedIndex="0" SelectionChanged="PlatformFilter_Changed" Margin="0,0,12,0">
+                        <ComboBoxItem Content="Tumu"/>
+                        <ComboBoxItem Content="Trendyol"/>
+                        <ComboBoxItem Content="Hepsiburada"/>
+                        <ComboBoxItem Content="N11"/>
+                        <ComboBoxItem Content="Ciceksepeti"/>
+                        <ComboBoxItem Content="Pazarama"/>
+                        <ComboBoxItem Content="OpenCart"/>
+                    </ComboBox>
                     <Button Content="Otomatik Esle" Style="{StaticResource ActionBtn}" Click="AutoMatch_Click" Margin="0,0,8,0"/>
                     <Button Content="Yenile" Style="{StaticResource ActionBtn}" Click="Refresh_Click"/>
                 </StackPanel>
@@ -96,26 +133,30 @@
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource StatCard}">
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Toplam Islem" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Toplam Islenen" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
                         <TextBlock x:Name="TotalText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TotalAmountText" Text="0,00 TL" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource StatCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="Otomatik Eslesen" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
                         <TextBlock x:Name="MatchedText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="MatchedAmountText" Text="0,00 TL" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Style="{StaticResource StatCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="Onay Bekleyen" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
                         <TextBlock x:Name="ReviewText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="ReviewAmountText" Text="0,00 TL" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Style="{StaticResource StatCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="Eslesmeyen" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
                         <TextBlock x:Name="UnmatchedText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="UnmatchedAmountText" Text="0,00 TL" FontSize="10" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -127,69 +168,188 @@
             <!-- TAB 1: Otomatik Eslesen -->
             <TabItem Header="  Otomatik Eslesen  ">
                 <Grid Margin="0,8,0,0">
-                    <DataGrid x:Name="AutoMatchGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                              CanUserSortColumns="True" SelectionMode="Single"
-                              AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
-                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
-                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="90"/>
-                            <DataGridTextColumn Header="Banka Aciklamasi" Binding="{Binding BankDescription}" Width="*"/>
-                            <DataGridTextColumn Header="Banka Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="110"/>
-                            <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="120"/>
-                            <DataGridTextColumn Header="Siparis Tutar" Binding="{Binding OrderAmount, StringFormat='{}{0:N2} TL'}" Width="110"/>
-                            <DataGridTextColumn Header="Guven" Binding="{Binding Confidence, StringFormat='{}{0}%'}" Width="80"/>
-                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 2: Onay Bekleyen -->
-            <TabItem Header="  Onay Bekleyen  ">
-                <Grid Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                        <Button Content="Onayla" Style="{StaticResource SuccessBtn}" Click="ApproveMatch_Click" Margin="0,0,8,0"/>
-                        <Button Content="Reddet" Style="{StaticResource DangerBtn}" Click="RejectMatch_Click"/>
+                        <Button Content="Toplu Onayla" Style="{StaticResource SuccessBtn}" Click="BulkApprove_Click" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="AutoMatchInfoText" VerticalAlignment="Center" FontSize="11" Foreground="#6C757D" Text=""/>
                     </StackPanel>
-                    <DataGrid Grid.Row="1" x:Name="ReviewGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                              CanUserSortColumns="True" SelectionMode="Single"
+                    <DataGrid Grid.Row="1" x:Name="AutoMatchGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserSortColumns="True" SelectionMode="Extended"
                               AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
                               GridLinesVisibility="Horizontal" HeadersVisibility="Column"
                               BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="90"/>
-                            <DataGridTextColumn Header="Banka Aciklamasi" Binding="{Binding BankDescription}" Width="*"/>
-                            <DataGridTextColumn Header="Banka Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="110"/>
-                            <DataGridTextColumn Header="Olasi Siparis" Binding="{Binding OrderNumber}" Width="120"/>
-                            <DataGridTextColumn Header="Siparis Tutar" Binding="{Binding OrderAmount, StringFormat='{}{0:N2} TL'}" Width="110"/>
-                            <DataGridTextColumn Header="Guven" Binding="{Binding Confidence, StringFormat='{}{0}%'}" Width="80"/>
-                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
+                            <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="30"/>
+                            <DataGridTextColumn Header="Settlement Ref" Binding="{Binding SettlementRef}" Width="130"/>
+                            <DataGridTextColumn Header="Banka Tx Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="110"/>
+                            <DataGridTextColumn Header="Skor" Binding="{Binding Confidence, StringFormat='{}{0}%'}" Width="70"/>
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Source}" Width="100"/>
+                            <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="130"/>
+                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="90"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: Onay Bekleyen (CRITICAL) -->
+            <TabItem Header="  Onay Bekleyen  ">
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: DataGrid -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock x:Name="ReviewInfoText" VerticalAlignment="Center" FontSize="11" Foreground="#6C757D" Text="Satirda islem butonlarini kullaniniz"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" x:Name="ReviewGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                                  CanUserSortColumns="True" SelectionMode="Single"
+                                  AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                                  GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                                  BorderThickness="0" FontSize="12" RowHeight="38" ColumnHeaderHeight="36"
+                                  SelectionChanged="ReviewGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Settlement Ref" Binding="{Binding SettlementRef}" Width="120"/>
+                                <DataGridTextColumn Header="Banka Tx Onerisi" Binding="{Binding BankDescription}" Width="*"/>
+                                <DataGridTextColumn Header="Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="100"/>
+                                <DataGridTextColumn Header="Fark" Binding="{Binding AmountDifference, StringFormat='{}{0:N2} TL'}" Width="90"/>
+                                <DataGridTextColumn Header="Skor" Binding="{Binding Confidence, StringFormat='{}{0}%'}" Width="60"/>
+                                <DataGridTextColumn Header="Platform" Binding="{Binding Source}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+
+                    <!-- Splitter -->
+                    <GridSplitter Grid.Column="1" Width="4" Background="#E9ECEF" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="4,0"/>
+
+                    <!-- Right: Detail Panel -->
+                    <Border Grid.Column="2" Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="4,0,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="DetailPanel">
+                                <TextBlock Text="Eslestirme Detayi" FontSize="14" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,12"/>
+
+                                <!-- Settlement Details -->
+                                <TextBlock Text="SETTLEMENT" FontSize="10" FontWeight="Bold" Foreground="#6C757D" Margin="0,0,0,4"/>
+                                <Border Background="White" CornerRadius="6" Padding="10" Margin="0,0,0,12" BorderBrush="#E9ECEF" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="DetailSettlementRef" Text="-" FontSize="12" FontWeight="SemiBold" Foreground="#212529"/>
+                                        <TextBlock x:Name="DetailSettlementAmount" Text="-" FontSize="11" Foreground="#495057" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="DetailSettlementPlatform" Text="-" FontSize="11" Foreground="#495057" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Bank Tx Details -->
+                                <TextBlock Text="BANKA ISLEMI" FontSize="10" FontWeight="Bold" Foreground="#6C757D" Margin="0,0,0,4"/>
+                                <Border Background="White" CornerRadius="6" Padding="10" Margin="0,0,0,12" BorderBrush="#E9ECEF" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="DetailBankDesc" Text="-" FontSize="12" FontWeight="SemiBold" Foreground="#212529"/>
+                                        <TextBlock x:Name="DetailBankAmount" Text="-" FontSize="11" Foreground="#495057" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="DetailBankDate" Text="-" FontSize="11" Foreground="#495057" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Score -->
+                                <TextBlock Text="SKOR" FontSize="10" FontWeight="Bold" Foreground="#6C757D" Margin="0,0,0,4"/>
+                                <Border x:Name="DetailSkorBorder" Background="#FEF3C7" CornerRadius="6" Padding="10" Margin="0,0,0,16" HorizontalAlignment="Left">
+                                    <TextBlock x:Name="DetailSkorText" Text="-" FontSize="14" FontWeight="Bold" Foreground="#92400E"/>
+                                </Border>
+
+                                <!-- Action Buttons -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                    <Button Content="Onayla" Style="{StaticResource SuccessBtn}" Click="ApproveMatch_Click" Margin="0,0,6,0" Width="80"/>
+                                    <Button Content="Reddet" Style="{StaticResource DangerBtn}" Click="RejectMatch_Click" Margin="0,0,6,0" Width="80"/>
+                                    <Button Content="Farkli Esle" Style="{StaticResource WarningBtn}" Click="RematchItem_Click" Width="80"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
             </TabItem>
 
             <!-- TAB 3: Eslesmeyen -->
             <TabItem Header="  Eslesmeyen  ">
                 <Grid Margin="0,8,0,0">
-                    <DataGrid x:Name="UnmatchedGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                              CanUserSortColumns="True" SelectionMode="Single"
-                              AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
-                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
-                              BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="90"/>
-                            <DataGridTextColumn Header="Aciklama" Binding="{Binding BankDescription}" Width="*"/>
-                            <DataGridTextColumn Header="Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="120"/>
-                            <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="100"/>
-                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Toolbar -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="Eslestir" Style="{StaticResource InfoBtn}" Click="ManualMatch_Click" Margin="0,0,8,0"
+                                ToolTip="Sol ve sag taraftan birer satir secip Eslestir butonuna basin"/>
+                        <TextBlock x:Name="ManualMatchInfoText" VerticalAlignment="Center" FontSize="11" Foreground="#6C757D"
+                                   Text="Sol: eslesmemis settlement, Sag: eslesmemis banka islemi — birer satir secip Eslestir"/>
+                    </StackPanel>
+
+                    <!-- Split View -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Unmatched Settlements -->
+                        <Border Grid.Column="0" BorderBrush="#E9ECEF" BorderThickness="1" CornerRadius="8" Padding="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Eslesmemis Settlement" FontSize="12" FontWeight="SemiBold" Foreground="#DC3545" Margin="0,0,0,6"/>
+                                <DataGrid Grid.Row="1" x:Name="UnmatchedSettlementGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                                          CanUserSortColumns="True" SelectionMode="Single"
+                                          AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                                          GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                                          BorderThickness="0" FontSize="11" RowHeight="32" ColumnHeaderHeight="32">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="80"/>
+                                        <DataGridTextColumn Header="Ref" Binding="{Binding SettlementRef}" Width="110"/>
+                                        <DataGridTextColumn Header="Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="100"/>
+                                        <DataGridTextColumn Header="Platform" Binding="{Binding Source}" Width="80"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Splitter -->
+                        <GridSplitter Grid.Column="1" Width="4" Background="#E9ECEF" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="4,0"/>
+
+                        <!-- Right: Unmatched Bank Transactions -->
+                        <Border Grid.Column="2" BorderBrush="#E9ECEF" BorderThickness="1" CornerRadius="8" Padding="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Eslesmemis Banka Islemleri" FontSize="12" FontWeight="SemiBold" Foreground="#DC3545" Margin="0,0,0,6"/>
+                                <DataGrid Grid.Row="1" x:Name="UnmatchedBankGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                                          CanUserSortColumns="True" SelectionMode="Single"
+                                          AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                                          GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                                          BorderThickness="0" FontSize="11" RowHeight="32" ColumnHeaderHeight="32">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="80"/>
+                                        <DataGridTextColumn Header="Aciklama" Binding="{Binding BankDescription}" Width="*"/>
+                                        <DataGridTextColumn Header="Tutar" Binding="{Binding BankAmount, StringFormat='{}{0:N2} TL'}" Width="100"/>
+                                        <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="80"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Grid>
             </TabItem>
 

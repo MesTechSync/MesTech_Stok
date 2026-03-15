@@ -25,6 +25,24 @@ public class ReconciliationMatchRepository : IReconciliationMatchRepository
             .OrderByDescending(m => m.MatchDate)
             .AsNoTracking().ToListAsync(ct);
 
+    public async Task<(IReadOnlyList<ReconciliationMatch> Items, int TotalCount)> GetPendingReviewsPagedAsync(
+        Guid tenantId, int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _context.ReconciliationMatches
+            .Where(m => m.TenantId == tenantId && m.Status == ReconciliationStatus.NeedsReview)
+            .OrderByDescending(m => m.Confidence);
+
+        var totalCount = await query.CountAsync(ct);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        return (items.AsReadOnly(), totalCount);
+    }
+
     public async Task AddAsync(ReconciliationMatch match, CancellationToken ct = default)
         => await _context.ReconciliationMatches.AddAsync(match, ct);
 

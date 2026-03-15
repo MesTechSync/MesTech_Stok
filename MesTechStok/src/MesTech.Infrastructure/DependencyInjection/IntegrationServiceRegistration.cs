@@ -11,6 +11,8 @@ using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Infrastructure.Integration.Invoice;
 using MesTech.Infrastructure.Integration.Invoice.Config;
 using MesTech.Infrastructure.Integration.Orchestration;
+using MesTech.Infrastructure.Integration.ERP;
+using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Infrastructure.Integration.Settlement;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
 using MesTech.Infrastructure.Integration.Soap;
@@ -278,7 +280,31 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<ISettlementParser, TrendyolSettlementParser>();
         services.AddSingleton<ISettlementParser, AmazonSettlementParser>();
         services.AddSingleton<ISettlementParser, HepsiburadaSettlementParser>();
+
+        // MUH-02: 5 new settlement parsers (Ciceksepeti, N11, Pazarama, OpenCart, eBay)
+        services.AddSingleton<ISettlementParser, CiceksepetiSettlementParser>();
+        services.AddSingleton<ISettlementParser, N11SettlementParser>();
+        services.AddSingleton<ISettlementParser, PazaramaSettlementParser>();
+        services.AddSingleton<ISettlementParser, OpenCartSettlementParser>();
+        services.AddSingleton<ISettlementParser, EbaySettlementParser>();
+
+        // Settlement parser factory — auto-discovers all registered ISettlementParser (8 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
+
+        // MUH-02: Parasut ERP adapter — OAuth2 CC token service + JSON:API sync
+        services.AddSingleton<ParasutTokenService>();
+        services.AddScoped<ParasutERPAdapter>(sp =>
+            new ParasutERPAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ParasutTokenService>(),
+                sp.GetRequiredService<ILogger<ParasutERPAdapter>>()));
+        services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ParasutERPAdapter>());
+
+        // MUH-02: ERP adapter factory — Scoped (depends on scoped IERPAdapter instances)
+        services.AddScoped<IERPAdapterFactory, ERPAdapterFactory>();
+
+        // MUH-02: Canonical finance mapper — normalizes entities for ERP sync
+        services.AddSingleton<CanonicalFinanceMapper>();
 
         return services;
     }

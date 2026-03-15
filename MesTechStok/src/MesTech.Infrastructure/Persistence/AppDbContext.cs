@@ -10,6 +10,7 @@ using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Entities.Hr;
 using MesTech.Domain.Entities.Tasks;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence;
@@ -20,11 +21,22 @@ namespace MesTech.Infrastructure.Persistence;
 public class AppDbContext : DbContext
 {
     private readonly ITenantProvider _tenantProvider;
+    private readonly IFieldEncryptionService? _encryptionService;
 
     public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider)
         : base(options)
     {
         _tenantProvider = tenantProvider;
+    }
+
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
+        ITenantProvider tenantProvider,
+        IFieldEncryptionService encryptionService)
+        : base(options)
+    {
+        _tenantProvider = tenantProvider;
+        _encryptionService = encryptionService;
     }
 
     /// <summary>
@@ -1043,6 +1055,49 @@ public class AppDbContext : DbContext
             e.Property(l => l.Phone).HasMaxLength(30);
             e.Property(l => l.Email).HasMaxLength(200);
             e.HasIndex(l => l.TenantId).HasDatabaseName("IX_LegalEntities_TenantId");
+        });
+
+        // ═══════════════════════════════════════
+        // KVKK — HASSAS ALAN SIFRELEME (MUH-02)
+        // ═══════════════════════════════════════
+        ConfigureEncryption(modelBuilder);
+    }
+
+    /// <summary>
+    /// KVKK kapsamindaki hassas alanlara EF Core Value Converter uygular.
+    /// BankAccount.IBAN ve Counterparty.VKN DB'de AES-256-GCM ile sifrelenir.
+    /// Encryption servisi yoksa converter eklenmez (gelistirme ortami uyumu).
+    /// </summary>
+    private void ConfigureEncryption(ModelBuilder modelBuilder)
+    {
+        if (_encryptionService == null)
+            return;
+
+        var nullableConverter = new NullableEncryptedStringConverter(_encryptionService);
+
+        // BankAccount.IBAN — KVKK hassas veri
+        modelBuilder.Entity<BankAccount>(e =>
+        {
+            e.Property(b => b.IBAN).HasConversion(nullableConverter);
+        });
+
+        // BankAccount.AccountNumber — KVKK hassas veri
+        modelBuilder.Entity<BankAccount>(e =>
+        {
+            e.Property(b => b.AccountNumber).HasConversion(nullableConverter);
+        });
+
+        // Counterparty.VKN — KVKK hassas veri (Vergi Kimlik Numarasi)
+        modelBuilder.Entity<Counterparty>(e =>
+        {
+            e.Property(c => c.VKN).HasConversion(nullableConverter);
+        });
+
+        // LegalEntity.TaxNumber — KVKK hassas veri
+        modelBuilder.Entity<LegalEntity>(e =>
+        {
+            e.Property(l => l.TaxNumber).HasConversion(
+                new EncryptedStringConverter(_encryptionService));
         });
     }
 

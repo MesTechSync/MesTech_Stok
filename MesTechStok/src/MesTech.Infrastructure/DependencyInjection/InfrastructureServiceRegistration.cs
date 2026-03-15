@@ -1,5 +1,7 @@
-﻿using MesTech.Application.Interfaces;
+﻿using MediatR;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Infrastructure.AI;
@@ -13,6 +15,7 @@ using MesTech.Infrastructure.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
 using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Messaging.Mesa.Accounting;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Persistence.Repositories;
 using Crm = MesTech.Infrastructure.Persistence.Repositories.Crm;
@@ -222,16 +225,19 @@ public static class InfrastructureServiceRegistration
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();
 
-        // === Muhasebe Modulu (MUH-01) ===
-        services.AddAccountingServices();
+        // === Muhasebe Modulu (MUH-01 + MUH-02) ===
+        services.AddAccountingServices(configuration);
 
         return services;
     }
 
     /// <summary>
     /// Muhasebe modulu servis ve repository kayitlari.
+    /// MUH-02: Feature flag swap + Advisory + Anomaly handler.
     /// </summary>
-    public static IServiceCollection AddAccountingServices(this IServiceCollection services)
+    public static IServiceCollection AddAccountingServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         // ── Domain Services ──
         services.AddSingleton<MesTech.Domain.Accounting.Services.ICommissionCalculationService,
@@ -243,9 +249,30 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
             MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
 
-        // ── MESA Muhasebe AI (Mock — Dalga 2'de Real swap) ──
-        services.AddScoped<MesTech.Application.Interfaces.Accounting.IMesaAccountingService,
-            MockMesaAccountingService>();
+        // ── MESA Muhasebe AI (MUH-02: Feature flag swap — Mock veya Real) ──
+        // MockMesaAccountingService her zaman kayitli: Real client fallback olarak kullanir
+        services.AddSingleton<MockMesaAccountingService>();
+
+        if (configuration.GetValue<bool>("Mesa:Accounting:UseReal", false))
+        {
+            services.AddHttpClient<MesTech.Application.Interfaces.Accounting.IMesaAccountingService,
+                RealMesaAccountingClient>();
+        }
+        else
+        {
+            services.AddScoped<MesTech.Application.Interfaces.Accounting.IMesaAccountingService,
+                MockMesaAccountingService>();
+        }
+
+        // ── MESA Advisory Agent (MUH-02: Feature flag swap) ──
+        if (configuration.GetValue<bool>("Mesa:Advisory:UseReal", false))
+        {
+            services.AddHttpClient<IAdvisoryAgentClient, AdvisoryAgentClient>();
+        }
+        else
+        {
+            services.AddScoped<IAdvisoryAgentClient, MockAdvisoryAgentClient>();
+        }
 
         // ── Repositories ──
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IChartOfAccountsRepository,
@@ -295,11 +322,23 @@ public static class InfrastructureServiceRegistration
         // ── Field Encryption Service ──
         services.AddSingleton<IFieldEncryptionService, FieldEncryptionService>();
 
+        // ── Key Rotation Service (MUH-02 KVKK) ──
+        services.AddSingleton<IKeyRotationService, KeyRotationService>();
+
         // ── Accounting Hangfire Workers ──
         services.AddScoped<SettlementSyncWorker>();
         services.AddScoped<CommissionCalculatorWorker>();
         services.AddScoped<BankStatementImportWorker>();
         services.AddScoped<DailyProfitWorker>();
+
+        // ── MUH-02 Accounting Workers ──
+        services.AddScoped<ReconciliationWorker>();
+        services.AddScoped<ScheduledBriefingWorker>();
+
+        // ── MUH-02: Anomaly Check Handler (MediatR INotificationHandler) ──
+        // Infrastructure assembly MediatR scan'e dahil degil, explicit kayit.
+        services.AddScoped<INotificationHandler<DomainEventNotification<LedgerPostedEvent>>,
+            AnomalyCheckHandler>();
 
         return services;
     }

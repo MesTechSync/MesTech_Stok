@@ -28,6 +28,13 @@ public class SettlementBatchRepository : ISettlementBatchRepository
             .OrderByDescending(b => b.PeriodEnd)
             .AsNoTracking().ToListAsync(ct);
 
+    public async Task<IReadOnlyList<SettlementBatch>> GetUnmatchedAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.SettlementBatches
+            .Include(b => b.Lines)
+            .Where(b => b.TenantId == tenantId && b.Status == MesTech.Domain.Accounting.Enums.SettlementStatus.Imported)
+            .OrderByDescending(b => b.PeriodEnd)
+            .AsNoTracking().ToListAsync(ct);
+
     public async Task AddAsync(SettlementBatch batch, CancellationToken ct = default)
         => await _context.SettlementBatches.AddAsync(batch, ct);
 
