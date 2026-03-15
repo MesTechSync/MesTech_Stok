@@ -27,6 +27,7 @@ public class SyncBitrix24ContactsHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
+#pragma warning disable CA1031 // Intentional: catches all adapter errors for resilience in background sync
         try
         {
             var syncedCount = await _adapter.SyncContactsAsync(cancellationToken)
@@ -61,5 +62,6 @@ public class SyncBitrix24ContactsHandler
                 Errors = { ex.Message }
             };
         }
+#pragma warning restore CA1031
     }
 }

@@ -107,7 +107,7 @@ namespace MesTechStok.Desktop.Views
         {
             // SQL tabanlı servis
             _inventoryService = new MesTechStok.Desktop.Services.SqlBackedInventoryService(
-                MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<MesTechStok.Core.Data.AppDbContext>()
+                MesTechStok.Desktop.App.Services!.GetRequiredService<MesTechStok.Core.Data.AppDbContext>()
             );
             _displayedInventory = new ObservableCollection<MesTechStok.Desktop.Services.InventoryItem>();
 
@@ -264,7 +264,7 @@ namespace MesTechStok.Desktop.Views
             {
                 try
                 {
-                    var sp2 = MesTechStok.Desktop.App.ServiceProvider;
+                    var sp2 = MesTechStok.Desktop.App.Services;
                     var dbInv = sp2?.GetService<MesTechStok.Core.Services.Abstract.IInventoryService>();
                     if (dbInv == null)
                     {
@@ -297,7 +297,7 @@ namespace MesTechStok.Desktop.Views
             }
             var result = MessageBox.Show("Stok çıkışında FEFO (erken SKT öncelik) uygulansın mı?", "Stok Çıkışı", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.Cancel) return;
-            var sp3 = MesTechStok.Desktop.App.ServiceProvider;
+            var sp3 = MesTechStok.Desktop.App.Services;
             var dbInv = sp3?.GetService<MesTechStok.Core.Services.Abstract.IInventoryService>();
             if (dbInv == null) { ToastManager.ShowError("Envanter servisi bulunamadı.", "Stok Çıkışı"); return; }
 
@@ -355,7 +355,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null)
                 {
@@ -379,7 +379,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) return;
                 await svc.StopScanningAsync();

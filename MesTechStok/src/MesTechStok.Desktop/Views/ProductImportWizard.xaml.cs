@@ -49,7 +49,7 @@ namespace MesTechStok.Desktop.Views
             InitMappings(Array.Empty<string>());
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 _productService = sp?.GetService<IProductDataService>() ?? new EnhancedProductService();
             }
             catch (Exception ex)

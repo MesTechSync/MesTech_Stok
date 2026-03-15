@@ -62,7 +62,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex) { GlobalLogger.Instance.LogError($"[WelcomeWindow] EventBus subscription failed: {ex.Message}"); }
 
             // Resolve system resource service from DI if available
-            _sysService = App.ServiceProvider?.GetService<ISystemResourceService>() ?? new SystemResourceService(Microsoft.Extensions.Logging.Abstractions.NullLogger<SystemResourceService>.Instance);
+            _sysService = App.Services?.GetService<ISystemResourceService>() ?? new SystemResourceService(Microsoft.Extensions.Logging.Abstractions.NullLogger<SystemResourceService>.Instance);
             if (_sysService is SystemResourceService srs)
             {
                 srs.Start();
@@ -103,7 +103,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = App.ServiceProvider;
+                var sp = App.Services;
                 if (sp == null) return;
 
                 using var scope = sp.CreateScope();
@@ -537,7 +537,7 @@ namespace MesTechStok.Desktop.Views
                 else
                 {
                     // Get MainViewModel from DI container via a scope (scoped services need a scope)
-                    var serviceProvider = App.ServiceProvider;
+                    var serviceProvider = App.Services;
                     if (serviceProvider != null)
                     {
                         var scope = serviceProvider.CreateScope();
@@ -995,7 +995,7 @@ namespace MesTechStok.Desktop.Views
                     // Firma adını footer'a yansıtma (varsa)
                     try
                     {
-                        var sp = App.ServiceProvider;
+                        var sp = App.Services;
                         if (sp != null)
                         {
                             using var scope = sp.CreateScope();

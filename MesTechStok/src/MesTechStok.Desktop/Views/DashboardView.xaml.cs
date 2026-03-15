@@ -40,7 +40,7 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
 
             // Get services from DI container
-            var serviceProvider = App.ServiceProvider;
+            var serviceProvider = App.Services;
             if (serviceProvider != null)
             {
                 _productService = serviceProvider.GetRequiredService<IRealProductService>();
@@ -120,7 +120,7 @@ namespace MesTechStok.Desktop.Views
                 LowStockWidget.Value = lowStockProducts.Count().ToString();
 
                 // Active Categories (via MediatR)
-                var serviceProvider = App.ServiceProvider;
+                var serviceProvider = App.Services;
                 if (serviceProvider != null)
                 {
                     var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -351,7 +351,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var serviceProvider = App.ServiceProvider;
+                var serviceProvider = App.Services;
                 if (serviceProvider != null)
                 {
                     var mediator = serviceProvider.GetRequiredService<IMediator>();

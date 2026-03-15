@@ -93,7 +93,7 @@ namespace MesTechStok.Desktop.Views
 
         public ReportsView()
         {
-            _reportsService = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<SqlBackedReportsService>();
+            _reportsService = MesTechStok.Desktop.App.Services!.GetRequiredService<SqlBackedReportsService>();
             _displayedReports = new ObservableCollection<Services.ReportItem>();
 
             InitializeComponent();
@@ -482,7 +482,7 @@ namespace MesTechStok.Desktop.Views
                     string company = "MesTech Teknoloji";
                     try
                     {
-                        var sp = MesTechStok.Desktop.App.ServiceProvider;
+                        var sp = MesTechStok.Desktop.App.Services;
                         if (sp != null)
                         {
                             using var scope = sp.CreateScope();
@@ -501,7 +501,7 @@ namespace MesTechStok.Desktop.Views
                         GlobalLogger.Instance.LogError($"[ReportsView] Low stock export failed: {ex.Message}");
                     }
 
-                    var pdf = App.ServiceProvider?.GetService<PdfReportService>() ?? new PdfReportService();
+                    var pdf = App.Services?.GetService<PdfReportService>() ?? new PdfReportService();
                     GlobalLogger.Instance.LogInfo($"PDF export starting: rows={lowStock.Count}", "ReportsView");
                     await pdf.ExportLowStockReportAsync(sfd.FileName, company, lowStock);
                     GlobalLogger.Instance.LogInfo($"PDF export done: path={sfd.FileName}", "ReportsView");

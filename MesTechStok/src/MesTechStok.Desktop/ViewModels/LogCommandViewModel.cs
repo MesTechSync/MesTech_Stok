@@ -23,11 +23,11 @@ namespace MesTechStok.Desktop.ViewModels
 
         public LogCommandViewModel(IServiceProvider? serviceProvider = null)
         {
-            serviceProvider ??= App.ServiceProvider;
+            // D-01: App.Services köprüsü üzerinden fallback (IServiceLocatorBridge)
             _logAnalysisService = serviceProvider?.GetService<LogAnalysisService>()
-                ?? throw new InvalidOperationException("LogAnalysisService servisi bulunamadı");
-            _logger = serviceProvider.GetService<ILogger<LogCommandViewModel>>()
-                ?? throw new InvalidOperationException("Logger servisi bulunamadı");
+                ?? App.Services.GetRequiredService<LogAnalysisService>();
+            _logger = serviceProvider?.GetService<ILogger<LogCommandViewModel>>()
+                ?? App.Services.GetRequiredService<ILogger<LogCommandViewModel>>();
 
             ExecuteCommand = new RelayCommand(async () => await ExecuteCommandAsync(), () => !IsExecuting);
             ClearCommand = new RelayCommand(() => { CommandOutput = ""; CommandInput = ""; });

@@ -12,12 +12,12 @@ public class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
     public CreateExpenseHandler(IFinanceExpenseRepository repo, IUnitOfWork uow)
         => (_repository, _uow) = (repo, uow);
 
-    public async Task<Guid> Handle(CreateExpenseCommand req, CancellationToken ct)
+    public async Task<Guid> Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
     {
-        var expense = FinanceExpense.Create(req.TenantId, req.Title, req.Amount, req.Category,
-            req.ExpenseDate, req.SubmittedByUserId, req.Notes, req.StoreId);
-        await _repository.AddAsync(expense, ct);
-        await _uow.SaveChangesAsync(ct);
+        var expense = FinanceExpense.Create(request.TenantId, request.Title, request.Amount, request.Category,
+            request.ExpenseDate, request.SubmittedByUserId, request.Notes, request.StoreId);
+        await _repository.AddAsync(expense, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
         return expense.Id;
     }
 }

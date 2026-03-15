@@ -86,7 +86,7 @@ namespace MesTechStok.Desktop
                 // Header bilgilerini doldur (CompanySettings + DB)
                 try
                 {
-                    var sp = App.ServiceProvider;
+                    var sp = App.Services;
                     var cfg = sp?.GetService<IConfiguration>();
                     var provider = cfg?["Database:Provider"] ?? "PostgreSQL";
                     var dbInfo = $"MesTech_stok - {provider} (Docker)";
@@ -117,7 +117,7 @@ namespace MesTechStok.Desktop
                 // Authentication: Skip overlay if configured
                 try
                 {
-                    var config = App.ServiceProvider?.GetService<IConfiguration>();
+                    var config = App.Services?.GetService<IConfiguration>();
                     // Screensaver config (default: disabled)
                     _screensaverEnabled = config?.GetSection("Screensaver")?.GetValue<bool>("Enabled") ?? false;
                     var skipLogin = config?.GetSection("Authentication")?.GetValue<bool>("SkipLogin") ?? false;
@@ -258,7 +258,7 @@ namespace MesTechStok.Desktop
         {
             try
             {
-                var sp = App.ServiceProvider;
+                var sp = App.Services;
                 if (sp == null) return;
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -1633,7 +1633,7 @@ namespace MesTechStok.Desktop
                 // Şu anda basit logout yapılıyor
 
                 // 1) Basit logout
-                var sp = App.ServiceProvider;
+                var sp = App.Services;
                 var simpleSecurity = sp?.GetService<SimpleSecurityService>();
                 if (simpleSecurity != null)
                 {
@@ -2279,7 +2279,7 @@ namespace MesTechStok.Desktop
             try
             {
                 // Application monitoring service'e uygulama hazır olduğunu bildir
-                var serviceProvider = App.ServiceProvider;
+                var serviceProvider = App.Services;
                 if (serviceProvider != null)
                 {
                     var appMonitoring = serviceProvider.GetService<IApplicationMonitoringService>();
@@ -2376,7 +2376,7 @@ namespace MesTechStok.Desktop
                     return;
                 }
 
-                var authService = App.ServiceProvider?.GetService<MesTechStok.Core.Services.Abstract.IAuthService>();
+                var authService = App.Services?.GetService<MesTechStok.Core.Services.Abstract.IAuthService>();
                 if (authService != null)
                 {
                     var result = await authService.LoginAsync("admin", enteredPassword);

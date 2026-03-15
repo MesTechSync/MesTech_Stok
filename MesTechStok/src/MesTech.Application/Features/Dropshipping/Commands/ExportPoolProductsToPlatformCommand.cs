@@ -45,17 +45,20 @@ public class ExportPoolProductsToPlatformCommandHandler(
         foreach (var p in products)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (p.Product is null) { failed++; errors.Add("Product reference is null — skipped"); continue; }
+#pragma warning disable CA1031 // Intentional: per-product errors are collected; processing continues for remaining items
             try
             {
-                var ok = await adapter.PushProductAsync(p.Product!, cancellationToken);
+                var ok = await adapter.PushProductAsync(p.Product, cancellationToken);
                 if (ok) sent++;
-                else { failed++; errors.Add($"SKU:{p.Product?.SKU} gönderilemedi"); }
+                else { failed++; errors.Add($"SKU:{p.Product.SKU} gönderilemedi"); }
             }
             catch (Exception ex)
             {
                 failed++;
-                errors.Add($"SKU:{p.Product?.SKU} — {ex.Message}");
+                errors.Add($"SKU:{p.Product.SKU} — {ex.Message}");
             }
+#pragma warning restore CA1031
         }
 
         return new ExportToPlatformResult(sent, failed, errors);

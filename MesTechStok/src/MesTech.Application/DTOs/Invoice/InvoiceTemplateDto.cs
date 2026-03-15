@@ -3,8 +3,8 @@ using MesTech.Domain.Enums;
 namespace MesTech.Application.DTOs.Invoice;
 
 public record InvoiceTemplateDto(
-    byte[]? LogoImage,
-    byte[]? SignatureImage,
+    IReadOnlyList<byte>? LogoImage,
+    IReadOnlyList<byte>? SignatureImage,
     string? PhoneNumber,
     string? Email,
     string? TicaretSicilNo,

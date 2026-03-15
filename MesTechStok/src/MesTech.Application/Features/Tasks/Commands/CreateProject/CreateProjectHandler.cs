@@ -12,12 +12,12 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Guid>
     public CreateProjectHandler(IProjectRepository repository, IUnitOfWork uow)
         => (_repository, _uow) = (repository, uow);
 
-    public async Task<Guid> Handle(CreateProjectCommand req, CancellationToken ct)
+    public async Task<Guid> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
-        var project = Project.Create(req.TenantId, req.Name, req.OwnerUserId,
-            req.Description, req.StartDate, req.DueDate, req.Color);
-        await _repository.AddAsync(project, ct);
-        await _uow.SaveChangesAsync(ct);
+        var project = Project.Create(request.TenantId, request.Name, request.OwnerUserId,
+            request.Description, request.StartDate, request.DueDate, request.Color);
+        await _repository.AddAsync(project, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
         return project.Id;
     }
 }

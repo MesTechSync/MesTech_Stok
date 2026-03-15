@@ -16,4 +16,7 @@ public sealed class ServiceLocatorBridge(IServiceProvider serviceProvider) : ISe
 
     public T? GetService<T>()
         => serviceProvider.GetService<T>();
+
+    public IServiceScope CreateScope()
+        => serviceProvider.CreateScope();
 }

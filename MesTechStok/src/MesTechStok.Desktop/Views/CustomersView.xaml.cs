@@ -136,7 +136,7 @@ namespace MesTechStok.Desktop.Views
 
         public CustomersView()
         {
-            var sp = MesTechStok.Desktop.App.ServiceProvider;
+            var sp = MesTechStok.Desktop.App.Services;
             _customerService = sp != null
                 ? sp.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>()
                 : throw new InvalidOperationException("ServiceProvider yok");
@@ -220,7 +220,7 @@ namespace MesTechStok.Desktop.Views
                 CurrentPage = page;
                 CurrentPageSize = pageSize;
                 // Use a fresh scope to avoid sharing the same DbContext across concurrent operations
-                var root = MesTechStok.Desktop.App.ServiceProvider;
+                var root = MesTechStok.Desktop.App.Services;
                 if (root == null) throw new InvalidOperationException("ServiceProvider yok");
                 using var scope = root.CreateScope();
                 var customerService = scope.ServiceProvider.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>();
@@ -269,7 +269,7 @@ namespace MesTechStok.Desktop.Views
                 await _statsLock.WaitAsync();
                 try
                 {
-                    var root = MesTechStok.Desktop.App.ServiceProvider;
+                    var root = MesTechStok.Desktop.App.Services;
                     if (root == null) throw new InvalidOperationException("ServiceProvider yok");
                     using var scope = root.CreateScope();
                     var customerService = scope.ServiceProvider.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>();
@@ -480,7 +480,7 @@ namespace MesTechStok.Desktop.Views
             {
                 try
                 {
-                    var sp = MesTechStok.Desktop.App.ServiceProvider;
+                    var sp = MesTechStok.Desktop.App.Services;
                     var core = sp!.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>();
                     // Müşteriyi core'dan çekip popup'ı açalım
                     _ = Dispatcher.InvokeAsync(async () =>

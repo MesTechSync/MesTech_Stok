@@ -61,7 +61,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp == null)
                 {
                     MessageBox.Show("Servis sağlayıcı başlatılamadı.");

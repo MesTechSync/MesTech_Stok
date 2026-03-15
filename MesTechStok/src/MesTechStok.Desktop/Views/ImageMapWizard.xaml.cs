@@ -107,9 +107,9 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = App.ServiceProvider;
+                var sp = App.Services;
                 if (sp == null) return;
-                var ctx = sp.GetService(typeof(MesTechStok.Core.Data.AppDbContext)) as MesTechStok.Core.Data.AppDbContext;
+                var ctx = sp.GetService<MesTechStok.Core.Data.AppDbContext>();
                 if (ctx == null) return;
                 foreach (var f in files)
                 {
@@ -146,8 +146,8 @@ namespace MesTechStok.Desktop.Views
             {
                 if (_rows.Count == 0) return;
                 Busy("Eşleştiriliyor…");
-                var sp = App.ServiceProvider; if (sp == null) return;
-                var ctx = sp.GetService(typeof(MesTechStok.Core.Data.AppDbContext)) as MesTechStok.Core.Data.AppDbContext; if (ctx == null) return;
+                var sp = App.Services; if (sp == null) return;
+                var ctx = sp.GetService<MesTechStok.Core.Data.AppDbContext>(); if (ctx == null) return;
                 var storage = new MesTechStok.Desktop.Services.ImageStorageService();
                 int ok = 0, fail = 0;
                 foreach (var r in _rows.Where(r => r.ProductId != Guid.Empty))

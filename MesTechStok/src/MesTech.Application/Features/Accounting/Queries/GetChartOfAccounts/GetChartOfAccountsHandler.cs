@@ -1,0 +1,28 @@
+using MediatR;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Interfaces.Accounting;
+
+namespace MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
+
+public class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery, IReadOnlyList<ChartOfAccountsDto>>
+{
+    private readonly IChartOfAccountsRepository _repository;
+
+    public GetChartOfAccountsHandler(IChartOfAccountsRepository repository)
+        => _repository = repository;
+
+    public async Task<IReadOnlyList<ChartOfAccountsDto>> Handle(GetChartOfAccountsQuery request, CancellationToken cancellationToken)
+    {
+        var accounts = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken);
+        return accounts.Select(a => new ChartOfAccountsDto
+        {
+            Id = a.Id,
+            Code = a.Code,
+            Name = a.Name,
+            AccountType = a.AccountType.ToString(),
+            ParentId = a.ParentId,
+            IsActive = a.IsActive,
+            Level = a.Level
+        }).ToList().AsReadOnly();
+    }
+}

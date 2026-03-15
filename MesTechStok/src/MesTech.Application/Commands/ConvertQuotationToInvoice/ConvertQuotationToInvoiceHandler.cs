@@ -34,39 +34,7 @@ public class ConvertQuotationToInvoiceHandler
                 ErrorMessage = "Quotation not found."
             };
 
-        // Build an Invoice from the quotation data
-        var invoice = new Invoice
-        {
-            InvoiceNumber = request.InvoiceNumber,
-            TenantId = quotation.TenantId,
-            Type = InvoiceType.EArsiv,
-            Status = InvoiceStatus.Draft,
-            CustomerName = quotation.CustomerName,
-            CustomerTaxNumber = quotation.CustomerTaxNumber,
-            CustomerTaxOffice = quotation.CustomerTaxOffice,
-            CustomerAddress = quotation.CustomerAddress ?? string.Empty,
-            CustomerEmail = quotation.CustomerEmail,
-            Currency = quotation.Currency,
-            InvoiceDate = DateTime.UtcNow,
-        };
-
-        // Copy lines from quotation to invoice
-        foreach (var qLine in quotation.Lines)
-        {
-            var invoiceLine = new InvoiceLine
-            {
-                TenantId = quotation.TenantId,
-                InvoiceId = invoice.Id,
-                ProductId = qLine.ProductId,
-                ProductName = qLine.ProductName,
-                SKU = qLine.SKU,
-                Quantity = qLine.Quantity,
-                UnitPrice = qLine.UnitPrice,
-                TaxRate = qLine.TaxRate / 100, // QuotationLine stores as % (e.g. 18), InvoiceLine as decimal (e.g. 0.18)
-            };
-            invoiceLine.CalculateLineTotal();
-            invoice.AddLine(invoiceLine);
-        }
+        var invoice = BuildInvoiceFromQuotation(request, quotation);
 
         // Mark quotation as converted
         try
@@ -91,5 +59,44 @@ public class ConvertQuotationToInvoiceHandler
             IsSuccess = true,
             InvoiceId = invoice.Id
         };
+    }
+
+    private static Invoice BuildInvoiceFromQuotation(
+        ConvertQuotationToInvoiceCommand request,
+        Quotation quotation)
+    {
+        var invoice = new Invoice
+        {
+            InvoiceNumber = request.InvoiceNumber,
+            TenantId = quotation.TenantId,
+            Type = InvoiceType.EArsiv,
+            Status = InvoiceStatus.Draft,
+            CustomerName = quotation.CustomerName,
+            CustomerTaxNumber = quotation.CustomerTaxNumber,
+            CustomerTaxOffice = quotation.CustomerTaxOffice,
+            CustomerAddress = quotation.CustomerAddress ?? string.Empty,
+            CustomerEmail = quotation.CustomerEmail,
+            Currency = quotation.Currency,
+            InvoiceDate = DateTime.UtcNow,
+        };
+
+        foreach (var qLine in quotation.Lines)
+        {
+            var invoiceLine = new InvoiceLine
+            {
+                TenantId = quotation.TenantId,
+                InvoiceId = invoice.Id,
+                ProductId = qLine.ProductId,
+                ProductName = qLine.ProductName,
+                SKU = qLine.SKU,
+                Quantity = qLine.Quantity,
+                UnitPrice = qLine.UnitPrice,
+                TaxRate = qLine.TaxRate / 100, // QuotationLine stores as % (e.g. 18), InvoiceLine as decimal (e.g. 0.18)
+            };
+            invoiceLine.CalculateLineTotal();
+            invoice.AddLine(invoiceLine);
+        }
+
+        return invoice;
     }
 }

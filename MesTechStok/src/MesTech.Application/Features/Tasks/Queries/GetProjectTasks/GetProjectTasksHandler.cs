@@ -11,9 +11,9 @@ public class GetProjectTasksHandler : IRequestHandler<GetProjectTasksQuery, IRea
 
     public GetProjectTasksHandler(IWorkTaskRepository repository) => _repository = repository;
 
-    public async Task<IReadOnlyList<WorkTaskDto>> Handle(GetProjectTasksQuery req, CancellationToken ct)
+    public async Task<IReadOnlyList<WorkTaskDto>> Handle(GetProjectTasksQuery request, CancellationToken cancellationToken)
     {
-        var tasks = await _repository.GetByProjectAsync(req.ProjectId, req.Status, req.AssignedToUserId, ct);
+        var tasks = await _repository.GetByProjectAsync(request.ProjectId, request.Status, request.AssignedToUserId, cancellationToken);
         return tasks.Adapt<List<WorkTaskDto>>().AsReadOnly();
     }
 }

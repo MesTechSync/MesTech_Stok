@@ -24,8 +24,8 @@ namespace MesTechStok.Desktop.Views
             StartDatePicker.SelectedDate = DateTime.Today.AddDays(-7);
             EndDatePicker.SelectedDate = DateTime.Today;
 
-            _trendyolAdapter = App.ServiceProvider?.GetService<TrendyolAdapter>();
-            _openCartAdapter = App.ServiceProvider?.GetService<OpenCartAdapter>();
+            _trendyolAdapter = App.Services?.GetService<TrendyolAdapter>();
+            _openCartAdapter = App.Services?.GetService<OpenCartAdapter>();
 
             OrdersGrid.ItemsSource = _allOrders;
         }

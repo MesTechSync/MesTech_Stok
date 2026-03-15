@@ -56,9 +56,15 @@ public class PushOrderToBitrix24Handler
             };
         }
 
+        return await PushOrderAndPersistDealAsync(order, cancellationToken).ConfigureAwait(false);
+    }
+
+#pragma warning disable CA1031 // Intentional: catches all adapter errors to return a result object instead of throwing
+    private async Task<PushOrderToBitrix24Result> PushOrderAndPersistDealAsync(
+        Order order, CancellationToken cancellationToken)
+    {
         try
         {
-            // Push to Bitrix24
             var externalDealId = await _adapter.PushDealAsync(order, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -71,7 +77,6 @@ public class PushOrderToBitrix24Handler
                 };
             }
 
-            // Create local mapping
             var deal = new Bitrix24Deal
             {
                 TenantId = order.TenantId,
@@ -102,4 +107,5 @@ public class PushOrderToBitrix24Handler
             };
         }
     }
+#pragma warning restore CA1031
 }

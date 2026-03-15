@@ -19,7 +19,7 @@ namespace MesTechStok.Desktop.Views
         public CustomerEditPopup()
         {
             InitializeComponent();
-            var sp = MesTechStok.Desktop.App.ServiceProvider;
+            var sp = MesTechStok.Desktop.App.Services;
             _customerService = sp!.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>();
         }
 

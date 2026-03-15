@@ -91,7 +91,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var health = sp?.GetService<IOpenCartHealthService>();
                 if (health != null && ConsecutiveFailuresText != null)
                 {
@@ -224,7 +224,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var opts = sp?.GetService<IOptions<OpenCartSettingsOptions>>()?.Value;
                 if (opts != null)
                 {
@@ -272,7 +272,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var client = sp?.GetService<IOpenCartClient>();
                 if (client == null)
                 {
@@ -540,7 +540,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var client = sp?.GetService<IOpenCartClient>();
                 if (client == null)
                 {

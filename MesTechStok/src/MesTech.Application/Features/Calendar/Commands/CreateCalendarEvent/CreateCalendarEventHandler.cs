@@ -12,17 +12,17 @@ public class CreateCalendarEventHandler : IRequestHandler<CreateCalendarEventCom
     public CreateCalendarEventHandler(ICalendarEventRepository repo, IUnitOfWork uow)
         => (_repository, _uow) = (repo, uow);
 
-    public async Task<Guid> Handle(CreateCalendarEventCommand req, CancellationToken ct)
+    public async Task<Guid> Handle(CreateCalendarEventCommand request, CancellationToken cancellationToken)
     {
-        var ev = CalendarEvent.Create(req.TenantId, req.Title, req.StartAt, req.EndAt,
-            req.Type, req.IsAllDay, req.CreatedByUserId, req.Description, req.Location,
-            null, req.RelatedOrderId, req.RelatedDealId, req.RelatedWorkTaskId);
+        var ev = CalendarEvent.Create(request.TenantId, request.Title, request.StartAt, request.EndAt,
+            request.Type, request.IsAllDay, request.CreatedByUserId, request.Description, request.Location,
+            null, request.RelatedOrderId, request.RelatedDealId, request.RelatedWorkTaskId);
 
-        foreach (var userId in req.AttendeeUserIds ?? [])
+        foreach (var userId in request.AttendeeUserIds ?? [])
             ev.AddAttendee(userId);
 
-        await _repository.AddAsync(ev, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _repository.AddAsync(ev, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
         return ev.Id;
     }
 }

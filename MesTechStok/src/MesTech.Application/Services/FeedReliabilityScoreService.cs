@@ -4,7 +4,7 @@ namespace MesTech.Application.Services;
 /// Calculates a reliability score (0-100) for a SupplierFeed based on 5 weighted components.
 /// Pure calculation service — no I/O, no async. The caller gathers metrics data.
 /// </summary>
-public class FeedReliabilityScoreService
+public static class FeedReliabilityScoreService
 {
     private const double StockAccuracyWeight = 0.25;
     private const double UpdateFrequencyWeight = 0.20;
@@ -15,7 +15,7 @@ public class FeedReliabilityScoreService
     /// <summary>
     /// Calculates reliability score without associating it to a specific feed.
     /// </summary>
-    public SupplierReliabilityScore Calculate(FeedReliabilityInput input)
+    public static SupplierReliabilityScore Calculate(FeedReliabilityInput input)
     {
         return CalculateForFeed(Guid.Empty, input);
     }
@@ -23,7 +23,7 @@ public class FeedReliabilityScoreService
     /// <summary>
     /// Calculates reliability score for a specific SupplierFeed.
     /// </summary>
-    public SupplierReliabilityScore CalculateForFeed(Guid supplierFeedId, FeedReliabilityInput input)
+    public static SupplierReliabilityScore CalculateForFeed(Guid supplierFeedId, FeedReliabilityInput input)
     {
         var stockAccuracyScore = Clamp(input.StockAccuracyPercent);
         var updateFrequencyScore = Clamp(input.UpdateFrequencyPercent);

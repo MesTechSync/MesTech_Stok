@@ -41,7 +41,7 @@ public class CreateFeedSourceCommandHandler(
 ) : IRequestHandler<CreateFeedSourceCommand, Guid>
 {
     public async Task<Guid> Handle(
-        CreateFeedSourceCommand req, CancellationToken ct)
+        CreateFeedSourceCommand req, CancellationToken cancellationToken)
     {
         var feed = new SupplierFeed
         {
@@ -60,7 +60,7 @@ public class CreateFeedSourceCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await feedRepo.AddAsync(feed, ct);
+        await feedRepo.AddAsync(feed, cancellationToken);
         return feed.Id;
     }
 }

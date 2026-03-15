@@ -28,7 +28,7 @@ namespace MesTechStok.Desktop.Views
             get => (int)GetValue(CoverIndexProperty);
             set => SetValue(CoverIndexProperty, value);
         }
-        private readonly IServiceProvider? _serviceProvider;
+        private readonly MesTech.Application.Interfaces.IServiceLocatorBridge? _serviceProvider;
         private readonly List<string> _imageFiles = new();
         private readonly List<string> _videoFiles = new();
         private int _coverIndex = -1;
@@ -49,7 +49,7 @@ namespace MesTechStok.Desktop.Views
         public ProductUploadPopup()
         {
             InitializeComponent();
-            _serviceProvider = MesTechStok.Desktop.App.ServiceProvider;
+            _serviceProvider = MesTechStok.Desktop.App.Services;
 
             // Basit sözlük listeleri (senkron, donmaya yol açmaz)
             try
@@ -534,7 +534,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     try
                     {
-                        var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
+                        var storage = App.Services?.GetService<ImageStorageService>() ?? new ImageStorageService();
                         // Kapak
                         var coverSaved = await storage.SaveAsync(item.Id, coverPath);
                         var mediaChanged = false;
@@ -621,7 +621,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var auth = sp?.GetService<IAuthService>();
                 if (auth == null) return "anonymous";
                 var user = await auth.GetCurrentUserAsync();
@@ -1168,7 +1168,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) { MesTechStok.Desktop.Utils.ToastManager.ShowWarning("Barkod servisi yok", "Barkod"); return; }
                 svc.BarcodeScanned += BarcodeSvc_BarcodeScanned;
@@ -1186,7 +1186,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) return;
                 await svc.StopScanningAsync();
@@ -1695,7 +1695,7 @@ namespace MesTechStok.Desktop.Views
                         // Ürün klasörü altında olabilir
                         try
                         {
-                            var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
+                            var storage = App.Services?.GetService<ImageStorageService>() ?? new ImageStorageService();
                             var pf = storage.GetProductFolder(_editingProductId.Value);
                             var inProd = System.IO.Path.Combine(pf, path);
                             if (System.IO.File.Exists(inProd))

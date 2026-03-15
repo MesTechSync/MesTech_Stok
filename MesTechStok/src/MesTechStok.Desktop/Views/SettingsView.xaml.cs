@@ -72,7 +72,7 @@ namespace MesTechStok.Desktop.Views
             // Load current settings (from configuration)
             try
             {
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp != null)
                 {
                     using var scope = sp.CreateScope();
@@ -104,7 +104,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp == null) return;
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -181,7 +181,7 @@ namespace MesTechStok.Desktop.Views
                         "Doğrulama Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp != null)
                 {
                     using var scope = sp.CreateScope();
@@ -389,7 +389,7 @@ namespace MesTechStok.Desktop.Views
             DatabaseStatusText.Text = "🔄 Test ediliyor...";
             try
             {
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp == null) throw new Exception("ServiceProvider yok");
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -509,7 +509,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     var targetPath = saveFileDialog.FileName;
 
-                    var sp = Desktop.App.ServiceProvider;
+                    var sp = Desktop.App.Services;
                     if (sp == null) throw new Exception("ServiceProvider yok");
                     using var scope = sp.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -1402,7 +1402,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = Desktop.App.ServiceProvider;
+                var sp = Desktop.App.Services;
                 if (sp != null)
                 {
                     // IMPORTANT: Resolve from root provider for view lifetime.

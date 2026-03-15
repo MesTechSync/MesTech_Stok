@@ -30,7 +30,7 @@ public class CreateDropshippingPoolCommandHandler(
 ) : IRequestHandler<CreateDropshippingPoolCommand, Guid>
 {
     public async Task<Guid> Handle(
-        CreateDropshippingPoolCommand req, CancellationToken ct)
+        CreateDropshippingPoolCommand req, CancellationToken cancellationToken)
     {
         var pool = new DropshippingPool(
             tenantId: tenantProvider.GetCurrentTenantId(),
@@ -43,7 +43,7 @@ public class CreateDropshippingPoolCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await poolRepo.AddAsync(pool, ct);
+        await poolRepo.AddAsync(pool, cancellationToken);
         return pool.Id;
     }
 }

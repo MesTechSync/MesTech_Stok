@@ -18,7 +18,7 @@ public class GetSyncStatusHandler : IRequestHandler<GetSyncStatusQuery, SyncStat
 
         foreach (var adapter in _orchestrator.RegisteredAdapters)
         {
-            if (request.PlatformCode != null && adapter.PlatformCode != request.PlatformCode)
+            if (request.PlatformCode != null && !string.Equals(adapter.PlatformCode, request.PlatformCode, StringComparison.Ordinal))
             {
                 continue;
             }

@@ -9,9 +9,9 @@ public partial class TelemetryView : UserControl
     public TelemetryView()
     {
         InitializeComponent();
-        if (Desktop.App.ServiceProvider != null)
+        if (Desktop.App.Services != null)
         {
-            var vm = Desktop.App.ServiceProvider.GetRequiredService<TelemetryViewModel>();
+            var vm = Desktop.App.Services.GetRequiredService<TelemetryViewModel>();
             DataContext = vm;
             _ = vm.InitializeAsync();
         }

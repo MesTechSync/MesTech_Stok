@@ -21,7 +21,7 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
 
             // Get services from DI container
-            var serviceProvider = App.ServiceProvider;
+            var serviceProvider = App.Services;
             if (serviceProvider != null)
             {
                 _databaseService = serviceProvider.GetService<IDatabaseService>();

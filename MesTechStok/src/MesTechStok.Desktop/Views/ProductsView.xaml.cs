@@ -60,7 +60,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider!;
+                var sp = MesTechStok.Desktop.App.Services!;
                 _productService = sp.GetRequiredService<IProductDataService>();
                 _usingDemoService = false;
             }
@@ -204,7 +204,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     try
                     {
-                        var sp = MesTechStok.Desktop.App.ServiceProvider;
+                        var sp = MesTechStok.Desktop.App.Services;
                         if (sp != null)
                         {
                             var mediator = sp.GetRequiredService<IMediator>();
@@ -337,7 +337,7 @@ namespace MesTechStok.Desktop.Views
                 // Kategorileri filtrele ve göster
                 if (!_usingDemoService)
                 {
-                    var sp = MesTechStok.Desktop.App.ServiceProvider;
+                    var sp = MesTechStok.Desktop.App.Services;
                     if (sp != null)
                     {
                         var mediator = sp.GetRequiredService<IMediator>();
@@ -861,7 +861,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { DbStatusText.Text = "DB: fail"; return; }
                 if (_usingDemoService)
                 {
@@ -1200,7 +1200,7 @@ namespace MesTechStok.Desktop.Views
             {
                 var item = (sender as FrameworkElement)?.DataContext as ProductItem;
                 if (item == null) return;
-                var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
+                var storage = App.Services?.GetService<ImageStorageService>() ?? new ImageStorageService();
                 var folder = storage.GetProductFolder(item.Id);
                 if (System.IO.Directory.Exists(folder)) Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }
@@ -1270,7 +1270,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) { ShowToastNotification("Barkod servisi yok", "warning"); return; }
                 svc.BarcodeScanned += BarcodeSvcOnBarcodeScanned;
@@ -1288,7 +1288,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var svc = sp?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                 if (svc == null) return;
                 await svc.StopScanningAsync();
@@ -1397,7 +1397,7 @@ namespace MesTechStok.Desktop.Views
                 // Kamera/okuyucu güvenli kapatma
                 try
                 {
-                    var svc = MesTechStok.Desktop.App.ServiceProvider?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
+                    var svc = MesTechStok.Desktop.App.Services?.GetService<MesTechStok.Desktop.Services.IBarcodeService>();
                     if (svc != null)
                     {
                         await svc.StopScanningAsync();
@@ -1536,7 +1536,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { ShowToastNotification("Servis bulunamadı", "error"); return; }
                 var mediator = sp.GetRequiredService<IMediator>();
                 var seedResult = await mediator.Send(new SeedDemoDataCommand());
@@ -1552,7 +1552,7 @@ namespace MesTechStok.Desktop.Views
                 }
                 ShowToastNotification("✅ Demo verileri yüklendi.", "success");
                 // DB'ye döneriz
-                _productService = App.ServiceProvider?.GetService<IProductDataService>() ?? _productService;
+                _productService = App.Services?.GetService<IProductDataService>() ?? _productService;
                 _usingDemoService = false;
                 await LoadCategoriesAsync();
                 await LoadProductsAsync();
@@ -1569,7 +1569,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp == null) { ShowToastNotification("Servis bulunamadı", "error"); return; }
                 var mediator = sp.GetRequiredService<IMediator>();
                 var bulkResult = await mediator.Send(new CreateBulkProductsCommand(40));
@@ -1580,7 +1580,7 @@ namespace MesTechStok.Desktop.Views
                 }
 
                 var created = bulkResult.CreatedCount;
-                _productService = App.ServiceProvider?.GetService<IProductDataService>() ?? _productService;
+                _productService = App.Services?.GetService<IProductDataService>() ?? _productService;
                 _usingDemoService = false;
                 await LoadCategoriesAsync();
                 await LoadProductsAsync();
@@ -1748,7 +1748,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 if (_selectedProduct == null) return;
-                var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
+                var storage = App.Services?.GetService<ImageStorageService>() ?? new ImageStorageService();
                 var folder = storage.GetProductFolder(_selectedProduct.Id);
                 if (System.IO.Directory.Exists(folder)) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = folder, UseShellExecute = true });
             }

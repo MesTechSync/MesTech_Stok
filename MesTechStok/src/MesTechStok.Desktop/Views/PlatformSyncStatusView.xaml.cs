@@ -94,7 +94,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                var job = App.ServiceProvider?.GetService<TJob>();
+                var job = App.Services?.GetService<TJob>();
                 if (job == null)
                 {
                     sw.Stop();

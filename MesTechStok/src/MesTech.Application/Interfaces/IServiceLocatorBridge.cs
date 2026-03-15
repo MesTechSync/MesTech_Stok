@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace MesTech.Application.Interfaces;
 
 /// <summary>
@@ -12,4 +14,7 @@ public interface IServiceLocatorBridge
 
     /// <summary>Kayıtlı servisi al; bulunamazsa null döner.</summary>
     T? GetService<T>();
+
+    /// <summary>Scoped servisler için DI scope oluştur (WPF handler pattern).</summary>
+    IServiceScope CreateScope();
 }

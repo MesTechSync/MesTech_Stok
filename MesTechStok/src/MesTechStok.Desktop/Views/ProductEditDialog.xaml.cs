@@ -66,7 +66,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 // Kategorileri SQL'den yükle - THREADING-SAFE
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 if (sp != null)
                 {
                     // Her dialog için yeni DbContext instance kullan (threading sorunu çözümü)
@@ -143,7 +143,7 @@ namespace MesTechStok.Desktop.Views
                 {
                     if (!string.IsNullOrWhiteSpace(ProductImageUrl))
                     {
-                        var storage = App.ServiceProvider?.GetService<ImageStorageService>() ?? new ImageStorageService();
+                        var storage = App.Services?.GetService<ImageStorageService>() ?? new ImageStorageService();
                         // Geçici olarak 0 id; gerçek kayıttan sonra güncellenebilir. Düzenle modunda Id var.
                         Guid id = Guid.Empty;
                         if (Owner is MainWindow mw && mw.DataContext is object) { }

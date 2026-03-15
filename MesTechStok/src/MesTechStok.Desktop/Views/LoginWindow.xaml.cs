@@ -24,7 +24,7 @@ public partial class LoginWindow : Window
         InitializeComponent();
 
         // Get AuthService from DI container - Fixed static access
-        _authService = App.ServiceProvider!.GetRequiredService<IAuthService>();
+        _authService = App.Services!.GetRequiredService<IAuthService>();
 
         // Setup events
         this.KeyDown += LoginWindow_KeyDown;

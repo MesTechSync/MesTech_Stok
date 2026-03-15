@@ -25,15 +25,15 @@ public class UpdatePoolProductStockCommandHandler(
 ) : IRequestHandler<UpdatePoolProductStockCommand, bool>
 {
     public async Task<bool> Handle(
-        UpdatePoolProductStockCommand req, CancellationToken ct)
+        UpdatePoolProductStockCommand req, CancellationToken cancellationToken)
     {
-        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, ct)
+        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPoolProduct '{req.PoolProductId}' bulunamadı.");
 
         poolProduct.UpdatePrice(req.NewPrice);
         poolProduct.UpdatedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await poolRepo.UpdatePoolProductAsync(poolProduct, ct);
+        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken);
         return true;
     }
 }

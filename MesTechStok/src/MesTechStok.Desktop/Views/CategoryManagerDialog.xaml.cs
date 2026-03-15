@@ -22,7 +22,7 @@ namespace MesTechStok.Desktop.Views
         public CategoryManagerDialog()
         {
             InitializeComponent();
-            _mediator = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<IMediator>();
+            _mediator = MesTechStok.Desktop.App.Services!.GetRequiredService<IMediator>();
             CmbCatPageSize.SelectedIndex = 1; // 50
             _ = LoadAsync();
             this.Activate(); this.Focus();

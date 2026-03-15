@@ -12,13 +12,13 @@ public class CreateWorkTaskHandler : IRequestHandler<CreateWorkTaskCommand, Guid
     public CreateWorkTaskHandler(IWorkTaskRepository repo, IUnitOfWork uow)
         => (_repository, _uow) = (repo, uow);
 
-    public async Task<Guid> Handle(CreateWorkTaskCommand req, CancellationToken ct)
+    public async Task<Guid> Handle(CreateWorkTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = WorkTask.Create(req.TenantId, req.Title, req.Priority,
-            req.ProjectId, req.MilestoneId, req.AssignedToUserId, req.CreatedByUserId,
-            req.DueDate, req.EstimatedMinutes, req.OrderId, req.CrmContactId, req.ProductId);
-        await _repository.AddAsync(task, ct);
-        await _uow.SaveChangesAsync(ct);
+        var task = WorkTask.Create(request.TenantId, request.Title, request.Priority,
+            request.ProjectId, request.MilestoneId, request.AssignedToUserId, request.CreatedByUserId,
+            request.DueDate, request.EstimatedMinutes, request.OrderId, request.CrmContactId, request.ProductId);
+        await _repository.AddAsync(task, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
         return task.Id;
     }
 }

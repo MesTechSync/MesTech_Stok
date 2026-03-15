@@ -24,7 +24,7 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
 
             // SystemResourceService'i DI container'dan al
-            var serviceProvider = App.ServiceProvider;
+            var serviceProvider = App.Services;
             if (serviceProvider != null)
             {
                 _systemResourceService = serviceProvider.GetRequiredService<ISystemResourceService>() as SystemResourceService;

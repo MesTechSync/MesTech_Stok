@@ -124,7 +124,7 @@ namespace MesTechStok.Desktop.Views
             var baseTimeoutMs = 8000;
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var cfg = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                 if (cfg != null)
                 {
@@ -138,7 +138,7 @@ namespace MesTechStok.Desktop.Views
             _baseTimeoutMs = Math.Max(2000, baseTimeoutMs);
             try
             {
-                var sp2 = MesTechStok.Desktop.App.ServiceProvider;
+                var sp2 = MesTechStok.Desktop.App.Services;
                 var cfg2 = sp2?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                 if (cfg2 != null)
                 {
@@ -167,7 +167,7 @@ namespace MesTechStok.Desktop.Views
             // USB HID dinleyiciyi de başlat (arka planda)
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var hid = sp?.GetService<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService>();
                 hid?.StartScanningAsync();
                 GlobalLogger.Instance.LogInfo("USB HID dinleyici başlatıldı", "BarcodeView");
@@ -190,7 +190,7 @@ namespace MesTechStok.Desktop.Views
             // Ayarları konfigürasyondan yükle (geri döndürülebilir profil)
             try
             {
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var config = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                 if (config != null)
                 {
@@ -376,7 +376,7 @@ namespace MesTechStok.Desktop.Views
                 double widthMul = 2.5, heightMul = 1.333;
                 try
                 {
-                    var sp = MesTechStok.Desktop.App.ServiceProvider;
+                    var sp = MesTechStok.Desktop.App.Services;
                     var config = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                     if (config != null)
                     {
@@ -842,7 +842,7 @@ namespace MesTechStok.Desktop.Views
                                 cameraPreview.Source = bitmapSource;
                                 try
                                 {
-                                    var spz = MesTechStok.Desktop.App.ServiceProvider;
+                                    var spz = MesTechStok.Desktop.App.Services;
                                     var cfgz = spz?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                                     if (cfgz != null && this.FindName("CameraScale") is ScaleTransform st)
                                     {
@@ -879,7 +879,7 @@ namespace MesTechStok.Desktop.Views
                                 double roiTopPct = 0.25, roiHeightPct = 0.50;
                                 try
                                 {
-                                    var sp = MesTechStok.Desktop.App.ServiceProvider;
+                                    var sp = MesTechStok.Desktop.App.Services;
                                     var cfg = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                                     if (cfg != null)
                                     {
@@ -902,7 +902,7 @@ namespace MesTechStok.Desktop.Views
                                 double roiLeftPct = 0.05, roiWidthPct = 0.90;
                                 try
                                 {
-                                    var sp2 = MesTechStok.Desktop.App.ServiceProvider;
+                                    var sp2 = MesTechStok.Desktop.App.Services;
                                     var cfg2 = sp2?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                                     if (cfg2 != null)
                                     {
@@ -962,7 +962,7 @@ namespace MesTechStok.Desktop.Views
                                 double decodeScale = 1.0;
                                 try
                                 {
-                                    var sp3 = MesTechStok.Desktop.App.ServiceProvider;
+                                    var sp3 = MesTechStok.Desktop.App.Services;
                                     var cfg3 = sp3?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                                     if (cfg3 != null)
                                     {
@@ -1381,7 +1381,7 @@ namespace MesTechStok.Desktop.Views
                     int decodeCooldownMs = 250;
                     try
                     {
-                        var sp = MesTechStok.Desktop.App.ServiceProvider;
+                        var sp = MesTechStok.Desktop.App.Services;
                         var config = sp?.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
                         if (config != null)
                         {
@@ -1580,7 +1580,7 @@ namespace MesTechStok.Desktop.Views
                 // SQL'e kalıcı barkod logu yaz
                 try
                 {
-                    var sp = MesTechStok.Desktop.App.ServiceProvider;
+                    var sp = MesTechStok.Desktop.App.Services;
                     if (sp != null)
                     {
                         using var scope = sp.CreateScope();
@@ -1837,7 +1837,7 @@ namespace MesTechStok.Desktop.Views
                 System.Diagnostics.Debug.WriteLine("[BarcodeView] TestGlobalBarcode_Click called");
 
                 // GlobalBarcodeService'i al
-                var sp = MesTechStok.Desktop.App.ServiceProvider;
+                var sp = MesTechStok.Desktop.App.Services;
                 var globalBarcodeService = sp?.GetService<IGlobalBarcodeService>();
 
                 if (globalBarcodeService == null)

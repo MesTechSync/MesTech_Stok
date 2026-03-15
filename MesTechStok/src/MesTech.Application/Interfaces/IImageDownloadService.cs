@@ -44,7 +44,7 @@ public record ImageDownloadResult(
 public record DownloadedImage(
     string OriginalUrl,
     string? LocalPath,
-    byte[]? Data,
+    IReadOnlyList<byte>? Data,
     string ContentType,
     string Sha256Hash,
     long SizeBytes

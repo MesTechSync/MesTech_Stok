@@ -26,7 +26,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 // Temporarily commented out - barcode service will be restored later
-                _barcodeService = App.ServiceProvider?.GetService<IBarcodeService>();
+                _barcodeService = App.Services?.GetService<IBarcodeService>();
             }
             catch (Exception ex)
             {

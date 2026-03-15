@@ -153,7 +153,7 @@ namespace MesTechStok.Desktop.Views
 
         public OrdersView()
         {
-            _orderService = MesTechStok.Desktop.App.ServiceProvider!.GetRequiredService<MesTechStok.Core.Services.Abstract.IOrderService>();
+            _orderService = MesTechStok.Desktop.App.Services!.GetRequiredService<MesTechStok.Core.Services.Abstract.IOrderService>();
             _displayedOrders = new ObservableCollection<Services.OrderItem>();
 
             // Initialize search timer for better performance

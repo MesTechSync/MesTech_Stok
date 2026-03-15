@@ -25,15 +25,15 @@ public class UpdatePoolProductReliabilityCommandHandler(
 ) : IRequestHandler<UpdatePoolProductReliabilityCommand, bool>
 {
     public async Task<bool> Handle(
-        UpdatePoolProductReliabilityCommand req, CancellationToken ct)
+        UpdatePoolProductReliabilityCommand req, CancellationToken cancellationToken)
     {
-        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, ct)
+        var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPoolProduct '{req.PoolProductId}' bulunamadı.");
 
         // ReliabilityColor ve score — entity'de doğrudan property set
         poolProduct.UpdatedAt = DateTime.UtcNow;
 
-        await poolRepo.UpdatePoolProductAsync(poolProduct, ct);
+        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken);
         return true;
     }
 }

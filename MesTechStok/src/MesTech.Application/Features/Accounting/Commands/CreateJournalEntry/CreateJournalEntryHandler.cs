@@ -1,0 +1,31 @@
+using MediatR;
+using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
+
+namespace MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
+
+public class CreateJournalEntryHandler : IRequestHandler<CreateJournalEntryCommand, Guid>
+{
+    private readonly IJournalEntryRepository _repository;
+    private readonly IUnitOfWork _uow;
+
+    public CreateJournalEntryHandler(IJournalEntryRepository repository, IUnitOfWork uow)
+        => (_repository, _uow) = (repository, uow);
+
+    public async Task<Guid> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
+    {
+        var entry = JournalEntry.Create(request.TenantId, request.EntryDate, request.Description, request.ReferenceNumber);
+
+        foreach (var line in request.Lines)
+        {
+            entry.AddLine(line.AccountId, line.Debit, line.Credit, line.Description);
+        }
+
+        entry.Validate();
+
+        await _repository.AddAsync(entry, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return entry.Id;
+    }
+}
