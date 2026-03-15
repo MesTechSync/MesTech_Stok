@@ -272,7 +272,7 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ICategoryMapperService, CategoryAutoMapper>();
 
         // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-01: IServiceLocatorBridge (sadece App.xaml.cs için)
-        services.AddSingleton<IServiceLocatorBridge>(sp => new ServiceLocatorBridge(sp));
+        services.AddSingleton<IServiceLocatorBridge, ServiceLocatorBridge>();
 
         return services;
     }
