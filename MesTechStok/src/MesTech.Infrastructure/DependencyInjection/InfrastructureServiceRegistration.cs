@@ -1,11 +1,16 @@
 ﻿using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Infrastructure.AI;
+using MesTech.Infrastructure.AI.Accounting;
+using MesTech.Infrastructure.Banking;
+using MesTech.Infrastructure.Banking.Parsers;
 using MesTech.Infrastructure.Caching;
 using MesTech.Infrastructure.HealthChecks;
 using MesTech.Infrastructure.Integration.Crm;
 using MesTech.Infrastructure.Jobs;
+using MesTech.Infrastructure.Jobs.Accounting;
 using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Persistence;
@@ -14,6 +19,8 @@ using Crm = MesTech.Infrastructure.Persistence.Repositories.Crm;
 using Tasks = MesTech.Infrastructure.Persistence.Repositories.Tasks;
 using Cal = MesTech.Infrastructure.Persistence.Repositories.Calendar;
 using Finance = MesTech.Infrastructure.Persistence.Repositories.Finance;
+using Hr = MesTech.Infrastructure.Persistence.Repositories.Hr;
+using Docs = MesTech.Infrastructure.Persistence.Repositories.Documents;
 using MesTech.Infrastructure.Realtime;
 using MesTech.Infrastructure.Security;
 using MesTech.Infrastructure.Services;
@@ -79,6 +86,14 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
         services.AddScoped<ICrmDealRepository, Crm.CrmDealRepository>();
 
+        // HR + Document + Pipeline Repositories (Dalga 8 H28)
+        services.AddScoped<IDepartmentRepository, Hr.DepartmentRepository>();
+        services.AddScoped<IEmployeeRepository, Hr.EmployeeRepository>();
+        services.AddScoped<ILeaveRepository, Hr.LeaveRepository>();
+        services.AddScoped<IDocumentFolderRepository, Docs.DocumentFolderRepository>();
+        services.AddScoped<IDocumentRepository, Docs.DocumentRepository>();
+        services.AddScoped<IPipelineRepository, Crm.PipelineRepository>();
+
         // Task / Calendar Repositories (Dalga 8 H27)
         services.AddScoped<IProjectRepository, Tasks.ProjectRepository>();
         services.AddScoped<IWorkTaskRepository, Tasks.WorkTaskRepository>();
@@ -122,10 +137,18 @@ public static class InfrastructureServiceRegistration
         services.AddMesTechMessaging(configuration);
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
-        // === MESA OS Bridge (Dalga 1: Mock, Dalga 2: Monitoring) ===
+        // === MESA OS Bridge (Dalga 1: Mock, Dalga 8 H28: Real HTTP via feature flag) ===
         services.AddScoped<IMesaAIService, MockMesaAIService>();
         services.AddScoped<IMesaBotService, MockMesaBotService>();
-        services.AddScoped<IMesaEventPublisher, MesaEventPublisher>();
+
+        // Feature flag: Mesa:BridgeEnabled=true → RealMesaEventPublisher (HTTP REST)
+        //               Mesa:BridgeEnabled=false (default) → MesaEventPublisher (MassTransit/Mock)
+        var mesaBridgeEnabled = configuration.GetValue<bool>("Mesa:BridgeEnabled", false);
+        if (mesaBridgeEnabled)
+            services.AddHttpClient<IMesaEventPublisher, RealMesaEventPublisher>();
+        else
+            services.AddScoped<IMesaEventPublisher, MesaEventPublisher>();
+
         services.AddSingleton<IMesaEventMonitor, MesaEventMonitor>();
 
         // Dalga 4: AI servisleri (Mock — Dalga 5'te Real swap)
@@ -220,6 +243,10 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
             MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
 
+        // ── MESA Muhasebe AI (Mock — Dalga 2'de Real swap) ──
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IMesaAccountingService,
+            MockMesaAccountingService>();
+
         // ── Repositories ──
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IChartOfAccountsRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ChartOfAccountsRepository>();
@@ -255,6 +282,24 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ProfitReportRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingSupplierAccountRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingSupplierAccountRepository>();
+
+        // ── Bank Statement Parsers (MUH-01 DEV 4) ──
+        services.AddSingleton<IBankStatementParser, OFXParser>();
+        services.AddSingleton<IBankStatementParser, MT940Parser>();
+        services.AddSingleton<IBankStatementParser, Camt053Parser>();
+        services.AddSingleton<IBankStatementParserFactory, BankStatementParserFactory>();
+
+        // ── Bank Statement Import Service ──
+        services.AddScoped<BankStatementImportService>();
+
+        // ── Field Encryption Service ──
+        services.AddSingleton<IFieldEncryptionService, FieldEncryptionService>();
+
+        // ── Accounting Hangfire Workers ──
+        services.AddScoped<SettlementSyncWorker>();
+        services.AddScoped<CommissionCalculatorWorker>();
+        services.AddScoped<BankStatementImportWorker>();
+        services.AddScoped<DailyProfitWorker>();
 
         return services;
     }

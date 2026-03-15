@@ -1,0 +1,26 @@
+using Microsoft.EntityFrameworkCore;
+using MesTech.Domain.Entities.Crm;
+using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Persistence;
+
+namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
+
+public class PipelineRepository : IPipelineRepository
+{
+    private readonly AppDbContext _context;
+    public PipelineRepository(AppDbContext context) => _context = context;
+
+    public async Task<Pipeline?> GetByIdWithStagesAsync(Guid id, CancellationToken ct = default)
+        => await _context.Pipelines.Include(p => p.Stages.OrderBy(s => s.Position))
+                         .FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public async Task<Pipeline?> GetDefaultAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.Pipelines.Include(p => p.Stages.OrderBy(s => s.Position))
+                         .FirstOrDefaultAsync(p => p.TenantId == tenantId && p.IsDefault, ct);
+
+    public async Task<IReadOnlyList<Pipeline>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.Pipelines.Where(p => p.TenantId == tenantId).AsNoTracking().ToListAsync(ct);
+
+    public async Task AddAsync(Pipeline pipeline, CancellationToken ct = default)
+        => await _context.Pipelines.AddAsync(pipeline, ct);
+}

@@ -50,4 +50,25 @@ public class CrmDealRepository : ICrmDealRepository
 
     public async Task AddAsync(Deal deal, CancellationToken ct = default)
         => await _context.Deals.AddAsync(deal, ct).ConfigureAwait(false);
+
+    // DEV3 H28 T3.3 — Tenant bazlı sayfalı deal sorgusu
+    public async Task<IReadOnlyList<Deal>> GetByTenantPagedAsync(
+        Guid tenantId, DealStatus? status, int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _context.Deals
+            .Include(d => d.Stage)
+            .Include(d => d.Contact)
+            .Where(d => d.TenantId == tenantId);
+
+        if (status.HasValue)
+            query = query.Where(d => d.Status == status.Value);
+
+        return await query
+            .OrderByDescending(d => d.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+    }
 }
