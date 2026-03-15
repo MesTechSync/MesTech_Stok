@@ -9,5 +9,6 @@ public interface ICrmDealRepository
     Task<IReadOnlyList<Deal>> GetByPipelineAsync(
         Guid tenantId, Guid pipelineId, DealStatus? status, CancellationToken ct = default);
     Task<IReadOnlyList<Deal>> GetByContactAsync(Guid contactId, CancellationToken ct = default);
+    Task<IReadOnlyList<Deal>> GetByTenantPagedAsync(Guid tenantId, DealStatus? status, int page, int pageSize, CancellationToken ct = default);
     Task AddAsync(Deal deal, CancellationToken ct = default);
 }
