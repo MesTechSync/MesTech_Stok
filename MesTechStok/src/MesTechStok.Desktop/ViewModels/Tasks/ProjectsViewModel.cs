@@ -2,34 +2,46 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Tasks.Queries.GetProjects;
 using MesTech.Domain.Interfaces;
-// TODO H28: using MesTech.Application.Features.Tasks.Queries.GetProjects;
 
 namespace MesTechStok.Desktop.ViewModels.Tasks;
 
 public partial class ProjectsViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
-    private readonly ICurrentUserService _currentUser;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private bool isLoading;
 
     public ObservableCollection<ProjectCardVm> Projects { get; } = [];
 
-    public ProjectsViewModel(IMediator mediator, ICurrentUserService currentUser)
-        => (_mediator, _currentUser) = (mediator, currentUser);
+    public ProjectsViewModel(IMediator mediator, ITenantProvider tenantProvider)
+        => (_mediator, _tenantProvider) = (mediator, tenantProvider);
 
     public async Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            // TODO: GetProjectsQuery H28 DEV3 tamamlayınca bağlanır
-            // Placeholder:
+            var projects = await _mediator.Send(
+                new GetProjectsQuery(_tenantProvider.GetCurrentTenantId()));
+
             Projects.Clear();
-            Projects.Add(new ProjectCardVm { Id = Guid.NewGuid(), Name = "Trendyol Entegrasyon", Status = "Active", Color = "#FF6600", CompletionPercent = 65, TaskSummary = "13 / 20 görev tamamlandı" });
-            Projects.Add(new ProjectCardVm { Id = Guid.NewGuid(), Name = "Hepsiburada Fatura", Status = "Planning", Color = "#3B82F6", CompletionPercent = 20, TaskSummary = "4 / 20 görev tamamlandı" });
-            await Task.CompletedTask;
+            foreach (var p in projects)
+            {
+                Projects.Add(new ProjectCardVm
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Status = p.Status,
+                    Color = "#2855AC",
+                    CompletionPercent = p.TaskCount > 0
+                        ? Math.Round((double)p.CompletedTaskCount / p.TaskCount * 100, 0)
+                        : 0,
+                    TaskSummary = $"{p.CompletedTaskCount} / {p.TaskCount} görev tamamlandı"
+                });
+            }
         }
         finally { IsLoading = false; }
     }
