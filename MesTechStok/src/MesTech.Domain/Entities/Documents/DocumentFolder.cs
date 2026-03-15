@@ -1,5 +1,4 @@
 using MesTech.Domain.Common;
-
 namespace MesTech.Domain.Entities.Documents;
 
 public class DocumentFolder : BaseEntity, ITenantEntity
@@ -12,18 +11,15 @@ public class DocumentFolder : BaseEntity, ITenantEntity
 
     private DocumentFolder() { }
 
-    public static DocumentFolder Create(Guid tenantId, string name, int position = 0, Guid? parentFolderId = null, bool isSystem = false)
+    public static DocumentFolder Create(Guid tenantId, string name,
+        Guid? parentFolderId = null, int position = 0, bool isSystem = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new DocumentFolder
         {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            Name = name,
-            Position = position,
-            ParentFolderId = parentFolderId,
-            IsSystem = isSystem,
-            CreatedAt = DateTime.UtcNow
+            Id = Guid.NewGuid(), TenantId = tenantId, Name = name,
+            ParentFolderId = parentFolderId, Position = position,
+            IsSystem = isSystem, CreatedAt = DateTime.UtcNow
         };
     }
 
@@ -31,7 +27,12 @@ public class DocumentFolder : BaseEntity, ITenantEntity
     {
         if (IsSystem) throw new InvalidOperationException("System folders cannot be renamed.");
         ArgumentException.ThrowIfNullOrWhiteSpace(newName);
-        Name = newName;
-        UpdatedAt = DateTime.UtcNow;
+        Name = newName; UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Delete()
+    {
+        if (IsSystem) throw new InvalidOperationException("System folders cannot be deleted.");
+        IsDeleted = true; DeletedAt = DateTime.UtcNow;
     }
 }
