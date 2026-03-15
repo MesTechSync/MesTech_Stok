@@ -1,0 +1,167 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Accounting.KarZararView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Background" Value="#2855AC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1e3f80"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <Style x:Key="AlternatingRowStyle" TargetType="DataGridRow">
+            <Style.Triggers>
+                <Trigger Property="AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#F8F9FA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Kar / Zarar Analizi" FontSize="22" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock Text="Platform bazli kar-zarar raporu ve trend analizi" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Platform:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Foreground="#495057"/>
+                    <ComboBox x:Name="PlatformFilter" Width="140" SelectedIndex="0" SelectionChanged="PlatformFilter_Changed">
+                        <ComboBoxItem Content="Tumu"/>
+                        <ComboBoxItem Content="Trendyol"/>
+                        <ComboBoxItem Content="Hepsiburada"/>
+                        <ComboBoxItem Content="N11"/>
+                        <ComboBoxItem Content="Ciceksepeti"/>
+                        <ComboBoxItem Content="Pazarama"/>
+                        <ComboBoxItem Content="OpenCart"/>
+                    </ComboBox>
+                    <TextBlock Text="Donem:" VerticalAlignment="Center" Margin="16,0,8,0" FontSize="12" Foreground="#495057"/>
+                    <ComboBox x:Name="PeriodFilter" Width="120" SelectedIndex="2" SelectionChanged="PeriodFilter_Changed">
+                        <ComboBoxItem Content="Gunluk"/>
+                        <ComboBoxItem Content="Haftalik"/>
+                        <ComboBoxItem Content="Aylik"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: KPI Cards -->
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Toplam Ciro" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="RevenueText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Urun Maliyeti" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="CostText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Komisyon" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="CommissionText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Net Kar" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="NetProfitText" Text="0,00 TL" FontSize="18" FontWeight="Bold" Foreground="#28A745" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: DataGrid -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="8,4,8,8" Padding="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Kar/Zarar Detayi" FontSize="16" FontWeight="Bold" Foreground="#212529" Margin="0,0,0,8"/>
+                <DataGrid Grid.Row="1" x:Name="ProfitGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserSortColumns="True" SelectionMode="Single"
+                          AlternationCount="2" RowStyle="{StaticResource AlternatingRowStyle}"
+                          GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                          BorderThickness="0" FontSize="12" RowHeight="34" ColumnHeaderHeight="36">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Donem" Binding="{Binding Period}" Width="120"/>
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>
+                        <DataGridTextColumn Header="Ciro" Binding="{Binding Revenue, StringFormat='{}{0:N2}'}" Width="120"/>
+                        <DataGridTextColumn Header="Maliyet" Binding="{Binding Cost, StringFormat='{}{0:N2}'}" Width="120"/>
+                        <DataGridTextColumn Header="Komisyon" Binding="{Binding Commission, StringFormat='{}{0:N2}'}" Width="110"/>
+                        <DataGridTextColumn Header="Kargo" Binding="{Binding Shipping, StringFormat='{}{0:N2}'}" Width="100"/>
+                        <DataGridTextColumn Header="Net Kar" Binding="{Binding NetProfit, StringFormat='{}{0:N2} TL'}" Width="120"/>
+                        <DataGridTextColumn Header="Kar Marji" Binding="{Binding ProfitMargin, StringFormat='{}{0:F1}%'}" Width="90"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.RowSpan="3" Background="#80FFFFFF" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
