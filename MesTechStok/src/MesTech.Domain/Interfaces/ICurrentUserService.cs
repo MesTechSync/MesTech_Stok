@@ -7,6 +7,7 @@ namespace MesTech.Domain.Interfaces;
 public interface ICurrentUserService
 {
     Guid? UserId { get; }
+    Guid TenantId { get; }
     string? Username { get; }
     bool IsAuthenticated { get; }
 }
