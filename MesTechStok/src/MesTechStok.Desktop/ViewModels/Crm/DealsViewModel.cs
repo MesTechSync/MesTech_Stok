@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Domain.Interfaces;
+using MesTech.Application.Features.Crm.Queries.GetDeals;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 
 namespace MesTechStok.Desktop.ViewModels.Crm;
 
@@ -10,15 +12,20 @@ public partial class DealsViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private bool isLoading;
 
     public ObservableCollection<KanbanStageVm> Stages { get; } = [];
 
-    public DealsViewModel(IMediator mediator, ICurrentUserService currentUser)
+    /// <summary>Flat list for list-view mode — populated by LoadAsListAsync</summary>
+    public ObservableCollection<DealCardVm> AllDeals { get; } = [];
+
+    public DealsViewModel(IMediator mediator, ICurrentUserService currentUser, ITenantProvider tenantProvider)
     {
-        _mediator = mediator;
-        _currentUser = currentUser;
+        _mediator       = mediator;
+        _currentUser    = currentUser;
+        _tenantProvider = tenantProvider;
         InitDefaultStages();
     }
 
@@ -32,17 +39,86 @@ public partial class DealsViewModel : ObservableObject
         Stages.Add(new KanbanStageVm { Name = "Kaybedildi ✗",   Color = "#EF4444" });
     }
 
-    // GetDealsQuery pipeline H28 DEV1 + DEV3 tamamlayınca tam aktif olacak
+    /// <summary>Kanban görünümü için pipeline verilerini yükler (MediatR — GetPipelineKanbanQuery).</summary>
     public async Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            // TODO H28: await _mediator.Send(new GetPipelineKanbanQuery(...));
-            // Şimdilik: stage yapısı hazır, deal kartları H28'de dolacak
-            await Task.Delay(10);
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var result   = await _mediator.Send(new GetPipelineKanbanQuery(tenantId, Guid.Empty));
+
+            Stages.Clear();
+            foreach (var stage in result.Stages)
+            {
+                var stageVm = new KanbanStageVm
+                {
+                    Name  = stage.Name,
+                    Color = stage.Color ?? "#3B82F6",
+                };
+
+                foreach (var deal in stage.Deals)
+                {
+                    stageVm.Deals.Add(new DealCardVm
+                    {
+                        Id          = deal.Id,
+                        Title       = deal.Title,
+                        ContactName = deal.ContactName,
+                        Amount      = deal.Amount,
+                        StageName   = deal.StageName,
+                    });
+                }
+
+                stageVm.DealCount = stageVm.Deals.Count;
+                Stages.Add(stageVm);
+            }
         }
-        finally { IsLoading = false; }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DealsViewModel] LoadAsync error: {ex.Message}");
+            // Fallback: restore default stage structure so the UI is never empty
+            InitDefaultStages();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>Liste görünümü için düz deal listesini yükler (MediatR — GetDealsQuery).</summary>
+    private async Task LoadAsListAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var result   = await _mediator.Send(new GetDealsQuery(
+                TenantId: tenantId,
+                Status:   null,
+                Page:     1,
+                PageSize: 50));
+
+            AllDeals.Clear();
+            foreach (var deal in result.Items)
+            {
+                AllDeals.Add(new DealCardVm
+                {
+                    Id          = deal.Id,
+                    Title       = deal.Title,
+                    ContactName = deal.ContactName,
+                    Amount      = deal.Amount,
+                    StageName   = deal.StageName,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DealsViewModel] LoadAsListAsync error: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
@@ -53,7 +129,7 @@ public partial class DealsViewModel : ObservableObject
         => System.Windows.MessageBox.Show("Yeni Fırsat formu yakında.", "MesTech CRM");
 
     [RelayCommand]
-    private void SwitchToList() { /* H28 liste görünümü */ }
+    private async Task SwitchToList() => await LoadAsListAsync();
 }
 
 public partial class KanbanStageVm : ObservableObject

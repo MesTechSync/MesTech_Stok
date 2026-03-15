@@ -2456,6 +2456,40 @@ namespace MesTechStok.Desktop
             }
             base.OnKeyDown(e);
         }
+
+        // ======================== H28 NAV HANDLERS ========================
+
+        /// <summary>Sets the current view on MainViewModel and updates the status bar.</summary>
+        private void NavigateTo(System.Windows.Controls.UserControl view, string title)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.CurrentView   = view;
+                    viewModel.CurrentModule = title;
+                    viewModel.StatusMessage = $"{title} yüklendi";
+                }
+                UpdateStatusBar($"{title} yüklendi");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NavigateTo] {title}: {ex.Message}");
+                ToastManager.ShowError($"{title} yüklenemedi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavDocuments_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateTo(new Views.Documents.DocumentManagerView(), "Belgeler");
+            SetActiveNav(sender as Button, new[] { NavDocuments });
+        }
+
+        private void NavHrEmployees_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateTo(new Views.Hr.HrEmployeesView(), "İnsan Kaynakları");
+            SetActiveNav(sender as Button, new[] { NavHrEmployees });
+        }
     }
 
     // Bu sınıflar MainWindow.xaml.cs dışına, kendi dosyasına taşınmalı ama geçici olarak burada

@@ -1,0 +1,192 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Documents.DocumentManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:ip="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1200">
+
+    <Grid Background="#F5F7FA">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#F57C00" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ip:PackIcon Kind="FolderOpenOutline" Width="28" Height="28"
+                                 Foreground="White" Margin="0,0,12,0"
+                                 VerticalAlignment="Center"/>
+                    <TextBlock Text="Belgeler" FontSize="20" FontWeight="Bold"
+                               Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Command="{Binding UploadDocumentCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="White" Foreground="#F57C00"
+                        Padding="16,8"
+                        ToolTip="Yeni belge yükle">
+                    <StackPanel Orientation="Horizontal">
+                        <ip:PackIcon Kind="Upload" Width="18" Height="18" Margin="0,0,6,0"/>
+                        <TextBlock Text="Yükle" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Content: split left/right -->
+        <md:Card Grid.Row="1" Margin="16" Padding="0" UniformCornerRadius="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Folder list -->
+                <Grid Grid.Column="0" Background="#FAFAFA">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#EEEEEE" Padding="12,10">
+                        <TextBlock Text="Klasörler" FontWeight="Bold"
+                                   FontSize="13" Foreground="#424242"/>
+                    </Border>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Folders}"
+                             SelectedItem="{Binding SelectedFolder}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.SelectFolderCommand,
+                                            RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        Padding="8,6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ip:PackIcon Kind="FolderOutline" Width="18" Height="18"
+                                                     Foreground="#F57C00" Margin="0,0,8,0"
+                                                     VerticalAlignment="Center"/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontSize="12"
+                                                       Foreground="#212121" TextWrapping="Wrap"
+                                                       MaxWidth="100"/>
+                                            <TextBlock FontSize="10" Foreground="#9E9E9E">
+                                                <Run Text="{Binding DocumentCount}"/>
+                                                <Run Text=" belge"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+
+                <!-- Divider -->
+                <Separator Grid.Column="1" Width="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                           VerticalAlignment="Stretch"/>
+
+                <!-- Right: Document grid -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Right header -->
+                    <Border Grid.Row="0" Background="#FAFAFA" Padding="16,10">
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#424242">
+                            <Run Text="{Binding SelectedFolder.Name, FallbackValue='Klasör seçiniz'}"/>
+                        </TextBlock>
+                    </Border>
+
+                    <!-- Loading indicator -->
+                    <md:Card Grid.Row="1" Margin="0" Padding="0" UniformCornerRadius="0">
+                        <Grid>
+                            <DataGrid ItemsSource="{Binding CurrentDocuments}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal"
+                                      HeadersVisibility="Column"
+                                      RowHeight="40"
+                                      FontSize="12"
+                                      BorderThickness="0"
+                                      SelectionMode="Single"
+                                      SelectionUnit="FullRow">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Dosya Adı"
+                                                        Binding="{Binding FileName}"
+                                                        Width="*"/>
+                                    <DataGridTextColumn Header="Tür"
+                                                        Binding="{Binding MimeType}"
+                                                        Width="180"/>
+                                    <DataGridTextColumn Header="Boyut"
+                                                        Binding="{Binding FileSizeFormatted}"
+                                                        Width="90"/>
+                                    <DataGridTextColumn Header="Yükleme Tarihi"
+                                                        Binding="{Binding UploadedAt, StringFormat=\{0:dd.MM.yyyy HH:mm\}}"
+                                                        Width="130"/>
+                                    <DataGridTextColumn Header="Etiketler"
+                                                        Binding="{Binding Tags}"
+                                                        Width="120"/>
+                                    <DataGridTemplateColumn Header="İşlem" Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.DeleteDocumentCommand,
+                                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Style="{StaticResource MaterialDesignIconButton}"
+                                                        ToolTip="Sil"
+                                                        Foreground="#EF5350"
+                                                        Width="32" Height="32">
+                                                    <ip:PackIcon Kind="DeleteOutline" Width="18" Height="18"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Empty state -->
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Visibility="{Binding SelectedFolder, Converter={StaticResource NullToCollapsedConverter},
+                                            FallbackValue=Visible}">
+                                <ip:PackIcon Kind="FolderOpenOutline" Width="64" Height="64"
+                                             Foreground="#BDBDBD" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Bir klasör seçerek belgelerinizi görüntüleyin."
+                                           Foreground="#9E9E9E" FontSize="13"
+                                           HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </md:Card>
+                </Grid>
+            </Grid>
+        </md:Card>
+
+        <!-- Progress overlay -->
+        <Grid Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#80FFFFFF">
+            <ProgressBar IsIndeterminate="True" Width="200"
+                         Foreground="#F57C00"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Style="{StaticResource MaterialDesignLinearProgressBar}"/>
+        </Grid>
+    </Grid>
+</UserControl>

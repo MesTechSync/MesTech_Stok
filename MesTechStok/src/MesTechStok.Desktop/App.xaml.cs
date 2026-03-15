@@ -567,6 +567,7 @@ public partial class App : Application
         // ALPHA TEAM: ViewModels
         services.AddTransient<MainViewModel>();
         services.AddTransient<TelemetryViewModel>();
+        services.AddScoped<MesTechStok.Desktop.ViewModels.Documents.DocumentManagerViewModel>();
 
         // ALPHA TEAM: Views (DI registration for constructor injection support)
         services.AddTransient<Views.QuotationView>();

@@ -152,15 +152,27 @@ public class JournalEntryTests
     }
 
     [Fact]
-    public void Validate_WithLessThanTwoLines_ShouldThrow()
+    public void Validate_WithNoLines_ShouldThrow()
+    {
+        var entry = JournalEntry.Create(_tenantId, DateTime.UtcNow, "Test");
+        // No lines added — total debit = 0, total credit = 0 (balanced)
+        // but less than 2 lines
+
+        var act = () => entry.Validate();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*at least 2 lines*");
+    }
+
+    [Fact]
+    public void Validate_WithSingleUnbalancedLine_ShouldThrowImbalance()
     {
         var entry = JournalEntry.Create(_tenantId, DateTime.UtcNow, "Test");
         entry.AddLine(Guid.NewGuid(), 100m, 0m);
 
         var act = () => entry.Validate();
 
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*at least 2 lines*");
+        act.Should().Throw<JournalEntryImbalanceException>();
     }
 
     [Fact]

@@ -1,0 +1,10 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Hr.HrEmployeesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="White">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="İnsan Kaynakları" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#F57C00"/>
+            <TextBlock Text="Bu modül H29'da aktif olacak." FontSize="14" HorizontalAlignment="Center" Margin="0,8,0,0" Foreground="#666"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
