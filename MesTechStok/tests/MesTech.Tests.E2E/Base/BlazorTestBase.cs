@@ -1,4 +1,4 @@
-using Microsoft.Playwright.NUnit;
+﻿using Microsoft.Playwright.NUnit;
 
 namespace MesTech.Tests.E2E.Base;
 
@@ -7,17 +7,17 @@ namespace MesTech.Tests.E2E.Base;
 /// Configures browser, provides login helper, and sets base URLs.
 ///
 /// Prerequisites:
-///   - Blazor server running at BlazorBaseUrl (default: http://localhost:5200)
-///   - WebApi running at ApiBaseUrl (default: http://localhost:5100)
+///   - Blazor server running at BlazorBaseUrl (default: http://localhost:3200)
+///   - WebApi running at ApiBaseUrl (default: http://localhost:3100)
 ///   - Docker services: PostgreSQL, Redis, RabbitMQ
 /// </summary>
 public class BlazorTestBase : PageTest
 {
     protected string BlazorBaseUrl => Environment.GetEnvironmentVariable("E2E_BLAZOR_URL")
-        ?? "http://localhost:5200";
+        ?? "http://localhost:3200";
 
     protected string ApiBaseUrl => Environment.GetEnvironmentVariable("E2E_API_URL")
-        ?? "http://localhost:5100";
+        ?? "http://localhost:3100";
 
     protected string TestUsername => Environment.GetEnvironmentVariable("E2E_USERNAME")
         ?? "admin";
