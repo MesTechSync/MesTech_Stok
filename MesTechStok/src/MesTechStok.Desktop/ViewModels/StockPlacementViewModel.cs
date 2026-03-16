@@ -102,7 +102,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 StatusMessage = "Depo Yönetimi açılıyor...";
-                // TODO: Navigation logic
+                // Stub: navigation not wired yet
                 await Task.Delay(100); // Simulate async operation
                 StatusMessage = "Depo Yönetimi açıldı";
             }
@@ -119,7 +119,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 StatusMessage = "Konum Takibi açılıyor...";
-                // TODO: Navigation logic
+                // Stub: navigation not wired yet
                 await Task.Delay(100); // Simulate async operation
                 StatusMessage = "Konum Takibi açıldı";
             }
@@ -136,7 +136,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 StatusMessage = "Depo Haritası açılıyor...";
-                // TODO: Navigation logic
+                // Stub: navigation not wired yet
                 await Task.Delay(100); // Simulate async operation
                 StatusMessage = "Depo Haritası açıldı";
             }
@@ -153,7 +153,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 StatusMessage = "Mobil Depo açılıyor...";
-                // TODO: Navigation logic
+                // Stub: navigation not wired yet
                 await Task.Delay(100); // Simulate async operation
                 StatusMessage = "Mobil Depo açıldı";
             }
@@ -170,7 +170,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 StatusMessage = "Konum Raporları açılıyor...";
-                // TODO: Navigation logic
+                // Stub: navigation not wired yet
                 await Task.Delay(100); // Simulate async operation
                 StatusMessage = "Konum Raporları açıldı";
             }
@@ -213,7 +213,7 @@ namespace MesTechStok.Desktop.ViewModels
         {
             try
             {
-                // TODO: Gerçek servis çağrıları
+                // Stub: simulated data — wire to ILocationService + IWarehouseOptimizationService
                 // var locationReport = await _locationService.GetLocationReportAsync(1);
                 // var capacityReport = await _warehouseOptimizationService.GetCapacityPlanningReportAsync(1);
 
@@ -238,7 +238,7 @@ namespace MesTechStok.Desktop.ViewModels
             {
                 RecentActivities.Clear();
 
-                // TODO: Gerçek aktivite verilerini yükle
+                // Stub: simulated activities — wire to location movement query
                 // var activities = await _locationService.GetRecentActivitiesAsync(10);
 
                 // Simulated activities for now
@@ -294,7 +294,7 @@ namespace MesTechStok.Desktop.ViewModels
         {
             try
             {
-                // TODO: Gerçek sistem durumu kontrolü
+                // Stub: always shows active — wire to health check service
                 SystemStatus = "✅ AKTİF";
                 LastUpdateTime = DateTime.Now.ToString("HH:mm:ss");
 

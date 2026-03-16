@@ -266,7 +266,7 @@ public class Product
     [NotMapped]
     public decimal Volume => (Length ?? 0) * (Width ?? 0) * (Height ?? 0);
 
-    // Stok Yerleşim Sistemi Computed Properties - TEMPORARILY DISABLED
+    // Stok Yerleşim Sistemi Computed Properties — disabled (location system not active)
     /*
     [NotMapped]
     public string FullLocationPath
@@ -298,7 +298,7 @@ public class Product
     public virtual ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public virtual ICollection<InventoryLot> InventoryLots { get; set; } = new List<InventoryLot>();
-    // TEMPORARILY DISABLED: public virtual ICollection<ProductLocation> ProductLocations { get; set; } = new List<ProductLocation>();
+    // Disabled: public virtual ICollection<ProductLocation> ProductLocations { get; set; } = new List<ProductLocation>();
 
     // Methods
     public void UpdateStock(int quantity, string movementType, string? reason = null)

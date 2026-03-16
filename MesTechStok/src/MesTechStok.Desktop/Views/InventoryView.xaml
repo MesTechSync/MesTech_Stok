@@ -10,7 +10,9 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType">
+             TextOptions.TextRenderingMode="ClearType"
+             KeyDown="View_KeyDown"
+             Focusable="True">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>

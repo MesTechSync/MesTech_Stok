@@ -830,16 +830,14 @@ namespace MesTechStok.Core.Services.Configuration
 
         public async Task<string> EncryptValueAsync(string value)
         {
-            // TODO: Encryption implementasyonu
-            // Şimdilik base64 encode
+            // Placeholder: base64 encode — replace with AES/DPAPI for production
             var bytes = System.Text.Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);
         }
 
         public async Task<string> DecryptValueAsync(string encryptedValue)
         {
-            // TODO: Decryption implementasyonu
-            // Şimdilik base64 decode
+            // Placeholder: base64 decode — replace with AES/DPAPI for production
             var bytes = Convert.FromBase64String(encryptedValue);
             return System.Text.Encoding.UTF8.GetString(bytes);
         }
@@ -943,7 +941,7 @@ namespace MesTechStok.Core.Services.Configuration
 
         public async Task<bool> IsConfigurationChangedAsync()
         {
-            // TODO: File system watcher implementasyonu
+            // Stub: always returns false — FileSystemWatcher integration for hot-reload
             return false;
         }
 

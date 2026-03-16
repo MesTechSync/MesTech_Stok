@@ -1,4 +1,4 @@
-// TODO: [MVVM-CLEANUP] State'i ViewModel'e taşı — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
+// Debt: [MVVM-CLEANUP] State'i ViewModel'e tasi — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,6 +126,27 @@ namespace MesTechStok.Desktop.Views
 
         #endregion
 
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                { AddStock_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { RefreshInventory_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { InventoryDataGrid.SelectedItem = null; e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} KeyDown handler error", nameof(InventoryView));
+            }
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private async void RefreshInventory_Click(object sender, RoutedEventArgs e)
@@ -160,7 +181,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar stok export edebilir
                 GlobalLogger.Instance.LogInfo("Stok raporu CSV dışa aktarma başlatıldı", "InventoryView");
                 var sfd = new Microsoft.Win32.SaveFileDialog
@@ -198,46 +219,88 @@ namespace MesTechStok.Desktop.Views
 
         private void InventorySearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SearchText = ((TextBox)sender).Text;
+            try
+            {
+                SearchText = ((TextBox)sender).Text;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} InventorySearch handler error", nameof(InventoryView));
+            }
         }
 
         private void StockStatusFilter_Changed(object sender, SelectionChangedEventArgs e)
         {
-            FilterInventoryByStatus();
+            try
+            {
+                FilterInventoryByStatus();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} StockStatusFilter handler error", nameof(InventoryView));
+            }
         }
 
         private void ScanBarcode_Click(object sender, RoutedEventArgs e)
         {
-            // Activate barcode scanner
-            BarcodeInputBox?.Focus();
-            if (ScannerStatusText != null)
+            try
             {
-                ScannerStatusText.Text = "Tarama başlatıldı...";
-                var brush = FindResource("WarningOrangeBrush") as System.Windows.Media.Brush;
-                if (brush != null) ScannerStatusText.Foreground = brush;
+                // Activate barcode scanner
+                BarcodeInputBox?.Focus();
+                if (ScannerStatusText != null)
+                {
+                    ScannerStatusText.Text = "Tarama başlatıldı...";
+                    var brush = FindResource("WarningOrangeBrush") as System.Windows.Media.Brush;
+                    if (brush != null) ScannerStatusText.Foreground = brush;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ScanBarcode handler error", nameof(InventoryView));
             }
         }
 
         private void BarcodeInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ScannedBarcode = ((TextBox)sender).Text;
+            try
+            {
+                ScannedBarcode = ((TextBox)sender).Text;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} BarcodeInput handler error", nameof(InventoryView));
+            }
         }
 
         private void BarcodeInput_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            try
             {
-                ProcessBarcodeEntry();
-                e.Handled = true;
+                if (e.Key == Key.Enter)
+                {
+                    ProcessBarcodeEntry();
+                    e.Handled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} BarcodeInput KeyDown handler error", nameof(InventoryView));
             }
         }
 
         private void InventoryDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = InventoryDataGrid.SelectedItem as Services.InventoryItem;
-            if (selectedItem != null)
+            try
             {
-                DisplaySelectedItemDetails(selectedItem);
+                var selectedItem = InventoryDataGrid.SelectedItem as Services.InventoryItem;
+                if (selectedItem != null)
+                {
+                    DisplaySelectedItemDetails(selectedItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} DataGrid SelectionChanged handler error", nameof(InventoryView));
             }
         }
 
@@ -245,7 +308,7 @@ namespace MesTechStok.Desktop.Views
         private async void AddStock_Click(object sender, RoutedEventArgs e)
         {
             // Open Add Stock dialog
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar stok ekleyebilir
             var selected = InventoryDataGrid.SelectedItem as Services.InventoryItem;
             if (selected == null)
@@ -288,7 +351,7 @@ namespace MesTechStok.Desktop.Views
         private async void RemoveStock_Click(object sender, RoutedEventArgs e)
         {
             // Open Remove Stock dialog
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar stok çıkarabilir
             var selected = InventoryDataGrid.SelectedItem as Services.InventoryItem;
             if (selected == null)
@@ -330,25 +393,46 @@ namespace MesTechStok.Desktop.Views
 
         private async void TransferStock_Click(object sender, RoutedEventArgs e)
         {
-            // Open Transfer Stock dialog
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
-            // Şu anda tüm kullanıcılar stok transfer edebilir
-            GlobalLogger.Instance.LogInfo("Stok transfer ekranı açıldı", "InventoryView");
-            ToastManager.ShowInfo("🔄 Stok transfer ekranı açılıyor...", "Stok Transferi");
+            try
+            {
+                // Open Transfer Stock dialog
+                // Security: SimpleSecurityService integration pending
+                // Şu anda tüm kullanıcılar stok transfer edebilir
+                GlobalLogger.Instance.LogInfo("Stok transfer ekranı açıldı", "InventoryView");
+                ToastManager.ShowInfo("🔄 Stok transfer ekranı açılıyor...", "Stok Transferi");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} TransferStock handler error", nameof(InventoryView));
+            }
         }
 
         private void StockCount_Click(object sender, RoutedEventArgs e)
         {
-            // Open Stock Count dialog
-            GlobalLogger.Instance.LogInfo("Stok sayım ekranı açıldı", "InventoryView");
-            ToastManager.ShowInfo("📋 Stok sayım ekranı açılıyor...", "Stok Sayımı");
+            try
+            {
+                // Open Stock Count dialog
+                GlobalLogger.Instance.LogInfo("Stok sayım ekranı açıldı", "InventoryView");
+                ToastManager.ShowInfo("📋 Stok sayım ekranı açılıyor...", "Stok Sayımı");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} StockCount handler error", nameof(InventoryView));
+            }
         }
 
         private void ManualScan_Click(object sender, RoutedEventArgs e)
         {
-            // Activate manual scanning mode
-            BarcodeInputBox?.Clear();
-            BarcodeInputBox?.Focus();
+            try
+            {
+                // Activate manual scanning mode
+                BarcodeInputBox?.Clear();
+                BarcodeInputBox?.Focus();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ManualScan handler error", nameof(InventoryView));
+            }
         }
 
         // Donanım barkod dinleme (InventoryView)
@@ -415,14 +499,28 @@ namespace MesTechStok.Desktop.Views
 
         private void ScannerSettings_Click(object sender, RoutedEventArgs e)
         {
-            // Open scanner settings
-            MessageBox.Show("Barkod tarayıcı ayarları açılıyor...", "Tarayıcı Ayarları", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                // Open scanner settings
+                MessageBox.Show("Barkod tarayıcı ayarları açılıyor...", "Tarayıcı Ayarları", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ScannerSettings handler error", nameof(InventoryView));
+            }
         }
 
         private void ViewAllMovements_Click(object sender, RoutedEventArgs e)
         {
-            // Open full movement history
-            MessageBox.Show("Tüm hareketler listesi açılıyor...", "Stok Hareketleri", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                // Open full movement history
+                MessageBox.Show("Tüm hareketler listesi açılıyor...", "Stok Hareketleri", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ViewAllMovements handler error", nameof(InventoryView));
+            }
         }
 
         #endregion
@@ -462,7 +560,7 @@ namespace MesTechStok.Desktop.Views
 
         private async Task SetupAuthorizationsAsync()
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
             CanAddStock = CanRemoveStock = CanTransferStock = CanExportInventory = true;
             OnPropertyChanged(nameof(CanAddStock));
@@ -664,8 +762,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            _ = InitializeAsync();
+            try
+            {
+                HideAllStates();
+                _ = InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} RetryButton handler error", nameof(InventoryView));
+            }
         }
 
         #endregion

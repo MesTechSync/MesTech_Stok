@@ -256,21 +256,21 @@ namespace MesTechStok.Core.Services
 
         private async Task<bool> ProcessProductRetry(SyncRetryItem retryItem, IServiceProvider serviceProvider)
         {
-            // TODO: Product retry logic implementasyonu
+            // Stub: product retry not implemented — returns false
             await Task.Delay(100); // Placeholder
             return false;
         }
 
         private async Task<bool> ProcessOrderRetry(SyncRetryItem retryItem, IServiceProvider serviceProvider)
         {
-            // TODO: Order retry logic implementasyonu
+            // Stub: order retry not implemented — returns false
             await Task.Delay(100); // Placeholder
             return false;
         }
 
         private async Task<bool> ProcessStockRetry(SyncRetryItem retryItem, IServiceProvider serviceProvider)
         {
-            // TODO: Stock retry logic implementasyonu
+            // Stub: stock retry not implemented — returns false
             await Task.Delay(100); // Placeholder
             return false;
         }

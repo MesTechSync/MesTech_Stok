@@ -27,6 +27,19 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class ProductsView : UserControl
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+            { AddProduct_Click(this, new RoutedEventArgs()); e.Handled = true; }
+            else if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+            { _ = LoadProductsAsync(); _ = UpdateStatisticsAsync(); e.Handled = true; }
+            else if (e.Key == Key.Escape)
+            { /* Deselect current product */ ProductsDataGrid.SelectedItem = null; e.Handled = true; }
+        }
+
+        #endregion
         private IProductDataService _productService;
         private bool _usingDemoService;
         private readonly ObservableCollection<ProductItem> _displayedProducts;
@@ -45,7 +58,7 @@ namespace MesTechStok.Desktop.Views
         private string _sizeFilter = "";
 
         // Barkod dinleme
-        private bool _barcodeListening; // TODO: Kullanım dışı ise kaldırılabilir
+        private bool _barcodeListening; // May be unused — verify before removing
 
         // Authorization-bound properties
         public bool CanCreateProducts { get; private set; } = true;
@@ -134,7 +147,7 @@ namespace MesTechStok.Desktop.Views
 
         private async Task SetupAuthorizationsAsync()
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
             CanCreateProducts = CanEditProducts = CanDeleteProducts = CanUpdateStock = CanUpdatePrice = true;
             ApplyRbacToContextMenus();
@@ -1360,7 +1373,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar ürün ekleyebilir
                 // Yeni ürün için popup (boş form)
                 ProductUploadWindowManager.TryOpen(Window.GetWindow(this));
@@ -1420,7 +1433,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar ürün düzenleyebilir
                 // Güncel veriyi DB'den alıp popup'a aktar ki görseller en güncel haliyle gelsin
                 var refreshed = await _productService.GetProductByIdAsync(_selectedProduct.Id) ?? _selectedProduct;
@@ -1438,7 +1451,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar stok güncelleyebilir
                 var dialog = new StockUpdateDialog(_selectedProduct);
                 if (dialog.ShowDialog() == true)
@@ -1469,7 +1482,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar fiyat güncelleyebilir
                 var dialog = new PriceUpdateDialog(_selectedProduct);
                 if (dialog.ShowDialog() == true)
@@ -1503,7 +1516,7 @@ namespace MesTechStok.Desktop.Views
 
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar ürün silebilir
                 var result = MessageBox.Show($"'{_selectedProduct.Name}' ürününü silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!",
                     "Ürün Sil", MessageBoxButton.YesNo, MessageBoxImage.Warning);

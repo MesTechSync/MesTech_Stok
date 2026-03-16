@@ -5,6 +5,7 @@ using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -463,7 +464,304 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         return false;
     }
 
-    // ── Categories ──────────────────────────────────────
+    // ── Return / Cancel methods (K1c-06/07/08) ────────
+    /// <summary>
+    /// K1c-06: Fetch returns from Ciceksepeti API.
+    /// </summary>
+    public async Task<IReadOnlyList<CsReturnDto>> GetReturnsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var returns = new List<CsReturnDto>();
+        var page = 1;
+        const int pageSize = 50;
+
+        var url = $"/api/v1/Order/Returns?PageSize={pageSize}";
+        if (since.HasValue)
+            url += "&StartDate=" + since.Value.ToString("yyyy-MM-dd");
+
+        while (!ct.IsCancellationRequested)
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Ciceksepeti GetReturns page {Page} failed: {Status}", page, response.StatusCode);
+                break;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var csResponse = JsonSerializer.Deserialize<CsReturnListResponse>(content, _jsonOptions);
+
+            if (csResponse?.Returns is null || csResponse.Returns.Count == 0)
+                break;
+
+            returns.AddRange(csResponse.Returns);
+
+            if (returns.Count >= csResponse.TotalCount)
+                break;
+
+            page++;
+        }
+
+        _logger.LogInformation("Ciceksepeti GetReturns: {Count} returns fetched", returns.Count);
+        return returns.AsReadOnly();
+    }
+
+    /// <summary>
+    /// K1c-07: Approve a return on Ciceksepeti.
+    /// </summary>
+    public async Task<bool> ApproveReturnAsync(long returnId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var payload = new { returnId, status = "Approved" };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti return approved: {ReturnId}", returnId);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti return approval failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    /// <summary>
+    /// K1c-08: Cancel an order on Ciceksepeti.
+    /// </summary>
+    public async Task<bool> CancelOrderAsync(long subOrderId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var payload = new { subOrderId, cancelReason = reason };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti order cancelled: SubOrder={SubOrderId} Reason={Reason}",
+                subOrderId, reason);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti cancel failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    // ── Product Update / Delete ────────────────────────
+
+    /// <summary>
+    /// PUT /api/v1/Products — Urun bilgilerini gunceller.
+    /// </summary>
+    public async Task<bool> UpdateProductAsync(CsProductUpdateDto product, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(product);
+
+        var json = JsonSerializer.Serialize(product, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti product updated: {ProductId}", product.ProductId);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti product update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    /// <summary>
+    /// DELETE /api/v1/Products/{productId} — Urunu siler.
+    /// </summary>
+    public async Task<bool> DeleteProductAsync(string productId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var response = await ExecuteWithRetryAsync(
+            () => new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Products/{productId}"), ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti product deleted: {ProductId}", productId);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti product delete failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    // ── Categories (Platform-Specific) ──────────────────
+
+    /// <summary>
+    /// GET /api/v1/Categories — Ciceksepeti kategori listesini ceker.
+    /// </summary>
+    public async Task<List<CsCategoryDto>> GetCsCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var response = await ExecuteWithRetryAsync(
+            () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Categories"), ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti GetCategories failed {Status}: {Error}", response.StatusCode, error);
+            return new List<CsCategoryDto>();
+        }
+
+        var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var csResponse = JsonSerializer.Deserialize<CsCategoryListResponse>(content, _jsonOptions);
+
+        _logger.LogInformation("Ciceksepeti GetCategories: {Count} categories fetched",
+            csResponse?.Categories.Count ?? 0);
+        return csResponse?.Categories ?? new List<CsCategoryDto>();
+    }
+
+    /// <summary>
+    /// GET /api/v1/Categories/{categoryId}/attributes — Kategori attribute'larini ceker.
+    /// </summary>
+    public async Task<List<CsAttributeDto>> GetCategoryAttributesAsync(string categoryId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var response = await ExecuteWithRetryAsync(
+            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Categories/{categoryId}/attributes"), ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti GetCategoryAttributes failed {Status}: {Error}",
+                response.StatusCode, error);
+            return new List<CsAttributeDto>();
+        }
+
+        var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var csResponse = JsonSerializer.Deserialize<CsAttributeListResponse>(content, _jsonOptions);
+
+        _logger.LogInformation("Ciceksepeti GetCategoryAttributes: {CategoryId} → {Count} attributes",
+            categoryId, csResponse?.Attributes.Count ?? 0);
+        return csResponse?.Attributes ?? new List<CsAttributeDto>();
+    }
+
+    // ── Batch Operations ────────────────────────────────
+
+    /// <summary>
+    /// PUT /api/v1/Products/stock/batch — Toplu stok guncelleme.
+    /// </summary>
+    public async Task<bool> BatchUpdateStockAsync(List<CsStockUpdate> items, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(items);
+
+        var payload = new { items };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti batch stock update OK: {Count} items", items.Count);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti batch stock update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    /// <summary>
+    /// PUT /api/v1/Products/price/batch — Toplu fiyat guncelleme.
+    /// </summary>
+    public async Task<bool> BatchUpdatePriceAsync(List<CsPriceUpdate> items, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(items);
+
+        var payload = new { items };
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+        var response = await ExecuteWithRetryAsync(
+            () =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch");
+                req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                return req;
+            }, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("Ciceksepeti batch price update OK: {Count} items", items.Count);
+            return true;
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _logger.LogWarning("Ciceksepeti batch price update failed {Status}: {Error}", response.StatusCode, error);
+        return false;
+    }
+
+    // ── Cargo Tracking ──────────────────────────────────
+
+    /// <summary>
+    /// GET /api/v1/Order/Tracking — Kargo takip bilgisi sorgular.
+    /// </summary>
+    public async Task<CsTrackingDto?> GetCargoTrackingAsync(string orderId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var response = await ExecuteWithRetryAsync(
+            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Order/Tracking?orderId={orderId}"), ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti GetCargoTracking failed {Status}: {Error}", response.StatusCode, error);
+            return null;
+        }
+
+        var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var tracking = JsonSerializer.Deserialize<CsTrackingDto>(content, _jsonOptions);
+
+        _logger.LogInformation("Ciceksepeti cargo tracking: Order={OrderId} → {Status}",
+            orderId, tracking?.Status);
+        return tracking;
+    }
+
+    // ── Categories (Interface) ──────────────────────────
     public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
         => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
 

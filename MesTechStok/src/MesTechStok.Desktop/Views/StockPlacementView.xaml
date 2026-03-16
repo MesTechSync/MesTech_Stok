@@ -69,6 +69,32 @@
     </UserControl.Resources>
     
     <Grid Background="#F5F5F5">
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2196F3"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Visibility="Collapsed" Background="#F5F5F5" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+                <TextBlock Text="Stok yerlesim verisi yok" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <TextBlock Text="Depo ve konum bilgileri yuklendiginde goruntulenecektir" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Visibility="Collapsed" Background="#F5F5F5" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="24">
                 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,7 @@ namespace MesTechStok.Desktop.Views
     /// </summary>
     public partial class BulkCargoLabelDialog : Window
     {
+        private bool _isSaving = false;
         private readonly ObservableCollection<ShipmentLabelItem> _items = new();
 
         // No App.Services — D-11 pattern
@@ -31,16 +33,30 @@ namespace MesTechStok.Desktop.Views
 
         private void SelectAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in _items) item.IsSelected = true;
-            ShipmentsGrid.Items.Refresh();
-            UpdateSummary();
+            try
+            {
+                foreach (var item in _items) item.IsSelected = true;
+                ShipmentsGrid.Items.Refresh();
+                UpdateSummary();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"SelectAll error: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void DeselectAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in _items) item.IsSelected = false;
-            ShipmentsGrid.Items.Refresh();
-            UpdateSummary();
+            try
+            {
+                foreach (var item in _items) item.IsSelected = false;
+                ShipmentsGrid.Items.Refresh();
+                UpdateSummary();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"DeselectAll error: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void UpdateSummary()
@@ -51,25 +67,43 @@ namespace MesTechStok.Desktop.Views
 
         private void PrintLabels_Click(object sender, RoutedEventArgs e)
         {
-            var selected = _items.Where(i => i.IsSelected).ToList();
-            if (!selected.Any())
+            if (_isSaving) return;
+            _isSaving = true;
+            var btn = sender as System.Windows.Controls.Button;
+            var originalContent = btn?.Content;
+            if (btn != null) { btn.IsEnabled = false; btn.Content = "Hazirlaniyor..."; }
+
+            try
             {
-                MessageBox.Show("Lutfen etiket yazdirilacak siparis seciniz.", "Uyari",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                var selected = _items.Where(i => i.IsSelected).ToList();
+                if (!selected.Any())
+                {
+                    MessageBox.Show("Lutfen etiket yazdirilacak siparis seciniz.", "Uyari",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var format = FormatZpl.IsChecked == true ? "ZPL"
+                           : FormatPdf.IsChecked == true ? "PDF" : "PNG";
+                var provider = (CargoProvider.SelectedItem as ComboBoxItem)?.Content?.ToString()
+                             ?? "Yurtici Kargo";
+
+                MessageBox.Show(
+                    $"{selected.Count} siparis icin {provider} {format} etiketi hazirlaniyor.\n" +
+                    "(H25'te IAutoShipmentService entegrasyonu tamamlanacak)",
+                    "Etiket Olusturuluyor", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                DialogResult = true;
             }
-
-            var format = FormatZpl.IsChecked == true ? "ZPL"
-                       : FormatPdf.IsChecked == true ? "PDF" : "PNG";
-            var provider = (CargoProvider.SelectedItem as ComboBoxItem)?.Content?.ToString()
-                         ?? "Yurtici Kargo";
-
-            MessageBox.Show(
-                $"{selected.Count} siparis icin {provider} {format} etiketi hazirlaniyor.\n" +
-                "(H25'te IAutoShipmentService entegrasyonu tamamlanacak)",
-                "Etiket Olusturuluyor", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            DialogResult = true;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kaydetme hatasi: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isSaving = false;
+                if (btn != null) { btn.IsEnabled = true; btn.Content = originalContent; }
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();

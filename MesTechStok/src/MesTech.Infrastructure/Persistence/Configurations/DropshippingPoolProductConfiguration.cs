@@ -13,6 +13,13 @@ public class DropshippingPoolProductConfiguration : IEntityTypeConfiguration<Dro
         builder.Property(pp => pp.PoolPrice)
             .HasPrecision(18, 2);
 
+        builder.Property(pp => pp.ReliabilityScore)
+            .HasPrecision(5, 2)
+            .HasDefaultValue(0m);
+
+        builder.Property(pp => pp.ReliabilityColor)
+            .HasDefaultValue(0);
+
         // Tenant + Pool bileşik index — havuz ürün listesi sorgusu için
         builder.HasIndex(pp => new { pp.TenantId, pp.PoolId })
             .HasDatabaseName("IX_DropshippingPoolProducts_Tenant_Pool");

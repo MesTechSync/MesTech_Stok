@@ -65,13 +65,20 @@ public partial class LoginWindow : Window
 
     private void LoginWindow_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        try
         {
-            LoginButton_Click(sender, e);
+            if (e.Key == Key.Enter)
+            {
+                LoginButton_Click(sender, e);
+            }
+            else if (e.Key == Key.Escape)
+            {
+                CloseButton_Click(sender, e);
+            }
         }
-        else if (e.Key == Key.Escape)
+        catch (Exception ex)
         {
-            CloseButton_Click(sender, e);
+            ShowStatus($"KeyDown handler error: {ex.Message}", "Error");
         }
     }
 
@@ -116,7 +123,7 @@ public partial class LoginWindow : Window
                 // Wait a moment to show success message
                 await Task.Delay(1500);
 
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda önbellek sıfırlama yapılmıyor
 
                 // Create or reuse single WelcomeWindow instance
@@ -150,7 +157,14 @@ public partial class LoginWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        Application.Current.Shutdown();
+        try
+        {
+            Application.Current.Shutdown();
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"CloseButton handler error: {ex.Message}", "Error");
+        }
     }
 
     private void ShowStatus(string message, string type)
@@ -205,26 +219,54 @@ public partial class LoginWindow : Window
 
     private void ShowPasswordCheckBox_Checked(object sender, RoutedEventArgs e)
     {
-        UpdatePasswordVisibility(true);
-        if (MenuShowPassword != null) MenuShowPassword.IsChecked = true;
+        try
+        {
+            UpdatePasswordVisibility(true);
+            if (MenuShowPassword != null) MenuShowPassword.IsChecked = true;
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"ShowPassword handler error: {ex.Message}", "Error");
+        }
     }
 
     private void ShowPasswordCheckBox_Unchecked(object sender, RoutedEventArgs e)
     {
-        UpdatePasswordVisibility(false);
-        if (MenuShowPassword != null) MenuShowPassword.IsChecked = false;
+        try
+        {
+            UpdatePasswordVisibility(false);
+            if (MenuShowPassword != null) MenuShowPassword.IsChecked = false;
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"ShowPassword handler error: {ex.Message}", "Error");
+        }
     }
 
     private void MenuShowPassword_Checked(object sender, RoutedEventArgs e)
     {
-        UpdatePasswordVisibility(true);
-        if (ShowPasswordCheckBox != null) ShowPasswordCheckBox.IsChecked = true;
+        try
+        {
+            UpdatePasswordVisibility(true);
+            if (ShowPasswordCheckBox != null) ShowPasswordCheckBox.IsChecked = true;
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"MenuShowPassword handler error: {ex.Message}", "Error");
+        }
     }
 
     private void MenuShowPassword_Unchecked(object sender, RoutedEventArgs e)
     {
-        UpdatePasswordVisibility(false);
-        if (ShowPasswordCheckBox != null) ShowPasswordCheckBox.IsChecked = false;
+        try
+        {
+            UpdatePasswordVisibility(false);
+            if (ShowPasswordCheckBox != null) ShowPasswordCheckBox.IsChecked = false;
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"MenuShowPassword handler error: {ex.Message}", "Error");
+        }
     }
 
     private void MenuVirtualKeyboard_Click(object sender, RoutedEventArgs e)
@@ -245,6 +287,13 @@ public partial class LoginWindow : Window
 
     private void MenuForgotPassword_Click(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("Sifrenizi unuttuysaniz sistem yoneticinize basvurun.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+        try
+        {
+            MessageBox.Show("Sifrenizi unuttuysaniz sistem yoneticinize basvurun.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"ForgotPassword handler error: {ex.Message}", "Error");
+        }
     }
 }

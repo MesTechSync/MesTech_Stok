@@ -28,6 +28,12 @@ public class DropshippingPoolProduct : BaseEntity, ITenantEntity
     /// <summary>Havuz ürünü aktif mi?</summary>
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>Güvenilirlik skoru (0-100). FeedReliabilityScoreService tarafından hesaplanır.</summary>
+    public decimal ReliabilityScore { get; private set; }
+
+    /// <summary>Güvenilirlik renk sınıflandırması.</summary>
+    public int ReliabilityColor { get; private set; }
+
     // Navigation
     public DropshippingPool? Pool { get; private set; }
     public Product? Product { get; private set; }
@@ -70,6 +76,20 @@ public class DropshippingPoolProduct : BaseEntity, ITenantEntity
     public void Deactivate()
     {
         IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Güvenilirlik skorunu ve renk sınıflandırmasını günceller.
+    /// Score: 0-100, Color: ReliabilityColor enum int değeri.
+    /// </summary>
+    public void UpdateReliability(decimal score, int color)
+    {
+        if (score < 0 || score > 100)
+            throw new ArgumentOutOfRangeException(nameof(score), "Score must be between 0 and 100.");
+
+        ReliabilityScore = score;
+        ReliabilityColor = color;
         UpdatedAt = DateTime.UtcNow;
     }
 

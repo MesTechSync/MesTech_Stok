@@ -4,7 +4,7 @@
 
     <!-- ═══ MesTech Antigravity — Marka Renkleri ═══ -->
     <SolidColorBrush x:Key="MesTechPrimary"
-                     Color="#1565C0"/>
+                     Color="#2855AC"/>
     <SolidColorBrush x:Key="MesTechSecondary"
                      Color="#00897B"/>
     <SolidColorBrush x:Key="MesTechAccent"
@@ -127,9 +127,9 @@
     <LinearGradientBrush x:Key="MesTechPrimaryGradient"
                          StartPoint="0,0"
                          EndPoint="1,1">
-        <GradientStop Color="#1565C0"
+        <GradientStop Color="#2855AC"
                       Offset="0"/>
-        <GradientStop Color="#0D47A1"
+        <GradientStop Color="#1E3D7A"
                       Offset="1"/>
     </LinearGradientBrush>
 

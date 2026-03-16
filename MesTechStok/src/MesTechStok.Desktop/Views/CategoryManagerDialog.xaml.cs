@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using MesTech.Application.Commands.CreateCategory;
 using MesTech.Application.Commands.UpdateCategory;
@@ -14,8 +15,35 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class CategoryManagerDialog : Window
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (_selectedId != Guid.Empty)
+                        UpdateCategory_Click(this, new RoutedEventArgs());
+                    else
+                        AddCategory_Click(this, new RoutedEventArgs());
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                { ClearForm(); TxtCatName.Focus(); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { Close(); e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} KeyDown handler error", nameof(CategoryManagerDialog));
+            }
+        }
+
+        #endregion
         private readonly IMediator _mediator;
         private readonly ILogger<CategoryManagerDialog>? _logger;
+        private bool _isSaving = false;
         private int _currentPage = 1;
         private int _pageSize = 50;
         private int _totalItems = 0;
@@ -73,7 +101,14 @@ namespace MesTechStok.Desktop.Views
 
         private void Retry_Click(object sender, RoutedEventArgs e)
         {
-            _ = LoadAsync();
+            try
+            {
+                _ = LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} Retry handler error", nameof(CategoryManagerDialog));
+            }
         }
 
         private void UpdatePagerUi()
@@ -95,6 +130,12 @@ namespace MesTechStok.Desktop.Views
 
         private async void AddCategory_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            var btn = sender as System.Windows.Controls.Button;
+            var originalContent = btn?.Content;
+            if (btn != null) { btn.IsEnabled = false; btn.Content = "Kaydediliyor..."; }
+
             try
             {
                 var name = (TxtCatName.Text ?? "").Trim();
@@ -117,10 +158,21 @@ namespace MesTechStok.Desktop.Views
             {
                 MessageBox.Show($"Hata: {ex.Message}");
             }
+            finally
+            {
+                _isSaving = false;
+                if (btn != null) { btn.IsEnabled = true; btn.Content = originalContent; }
+            }
         }
 
         private async void UpdateCategory_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            var btn = sender as System.Windows.Controls.Button;
+            var originalContent = btn?.Content;
+            if (btn != null) { btn.IsEnabled = false; btn.Content = "Kaydediliyor..."; }
+
             try
             {
                 if (_selectedId == Guid.Empty) { MessageBox.Show("Seçim yapın."); return; }
@@ -142,13 +194,31 @@ namespace MesTechStok.Desktop.Views
             {
                 MessageBox.Show($"Hata: {ex.Message}");
             }
+            finally
+            {
+                _isSaving = false;
+                if (btn != null) { btn.IsEnabled = true; btn.Content = originalContent; }
+            }
         }
 
         private async void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            var btn = sender as System.Windows.Controls.Button;
+            var originalContent = btn?.Content;
+            if (btn != null) { btn.IsEnabled = false; btn.Content = "Siliniyor..."; }
+
             try
             {
                 if (_selectedId == Guid.Empty) { MessageBox.Show("Seçim yapın."); return; }
+
+                var confirm = MessageBox.Show(
+                    "Bu kategoriyi silmek istediğinizden emin misiniz?",
+                    "Silme Onayı",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (confirm != MessageBoxResult.Yes) return;
 
                 var result = await _mediator.Send(new DeleteCategoryCommand(_selectedId));
 
@@ -164,6 +234,11 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Hata: {ex.Message}");
+            }
+            finally
+            {
+                _isSaving = false;
+                if (btn != null) { btn.IsEnabled = true; btn.Content = originalContent; }
             }
         }
 
@@ -228,12 +303,26 @@ namespace MesTechStok.Desktop.Views
 
         private void PrevPage_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentPage > 1) { _currentPage--; _ = LoadAsync(); }
+            try
+            {
+                if (_currentPage > 1) { _currentPage--; _ = LoadAsync(); }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} PrevPage handler error", nameof(CategoryManagerDialog));
+            }
         }
 
         private void NextPage_Click(object sender, RoutedEventArgs e)
         {
-            _currentPage++; _ = LoadAsync();
+            try
+            {
+                _currentPage++; _ = LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} NextPage handler error", nameof(CategoryManagerDialog));
+            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();

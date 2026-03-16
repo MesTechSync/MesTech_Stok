@@ -66,8 +66,8 @@ public class DropshipSupplier : BaseEntity, ITenantEntity
 
     public void UpdateMarkup(DropshipMarkupType type, decimal value)
     {
-        if (value < 0)
-            throw new ArgumentException("Markup value cannot be negative.", nameof(value));
+        if (value <= 0)
+            throw new ArgumentException("Markup value must be greater than zero.", nameof(value));
 
         MarkupType = type;
         MarkupValue = value;

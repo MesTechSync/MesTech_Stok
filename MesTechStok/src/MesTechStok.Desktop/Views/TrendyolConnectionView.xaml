@@ -219,7 +219,7 @@
                         <TextBox Grid.Column="1"
                                 x:Name="BaseUrlTextBox"
                                 Style="{StaticResource FieldInput}"
-                                Text="https://api.trendyol.com/sapigw"
+                                Text="https://apigw.trendyol.com/integration"
                                 IsReadOnly="True"
                                 Foreground="#6C757D"/>
                     </Grid>

@@ -24,7 +24,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: MainViewModel'deki ShowWarehouseManagementCommand'ı çağır
+                // Stub: MainViewModel'deki ShowWarehouseManagementCommand'ı çağır
                 if (DataContext is MainViewModel viewModel)
                 {
                     // viewModel.ShowWarehouseManagementCommand.Execute(null);
@@ -45,7 +45,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: MainViewModel'deki ShowLocationTrackingCommand'ı çağır
+                // Stub: MainViewModel'deki ShowLocationTrackingCommand'ı çağır
                 if (DataContext is MainViewModel viewModel)
                 {
                     // viewModel.ShowLocationTrackingCommand.Execute(null);
@@ -66,7 +66,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: MainViewModel'deki ShowWarehouseMapCommand'ı çağır
+                // Stub: MainViewModel'deki ShowWarehouseMapCommand'ı çağır
                 if (DataContext is MainViewModel viewModel)
                 {
                     // viewModel.ShowWarehouseMapCommand.Execute(null);
@@ -87,7 +87,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: MainViewModel'deki ShowMobileWarehouseCommand'ı çağır
+                // Stub: MainViewModel'deki ShowMobileWarehouseCommand'ı çağır
                 if (DataContext is MainViewModel viewModel)
                 {
                     // viewModel.ShowMobileWarehouseCommand.Execute(null);
@@ -108,7 +108,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: MainViewModel'deki ShowLocationReportsCommand'ı çağır
+                // Stub: MainViewModel'deki ShowLocationReportsCommand'ı çağır
                 if (DataContext is MainViewModel viewModel)
                 {
                     // viewModel.ShowLocationReportsCommand.Execute(null);
@@ -144,5 +144,11 @@ namespace MesTechStok.Desktop.Views
         }
 
         #endregion
+
+        private void ShowLoading() { LoadingOverlay.Visibility = Visibility.Visible; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowEmpty() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Visible; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowError(string msg = "Bir hata olustu") { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Visible; ErrorMessage.Text = msg; }
+        private void ShowContent() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void RetryButton_Click(object sender, RoutedEventArgs e) { ShowContent(); }
     }
 }

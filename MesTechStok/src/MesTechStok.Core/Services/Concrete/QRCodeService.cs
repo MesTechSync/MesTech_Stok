@@ -30,8 +30,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation($"Generating location QR code for bin: {binCode}");
 
-                // TODO: Gerçek QR kod kütüphanesi entegrasyonu
-                // Şimdilik placeholder implementasyon
+                // Placeholder: returns JSON bytes — real QR image generation needs QRCoder NuGet
                 var qrContent = await GetQRCodeContentAsync(binCode);
                 var qrBytes = Encoding.UTF8.GetBytes(qrContent);
 
@@ -51,7 +50,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation($"Generating product QR code for product: {productId}");
 
-                // TODO: Gerçek QR kod kütüphanesi entegrasyonu
+                // Placeholder — real QR generation needs QRCoder NuGet
                 var qrContent = $"PRODUCT:{productId}:{DateTime.Now:yyyyMMddHHmmss}";
                 var qrBytes = Encoding.UTF8.GetBytes(qrContent);
 
@@ -71,7 +70,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation($"Generating movement QR code for movement: {movementId}");
 
-                // TODO: Gerçek QR kod kütüphanesi entegrasyonu
+                // Placeholder — real QR generation needs QRCoder NuGet
                 var qrContent = $"MOVEMENT:{movementId}:{DateTime.Now:yyyyMMddHHmmss}";
                 var qrBytes = Encoding.UTF8.GetBytes(qrContent);
 
@@ -95,7 +94,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation("Reading location QR code");
 
-                // TODO: Gerçek QR kod okuma kütüphanesi entegrasyonu
+                // Placeholder — real QR reading needs QRCoder/ZXing NuGet
                 var qrContent = Encoding.UTF8.GetString(qrCodeImage);
 
                 var locationInfo = new LocationInfo
@@ -126,7 +125,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation("Reading product QR code");
 
-                // TODO: Gerçek QR kod okuma kütüphanesi entegrasyonu
+                // Placeholder — real QR reading needs QRCoder/ZXing NuGet
                 var qrContent = Encoding.UTF8.GetString(qrCodeImage);
 
                 var productInfo = new ProductInfo
@@ -160,7 +159,7 @@ namespace MesTechStok.Core.Services.Concrete
             {
                 _logger.LogInformation($"Getting QR code content for bin: {binCode}");
 
-                // TODO: Veritabanından gerçek konum bilgilerini çek
+                // Placeholder location data — real data from database needed
                 var qrContent = new LocationInfo
                 {
                     Type = "LOCATION",
@@ -198,7 +197,7 @@ namespace MesTechStok.Core.Services.Concrete
                     return false;
                 }
 
-                // TODO: Gerçek validasyon kuralları ekle
+                // Basic type check — extend with schema validation as needed
                 var isValid = qrCodeContent.Contains("LOCATION") ||
                              qrCodeContent.Contains("PRODUCT") ||
                              qrCodeContent.Contains("MOVEMENT");
@@ -215,13 +214,13 @@ namespace MesTechStok.Core.Services.Concrete
 
         #endregion
 
-        #region Gelişmiş QR Kod Özellikleri - TEMPORARILY IMPLEMENTED
+        #region Gelişmiş QR Kod Özellikleri — stub implementations
 
         public async Task<byte[]> GenerateBulkQRCodeAsync(List<string> binCodes)
         {
             try
             {
-                // TODO: Gerçek bulk QR code generation implementasyonu
+                // Stub: returns first bin code only — batch generation needs QRCoder
                 if (binCodes?.Any() == true)
                 {
                     return await GenerateLocationQRCodeAsync(binCodes.First());
@@ -239,7 +238,7 @@ namespace MesTechStok.Core.Services.Concrete
         {
             try
             {
-                // TODO: Gerçek dynamic QR code generation implementasyonu
+                // Stub: delegates to location QR — real dynamic QR needs QRCoder
                 return await GenerateLocationQRCodeAsync(request?.Content ?? "DYNAMIC");
             }
             catch (Exception ex)
@@ -272,7 +271,7 @@ namespace MesTechStok.Core.Services.Concrete
         {
             try
             {
-                // TODO: Template-based QR code generation
+                // Stub: ignores template, delegates to location QR
                 return await GenerateLocationQRCodeAsync(content ?? "TEMPLATE");
             }
             catch (Exception ex)
@@ -286,7 +285,7 @@ namespace MesTechStok.Core.Services.Concrete
         {
             try
             {
-                // TODO: Return actual templates
+                // Stub: hardcoded templates — load from config/database when needed
                 return new List<QRCodeTemplate>
                 {
                     new QRCodeTemplate { Name = "Default", Description = "Default template" },
@@ -304,7 +303,7 @@ namespace MesTechStok.Core.Services.Concrete
         {
             try
             {
-                // TODO: Gerçek analytics implementasyonu
+                // Stub: returns zeroed analytics — real data from scan tracking table
                 return new QRCodeAnalytics
                 {
                     BinCode = binCode,
@@ -325,7 +324,7 @@ namespace MesTechStok.Core.Services.Concrete
         {
             try
             {
-                // TODO: Gerçek scan history implementasyonu
+                // Stub: returns empty list — real data from scan tracking table
                 return new List<QRCodeScanHistory>();
             }
             catch (Exception ex)

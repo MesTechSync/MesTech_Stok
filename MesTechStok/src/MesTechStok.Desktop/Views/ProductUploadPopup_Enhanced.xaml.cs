@@ -16,6 +16,7 @@ namespace MesTechStok.Desktop.Views
     {
         // Temporarily commented out - barcode service will be restored later
         private readonly IBarcodeService? _barcodeService;
+        private bool _isSaving = false;
         private ProductItem? _productItem;
 
         public ProductUploadPopup_Enhanced()
@@ -85,6 +86,10 @@ namespace MesTechStok.Desktop.Views
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            if (SaveButton != null) { SaveButton.IsEnabled = false; SaveButton.Content = "Kaydediliyor..."; }
+
             try
             {
                 // Validation
@@ -143,6 +148,11 @@ namespace MesTechStok.Desktop.Views
             {
                 MessageBox.Show($"Kaydetme sırasında hata: {ex.Message}",
                     "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isSaving = false;
+                if (SaveButton != null) { SaveButton.IsEnabled = true; SaveButton.Content = "Kaydet"; }
             }
         }
 
@@ -209,5 +219,11 @@ namespace MesTechStok.Desktop.Views
                 SaveButton_Click(sender, new RoutedEventArgs());
             }
         }
+
+        private void ShowLoading() { LoadingOverlay.Visibility = Visibility.Visible; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowEmpty() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Visible; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowError(string msg = "Bir hata olustu") { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Visible; ErrorMessage.Text = msg; }
+        private void ShowContent() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void RetryButton_Click(object sender, RoutedEventArgs e) { ShowContent(); }
     }
 }

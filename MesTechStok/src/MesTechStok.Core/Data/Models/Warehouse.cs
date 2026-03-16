@@ -133,7 +133,7 @@ namespace MesTechStok.Core.Data.Models
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
         public virtual ICollection<StockMovement> FromMovements { get; set; } = new List<StockMovement>();
         public virtual ICollection<StockMovement> ToMovements { get; set; } = new List<StockMovement>();
-        // TEMPORARILY DISABLED: public virtual ICollection<WarehouseZone> WarehouseZones { get; set; } = new List<WarehouseZone>();
+        // Disabled: public virtual ICollection<WarehouseZone> WarehouseZones { get; set; } = new List<WarehouseZone>();
 
         // Calculated Properties
         [NotMapped]

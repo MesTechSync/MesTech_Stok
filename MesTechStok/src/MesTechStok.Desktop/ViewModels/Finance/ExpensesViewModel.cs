@@ -32,7 +32,7 @@ public partial class ExpensesViewModel : ObservableObject
         try
         {
             var now = DateTime.Today;
-            // TODO: await _mediator.Send(new GetExpenseSummaryQuery(...))
+            // Placeholder: await _mediator.Send(new GetExpenseSummaryQuery(...))
             // Placeholder — will be wired when DEV 1 delivers GetExpenseSummaryQuery
             await Task.Delay(10);
         }

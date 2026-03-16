@@ -517,7 +517,7 @@ namespace MesTechStok.Core.Services.Security
 
         public async Task<SecurityToken> RefreshTokenAsync(SecurityToken currentToken, CancellationToken cancellationToken = default)
         {
-            // TODO: OpenCart API refresh token logic
+            // Stub: simulated refresh — wire to OpenCart API when available
             await Task.Delay(100, cancellationToken);
 
             return new SecurityToken
@@ -531,7 +531,7 @@ namespace MesTechStok.Core.Services.Security
 
         public async Task<SecurityToken> GetNewTokenAsync(CancellationToken cancellationToken = default)
         {
-            // TODO: OpenCart API new token logic
+            // Stub: simulated new token — wire to OpenCart API when available
             await Task.Delay(100, cancellationToken);
 
             return new SecurityToken
@@ -545,14 +545,14 @@ namespace MesTechStok.Core.Services.Security
 
         public async Task<bool> ValidateTokenAsync(SecurityToken token, CancellationToken cancellationToken = default)
         {
-            // TODO: OpenCart API token validation logic
+            // Stub: expiry check only — wire to OpenCart API validation when available
             await Task.Delay(50, cancellationToken);
             return !token.IsExpired;
         }
 
         public async Task RevokeTokenAsync(SecurityToken token, CancellationToken cancellationToken = default)
         {
-            // TODO: OpenCart API token revocation logic
+            // Stub: log only — wire to OpenCart API revocation when available
             await Task.Delay(50, cancellationToken);
             _logger.LogDebug("[OpenCartTokenProvider] Revoked token {TokenId}", token.Id);
         }

@@ -59,7 +59,7 @@ public class CustomerSegmentReportHandler
 
         // Aggregate by segment
         var result = segmented
-            .GroupBy(s => s.Segment)
+            .GroupBy(s => s.Segment, StringComparer.Ordinal)
             .Select(g => new CustomerSegmentReportDto
             {
                 Segment = g.Key,
@@ -74,7 +74,7 @@ public class CustomerSegmentReportHandler
         // can be enriched if ICustomerRepository provides tenant-scoped GetAll).
 
         // Sort: VIP > Regular > New > Dormant
-        var segmentOrder = new Dictionary<string, int>
+        var segmentOrder = new Dictionary<string, int>(StringComparer.Ordinal)
         {
             ["VIP"] = 0,
             ["Regular"] = 1,

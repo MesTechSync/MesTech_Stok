@@ -16,7 +16,7 @@ public class TrendyolAdapterTests
     {
         var httpClient = new HttpClient(_handler)
         {
-            BaseAddress = new Uri("https://api.trendyol.com/")
+            BaseAddress = new Uri("https://apigw.trendyol.com/")
         };
         return new TrendyolAdapter(httpClient, _loggerMock.Object);
     }
@@ -46,7 +46,7 @@ public class TrendyolAdapterTests
         Assert.Equal(42, result.ProductCount);
 
         var requestUrl = _handler.CapturedRequests[0].RequestUri!.ToString();
-        Assert.Contains("/sapigw/suppliers/12345/products", requestUrl);
+        Assert.Contains("/integration/product/sellers/12345/products", requestUrl);
     }
 
     [Fact]

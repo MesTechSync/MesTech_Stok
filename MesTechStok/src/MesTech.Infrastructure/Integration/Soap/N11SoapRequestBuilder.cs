@@ -136,6 +136,83 @@ public static class N11SoapRequestBuilder
                     new XElement("trackingNumber", trackingNumber))));
     }
 
+    // ── ProductSellingService ──
+
+    public static XElement BuildActivateProductSelling(string appKey, string appSecret, long productId)
+    {
+        return new XElement(Ns + "ActivateProductSellingRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("productId", productId));
+    }
+
+    public static XElement BuildDeactivateProductSelling(string appKey, string appSecret, long productId)
+    {
+        return new XElement(Ns + "DeactivateProductSellingRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("productId", productId));
+    }
+
+    // ── InvoiceService ──
+
+    public static XElement BuildSendInvoice(string appKey, string appSecret,
+        long orderId, string invoiceNo, DateTime invoiceDate)
+    {
+        return new XElement(Ns + "SendInvoiceRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("orderId", orderId),
+            new XElement("invoiceNumber", invoiceNo),
+            new XElement("invoiceDate", invoiceDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)));
+    }
+
+    // ── ClaimService ──
+
+    public static XElement BuildGetClaims(string appKey, string appSecret, int currentPage, int pageSize)
+    {
+        return new XElement(Ns + "GetClaimsRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("pagingData",
+                new XElement("currentPage", currentPage),
+                new XElement("pageSize", pageSize)));
+    }
+
+    public static XElement BuildApproveClaim(string appKey, string appSecret, long claimId)
+    {
+        return new XElement(Ns + "ApproveClaimRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("claimId", claimId));
+    }
+
+    // ── SettlementService ──
+
+    public static XElement BuildGetSettlements(string appKey, string appSecret,
+        DateTime startDate, DateTime endDate)
+    {
+        return new XElement(Ns + "GetSettlementsRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("startDate", startDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)),
+            new XElement("endDate", endDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)));
+    }
+
+    // ── CategoryService (attributes) ──
+
+    public static XElement BuildGetCategoryAttributes(string appKey, string appSecret, long categoryId)
+    {
+        return new XElement(Ns + "GetCategoryAttributesRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("categoryId", categoryId));
+    }
+
+    // ── BrandService ──
+
+    public static XElement BuildGetBrands(string appKey, string appSecret, int currentPage, int pageSize)
+    {
+        return new XElement(Ns + "GetBrandsRequest",
+            BuildAuth(appKey, appSecret),
+            new XElement("pagingData",
+                new XElement("currentPage", currentPage),
+                new XElement("pageSize", pageSize)));
+    }
+
     // ── CityService ──
 
     public static XElement BuildGetCities(string appKey, string appSecret)

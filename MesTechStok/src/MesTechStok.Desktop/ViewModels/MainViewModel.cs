@@ -428,7 +428,7 @@ namespace MesTechStok.Desktop.ViewModels
                 _logger.LogInformation("ALPHA TEAM: Attempting barcode device connection");
 
                 // Gerçek barkod cihazı bağlantısı dene
-                // TODO: Implement actual barcode device connection
+                // Barcode device SDK integration needed for actual connection
                 var isConnected = await TryConnectBarcodeDeviceAsync();
 
                 if (isConnected)
@@ -461,7 +461,7 @@ namespace MesTechStok.Desktop.ViewModels
             try
             {
                 await Task.Delay(1000); // Simulated connection time
-                // TODO: Real barcode device SDK integration
+                // Stub: simulated — real barcode SDK needed
                 return false; // For now, always fallback to test mode
             }
             catch (Exception ex)
@@ -1285,7 +1285,7 @@ namespace MesTechStok.Desktop.ViewModels
             {
                 _logger.LogInformation("Konum optimizasyon önerileri alınıyor");
 
-                // TODO: WarehouseOptimizationService geçici olarak disable edildi - interface implementation gerekli
+                // WarehouseOptimizationService — interface implementation needed for full activation
                 // ALPHA TEAM ACTIVATION: Depo optimizasyon servisi aktifleştirildi
                 if (_warehouseOptimizationService != null)
                 {
@@ -1338,7 +1338,7 @@ namespace MesTechStok.Desktop.ViewModels
             {
                 _logger.LogInformation("Mobil depo durumu kontrol ediliyor");
 
-                // TODO: MobileWarehouseService geçici olarak disable edildi - interface implementation gerekli
+                // MobileWarehouseService — interface implementation needed for full activation
                 StatusMessage = "📱 Mobil depo servisi geçici olarak devre dışı";
                 GlobalLogger.Instance.LogWarning("MobileWarehouseService disable edildi", "MainViewModel");
                 ToastManager.ShowWarning("Mobil depo servisi geçici olarak kapalı", "Mobil Depo");

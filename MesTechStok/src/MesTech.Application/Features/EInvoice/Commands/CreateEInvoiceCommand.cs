@@ -32,12 +32,21 @@ public class CreateEInvoiceCommandValidator : AbstractValidator<CreateEInvoiceCo
 
     public CreateEInvoiceCommandValidator()
     {
+        // K1b-03: e-Arsiv faturada VKN zorunlu degil (bireysel alici 11111111111 kullanilabilir)
         RuleFor(x => x.BuyerVkn)
             .NotEmpty()
             .Length(10, 11)
             .Matches("^[0-9]+$")
             .WithMessage("VKN/TCKN 10 veya 11 haneli rakam olmali.");
         RuleFor(x => x.BuyerTitle).NotEmpty().MaximumLength(512);
+
+        // K1b-03: e-Arsiv faturada alici e-posta zorunlu (GIB kurali)
+        RuleFor(x => x.BuyerEmail)
+            .NotEmpty()
+            .EmailAddress()
+            .When(x => x.Scenario == EInvoiceScenario.EARSIVFATURA)
+            .WithMessage("e-Arsiv faturada alici e-posta adresi zorunludur.");
+
         RuleFor(x => x.Lines).NotEmpty()
             .WithMessage("En az 1 fatura satiri gerekli.");
         RuleForEach(x => x.Lines).ChildRules(l =>

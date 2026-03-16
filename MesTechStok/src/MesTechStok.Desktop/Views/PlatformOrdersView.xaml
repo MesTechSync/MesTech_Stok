@@ -127,6 +127,32 @@
             </DataGrid>
         </Border>
 
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#007ACC"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Grid.Row="2" Visibility="Collapsed" Background="White" CornerRadius="12" Margin="8" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+                <TextBlock Text="Platform siparisi yok" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <TextBlock Text="Siparis verisi yuklendiginde burada goruntulenecektir" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.RowSpan="4" Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#007ACC" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+
         <!-- Footer Stats -->
         <Border Grid.Row="3" Style="{StaticResource CardBorder}" Padding="12" Margin="8,4,8,8">
             <Grid>

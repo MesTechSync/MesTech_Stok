@@ -30,8 +30,6 @@ public class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpCommand, ErpS
         SyncOrderToErpCommand request,
         CancellationToken cancellationToken)
     {
-        var adapter = _adapterFactory.GetAdapter(request.Provider);
-
         // Sync log kaydi olustur
         var log = ErpSyncLog.Create(
             request.TenantId,
@@ -44,6 +42,7 @@ public class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpCommand, ErpS
 
         try
         {
+            var adapter = _adapterFactory.GetAdapter(request.Provider);
             var result = await adapter.SyncOrderAsync(request.OrderId, cancellationToken);
 
             if (result.Success)

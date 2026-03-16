@@ -65,3 +65,76 @@ public class HbOrderItem
     public decimal TotalPrice { get; set; }
     public decimal CommissionRate { get; set; }
 }
+
+// ── Claims ────────────────────────────────────────────
+
+/// <summary>
+/// Hepsiburada claim listesi response.
+/// </summary>
+public class HbClaimListResponse
+{
+    public List<HbClaimDto> Claims { get; set; } = new();
+    public int TotalCount { get; set; }
+}
+
+/// <summary>
+/// Hepsiburada iade/claim modeli.
+/// </summary>
+public record HbClaimDto(
+    string Id,
+    string OrderId,
+    string Reason,
+    string Status,
+    decimal Amount);
+
+// ── Upload Status ─────────────────────────────────────
+
+/// <summary>
+/// Hepsiburada listing upload status modeli.
+/// </summary>
+public record HbUploadStatusDto(
+    string CorrelationId,
+    string Status,
+    int TotalItems,
+    int SuccessCount,
+    int FailureCount,
+    List<string>? Errors);
+
+// ── Commissions ───────────────────────────────────────
+
+/// <summary>
+/// Hepsiburada komisyon listesi response.
+/// </summary>
+public class HbCommissionListResponse
+{
+    public List<HbCommissionDto> Commissions { get; set; } = new();
+    public int TotalCount { get; set; }
+}
+
+/// <summary>
+/// Hepsiburada komisyon modeli.
+/// </summary>
+public record HbCommissionDto(
+    string Category,
+    decimal Rate,
+    decimal Amount);
+
+// ── Tracking ──────────────────────────────────────────
+
+/// <summary>
+/// Hepsiburada kargo takip modeli.
+/// </summary>
+public record HbTrackingDto(
+    string TrackingNumber,
+    string CargoCompany,
+    string Status,
+    DateTime? LastUpdateDate,
+    List<HbTrackingEvent>? Events);
+
+/// <summary>
+/// Hepsiburada kargo takip olay modeli.
+/// </summary>
+public record HbTrackingEvent(
+    string Description,
+    string Location,
+    DateTime EventDate);

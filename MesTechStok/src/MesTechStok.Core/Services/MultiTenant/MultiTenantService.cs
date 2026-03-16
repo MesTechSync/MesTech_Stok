@@ -447,7 +447,7 @@ namespace MesTechStok.Core.Services.MultiTenant
                 return false;
             }
 
-            // TODO: User-tenant ilişkisi kontrolü
+            // Future: User-tenant ilişkisi kontrolü
             // if (user != null)
             // {
             //     var userTenants = GetUserTenants(user);
@@ -559,8 +559,7 @@ namespace MesTechStok.Core.Services.MultiTenant
                 return;
             }
 
-            // TODO: Usage tracking implementasyonu
-            // Metrics service'e gönder
+            // Stub: usage tracking — send to metrics service when available
 
             _logger.LogDebug("[MultiTenant] Tracked usage {MetricName}={Value} for tenant {TenantId}",
                 metricName, value, tenant.Id);

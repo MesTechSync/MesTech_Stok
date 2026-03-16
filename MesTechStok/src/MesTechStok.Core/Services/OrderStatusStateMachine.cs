@@ -254,28 +254,28 @@ namespace MesTechStok.Core.Services
             if (to == OrderStatus.Confirmed)
             {
                 _logger.LogDebug("[StatusTransition] Applying stock reservation for Order {OrderId}", order.Id);
-                // TODO: Stok rezervasyon logic'i
+                // Future: stock reservation logic via IStockService
             }
 
             // Cancelled: Stok rezervasyonu iptal
             if (to == OrderStatus.Cancelled && from == OrderStatus.Confirmed)
             {
                 _logger.LogDebug("[StatusTransition] Releasing stock reservation for Order {OrderId}", order.Id);
-                // TODO: Stok rezervasyon iptal logic'i
+                // Future: release stock reservation via IStockService
             }
 
             // Shipped: Kargo entegrasyonu
             if (to == OrderStatus.Shipped)
             {
                 _logger.LogDebug("[StatusTransition] Triggering shipping integration for Order {OrderId}", order.Id);
-                // TODO: Kargo entegrasyon logic'i
+                // Future: shipping integration via ICargoAdapter
             }
 
             // Delivered: Fatura oluşturma
             if (to == OrderStatus.Delivered)
             {
                 _logger.LogDebug("[StatusTransition] Triggering invoice generation for Order {OrderId}", order.Id);
-                // TODO: Fatura oluşturma logic'i
+                // Future: invoice generation via IEInvoiceProvider
             }
 
             await Task.CompletedTask;
@@ -286,7 +286,7 @@ namespace MesTechStok.Core.Services
         /// </summary>
         private async Task<bool> CheckStockAvailabilityAsync(Order order)
         {
-            // TODO: Gerçek stok kontrol logic'i
+            // Stub: always returns false (no stock issues) — real check via IStockService
             await Task.Delay(10); // Placeholder
             return false; // Şimdilik stok sorunu yok varsayımı
         }

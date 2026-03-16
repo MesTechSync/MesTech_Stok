@@ -1,3 +1,5 @@
+#pragma warning disable MA0051 // Method is too long — credential test handler is a single cohesive operation
+#pragma warning disable CA1031 // Catch general exception — test handler must return user-friendly error for any failure
 using System.Diagnostics;
 using MediatR;
 using MesTech.Application.Interfaces;
@@ -69,12 +71,12 @@ public class TestStoreCredentialHandler : IRequestHandler<TestStoreCredentialCom
             };
         }
 
-        var decryptedFields = new Dictionary<string, string>();
+        var decryptedFields = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var cred in credentials)
         {
             // Key format is "credentialType:fieldName"
-            var fieldName = cred.Key.Contains(':')
-                ? cred.Key[(cred.Key.IndexOf(':') + 1)..]
+            var fieldName = cred.Key.Contains(':', StringComparison.Ordinal)
+                ? cred.Key[(cred.Key.IndexOf(':', StringComparison.Ordinal) + 1)..]
                 : cred.Key;
             decryptedFields[fieldName] = _encryptionService.Decrypt(cred.EncryptedValue);
         }

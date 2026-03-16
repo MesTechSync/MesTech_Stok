@@ -34,7 +34,7 @@ namespace MesTechStok.Desktop.Services
                     return false;
                 }
 
-                // TODO: Database'den gerçek permission kontrolü (gelecek geliştirme)
+                // Stub: grants all permissions — real DB permission check in future
                 _logger.LogInformation($"Permission '{permission}' granted");
                 return true;
             }
@@ -54,7 +54,7 @@ namespace MesTechStok.Desktop.Services
                 var isAuthenticated = await _securityService.IsAuthenticatedAsync();
                 if (!isAuthenticated) return false;
 
-                // TODO: Database'den gerçek role kontrolü (gelecek geliştirme)
+                // Stub: authenticated = admin — real DB role check in future
                 // Şimdilik authenticated = admin sayıyoruz
                 return true;
             }
@@ -72,7 +72,7 @@ namespace MesTechStok.Desktop.Services
                 var isAuthenticated = await _securityService.IsAuthenticatedAsync();
                 if (!isAuthenticated) return new string[0];
 
-                // TODO: Database'den kullanıcı permissions'larını çek (gelecek geliştirme)
+                // Stub: returns all permissions — real DB permission query in future
                 return new[] { "READ", "WRITE", "DELETE", "ADMIN" };
             }
             catch (Exception ex)
@@ -106,7 +106,7 @@ namespace MesTechStok.Desktop.Services
                     return false;
                 }
 
-                // TODO: Database'den gerçek module-based permission kontrolü (gelecek geliştirme)
+                // Stub: grants all module permissions — real DB permission check in future
                 // Şimdilik authenticated users için all permissions allowed
                 _logger.LogInformation($"Module permission '{module}.{permission}' granted");
                 return true;

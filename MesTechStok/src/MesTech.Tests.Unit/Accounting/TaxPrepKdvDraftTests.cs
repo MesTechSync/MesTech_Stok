@@ -242,11 +242,11 @@ public class TaxPrepKdvDraftTests
         // Assert — report text contains all required sections
         report.ReportText.Should().Contain("KDV DRAFT REPORT", "header must be present");
         report.ReportText.Should().Contain("Mart 2026", "period must be identified");
-        report.ReportText.Should().Contain("18,000.00", "sales KDV amount");
-        report.ReportText.Should().Contain("-900.00", "return adjustment (negative)");
-        report.ReportText.Should().Contain("17,100.00", "net output KDV");
-        report.ReportText.Should().Contain("7,200.00", "purchase KDV");
-        report.ReportText.Should().Contain("2,754.00", "commission KDV");
+        report.ReportText.Should().Contain("18.000,00", "sales KDV amount (tr-TR format)");
+        report.ReportText.Should().Contain("-900,00", "return adjustment (negative, tr-TR format)");
+        report.ReportText.Should().Contain("17.100,00", "net output KDV (tr-TR format)");
+        report.ReportText.Should().Contain("7.200,00", "purchase KDV (tr-TR format)");
+        report.ReportText.Should().Contain("2.754,00", "commission KDV (tr-TR format)");
 
         // Verify payable line exists
         report.ReportText.Should().Contain("ODENECEK KDV", "payable line must exist");

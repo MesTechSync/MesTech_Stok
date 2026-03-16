@@ -20,5 +20,5 @@ public record SaveStoreCredentialCommand : IRequest<Guid>
     /// Credential alanlari: { "ApiKey": "xxx", "Secret": "yyy" }
     /// Degerler handler tarafindan AES-256-GCM ile sifrelenir.
     /// </summary>
-    public Dictionary<string, string> Fields { get; init; } = new();
+    public Dictionary<string, string> Fields { get; init; } = new(StringComparer.Ordinal);
 }

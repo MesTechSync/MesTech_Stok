@@ -22,11 +22,7 @@
 
   @if (isLoading)
   {
-    <div class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Yukleniyor...</span>
-      </div>
-    </div>
+    <LoadingSpinner />
   }
   else if (errorMessage is not null)
   {
@@ -178,7 +174,7 @@
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
+          <table class="table table-striped table-hover mb-0">
             <thead class="table-light">
               <tr>
                 <th>Teklif No</th>

@@ -361,7 +361,7 @@ public class AccountingEdgeCaseDetailTests
 
         // Assert
         negative.Amount.Should().Be(-0.005m);
-        roundedNegative.Should().Be(-0.01m); // MidpointRounding.ToEven rounds 0.005 to 0.00, but -0.005 to -0.01
+        roundedNegative.Should().Be(0.00m); // MidpointRounding.ToEven (default) rounds -0.005 to 0.00 (banker's rounding)
     }
 
     /// <summary>

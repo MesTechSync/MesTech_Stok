@@ -18,6 +18,7 @@ namespace MesTechStok.Desktop.Views
     {
         private readonly MesTechStok.Core.Services.Abstract.ICustomerService _customerService;
         private readonly ILogger<CustomerEditPopup>? _logger;
+        private bool _isSaving = false;
         private Guid? _editingCustomerId;
 
         public CustomerEditPopup()
@@ -66,16 +67,29 @@ namespace MesTechStok.Desktop.Views
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape) Close();
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && (e.Key == Key.S || e.Key == Key.Enter))
+            try
             {
-                e.Handled = true;
-                SaveAndClose_Click(this, new RoutedEventArgs());
+                if (e.Key == Key.Escape) Close();
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && (e.Key == Key.S || e.Key == Key.Enter))
+                {
+                    e.Handled = true;
+                    SaveAndClose_Click(this, new RoutedEventArgs());
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} KeyDown handler error", nameof(CustomerEditPopup));
             }
         }
 
         private async void SaveAndClose_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            var btn = sender as System.Windows.Controls.Button;
+            var originalContent = btn?.Content;
+            if (btn != null) { btn.IsEnabled = false; btn.Content = "Kaydediliyor..."; }
+
             try
             {
                 var name = (TxtName.Text ?? string.Empty).Trim();
@@ -141,6 +155,11 @@ namespace MesTechStok.Desktop.Views
             {
                 MesTechStok.Desktop.Utils.ToastManager.ShowError($"Kayıt hatası: {ex.Message}", "Müşteri");
             }
+            finally
+            {
+                _isSaving = false;
+                if (btn != null) { btn.IsEnabled = true; btn.Content = originalContent; }
+            }
         }
 
         private void CopyBillingToShipping_Click(object sender, RoutedEventArgs e)
@@ -158,23 +177,37 @@ namespace MesTechStok.Desktop.Views
 
         private void AddDocs_Click(object sender, RoutedEventArgs e)
         {
-            var ofd = new OpenFileDialog
+            try
             {
-                Filter = "Belgeler|*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg|Tümü|*.*",
-                Multiselect = true
-            };
-            if (ofd.ShowDialog() == true)
+                var ofd = new OpenFileDialog
+                {
+                    Filter = "Belgeler|*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg|Tümü|*.*",
+                    Multiselect = true
+                };
+                if (ofd.ShowDialog() == true)
+                {
+                    foreach (var f in ofd.FileNames) DocsList.Items.Add(f);
+                }
+            }
+            catch (Exception ex)
             {
-                foreach (var f in ofd.FileNames) DocsList.Items.Add(f);
+                _logger?.LogWarning(ex, "{View} AddDocs handler error", nameof(CustomerEditPopup));
             }
         }
 
         private void RemoveDoc_Click(object sender, RoutedEventArgs e)
         {
-            var sel = DocsList.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(sel)) return;
-            var idx = DocsList.Items.IndexOf(sel);
-            if (idx >= 0) DocsList.Items.RemoveAt(idx);
+            try
+            {
+                var sel = DocsList.SelectedItem as string;
+                if (string.IsNullOrWhiteSpace(sel)) return;
+                var idx = DocsList.Items.IndexOf(sel);
+                if (idx >= 0) DocsList.Items.RemoveAt(idx);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} RemoveDoc handler error", nameof(CustomerEditPopup));
+            }
         }
 
         private void OpenDoc_Click(object sender, RoutedEventArgs e)

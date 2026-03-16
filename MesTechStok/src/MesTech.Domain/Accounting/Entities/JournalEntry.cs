@@ -28,6 +28,9 @@ public class JournalEntry : BaseEntity, ITenantEntity
         string description,
         string? referenceNumber = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty.", nameof(tenantId));
+
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         return new JournalEntry
@@ -47,8 +50,14 @@ public class JournalEntry : BaseEntity, ITenantEntity
         if (IsPosted)
             throw new InvalidOperationException("Cannot modify a posted journal entry.");
 
+        if (accountId == Guid.Empty)
+            throw new ArgumentException("Account ID cannot be empty.", nameof(accountId));
+
         if (debit < 0 || credit < 0)
             throw new ArgumentException("Debit and credit amounts must be non-negative.", nameof(debit));
+
+        if (debit > 0 && credit > 0)
+            throw new ArgumentException("A journal line cannot have both debit and credit.", nameof(credit));
 
         if (debit == 0 && credit == 0)
             throw new ArgumentException("Either debit or credit must be greater than zero.", nameof(debit));

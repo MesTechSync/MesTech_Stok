@@ -537,6 +537,18 @@
                        HorizontalAlignment="Center" Margin="0,10,0,0"/>
           </StackPanel>
         </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.Row="1"
+                Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <md:PackIcon Kind="AlertCircleOutline" Width="56" Height="56" Foreground="#DC3545" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6B7280"
+                       HorizontalAlignment="Center" Margin="0,12,0,0"/>
+            <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0"
+                    Style="{StaticResource PrimaryBtn}" Padding="16,8"/>
+          </StackPanel>
+        </Border>
       </Grid>
     </Border>
 

@@ -1,3 +1,4 @@
+#pragma warning disable MA0051 // Method is too long — KDV declaration handler is a single cohesive operation
 using System.Globalization;
 using System.Text;
 using MediatR;
@@ -56,18 +57,19 @@ public class GetKdvDeclarationDraftHandler
 
         // 2. Calculate Output KDV (Hesaplanan)
         var salesKdv = taxRecords
-            .Where(r => r.TaxType == "KDV" || r.TaxType == "KDV-Satis")
+            .Where(r => string.Equals(r.TaxType, "KDV", StringComparison.Ordinal)
+                     || string.Equals(r.TaxType, "KDV-Satis", StringComparison.Ordinal))
             .Sum(r => r.TaxAmount);
 
         var returnKdvAdjustment = taxRecords
-            .Where(r => r.TaxType == "KDV-Iade")
+            .Where(r => string.Equals(r.TaxType, "KDV-Iade", StringComparison.Ordinal))
             .Sum(r => r.TaxAmount);
 
         var netOutputKdv = salesKdv - returnKdvAdjustment;
 
         // 3. Calculate Input KDV (Indirilecek)
         var purchaseKdv = taxRecords
-            .Where(r => r.TaxType == "KDV-Alis")
+            .Where(r => string.Equals(r.TaxType, "KDV-Alis", StringComparison.Ordinal))
             .Sum(r => r.TaxAmount);
 
         // Commission KDV — from commission records in the period
@@ -80,12 +82,12 @@ public class GetKdvDeclarationDraftHandler
 
         // 4. Withholding KDV (Tevkifat) — from tax records
         var withholdingKdv = taxRecords
-            .Where(r => r.TaxType == "KDV-Tevkifat")
+            .Where(r => string.Equals(r.TaxType, "KDV-Tevkifat", StringComparison.Ordinal))
             .Sum(r => r.TaxAmount);
 
         // 5. Carry-forward KDV (Devreden) from previous period
         var carryForwardKdv = taxRecords
-            .Where(r => r.TaxType == "KDV-Devreden")
+            .Where(r => string.Equals(r.TaxType, "KDV-Devreden", StringComparison.Ordinal))
             .Sum(r => r.TaxAmount);
 
         // 6. Calculate payable
@@ -128,8 +130,8 @@ public class GetKdvDeclarationDraftHandler
         var monthName = periodDate.ToString("MMMM yyyy", TrCulture);
         var sb = new StringBuilder();
 
-        sb.AppendLine($"KDV BEYANNAME TASLAK — {monthName.ToUpper(TrCulture)}");
-        sb.AppendLine($"Donem: {period}");
+        sb.AppendLine(TrCulture, $"KDV BEYANNAME TASLAK — {monthName.ToUpper(TrCulture)}");
+        sb.AppendLine(TrCulture, $"Donem: {period}");
         sb.AppendLine(new string('\u2500', 50));
         sb.AppendLine();
 

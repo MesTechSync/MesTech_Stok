@@ -14,12 +14,12 @@ public sealed class TrendyolOptions
     /// <summary>Trendyol Production API base URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
         Justification = "Configuration binding requires string type.")]
-    public string ProductionBaseUrl { get; set; } = "https://api.trendyol.com";
+    public string ProductionBaseUrl { get; set; } = "https://apigw.trendyol.com";
 
     /// <summary>Trendyol Sandbox (stage) API base URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
         Justification = "Configuration binding requires string type.")]
-    public string SandboxBaseUrl { get; set; } = "https://stageapi.trendyol.com";
+    public string SandboxBaseUrl { get; set; } = "https://stage-apigw.trendyol.com";
 
     /// <summary>When true, routes all API calls through SandboxBaseUrl.</summary>
     [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily",

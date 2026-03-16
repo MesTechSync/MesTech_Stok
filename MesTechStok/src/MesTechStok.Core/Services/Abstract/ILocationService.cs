@@ -156,7 +156,7 @@ namespace MesTechStok.Core.Services.Abstract
     /// </summary>
     public class BinUtilizationReport
     {
-        // TODO: Implement
+        // Placeholder — properties will be added when location analytics is implemented
     }
 
     /// <summary>

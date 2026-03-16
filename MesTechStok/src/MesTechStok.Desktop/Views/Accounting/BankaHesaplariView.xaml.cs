@@ -145,6 +145,12 @@ namespace MesTechStok.Desktop.Views.Accounting
             MessageBox.Show("Ekstre aktarma islevi yakin zamanda aktif olacak.\n(Banka API entegrasyonu tamamlandiginda etkinlestirilecek.)",
                 "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+        private void ShowLoading() { LoadingOverlay.Visibility = Visibility.Visible; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowEmpty() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Visible; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowError(string msg = "Bir hata olustu") { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Visible; ErrorMessage.Text = msg; }
+        private void ShowContent() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void RetryButton_Click(object sender, RoutedEventArgs e) { ShowContent(); LoadAccountData(AccountSelector?.SelectedIndex ?? 0); }
     }
 
     internal sealed class BankAccountInfo

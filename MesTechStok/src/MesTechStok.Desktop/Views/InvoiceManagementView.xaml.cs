@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using MesTech.Application.Interfaces;
 using MesTechStok.Desktop.Utils;
 
@@ -12,6 +13,26 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class InvoiceManagementView : UserControl
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                { NewInvoice_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+                { RefreshStatus_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { ClosePdfPanel_Click(this, new RoutedEventArgs()); e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(InvoiceManagementView)} KeyDown handler error: {ex.Message}");
+            }
+        }
+
+        #endregion
         private readonly IInvoiceProvider? _invoiceProvider;
         private readonly IInvoiceCapableAdapter? _invoiceCapableAdapter;
         private readonly ObservableCollection<InvoiceDisplayItem> _invoices = new();
@@ -155,7 +176,14 @@ namespace MesTechStok.Desktop.Views
 
         private void FilterChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplyFilters();
+            try
+            {
+                ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(InvoiceManagementView)} FilterChanged handler error: {ex.Message}");
+            }
         }
 
         private void ApplyFilters()
@@ -363,9 +391,16 @@ namespace MesTechStok.Desktop.Views
 
         private void ClosePdfPanel_Click(object sender, RoutedEventArgs e)
         {
-            PdfWebBrowser.Navigate("about:blank");  // Release file lock first
-            PdfPanelColumn.Width = new System.Windows.GridLength(0);
-            PdfPreviewBorder.Visibility = System.Windows.Visibility.Collapsed;
+            try
+            {
+                PdfWebBrowser.Navigate("about:blank");  // Release file lock first
+                PdfPanelColumn.Width = new System.Windows.GridLength(0);
+                PdfPreviewBorder.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(InvoiceManagementView)} ClosePdfPanel handler error: {ex.Message}");
+            }
         }
 
         #region Loading/Empty/Error State Helpers
@@ -401,8 +436,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            LoadSampleData();
+            try
+            {
+                HideAllStates();
+                LoadSampleData();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(InvoiceManagementView)} RetryButton handler error: {ex.Message}");
+            }
         }
 
         #endregion

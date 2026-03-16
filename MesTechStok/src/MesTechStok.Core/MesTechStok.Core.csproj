@@ -1,4 +1,4 @@
-ï»¿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <!-- Sqlite + SqlServer kaldÄ±rÄ±ldÄ±: Dalga 2 4.D2-01 â€” sadece PostgreSQL kullanÄ±lÄ±yor -->
+    <!-- Sqlite + SqlServer kaldýrýldý: Dalga 2 4.D2-01 — sadece PostgreSQL kullanýlýyor -->
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <!-- Migration'lar yeniden etkin -->
-  <!-- Eski migration klasÃ¶rÃ¼ derleme dÄ±ÅŸÄ± bÄ±rakÄ±ldÄ± (yeni SqlServer baseline iÃ§in) -->
+  <!-- Eski migration klasörü derleme dýþý býrakýldý (yeni SqlServer baseline için) -->
   <ItemGroup>
     <Compile Remove="Migrations\**\*.cs" />
     <Compile Remove="Migrations\*.cs" />

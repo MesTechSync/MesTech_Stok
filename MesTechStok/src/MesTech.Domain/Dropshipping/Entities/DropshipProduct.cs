@@ -46,8 +46,8 @@ public class DropshipProduct : BaseEntity, ITenantEntity
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(externalProductId);
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        if (originalPrice < 0)
-            throw new ArgumentException("Original price cannot be negative.", nameof(originalPrice));
+        if (originalPrice <= 0)
+            throw new ArgumentException("Original price must be greater than zero.", nameof(originalPrice));
         if (stockQuantity < 0)
             throw new ArgumentException("Stock quantity cannot be negative.", nameof(stockQuantity));
 
@@ -70,6 +70,9 @@ public class DropshipProduct : BaseEntity, ITenantEntity
     /// </summary>
     public void LinkToProduct(Guid productId)
     {
+        if (productId == Guid.Empty)
+            throw new ArgumentException("Product ID cannot be empty.", nameof(productId));
+
         ProductId = productId;
         UpdatedAt = DateTime.UtcNow;
     }

@@ -439,7 +439,7 @@ public partial class App : Application
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddSingleton<ISystemResourceService, SystemResourceService>();
         services.AddScoped<SimpleSecurityService>();
-        // TODO: Basit güvenlik sistemi kullanılıyor (SimpleSecurityService)
+        // SimpleSecurityService active — IAuthorizationService when ready
         // services.AddScoped<IAuthorizationService, AuthorizationService>();
         services.AddScoped<IOfflineQueueService, MesTechStok.Desktop.Services.OfflineQueueService>();
         services.AddSingleton<IOpenCartQueueWorker, OpenCartQueueWorker>();
@@ -490,7 +490,7 @@ public partial class App : Application
         services.AddSingleton<IGlobalBarcodeService, GlobalBarcodeService>();
 
         // WAREHOUSE & LOCATION SERVICES: LocationService fix tamamlandı
-        // TODO: Diğer interface/implementation mismatch'leri düzeltilecek
+        // Remaining interface/implementation mismatches to fix
         // Already registered above: IWarehouseOptimizationService (mock)
         // services.AddScoped<MesTechStok.Core.Services.Abstract.IMobileWarehouseService, MesTechStok.Core.Services.Concrete.MobileWarehouseService>();
 
@@ -740,20 +740,10 @@ public partial class App : Application
 
                 // 6) Seed işlemleri – şema tamamlandıktan sonra
                 // Admin/rol/izin seed – tek sefer
-                // TODO: Users tablosu oluşturulduktan sonra aktif edilecek
+                // Seed operations disabled — schema mismatch (Users table + column issues)
                 // await context.SeedAuthenticationDataAsync().ConfigureAwait(false);
-                // Demo data seed – TEMPORARILY DISABLED due to column mismatch
                 // await context.SeedDemoDataAsync().ConfigureAwait(false);
-
-                // Safety net: If still no active products, force seed once more
-                // TEMPORARILY DISABLED - schema mismatch needs fixing
-                // if (!await context.Products.AnyAsync(p => p.IsActive).ConfigureAwait(false))
-                // {
-                //     await context.SeedDemoDataAsync().ConfigureAwait(false);
-                // }
-
-                // FAZ 1 GÖREV 1.1: Seed Authentication Data - TEMPORARILY DISABLED
-                // await context.SeedAuthenticationDataAsync();
+                // Safety net seed also disabled until schema is fixed
 
                 Log.Information("Database initialized successfully");
             }

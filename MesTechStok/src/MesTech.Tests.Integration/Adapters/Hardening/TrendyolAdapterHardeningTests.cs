@@ -1,3 +1,4 @@
+using System.Net.Http;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;

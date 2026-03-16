@@ -232,7 +232,7 @@ namespace MesTechStok.Desktop
 
         private async System.Threading.Tasks.Task ApplyMenuVisibilityAsync()
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm menüler görünür
             try
             {
@@ -1630,16 +1630,12 @@ namespace MesTechStok.Desktop
         {
             try
             {
-                // TODO: Basit güvenlik sistemi kullanılıyor (SimpleSecurityService)
-                // Şu anda basit logout yapılıyor
-
-                // 1) Basit logout
+                // SimpleSecurityService — basic logout (session ID tracking needed for full logout)
                 var sp = App.Services;
                 var simpleSecurity = sp?.GetService<SimpleSecurityService>();
                 if (simpleSecurity != null)
                 {
-                    // TODO: Session ID'yi saklamak gerekiyor
-                    // simpleSecurity.LogoutAsync(sessionId);
+                    // Session ID tracking needed for: simpleSecurity.LogoutAsync(sessionId);
                 }
 
                 // 2) Login ekranına dön

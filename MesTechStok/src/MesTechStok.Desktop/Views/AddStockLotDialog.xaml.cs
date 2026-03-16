@@ -6,6 +6,8 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class AddStockLotDialog : Window
     {
+        private bool _isSaving = false;
+
         public int Quantity { get; private set; }
         public decimal UnitCost { get; private set; }
         public string LotNumber { get; private set; } = string.Empty;
@@ -23,6 +25,10 @@ namespace MesTechStok.Desktop.Views
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            if (OkButton != null) { OkButton.IsEnabled = false; OkButton.Content = "Kaydediliyor..."; }
+
             try
             {
                 if (!int.TryParse(QuantityTextBox.Text, out var qty) || qty <= 0)
@@ -44,11 +50,23 @@ namespace MesTechStok.Desktop.Views
             {
                 MessageBox.Show($"Hata: {ex.Message}", "Giriş Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+            finally
+            {
+                _isSaving = false;
+                if (OkButton != null) { OkButton.IsEnabled = true; OkButton.Content = "✅ Ekle"; }
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
+            try
+            {
+                DialogResult = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AddStockLotDialog] CancelButton error: {ex.Message}");
+            }
         }
     }
 }

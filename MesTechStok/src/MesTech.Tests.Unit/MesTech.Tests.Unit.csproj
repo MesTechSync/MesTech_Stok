@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -42,7 +42,7 @@
     </Content>
   </ItemGroup>
 
-  <!-- Dalga 11 stub testleri — implementasyon henuz yazilmadi, derleme hatasi veriyor -->
+  <!-- Dalga 11 stub testleri � implementasyon henuz yazilmadi, derleme hatasi veriyor -->
   <ItemGroup>
     <Compile Remove="Domain\Erp\ErpSyncLogTests.cs" />
     <Compile Remove="Accounting\ERPSyncTests.cs" />

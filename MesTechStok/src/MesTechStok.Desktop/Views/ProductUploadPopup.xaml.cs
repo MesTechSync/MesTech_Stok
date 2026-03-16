@@ -34,6 +34,7 @@ namespace MesTechStok.Desktop.Views
         private int _coverIndex = -1;
         private Guid? _editingProductId = null;
         private bool _isDirty = false;
+        private bool _isSaving = false;
 
         private IProductDataService GetProductService()
         {
@@ -386,6 +387,9 @@ namespace MesTechStok.Desktop.Views
 
         private async Task<bool> SaveInternalAsync(bool draft)
         {
+            if (_isSaving) return false;
+            _isSaving = true;
+
             try
             {
                 using var corr = CorrelationContext.StartNew($"PROD-{Guid.NewGuid():N}".Substring(0, 12));
@@ -613,6 +617,7 @@ namespace MesTechStok.Desktop.Views
             }
             finally
             {
+                _isSaving = false;
                 Busy();
             }
         }
@@ -1744,5 +1749,11 @@ namespace MesTechStok.Desktop.Views
                 return null;
             }
         }
+
+        private void ShowLoading() { LoadingOverlay.Visibility = Visibility.Visible; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowEmpty() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Visible; ErrorState.Visibility = Visibility.Collapsed; }
+        private void ShowError(string msg = "Bir hata olustu") { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Visible; ErrorMessage.Text = msg; }
+        private void ShowContent() { LoadingOverlay.Visibility = Visibility.Collapsed; EmptyState.Visibility = Visibility.Collapsed; ErrorState.Visibility = Visibility.Collapsed; }
+        private void RetryButton_Click(object sender, RoutedEventArgs e) { ShowContent(); }
     }
 }

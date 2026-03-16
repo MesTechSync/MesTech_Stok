@@ -40,13 +40,17 @@ public class ExchangeRateServiceTests
     }
 
     [Fact]
-    public async Task GetRateAsync_NonTryCurrencyTarget_ShouldThrow()
+    public async Task GetRateAsync_NonTryCurrencyTarget_ShouldReturnCrossRate()
     {
-        var service = CreateService();
+        // Cross-currency conversion is now supported via cross rate: fromRate/toRate
+        var badHandler = new BadHttpMessageHandler();
+        var service = CreateService(badHandler);
 
-        var act = () => service.GetRateAsync("USD", "EUR");
+        var rate = await service.GetRateAsync("USD", "EUR");
 
-        await act.Should().ThrowAsync<NotSupportedException>();
+        // Fallback rates: USD=33, EUR=36 → cross rate = 33/36
+        rate.Should().BeGreaterThan(0m);
+        rate.Should().BeApproximately(33m / 36m, 0.01m);
     }
 
     [Fact]

@@ -207,7 +207,7 @@ namespace MesTechStok.Core.Services.Concrete
                     MovementType = movementType.ToString(),
                     Reason = reason,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System" // TODO: Get from current user context
+                    CreatedBy = "System" // Future: inject ICurrentUserService for real user context
                 };
 
                 _context.StockMovements.Add(movement);

@@ -66,8 +66,21 @@ public static class IntegrationServiceRegistration
         // Dalga 3: Ciceksepeti + Hepsiburada marketplace adapters
         services.AddSingleton<CiceksepetiAdapter>(sp =>
             new CiceksepetiAdapter(new HttpClient(), sp.GetRequiredService<ILogger<CiceksepetiAdapter>>()));
+
+        // K1c-02: HepsiburadaTokenService — OAuth token management (55-min cache, auto-refresh)
+        services.AddSingleton<HepsiburadaTokenService>(sp =>
+            new HepsiburadaTokenService(
+                new HttpClient(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<ILogger<HepsiburadaTokenService>>()));
+
+        // K1c-03: HepsiburadaAdapter now receives HepsiburadaTokenService for OAuth token auth
         services.AddSingleton<HepsiburadaAdapter>(sp =>
-            new HepsiburadaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<HepsiburadaAdapter>>()));
+            new HepsiburadaAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<HepsiburadaAdapter>>(),
+                sp.GetRequiredService<HepsiburadaTokenService>()));
 
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<CiceksepetiAdapter>());
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<HepsiburadaAdapter>());

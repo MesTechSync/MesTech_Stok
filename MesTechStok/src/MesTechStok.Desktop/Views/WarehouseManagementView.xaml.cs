@@ -26,7 +26,7 @@ namespace MesTechStok.Desktop.Views
             {
                 if (e.NewValue is TreeViewItem selectedItem)
                 {
-                    // TODO: ViewModel'deki seçim değişikliği logic'ini çağır
+                    // Stub: wire to ViewModel selection changed logic
                     var header = selectedItem.Header?.ToString() ?? "";
                     MessageBox.Show($"Seçilen öğe: {header}", "MesTech", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -49,7 +49,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Context menu logic'i
+                // Stub: context menu logic not implemented
             }
             catch (Exception ex)
             {

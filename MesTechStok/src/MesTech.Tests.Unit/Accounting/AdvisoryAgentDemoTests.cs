@@ -84,8 +84,9 @@ public class AdvisoryAgentDemoTests
         {
             best.Platform.Should().Be("N11",
                 $"{best.ProductName} should have highest margin on N11 (lowest commission %12)");
-            best.NetMarginPercent.Should().BeGreaterThan(0,
-                $"{best.ProductName} margin on best platform must be positive");
+            // Note: Webcam 1080p (purchase 300, sale 320) has negative margin even on N11
+            // because commission (38.40) exceeds the gross margin (20). This is valid — the
+            // test verifies N11 is always the BEST platform, not that all margins are positive.
         }
     }
 
@@ -284,14 +285,13 @@ public class AdvisoryAgentDemoTests
 
         // Monitor Standı on Hepsiburada: purchase 120, sale 200, commission %18
         // Margin = (200 - 120 - 36) / 200 * 100 = 22% — above target, should NOT appear
-        var monitorHb = priceIncreases.FirstOrDefault(p => p.SKU == "SKU-MS05" && p.Platform == "Hepsiburada");
-
-        // Monitor Standı: (200 - 120 - 36) / 200 * 100 = 22% → above 15%, shouldn't appear
-        // But let's verify it depending on actual calculation
         var monitorMargin = allMargins.First(m => m.SKU == "SKU-MS05" && m.Platform == "Hepsiburada");
         if (monitorMargin.NetMarginPercent >= targetMarginPercent)
         {
-            monitorHb.Should().BeNull("Monitor Standı on HB is above target margin");
+            // Value tuple FirstOrDefault returns default (all zeros) rather than null,
+            // so check that the SKU field is null (indicating no match was found).
+            var monitorHb = priceIncreases.FirstOrDefault(p => p.SKU == "SKU-MS05" && p.Platform == "Hepsiburada");
+            monitorHb.SKU.Should().BeNull("Monitor Standı on HB is above target margin — should not be in list");
         }
     }
 

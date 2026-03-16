@@ -30,8 +30,8 @@ public class UpdatePoolProductReliabilityCommandHandler(
         var poolProduct = await poolRepo.GetPoolProductByIdAsync(req.PoolProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPoolProduct '{req.PoolProductId}' bulunamadı.");
 
-        // ReliabilityColor ve score — entity'de doğrudan property set
-        poolProduct.UpdatedAt = DateTime.UtcNow;
+        // K1d-06: Güvenilirlik skorunu ve renk sınıflandırmasını entity üzerinde güncelle
+        poolProduct.UpdateReliability(req.NewScore, (int)req.NewColor);
 
         await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken);
         return true;

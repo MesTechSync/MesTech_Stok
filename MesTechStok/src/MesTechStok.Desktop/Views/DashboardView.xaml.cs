@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
@@ -22,6 +23,24 @@ namespace MesTechStok.Desktop.Views
     /// </summary>
     public partial class DashboardView : UserControl
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { RefreshButton_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { /* No cancel action for dashboard */ e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} KeyDown handler error", nameof(DashboardView));
+            }
+        }
+
+        #endregion
         private readonly IRealProductService _productService;
         private readonly IDatabaseService _databaseService;
         private readonly ILogger<DashboardView> _logger;
@@ -57,7 +76,14 @@ namespace MesTechStok.Desktop.Views
 
         private async void DashboardView_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadDashboardDataAsync();
+            try
+            {
+                await LoadDashboardDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} Loaded handler error", nameof(DashboardView));
+            }
         }
 
         private async Task LoadDashboardDataAsync()
@@ -94,8 +120,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryDashboard_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            _ = LoadDashboardDataAsync();
+            try
+            {
+                HideAllStates();
+                _ = LoadDashboardDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} RetryDashboard handler error", nameof(DashboardView));
+            }
         }
 
         #region Loading/Empty/Error State Helpers
@@ -428,28 +461,63 @@ namespace MesTechStok.Desktop.Views
 
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            await LoadDashboardDataAsync();
+            try
+            {
+                await LoadDashboardDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} RefreshButton handler error", nameof(DashboardView));
+            }
         }
 
         private void QuickAddProduct_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToProducts?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                NavigateToProducts?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} QuickAddProduct handler error", nameof(DashboardView));
+            }
         }
 
         private void QuickBarcode_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToBarcode?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                NavigateToBarcode?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} QuickBarcode handler error", nameof(DashboardView));
+            }
         }
 
         private void QuickStock_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToStock?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                NavigateToStock?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} QuickStock handler error", nameof(DashboardView));
+            }
         }
 
         // Not: Raporlar için ayrı bir hızlı erişim butonu XAML'de yok, ama olsaydı şöyle olurdu:
         private void QuickReports_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToReports?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                NavigateToReports?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{View} QuickReports handler error", nameof(DashboardView));
+            }
         }
     }
 

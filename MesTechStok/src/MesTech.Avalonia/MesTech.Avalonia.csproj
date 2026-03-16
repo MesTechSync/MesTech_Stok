@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Avalonia Cross-Platform â€” Dalga 10 MVP -->
+    <!-- Avalonia Cross-Platform — Dalga 10 MVP -->
     <RootNamespace>MesTech.Avalonia</RootNamespace>
   </PropertyGroup>
 
@@ -18,7 +18,7 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Controls.DataGrid" />
-    <!-- CommunityToolkit.Mvvm â€” same version as WPF Desktop ViewModels -->
+    <!-- CommunityToolkit.Mvvm — same version as WPF Desktop ViewModels -->
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
@@ -32,7 +32,7 @@
     <PackageReference Include="Serilog.Sinks.Console" />
   </ItemGroup>
 
-  <!-- Reuse Domain + Application + Infrastructure layers â€” ZERO CHANGES -->
+  <!-- Reuse Domain + Application + Infrastructure layers — ZERO CHANGES -->
   <ItemGroup>
     <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
@@ -41,8 +41,8 @@
 
   <!--
     ViewModel Reuse Strategy:
-    ProfitLossViewModel has ZERO WPF dependencies â€” compile-linked directly (100% reuse).
-    LeadsViewModel and DealsViewModel use System.Windows.MessageBox â€” adapted with IDialogService.
+    ProfitLossViewModel has ZERO WPF dependencies — compile-linked directly (100% reuse).
+    LeadsViewModel and DealsViewModel use System.Windows.MessageBox — adapted with IDialogService.
     Full migration recommendation: extract ViewModels into MesTech.Presentation.Shared library
     and replace all System.Windows.MessageBox calls with IDialogService abstraction.
   -->

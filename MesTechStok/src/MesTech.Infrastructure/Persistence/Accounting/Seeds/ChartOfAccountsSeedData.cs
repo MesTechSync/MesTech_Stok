@@ -36,6 +36,8 @@ public static class ChartOfAccountsSeedData
         accounts.Add(ChartOfAccounts.Create(tenantId, "120.01.005", "Amazon Alacak", AccountType.Asset, level: 3));
         accounts.Add(ChartOfAccounts.Create(tenantId, "121", "Alacak Senetleri", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "126", "Verilen Depozito ve Teminatlar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "127", "Supheli Ticari Alacaklar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "128", "Supheli Alacaklar Karsiligi (-)", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "150", "Ilk Madde ve Malzeme", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "152", "Mamul Stoklar", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "153", "Ticari Mallar", AccountType.Asset, level: 1));
@@ -43,6 +45,25 @@ public static class ChartOfAccountsSeedData
         accounts.Add(ChartOfAccounts.Create(tenantId, "159", "Verilen Siparis Avanslari", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "190", "Devreden KDV", AccountType.Asset, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "191", "Indirilecek KDV", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "192", "Diger KDV", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "193", "Pesin Odenen Vergiler ve Fonlar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "196", "Personel Avanslari", AccountType.Asset, level: 1));
+
+        // ═══════════════════════════════════════
+        // 2xx — DURAN VARLIKLAR (Non-Current Asset)
+        // ═══════════════════════════════════════
+        accounts.Add(ChartOfAccounts.Create(tenantId, "220", "Alicilar (Uzun Vadeli)", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "221", "Alacak Senetleri (Uzun Vadeli)", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "226", "Verilen Depozito ve Teminatlar (Uzun Vadeli)", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "240", "Bagli Menkul Kiymetler", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "252", "Binalar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "253", "Tesis, Makine ve Cihazlar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "254", "Tasitlar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "255", "Demirbaslar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "257", "Birikimis Amortismanlar (-)", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "260", "Haklar", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "264", "Ozel Maliyetler", AccountType.Asset, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "268", "Birikimis Amortismanlar (Maddi Olmayan) (-)", AccountType.Asset, level: 1));
 
         // ═══════════════════════════════════════
         // 3xx — KISA VADELI YABANCI KAYNAKLAR (Liability)
@@ -51,6 +72,7 @@ public static class ChartOfAccountsSeedData
         accounts.Add(ChartOfAccounts.Create(tenantId, "320", "Saticilar", AccountType.Liability, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "320.01", "Tedarikci Borclari", AccountType.Liability, level: 2));
         accounts.Add(ChartOfAccounts.Create(tenantId, "321", "Borc Senetleri", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "329", "Diger Ticari Borclar", AccountType.Liability, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "335", "Personele Borclar", AccountType.Liability, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "340", "Alinan Siparis Avanslari", AccountType.Liability, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "360", "Odenecek Vergi ve Fonlar", AccountType.Liability, level: 1));
@@ -58,6 +80,17 @@ public static class ChartOfAccountsSeedData
         accounts.Add(ChartOfAccounts.Create(tenantId, "360.02", "Odenecek Gelir Vergisi Stopaji", AccountType.Liability, level: 2));
         accounts.Add(ChartOfAccounts.Create(tenantId, "361", "Odenecek Sosyal Guvenlik Kesintileri", AccountType.Liability, level: 1));
         accounts.Add(ChartOfAccounts.Create(tenantId, "391", "Hesaplanan KDV", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "360.03", "Odenecek KDV Tevkifat", AccountType.Liability, level: 2));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "360.04", "Sorumlu Sifatiyla Odenecek KDV", AccountType.Liability, level: 2));
+
+        // ═══════════════════════════════════════
+        // 4xx — UZUN VADELI YABANCI KAYNAKLAR (Long-Term Liability)
+        // ═══════════════════════════════════════
+        accounts.Add(ChartOfAccounts.Create(tenantId, "400", "Banka Kredileri (Uzun Vadeli)", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "420", "Saticilar (Uzun Vadeli)", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "421", "Borc Senetleri (Uzun Vadeli)", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "426", "Alinan Depozito ve Teminatlar (Uzun Vadeli)", AccountType.Liability, level: 1));
+        accounts.Add(ChartOfAccounts.Create(tenantId, "472", "Kidem Tazminati Karsiligi", AccountType.Liability, level: 1));
 
         // ═══════════════════════════════════════
         // 5xx — GELIRLER (Revenue)

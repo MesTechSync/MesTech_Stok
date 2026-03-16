@@ -38,27 +38,28 @@ public class StubAdapterTests
     }
 
     [Fact]
-    public async Task EbayAdapter_GetOrdersAsync_ShouldReturnEmpty()
+    public async Task EbayAdapter_GetOrdersAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreateEbay();
-        // PullProductsAsync maps to "GetOrders" concept at foundation level
-        var result = await adapter.PullProductsAsync(CancellationToken.None);
-        result.Should().BeEmpty();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PullProductsAsync(CancellationToken.None);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task EbayAdapter_UpdateStockAsync_ShouldReturnFalse()
+    public async Task EbayAdapter_UpdateStockAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreateEbay();
-        var result = await adapter.PushStockUpdateAsync(Guid.NewGuid(), 10);
-        result.Should().BeFalse();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PushStockUpdateAsync(Guid.NewGuid(), 10);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
-    public void EbayAdapter_SupportsShipment_ShouldBeFalse()
+    public void EbayAdapter_SupportsShipment_ShouldBeTrue()
     {
         var adapter = CreateEbay();
-        adapter.SupportsShipment.Should().BeFalse();
+        adapter.SupportsShipment.Should().BeTrue();
     }
 
     // ══════════════════════════════════════════════════════
@@ -84,19 +85,21 @@ public class StubAdapterTests
     }
 
     [Fact]
-    public async Task OzonAdapter_GetOrdersAsync_ShouldReturnEmpty()
+    public async Task OzonAdapter_GetOrdersAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreateOzon();
-        var result = await adapter.PullProductsAsync(CancellationToken.None);
-        result.Should().BeEmpty();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PullProductsAsync(CancellationToken.None);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task OzonAdapter_UpdateStockAsync_ShouldReturnFalse()
+    public async Task OzonAdapter_UpdateStockAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreateOzon();
-        var result = await adapter.PushStockUpdateAsync(Guid.NewGuid(), 5);
-        result.Should().BeFalse();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PushStockUpdateAsync(Guid.NewGuid(), 5);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
@@ -129,19 +132,21 @@ public class StubAdapterTests
     }
 
     [Fact]
-    public async Task PttAvmAdapter_GetOrdersAsync_ShouldReturnEmpty()
+    public async Task PttAvmAdapter_GetOrdersAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreatePttAvm();
-        var result = await adapter.PullProductsAsync(CancellationToken.None);
-        result.Should().BeEmpty();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PullProductsAsync(CancellationToken.None);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task PttAvmAdapter_UpdateStockAsync_ShouldReturnFalse()
+    public async Task PttAvmAdapter_UpdateStockAsync_ShouldThrowWhenNotConfigured()
     {
         var adapter = CreatePttAvm();
-        var result = await adapter.PushStockUpdateAsync(Guid.NewGuid(), 3);
-        result.Should().BeFalse();
+        // Real adapter requires credentials — throws InvalidOperationException when not configured
+        var act = async () => await adapter.PushStockUpdateAsync(Guid.NewGuid(), 3);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]

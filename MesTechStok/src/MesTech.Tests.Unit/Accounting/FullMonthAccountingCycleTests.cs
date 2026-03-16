@@ -601,14 +601,13 @@ public class FullMonthAccountingCycleTests
         marketingExpense.Should().Be(totalCargoExpense, "Pazarlama gideri kargo giderine esit olmali");
         adminExpense.Should().Be(5_000m, "Yonetim gideri kira tutarina esit olmali");
 
-        netProfit.Should().BeGreaterThan(0,
-            "Ahmet Bey A.S. Mart 2026'da karli olmali");
-
         // Net kar: 14,500 - 9,425 - 1,576 - 1,100 - 5,000 = -2,601 TL
-        // Aslinda giderlerin yuksekligi nedeniyle zarar olusabilir, hesaplayalim:
+        // Giderlerin yuksekligi nedeniyle zarar olusmustur (donem zarari)
         var expectedNetProfit = 14_500m - 9_425m - 1_576m - 1_100m - 5_000m;
         netProfit.Should().Be(expectedNetProfit,
             "Net Kar = Gelir - (SMM + Komisyon + Kargo + Kira)");
+        netProfit.Should().BeLessThan(0,
+            "Ahmet Bey A.S. Mart 2026 donem zarari: giderler geliri asiyor");
 
         // Net kar donem kari hesabina kaydedilir
         if (netProfit != 0)

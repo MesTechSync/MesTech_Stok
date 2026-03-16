@@ -10,5 +10,7 @@ public enum DocumentType
     BankStatement = 2,
     Settlement = 3,
     Contract = 4,
+    PurchaseInvoice = 5,
+    SalesInvoice = 6,
     Other = 99
 }

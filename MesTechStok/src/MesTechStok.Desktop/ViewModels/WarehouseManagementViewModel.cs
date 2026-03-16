@@ -298,7 +298,7 @@ namespace MesTechStok.Desktop.ViewModels
                 StatusMessage = "D�zenleme iptal edildi";
 
                 // Reset selected items to original state
-                // TODO: Implement reset logic
+                // Stub: reset selected items to original state
             }
             catch (Exception ex)
             {

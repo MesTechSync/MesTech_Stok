@@ -503,7 +503,7 @@ public class DomainCoverageGapFillTests
     public void PlatformType_ShouldHave12Members()
     {
         var values = Enum.GetValues<PlatformType>();
-        values.Length.Should().Be(12);
+        values.Length.Should().Be(13);
     }
 
     // ════════════════════════════════════════════════════════════════

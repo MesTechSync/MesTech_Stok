@@ -33,7 +33,13 @@ public class SettlementBatch : BaseEntity, ITenantEntity
         decimal totalCommission,
         decimal totalNet)
     {
+        // Note: tenantId may be Guid.Empty when created by settlement parsers
+        // (infrastructure layer). The caller/command handler sets the real tenant ID later.
+
         ArgumentException.ThrowIfNullOrWhiteSpace(platform);
+
+        if (periodEnd < periodStart)
+            throw new ArgumentException("Period end cannot be before period start.", nameof(periodEnd));
 
         var batch = new SettlementBatch
         {

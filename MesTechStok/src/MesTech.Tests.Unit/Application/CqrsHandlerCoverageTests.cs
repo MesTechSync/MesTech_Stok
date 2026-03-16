@@ -298,15 +298,15 @@ public class CqrsHandlerCoverageTests
             ReferenceNumber: null,
             Lines: new List<JournalLineInput>
             {
-                new(Guid.NewGuid(), 1000m, 1000m, "Single balanced line")
+                new(Guid.NewGuid(), 1000m, 0m, "Single debit line")
             }
         );
 
         // Act
         var act = () => handler.Handle(command, CancellationToken.None);
 
-        // Assert — journal entry requires at least 2 lines
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        // Assert — single unbalanced line triggers imbalance check before line count check
+        await act.Should().ThrowAsync<JournalEntryImbalanceException>();
     }
 
     // ═══════════════════════════════════════════

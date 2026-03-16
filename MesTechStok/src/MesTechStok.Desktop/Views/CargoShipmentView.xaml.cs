@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using MesTechStok.Desktop.Utils;
 
@@ -17,6 +18,24 @@ namespace MesTechStok.Desktop.Views
     /// </summary>
     public partial class CargoShipmentView : UserControl, INotifyPropertyChanged
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { Refresh_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { ShipmentsDataGrid.SelectedItem = null; e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} KeyDown handler error: {ex.Message}");
+            }
+        }
+
+        #endregion
         #region Private Fields
 
         private readonly ObservableCollection<ShipmentItem> _shipments;
@@ -262,6 +281,8 @@ namespace MesTechStok.Desktop.Views
 
         private void CargoProvider_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            try
+            {
             if (LabelFormatComboBox == null) return;
 
             var selectedItem = CargoProviderComboBox.SelectedItem as ComboBoxItem;
@@ -295,6 +316,11 @@ namespace MesTechStok.Desktop.Views
             LabelFormatComboBox.SelectedIndex = 0;
 
             GlobalLogger.Instance.LogInfo($"Kargo firmasi degisti: {provider}", "CargoShipmentView");
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} CargoProvider handler error: {ex.Message}");
+            }
         }
 
         private async void BulkShip_Click(object sender, RoutedEventArgs e)
@@ -418,8 +444,15 @@ namespace MesTechStok.Desktop.Views
 
         private void BulkLabel_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new BulkCargoLabelDialog { Owner = Window.GetWindow(this) };
-            dialog.ShowDialog();
+            try
+            {
+                var dialog = new BulkCargoLabelDialog { Owner = Window.GetWindow(this) };
+                dialog.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} BulkLabel handler error: {ex.Message}");
+            }
         }
 
         private void Export_Click(object sender, RoutedEventArgs e)
@@ -459,17 +492,38 @@ namespace MesTechStok.Desktop.Views
 
         private void PlatformFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplyFilters();
+            try
+            {
+                ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} PlatformFilter handler error: {ex.Message}");
+            }
         }
 
         private void StatusFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplyFilters();
+            try
+            {
+                ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} StatusFilter handler error: {ex.Message}");
+            }
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ApplyFilters();
+            try
+            {
+                ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} SearchTextBox handler error: {ex.Message}");
+            }
         }
 
         private void ClearFilters_Click(object sender, RoutedEventArgs e)
@@ -679,8 +733,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            _ = InitializeAsync();
+            try
+            {
+                HideAllStates();
+                _ = InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} RetryButton handler error: {ex.Message}");
+            }
         }
 
         #endregion

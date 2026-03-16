@@ -59,7 +59,7 @@ public class TrendyolAdapterWireMockTests : IClassFixture<WireMockFixture>
 
         _fixture.Server
             .Given(Request.Create()
-                .WithPath("/sapigw/suppliers/123456/products")
+                .WithPath("/integration/product/sellers/123456/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(HttpStatusCode.OK)
@@ -120,7 +120,7 @@ public class TrendyolAdapterWireMockTests : IClassFixture<WireMockFixture>
 
         _fixture.Server
             .Given(Request.Create()
-                .WithPath("/sapigw/suppliers/123456/products")
+                .WithPath("/integration/product/sellers/123456/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(HttpStatusCode.OK)

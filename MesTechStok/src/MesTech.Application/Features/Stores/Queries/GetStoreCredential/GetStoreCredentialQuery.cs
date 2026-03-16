@@ -14,6 +14,6 @@ public record StoreCredentialDto
     public string Platform { get; init; } = string.Empty;
     public string CredentialType { get; init; } = string.Empty;
     public IReadOnlyDictionary<string, string> MaskedFields { get; init; }
-        = new Dictionary<string, string>();
+        = new Dictionary<string, string>(StringComparer.Ordinal);
     public DateTime LastUpdated { get; init; }
 }

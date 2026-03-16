@@ -28,6 +28,9 @@ public class ReconciliationMatch : BaseEntity, ITenantEntity
         Guid? settlementBatchId = null,
         Guid? bankTransactionId = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty.", nameof(tenantId));
+
         if (confidence < 0 || confidence > 1)
             throw new ArgumentOutOfRangeException(nameof(confidence), "Confidence must be between 0 and 1.");
 

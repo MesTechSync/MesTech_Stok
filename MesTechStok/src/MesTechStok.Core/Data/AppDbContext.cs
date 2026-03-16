@@ -41,7 +41,7 @@ public class AppDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
 
-    // Stok Yerleşim Sistemi DbSets - TEMPORARILY DISABLED
+    // Stok Yerleşim Sistemi DbSets — disabled (location system not active)
     // public DbSet<WarehouseZone> WarehouseZones { get; set; }
     // public DbSet<WarehouseRack> WarehouseRacks { get; set; }
     // public DbSet<WarehouseShelf> WarehouseShelves { get; set; }
@@ -90,7 +90,7 @@ public class AppDbContext : DbContext
         // AI Configuration Models - A++++ Enterprise Integration
         ConfigureAIModels(modelBuilder);
 
-        // Stok Yerleşim Sistemi Model Konfigürasyonları - TEMPORARILY DISABLED
+        // Stok Yerleşim Sistemi Model Konfigürasyonları — disabled (location system not active)
         // ConfigureLocationModels(modelBuilder);
 
         // OfflineQueue
@@ -297,7 +297,7 @@ public class AppDbContext : DbContext
         });
     }
 
-    // FAZ 1 GÖREV 1.1: Seed Authentication Data - TEMPORARILY DISABLED
+    // Seed Authentication Data — disabled (Users table not active)
     public async Task SeedAuthenticationDataAsync()
     {
         // EMERGENCY FIX: Skip authentication seeding to prevent Users table error
@@ -1054,7 +1054,7 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
     }
 
     /// <summary>
-    /// Stok Yerleşim Sistemi modellerinin konfigürasyonu - TEMPORARILY DISABLED
+    /// Stok Yerleşim Sistemi modellerinin konfigürasyonu — disabled (location system not active)
     /// İlişkiler, indeksler ve kısıtlar tanımlanır
     /// </summary>
     private void ConfigureLocationModels(ModelBuilder modelBuilder)

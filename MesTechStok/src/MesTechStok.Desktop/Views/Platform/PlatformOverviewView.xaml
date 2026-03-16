@@ -31,74 +31,102 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="8">
-            <!-- Header -->
-            <Border Style="{StaticResource CardBorder}">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Left">
-                        <TextBlock Text="Platform Genel Bakis" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
-                        <TextBlock Text="Tum platformlarin durumunu tek bakista gorun" FontSize="13" Foreground="#7F8C8D"/>
-                    </StackPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding LastRefreshTime, StringFormat='Son guncelleme: {0:HH:mm}'}"
-                               VerticalAlignment="Center" Foreground="#ADB5BD" FontSize="12" HorizontalAlignment="Right"/>
-                </DockPanel>
-            </Border>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="8">
+                <!-- Header -->
+                <Border Style="{StaticResource CardBorder}">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Left">
+                            <TextBlock Text="Platform Genel Bakis" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock Text="Tum platformlarin durumunu tek bakista gorun" FontSize="13" Foreground="#7F8C8D"/>
+                        </StackPanel>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding LastRefreshTime, StringFormat='Son guncelleme: {0:HH:mm}'}"
+                                   VerticalAlignment="Center" Foreground="#ADB5BD" FontSize="12" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                </Border>
 
-            <!-- Platform Kartlari -->
-            <ItemsControl ItemsSource="{Binding Platforms}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource PlatformCard}" Width="320" BorderBrush="{Binding StatusBorderColor}">
-                            <StackPanel>
-                                <!-- Platform Header -->
-                                <DockPanel Margin="0,0,0,12">
-                                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                                        <Ellipse Width="12" Height="12" Fill="{Binding StatusColor}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
-                                    </StackPanel>
-                                    <TextBlock DockPanel.Dock="Right" Text="{Binding StatusText}" FontSize="11"
-                                               Foreground="{Binding StatusColor}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                </DockPanel>
+                <!-- Platform Kartlari -->
+                <ItemsControl ItemsSource="{Binding Platforms}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PlatformCard}" Width="320" BorderBrush="{Binding StatusBorderColor}">
+                                <StackPanel>
+                                    <!-- Platform Header -->
+                                    <DockPanel Margin="0,0,0,12">
+                                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                            <Ellipse Width="12" Height="12" Fill="{Binding StatusColor}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                                        </StackPanel>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding StatusText}" FontSize="11"
+                                                   Foreground="{Binding StatusColor}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    </DockPanel>
 
-                                <!-- Istatistikler -->
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                    <!-- Istatistikler -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,8">
-                                        <TextBlock Text="Magazalar" FontSize="11" Foreground="#ADB5BD"/>
-                                        <TextBlock Text="{Binding StoreCount}" FontSize="20" FontWeight="Bold" Foreground="#007ACC"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,0,8">
-                                        <TextBlock Text="Urunler" FontSize="11" Foreground="#ADB5BD"/>
-                                        <TextBlock Text="{Binding ProductCount}" FontSize="20" FontWeight="Bold" Foreground="#F27A1A"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="0" Grid.Row="1">
-                                        <TextBlock Text="Siparisler (Bugun)" FontSize="11" Foreground="#ADB5BD"/>
-                                        <TextBlock Text="{Binding TodayOrderCount}" FontSize="20" FontWeight="Bold" Foreground="#28A745"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Grid.Row="1">
-                                        <TextBlock Text="Son Sync" FontSize="11" Foreground="#ADB5BD"/>
-                                        <TextBlock Text="{Binding LastSyncText}" FontSize="13" FontWeight="SemiBold" Foreground="#6C757D"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-    </ScrollViewer>
+                                        <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,8">
+                                            <TextBlock Text="Magazalar" FontSize="11" Foreground="#ADB5BD"/>
+                                            <TextBlock Text="{Binding StoreCount}" FontSize="20" FontWeight="Bold" Foreground="#007ACC"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,0,8">
+                                            <TextBlock Text="Urunler" FontSize="11" Foreground="#ADB5BD"/>
+                                            <TextBlock Text="{Binding ProductCount}" FontSize="20" FontWeight="Bold" Foreground="#F27A1A"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="0" Grid.Row="1">
+                                            <TextBlock Text="Siparisler (Bugun)" FontSize="11" Foreground="#ADB5BD"/>
+                                            <TextBlock Text="{Binding TodayOrderCount}" FontSize="20" FontWeight="Bold" Foreground="#28A745"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Grid.Row="1">
+                                            <TextBlock Text="Son Sync" FontSize="11" Foreground="#ADB5BD"/>
+                                            <TextBlock Text="{Binding LastSyncText}" FontSize="13" FontWeight="SemiBold" Foreground="#6C757D"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Background="White" Visibility="Collapsed" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+                <TextBlock Text="Platform verisi bulunamadi" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <TextBlock Text="Henuz bagli platform yok" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Background="White" Visibility="Collapsed" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </UserControl>

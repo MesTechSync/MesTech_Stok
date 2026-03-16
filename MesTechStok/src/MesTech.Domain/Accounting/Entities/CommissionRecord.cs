@@ -33,6 +33,9 @@ public class CommissionRecord : BaseEntity, ITenantEntity
         CommissionType commissionType = CommissionType.Percentage,
         string? rateSource = null)
     {
+        // Note: tenantId may be Guid.Empty when created by settlement parsers
+        // (infrastructure layer). The caller/command handler sets the real tenant ID later.
+
         ArgumentException.ThrowIfNullOrWhiteSpace(platform);
 
         if (grossAmount < 0)

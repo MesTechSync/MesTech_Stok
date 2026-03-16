@@ -26,12 +26,12 @@ public class GetPlatformHealthHandler : IRequestHandler<GetPlatformHealthQuery, 
             request.TenantId, since24h, cancellationToken);
 
         var errorCountByPlatform = failedLogs
-            .GroupBy(l => l.PlatformCode)
-            .ToDictionary(g => g.Key, g => g.Count());
+            .GroupBy(l => l.PlatformCode, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
 
         // Build result from latest logs per platform
         var platforms = latestLogs
-            .GroupBy(l => l.PlatformCode)
+            .GroupBy(l => l.PlatformCode, StringComparer.Ordinal)
             .Select(g =>
             {
                 var latest = g.OrderByDescending(l => l.StartedAt).First();

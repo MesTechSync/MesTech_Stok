@@ -5,6 +5,7 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class BarcodeIntegrationDialog : Window
     {
+        private bool _isSaving = false;
         public string ScannedBarcode { get; set; } = "";
 
         public BarcodeIntegrationDialog()
@@ -15,6 +16,10 @@ namespace MesTechStok.Desktop.Views
 
         private void UseButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_isSaving) return;
+            _isSaving = true;
+            if (UseButton != null) { UseButton.IsEnabled = false; UseButton.Content = "Kaydediliyor..."; }
+
             try
             {
                 if (string.IsNullOrWhiteSpace(BarcodeTextBox.Text))
@@ -26,6 +31,11 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Hata: {ex.Message}", "Giriş Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally
+            {
+                _isSaving = false;
+                if (UseButton != null) { UseButton.IsEnabled = true; UseButton.Content = "✅ Bu Barkodu Kullan"; }
             }
         }
 

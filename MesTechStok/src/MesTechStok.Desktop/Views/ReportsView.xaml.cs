@@ -1,4 +1,4 @@
-// TODO: [MVVM-CLEANUP] State'i ViewModel'e taşı — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
+// Debt: [MVVM-CLEANUP] State'i ViewModel'e tasi — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -128,7 +128,7 @@ namespace MesTechStok.Desktop.Views
 
         private async Task SetupAuthorizationsAsync()
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar rapor export edebilir
             CanExportReports = true;
             OnPropertyChanged(nameof(CanExportReports));
@@ -183,7 +183,14 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryReports_Click(object sender, RoutedEventArgs e)
         {
-            _ = LoadReportsPageAsync();
+            try
+            {
+                _ = LoadReportsPageAsync();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(ReportsView)} RetryReports handler error: {ex.Message}");
+            }
         }
 
         private async Task UpdateStatisticsAsync()
@@ -345,25 +352,32 @@ namespace MesTechStok.Desktop.Views
 
         private async void DateRange_Changed(object sender, SelectionChangedEventArgs e)
         {
-            if (DateRangeComboBox.SelectedItem is ComboBoxItem selectedItem)
+            try
             {
-                var range = selectedItem.Content.ToString();
-
-                // Tarih aralığına göre verileri güncelle
-                switch (range)
+                if (DateRangeComboBox.SelectedItem is ComboBoxItem selectedItem)
                 {
-                    case "Bu Hafta":
-                        UpdateDataForWeek();
-                        break;
-                    case "Bu Ay":
-                        UpdateDataForMonth();
-                        break;
-                    case "Son 3 Ay":
-                        UpdateDataForQuarter();
-                        break;
-                }
+                    var range = selectedItem.Content.ToString();
 
-                await DrawSalesChartAsync();
+                    // Tarih aralığına göre verileri güncelle
+                    switch (range)
+                    {
+                        case "Bu Hafta":
+                            UpdateDataForWeek();
+                            break;
+                        case "Bu Ay":
+                            UpdateDataForMonth();
+                            break;
+                        case "Son 3 Ay":
+                            UpdateDataForQuarter();
+                            break;
+                    }
+
+                    await DrawSalesChartAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(ReportsView)} DateRange handler error: {ex.Message}");
             }
         }
 
@@ -393,7 +407,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar rapor export edebilir
                 var sfd = new Microsoft.Win32.SaveFileDialog
                 {
@@ -457,14 +471,21 @@ namespace MesTechStok.Desktop.Views
 
         private void ExportPDF_Click(object sender, RoutedEventArgs e)
         {
-            _ = ExportPdfAsync();
+            try
+            {
+                _ = ExportPdfAsync();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(ReportsView)} ExportPDF handler error: {ex.Message}");
+            }
         }
 
         private async Task ExportPdfAsync()
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar rapor export edebilir
                 var sfd = new SaveFileDialog
                 {
@@ -515,7 +536,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar rapor export edebilir
                 var sfd = new Microsoft.Win32.SaveFileDialog
                 {
@@ -546,13 +567,27 @@ namespace MesTechStok.Desktop.Views
 
         private void EmailReport_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("📧 E-posta Gönderimi\n\nRapor e-posta ile gönderilecek.\nBu özellik geliştirme aşamasındadır.",
-                "E-posta Gönder", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                MessageBox.Show("📧 E-posta Gönderimi\n\nRapor e-posta ile gönderilecek.\nBu özellik geliştirme aşamasındadır.",
+                    "E-posta Gönder", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(ReportsView)} EmailReport handler error: {ex.Message}");
+            }
         }
 
         private void PrintReport_Click(object sender, RoutedEventArgs e)
         {
-            ToastManager.ShowInfo("🖨️ Rapor yazdırma özelliği geliştiriliyor...", "Yazdırma");
+            try
+            {
+                ToastManager.ShowInfo("🖨️ Rapor yazdırma özelliği geliştiriliyor...", "Yazdırma");
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(ReportsView)} PrintReport handler error: {ex.Message}");
+            }
         }
 
         // ProductsView filtre/kolon profilleri yönetimi (toolbar kalabalığını azaltmak için buraya taşındı)

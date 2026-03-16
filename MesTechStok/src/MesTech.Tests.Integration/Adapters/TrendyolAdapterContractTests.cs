@@ -60,10 +60,10 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
     /// </summary>
     private async Task<TrendyolAdapter> CreateConfiguredAdapterAsync()
     {
-        // WireMock: TestConnectionAsync icin GET /sapigw/suppliers/{id}/products?page=0&size=1
+        // WireMock: TestConnectionAsync icin GET /integration/product/sellers/{id}/products?page=0&size=1
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "1")
                 .UsingGet())
@@ -88,7 +88,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // Arrange
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "1")
                 .UsingGet())
@@ -122,7 +122,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // Arrange
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(401)
@@ -189,7 +189,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // Arrange — 10 second delay, 2 second client timeout
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -219,7 +219,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/v2/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/v2/products")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -255,7 +255,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/v2/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/v2/products")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(400)
@@ -286,7 +286,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // WireMock her POST icin 500 donecek — Polly 3 retry yapacak (toplam 4 istek)
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/v2/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/v2/products")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(500)
@@ -323,7 +323,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "50")
                 .UsingGet())
@@ -371,7 +371,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // Page 0
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "50")
                 .UsingGet())
@@ -390,7 +390,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         // Page 1
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "1")
                 .WithParam("size", "50")
                 .UsingGet())
@@ -425,7 +425,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "50")
                 .UsingGet())
@@ -454,7 +454,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(403)
@@ -480,7 +480,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products/price-and-inventory")
+                .WithPath($"/integration/inventory/sellers/{SupplierId}/products/price-and-inventory")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -503,7 +503,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products/price-and-inventory")
+                .WithPath($"/integration/inventory/sellers/{SupplierId}/products/price-and-inventory")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(400)
@@ -529,7 +529,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products/price-and-inventory")
+                .WithPath($"/integration/inventory/sellers/{SupplierId}/products/price-and-inventory")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -552,7 +552,7 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products/price-and-inventory")
+                .WithPath($"/integration/inventory/sellers/{SupplierId}/products/price-and-inventory")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(400)

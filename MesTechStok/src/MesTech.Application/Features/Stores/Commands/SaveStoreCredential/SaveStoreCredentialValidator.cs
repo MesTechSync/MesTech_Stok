@@ -23,7 +23,7 @@ public class SaveStoreCredentialValidator : AbstractValidator<SaveStoreCredentia
 
         RuleFor(x => x.CredentialType)
             .NotEmpty()
-            .Must(t => ValidCredentialTypes.Contains(t))
+            .Must(t => ValidCredentialTypes.Contains(t, StringComparer.Ordinal))
             .WithMessage("CredentialType must be one of: api_key, oauth2, soap.");
 
         RuleFor(x => x.Fields)

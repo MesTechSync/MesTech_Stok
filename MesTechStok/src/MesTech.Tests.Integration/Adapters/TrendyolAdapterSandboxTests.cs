@@ -19,7 +19,7 @@ namespace MesTech.Tests.Integration.Adapters;
 [Trait("Platform", "Trendyol")]
 public class TrendyolAdapterSandboxTests : IDisposable
 {
-    private const string SandboxBaseUrl = "https://api.trendyol.com/sapigw";
+    private const string SandboxBaseUrl = "https://stage-apigw.trendyol.com/integration";
     private const string DefaultSupplierId = "1076956";
 
     private readonly HttpClient _httpClient;

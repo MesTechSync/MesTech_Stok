@@ -1,3 +1,5 @@
+#pragma warning disable MA0051 // Method is too long — report handler is a single cohesive operation
+#pragma warning disable NX0003 // NullForgiving justified — null filtered by Where/HasValue clause
 using MediatR;
 using MesTech.Application.DTOs.Reports;
 using MesTech.Application.Interfaces.Accounting;
@@ -44,13 +46,13 @@ public class PlatformSalesReportHandler
         // Group orders by platform
         var ordersByPlatform = orders
             .Where(o => o.SourcePlatform.HasValue)
-            .GroupBy(o => o.SourcePlatform!.Value.ToString())
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .GroupBy(o => o.SourcePlatform!.Value.ToString(), StringComparer.Ordinal) // NX0003: Null filtered by Where clause above
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
 
         // Group settlements (commission data) by platform
         var commissionByPlatform = settlements
-            .GroupBy(s => s.Platform)
-            .ToDictionary(g => g.Key, g => g.Sum(s => s.TotalCommission));
+            .GroupBy(s => s.Platform, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.Sum(s => s.TotalCommission), StringComparer.Ordinal);
 
         var result = new List<PlatformSalesReportDto>();
 
@@ -80,7 +82,7 @@ public class PlatformSalesReportHandler
             {
                 commissions = platformOrders
                     .Where(o => o.CommissionAmount.HasValue)
-                    .Sum(o => o.CommissionAmount!.Value);
+                    .Sum(o => o.CommissionAmount!.Value); // NX0003: Null filtered by Where clause above
             }
 
             var netRevenue = totalRevenue - commissions;

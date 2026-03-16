@@ -41,7 +41,7 @@ public class ReconciliationServiceTests
         if (createdAt.HasValue)
         {
             // Use reflection to set CreatedAt since it's set in the factory method
-            typeof(SettlementLine).BaseType!.BaseType!.GetProperty("CreatedAt")!
+            typeof(SettlementLine).BaseType!.GetProperty("CreatedAt")!
                 .SetValue(line, createdAt.Value);
         }
 

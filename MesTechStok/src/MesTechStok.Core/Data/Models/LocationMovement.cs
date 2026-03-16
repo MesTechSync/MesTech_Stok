@@ -22,12 +22,12 @@ namespace MesTechStok.Core.Data.Models
         // Hareket Detayları
         public int? FromBinId { get; set; }
 
-        // TEMPORARILY DISABLED: [ForeignKey("FromBinId")]
+        // Disabled: [ForeignKey("FromBinId")]
         // public virtual WarehouseBin? FromBin { get; set; }
 
         public int? ToBinId { get; set; }
 
-        // TEMPORARILY DISABLED: [ForeignKey("ToBinId")]
+        // Disabled: [ForeignKey("ToBinId")]
         // public virtual WarehouseBin? ToBin { get; set; }
 
         [Required]
@@ -79,7 +79,7 @@ namespace MesTechStok.Core.Data.Models
 
         [NotMapped]
         public string MovementPath =>
-            // TEMPORARILY DISABLED: FromBin != null && ToBin != null 
+            // Disabled: FromBin != null && ToBin != null
             //     ? $"{FromBin.Code} → {ToBin.Code}" 
             //     : (FromBin != null ? $"{FromBin.Code} → Çıkış" : $"Giriş → {ToBin?.Code ?? "N/A"}");
             $"Bin {FromBinId} → Bin {ToBinId}"; // Temporary simplified version

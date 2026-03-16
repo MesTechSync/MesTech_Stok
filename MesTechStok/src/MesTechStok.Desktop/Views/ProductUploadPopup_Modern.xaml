@@ -3,12 +3,123 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="600">
     <Grid Background="White">
-        <TextBlock Text="Ürün Yükleme Popup - Modern" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   FontSize="16"
-                   Foreground="DarkGray"/>
+        <!-- Main Content -->
+        <Grid x:Name="ContentPanel" Margin="24,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="Urun Yukleme" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Excel, CSV veya XML dosyasindan toplu urun yukleyin" FontSize="13" Foreground="#6C757D" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- File Picker -->
+            <Border Grid.Row="1" BorderBrush="#E9ECEF" BorderThickness="2" CornerRadius="8"
+                    Padding="20" Margin="0,0,0,16" Background="#FAFBFC"
+                    AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="36"
+                               Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Dosyayi buraya surukleyin veya secin" FontSize="14"
+                               Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock Text="Desteklenen: .xlsx, .csv, .xml" FontSize="11"
+                               Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    <Button x:Name="BtnSelectFile" Content="Dosya Sec" Click="BtnSelectFile_Click"
+                            Margin="0,12,0,0" Padding="20,8" Background="#2855AC" Foreground="White"
+                            BorderThickness="0" Cursor="Hand" FontSize="13"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Selected File Info -->
+            <Border Grid.Row="2" x:Name="FileInfoPanel" Visibility="Collapsed"
+                    Background="#F0F9FF" BorderBrush="#BAE6FD" BorderThickness="1"
+                    CornerRadius="6" Padding="12" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="TxtFileName" Text="" FontSize="13" FontWeight="SemiBold" Foreground="#0369A1"/>
+                        <TextBlock x:Name="TxtFileSize" Text="" FontSize="11" Foreground="#6C757D" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
+                            Click="BtnClearFile_Click" Background="Transparent" BorderThickness="0"
+                            Foreground="#6C757D" Cursor="Hand" VerticalAlignment="Center"
+                            ToolTip="Dosyayi kaldir"/>
+                </Grid>
+            </Border>
+
+            <!-- Upload Progress -->
+            <StackPanel Grid.Row="3" x:Name="ProgressPanel" Visibility="Collapsed" Margin="0,0,0,16">
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="TxtProgressLabel" Text="Yukleniyor..." FontSize="12" Foreground="#6C757D"/>
+                    <TextBlock x:Name="TxtProgressPercent" Grid.Column="1" Text="0%" FontSize="12" FontWeight="SemiBold" Foreground="#2855AC"/>
+                </Grid>
+                <ProgressBar x:Name="UploadProgress" Value="0" Maximum="100" Height="8"
+                             Foreground="#2855AC" Background="#E5E7EB"/>
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,16">
+                <Button x:Name="BtnUpload" Content="Yukle" Click="BtnUpload_Click"
+                        IsEnabled="False" Padding="24,8" Background="#2855AC" Foreground="White"
+                        BorderThickness="0" Cursor="Hand" FontSize="13" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- Result Display -->
+            <Border Grid.Row="5" x:Name="ResultPanel" Visibility="Collapsed"
+                    Background="#F0FDF4" BorderBrush="#86EFAC" BorderThickness="1"
+                    CornerRadius="6" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                               Foreground="#16A34A" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtResultTitle" Text="Yukleme Tamamlandi" FontSize="15"
+                               FontWeight="SemiBold" Foreground="#166534"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock x:Name="TxtResultDetail" Text="" FontSize="12" Foreground="#6C757D"
+                               HorizontalAlignment="Center" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+                <TextBlock Text="Yuklenecek urun yok" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#DC3545" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

@@ -327,14 +327,15 @@ public class AccountingEntityCoverageTests
     }
 
     [Fact]
-    public void JournalEntry_Validate_SingleLine_ThrowsInvalidOperation()
+    public void JournalEntry_Validate_SingleLine_ThrowsImbalanceException()
     {
         var entry = JournalEntry.Create(Guid.NewGuid(), DateTime.UtcNow, "Single");
-        entry.AddLine(Guid.NewGuid(), 100m, 100m, "Both");
+        // A single debit-only line triggers imbalance check (debit != credit)
+        // before the line count check, since Validate() checks balance first.
+        entry.AddLine(Guid.NewGuid(), 100m, 0m, "Debit only");
 
         var act = () => entry.Validate();
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*at least 2 lines*");
+        act.Should().Throw<JournalEntryImbalanceException>();
     }
 
     [Fact]

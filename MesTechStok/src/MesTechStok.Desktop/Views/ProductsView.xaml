@@ -6,7 +6,9 @@
              xmlns:components="clr-namespace:MesTechStok.Desktop.Components"
              xmlns:views="clr-namespace:MesTechStok.Desktop.Views"
              mc:Ignorable="d"
-             Background="{StaticResource BackgroundLightBrush}">
+             Background="{StaticResource BackgroundLightBrush}"
+             KeyDown="View_KeyDown"
+             Focusable="True">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <views:MarginToBrushConverter x:Key="MarginToBrush"/>

@@ -20,41 +20,48 @@ public class EbaySettlementParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_ThrowsNotImplementedException()
+    public async Task ParseAsync_EmptyJson_ReturnsEmptyBatch()
     {
-        using var stream = new MemoryStream();
-        var act = async () => await _sut.ParseAsync(stream, "json");
-        await act.Should().ThrowAsync<NotImplementedException>();
+        // Parser is now fully implemented — empty JSON with no transactions returns empty batch
+        var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
+        using var stream = new MemoryStream(json);
+        var result = await _sut.ParseAsync(stream, "json");
+        result.Should().NotBeNull();
+        result.Platform.Should().Be("eBay");
     }
 
     [Fact]
-    public async Task ParseLinesAsync_ThrowsNotImplementedException()
+    public async Task ParseLinesAsync_NoCachedTransactions_ReturnsEmptyList()
     {
+        // Parser is now fully implemented — returns empty when no cached transactions
         var batch = MesTech.Domain.Accounting.Entities.SettlementBatch.Create(
-            Guid.Empty, "eBay", DateTime.UtcNow, DateTime.UtcNow, 0, 0, 0);
+            Guid.NewGuid(), "eBay", DateTime.UtcNow, DateTime.UtcNow, 0, 0, 0);
 
-        var act = async () => await _sut.ParseLinesAsync(batch);
-        await act.Should().ThrowAsync<NotImplementedException>();
+        var result = await _sut.ParseLinesAsync(batch);
+        result.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task ParseAsync_NotImplemented_MessageContainsEbay()
+    public async Task ParseAsync_EmptyJson_BatchPlatformIsEbay()
     {
-        using var stream = new MemoryStream();
-        var act = async () => await _sut.ParseAsync(stream, "json");
-        await act.Should().ThrowAsync<NotImplementedException>()
-            .WithMessage("*eBay*");
+        // Parser is now fully implemented — batch platform should be eBay
+        var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
+        using var stream = new MemoryStream(json);
+        var result = await _sut.ParseAsync(stream, "json");
+        result.Platform.Should().Contain("eBay");
     }
 
     [Fact]
-    public async Task ParseLinesAsync_NotImplemented_MessageContainsEbay()
+    public async Task ParseLinesAsync_AfterParseAsync_ReturnsLines()
     {
-        var batch = MesTech.Domain.Accounting.Entities.SettlementBatch.Create(
-            Guid.Empty, "eBay", DateTime.UtcNow, DateTime.UtcNow, 0, 0, 0);
+        // Parser is now fully implemented — after ParseAsync, ParseLinesAsync uses cached data
+        var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
+        using var stream = new MemoryStream(json);
+        var batch = await _sut.ParseAsync(stream, "json");
 
-        var act = async () => await _sut.ParseLinesAsync(batch);
-        await act.Should().ThrowAsync<NotImplementedException>()
-            .WithMessage("*eBay*");
+        var lines = await _sut.ParseLinesAsync(batch);
+        lines.Should().NotBeNull();
+        lines.Should().BeEmpty("because the JSON had no transactions");
     }
 
     [Fact]

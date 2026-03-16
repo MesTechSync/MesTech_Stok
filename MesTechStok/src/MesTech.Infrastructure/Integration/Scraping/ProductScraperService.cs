@@ -178,7 +178,7 @@ public class ProductScraperService : IProductScraperService
     {
         return platform switch
         {
-            "Trendyol" => $"https://api.trendyol.com/sapigw/products/{productId}",
+            "Trendyol" => $"https://apigw.trendyol.com/integration/product/products/{productId}",
             "Hepsiburada" => $"https://api.hepsiburada.com/product/api/products/{productId}",
             "N11" => $"https://api.n11.com/rest/products/{productId}",
             "Ciceksepeti" => $"https://api.ciceksepeti.com/products/{productId}",

@@ -33,6 +33,9 @@ public class ChartOfAccounts : BaseEntity, ITenantEntity
         Guid? parentId = null,
         int level = 1)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty.", nameof(tenantId));
+
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 

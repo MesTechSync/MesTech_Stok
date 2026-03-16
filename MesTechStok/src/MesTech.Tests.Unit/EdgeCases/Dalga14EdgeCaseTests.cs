@@ -507,11 +507,13 @@ public class Dalga14EdgeCaseTests
     }
 
     [Fact]
-    public void SettlementBatch_EmptyTenantId_ShouldThrow()
+    public void SettlementBatch_EmptyTenantId_ShouldSucceed()
     {
-        var act = () => SettlementBatch.Create(Guid.Empty, "Trendyol",
+        // Guid.Empty is allowed — settlement parsers create batches with empty tenant
+        // and the caller/command handler sets the real tenant ID later.
+        var batch = SettlementBatch.Create(Guid.Empty, "Trendyol",
             DateTime.UtcNow, DateTime.UtcNow.AddDays(7), 1000m, 200m, 800m);
-        act.Should().Throw<ArgumentException>();
+        batch.TenantId.Should().Be(Guid.Empty);
     }
 
     [Fact]
@@ -571,10 +573,12 @@ public class Dalga14EdgeCaseTests
     }
 
     [Fact]
-    public void CommissionRecord_EmptyTenantId_ShouldThrow()
+    public void CommissionRecord_EmptyTenantId_ShouldSucceed()
     {
-        var act = () => CommissionRecord.Create(Guid.Empty, "Trendyol", 1000m, 0.20m, 200m, 0m);
-        act.Should().Throw<ArgumentException>();
+        // Guid.Empty is allowed — settlement parsers create records with empty tenant
+        // and the caller/command handler sets the real tenant ID later.
+        var record = CommissionRecord.Create(Guid.Empty, "Trendyol", 1000m, 0.20m, 200m, 0m);
+        record.TenantId.Should().Be(Guid.Empty);
     }
 
     [Fact]

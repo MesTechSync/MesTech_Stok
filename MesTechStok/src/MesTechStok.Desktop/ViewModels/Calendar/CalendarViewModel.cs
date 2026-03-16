@@ -60,7 +60,7 @@ public partial class CalendarViewModel : ObservableObject
             });
         }
 
-        // TODO: Gerçek events yükle GetCalendarEventsQuery ile
+        // Load events (wire to GetCalendarEventsQuery when available)
         _ = LoadEventsAsync();
     }
 

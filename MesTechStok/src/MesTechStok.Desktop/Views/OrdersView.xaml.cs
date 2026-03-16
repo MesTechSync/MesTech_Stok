@@ -1,4 +1,4 @@
-// TODO: [MVVM-CLEANUP] State'i ViewModel'e taşı — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
+// Debt: [MVVM-CLEANUP] State'i ViewModel'e tasi — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,6 +12,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Components;
@@ -195,6 +196,27 @@ namespace MesTechStok.Desktop.Views
 
         #endregion
 
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                { AddOrder_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { RefreshOrders_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { OrdersDataGrid.SelectedItem = null; e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} KeyDown handler error: {ex.Message}");
+            }
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private async void RefreshOrders_Click(object sender, RoutedEventArgs e)
@@ -216,17 +238,24 @@ namespace MesTechStok.Desktop.Views
 
         private async void AddOrder_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
-            // Şu anda tüm kullanıcılar sipariş ekleyebilir
-            GlobalLogger.Instance.LogInfo("Yeni sipariş ekleme ekranı açıldı", "OrdersView");
-            ToastManager.ShowInfo("🛒 Yeni sipariş ekleme ekranı açılıyor...", "Sipariş Yönetimi");
+            try
+            {
+                // Security: SimpleSecurityService integration pending
+                // Şu anda tüm kullanıcılar sipariş ekleyebilir
+                GlobalLogger.Instance.LogInfo("Yeni sipariş ekleme ekranı açıldı", "OrdersView");
+                ToastManager.ShowInfo("🛒 Yeni sipariş ekleme ekranı açılıyor...", "Sipariş Yönetimi");
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} AddOrder handler error: {ex.Message}");
+            }
         }
 
         private async void ExportOrders_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar export yapabilir
                 GlobalLogger.Instance.LogInfo("Sipariş dışa aktarma başlatıldı", "OrdersView");
                 var sfd = new Microsoft.Win32.SaveFileDialog
@@ -256,30 +285,44 @@ namespace MesTechStok.Desktop.Views
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SearchText = ((TextBox)sender).Text;
+            try
+            {
+                SearchText = ((TextBox)sender).Text;
 
-            // Use timer for performance optimization
-            _searchTimer.Stop();
-            _searchTimer.Start();
+                // Use timer for performance optimization
+                _searchTimer.Stop();
+                _searchTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} SearchTextBox handler error: {ex.Message}");
+            }
         }
 
         private void StatusFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedFilter = StatusFilterComboBox.SelectedItem as ComboBoxItem;
-            if (selectedFilter == null) return;
-
-            var filterText = selectedFilter.Content?.ToString() ?? string.Empty;
-
-            _currentStatusFilter = filterText switch
+            try
             {
-                var x when x.Contains("Bekleyen") => OrderStatusFilter.Pending,
-                var x when x.Contains("Hazırlanıyor") => OrderStatusFilter.Processing,
-                var x when x.Contains("Teslim Edildi") => OrderStatusFilter.Completed,
-                var x when x.Contains("İptal Edildi") => OrderStatusFilter.Cancelled,
-                _ => OrderStatusFilter.All
-            };
+                var selectedFilter = StatusFilterComboBox.SelectedItem as ComboBoxItem;
+                if (selectedFilter == null) return;
 
-            _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);
+                var filterText = selectedFilter.Content?.ToString() ?? string.Empty;
+
+                _currentStatusFilter = filterText switch
+                {
+                    var x when x.Contains("Bekleyen") => OrderStatusFilter.Pending,
+                    var x when x.Contains("Hazırlanıyor") => OrderStatusFilter.Processing,
+                    var x when x.Contains("Teslim Edildi") => OrderStatusFilter.Completed,
+                    var x when x.Contains("İptal Edildi") => OrderStatusFilter.Cancelled,
+                    _ => OrderStatusFilter.All
+                };
+
+                _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} StatusFilter handler error: {ex.Message}");
+            }
         }
 
         private void ClearFilters_Click(object sender, RoutedEventArgs e)
@@ -305,32 +348,53 @@ namespace MesTechStok.Desktop.Views
 
         private void OrdersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedOrder = OrdersDataGrid?.SelectedItem as Services.OrderItem;
-            if (selectedOrder != null)
+            try
             {
-                DisplayOrderDetails(selectedOrder);
+                var selectedOrder = OrdersDataGrid?.SelectedItem as Services.OrderItem;
+                if (selectedOrder != null)
+                {
+                    DisplayOrderDetails(selectedOrder);
+                }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} DataGrid SelectionChanged handler error: {ex.Message}");
             }
         }
 
         // Order action handlers
         private void ViewOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Services.OrderItem order)
+            try
             {
-                var details = $"Sipariş No: {(string.IsNullOrWhiteSpace(order.OrderNumber) ? order.Id.ToString() : order.OrderNumber)}\n" +
-                     $"Müşteri: {order.CustomerName}\n" +
-                     $"Tarih: {order.FormattedDate}\n" +
-                     $"Tutar: {order.FormattedAmount}\n" +
-                     $"Durum: {order.Status}\n" +
-                     $"Ürünler: {order.ProductsList}";
+                if (((Button)sender).DataContext is Services.OrderItem order)
+                {
+                    var details = $"Sipariş No: {(string.IsNullOrWhiteSpace(order.OrderNumber) ? order.Id.ToString() : order.OrderNumber)}\n" +
+                         $"Müşteri: {order.CustomerName}\n" +
+                         $"Tarih: {order.FormattedDate}\n" +
+                         $"Tutar: {order.FormattedAmount}\n" +
+                         $"Durum: {order.Status}\n" +
+                         $"Ürünler: {order.ProductsList}";
 
-                MessageBox.Show(details, "Sipariş Detayları", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(details, "Sipariş Detayları", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} ViewOrder handler error: {ex.Message}");
             }
         }
 
         private void EditOrder_Click(object sender, RoutedEventArgs e)
         {
-            ToastManager.ShowInfo("✏️ Sipariş düzenleme ekranı açılıyor...", "Sipariş Yönetimi");
+            try
+            {
+                ToastManager.ShowInfo("✏️ Sipariş düzenleme ekranı açılıyor...", "Sipariş Yönetimi");
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} EditOrder handler error: {ex.Message}");
+            }
         }
 
         private async void UpdateStatus_Click(object sender, RoutedEventArgs e)
@@ -339,7 +403,7 @@ namespace MesTechStok.Desktop.Views
             {
                 try
                 {
-                    // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                    // Security: SimpleSecurityService integration pending
                     // Şu anda tüm kullanıcılar sipariş durumu güncelleyebilir
                     // Cycle through statuses for demo
                     var newStatus = order.Status switch
@@ -366,19 +430,26 @@ namespace MesTechStok.Desktop.Views
 
         private async void CancelOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Services.OrderItem order)
+            try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
-                // Şu anda tüm kullanıcılar sipariş iptal edebilir
-                var result = MessageBox.Show($"'{order.CustomerName}' müşterisinin siparişini iptal etmek istediğinizden emin misiniz?",
-                                           "Sipariş İptali", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                if (((Button)sender).DataContext is Services.OrderItem order)
                 {
-                    _ = _orderService.UpdateOrderStatusAsync(order.Id, CoreOrderStatus.Cancelled);
-                    _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);
-                    ToastManager.ShowWarning($"🗑️ Sipariş iptal edildi: #{order.Id}", "Sipariş Yönetimi");
+                    // Security: SimpleSecurityService integration pending
+                    // Şu anda tüm kullanıcılar sipariş iptal edebilir
+                    var result = MessageBox.Show($"'{order.CustomerName}' müşterisinin siparişini iptal etmek istediğinizden emin misiniz?",
+                                               "Sipariş İptali", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        _ = _orderService.UpdateOrderStatusAsync(order.Id, CoreOrderStatus.Cancelled);
+                        _ = LoadOrdersPageAsync(_currentPage, _currentPageSize);
+                        ToastManager.ShowWarning($"🗑️ Sipariş iptal edildi: #{order.Id}", "Sipariş Yönetimi");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} CancelOrder handler error: {ex.Message}");
             }
         }
 
@@ -427,7 +498,7 @@ namespace MesTechStok.Desktop.Views
 
         private async Task SetupAuthorizationsAsync()
         {
-            // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+            // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
             CanCreateOrders = CanEditOrders = CanCancelOrders = CanUpdateOrderStatus = true;
         }
@@ -685,8 +756,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryOrders_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            _ = InitializeAsync();
+            try
+            {
+                HideAllStates();
+                _ = InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(OrdersView)} RetryOrders handler error: {ex.Message}");
+            }
         }
 
         #endregion

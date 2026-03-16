@@ -462,6 +462,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IAccountingEmailScanner, AccountingEmailScanner>();
         services.AddScoped<EmailScanWorker>();
 
+        // ── L3e: Muhasebe Ek Servisler ──
+        services.AddSingleton<IDepreciationService, MesTech.Infrastructure.Finance.DepreciationService>();
+        services.AddSingleton<IIncomeTaxService, MesTech.Infrastructure.Finance.IncomeTaxService>();
+        services.AddScoped<IBaBsReportService, MesTech.Infrastructure.Finance.BaBsReportService>();
+        services.AddScoped<IBankReconciliationReportService, MesTech.Infrastructure.Finance.BankReconciliationReportService>();
+
         // ── MUH-02: Anomaly Check Handler (MediatR INotificationHandler) ──
         // Infrastructure assembly MediatR scan'e dahil degil, explicit kayit.
         services.AddScoped<INotificationHandler<DomainEventNotification<LedgerPostedEvent>>,

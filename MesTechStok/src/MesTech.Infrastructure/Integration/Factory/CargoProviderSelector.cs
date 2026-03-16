@@ -17,11 +17,16 @@ public class CargoProviderSelector : ICargoProviderSelector
     private readonly ILogger<CargoProviderSelector> _logger;
 
     // Oncelik sirasi — tenant bazli config Dalga 4'te
+    // K1d-04: Tum 7 kargo saglayici destekleniyor (UPS haric — yurtici odak)
     private static readonly CargoProvider[] Priority =
     {
         CargoProvider.YurticiKargo,
         CargoProvider.ArasKargo,
-        CargoProvider.SuratKargo
+        CargoProvider.SuratKargo,
+        CargoProvider.MngKargo,
+        CargoProvider.PttKargo,
+        CargoProvider.Hepsijet,
+        CargoProvider.Sendeo
     };
 
     public CargoProviderSelector(

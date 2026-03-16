@@ -186,7 +186,7 @@ public class AccountingPerformanceTests
             accountRepoMock.Object,
             journalRepoMock.Object);
 
-        var query = new GetTrialBalanceQuery(_tenantId, DateTime.MinValue, DateTime.UtcNow);
+        var query = new GetTrialBalanceQuery(_tenantId, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc), DateTime.UtcNow);
 
         // Act
         var sw = Stopwatch.StartNew();

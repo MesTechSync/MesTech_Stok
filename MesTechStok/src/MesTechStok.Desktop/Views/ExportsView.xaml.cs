@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using MesTechStok.Desktop.Utils;
 using ClosedXML.Excel;
@@ -30,6 +31,24 @@ namespace MesTechStok.Desktop.Views
 
     public partial class ExportsView : UserControl
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { RefreshReports_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { /* No cancel action for exports */ e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} KeyDown handler error", nameof(ExportsView));
+            }
+        }
+
+        #endregion
         private readonly ILogger<ExportsView>? _logger;
         private ObservableCollection<ExportRecord> recentExports = new();
         private DispatcherTimer? statsTimer;
@@ -118,7 +137,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar export yapabilir
                 var saveFileDialog = new SaveFileDialog
                 {
@@ -205,7 +224,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                // TODO: Basit güvenlik kontrolü (gelecekte SimpleSecurityService ile entegre edilecek)
+                // Security: SimpleSecurityService integration pending
                 // Şu anda tüm kullanıcılar export yapabilir
 
                 var saveFileDialog = new SaveFileDialog
@@ -404,80 +423,122 @@ namespace MesTechStok.Desktop.Views
 
         private void GenerateSalesReport_Click(object sender, RoutedEventArgs e)
         {
-            var reportType = ((ComboBoxItem)SalesReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Günlük Satış Raporu";
-            MessageBox.Show($"📊 {reportType} oluşturuluyor...\n\n" +
-                          "• Satış verileri analiz ediliyor\n" +
-                          "• Grafikler hazırlanıyor\n" +
-                          "• Özet tablolar oluşturuluyor",
-                          "Satış Raporu",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+            try
+            {
+                var reportType = ((ComboBoxItem)SalesReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Günlük Satış Raporu";
+                MessageBox.Show($"📊 {reportType} oluşturuluyor...\n\n" +
+                              "• Satış verileri analiz ediliyor\n" +
+                              "• Grafikler hazırlanıyor\n" +
+                              "• Özet tablolar oluşturuluyor",
+                              "Satış Raporu",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} GenerateSalesReport handler error", nameof(ExportsView));
+            }
         }
 
         private void ExportSalesReport_Click(object sender, RoutedEventArgs e)
         {
-            var format = ((ComboBoxItem)SalesFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
-            var includeCharts = IncludeChartsCheckBox.IsChecked == true;
+            try
+            {
+                var format = ((ComboBoxItem)SalesFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
+                var includeCharts = IncludeChartsCheckBox.IsChecked == true;
 
-            MessageBox.Show($"✅ Satış raporu dışa aktarılıyor...\n\n" +
-                          $"Format: {format}\n" +
-                          $"Grafikler: {(includeCharts ? "Dahil" : "Dahil değil")}\n" +
-                          $"Tarih: {DateTime.Now:dd.MM.yyyy HH:mm}",
-                          "Satış Raporu Dışa Aktarma",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+                MessageBox.Show($"✅ Satış raporu dışa aktarılıyor...\n\n" +
+                              $"Format: {format}\n" +
+                              $"Grafikler: {(includeCharts ? "Dahil" : "Dahil değil")}\n" +
+                              $"Tarih: {DateTime.Now:dd.MM.yyyy HH:mm}",
+                              "Satış Raporu Dışa Aktarma",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ExportSalesReport handler error", nameof(ExportsView));
+            }
         }
 
         private void GenerateInventoryReport_Click(object sender, RoutedEventArgs e)
         {
-            var reportType = ((ComboBoxItem)InventoryReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Mevcut Stok Durumu";
-            MessageBox.Show($"📦 {reportType} oluşturuluyor...\n\n" +
-                          "• Stok verileri kontrol ediliyor\n" +
-                          "• Kritik seviyeler belirleniyor\n" +
-                          "• Kategori analizleri yapılıyor",
-                          "Stok Raporu",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+            try
+            {
+                var reportType = ((ComboBoxItem)InventoryReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Mevcut Stok Durumu";
+                MessageBox.Show($"📦 {reportType} oluşturuluyor...\n\n" +
+                              "• Stok verileri kontrol ediliyor\n" +
+                              "• Kritik seviyeler belirleniyor\n" +
+                              "• Kategori analizleri yapılıyor",
+                              "Stok Raporu",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} GenerateInventoryReport handler error", nameof(ExportsView));
+            }
         }
 
         private void ExportInventoryReport_Click(object sender, RoutedEventArgs e)
         {
-            var format = ((ComboBoxItem)InventoryFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
-            var includeBarcodes = IncludeBarcodesCheckBox.IsChecked == true;
+            try
+            {
+                var format = ((ComboBoxItem)InventoryFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
+                var includeBarcodes = IncludeBarcodesCheckBox.IsChecked == true;
 
-            MessageBox.Show($"✅ Stok raporu dışa aktarılıyor...\n\n" +
-                          $"Format: {format}\n" +
-                          $"Barkodlar: {(includeBarcodes ? "Dahil" : "Dahil değil")}\n" +
-                          $"Ürün sayısı: 150",
-                          "Stok Raporu Dışa Aktarma",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+                MessageBox.Show($"✅ Stok raporu dışa aktarılıyor...\n\n" +
+                              $"Format: {format}\n" +
+                              $"Barkodlar: {(includeBarcodes ? "Dahil" : "Dahil değil")}\n" +
+                              $"Ürün sayısı: 150",
+                              "Stok Raporu Dışa Aktarma",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ExportInventoryReport handler error", nameof(ExportsView));
+            }
         }
 
         private void GenerateCustomerReport_Click(object sender, RoutedEventArgs e)
         {
-            var reportType = ((ComboBoxItem)CustomerReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Müşteri Listesi";
-            MessageBox.Show($"👥 {reportType} oluşturuluyor...\n\n" +
-                          "• Müşteri verileri toplanıyor\n" +
-                          "• Gizlilik kuralları uygulanıyor\n" +
-                          "• İstatistikler hesaplanıyor",
-                          "Müşteri Raporu",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+            try
+            {
+                var reportType = ((ComboBoxItem)CustomerReportTypeComboBox.SelectedItem)?.Content?.ToString() ?? "Müşteri Listesi";
+                MessageBox.Show($"👥 {reportType} oluşturuluyor...\n\n" +
+                              "• Müşteri verileri toplanıyor\n" +
+                              "• Gizlilik kuralları uygulanıyor\n" +
+                              "• İstatistikler hesaplanıyor",
+                              "Müşteri Raporu",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} GenerateCustomerReport handler error", nameof(ExportsView));
+            }
         }
 
         private void ExportCustomerReport_Click(object sender, RoutedEventArgs e)
         {
-            var format = ((ComboBoxItem)CustomerFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
-            var gdprCompliant = GDPRCompliantCheckBox.IsChecked == true;
+            try
+            {
+                var format = ((ComboBoxItem)CustomerFormatComboBox.SelectedItem)?.Content?.ToString() ?? "Excel (.xlsx)";
+                var gdprCompliant = GDPRCompliantCheckBox.IsChecked == true;
 
-            MessageBox.Show($"✅ Müşteri raporu dışa aktarılıyor...\n\n" +
-                          $"Format: {format}\n" +
-                          $"GDPR Uyumlu: {(gdprCompliant ? "Evet" : "Hayır")}\n" +
-                          $"Müşteri sayısı: 247",
-                          "Müşteri Raporu Dışa Aktarma",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+                MessageBox.Show($"✅ Müşteri raporu dışa aktarılıyor...\n\n" +
+                              $"Format: {format}\n" +
+                              $"GDPR Uyumlu: {(gdprCompliant ? "Evet" : "Hayır")}\n" +
+                              $"Müşteri sayısı: 247",
+                              "Müşteri Raporu Dışa Aktarma",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ExportCustomerReport handler error", nameof(ExportsView));
+            }
         }
 
         #endregion
@@ -486,33 +547,54 @@ namespace MesTechStok.Desktop.Views
 
         private void EmailReport_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("📧 E-posta Raporu Gönderimi\n\n" +
-                          "• Rapor türü: Haftalık özet\n" +
-                          "• Alıcılar: Yönetim ekibi\n" +
-                          "• Gönderim zamanı: Her pazartesi 09:00\n\n" +
-                          "Bu özellik geliştirme aşamasındadır.",
-                          "E-posta Raporu",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+            try
+            {
+                MessageBox.Show("📧 E-posta Raporu Gönderimi\n\n" +
+                              "• Rapor türü: Haftalık özet\n" +
+                              "• Alıcılar: Yönetim ekibi\n" +
+                              "• Gönderim zamanı: Her pazartesi 09:00\n\n" +
+                              "Bu özellik geliştirme aşamasındadır.",
+                              "E-posta Raporu",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} EmailReport handler error", nameof(ExportsView));
+            }
         }
 
         private void ScheduleReport_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("⏰ Zamanlanmış Rapor Ayarları\n\n" +
-                          "• Günlük raporlar: 18:00\n" +
-                          "• Haftalık raporlar: Pazartesi 09:00\n" +
-                          "• Aylık raporlar: Ayın 1'i 10:00\n\n" +
-                          "Zamanlama ayarları düzenlenebilir.",
-                          "Zamanlanmış Raporlar",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Information);
+            try
+            {
+                MessageBox.Show("⏰ Zamanlanmış Rapor Ayarları\n\n" +
+                              "• Günlük raporlar: 18:00\n" +
+                              "• Haftalık raporlar: Pazartesi 09:00\n" +
+                              "• Aylık raporlar: Ayın 1'i 10:00\n\n" +
+                              "Zamanlama ayarları düzenlenebilir.",
+                              "Zamanlanmış Raporlar",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ScheduleReport handler error", nameof(ExportsView));
+            }
         }
 
         private void RefreshReports_Click(object sender, RoutedEventArgs e)
         {
-            UpdateStatistics();
-            MessageBox.Show("🔄 Dışa aktarma istatistikleri yenilendi!",
-                          "Yenile", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                UpdateStatistics();
+                MessageBox.Show("🔄 Dışa aktarma istatistikleri yenilendi!",
+                              "Yenile", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} RefreshReports handler error", nameof(ExportsView));
+            }
         }
 
         #endregion
@@ -563,7 +645,14 @@ namespace MesTechStok.Desktop.Views
         // Cleanup timer when control is unloaded
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            statsTimer?.Stop();
+            try
+            {
+                statsTimer?.Stop();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} Unloaded handler error", nameof(ExportsView));
+            }
         }
     }
 }

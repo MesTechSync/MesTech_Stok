@@ -54,7 +54,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
         // Stub TestConnectionAsync endpoint
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/products")
+                .WithPath($"/integration/product/sellers/{SupplierId}/products")
                 .WithParam("page", "0")
                 .WithParam("size", "1")
                 .UsingGet())
@@ -79,7 +79,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/claims")
+                .WithPath($"/integration/order/sellers/{SupplierId}/claims")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -139,7 +139,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/claims/{claimId}/approve")
+                .WithPath($"/integration/order/sellers/{SupplierId}/claims/{claimId}/approve")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200));
@@ -162,7 +162,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/claims/{claimId}/issue")
+                .WithPath($"/integration/order/sellers/{SupplierId}/claims/{claimId}/issue")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200));
@@ -184,7 +184,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/claims")
+                .WithPath($"/integration/order/sellers/{SupplierId}/claims")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -210,7 +210,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{SupplierId}/claims")
+                .WithPath($"/integration/order/sellers/{SupplierId}/claims")
                 .WithParam("claimDate", expectedEpoch)
                 .UsingGet())
             .RespondWith(Response.Create()

@@ -587,6 +587,32 @@
         </Grid>
       </Border>
 
+      <!-- Loading Overlay -->
+      <Border x:Name="LoadingOverlay" Grid.RowSpan="5" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+          <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+          <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Empty State -->
+      <Border x:Name="EmptyState" Grid.RowSpan="5" Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+          <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" Width="64" Height="64" Foreground="#D1D5DB" HorizontalAlignment="Center"/>
+          <TextBlock Text="Fatura sablonu yuklenemedi" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+          <TextBlock Text="Lutfen daha sonra tekrar deneyin" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Error State -->
+      <Border x:Name="ErrorState" Grid.RowSpan="5" Visibility="Collapsed" Background="White" Panel.ZIndex="50">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+          <materialDesign:PackIcon Kind="AlertCircleOutline" Width="64" Height="64" Foreground="#DC3545" HorizontalAlignment="Center"/>
+          <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+          <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Style="{StaticResource PrimaryBtn}"/>
+        </StackPanel>
+      </Border>
+
     </Grid>
   </ScrollViewer>
 

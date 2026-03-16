@@ -36,14 +36,14 @@ public class GetStoreCredentialHandler : IRequestHandler<GetStoreCredentialQuery
         if (credentials.Count == 0)
             return null;
 
-        var maskedFields = new Dictionary<string, string>();
+        var maskedFields = new Dictionary<string, string>(StringComparer.Ordinal);
         string credentialType = string.Empty;
 
         foreach (var cred in credentials)
         {
             // Key format is "credentialType:fieldName"
             string fieldName;
-            if (cred.Key.Contains(':'))
+            if (cred.Key.Contains(':', StringComparison.Ordinal))
             {
                 var parts = cred.Key.Split(':', 2);
                 credentialType = parts[0];

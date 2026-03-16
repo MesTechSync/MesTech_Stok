@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -9,8 +9,8 @@
     <ApplicationDefinition>App.xaml</ApplicationDefinition>
     <!-- CHARLIE TEAM: Suppress NU1701 warnings for legacy packages -->
     <NoWarn>$(NoWarn);NU1701</NoWarn>
-    
-    <!-- ✅ RUNTIME FIX: Self-contained deployment settings -->
+
+    <!-- ? RUNTIME FIX: Self-contained deployment settings -->
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>false</PublishSingleFile>
@@ -20,7 +20,7 @@
     <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
     <UserSecretsId>920e4b89-b8eb-4290-a7c9-8845ef312ee0</UserSecretsId>
 
-    <!-- ✅ DPI FIX: Per-Monitor V2 DPI awareness manifest -->
+    <!-- ? DPI FIX: Per-Monitor V2 DPI awareness manifest -->
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
 
@@ -30,11 +30,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <!-- Entegrasyon düzeltmesi: Orders/Reports XAML yeniden etkin -->
+  <!-- Entegrasyon duzeltmesi: Orders/Reports XAML yeniden etkin -->
 
-  <!-- SQL-backed inventory data service files zaten implicit olarak eklenir; ekstra Include kaldırıldı -->
+  <!-- SQL-backed inventory data service files zaten implicit olarak eklenir; ekstra Include kaldirildi -->
 
-  
+
 
   <!-- Assets: mark logos as WPF Resource so pack://application works -->
   <ItemGroup>
@@ -60,14 +60,14 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Serilog.Sinks.Seq" />
-    
+
     <!-- CHARLIE TEAM: Modern Barcode & Camera Packages -->
     <PackageReference Include="ZXing.Net" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" />
     <PackageReference Include="OpenCvSharp4" />
     <PackageReference Include="OpenCvSharp4.runtime.win" />
     <PackageReference Include="OpenCvSharp4.Extensions" />
-    
+
     <!-- CHARLIE TEAM: Legacy AForge packages with warning suppression -->
     <PackageReference Include="AForge">
       <NoWarn>NU1701</NoWarn>
@@ -78,23 +78,23 @@
     <PackageReference Include="AForge.Video.DirectShow">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    
+
     <!-- CHARLIE TEAM: HTTP Client for OpenCart Integration -->
     <PackageReference Include="System.Text.Json" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
-    
+
     <!-- CRITICAL FIX: Missing system packages -->
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" />
     <PackageReference Include="System.Management" />
-    
+
     <!-- CHARLIE TEAM: Real Excel and PDF export packages -->
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="iTextSharp.LGPLv2.Core" />
-    
-    <!-- SqlServer + Sqlite kaldırıldı: Dalga 2 4.D2-01 — sadece PostgreSQL kullanılıyor -->
+
+    <!-- SqlServer + Sqlite kaldirildi: Dalga 2 4.D2-01 - sadece PostgreSQL kullaniliyor -->
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
@@ -119,5 +119,5 @@
     <Resource Include="Assets\Logos\**\*.svg" />
   </ItemGroup>
 
-  <!-- DÜZELTME: Panelleri derleme dışı bırakan tüm bölüm kaldırıldı. -->
+  <!-- DUZELTME: Panelleri derleme disi birakan tum bolum kaldirildi. -->
 </Project>

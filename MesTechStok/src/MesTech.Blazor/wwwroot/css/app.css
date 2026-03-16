@@ -1,5 +1,27 @@
 /* ── MesTech Blazor PoC — Dark Sidebar Theme ── */
 
+/* ── Design Tokens ── */
+:root {
+    --mestech-primary: #2855AC;
+    --mestech-secondary: #1a2332;
+    --mestech-accent: #f27a1a;
+    --mestech-bg: #ffffff;
+    --mestech-surface: #f8f9fa;
+    --mestech-text: #212529;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --mestech-bg: #1a1a2e;
+        --mestech-surface: #16213e;
+        --mestech-text: #e0e0e0;
+    }
+    body { background: var(--mestech-bg); color: var(--mestech-text); }
+    .card { background: var(--mestech-surface); border-color: #2a2a4a; }
+    .table { color: var(--mestech-text); }
+    .sidebar { background: var(--mestech-secondary) !important; }
+}
+
 /* Sidebar */
 .mestech-sidebar {
   background-color: #1a2332;

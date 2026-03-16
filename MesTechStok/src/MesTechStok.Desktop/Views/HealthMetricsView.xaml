@@ -231,10 +231,36 @@
 
         <!-- Status Bar -->
         <Border Grid.Row="2" VerticalAlignment="Bottom" Background="#FF007ACC" Height="25">
-            <TextBlock Text="{Binding LastError, StringFormat='Last Error: {0}'}" 
-                       Foreground="White" 
-                       VerticalAlignment="Center" 
+            <TextBlock Text="{Binding LastError, StringFormat='Last Error: {0}'}"
+                       Foreground="White"
+                       VerticalAlignment="Center"
                        Margin="10,0"/>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.RowSpan="3" Background="#80000000" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#FF4CAF50"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="White" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Grid.RowSpan="3" Visibility="Collapsed" Background="#FF1E1E1E" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                <TextBlock Text="Saglik metrikleri yuklenemedi" FontSize="15" Foreground="#FFCCCCCC" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <TextBlock Text="Metrik verileri hazir oldugunda goruntulenecektir" FontSize="12" Foreground="#FF888888" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.RowSpan="3" Visibility="Collapsed" Background="#FF1E1E1E" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#FFF44336" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#FFCCCCCC" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#FF007ACC" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
         </Border>
 
     </Grid>

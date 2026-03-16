@@ -1,3 +1,5 @@
+#pragma warning disable MA0051 // Method is too long — report handler is a single cohesive operation
+#pragma warning disable NX0003 // NullForgiving justified — null filtered by Where/HasValue clause
 using MediatR;
 using MesTech.Application.DTOs.Reports;
 using MesTech.Application.Interfaces.Accounting;
@@ -36,13 +38,13 @@ public class CargoPerformanceReportHandler
         // Group shipped orders by cargo provider
         var shippedOrders = orders
             .Where(o => o.CargoProvider.HasValue && o.CargoProvider.Value != CargoProvider.None)
-            .GroupBy(o => o.CargoProvider!.Value)
+            .GroupBy(o => o.CargoProvider!.Value) // NX0003: Null filtered by Where clause above
             .ToDictionary(g => g.Key, g => g.ToList());
 
         // Group cargo expenses by carrier name
         var expensesByCarrier = cargoExpenses
-            .GroupBy(e => e.CarrierName)
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .GroupBy(e => e.CarrierName, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
 
         var result = new List<CargoPerformanceReportDto>();
 
@@ -64,7 +66,7 @@ public class CargoPerformanceReportHandler
                 .ToList();
 
             var avgDeliveryDays = deliveredOrders.Count > 0
-                ? deliveredOrders.Average(o => (o.DeliveredAt!.Value - o.ShippedAt!.Value).TotalDays)
+                ? deliveredOrders.Average(o => (o.DeliveredAt!.Value - o.ShippedAt!.Value).TotalDays) // NX0003: Null filtered by Where clause above
                 : 0.0;
 
             // Average cost from cargo expenses

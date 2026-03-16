@@ -168,7 +168,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{TrendyolSupplierId}/products")
+                .WithPath($"/integration/product/sellers/{TrendyolSupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -191,7 +191,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
         // Configure adapter first
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{TrendyolSupplierId}/products")
+                .WithPath($"/integration/product/sellers/{TrendyolSupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -227,7 +227,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
         // Configure adapter
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{TrendyolSupplierId}/products")
+                .WithPath($"/integration/product/sellers/{TrendyolSupplierId}/products")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -240,7 +240,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
         // Stub stock update endpoint
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/sapigw/suppliers/{TrendyolSupplierId}/products/price-and-inventory")
+                .WithPath($"/integration/inventory/sellers/{TrendyolSupplierId}/products/price-and-inventory")
                 .UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)

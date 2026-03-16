@@ -9,7 +9,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-#pragma warning disable CS0618 // Core.Data.Models.AIConfiguration — no Domain equivalent yet (TODO H33)
+#pragma warning disable CS0618 // Core.Data.Models.AIConfiguration — no Domain equivalent yet
 using MesTechStok.Core.Data.Models;
 #pragma warning restore CS0618
 // AI Services will be added after migration
@@ -19,12 +19,31 @@ using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
+using System.Windows.Input;
 using System.Threading.Tasks;
 
 namespace MesTechStok.Desktop.Views
 {
     public partial class SettingsView : UserControl
     {
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+                { SaveSettings_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { /* No cancel action for settings */ e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} KeyDown handler error", nameof(SettingsView));
+            }
+        }
+
+        #endregion
         private readonly ILogger<SettingsView>? _logger;
         private DispatcherTimer? performanceTimer;
         private Random random = new Random();
@@ -163,18 +182,32 @@ namespace MesTechStok.Desktop.Views
 
         private void AddWarehouseBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (WarehousesList.ItemsSource is System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem> list)
+            try
             {
-                list.Add(new TempWarehouseItem { Name = "Yeni Depo", Address = "Adres", City = "Şehir", Phone = "+90" });
+                if (WarehousesList.ItemsSource is System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem> list)
+                {
+                    list.Add(new TempWarehouseItem { Name = "Yeni Depo", Address = "Adres", City = "Şehir", Phone = "+90" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} AddWarehouse handler error", nameof(SettingsView));
             }
         }
 
         private void RemoveWarehouse_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.DataContext is TempWarehouseItem item &&
-                WarehousesList.ItemsSource is System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem> list)
+            try
             {
-                list.Remove(item);
+                if (sender is Button btn && btn.DataContext is TempWarehouseItem item &&
+                    WarehousesList.ItemsSource is System.Collections.ObjectModel.ObservableCollection<TempWarehouseItem> list)
+                {
+                    list.Remove(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} RemoveWarehouse handler error", nameof(SettingsView));
             }
         }
 
@@ -553,14 +586,14 @@ namespace MesTechStok.Desktop.Views
 
         private void ClearLogs_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("⚠️ Tüm log dosyaları silinecek.\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?",
-                                       "Log Dosyalarını Temizle",
-                                       MessageBoxButton.YesNo,
-                                       MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                try
+                var result = MessageBox.Show("⚠️ Tüm log dosyaları silinecek.\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+                                           "Log Dosyalarını Temizle",
+                                           MessageBoxButton.YesNo,
+                                           MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
                 {
                     // Demo log clearing
                     var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -577,11 +610,10 @@ namespace MesTechStok.Desktop.Views
                     };
                     timer.Start();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"❌ Log temizleme sırasında hata oluştu:\n{ex.Message}",
-                                  "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} ClearLogs handler error", nameof(SettingsView));
             }
         }
 
@@ -590,7 +622,14 @@ namespace MesTechStok.Desktop.Views
         // Cleanup timer when control is unloaded
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            performanceTimer?.Stop();
+            try
+            {
+                performanceTimer?.Stop();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "{View} Unloaded handler error", nameof(SettingsView));
+            }
         }
 
         // ProductsView profil köprüsü ile kolon/filtre yönetimi
@@ -686,12 +725,10 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        // AI Configuration Methods - A++++ Enterprise Integration
-        // TEMPORARILY DISABLED FOR DATABASE MIGRATION - WILL BE RESTORED AFTER MIGRATION
+        // AI Configuration Methods - disabled (database + XAML migration pending)
 
         /// <summary>
-        /// Mevcut AI konfigürasyonlarını yükle ve UI'a bind et
-        /// TEMPORARILY DISABLED FOR XAML MIGRATION - AI CONTROLS COMMENTED OUT
+        /// Mevcut AI konfigurasyonlarini yukle ve UI'a bind et (disabled — AI controls commented out)
         /// </summary>
         private async Task LoadAIConfigurationsAsync()
         {

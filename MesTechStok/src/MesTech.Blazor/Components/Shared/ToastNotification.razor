@@ -1,0 +1,39 @@
+@if (_visible)
+{
+    <div class="toast show position-fixed bottom-0 end-0 m-3" style="z-index:1090">
+        <div class="toast-header bg-@_type text-white">
+            <strong class="me-auto">@_title</strong>
+            <button type="button" class="btn-close btn-close-white" @onclick="Hide"></button>
+        </div>
+        <div class="toast-body">@_message</div>
+    </div>
+}
+
+@code {
+    private bool _visible;
+    private string _type = "success";
+    private string _title = "";
+    private string _message = "";
+
+    public void Show(string message, string type = "success", string title = "Bilgi")
+    {
+        _type = type;
+        _title = title;
+        _message = message;
+        _visible = true;
+        StateHasChanged();
+        _ = AutoHide();
+    }
+
+    private async Task AutoHide()
+    {
+        await Task.Delay(3000);
+        _visible = false;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        _visible = false;
+    }
+}

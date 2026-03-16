@@ -131,25 +131,39 @@ public partial class ConnectionErrorWindow : Window
 
     private void ExitButton_Click(object sender, RoutedEventArgs e)
     {
-        ConnectionSucceeded = false;
+        try
+        {
+            ConnectionSucceeded = false;
 
-        // If shown as dialog, set DialogResult; otherwise shutdown
-        if (_retryAction is not null)
-        {
-            DialogResult = false;
-            Close();
+            // If shown as dialog, set DialogResult; otherwise shutdown
+            if (_retryAction is not null)
+            {
+                DialogResult = false;
+                Close();
+            }
+            else
+            {
+                Application.Current.Shutdown();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Application.Current.Shutdown();
+            System.Diagnostics.Debug.WriteLine($"[ConnectionErrorWindow] ExitButton error: {ex.Message}");
         }
     }
 
     // Custom title bar drag support
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ClickCount == 1)
-            DragMove();
+        try
+        {
+            if (e.ClickCount == 1)
+                DragMove();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ConnectionErrorWindow] TitleBar drag error: {ex.Message}");
+        }
     }
 
     /// <summary>

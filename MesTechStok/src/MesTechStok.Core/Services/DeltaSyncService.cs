@@ -312,7 +312,7 @@ namespace MesTechStok.Core.Services
                 return cachedTime;
             }
 
-            // TODO: Database'den veya dosyadan oku
+            // Stub: only in-memory cache — persist to database/file for durability
             return null;
         }
 
@@ -323,7 +323,7 @@ namespace MesTechStok.Core.Services
         {
             _lastSyncTimes[syncType] = syncTime;
 
-            // TODO: Database'e veya dosyaya kaydet
+            // Stub: only in-memory — persist to database/file for durability
             await Task.CompletedTask;
         }
 
@@ -331,15 +331,14 @@ namespace MesTechStok.Core.Services
 
         private async Task<List<dynamic>> GetChangedProductsFromOpenCart(DateTime? since)
         {
-            // TODO: OpenCart API'den timestamp tabanlı değişen ürünleri getir
-            // Bu özellik OpenCart API'sinde mevcut değilse, tüm ürünleri getirip
-            // local timestamp ile karşılaştır
+            // Stub: OpenCart API timestamp-based product delta not available yet
+            // Fallback: fetch all products and compare with local timestamp
             return new List<dynamic>();
         }
 
         private async Task<List<dynamic>> GetChangedOrdersFromOpenCart(DateTime? since)
         {
-            // TODO: OpenCart API'den timestamp tabanlı değişen siparişleri getir
+            // Stub: OpenCart API timestamp-based order delta not available yet
             return new List<dynamic>();
         }
 
@@ -356,14 +355,14 @@ namespace MesTechStok.Core.Services
 
         private async Task<string> ProcessProductDelta(dynamic openCartProduct, DateTime? lastSyncTime)
         {
-            // TODO: Product delta processing logic
+            // Stub: product delta processing not implemented
             await Task.Delay(10); // Placeholder
             return "Skipped";
         }
 
         private async Task<string> ProcessOrderDelta(dynamic openCartOrder, DateTime? lastSyncTime)
         {
-            // TODO: Order delta processing logic
+            // Stub: order delta processing not implemented
             await Task.Delay(10); // Placeholder
             return "Skipped";
         }

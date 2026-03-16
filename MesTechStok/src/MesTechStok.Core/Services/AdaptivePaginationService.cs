@@ -347,8 +347,7 @@ namespace MesTechStok.Core.Services
         /// </summary>
         private async Task<int> GetTotalCountAsync<T>(IQueryable<T> query, string queryType)
         {
-            // TODO: Caching mechanism eklenebilir
-            // TODO: Approximate count stratejileri eklenebilir
+            // Performance: consider caching or approximate count strategies for large datasets
             await Task.CompletedTask;
             return query.Count();
         }

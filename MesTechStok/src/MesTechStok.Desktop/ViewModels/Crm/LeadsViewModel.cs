@@ -3,9 +3,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Domain.Interfaces;
-// TODO H28: using MesTech.Application.Features.Crm.Queries.GetLeads;
-// TODO H28: using MesTech.Application.Features.Crm.Commands.CreateLead;
-// TODO H28: using MesTech.Domain.Enums; // LeadStatus — aktif olunca ekle
+// Needed when CRM pipeline is active:
+// using MesTech.Application.Features.Crm.Queries.GetLeads;
+// using MesTech.Application.Features.Crm.Commands.CreateLead;
+// using MesTech.Domain.Enums; // LeadStatus
 
 namespace MesTechStok.Desktop.ViewModels.Crm;
 
@@ -35,7 +36,7 @@ public partial class LeadsViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO H28: GetLeadsQuery pipeline DEV3 tamamlayınca aktif olacak
+            // GetLeadsQuery pipeline DEV3 tamamlayınca aktif olacak
             // LeadStatus? statusFilter = SelectedStatus switch
             // {
             //     "Yeni"             => LeadStatus.New,

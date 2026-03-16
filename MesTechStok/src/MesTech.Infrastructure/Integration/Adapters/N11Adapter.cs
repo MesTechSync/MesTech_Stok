@@ -16,7 +16,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// SimpleSoapClient + N11SoapRequestBuilder kullanan WCF'siz SOAP client.
 /// Sayfa bazli pagination (FetchAllPagesAsync), CultureInfo.InvariantCulture.
 /// </summary>
-public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter
+public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+    IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
     private SimpleSoapClient? _soapClient;
@@ -27,10 +28,15 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter
 
     // SOAP service URL suffixes
     private const string ProductServicePath = "/ws/ProductService.wsdl";
+    private const string ProductSellingServicePath = "/ws/ProductSellingService.wsdl";
     private const string OrderServicePath = "/ws/OrderService.wsdl";
     private const string CategoryServicePath = "/ws/CategoryService.wsdl";
     private const string ShipmentServicePath = "/ws/ShipmentService.wsdl";
     private const string CityServicePath = "/ws/CityService.wsdl";
+    private const string InvoiceServicePath = "/ws/InvoiceService.wsdl";
+    private const string ClaimServicePath = "/ws/ClaimService.wsdl";
+    private const string SettlementServicePath = "/ws/SettlementService.wsdl";
+    private const string BrandServicePath = "/ws/BrandService.wsdl";
 
     public N11Adapter(ILogger<N11Adapter> logger)
     {
@@ -430,6 +436,413 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter
         }
     }
 
+    // ── IShipmentCapableAdapter ────────────────────────────
+
+    /// <summary>
+    /// N11'e kargo bildirimi gonderir (SOAP MakeOrderItemShipment).
+    /// platformOrderId: N11 orderItem ID (long formatinda string).
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            if (!long.TryParse(platformOrderId, CultureInfo.InvariantCulture, out var orderItemId))
+            {
+                _logger.LogWarning("N11 SendShipment — gecersiz platformOrderId: {OrderId}", platformOrderId);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                _logger.LogWarning("N11 SendShipment — trackingNumber bos olamaz. OrderId={OrderId}", platformOrderId);
+                return false;
+            }
+
+            var shipmentCompany = MapCargoProviderToN11(provider);
+
+            var body = N11SoapRequestBuilder.BuildUpdateShipment(
+                _appKey!, _appSecret!, orderItemId, shipmentCompany, trackingNumber);
+
+            var url = _soapBaseUrl + ShipmentServicePath;
+            var response = await _soapClient!.SendAsync(url, "MakeOrderItemShipment", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation(
+                    "N11 SendShipment basarili — OrderItemId={OrderItemId}, Tracking={Tracking}, Cargo={Cargo}",
+                    platformOrderId, trackingNumber, shipmentCompany);
+                return true;
+            }
+
+            _logger.LogWarning(
+                "N11 SendShipment basarisiz — OrderItemId={OrderItemId}, Status={Status}",
+                platformOrderId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 SendShipment hatasi — OrderItemId={OrderItemId}", platformOrderId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// CargoProvider enum degerini N11'in beklediği kargo firma adina cevirir.
+    /// </summary>
+    private static string MapCargoProviderToN11(CargoProvider provider) => provider switch
+    {
+        CargoProvider.YurticiKargo => "Yurtiçi Kargo",
+        CargoProvider.ArasKargo => "Aras Kargo",
+        CargoProvider.SuratKargo => "Sürat Kargo",
+        CargoProvider.MngKargo => "MNG Kargo",
+        CargoProvider.PttKargo => "PTT Kargo",
+        CargoProvider.Hepsijet => "HepsiJet",
+        CargoProvider.UPS => "UPS",
+        CargoProvider.Sendeo => "Sendeo",
+        _ => provider.ToString()
+    };
+
+    // ── ProductSellingService ─────────────────────────────
+
+    /// <summary>
+    /// N11'de urunu satisa acar (ProductSellingService → activateProductSelling).
+    /// </summary>
+    public async Task<bool> ActivateProductSellingAsync(long productId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildActivateProductSelling(_appKey!, _appSecret!, productId);
+            var url = _soapBaseUrl + ProductSellingServicePath;
+            var response = await _soapClient!.SendAsync(url, "ActivateProductSelling", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 ActivateProductSelling basarili — ProductId={ProductId}", productId);
+                return true;
+            }
+
+            _logger.LogWarning("N11 ActivateProductSelling basarisiz — ProductId={ProductId}, Status={Status}",
+                productId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 ActivateProductSelling hatasi — ProductId={ProductId}", productId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// N11'de urunu satisdan kaldirir (ProductSellingService → deactivateProductSelling).
+    /// </summary>
+    public async Task<bool> DeactivateProductSellingAsync(long productId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildDeactivateProductSelling(_appKey!, _appSecret!, productId);
+            var url = _soapBaseUrl + ProductSellingServicePath;
+            var response = await _soapClient!.SendAsync(url, "DeactivateProductSelling", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 DeactivateProductSelling basarili — ProductId={ProductId}", productId);
+                return true;
+            }
+
+            _logger.LogWarning("N11 DeactivateProductSelling basarisiz — ProductId={ProductId}, Status={Status}",
+                productId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 DeactivateProductSelling hatasi — ProductId={ProductId}", productId);
+            return false;
+        }
+    }
+
+    // ── IInvoiceCapableAdapter ──────────────────────────
+
+    /// <summary>
+    /// N11'e fatura bildirimi gonderir (InvoiceService → sendInvoice).
+    /// IInvoiceCapableAdapter.SendInvoiceLinkAsync — N11 link-based invoice gonderimini desteklemez,
+    /// dogrudan SendInvoiceAsync kullanin.
+    /// </summary>
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        // N11 link-based invoice gonderimini desteklemez — direkt SOAP ile numara gonderilir
+        _logger.LogWarning("N11 SendInvoiceLinkAsync desteklenmiyor, SendInvoiceAsync kullanin.");
+        return Task.FromResult(false);
+    }
+
+    /// <summary>
+    /// N11'e PDF fatura dosyasi gonderir — N11 dosya bazli fatura gonderimini desteklemez.
+    /// </summary>
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        _logger.LogWarning("N11 SendInvoiceFileAsync desteklenmiyor, SendInvoiceAsync kullanin.");
+        return Task.FromResult(false);
+    }
+
+    /// <summary>
+    /// N11'e SOAP ile fatura bildirimi gonderir (InvoiceService → sendInvoice).
+    /// </summary>
+    public async Task<bool> SendInvoiceAsync(long orderId, string invoiceNo, DateTime invoiceDate,
+        CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildSendInvoice(_appKey!, _appSecret!, orderId, invoiceNo, invoiceDate);
+            var url = _soapBaseUrl + InvoiceServicePath;
+            var response = await _soapClient!.SendAsync(url, "SendInvoice", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 SendInvoice basarili — OrderId={OrderId}, InvoiceNo={InvoiceNo}",
+                    orderId, invoiceNo);
+                return true;
+            }
+
+            _logger.LogWarning("N11 SendInvoice basarisiz — OrderId={OrderId}, Status={Status}",
+                orderId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 SendInvoice hatasi — OrderId={OrderId}", orderId);
+            return false;
+        }
+    }
+
+    // ── IClaimCapableAdapter ────────────────────────────
+
+    /// <summary>
+    /// N11'den iade taleplerini cekilir (ClaimService → getClaims).
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var claims = await FetchAllPagesAsync<ExternalClaimDto>(
+                async (page, pageSize) =>
+                {
+                    var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize);
+                    var url = _soapBaseUrl + ClaimServicePath;
+                    var response = await _soapClient!.SendAsync(url, "GetClaims", body, ct).ConfigureAwait(false);
+
+                    ThrowIfSoapFault(response);
+
+                    var items = ParseClaims(response);
+                    var totalPages = ParseTotalPages(response);
+
+                    return (items, totalPages);
+                },
+                pageSize: 50,
+                ct).ConfigureAwait(false);
+
+            if (since.HasValue)
+            {
+                claims = claims.Where(c => c.ClaimDate >= since.Value).ToList();
+            }
+
+            _logger.LogInformation("N11 PullClaims tamamlandi — {Count} iade talebi cekildi", claims.Count);
+            return claims.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 PullClaims hatasi");
+            return Array.Empty<ExternalClaimDto>();
+        }
+    }
+
+    /// <summary>
+    /// N11'de iade talebini onaylar (ClaimService → approveClaim).
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            if (!long.TryParse(claimId, CultureInfo.InvariantCulture, out var claimIdLong))
+            {
+                _logger.LogWarning("N11 ApproveClaim — gecersiz claimId: {ClaimId}", claimId);
+                return false;
+            }
+
+            var body = N11SoapRequestBuilder.BuildApproveClaim(_appKey!, _appSecret!, claimIdLong);
+            var url = _soapBaseUrl + ClaimServicePath;
+            var response = await _soapClient!.SendAsync(url, "ApproveClaim", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var status = GetResultStatus(response);
+            if (status == "success")
+            {
+                _logger.LogInformation("N11 ApproveClaim basarili — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            _logger.LogWarning("N11 ApproveClaim basarisiz — ClaimId={ClaimId}, Status={Status}",
+                claimId, status);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// N11'de iade talebini reddeder — N11 SOAP API reject endpoint'i desteklemez.
+    /// </summary>
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        _logger.LogWarning("N11 RejectClaimAsync — N11 SOAP API reject endpoint'i desteklemiyor. ClaimId={ClaimId}", claimId);
+        return Task.FromResult(false);
+    }
+
+    // ── ISettlementCapableAdapter ───────────────────────
+
+    /// <summary>
+    /// N11'den cari hesap ekstresi cekilir (SettlementService → getSettlements).
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(
+        DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildGetSettlements(_appKey!, _appSecret!, startDate, endDate);
+            var url = _soapBaseUrl + SettlementServicePath;
+            var response = await _soapClient!.SendAsync(url, "GetSettlements", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var settlement = ParseSettlement(response, startDate, endDate);
+
+            _logger.LogInformation("N11 GetSettlement tamamlandi — {Start:d} ~ {End:d}, Net={Net:N2} TL",
+                startDate, endDate, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 GetSettlement hatasi — {Start:d} ~ {End:d}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// N11 kargo faturalari — N11 SOAP API bu endpoint'i ayri sunmaz.
+    /// Settlement icerisindeki kargo verileri kullanilir.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(
+        DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogWarning("N11 GetCargoInvoicesAsync — N11 SOAP API kargo faturasi endpoint'i sunmuyor.");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ── CategoryService (attributes) ────────────────────
+
+    /// <summary>
+    /// N11'den kategori ozelliklerini cekilir (CategoryService → getCategoryAttributes).
+    /// </summary>
+    public async Task<IReadOnlyList<CategoryAttributeDto>> GetCategoryAttributesAsync(
+        long categoryId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildGetCategoryAttributes(_appKey!, _appSecret!, categoryId);
+            var url = _soapBaseUrl + CategoryServicePath;
+            var response = await _soapClient!.SendAsync(url, "GetCategoryAttributes", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var attributes = DescendantsByLocalName(response, "attribute")
+                .Select(a => new CategoryAttributeDto
+                {
+                    AttributeId = int.Parse(
+                        ElementByLocalName(a, "id")?.Value ?? "0", CultureInfo.InvariantCulture),
+                    Name = ElementByLocalName(a, "name")?.Value ?? string.Empty,
+                    Required = string.Equals(
+                        ElementByLocalName(a, "mandatory")?.Value, "true", StringComparison.OrdinalIgnoreCase),
+                    AllowCustom = string.Equals(
+                        ElementByLocalName(a, "multipleSelect")?.Value, "true", StringComparison.OrdinalIgnoreCase),
+                    Values = DescendantsByLocalName(a, "value")
+                        .Select(v => new CategoryAttributeValueDto
+                        {
+                            Id = int.Parse(
+                                ElementByLocalName(v, "id")?.Value ?? "0", CultureInfo.InvariantCulture),
+                            Name = ElementByLocalName(v, "name")?.Value ?? string.Empty
+                        }).ToList()
+                }).ToList();
+
+            _logger.LogInformation("N11 GetCategoryAttributes tamamlandi — CategoryId={CategoryId}, {Count} ozellik",
+                categoryId, attributes.Count);
+            return attributes.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 GetCategoryAttributes hatasi — CategoryId={CategoryId}", categoryId);
+            return Array.Empty<CategoryAttributeDto>();
+        }
+    }
+
+    // ── BrandService ────────────────────────────────────
+
+    /// <summary>
+    /// N11'den marka listesini cekilir (BrandService → getBrands).
+    /// </summary>
+    public async Task<IReadOnlyList<BrandDto>> GetBrandsAsync(
+        int page = 0, int pageSize = 100, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = N11SoapRequestBuilder.BuildGetBrands(_appKey!, _appSecret!, page, pageSize);
+            var url = _soapBaseUrl + BrandServicePath;
+            var response = await _soapClient!.SendAsync(url, "GetBrands", body, ct).ConfigureAwait(false);
+
+            ThrowIfSoapFault(response);
+
+            var brands = DescendantsByLocalName(response, "brand")
+                .Select(b => new BrandDto
+                {
+                    PlatformBrandId = int.Parse(
+                        ElementByLocalName(b, "id")?.Value ?? "0", CultureInfo.InvariantCulture),
+                    Name = ElementByLocalName(b, "name")?.Value ?? string.Empty
+                }).ToList();
+
+            _logger.LogInformation("N11 GetBrands tamamlandi — {Count} marka cekildi", brands.Count);
+            return brands.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "N11 GetBrands hatasi");
+            return Array.Empty<BrandDto>();
+        }
+    }
+
     // ── XML Response Parsing Helpers ─────────────────────
 
     private static string GetResultStatus(XElement response)
@@ -588,5 +1001,92 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter
 
                 return order;
             }).ToList();
+    }
+
+    private List<ExternalClaimDto> ParseClaims(XElement response)
+    {
+        return DescendantsByLocalName(response, "claim")
+            .Where(c => ElementByLocalName(c, "id") is not null)
+            .Select(c =>
+            {
+                var claim = new ExternalClaimDto
+                {
+                    PlatformCode = PlatformCode,
+                    PlatformClaimId = ElementByLocalName(c, "id")?.Value ?? string.Empty,
+                    OrderNumber = ElementByLocalName(c, "orderNumber")?.Value ?? string.Empty,
+                    Status = ElementByLocalName(c, "status")?.Value ?? string.Empty,
+                    Reason = ElementByLocalName(c, "reason")?.Value ?? string.Empty,
+                    ReasonDetail = ElementByLocalName(c, "reasonDetail")?.Value,
+                    CustomerName = ElementByLocalName(c, "buyerName")?.Value ?? string.Empty,
+                    Currency = "TRY"
+                };
+
+                var amountStr = ElementByLocalName(c, "amount")?.Value;
+                if (!string.IsNullOrEmpty(amountStr) &&
+                    decimal.TryParse(amountStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+                {
+                    claim.Amount = amount;
+                }
+
+                var dateStr = ElementByLocalName(c, "createDate")?.Value;
+                if (!string.IsNullOrEmpty(dateStr) &&
+                    DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+                {
+                    claim.ClaimDate = dt;
+                }
+
+                return claim;
+            }).ToList();
+    }
+
+    private SettlementDto ParseSettlement(XElement response, DateTime startDate, DateTime endDate)
+    {
+        var settlement = new SettlementDto
+        {
+            PlatformCode = PlatformCode,
+            StartDate = startDate,
+            EndDate = endDate,
+            Currency = "TRY"
+        };
+
+        var lines = DescendantsByLocalName(response, "settlement")
+            .Select(s =>
+            {
+                var line = new SettlementLineDto
+                {
+                    OrderNumber = ElementByLocalName(s, "orderNumber")?.Value,
+                    TransactionType = ElementByLocalName(s, "transactionType")?.Value
+                };
+
+                var amountStr = ElementByLocalName(s, "amount")?.Value;
+                if (!string.IsNullOrEmpty(amountStr) &&
+                    decimal.TryParse(amountStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+                {
+                    line.Amount = amount;
+                }
+
+                var commStr = ElementByLocalName(s, "commissionAmount")?.Value;
+                if (!string.IsNullOrEmpty(commStr) &&
+                    decimal.TryParse(commStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var comm))
+                {
+                    line.CommissionAmount = comm;
+                }
+
+                var dateStr = ElementByLocalName(s, "transactionDate")?.Value;
+                if (!string.IsNullOrEmpty(dateStr) &&
+                    DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+                {
+                    line.TransactionDate = dt;
+                }
+
+                return line;
+            }).ToList();
+
+        settlement.Lines = lines;
+        settlement.TotalSales = lines.Where(l => l.TransactionType == "Sale").Sum(l => l.Amount);
+        settlement.TotalCommission = lines.Sum(l => l.CommissionAmount ?? 0);
+        settlement.NetAmount = lines.Sum(l => l.Amount) - settlement.TotalCommission;
+
+        return settlement;
     }
 }

@@ -21,7 +21,7 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
             _adapter = App.Services?.GetService<TrendyolAdapter>();
             var config = App.Services?.GetService<IConfiguration>();
-            _defaultBaseUrl = config?["Platforms:Trendyol:BaseUrl"] ?? "https://api.trendyol.com/sapigw";
+            _defaultBaseUrl = config?["Platforms:Trendyol:BaseUrl"] ?? "https://apigw.trendyol.com/integration";
             AddLogEntry(_adapter != null
                 ? "Trendyol baglanti ekrani yuklendi. Adapter hazir."
                 : "Trendyol baglanti ekrani yuklendi. UYARI: TrendyolAdapter bulunamadi.");

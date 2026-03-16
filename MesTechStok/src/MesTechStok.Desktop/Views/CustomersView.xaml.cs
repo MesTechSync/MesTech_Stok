@@ -1,4 +1,4 @@
-// TODO: [MVVM-CLEANUP] State'i ViewModel'e taşı — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
+// Debt: [MVVM-CLEANUP] State'i ViewModel'e tasi — Bkz: AUDIT-SYNTHESIS-001 Orta Bulgu #14
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using Microsoft.Win32;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Components;
@@ -331,47 +332,89 @@ namespace MesTechStok.Desktop.Views
 
         #endregion
 
+        #region Keyboard Shortcuts
+
+        private void View_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                { AddCustomer_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.F5 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+                { RefreshCustomers_Click(this, new RoutedEventArgs()); e.Handled = true; }
+                else if (e.Key == Key.Escape)
+                { CustomersDataGrid.SelectedItem = null; e.Handled = true; }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} KeyDown handler error: {ex.Message}");
+            }
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SearchText = ((TextBox)sender).Text;
+            try
+            {
+                SearchText = ((TextBox)sender).Text;
 
-            // Use timer for performance optimization
-            _searchTimer.Stop();
-            _searchTimer.Start();
+                // Use timer for performance optimization
+                _searchTimer.Stop();
+                _searchTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} SearchTextBox handler error: {ex.Message}");
+            }
         }
 
         private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedFilter = CategoryFilterComboBox.SelectedItem as ComboBoxItem;
-            if (selectedFilter == null) return;
-
-            var filterText = selectedFilter.Content?.ToString() ?? string.Empty;
-
-            _currentTypeFilter = filterText switch
+            try
             {
-                var x when x.Contains("VIP") => CustomerTypeFilter.VIP,
-                var x when x.Contains("Bireysel") => CustomerTypeFilter.Individual,
-                var x when x.Contains("Kurumsal") => CustomerTypeFilter.Corporate,
-                var x when x.Contains("Aktif") => CustomerTypeFilter.Active,
-                var x when x.Contains("Pasif") => CustomerTypeFilter.Inactive,
-                _ => CustomerTypeFilter.All
-            };
+                var selectedFilter = CategoryFilterComboBox.SelectedItem as ComboBoxItem;
+                if (selectedFilter == null) return;
 
-            _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
+                var filterText = selectedFilter.Content?.ToString() ?? string.Empty;
+
+                _currentTypeFilter = filterText switch
+                {
+                    var x when x.Contains("VIP") => CustomerTypeFilter.VIP,
+                    var x when x.Contains("Bireysel") => CustomerTypeFilter.Individual,
+                    var x when x.Contains("Kurumsal") => CustomerTypeFilter.Corporate,
+                    var x when x.Contains("Aktif") => CustomerTypeFilter.Active,
+                    var x when x.Contains("Pasif") => CustomerTypeFilter.Inactive,
+                    _ => CustomerTypeFilter.All
+                };
+
+                _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} CategoryFilter handler error: {ex.Message}");
+            }
         }
 
         private void ClearFilters_Click(object sender, RoutedEventArgs e)
         {
-            SearchTextBox.Text = "";
-            CategoryFilterComboBox.SelectedIndex = 0;
-            if (CityFilterComboBox != null) CityFilterComboBox.SelectedIndex = 0;
+            try
+            {
+                SearchTextBox.Text = "";
+                CategoryFilterComboBox.SelectedIndex = 0;
+                if (CityFilterComboBox != null) CityFilterComboBox.SelectedIndex = 0;
 
-            _currentTypeFilter = CustomerTypeFilter.All;
-            _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
+                _currentTypeFilter = CustomerTypeFilter.All;
+                _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
 
-            ToastManager.ShowInfo("🗑️ Filtreler temizlendi", "Müşteri Yönetimi");
+                ToastManager.ShowInfo("🗑️ Filtreler temizlendi", "Müşteri Yönetimi");
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} ClearFilters handler error: {ex.Message}");
+            }
         }
 
         private async void AddCustomer_Click(object sender, RoutedEventArgs e)
@@ -454,30 +497,44 @@ namespace MesTechStok.Desktop.Views
 
         private void CustomersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedCustomer = CustomersDataGrid.SelectedItem as Services.CustomerItem;
-            if (selectedCustomer != null)
+            try
             {
-                DisplayCustomerDetails(selectedCustomer);
+                var selectedCustomer = CustomersDataGrid.SelectedItem as Services.CustomerItem;
+                if (selectedCustomer != null)
+                {
+                    DisplayCustomerDetails(selectedCustomer);
+                }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} DataGrid SelectionChanged handler error: {ex.Message}");
             }
         }
 
         private void ViewCustomer_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Services.CustomerItem customer)
+            try
             {
-                var details = $"👁️ Müşteri Detayları\n\n" +
-                             $"ID: {customer.Id}\n" +
-                             $"Ad Soyad: {customer.FullName}\n" +
-                             $"Telefon: {customer.PhoneNumber}\n" +
-                             $"E-posta: {customer.Email}\n" +
-                             $"Şirket: {customer.Company}\n" +
-                             $"Müşteri Tipi: {customer.CustomerType}\n" +
-                             $"Kayıt Tarihi: {customer.FormattedRegistrationDate}\n" +
-                             $"Son Alışveriş: {customer.FormattedLastOrderDate}\n" +
-                             $"Toplam Alışveriş: {customer.FormattedTotalPurchases}\n" +
-                             $"Durum: {customer.StatusIcon} {(customer.IsActive ? "Aktif" : "Pasif")}";
+                if (((Button)sender).DataContext is Services.CustomerItem customer)
+                {
+                    var details = $"👁️ Müşteri Detayları\n\n" +
+                                 $"ID: {customer.Id}\n" +
+                                 $"Ad Soyad: {customer.FullName}\n" +
+                                 $"Telefon: {customer.PhoneNumber}\n" +
+                                 $"E-posta: {customer.Email}\n" +
+                                 $"Şirket: {customer.Company}\n" +
+                                 $"Müşteri Tipi: {customer.CustomerType}\n" +
+                                 $"Kayıt Tarihi: {customer.FormattedRegistrationDate}\n" +
+                                 $"Son Alışveriş: {customer.FormattedLastOrderDate}\n" +
+                                 $"Toplam Alışveriş: {customer.FormattedTotalPurchases}\n" +
+                                 $"Durum: {customer.StatusIcon} {(customer.IsActive ? "Aktif" : "Pasif")}";
 
-                MessageBox.Show(details, "Müşteri Detayları", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(details, "Müşteri Detayları", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} ViewCustomer handler error: {ex.Message}");
             }
         }
 
@@ -516,20 +573,27 @@ namespace MesTechStok.Desktop.Views
 
         private void DeleteCustomer_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Services.CustomerItem customer)
+            try
             {
-                var result = MessageBox.Show($"⚠️ {customer.FullName} müşterisini silmek istediğinizden emin misiniz?\n\n" +
-                                           "Bu işlem geri alınamaz!",
-                                           "Müşteri Sil",
-                                           MessageBoxButton.YesNo,
-                                           MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
+                if (((Button)sender).DataContext is Services.CustomerItem customer)
                 {
-                    // Enhanced delete functionality would go here
-                    _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
-                    ToastManager.ShowWarning($"🗑️ {customer.FullName} müşterisi silindi", "Müşteri Yönetimi");
+                    var result = MessageBox.Show($"⚠️ {customer.FullName} müşterisini silmek istediğinizden emin misiniz?\n\n" +
+                                               "Bu işlem geri alınamaz!",
+                                               "Müşteri Sil",
+                                               MessageBoxButton.YesNo,
+                                               MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Enhanced delete functionality would go here
+                        _ = LoadCustomersPageAsync(_currentPage, _currentPageSize);
+                        ToastManager.ShowWarning($"🗑️ {customer.FullName} müşterisi silindi", "Müşteri Yönetimi");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} DeleteCustomer handler error: {ex.Message}");
             }
         }
 
@@ -651,8 +715,15 @@ namespace MesTechStok.Desktop.Views
 
         private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
-            HideAllStates();
-            _ = InitializeAsync();
+            try
+            {
+                HideAllStates();
+                _ = InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                GlobalLogger.Instance.LogWarning($"{nameof(CustomersView)} RetryButton handler error: {ex.Message}");
+            }
         }
 
         #endregion

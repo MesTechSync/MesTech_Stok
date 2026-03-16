@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>MesTechStok.Avalonia.Tests</RootNamespace>
-    <!-- Avalonia Headless test project â€” Sprint 10.1 E04 -->
+    <!-- Avalonia Headless test project — Sprint 10.1 E04 -->
   </PropertyGroup>
 
   <ItemGroup>
