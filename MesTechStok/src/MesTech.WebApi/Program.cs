@@ -1,4 +1,4 @@
-using System.Threading.RateLimiting;
+﻿using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -150,17 +150,27 @@ if (app.Environment.IsProduction())
 }
 
 // Demo data seeder — populates DB with demo tenant, products, orders on first run (Sprint 3)
+try
 {
     using var scope = app.Services.CreateScope();
     var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
     await seeder.SeedAsync();
 }
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "DemoDataSeeder failed — continuing startup");
+}
 
 // Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
+try
 {
     using var scope = app.Services.CreateScope();
     var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
     await ahmetSeeder.SeedAsync();
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
 }
 
 // Serilog HTTP request logging — structured log per request
@@ -203,11 +213,12 @@ app.UseExceptionHandler(error =>
 // Swagger JSON spec — all environments for external tool consumption (A-M2-05)
 app.UseSwagger();
 
-// Swagger UI — development only (not exposed in production)
-if (app.Environment.IsDevelopment())
+// Swagger UI — all environments (API documentation accessible, secured by API key auth)
+app.UseSwaggerUI(c =>
 {
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MesTech API v1");
+    c.RoutePrefix = "swagger";
+});
 
 // JWT Authentication + Authorization middleware (G-02 SignalR auth)
 app.UseAuthentication();
