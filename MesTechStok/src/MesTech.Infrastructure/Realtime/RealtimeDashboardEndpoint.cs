@@ -30,7 +30,7 @@ public class RealtimeDashboardEndpoint : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"http://+:{_port}/");
+        _listener.Prefixes.Add($"http://localhost:{_port}/");
 
         try
         {

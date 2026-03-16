@@ -73,6 +73,7 @@ public class AppDbContext : DbContext
     public DbSet<ApiCallLog> ApiCallLogs => Set<ApiCallLog>();
     public DbSet<BarcodeScanLog> BarcodeScanLogs => Set<BarcodeScanLog>();
     public DbSet<CircuitStateLog> CircuitStateLogs => Set<CircuitStateLog>();
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
     public DbSet<OfflineQueueItem> OfflineQueueItems => Set<OfflineQueueItem>();
     public DbSet<SyncRetryItem> SyncRetryItems => Set<SyncRetryItem>();
     public DbSet<CompanySettings> CompanySettings => Set<CompanySettings>();

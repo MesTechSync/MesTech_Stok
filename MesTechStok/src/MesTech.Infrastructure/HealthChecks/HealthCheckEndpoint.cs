@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
@@ -32,7 +32,7 @@ public class HealthCheckEndpoint : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"http://+:{_port}/");
+        _listener.Prefixes.Add($"http://localhost:{_port}/");
 
         try
         {

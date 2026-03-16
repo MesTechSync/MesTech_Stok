@@ -38,17 +38,13 @@ builder.Services.AddMediatR(cfg =>
         typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
-builder.Services.AddInfrastructure(builder.Configuration);
+// skipSelfHostedEndpoints=true: HealthCheckEndpoint/MesaStatusEndpoint/RealtimeDashboardEndpoint
+// are WPF-only. WebAPI provides /health and /metrics via Kestrel.
+builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);
 
 // Override ITenantProvider for WebApi: JWT claim-based tenant resolution (E02)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantProvider, ApiTenantProvider>();
-
-// Remove HealthCheckEndpoint BackgroundService — WebApi provides its own /health and /metrics on port 5100
-var healthCheckDescriptor = builder.Services.FirstOrDefault(d =>
-    d.ImplementationType?.Name == "HealthCheckEndpoint");
-if (healthCheckDescriptor != null)
-    builder.Services.Remove(healthCheckDescriptor);
 
 // Rate limiting — 100 requests per minute per API key (multi-tenant friendly)
 builder.Services.AddRateLimiter(options =>

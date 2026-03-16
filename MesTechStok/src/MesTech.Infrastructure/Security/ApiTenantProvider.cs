@@ -1,4 +1,4 @@
-using MesTech.Domain.Interfaces;
+﻿using MesTech.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace MesTech.Infrastructure.Security;
@@ -23,7 +23,11 @@ public class ApiTenantProvider : ITenantProvider
         if (_tenantId.HasValue)
             return _tenantId.Value;
 
-        var claim = _httpContextAccessor.HttpContext?
+        // No HTTP context = startup, migration, background job — skip RLS
+        if (_httpContextAccessor.HttpContext == null)
+            return Guid.Empty;
+
+        var claim = _httpContextAccessor.HttpContext
             .User.FindFirst("tenant_id")?.Value;
 
         if (Guid.TryParse(claim, out var id))
@@ -33,7 +37,7 @@ public class ApiTenantProvider : ITenantProvider
         }
 
         // Fallback: check X-Tenant-Id header (API key auth flow — no JWT)
-        var headerValue = _httpContextAccessor.HttpContext?
+        var headerValue = _httpContextAccessor.HttpContext
             .Request.Headers["X-Tenant-Id"].FirstOrDefault();
 
         if (Guid.TryParse(headerValue, out var headerId))

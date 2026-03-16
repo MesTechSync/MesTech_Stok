@@ -44,7 +44,8 @@ public static class InfrastructureServiceRegistration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool skipSelfHostedEndpoints = false)
     {
         // Tenant & User — Development ortami
         services.AddSingleton<ITenantProvider, DevelopmentTenantProvider>();
@@ -212,10 +213,11 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProductSearchService, MockProductSearchService>();
 
         // MESA Status Endpoint (http://localhost:5101/api/mesa/status)
-        services.AddHostedService(sp =>
-            new MesaStatusEndpoint(
-                sp.GetRequiredService<IMesaEventMonitor>(),
-                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<MesaStatusEndpoint>>()));
+        if (!skipSelfHostedEndpoints)
+            services.AddHostedService(sp =>
+                new MesaStatusEndpoint(
+                    sp.GetRequiredService<IMesaEventMonitor>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<MesaStatusEndpoint>>()));
 
         // Hangfire Background Jobs
         services.AddMesTechHangfire(configuration);
@@ -237,19 +239,21 @@ public static class InfrastructureServiceRegistration
             .AddCheck<PostgresHealthCheck>("postgresql");
 
         // Health Check HTTP Endpoint (http://localhost:5100/health)
-        services.AddHostedService(sp =>
-            new HealthCheckEndpoint(
-                sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
-                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
+        if (!skipSelfHostedEndpoints)
+            services.AddHostedService(sp =>
+                new HealthCheckEndpoint(
+                    sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
 
         // ── Realtime Dashboard (port 5102) ──
         services.AddSingleton<WebSocketConnectionManager>();
         services.AddSingleton<IDashboardNotifier, WebSocketDashboardNotifier>();
-        services.AddHostedService(sp => new RealtimeDashboardEndpoint(
-            sp.GetRequiredService<WebSocketConnectionManager>(),
-            sp.GetRequiredService<ILogger<RealtimeDashboardEndpoint>>(),
-            port: configuration.GetValue<int>("Realtime:WebSocketPort", 5102)
-        ));
+        if (!skipSelfHostedEndpoints)
+            services.AddHostedService(sp => new RealtimeDashboardEndpoint(
+                sp.GetRequiredService<WebSocketConnectionManager>(),
+                sp.GetRequiredService<ILogger<RealtimeDashboardEndpoint>>(),
+                port: configuration.GetValue<int>("Realtime:WebSocketPort", 5102)
+            ));
 
         // XML Import / Export
         services.AddScoped<IXmlImportService, XmlImportService>();
