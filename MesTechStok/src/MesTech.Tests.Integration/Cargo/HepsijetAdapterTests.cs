@@ -104,8 +104,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_Success_ReturnsTrackingNumber()
     {
-        // TODO: Implement when DEV 3 adapter integration is verified
-        // WireMock setup: mock token + success response
+        // Arrange
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -124,7 +123,6 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         result.Success.Should().BeTrue();
         result.TrackingNumber.Should().Be("HJ-001");
         result.ShipmentId.Should().Be("HJSHIP-001");
-        Assert.True(true); // placeholder
     }
 
     // ══════════════════════════════════════
@@ -134,8 +132,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_InvalidAddress_ReturnsFailedResult()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + 400 error response
+        // Arrange
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -150,10 +147,10 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.CreateShipmentAsync(request);
 
-        // Assert: failure result
+        // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().Contain("400");
     }
 
     // ══════════════════════════════════════
@@ -163,8 +160,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_ApiTimeout_PollyRetry_MultipleAttemptsObserved()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + 500 to trigger Polly retry
+        // Arrange: token succeeds, but shipment endpoint returns 500 to trigger Polly retry
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -178,9 +174,15 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.CreateShipmentAsync(request);
 
-        // Assert: failed result + multiple retry attempts
+        // Assert: adapter catches the failure and returns ShipmentResult.Failed
         result.Success.Should().BeFalse();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+
+        // Polly retries 3 times + 1 initial = at least 2 total calls to /api/v1/shipments
+        var shipmentCalls = _mockServer.LogEntries
+            .Count(e => e.RequestMessage.Path == "/api/v1/shipments");
+        shipmentCalls.Should().BeGreaterThanOrEqualTo(2,
+            "Polly retry should attempt multiple calls on 500 errors");
     }
 
     // ══════════════════════════════════════
@@ -190,8 +192,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_ServerError_CircuitBreaker_ReturnsFailed()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + persistent 503 to open circuit breaker
+        // Arrange: token succeeds, but shipment endpoint returns 503 persistently
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -201,12 +202,12 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         var adapter = CreateConfiguredAdapter();
 
-        // Act: multiple calls to trigger circuit breaker threshold
+        // Act: single call that fails through retry pipeline
         var result = await adapter.CreateShipmentAsync(CreateTestRequest());
 
-        // Assert: failed gracefully (circuit breaker returns 503 as failure)
+        // Assert: failed gracefully (503 treated as server error)
         result.Success.Should().BeFalse();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
     }
 
     // ══════════════════════════════════════
@@ -216,8 +217,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_Success_ReturnsStatusAndEvents()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + tracking response
+        // Arrange
         SetupTokenEndpoint();
         const string trackingNo = "HJ-001";
         _mockServer
@@ -249,7 +249,9 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         result.TrackingNumber.Should().Be(trackingNo);
         result.Status.Should().Be(CargoStatus.InTransit);
         result.Events.Should().HaveCount(1);
-        Assert.True(true); // placeholder
+        result.Events[0].Location.Should().Be("Istanbul HepsiJet Depo");
+        result.Events[0].Status.Should().Be(CargoStatus.PickedUp);
+        result.EstimatedDelivery.Should().NotBeNull();
     }
 
     // ══════════════════════════════════════
@@ -259,8 +261,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_NotFound_ReturnsCreatedStatus()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + 404
+        // Arrange: token succeeds, but tracking returns 404
         SetupTokenEndpoint();
         const string trackingNo = "HJ-NOTFOUND";
         _mockServer
@@ -276,9 +277,10 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.TrackShipmentAsync(trackingNo);
 
-        // Assert: graceful degradation — returns Created (unknown) status
+        // Assert: graceful degradation — returns default status (Created) with tracking number preserved
         result.TrackingNumber.Should().Be(trackingNo);
-        Assert.True(true); // placeholder
+        result.Status.Should().Be(CargoStatus.Created);
+        result.Events.Should().BeEmpty();
     }
 
     // ══════════════════════════════════════
@@ -288,8 +290,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_MultipleEvents_ReturnsAllEvents()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + tracking response with 3 events
+        // Arrange
         SetupTokenEndpoint();
         const string trackingNo = "HJ-MULTI";
         _mockServer
@@ -313,9 +314,12 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.TrackShipmentAsync(trackingNo);
 
-        // Assert: all 3 events returned
+        // Assert: all 3 events returned in order, status maps correctly
         result.Events.Should().HaveCount(3);
-        Assert.True(true); // placeholder
+        result.Status.Should().Be(CargoStatus.OutForDelivery);
+        result.Events[0].Status.Should().Be(CargoStatus.PickedUp);
+        result.Events[1].Status.Should().Be(CargoStatus.InTransit);
+        result.Events[2].Status.Should().Be(CargoStatus.OutForDelivery);
     }
 
     // ══════════════════════════════════════
@@ -325,10 +329,8 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CancelShipment_Success_ReturnsFalse_NotSupported()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // HepsiJet does not support cancellation — SupportsCancellation = false
+        // Arrange: HepsiJet does not support cancellation — SupportsCancellation = false
         // No WireMock stub needed; adapter returns false without HTTP call
-
         var adapter = CreateConfiguredAdapter();
 
         // Act
@@ -336,7 +338,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert: HepsiJet does not support cancellation
         result.Should().BeFalse("HepsiJet does not support API cancellation");
-        Assert.True(true); // placeholder
+        adapter.SupportsCancellation.Should().BeFalse();
     }
 
     // ══════════════════════════════════════
@@ -346,9 +348,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CancelShipment_AlreadyDelivered_ReturnsFalse()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // HepsiJet: cancellation not supported regardless of delivery status
-
+        // Arrange: HepsiJet cancellation not supported regardless of delivery status
         var adapter = CreateConfiguredAdapter();
 
         // Act: try to cancel a delivered shipment
@@ -356,7 +356,9 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Should().BeFalse();
-        Assert.True(true); // placeholder
+        // Verify no HTTP calls were made (cancellation is a no-op)
+        _mockServer.LogEntries.Should().BeEmpty(
+            "CancelShipmentAsync should not make any HTTP calls");
     }
 
     // ══════════════════════════════════════
@@ -366,8 +368,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task GetLabel_Success_ReturnsPdfBytes()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + label response
+        // Arrange
         SetupTokenEndpoint();
         const string shipmentId = "HJSHIP-001";
         var fakePdfBytes = new byte[] { 0x25, 0x50, 0x44, 0x46 };
@@ -391,7 +392,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         result.Data.Should().NotBeNull();
         result.Data.Should().BeEquivalentTo(fakePdfBytes);
         result.Format.Should().Be(LabelFormat.Pdf);
-        Assert.True(true); // placeholder
+        result.FileName.Should().Contain(shipmentId);
     }
 
     // ══════════════════════════════════════
@@ -401,8 +402,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task GetLabel_NotReady_ThrowsHttpRequestException()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + 404 (label not yet generated)
+        // Arrange: token succeeds, but label endpoint returns 404
         SetupTokenEndpoint();
         const string shipmentId = "HJSHIP-NOTREADY";
 
@@ -416,10 +416,10 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         var adapter = CreateConfiguredAdapter();
 
-        // Act & Assert: throws on label not ready
+        // Act & Assert: throws on label not ready (GetShipmentLabelAsync does not catch)
         var act = async () => await adapter.GetShipmentLabelAsync(shipmentId);
-        await act.Should().ThrowAsync<HttpRequestException>();
-        Assert.True(true); // placeholder
+        var exception = await act.Should().ThrowAsync<HttpRequestException>();
+        exception.WithMessage("*HepsiJet label*");
     }
 
     // ══════════════════════════════════════
@@ -429,8 +429,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task IsAvailable_Healthy_ReturnsTrue()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + health endpoint
+        // Arrange
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/health").UsingGet())
@@ -446,7 +445,8 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Should().BeTrue();
-        Assert.True(true); // placeholder
+        _mockServer.LogEntries.Should().HaveCountGreaterThanOrEqualTo(1,
+            "At least health endpoint must be called");
     }
 
     // ══════════════════════════════════════
@@ -456,8 +456,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task IsAvailable_Unhealthy_ReturnsFalse()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + 500 health response
+        // Arrange: token succeeds, but health endpoint returns 500
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/health").UsingGet())
@@ -470,9 +469,9 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.IsAvailableAsync();
 
-        // Assert
+        // Assert: unhealthy returns false (adapter catches exceptions internally)
         result.Should().BeFalse();
-        Assert.True(true); // placeholder
+        adapter.Provider.Should().Be(CargoProvider.Hepsijet);
     }
 
     // ══════════════════════════════════════
@@ -480,19 +479,21 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════
 
     [Fact]
-    public async Task Auth_InvalidCredential_ThrowsOnTokenRefresh()
+    public async Task Auth_InvalidCredential_ReturnsFailedResult()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: token endpoint returns 401
+        // Arrange: token endpoint returns 401 (invalid credentials)
         SetupTokenEndpoint(statusCode: 401);
 
         var adapter = CreateConfiguredAdapter();
         var request = CreateTestRequest();
 
-        // Act & Assert: invalid credentials cause exception during token fetch
-        var act = async () => await adapter.CreateShipmentAsync(request);
-        await act.Should().ThrowAsync<HttpRequestException>();
-        Assert.True(true); // placeholder
+        // Act: EnsureTokenAsync throws HttpRequestException, caught by CreateShipmentAsync
+        var result = await adapter.CreateShipmentAsync(request);
+
+        // Assert: adapter catches token failure and returns ShipmentResult.Failed
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+        result.ErrorMessage.Should().Contain("HepsiJet");
     }
 
     // ══════════════════════════════════════
@@ -502,8 +503,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task ConcurrentRequests_ThreadSafe_AllSucceed()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: mock token + shipment success (many calls)
+        // Arrange
         SetupTokenEndpoint();
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -520,9 +520,11 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .ToList();
         var results = await Task.WhenAll(tasks);
 
-        // Assert: all calls completed (no deadlock/race condition)
+        // Assert: all calls completed successfully (no deadlock/race condition)
         results.Should().HaveCount(5);
-        Assert.True(true); // placeholder
+        results.Should().OnlyContain(r => r.Success,
+            "All concurrent requests should succeed");
+        results.Should().OnlyContain(r => r.TrackingNumber == "HJ-CONCURRENT");
     }
 
     // ══════════════════════════════════════
@@ -532,8 +534,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TokenRefresh_Expired_GetsNewToken_BeforeRequest()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: token endpoint called, then shipment endpoint
+        // Arrange
         SetupTokenEndpoint("new-fresh-token");
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -548,11 +549,11 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act: first call triggers token fetch
         var result = await adapter.CreateShipmentAsync(request);
 
-        // Assert: token was fetched (token endpoint was called)
+        // Assert: token was fetched then shipment created
         result.Success.Should().BeTrue();
+        result.TrackingNumber.Should().Be("HJ-002");
         _mockServer.LogEntries.Should().HaveCountGreaterThanOrEqualTo(2,
             "Token endpoint + shipment endpoint must both be called");
-        Assert.True(true); // placeholder
     }
 
     // ══════════════════════════════════════
@@ -562,8 +563,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TokenRefresh_ConcurrentCalls_SingleRefresh_TokenNotFetchedTwice()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: token endpoint (should only be hit once even with concurrent calls)
+        // Arrange
         SetupTokenEndpoint("single-refresh-token");
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
@@ -578,14 +578,14 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         var tasks = Enumerable.Range(0, 3)
             .Select(_ => adapter.CreateShipmentAsync(CreateTestRequest()))
             .ToList();
-        await Task.WhenAll(tasks);
+        var results = await Task.WhenAll(tasks);
 
         // Assert: token endpoint called at most once (double-check pattern in EnsureTokenAsync)
         var tokenCalls = _mockServer.LogEntries
             .Count(e => e.RequestMessage.Path == "/api/v1/auth/token");
         tokenCalls.Should().Be(1,
             "SemaphoreSlim double-check prevents concurrent token refresh");
-        Assert.True(true); // placeholder
+        results.Should().OnlyContain(r => r.Success);
     }
 
     // ══════════════════════════════════════
@@ -593,20 +593,22 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════
 
     [Fact]
-    public async Task TokenRefresh_Failed_MeaningfulError_PropagatesException()
+    public async Task TokenRefresh_Failed_MeaningfulError_PropagatesAsFailedResult()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: token endpoint returns 500
+        // Arrange: token endpoint returns 500 (server error during auth)
         SetupTokenEndpoint(statusCode: 500);
 
         var adapter = CreateConfiguredAdapter();
         var request = CreateTestRequest();
 
-        // Act & Assert: token failure propagates as HttpRequestException with meaningful message
-        var act = async () => await adapter.CreateShipmentAsync(request);
-        var exception = await act.Should().ThrowAsync<HttpRequestException>();
-        exception.WithMessage("*HepsiJet token*");
-        Assert.True(true); // placeholder
+        // Act: EnsureTokenAsync throws, CreateShipmentAsync catches and wraps as ShipmentResult.Failed
+        var result = await adapter.CreateShipmentAsync(request);
+
+        // Assert: token failure propagates as a meaningful error message
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+        result.ErrorMessage.Should().Contain("HepsiJet",
+            "Error message should identify the provider for debugging");
     }
 
     public void Dispose()

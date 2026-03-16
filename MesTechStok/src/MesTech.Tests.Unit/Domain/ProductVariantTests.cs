@@ -169,17 +169,22 @@ public class ProductVariantTests
         var attrs = variant.Attributes;
         Assert.IsAssignableFrom<IReadOnlyDictionary<string, string>>(attrs);
 
-        // Casting to IDictionary<string,string> and calling Add should either
-        // fail or not affect the internal state (ReadOnlyDictionary throws NotSupportedException)
+        // ReadOnlyDictionary implements IDictionary but throws on mutation
         if (attrs is IDictionary<string, string> mutableDict)
         {
             Assert.Throws<NotSupportedException>(() => mutableDict.Add("Hack", "Value"));
         }
         else
         {
-            // If it's not castable to IDictionary, the test passes by design
-            Assert.True(true);
+            // Not castable to IDictionary — still verify external mutation is impossible
+            // by confirming the original variant's attributes remain untouched
+            Assert.Single(variant.Attributes);
+            Assert.Equal("Value", variant.GetAttribute("Key"));
         }
+
+        // Regardless of cast path, internal state must be intact after immutability check
+        Assert.Single(variant.Attributes);
+        Assert.Equal("Value", variant.GetAttribute("Key"));
     }
 
     // ── AttributesJson round-trip ──

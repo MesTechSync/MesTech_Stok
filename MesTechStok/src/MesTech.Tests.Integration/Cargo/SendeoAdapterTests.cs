@@ -78,8 +78,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_Success_ReturnsTrackingNumber()
     {
-        // TODO: Implement when DEV 3 adapter integration is verified
-        // WireMock setup: mock success response
+        // Arrange
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -97,7 +96,8 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         result.Success.Should().BeTrue();
         result.TrackingNumber.Should().Be("SND-001");
         result.ShipmentId.Should().Be("SNDSHIP-001");
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().BeNull();
+        _mockServer.LogEntries.Should().HaveCount(1, "exactly one HTTP call expected for successful shipment");
     }
 
     // ══════════════════════════════════════
@@ -107,8 +107,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_InvalidAddress_ReturnsFailedResult()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 400 bad request
+        // Arrange
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -125,7 +124,8 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().Contain("400", "error message should include HTTP status code");
+        result.TrackingNumber.Should().BeNull();
     }
 
     // ══════════════════════════════════════
@@ -135,8 +135,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_ApiTimeout_PollyRetry_RetriesObserved()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 500 to trigger Polly retry
+        // Arrange — 500 triggers Polly retry (MaxRetryAttempts = 3, so up to 4 total attempts)
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -149,11 +148,11 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.CreateShipmentAsync(request);
 
-        // Assert: failure with retries (multiple requests logged)
+        // Assert: failure with retries (1 initial + up to 3 retries = 4 max attempts)
         result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
         _mockServer.LogEntries.Should().HaveCountGreaterThanOrEqualTo(2,
-            "Polly should retry at least once");
-        Assert.True(true); // placeholder
+            "Polly should retry at least once on 500");
     }
 
     // ══════════════════════════════════════
@@ -163,8 +162,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CreateShipment_ServerError_CircuitBreaker_ReturnsFailed()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: persistent 503
+        // Arrange — persistent 503 triggers retries; circuit breaker may open after threshold
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -178,7 +176,8 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Success.Should().BeFalse();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+        result.TrackingNumber.Should().BeNull("no tracking number on server error");
     }
 
     // ══════════════════════════════════════
@@ -188,8 +187,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_Success_ReturnsStatusAndEvents()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: tracking response
+        // Arrange
         const string trackingNo = "SND-001";
         _mockServer
             .Given(Request.Create()
@@ -219,8 +217,10 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Assert
         result.TrackingNumber.Should().Be(trackingNo);
         result.Status.Should().Be(CargoStatus.InTransit);
+        result.EstimatedDelivery.Should().NotBeNull("estimatedDelivery was provided in response");
         result.Events.Should().HaveCount(1);
-        Assert.True(true); // placeholder
+        result.Events[0].Location.Should().Be("Sendeo Ankara Depo");
+        result.Events[0].Status.Should().Be(CargoStatus.PickedUp);
     }
 
     // ══════════════════════════════════════
@@ -230,8 +230,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_NotFound_ReturnsCreatedStatus()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 404
+        // Arrange — 404 triggers graceful degradation (no exception)
         const string trackingNo = "SND-NOTFOUND";
         _mockServer
             .Given(Request.Create()
@@ -246,9 +245,10 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.TrackShipmentAsync(trackingNo);
 
-        // Assert: graceful — tracking number returned, status defaults to Created
+        // Assert: graceful -- tracking number preserved, status defaults, no events
         result.TrackingNumber.Should().Be(trackingNo);
-        Assert.True(true); // placeholder
+        result.Status.Should().Be(CargoStatus.Created, "404 returns default Created status");
+        result.Events.Should().BeEmpty("no events when shipment not found");
     }
 
     // ══════════════════════════════════════
@@ -258,8 +258,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task TrackShipment_MultipleEvents_ReturnsAllEvents()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: tracking response with multiple events
+        // Arrange
         const string trackingNo = "SND-MULTI";
         _mockServer
             .Given(Request.Create()
@@ -283,9 +282,14 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         var result = await adapter.TrackShipmentAsync(trackingNo);
 
         // Assert
-        result.Events.Should().HaveCount(3);
+        result.TrackingNumber.Should().Be(trackingNo);
         result.Status.Should().Be(CargoStatus.Delivered);
-        Assert.True(true); // placeholder
+        result.Events.Should().HaveCount(3);
+        result.Events[0].Location.Should().Be("Depo");
+        result.Events[0].Status.Should().Be(CargoStatus.PickedUp);
+        result.Events[1].Status.Should().Be(CargoStatus.InTransit);
+        result.Events[2].Status.Should().Be(CargoStatus.Delivered);
+        result.Events[2].Description.Should().Be("Teslim Edildi");
     }
 
     // ══════════════════════════════════════
@@ -295,9 +299,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CancelShipment_Success_ReturnsFalse_NotSupported()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // Sendeo: SupportsCancellation = false — no HTTP call made
-
+        // Arrange — no WireMock stub needed; adapter returns false without HTTP call
         var adapter = CreateConfiguredAdapter();
 
         // Act
@@ -305,8 +307,8 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert: Sendeo does not support cancellation
         result.Should().BeFalse("Sendeo does not support API cancellation");
-        _mockServer.LogEntries.Should().BeEmpty("No HTTP call for unsupported cancel");
-        Assert.True(true); // placeholder
+        _mockServer.LogEntries.Should().BeEmpty("No HTTP call should be made for unsupported cancel");
+        adapter.SupportsCancellation.Should().BeFalse();
     }
 
     // ══════════════════════════════════════
@@ -316,17 +318,15 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task CancelShipment_AlreadyDelivered_ReturnsFalse()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // Sendeo: cancellation not supported regardless of status
-
+        // Arrange — cancellation not supported regardless of shipment status
         var adapter = CreateConfiguredAdapter();
 
         // Act
         var result = await adapter.CancelShipmentAsync("SND-DELIVERED-001");
 
         // Assert
-        result.Should().BeFalse();
-        Assert.True(true); // placeholder
+        result.Should().BeFalse("Sendeo cancellation not supported regardless of delivery status");
+        _mockServer.LogEntries.Should().BeEmpty("No HTTP call should be made for unsupported cancel");
     }
 
     // ══════════════════════════════════════
@@ -336,10 +336,9 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task GetLabel_Success_ReturnsPdfBytes()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: label response
+        // Arrange
         const string shipmentId = "SNDSHIP-001";
-        var fakePdfBytes = new byte[] { 0x25, 0x50, 0x44, 0x46 };
+        var fakePdfBytes = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF header
         var base64 = Convert.ToBase64String(fakePdfBytes);
 
         _mockServer
@@ -358,10 +357,10 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Data.Should().NotBeNull();
+        result.Data.Should().HaveCount(4, "PDF header is 4 bytes");
         result.Data.Should().BeEquivalentTo(fakePdfBytes);
         result.Format.Should().Be(LabelFormat.Pdf);
         result.FileName.Should().Be($"sendeo-label-{shipmentId}.pdf");
-        Assert.True(true); // placeholder
     }
 
     // ══════════════════════════════════════
@@ -371,8 +370,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task GetLabel_NotReady_ThrowsHttpRequestException()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 404 for label
+        // Arrange — 404 means label not yet generated
         const string shipmentId = "SND-NOTREADY";
 
         _mockServer
@@ -387,8 +385,8 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Act & Assert
         var act = async () => await adapter.GetShipmentLabelAsync(shipmentId);
-        await act.Should().ThrowAsync<HttpRequestException>();
-        Assert.True(true); // placeholder
+        var ex = await act.Should().ThrowAsync<HttpRequestException>();
+        ex.WithMessage("*Sendeo label request failed*", "exception message should identify Sendeo label failure");
     }
 
     // ══════════════════════════════════════
@@ -398,8 +396,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task IsAvailable_Healthy_ReturnsTrue()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: health endpoint
+        // Arrange
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/health").UsingGet())
             .RespondWith(Response.Create()
@@ -414,7 +411,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Should().BeTrue();
-        Assert.True(true); // placeholder
+        _mockServer.LogEntries.Should().HaveCount(1, "health check should make exactly one HTTP call");
     }
 
     // ══════════════════════════════════════
@@ -424,8 +421,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task IsAvailable_Unhealthy_ReturnsFalse()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 503 health response
+        // Arrange — 503 from health endpoint means service is down
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/health").UsingGet())
             .RespondWith(Response.Create()
@@ -439,7 +435,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.Should().BeFalse();
-        Assert.True(true); // placeholder
+        _mockServer.LogEntries.Should().NotBeEmpty("at least one HTTP call should be attempted");
     }
 
     // ══════════════════════════════════════
@@ -449,8 +445,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task Auth_InvalidCredential_ReturnsFailedResult()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: 401 on first request (invalid API key)
+        // Arrange — 401 is not a 5xx, so Polly should NOT retry
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -463,9 +458,11 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Act
         var result = await adapter.CreateShipmentAsync(request);
 
-        // Assert: 401 treated as failure (not retriable)
+        // Assert: 401 treated as failure (not retriable — only 5xx triggers Polly)
         result.Success.Should().BeFalse();
-        Assert.True(true); // placeholder
+        result.ErrorMessage.Should().Contain("401", "error message should include HTTP 401 status");
+        result.TrackingNumber.Should().BeNull();
+        _mockServer.LogEntries.Should().HaveCount(1, "401 should not trigger Polly retry");
     }
 
     // ══════════════════════════════════════
@@ -475,8 +472,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     [Fact]
     public async Task ConcurrentRequests_ThreadSafe_AllSucceed()
     {
-        // TODO: Implement when DEV 3 adapter is available
-        // WireMock setup: shipment success for many concurrent calls
+        // Arrange
         _mockServer
             .Given(Request.Create().WithPath("/api/v1/shipments").UsingPost())
             .RespondWith(Response.Create()
@@ -492,9 +488,11 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .ToList();
         var results = await Task.WhenAll(tasks);
 
-        // Assert: all calls completed without deadlock
+        // Assert: all calls completed without deadlock or race conditions
         results.Should().HaveCount(5);
-        Assert.True(true); // placeholder
+        results.Should().OnlyContain(r => r.Success, "all concurrent requests should succeed");
+        results.Should().OnlyContain(r => r.TrackingNumber == "SND-CONC", "all should return same tracking number");
+        _mockServer.LogEntries.Should().HaveCount(5, "WireMock should have received exactly 5 requests");
     }
 
     // ══════════════════════════════════════
