@@ -52,8 +52,7 @@ public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendati
                 "[MESA Consumer] Aksiyon URL: {ActionUrl}", msg.ActionUrl);
         }
 
-        // Dashboard bildirim sistemi icin kaydet
-        // TODO: Dalga 3'te IDashboardNotifier uzerinden WebSocket push eklenecek
+        // Dashboard bildirim sistemi icin kaydet (IDashboardNotifier WebSocket push eklenecek)
         _logger.LogInformation(
             "[MESA Consumer] AI onerisi dashboard bildirimine kaydedildi: " +
             "Tip={RecommendationType}, Oncelik={Priority}",

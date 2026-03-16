@@ -10,6 +10,7 @@ using MesTech.Infrastructure.Middleware;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Security;
 using MesTech.WebApi.Endpoints;
+using MesTech.WebApi.Hubs;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,6 +109,30 @@ builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
     }
 }));
 
+// SignalR real-time bildirim hub'i (G-02)
+builder.Services.AddSignalR();
+
+// JWT SignalR auth — query string token support
+builder.Services.AddAuthentication().AddJwtBearer(options =>
+{
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // SignalR sends JWT via query string: ?access_token=xxx
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs/mestech"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
@@ -184,7 +209,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// API Key middleware — bypass paths skip validation (/health, /metrics)
+// JWT Authentication + Authorization middleware (G-02 SignalR auth)
+app.UseAuthentication();
+app.UseAuthorization();
+
+// API Key middleware — bypass paths skip validation (/health, /metrics, /api/webhooks, /hubs)
 app.UseApiKeyAuthentication();
 
 // Rate limiter middleware — after auth so API key is available
@@ -222,6 +251,12 @@ TenantEndpoints.Map(app);
 StoreEndpoints.Map(app);
 SystemHealthEndpoints.Map(app);
 EInvoiceEndpoints.Map(app);
+SandboxEndpoints.Map(app);
+DashboardWidgetEndpoints.Map(app);
+WebhookEndpoints.Map(app);
+
+// SignalR real-time hub (G-02)
+app.MapHub<MesTechHub>("/hubs/mestech");
 
 app.Run();
 

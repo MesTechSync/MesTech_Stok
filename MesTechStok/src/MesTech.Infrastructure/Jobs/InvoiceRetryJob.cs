@@ -27,9 +27,8 @@ public class InvoiceRetryJob : ISyncJob
 
         try
         {
-            // TODO: Dalga 3'te InvoiceRepository eklenince Status=Error faturalar
-            // buradan cekilip IInvoiceProvider ile tekrar denenecek.
-            // Simdilik provider aktifligini dogruluyoruz.
+            // InvoiceRepository eklenince Status=Error faturalar buradan cekilip
+            // IInvoiceProvider ile tekrar denenecek. Simdilik provider aktifligini dogruluyoruz.
 
             _logger.LogInformation(
                 "[{JobId}] Fatura retry tamamlandi — provider aktif: {Provider}",

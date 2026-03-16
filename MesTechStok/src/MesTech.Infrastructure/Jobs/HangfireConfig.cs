@@ -195,6 +195,14 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             "0 6 1 * *");
 
+        // === G-01 — Webhook Retry ===
+
+        // Her dakika — basarisiz webhook'lari tekrar dene (1m, 5m, 30m artan aralik)
+        RecurringJob.AddOrUpdate<WebhookRetryJob>(
+            "webhook-retry",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "* * * * *");
+
         // === Dalga 10 — Sosyal Ticaret Feed Yenileme ===
 
         // Her 6 saatte bir — aktif SocialFeedConfiguration'lar icin feed uretimi

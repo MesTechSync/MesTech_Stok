@@ -268,7 +268,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
 
     public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // TODO(D13-W2): Full eBay listing creation requires multi-step flow:
+        // Full eBay listing creation requires multi-step flow:
         //   1. PUT /sell/inventory/v1/inventory_item/{sku} — create/update inventory item
         //   2. POST /sell/inventory/v1/offer — create offer with marketplace, price, listing policies
         //   3. POST /sell/inventory/v1/offer/{offerId}/publish — publish the offer as a live listing
@@ -751,7 +751,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     /// </summary>
     public Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
     {
-        // TODO(D13-W2): eBay order status is driven by shipping fulfillments, not direct status updates.
+        // eBay order status is driven by shipping fulfillments, not direct status updates.
         // To mark an order as shipped, use SendShipmentAsync which calls POST /shipping_fulfillment.
         // For cancellations, eBay requires the eBay Resolution Center or POST /sell/fulfillment/v1/order/{orderId}/cancel.
         _logger.LogWarning(

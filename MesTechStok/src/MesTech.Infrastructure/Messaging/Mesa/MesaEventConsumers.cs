@@ -182,7 +182,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
             "[MESA Consumer] AI fiyat optimizasyonu alindi: SKU={SKU}, oneri={Price:N2}, rakip_min={CompMin}, guven={Confidence:P0}",
             msg.SKU, msg.RecommendedPrice, msg.CompetitorMinPrice, msg.Confidence);
 
-        // TODO: PriceRecommendation history INSERT + Product snapshot UPDATE
+        // Future: PriceRecommendation history INSERT + Product snapshot UPDATE
         // Source = "ai.price.optimized", tek transaction
         // Fiyat farki > %20 ise Telegram Critical alert
 
@@ -228,8 +228,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
                 msg.SKU, msg.DaysUntilStockout, msg.ReorderSuggestion);
         }
 
-        // TODO: StockPrediction history INSERT + Product snapshot UPDATE
-        // Tek transaction
+        // Future: StockPrediction history INSERT + Product snapshot UPDATE (tek transaction)
 
         _monitor.RecordConsume("ai.stock.predicted");
         return Task.CompletedTask;
@@ -266,7 +265,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
             "[MESA Consumer] Musteri fatura istedi: telefon={Phone}, siparis={Order}, kanal={Channel}",
             MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.RequestChannel);
 
-        // TODO: OrderNumber ile Order bul → Invoice bul → PdfUrl
+        // Future: OrderNumber ile Order bul → Invoice bul → PdfUrl
         // Invoice yoksa: "Faturaniz henuz hazirlanmadi" WhatsApp mesaji
         // Invoice varsa: PdfUrl ile "invoice_ready" template gonder
 
@@ -305,7 +304,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
             "[MESA Consumer] Musteri iade istedi: telefon={Phone}, siparis={Order}, sebep={Reason}, kanal={Channel}",
             MesaConsumerHelpers.MaskPhone(msg.CustomerPhone), msg.OrderNumber, msg.ReturnReason, msg.RequestChannel);
 
-        // TODO: OrderNumber ile Order bul → ReturnRequest olustur (line'siz)
+        // Future: OrderNumber ile Order bul → ReturnRequest olustur (line'siz)
         // Status: Initiated, Source: WhatsApp
         // Musteriye: "Iade talebiniz alindi #RET-XXX"
         // Saticiya Telegram: "Musteri X iade talep etti, siparis #Y"

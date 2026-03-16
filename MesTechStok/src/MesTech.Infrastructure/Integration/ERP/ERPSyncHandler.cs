@@ -226,7 +226,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
     /// <summary>
     /// Resolves the ERP name for the current tenant.
     /// Currently returns the first supported ERP as a placeholder.
-    /// TODO: In multi-tenant scenario, read from TenantConfiguration (DEV 1 task 1.08).
+    /// Multi-tenant: read from TenantConfiguration when available.
     /// </summary>
     private string? ResolveERPName(string? platformCode)
     {

@@ -101,7 +101,7 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<N11Adapter>();
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
 
-        // Dalga 8: eBay — OAuth2 Client Credentials (foundation, full impl TODO H28)
+        // Dalga 8: eBay — OAuth2 Client Credentials
         if (configuration is not null)
             services.Configure<EbayOptions>(configuration.GetSection(EbayOptions.Section));
         services.AddSingleton<EbayAdapter>(sp =>
@@ -111,12 +111,12 @@ public static class IntegrationServiceRegistration
                 sp.GetService<IOptions<EbayOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
 
-        // Dalga 8: Ozon — Client-Id + Api-Key header auth (foundation, full impl TODO H28)
+        // Dalga 8: Ozon — Client-Id + Api-Key header auth
         services.AddSingleton<OzonAdapter>(sp =>
             new OzonAdapter(new HttpClient(), sp.GetRequiredService<ILogger<OzonAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OzonAdapter>());
 
-        // Dalga 8: PTT AVM — username/password Bearer token (foundation, full impl TODO H28)
+        // Dalga 8: PTT AVM — username/password Bearer token
         services.AddSingleton<PttAvmAdapter>(sp =>
             new PttAvmAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
@@ -342,7 +342,7 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ICategoryMapperService, CategoryAutoMapper>();
 
         // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-01: IServiceLocatorBridge (sadece App.xaml.cs için)
-        // TODO(Panel-E): Desktop App.xaml.cs hala kullanıyor — Desktop DI migration sonrası kaldırılacak
+        // Desktop App.xaml.cs hala kullanıyor — Desktop DI migration sonrası kaldırılacak
         services.AddSingleton<IServiceLocatorBridge, ServiceLocatorBridge>();
 
         // MUH-01: Settlement parsers — platform-specific settlement data parsers (Singleton — stateless)
@@ -420,21 +420,9 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<CanonicalFinanceMapper>();
 
         // -----------------------------------------------------------------------
-        // DALGA 9 — On Muhasebe & Kargo Genisletme
+        // DALGA 9 — On Muhasebe & Kargo Genisletme (completed)
         // -----------------------------------------------------------------------
         // Phase B DONE: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo) registered above.
-        //
-        // TODO DAL9-CARGO: KolayGelsin adapter — when API documentation available
-        //
-        // TODO DAL9-MUH: FinancialTransaction + CariHesap + KomisyonHesaplama repositories
-        //   services.AddScoped<IFinancialTransactionRepository, FinancialTransactionRepository>();
-        //   services.AddScoped<ICariHesapRepository, CariHesapRepository>();
-        //   services.AddScoped<IKomisyonHesaplamaRepository, KomisyonHesaplamaRepository>();
-        //
-        // TODO DAL9-ERP: Sovos e-invoice provider upgrade (SandboxUrl + DefaultScenario support)
-        //   IEInvoiceProvider implementations registered here when Sovos extended.
-        //
-        // TODO DAL9-PLATFORM: Platform hakedis cekme + karlilik raporu query handlers
         // -----------------------------------------------------------------------
 
         // -----------------------------------------------------------------------

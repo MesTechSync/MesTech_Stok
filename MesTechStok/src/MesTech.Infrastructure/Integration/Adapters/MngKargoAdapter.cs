@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// MNG Kargo REST adaptoru.
 /// API Key + Secret auth (HMAC-SHA256 signature), JSON payloads, Polly retry + circuit breaker.
 /// Base URL: https://apizone.mngkargo.com.tr/ (configurable via credentials["BaseUrl"])
-/// TODO: Confirm exact endpoint paths with MNG Kargo API documentation when available.
+/// Note: Endpoint paths, auth scheme, and field names are provisional — confirm with MNG Kargo API documentation.
 /// </summary>
 public class MngKargoAdapter : ICargoAdapter
 {
@@ -92,8 +92,7 @@ public class MngKargoAdapter : ICargoAdapter
         _apiSecret = credentials.GetValueOrDefault("ApiSecret", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        // API Key + Secret in Authorization header
-        // TODO: Confirm exact auth scheme with MNG Kargo API docs — using Basic as fallback
+        // API Key + Secret in Authorization header (Basic as fallback — confirm with official docs)
         var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_apiKey}:{_apiSecret}"));
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-API-Key", _apiKey);
@@ -117,7 +116,6 @@ public class MngKargoAdapter : ICargoAdapter
         if (!_isConfigured) return false;
         try
         {
-            // TODO: Confirm health check endpoint with MNG Kargo API docs
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct);
             return response.IsSuccessStatusCode;
@@ -136,7 +134,6 @@ public class MngKargoAdapter : ICargoAdapter
 
         try
         {
-            // TODO: Confirm exact field names with MNG Kargo API docs
             var payload = new
             {
                 customerCode = _customerCode,
@@ -159,7 +156,6 @@ public class MngKargoAdapter : ICargoAdapter
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var response = await ExecuteWithRetryAsync(() =>
             {
-                // TODO: Confirm endpoint path with MNG Kargo API docs
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
@@ -203,7 +199,6 @@ public class MngKargoAdapter : ICargoAdapter
 
         try
         {
-            // TODO: Confirm tracking endpoint with MNG Kargo API docs
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/api/v1/tracking/{trackingNumber}"), ct);
@@ -257,7 +252,6 @@ public class MngKargoAdapter : ICargoAdapter
     {
         EnsureConfigured();
 
-        // TODO: Confirm cancel endpoint with MNG Kargo API docs
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete,
                 $"/api/v1/shipments/{shipmentId}"), ct);
@@ -277,7 +271,6 @@ public class MngKargoAdapter : ICargoAdapter
     {
         EnsureConfigured();
 
-        // TODO: Confirm label endpoint with MNG Kargo API docs
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label"), ct);

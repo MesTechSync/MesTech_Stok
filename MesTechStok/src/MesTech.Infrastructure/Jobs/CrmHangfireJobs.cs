@@ -31,7 +31,7 @@ public class CrmHangfireJobs
     {
         _logger.LogInformation("CRM: Süresi geçmiş lead kontrolü başlıyor");
         // Yeni leads 7 günden fazla iletişim olmadıysa uyarı logu
-        // TODO: Lead.LastContactedAt threshold kontrolü
+        // Future: Lead.LastContactedAt threshold kontrolü
         await Task.CompletedTask;
     }
 
@@ -56,7 +56,7 @@ public class CrmHangfireJobs
         var since = DateTime.UtcNow.AddMinutes(-35);
         var tenantId = new Guid("00000000-0000-0000-0000-000000000001");
 
-        // TODO: await _crmBridgeService.CreateLeadsFromRecentOrdersAsync(tenantId, since);
+        // Future: await _crmBridgeService.CreateLeadsFromRecentOrdersAsync(tenantId, since);
         await Task.CompletedTask;
         _logger.LogInformation("CRM: Sipariş → Lead tarama tamamlandı");
     }

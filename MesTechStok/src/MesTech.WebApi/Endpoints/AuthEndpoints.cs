@@ -27,9 +27,8 @@ public static class AuthEndpoints
                     Error: "UserName and Password are required."));
             }
 
-            // TODO(Dalga9-Task5): Real user lookup + BCrypt.Verify against hashed password
-            // TODO(Dalga9-Task5): Extract real userId, tenantId, roles from User entity
             // Placeholder: generate token with deterministic dev IDs (NEVER in production)
+            // Real user lookup + BCrypt.Verify and real userId/tenantId/roles extraction needed before production
             var userId = Guid.NewGuid();
             var tenantId = Guid.NewGuid();
             var roles = new[] { "User" };

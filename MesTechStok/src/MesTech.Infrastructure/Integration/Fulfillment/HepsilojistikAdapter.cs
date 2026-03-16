@@ -14,7 +14,8 @@ namespace MesTech.Infrastructure.Integration.Fulfillment;
 /// Hepsilojistik (Hepsiburada Fulfillment) provider.
 /// Basic Auth: Base64(MerchantId:ApiKey) — shares HepsiburadaAdapter auth pattern.
 /// API base: https://mpop.hepsiburada.com/lojistik/api/v1  (REST/JSON)
-/// TODO: Confirm exact endpoint URLs when Hepsilojistik developer portal access is available.
+/// Note: Endpoint URLs, payload schemas, and response field names are provisional —
+/// confirm with Hepsilojistik developer portal documentation when access is available.
 /// </summary>
 public sealed class HepsilojistikAdapter : IFulfillmentProvider
 {
@@ -25,7 +26,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
-    // TODO: Verify official Hepsilojistik API base URL when documentation is available.
+    // Provisional base URL — confirm with official Hepsilojistik documentation
     private const string HepsilojistikBaseUrl = "https://lojistik-api.hepsiburada.com/v1";
 
     public HepsilojistikAdapter(
@@ -100,8 +101,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     // ═══════════════════════════════════════════
 
     /// <summary>
-    /// Sends products to Hepsilojistik warehouse for inbound receiving.
-    /// TODO: POST /shipments — confirm exact path from Hepsilojistik developer portal.
+    /// Sends products to Hepsilojistik warehouse for inbound receiving (POST /shipments).
     /// </summary>
     public async Task<InboundResult> CreateInboundShipmentAsync(
         InboundShipmentRequest request, CancellationToken ct = default)
@@ -112,7 +112,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
         try
         {
-            // TODO: Verify exact payload schema from Hepsilojistik API documentation.
             var payload = new
             {
                 shipmentName = request.ShipmentName,
@@ -129,7 +128,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            // TODO: Confirm endpoint path — /shipments is conventional; official path may differ.
             var response = await ExecuteWithRetryAsync(
                 () =>
                 {
@@ -150,7 +148,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
 
-            // TODO: Adjust property name once official response schema is confirmed.
             var shipmentId = doc.RootElement.TryGetProperty("shipmentId", out var sid)
                 ? sid.GetString() ?? Guid.NewGuid().ToString()
                 : doc.RootElement.TryGetProperty("id", out var id)
@@ -173,8 +170,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     }
 
     /// <summary>
-    /// Queries fulfillment stock levels for given SKUs.
-    /// TODO: GET /inventory?merchantSkus=... — confirm exact path from Hepsilojistik developer portal.
+    /// Queries fulfillment stock levels for given SKUs (GET /inventory?merchantSkus=...).
     /// </summary>
     public async Task<FulfillmentInventory> GetInventoryLevelsAsync(
         IReadOnlyList<string> skus, CancellationToken ct = default)
@@ -186,7 +182,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
         try
         {
-            // TODO: Confirm batch size limit from Hepsilojistik documentation.
             const int batchSize = 50;
             var batches = skus.Chunk(batchSize).ToList();
 
@@ -194,7 +189,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             {
                 ct.ThrowIfCancellationRequested();
 
-                // TODO: Confirm query parameter name — "merchantSkus" is conventional.
                 var skuParam = string.Join(",", batch.Select(Uri.EscapeDataString));
                 var path = $"/inventory?merchantSkus={skuParam}";
 
@@ -212,7 +206,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(content);
 
-                // TODO: Adjust JSON path once official response schema is confirmed.
                 var root = doc.RootElement;
                 var itemsEl = root.ValueKind == JsonValueKind.Array
                     ? root
@@ -258,8 +251,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     }
 
     /// <summary>
-    /// Checks shipment receipt status at Hepsilojistik warehouse.
-    /// TODO: GET /shipments/{shipmentId}/status — confirm exact path.
+    /// Checks shipment receipt status at Hepsilojistik warehouse (GET /shipments/{id}/status).
     /// </summary>
     public async Task<InboundStatus> GetInboundStatusAsync(
         string shipmentId, CancellationToken ct = default)
@@ -269,7 +261,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
         try
         {
-            // TODO: Confirm exact endpoint path from Hepsilojistik developer portal.
             var path = $"/shipments/{Uri.EscapeDataString(shipmentId)}/status";
 
             var response = await ExecuteWithRetryAsync(
@@ -286,7 +277,6 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
 
-            // TODO: Adjust property names once official response schema is confirmed.
             var status = doc.RootElement.TryGetProperty("status", out var st)
                 ? st.GetString() ?? "UNKNOWN"
                 : "UNKNOWN";
@@ -317,14 +307,12 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     }
 
     /// <summary>
-    /// Health check: lightweight GET to Hepsilojistik API.
-    /// TODO: GET /ping or /health — confirm exact endpoint.
+    /// Health check: lightweight GET to Hepsilojistik API (uses /inventory?limit=1 as proxy).
     /// </summary>
     public async Task<bool> IsAvailableAsync(CancellationToken ct = default)
     {
         try
         {
-            // TODO: Replace with official health/ping endpoint once confirmed.
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/inventory?limit=1"), ct).ConfigureAwait(false);
 

@@ -15,5 +15,5 @@ public sealed class ApiKeyOptions
     public string[] ValidApiKeys { get; set; } = [];
 
     /// <summary>Paths that bypass API key check.</summary>
-    public string[] BypassPaths { get; set; } = ["/health", "/metrics", "/api/mesa/status"];
+    public string[] BypassPaths { get; set; } = ["/health", "/metrics", "/api/mesa/status", "/api/webhooks", "/hubs"];
 }

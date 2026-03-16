@@ -22,6 +22,9 @@ public sealed class EbaySettlementParser : ISettlementParser
     private List<EbayTransaction>? _cachedTransactions;
     private string? _rawFileHash;
 
+    // Placeholder tenant ID used when caller hasn't set one yet (will be overwritten by command handler)
+    private static readonly Guid PlaceholderTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     public string Platform => "eBay";
 
     public EbaySettlementParser(ILogger<EbaySettlementParser> logger)
@@ -61,7 +64,7 @@ public sealed class EbaySettlementParser : ISettlementParser
             _logger.LogWarning("[EbaySettlementParser] Empty or null response, creating empty batch");
 
             return SettlementBatch.Create(
-                tenantId: Guid.Empty,
+                tenantId: PlaceholderTenantId,
                 platform: Platform,
                 periodStart: DateTime.UtcNow.Date,
                 periodEnd: DateTime.UtcNow.Date,
@@ -91,7 +94,7 @@ public sealed class EbaySettlementParser : ISettlementParser
         var periodEnd = dates.Count > 0 ? dates.Max() : DateTime.UtcNow.Date;
 
         var batch = SettlementBatch.Create(
-            tenantId: Guid.Empty, // Will be set by the caller/command handler
+            tenantId: PlaceholderTenantId, // Will be set by the caller/command handler
             platform: Platform,
             periodStart: periodStart,
             periodEnd: periodEnd,

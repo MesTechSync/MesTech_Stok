@@ -93,6 +93,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IEInvoiceDocumentRepository, EInvoiceDocumentRepository>();
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
+        services.AddScoped<ISyncLogRepository, SyncLogRepository>();
 
         // CRM Repositories (Dalga 8)
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
@@ -140,6 +141,17 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<StockCalculationService>();
         services.AddSingleton<PricingService>();
         services.AddSingleton<BarcodeValidationService>();
+        services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
+
+        // Notification + ERP Repositories
+        services.AddScoped<MesTech.Application.Interfaces.INotificationLogRepository,
+            MesTech.Infrastructure.Persistence.Repositories.NotificationLogRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Erp.IErpSyncLogRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Erp.ErpSyncLogRepository>();
+
+        // Message Publisher (MassTransit wrapper)
+        services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,
+            MesTech.Infrastructure.Messaging.MassTransitMessagePublisher>();
 
         // Encryption
         var encryptionKey = configuration["Security:EncryptionKey"]
@@ -247,6 +259,9 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IExcelImportService, ExcelImportService>();
         services.AddScoped<IExcelExportService, ExcelExportService>();
 
+        // Generic Report Export (Excel + CSV) — G-03e
+        services.AddScoped<IReportExportService, ReportExportService>();
+
         // CRM-Order Kopru Servisi (Dalga 8 H27)
         services.AddScoped<ICrmOrderBridgeService, CrmOrderBridgeService>();
 
@@ -262,6 +277,12 @@ public static class InfrastructureServiceRegistration
                 .Build();
         });
         services.AddScoped<IDocumentStorageService, MinioDocumentStorageService>();
+
+        // === Sandbox Test Runner (G-05a: adapter connectivity testing) ===
+        services.AddScoped<ISandboxTestRunner, SandboxTestRunner>();
+
+        // === Webhook Receiver + SignalR Real-Time (G-01 + G-02) ===
+        services.AddWebhookServices();
 
         // === Integration Layer (Adapters, Factory, Orchestrator) ===
         services.AddIntegrationServices();
@@ -378,6 +399,7 @@ public static class InfrastructureServiceRegistration
 
         // ── Domain Services (somut sınıflar — handler'lar doğrudan enjekte eder) ──
         services.AddScoped<MesTech.Domain.Accounting.Services.BalanceSheetValidationService>();
+        services.AddScoped<MesTech.Domain.Accounting.Services.TrialBalanceValidationService>();
 
         // ── Application Services ──
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IFifoCostCalculationService,
