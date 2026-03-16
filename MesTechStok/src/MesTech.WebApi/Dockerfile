@@ -1,11 +1,11 @@
 # ─────────────────────────────────────────────────────────────
 # MesTech WebAPI — Multi-stage Docker build (Production)
 # Target: Coolify / Docker Compose deployment on port 5100
-# Base: .NET 10.0 SDK (build) + ASP.NET 10.0 Runtime (run)
+# Base: .NET 9.0 SDK (build) + ASP.NET 9.0 Runtime (run)
 # ─────────────────────────────────────────────────────────────
 
 # ── Stage 1: Restore (layer-cached) ──
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /src
 
 # Copy solution and build props first for optimal layer caching
@@ -41,7 +41,7 @@ RUN dotnet publish src/MesTech.WebApi/MesTech.WebApi.csproj \
     /p:UseAppHost=false
 
 # ── Stage 3: Runtime (minimal attack surface) ──
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
 WORKDIR /app
 
 # Security: run as non-root user

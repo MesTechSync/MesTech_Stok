@@ -27,6 +27,7 @@ using Cal = MesTech.Infrastructure.Persistence.Repositories.Calendar;
 using FinanceRepo = MesTech.Infrastructure.Persistence.Repositories.Finance;
 using Hr = MesTech.Infrastructure.Persistence.Repositories.Hr;
 using Docs = MesTech.Infrastructure.Persistence.Repositories.Documents;
+using AccountingRepo = MesTech.Infrastructure.Persistence.Accounting.Repositories;
 using MesTech.Infrastructure.Realtime;
 using MesTech.Infrastructure.Security;
 using MesTech.Infrastructure.Services;
@@ -93,9 +94,6 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
-        // Accounting Repositories (Dalga 14 M2)
-        services.AddScoped<IPlatformCommissionRepository, PlatformCommissionRepository>();
-
         // CRM Repositories (Dalga 8)
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
         services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
@@ -117,6 +115,14 @@ public static class InfrastructureServiceRegistration
 
         // Dropshipping Pool Repository (Sprint-B)
         services.AddScoped<IDropshippingPoolRepository, DropshippingPoolRepository>();
+
+        // Dropshipping Domain Repositories (Dalga 4)
+        services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipProductRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Dropshipping.DropshipProductRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipOrderRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Dropshipping.DropshipOrderRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipSupplierRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Dropshipping.DropshipSupplierRepository>();
 
         // Dropshipping Feed Repositories + Services (Sprint-D — Dalga 8)
         services.AddScoped<MesTech.Domain.Interfaces.ISupplierFeedRepository, SupplierFeedRepository>();
@@ -369,6 +375,21 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ProfitReportRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingSupplierAccountRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingSupplierAccountRepository>();
+
+        // ── Domain Services (somut sınıflar — handler'lar doğrudan enjekte eder) ──
+        services.AddScoped<MesTech.Domain.Accounting.Services.BalanceSheetValidationService>();
+
+        // ── Application Services ──
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IFifoCostCalculationService,
+            MesTech.Application.Services.Accounting.FifoCostCalculationService>();
+
+        // ── PlatformCommission Repository ──
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IPlatformCommissionRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.PlatformCommissionRepository>();
+
+        // ── StockSplit / Fulfillment Stock Service ──
+        services.AddScoped<MesTech.Application.Interfaces.IStockSplitService,
+            MesTech.Infrastructure.Services.StockSplitService>();
 
         // ── VUK WORM Document Store (MUH-03) ──
         services.AddScoped<IImmutableDocumentStore,

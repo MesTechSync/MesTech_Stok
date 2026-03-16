@@ -1,5 +1,6 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using MesTech.Domain.Common;
+using MesTech.Domain.Dropshipping.Entities;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
 using MesTech.Domain.Entities.EInvoice;
@@ -104,8 +105,12 @@ public class AppDbContext : DbContext
     public DbSet<AccountTransaction> AccountTransactions => Set<AccountTransaction>();
     public DbSet<PlatformCommission> PlatformCommissions => Set<PlatformCommission>();
     public DbSet<PlatformPayment> PlatformPayments => Set<PlatformPayment>();
+    public DbSet<ProductWarehouseStock> ProductWarehouseStocks => Set<ProductWarehouseStock>();
 
     // ── Dalga 4: Dropshipping ──
+    public DbSet<DropshipSupplier> DropshipSuppliers => Set<DropshipSupplier>();
+    public DbSet<DropshipProduct> DropshipProducts => Set<DropshipProduct>();
+    public DbSet<DropshipOrder> DropshipOrders => Set<DropshipOrder>();
     public DbSet<SupplierFeed> SupplierFeeds => Set<SupplierFeed>();
 
     // ── Dalga 8: Dropshipping Pool ──

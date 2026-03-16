@@ -32,6 +32,7 @@
     <PackageReference Include="MassTransit.RabbitMQ" />
     <!-- GHSA-5crp fix: MassTransit pulls Newtonsoft.Json 11.0.1 transitively; pin to 13.0.3 via CPM -->
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.Core" />
     <PackageReference Include="Hangfire.PostgreSql" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />

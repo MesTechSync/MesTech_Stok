@@ -1,4 +1,4 @@
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.PostgreSql;
 using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
@@ -16,18 +16,27 @@ public static class HangfireConfig
         var connectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
 
-        // Hangfire storage + server
+        // Hangfire DI servisleri (IBackgroundJobClient, IRecurringJobManager, vb.)
         if (!string.IsNullOrEmpty(connectionString) &&
             connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
         {
-            GlobalConfiguration.Configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UsePostgreSqlStorage(options =>
-                {
-                    options.UseNpgsqlConnection(connectionString);
-                });
+            services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                      .UseSimpleAssemblyNameTypeSerializer()
+                      .UseRecommendedSerializerSettings()
+                      .UsePostgreSqlStorage(options =>
+                      {
+                          options.UseNpgsqlConnection(connectionString);
+                      }));
+            services.AddHangfireServer();
+        }
+        else
+        {
+            // PostgreSQL yoksa sadece IBackgroundJobClient DI kaydını yap; server başlatılmaz.
+            services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                      .UseSimpleAssemblyNameTypeSerializer()
+                      .UseRecommendedSerializerSettings());
         }
 
         // Job'lari register et
