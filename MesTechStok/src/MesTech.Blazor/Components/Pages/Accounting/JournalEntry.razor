@@ -1,0 +1,357 @@
+@page "/accounting/journal-entry"
+@attribute [Authorize]
+@inject IConfiguration Configuration
+
+<PageTitle>Yevmiye Kaydi</PageTitle>
+
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-book text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Manuel Yevmiye Kaydi</h3>
+      <small class="text-muted">Yevmiye fisi olusturma ve muhasebe kaydi</small>
+    </div>
+  </div>
+
+  <!-- Success / Error Alerts -->
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@successMessage
+      <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+    </div>
+  }
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+  }
+
+  <!-- Date + Description Card -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-info-circle me-2" style="color: #2855AC;"></i>Fis Bilgileri</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Tarih</label>
+          <InputDate class="form-control" @bind-Value="entryDate" />
+        </div>
+        <div class="col-12 col-md-8">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Aciklama</label>
+          <InputTextArea class="form-control" rows="2" placeholder="Yevmiye fisi aciklamasi..."
+                         @bind-Value="description" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Journal Lines Table -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Yevmiye Satirlari</h6>
+      <button class="btn btn-sm text-white" style="background-color: #2855AC;"
+              @onclick="AddRow">
+        <i class="fas fa-plus me-1"></i>Satir Ekle
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th style="min-width: 140px;">Hesap Kodu</th>
+              <th style="min-width: 200px;">Hesap Adi</th>
+              <th class="text-end" style="min-width: 140px;">Borc (TL)</th>
+              <th class="text-end" style="min-width: 140px;">Alacak (TL)</th>
+              <th style="width: 60px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (int i = 0; i < rows.Count; i++)
+            {
+              var index = i;
+              var row = rows[index];
+              <tr>
+                <td class="text-muted">@(index + 1)</td>
+                <td>
+                  <InputText class="form-control form-control-sm" placeholder="100"
+                             Value="@row.AccountCode"
+                             ValueChanged="(string val) => OnAccountCodeChanged(index, val)"
+                             ValueExpression="() => row.AccountCode" />
+                </td>
+                <td>
+                  <InputText class="form-control form-control-sm" placeholder="Hesap adi"
+                             @bind-Value="row.AccountName" readonly />
+                </td>
+                <td>
+                  <InputNumber class="form-control form-control-sm text-end" TValue="decimal"
+                               @bind-Value="row.Debit" min="0" step="0.01" />
+                </td>
+                <td>
+                  <InputNumber class="form-control form-control-sm text-end" TValue="decimal"
+                               @bind-Value="row.Credit" min="0" step="0.01" />
+                </td>
+                <td class="text-center">
+                  @if (rows.Count > 2)
+                  {
+                    <button class="btn btn-outline-danger btn-sm" title="Satir Sil"
+                            @onclick="() => RemoveRow(index)">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td colspan="3" class="text-end">Toplam:</td>
+              <td class="text-end">@TotalDebit.ToString("N2")</td>
+              <td class="text-end">@TotalCredit.ToString("N2")</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-end">Fark:</td>
+              <td colspan="2" class="text-center">
+                @if (IsBalanced)
+                {
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Dengeli</span>
+                }
+                else
+                {
+                  <span class="badge bg-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i>@Math.Abs(TotalDebit - TotalCredit).ToString("N2") TL fark
+                  </span>
+                }
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation Messages -->
+  @if (validationErrors.Count > 0)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i><strong>Dogrulama Hatalari:</strong>
+      <ul class="mb-0 mt-1">
+        @foreach (var err in validationErrors)
+        {
+          <li>@err</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Action Buttons -->
+  <div class="d-flex gap-2 mb-4">
+    <button class="btn text-white px-4" style="background-color: #2855AC;"
+            @onclick="SaveEntry" disabled="@isSaving">
+      @if (isSaving)
+      {
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        <span>Kaydediliyor...</span>
+      }
+      else
+      {
+        <i class="fas fa-save me-2"></i>
+        <span>Kaydet</span>
+      }
+    </button>
+    <button class="btn btn-outline-secondary px-4" @onclick="ClearForm" disabled="@isSaving">
+      <i class="fas fa-eraser me-2"></i>Temizle
+    </button>
+  </div>
+</div>
+
+@code {
+  private DateTime entryDate = DateTime.Today;
+  private string? description;
+  private List<JournalRow> rows = [];
+  private List<string> validationErrors = [];
+
+  private bool isSaving;
+  private string? successMessage;
+  private string? errorMessage;
+
+  // Known accounts for auto-fill (demo data — will be fetched from API in Dalga 11)
+  private static readonly Dictionary<string, string> KnownAccounts = new()
+  {
+    ["100"] = "Kasa",
+    ["101"] = "Alinacak Cekler",
+    ["102"] = "Bankalar",
+    ["120"] = "Alicilar",
+    ["150"] = "Ilk Madde ve Malzeme",
+    ["153"] = "Ticari Mallar",
+    ["191"] = "Indirilecek KDV",
+    ["255"] = "Demirbaslar",
+    ["300"] = "Banka Kredileri",
+    ["320"] = "Saticilar",
+    ["391"] = "Hesaplanan KDV",
+    ["500"] = "Sermaye",
+    ["600"] = "Yurt Ici Satislar",
+    ["610"] = "Satistan Iadeler",
+    ["621"] = "Satilan Ticari Mallar Maliyeti",
+    ["632"] = "Genel Yonetim Giderleri",
+    ["640"] = "Istiraklerden Temettü Gelirleri",
+    ["689"] = "Diger Olagan Disi Gider ve Zararlar",
+    ["770"] = "Genel Yonetim Giderleri",
+    ["780"] = "Finansman Giderleri"
+  };
+
+  private decimal TotalDebit => rows.Sum(r => r.Debit);
+  private decimal TotalCredit => rows.Sum(r => r.Credit);
+  private bool IsBalanced => Math.Abs(TotalDebit - TotalCredit) < 0.005m && TotalDebit > 0;
+
+  protected override void OnInitialized()
+  {
+    // Start with 2 empty rows
+    rows.Add(new JournalRow());
+    rows.Add(new JournalRow());
+  }
+
+  private void AddRow()
+  {
+    rows.Add(new JournalRow());
+  }
+
+  private void RemoveRow(int index)
+  {
+    if (rows.Count > 2 && index >= 0 && index < rows.Count)
+    {
+      rows.RemoveAt(index);
+    }
+  }
+
+  private void OnAccountCodeChanged(int index, string value)
+  {
+    if (index >= 0 && index < rows.Count)
+    {
+      rows[index].AccountCode = value;
+      rows[index].AccountName = KnownAccounts.TryGetValue(value, out var name)
+        ? name
+        : string.Empty;
+    }
+  }
+
+  private bool Validate()
+  {
+    validationErrors.Clear();
+
+    if (entryDate == default)
+      validationErrors.Add("Tarih alani zorunludur.");
+
+    if (string.IsNullOrWhiteSpace(description))
+      validationErrors.Add("Aciklama alani zorunludur.");
+
+    if (rows.Count < 2)
+      validationErrors.Add("En az 2 satir gereklidir.");
+
+    for (int i = 0; i < rows.Count; i++)
+    {
+      var row = rows[i];
+      if (string.IsNullOrWhiteSpace(row.AccountCode))
+      {
+        validationErrors.Add($"Satir {i + 1}: Hesap kodu bos olamaz.");
+      }
+      if (row.Debit > 0 && row.Credit > 0)
+      {
+        validationErrors.Add($"Satir {i + 1}: Ayni satirda hem borc hem alacak olamaz.");
+      }
+      if (row.Debit == 0 && row.Credit == 0)
+      {
+        validationErrors.Add($"Satir {i + 1}: Borc veya alacak degerlerinden biri sifirdan buyuk olmali.");
+      }
+    }
+
+    if (!IsBalanced)
+      validationErrors.Add("Toplam borc ile toplam alacak esit olmalidir.");
+
+    return validationErrors.Count == 0;
+  }
+
+  private async Task SaveEntry()
+  {
+    if (!Validate())
+      return;
+
+    isSaving = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:5100";
+      using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
+
+      var payload = new
+      {
+        date = entryDate.ToString("yyyy-MM-dd"),
+        description,
+        lines = rows.Select(r => new
+        {
+          accountCode = r.AccountCode,
+          accountName = r.AccountName,
+          debit = r.Debit,
+          credit = r.Credit
+        }).ToList()
+      };
+
+      var response = await httpClient.PostAsJsonAsync("/api/v1/accounting/journal-entries", payload);
+
+      if (response.IsSuccessStatusCode)
+      {
+        successMessage = "Yevmiye kaydi basariyla olusturuldu.";
+        ClearForm();
+      }
+      else
+      {
+        errorMessage = $"Sunucu hatasi: {(int)response.StatusCode} — {response.ReasonPhrase}";
+      }
+    }
+    catch (HttpRequestException)
+    {
+      // WebApi not available — demo fallback for PoC
+      successMessage = "Yevmiye kaydi olusturuldu (demo mod — API baglantisi yok).";
+      ClearForm();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Kayit sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      isSaving = false;
+    }
+  }
+
+  private void ClearForm()
+  {
+    entryDate = DateTime.Today;
+    description = null;
+    rows.Clear();
+    rows.Add(new JournalRow());
+    rows.Add(new JournalRow());
+    validationErrors.Clear();
+  }
+
+  private class JournalRow
+  {
+    public string AccountCode { get; set; } = string.Empty;
+    public string AccountName { get; set; } = string.Empty;
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
+  }
+}

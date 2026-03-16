@@ -716,7 +716,8 @@
                 Grid.Row="0"
                 Grid.RowSpan="4"
                 Background="#99FFFFFF"
-                Visibility="Collapsed">
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True"
@@ -730,12 +731,35 @@
             </StackPanel>
         </Border>
 
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Grid.Row="0"
+                Grid.RowSpan="4"
+                Background="#F8FAFC"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Opacity="0.5"
+                        Margin="0,0,0,8"/>
+                <TextBlock Text="Veri yok"
+                        FontSize="16"
+                        Foreground="#64748B"
+                        HorizontalAlignment="Center"
+                        Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border x:Name="ErrorState"
                 Grid.Row="0"
                 Grid.RowSpan="4"
                 Background="#F8FAFC"
-                Visibility="Collapsed">
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
             <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center">
                 <TextBlock Text="&#x26A0;"

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MesTechStok.Desktop.Services;
 using MesTechStok.Desktop.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,7 @@ namespace MesTechStok.Desktop.Views
         #region Private Fields
 
         private readonly MesTechStok.Desktop.Services.IInventoryDataService _inventoryService;
+        private readonly ILogger<InventoryView>? _logger;
         private readonly ObservableCollection<MesTechStok.Desktop.Services.InventoryItem> _displayedInventory;
         private string _searchText = string.Empty;
         private string _scannedBarcode = string.Empty;
@@ -107,6 +109,7 @@ namespace MesTechStok.Desktop.Views
         {
             // H31: IInventoryDataService resolved from DI (registered in App.xaml.cs)
             _inventoryService = MesTechStok.Desktop.App.Services!.GetRequiredService<MesTechStok.Desktop.Services.IInventoryDataService>();
+            _logger = MesTechStok.Desktop.App.Services!.GetService<ILogger<InventoryView>>();
             _displayedInventory = new ObservableCollection<MesTechStok.Desktop.Services.InventoryItem>();
 
             InitializeComponent();
@@ -364,7 +367,7 @@ namespace MesTechStok.Desktop.Views
                 if (!svc.IsConnected) await svc.ConnectAsync();
                 await svc.StartScanningAsync();
                 try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.LimeGreen; BarcodeListenText.Text = "Aktif"; }
-                catch { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ }
+                catch (Exception ex) { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(InventoryView), "UI status indicator update — element may not be found during rapid toggle", ex.Message); }
                 ToastManager.ShowInfo("Barkod dinleme aktif", "Barkod");
             }
             catch
@@ -384,7 +387,7 @@ namespace MesTechStok.Desktop.Views
                 svc.BarcodeScanned -= Inventory_BarcodeScanned;
                 await svc.DisconnectAsync();
                 try { BarcodeListenDot.Fill = System.Windows.Media.Brushes.Gray; BarcodeListenText.Text = "Kapalı"; }
-                catch { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ }
+                catch (Exception ex) { /* Intentional: UI status indicator update — element may not be found during rapid toggle. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(InventoryView), "UI status indicator update — element may not be found during rapid toggle", ex.Message); }
                 ToastManager.ShowInfo("Barkod dinleme kapalı", "Barkod");
             }
             catch
@@ -430,10 +433,22 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
+                ShowLoading();
+
                 await SetupAuthorizationsAsync();
                 await LoadInventoryPageAsync();
                 await UpdateStatisticsAsync();
                 await LoadRecentMovementsAsync();
+
+                // Check if there are no items to show empty state
+                if (_displayedInventory.Count == 0)
+                {
+                    ShowEmpty();
+                }
+                else
+                {
+                    HideAllStates();
+                }
 
                 GlobalLogger.Instance.LogInfo("Enhanced InventoryView başlatıldı", "InventoryView");
                 ToastManager.ShowSuccess("📦 Stok sistemi başarıyla yüklendi!", "Stok Takip");
@@ -441,7 +456,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"InventoryView başlatma hatası: {ex.Message}", "InventoryView");
-                ToastManager.ShowError("❌ Stok sistemi yüklenirken hata oluştu!", "Hata");
+                ShowError($"Stok sistemi yüklenirken hata oluştu: {ex.Message}");
             }
         }
 
@@ -477,7 +492,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"Stok sayfası yükleme hatası: {ex.Message}", "InventoryView");
-                ToastManager.ShowError("❌ Stok verileri yüklenirken hata oluştu!", "Hata");
+                ShowError($"Stok verileri yüklenirken hata oluştu: {ex.Message}");
             }
         }
 
@@ -612,6 +627,45 @@ namespace MesTechStok.Desktop.Views
             {
                 // Animation resource not found, ignore
             }
+        }
+
+        #endregion
+
+        #region Loading/Empty/Error State Helpers
+
+        private void ShowLoading()
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Visible;
+            ErrorMessage.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllStates();
+            _ = InitializeAsync();
         }
 
         #endregion

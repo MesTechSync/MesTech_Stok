@@ -6,12 +6,67 @@
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
         <Border Grid.Row="0" Background="#2563EB" Padding="20,14">
-            <TextBlock Text="Envanter" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Envanter" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" x:Name="RetryButton"
+                        Background="White" Foreground="#2563EB" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
+
+        <!-- Main Content -->
+        <Border x:Name="ContentArea" Grid.Row="1" Background="White" CornerRadius="12"
+                Margin="22" Padding="24"
                 BorderBrush="#E0E6ED" BorderThickness="1">
             <TextBlock Text="Avalonia port — Envanter" FontSize="14" Foreground="#64748B"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.Row="0" Grid.RowSpan="2"
+                Background="#80000000"
+                IsVisible="False"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Envanter verileri yukleniyor..."
+                           FontSize="14" Foreground="White"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="False"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Envanter bos" FontSize="48"
+                           HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
+                <TextBlock Text="Henuz envanter verisi bulunamadi"
+                           FontSize="16" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="False"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock x:Name="ErrorText"
+                           Text="Envanter yuklenemedi"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" x:Name="RetryErrorButton"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

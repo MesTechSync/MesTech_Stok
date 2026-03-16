@@ -2154,9 +2154,42 @@ namespace MesTechStok.Desktop.Views
 
         private async void RetryProducts_Click(object sender, RoutedEventArgs e)
         {
-            ProductsErrorState.Visibility = Visibility.Collapsed;
+            HideAllStates();
             await LoadProductsAsync();
         }
+
+        #region Loading/Empty/Error State Helpers
+
+        private void ShowLoading()
+        {
+            BusyOverlay.Visibility = Visibility.Visible;
+            ProductsEmptyState.Visibility = Visibility.Collapsed;
+            ProductsErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            BusyOverlay.Visibility = Visibility.Collapsed;
+            ProductsEmptyState.Visibility = Visibility.Visible;
+            ProductsErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            BusyOverlay.Visibility = Visibility.Collapsed;
+            ProductsEmptyState.Visibility = Visibility.Collapsed;
+            ProductsErrorState.Visibility = Visibility.Visible;
+            ProductsErrorText.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            BusyOverlay.Visibility = Visibility.Collapsed;
+            ProductsEmptyState.Visibility = Visibility.Collapsed;
+            ProductsErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion
     }
 
 

@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 
 <div class="d-flex" style="min-height: 100vh;">
   <!-- Sidebar overlay for mobile -->
@@ -31,9 +33,9 @@
             <small class="text-muted" style="font-size: 0.7rem;">Yonetici</small>
           </div>
         </div>
-        <a href="login" class="btn btn-outline-secondary btn-sm" title="Cikis Yap">
+        <button class="btn btn-outline-secondary btn-sm" title="Cikis Yap" @onclick="HandleLogout">
           <i class="fas fa-sign-out-alt"></i>
-        </a>
+        </button>
       </div>
     </div>
     <div class="p-2 p-md-4">
@@ -53,9 +55,23 @@
   private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
   private void CloseSidebar() => sidebarOpen = false;
 
+  private void HandleLogout()
+  {
+    // Clear JWT auth state
+    AuthStateProvider.MarkUserAsLoggedOut();
+    // Clear legacy AuthTokenStore for backward compatibility
+    MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Token = null;
+    MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Username = null;
+    Navigation.NavigateTo("/login", forceLoad: false);
+  }
+
   private string GetUsername()
   {
-    // Check in-memory auth token store from Login page
+    // Prefer JwtAuthenticationStateProvider, fall back to legacy AuthTokenStore
+    if (AuthStateProvider.IsAuthenticated)
+    {
+      return AuthStateProvider.Username ?? "Kullanici";
+    }
     if (MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.IsAuthenticated)
     {
       return MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Username ?? "Kullanici";

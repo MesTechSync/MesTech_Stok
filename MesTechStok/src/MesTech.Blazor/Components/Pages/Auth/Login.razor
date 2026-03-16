@@ -2,6 +2,7 @@
 @layout MesTech.Blazor.Components.Layout.LoginLayout
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
 
 <div class="login-container d-flex align-items-center justify-content-center" style="min-height: 100vh; background: linear-gradient(135deg, #1a2332 0%, #2855AC 100%);">
   <div class="card shadow-lg border-0" style="width: 420px; border-radius: 16px;">
@@ -112,9 +113,11 @@
         var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
         if (result?.Token is not null)
         {
-          // Store token in-memory (localStorage integration in Dalga 11)
+          var username = loginModel.Username ?? result.Username ?? "Kullanici";
+          AuthStateProvider.MarkUserAsAuthenticated(result.Token, username);
+          // Keep AuthTokenStore in sync for backward compatibility (MainLayout, etc.)
           AuthTokenStore.Token = result.Token;
-          AuthTokenStore.Username = loginModel.Username;
+          AuthTokenStore.Username = username;
           Navigation.NavigateTo("/dashboard", forceLoad: false);
         }
         else
@@ -134,8 +137,11 @@
     catch (HttpRequestException)
     {
       // WebApi not available — allow demo mode for PoC
+      var username = loginModel.Username ?? "Demo";
+      AuthStateProvider.MarkUserAsAuthenticated("demo-token", username);
+      // Keep AuthTokenStore in sync for backward compatibility
       AuthTokenStore.Token = "demo-token";
-      AuthTokenStore.Username = loginModel.Username ?? "Demo";
+      AuthTokenStore.Username = username;
       Navigation.NavigateTo("/dashboard", forceLoad: false);
     }
     catch (Exception ex)

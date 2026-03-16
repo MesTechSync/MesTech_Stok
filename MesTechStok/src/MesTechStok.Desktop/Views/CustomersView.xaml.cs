@@ -187,6 +187,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 // Start with loading indicator
+                ShowLoading();
                 IsLoading = true;
 
                 // Load initial data
@@ -198,13 +199,22 @@ namespace MesTechStok.Desktop.Views
                 // Start auto-refresh
                 StartAutoRefresh();
 
-                GlobalLogger.Instance.LogInfo("Enhanced CustomersView başarıyla başlatıldı - A+++++ kalite", "CustomersView");
-                ToastManager.ShowSuccess("👥 Gelişmiş müşteri sistemi başarıyla yüklendi! ⚡", "Müşteri Yönetimi");
+                if (_displayedCustomers.Count == 0)
+                {
+                    ShowEmpty();
+                }
+                else
+                {
+                    HideAllStates();
+                }
+
+                GlobalLogger.Instance.LogInfo("Enhanced CustomersView başarıyla başlatıldı", "CustomersView");
+                ToastManager.ShowSuccess("Müşteri sistemi başarıyla yüklendi!", "Müşteri Yönetimi");
             }
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"CustomersView başlatma hatası: {ex.Message}", "CustomersView");
-                ToastManager.ShowError("❌ Müşteri sistemi yüklenirken hata oluştu!", "Hata");
+                ShowError($"Müşteri sistemi yüklenirken hata oluştu: {ex.Message}");
             }
             finally
             {
@@ -604,6 +614,45 @@ namespace MesTechStok.Desktop.Views
             _searchTimer?.Stop();
             _refreshTimer?.Stop();
             GlobalLogger.Instance.LogInfo("CustomersView disposed", "CustomersView");
+        }
+
+        #endregion
+
+        #region L/E/E State Helpers
+
+        private void ShowLoading()
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Visible;
+            ErrorMessage.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllStates();
+            _ = InitializeAsync();
         }
 
         #endregion

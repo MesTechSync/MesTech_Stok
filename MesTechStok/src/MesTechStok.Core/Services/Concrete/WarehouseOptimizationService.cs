@@ -9,64 +9,118 @@ namespace MesTechStok.Core.Services.Concrete
 {
     /// <summary>
     /// Depo optimizasyon servisi.
-    /// Dalga 3'te gerçek optimizasyon algoritmaları implement edilecek.
-    /// Şu an Desktop uygulaması MockWarehouseOptimizationService kullanıyor.
+    /// Dalga 3'te gercek optimizasyon algoritmalari implement edilecek.
+    /// Su an Desktop uygulamasi MockWarehouseOptimizationService kullaniyor.
+    /// Bu sinif log + return null/empty seklinde guvenli fallback saglar.
     /// </summary>
     public class WarehouseOptimizationService : IWarehouseOptimizationService
     {
-        private const string DeferredMessage =
-            "WarehouseOptimizationService Dalga 3'te implement edilecek — depo optimizasyonu modülü.";
-
-        private readonly ILogger<WarehouseOptimizationService> _logger;
+        private const string DeferredTag = "WarehouseOptimizationService";
+        private readonly ILogger<WarehouseOptimizationService>? _logger;
 
         public WarehouseOptimizationService(ILogger<WarehouseOptimizationService> logger)
         {
             _logger = logger;
         }
 
+        // ── Location Suggestions ──
+
         public Task<List<SmartLocationSuggestion>> GetOptimalLocationSuggestionsAsync(Guid productId, int quantity)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetOptimalLocationSuggestionsAsync: not yet implemented, returning empty list", DeferredTag);
+            return Task.FromResult(new List<SmartLocationSuggestion>());
+        }
 
         public Task<List<SmartLocationSuggestion>> GetBulkLocationSuggestionsAsync(List<BulkLocationRequest> requests)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetBulkLocationSuggestionsAsync: not yet implemented, returning empty list. Count={Count}", DeferredTag, requests?.Count ?? 0);
+            return Task.FromResult(new List<SmartLocationSuggestion>());
+        }
+
+        // ── Scoring & Reports ──
 
         public Task<LocationOptimizationScore> CalculateLocationOptimizationScoreAsync(Guid binId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.CalculateLocationOptimizationScoreAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<LocationOptimizationScore>(null!);
+        }
 
         public Task<WarehouseEfficiencyReport> GetWarehouseEfficiencyReportAsync(Guid warehouseId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetWarehouseEfficiencyReportAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<WarehouseEfficiencyReport>(null!);
+        }
 
         public Task<ZoneEfficiencyReport> GetZoneEfficiencyReportAsync(int zoneId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetZoneEfficiencyReportAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<ZoneEfficiencyReport>(null!);
+        }
 
         public Task<RackEfficiencyReport> GetRackEfficiencyReportAsync(int rackId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetRackEfficiencyReportAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<RackEfficiencyReport>(null!);
+        }
+
+        // ── Optimization Recommendations ──
 
         public Task<List<OptimizationRecommendation>> GetOptimizationRecommendationsAsync(Guid warehouseId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetOptimizationRecommendationsAsync: not yet implemented, returning empty list", DeferredTag);
+            return Task.FromResult(new List<OptimizationRecommendation>());
+        }
 
         public Task<OptimizationImpact> CalculateOptimizationImpactAsync(OptimizationAction action)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.CalculateOptimizationImpactAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<OptimizationImpact>(null!);
+        }
 
         public Task<bool> ApplyOptimizationActionAsync(OptimizationAction action)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.ApplyOptimizationActionAsync: not yet implemented, returning false", DeferredTag);
+            return Task.FromResult(false);
+        }
+
+        // ── Capacity Planning ──
 
         public Task<CapacityPlanningReport> GetCapacityPlanningReportAsync(Guid warehouseId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetCapacityPlanningReportAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<CapacityPlanningReport>(null!);
+        }
 
         public Task<List<CapacityAlert>> GetCapacityAlertsAsync(Guid warehouseId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetCapacityAlertsAsync: not yet implemented, returning empty list", DeferredTag);
+            return Task.FromResult(new List<CapacityAlert>());
+        }
 
         public Task<CapacityForecast> GetCapacityForecastAsync(Guid warehouseId, int monthsAhead)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetCapacityForecastAsync: not yet implemented, returning null. MonthsAhead={Months}", DeferredTag, monthsAhead);
+            return Task.FromResult<CapacityForecast>(null!);
+        }
+
+        // ── Analytics ──
 
         public Task<LocationHeatmap> GetLocationHeatmapAsync(Guid warehouseId)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetLocationHeatmapAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<LocationHeatmap>(null!);
+        }
 
         public Task<MovementPatternAnalysis> GetMovementPatternAnalysisAsync(Guid warehouseId, DateTime? fromDate = null, DateTime? toDate = null)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetMovementPatternAnalysisAsync: not yet implemented, returning null", DeferredTag);
+            return Task.FromResult<MovementPatternAnalysis>(null!);
+        }
 
         public Task<SpaceUtilizationTrend> GetSpaceUtilizationTrendAsync(Guid warehouseId, int monthsBack = 12)
-            => throw new NotImplementedException(DeferredMessage);
+        {
+            _logger?.LogInformation("{Tag}.GetSpaceUtilizationTrendAsync: not yet implemented, returning null. MonthsBack={Months}", DeferredTag, monthsBack);
+            return Task.FromResult<SpaceUtilizationTrend>(null!);
+        }
     }
 }

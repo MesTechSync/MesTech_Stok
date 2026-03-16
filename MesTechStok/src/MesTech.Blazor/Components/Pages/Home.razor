@@ -1,10 +1,11 @@
 @page "/"
+@attribute [Authorize]
 @inject NavigationManager Navigation
 
 @code {
   protected override void OnInitialized()
   {
-    // Redirect root to dashboard
+    // Redirect root to dashboard (only reached if authenticated)
     Navigation.NavigateTo("/dashboard", replace: true);
   }
 }

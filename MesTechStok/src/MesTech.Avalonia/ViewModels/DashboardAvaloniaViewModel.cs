@@ -18,6 +18,9 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string lowStockCount = "0";
     [ObservableProperty] private string activeCategories = "0";
     [ObservableProperty] private bool isLoading;
+    [ObservableProperty] private bool hasError;
+    [ObservableProperty] private string errorMessage = string.Empty;
+    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string lastUpdated = "--:--";
 
     public DashboardAvaloniaViewModel(IMediator mediator)
@@ -28,6 +31,9 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
     public async Task LoadAsync()
     {
         IsLoading = true;
+        HasError = false;
+        IsEmpty = false;
+        ErrorMessage = string.Empty;
         try
         {
             // Uses same MediatR pipeline as WPF — queries go through Application layer
@@ -40,6 +46,15 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
             LowStockCount = "23";
             ActiveCategories = "18";
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
+
+            // Check empty state
+            if (TotalProducts == "0")
+                IsEmpty = true;
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Dashboard yuklenemedi: {ex.Message}";
         }
         finally
         {

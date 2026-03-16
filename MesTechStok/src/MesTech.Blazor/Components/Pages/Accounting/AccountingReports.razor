@@ -1,0 +1,209 @@
+@page "/accounting/reports"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Muhasebe Raporlari</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-chart-bar text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Muhasebe Raporlari</h3>
+      <small class="text-muted">Mizan, bilanco ve gelir-gider tablosu</small>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link @(_activeTab == "trial-balance" ? "active" : "")"
+              @onclick='() => SetTab("trial-balance")'>
+        <i class="fas fa-balance-scale me-1"></i>Mizan
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link @(_activeTab == "balance-sheet" ? "active" : "")"
+              @onclick='() => SetTab("balance-sheet")'>
+        <i class="fas fa-file-invoice me-1"></i>Bilanco
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link @(_activeTab == "income-statement" ? "active" : "")"
+              @onclick='() => SetTab("income-statement")'>
+        <i class="fas fa-chart-line me-1"></i>Gelir-Gider Tablosu
+      </button>
+    </li>
+  </ul>
+
+  @if (_loading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!string.IsNullOrEmpty(_error))
+    {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@_error
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0">
+          <i class="fas fa-table me-2" style="color: #2855AC;"></i>@GetTabTitle()
+        </h6>
+        <span class="badge bg-secondary">@_reportRows.Count satir</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Hesap Kodu</th>
+                <th>Hesap Adi</th>
+                <th class="text-end">Borc</th>
+                <th class="text-end">Alacak</th>
+                <th class="text-end">Bakiye</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var row in _reportRows)
+              {
+                <tr class="@(row.IsHeader ? "table-light fw-bold" : "")">
+                  <td>@row.HesapKodu</td>
+                  <td>
+                    @if (row.IsHeader)
+                    {
+                      <strong>@row.HesapAdi</strong>
+                    }
+                    else
+                    {
+                      @row.HesapAdi
+                    }
+                  </td>
+                  <td class="text-end">@row.Borc.ToString("N2")</td>
+                  <td class="text-end">@row.Alacak.ToString("N2")</td>
+                  <td class="text-end fw-bold @(row.Bakiye >= 0 ? "text-success" : "text-danger")">
+                    @row.Bakiye.ToString("N2")
+                  </td>
+                </tr>
+              }
+              @if (_reportRows.Count > 0)
+              {
+                <tr class="table-dark fw-bold">
+                  <td colspan="2">TOPLAM</td>
+                  <td class="text-end">@_reportRows.Sum(r => r.Borc).ToString("N2")</td>
+                  <td class="text-end">@_reportRows.Sum(r => r.Alacak).ToString("N2")</td>
+                  <td class="text-end">@_reportRows.Sum(r => r.Bakiye).ToString("N2")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _loading = true;
+  private string? _error;
+  private string _activeTab = "trial-balance";
+  private List<ReportRow> _reportRows = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadReport();
+  }
+
+  private async Task SetTab(string tab)
+  {
+    _activeTab = tab;
+    _loading = true;
+    await LoadReport();
+  }
+
+  private async Task LoadReport()
+  {
+    try
+    {
+      _reportRows = await Http.GetFromJsonAsync<List<ReportRow>>($"/api/v1/accounting/reports/{_activeTab}")
+                    ?? GetDemoData(_activeTab);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _reportRows = GetDemoData(_activeTab);
+      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
+    }
+    finally
+    {
+      _loading = false;
+    }
+  }
+
+  private string GetTabTitle() => _activeTab switch
+  {
+    "trial-balance" => "Mizan",
+    "balance-sheet" => "Bilanco",
+    "income-statement" => "Gelir-Gider Tablosu",
+    _ => "Rapor"
+  };
+
+  private List<ReportRow> GetDemoData(string type) => type switch
+  {
+    "trial-balance" => new()
+    {
+      new() { HesapKodu = "100", HesapAdi = "Kasa", Borc = 45_000m, Alacak = 12_000m, Bakiye = 33_000m },
+      new() { HesapKodu = "102", HesapAdi = "Bankalar", Borc = 284_750m, Alacak = 167_320m, Bakiye = 117_430m },
+      new() { HesapKodu = "120", HesapAdi = "Alicilar", Borc = 56_200m, Alacak = 38_400m, Bakiye = 17_800m },
+      new() { HesapKodu = "153", HesapAdi = "Ticari Mallar", Borc = 120_000m, Alacak = 85_000m, Bakiye = 35_000m },
+      new() { HesapKodu = "320", HesapAdi = "Saticilar", Borc = 42_000m, Alacak = 68_500m, Bakiye = -26_500m },
+      new() { HesapKodu = "600", HesapAdi = "Yurtici Satislar", Borc = 0m, Alacak = 284_750m, Bakiye = -284_750m },
+      new() { HesapKodu = "760", HesapAdi = "Pazarlama Giderleri", Borc = 6_350m, Alacak = 0m, Bakiye = 6_350m },
+      new() { HesapKodu = "770", HesapAdi = "Genel Yonetim Giderleri", Borc = 22_390m, Alacak = 0m, Bakiye = 22_390m },
+    },
+    "balance-sheet" => new()
+    {
+      new() { HesapKodu = "I", HesapAdi = "DONEN VARLIKLAR", Borc = 0m, Alacak = 0m, Bakiye = 203_230m, IsHeader = true },
+      new() { HesapKodu = "100", HesapAdi = "Kasa", Borc = 0m, Alacak = 0m, Bakiye = 33_000m },
+      new() { HesapKodu = "102", HesapAdi = "Bankalar", Borc = 0m, Alacak = 0m, Bakiye = 117_430m },
+      new() { HesapKodu = "120", HesapAdi = "Alicilar", Borc = 0m, Alacak = 0m, Bakiye = 17_800m },
+      new() { HesapKodu = "153", HesapAdi = "Ticari Mallar", Borc = 0m, Alacak = 0m, Bakiye = 35_000m },
+      new() { HesapKodu = "II", HesapAdi = "KISA VADELI BORCLAR", Borc = 0m, Alacak = 0m, Bakiye = -26_500m, IsHeader = true },
+      new() { HesapKodu = "320", HesapAdi = "Saticilar", Borc = 0m, Alacak = 0m, Bakiye = -26_500m },
+      new() { HesapKodu = "III", HesapAdi = "OZKAYNAKLAR", Borc = 0m, Alacak = 0m, Bakiye = -176_730m, IsHeader = true },
+    },
+    "income-statement" => new()
+    {
+      new() { HesapKodu = "A", HesapAdi = "BRUT SATISLAR", Borc = 0m, Alacak = 284_750m, Bakiye = 284_750m, IsHeader = true },
+      new() { HesapKodu = "600", HesapAdi = "Yurtici Satislar", Borc = 0m, Alacak = 284_750m, Bakiye = 284_750m },
+      new() { HesapKodu = "B", HesapAdi = "SATIS MALIYETI", Borc = 138_580m, Alacak = 0m, Bakiye = -138_580m, IsHeader = true },
+      new() { HesapKodu = "621", HesapAdi = "Satilan Ticari Mallar Maliyeti", Borc = 138_580m, Alacak = 0m, Bakiye = -138_580m },
+      new() { HesapKodu = "C", HesapAdi = "FAALIYET GIDERLERI", Borc = 28_740m, Alacak = 0m, Bakiye = -28_740m, IsHeader = true },
+      new() { HesapKodu = "760", HesapAdi = "Pazarlama Giderleri", Borc = 6_350m, Alacak = 0m, Bakiye = -6_350m },
+      new() { HesapKodu = "770", HesapAdi = "Genel Yonetim Giderleri", Borc = 22_390m, Alacak = 0m, Bakiye = -22_390m },
+    },
+    _ => new()
+  };
+
+  private class ReportRow
+  {
+    public string HesapKodu { get; set; } = "";
+    public string HesapAdi { get; set; } = "";
+    public decimal Borc { get; set; }
+    public decimal Alacak { get; set; }
+    public decimal Bakiye { get; set; }
+    public bool IsHeader { get; set; }
+  }
+}

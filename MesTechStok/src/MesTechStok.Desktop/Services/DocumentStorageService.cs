@@ -2,15 +2,18 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace MesTechStok.Desktop.Services
 {
     public class DocumentStorageService
     {
         private readonly string _baseFolder;
+        private readonly ILogger<DocumentStorageService>? _logger;
 
-        public DocumentStorageService()
+        public DocumentStorageService(ILogger<DocumentStorageService>? logger = null)
         {
+            _logger = logger;
             var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _baseFolder = Path.Combine(local, "MesTechStok", "Docs", "Customers");
             Directory.CreateDirectory(_baseFolder);
@@ -55,8 +58,9 @@ namespace MesTechStok.Desktop.Services
                 }
                 return dest;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(DocumentStorageService), "Document save failed");
                 return null;
             }
         }

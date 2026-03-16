@@ -402,5 +402,35 @@
                 </Border>
             </Grid>
         </ScrollViewer>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Background="#F5F7FA"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4E6;" FontSize="48" HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8"/>
+                <TextBlock Text="Siparis bulunamadi" FontSize="16" Foreground="#6C757D"
+                           HorizontalAlignment="Center" Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState"
+                Background="#F5F7FA"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center"
+                           Foreground="#F44336" Margin="0,0,0,8"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14"
+                           Foreground="#F44336" HorizontalAlignment="Center"
+                           Margin="0,0,0,12" TextWrapping="Wrap" MaxWidth="400"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene"
+                        Click="RetryButton_Click"
+                        Padding="12,8" Background="#007ACC" Foreground="White"
+                        BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

@@ -1,0 +1,277 @@
+@page "/accounting/settings"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Hesap Plani</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-sitemap text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Hesap Plani</h3>
+      <small class="text-muted">Hesap kodu tanimlama ve yonetimi</small>
+    </div>
+  </div>
+
+  @if (_loading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!string.IsNullOrEmpty(_error))
+    {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@_error
+      </div>
+    }
+
+    <!-- Add/Edit Form -->
+    @if (_showForm)
+    {
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">
+            <i class="fas fa-@(_editingAccount is not null ? "edit" : "plus") me-2" style="color: #2855AC;"></i>
+            @(_editingAccount is not null ? "Hesap Duzenle" : "Yeni Hesap Ekle")
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-2">
+              <label class="form-label small text-muted">Hesap Kodu</label>
+              <input type="text" class="form-control" @bind="_formCode" placeholder="100" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Hesap Adi</label>
+              <input type="text" class="form-control" @bind="_formName" placeholder="Kasa" />
+            </div>
+            <div class="col-12 col-md-2">
+              <label class="form-label small text-muted">Tur</label>
+              <select class="form-select" @bind="_formType">
+                <option value="Aktif">Aktif</option>
+                <option value="Pasif">Pasif</option>
+                <option value="Gelir">Gelir</option>
+                <option value="Gider">Gider</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-2">
+              <label class="form-label small text-muted">Ust Hesap</label>
+              <input type="text" class="form-control" @bind="_formParent" placeholder="-" />
+            </div>
+            <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+              <button class="btn flex-fill" style="background-color: #2855AC; color: white;" @onclick="SaveAccount">
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+              <button class="btn btn-outline-secondary" @onclick="CancelForm">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Hesap Listesi</h6>
+        <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ShowAddForm">
+          <i class="fas fa-plus me-1"></i>Yeni Hesap
+        </button>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Hesap Kodu</th>
+                <th>Hesap Adi</th>
+                <th>Tur</th>
+                <th>Ust Hesap</th>
+                <th class="text-center" style="width: 120px;">Islemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (_accounts.Count == 0)
+              {
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">Hesap plani bos.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var account in _accounts.OrderBy(a => a.Kod))
+                {
+                  <tr>
+                    <td><code>@account.Kod</code></td>
+                    <td>@account.Ad</td>
+                    <td>
+                      <span class="badge @GetTypeBadgeClass(account.Tur)">@account.Tur</span>
+                    </td>
+                    <td>@(string.IsNullOrEmpty(account.UstHesap) ? "-" : account.UstHesap)</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditAccount(account)" title="Duzenle">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAccount(account)" title="Sil">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _loading = true;
+  private string? _error;
+  private List<AccountItem> _accounts = new();
+
+  // Form state
+  private bool _showForm;
+  private AccountItem? _editingAccount;
+  private string _formCode = "";
+  private string _formName = "";
+  private string _formType = "Aktif";
+  private string _formParent = "";
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      _accounts = await Http.GetFromJsonAsync<List<AccountItem>>("/api/v1/accounting/chart-of-accounts")
+                  ?? GetDemoData();
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _accounts = GetDemoData();
+      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
+    }
+    finally
+    {
+      _loading = false;
+    }
+  }
+
+  private void ShowAddForm()
+  {
+    _editingAccount = null;
+    _formCode = "";
+    _formName = "";
+    _formType = "Aktif";
+    _formParent = "";
+    _showForm = true;
+  }
+
+  private void EditAccount(AccountItem account)
+  {
+    _editingAccount = account;
+    _formCode = account.Kod;
+    _formName = account.Ad;
+    _formType = account.Tur;
+    _formParent = account.UstHesap;
+    _showForm = true;
+  }
+
+  private void CancelForm()
+  {
+    _showForm = false;
+    _editingAccount = null;
+  }
+
+  private async Task SaveAccount()
+  {
+    if (string.IsNullOrWhiteSpace(_formCode) || string.IsNullOrWhiteSpace(_formName))
+      return;
+
+    var account = new AccountItem
+    {
+      Kod = _formCode.Trim(),
+      Ad = _formName.Trim(),
+      Tur = _formType,
+      UstHesap = _formParent.Trim()
+    };
+
+    if (_editingAccount is not null)
+    {
+      _accounts.Remove(_editingAccount);
+    }
+
+    _accounts.Add(account);
+    _showForm = false;
+    _editingAccount = null;
+
+    // Fire-and-forget API call — local state already updated
+    try
+    {
+      await Http.PostAsJsonAsync("/api/v1/accounting/chart-of-accounts", account);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API save error (local state updated): {ex.Message}");
+    }
+  }
+
+  private async Task DeleteAccount(AccountItem account)
+  {
+    _accounts.Remove(account);
+
+    try
+    {
+      await Http.DeleteAsync($"/api/v1/accounting/chart-of-accounts/{account.Kod}");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API delete error (local state updated): {ex.Message}");
+    }
+  }
+
+  private string GetTypeBadgeClass(string tur) => tur switch
+  {
+    "Aktif" => "bg-primary",
+    "Pasif" => "bg-info",
+    "Gelir" => "bg-success",
+    "Gider" => "bg-danger",
+    _ => "bg-secondary"
+  };
+
+  private List<AccountItem> GetDemoData() => new()
+  {
+    new() { Kod = "100", Ad = "Kasa", Tur = "Aktif", UstHesap = "" },
+    new() { Kod = "102", Ad = "Bankalar", Tur = "Aktif", UstHesap = "" },
+    new() { Kod = "120", Ad = "Alicilar", Tur = "Aktif", UstHesap = "" },
+    new() { Kod = "153", Ad = "Ticari Mallar", Tur = "Aktif", UstHesap = "" },
+    new() { Kod = "255", Ad = "Demirbaslar", Tur = "Aktif", UstHesap = "" },
+    new() { Kod = "320", Ad = "Saticilar", Tur = "Pasif", UstHesap = "" },
+    new() { Kod = "360", Ad = "Odenecek Vergiler", Tur = "Pasif", UstHesap = "" },
+    new() { Kod = "500", Ad = "Sermaye", Tur = "Pasif", UstHesap = "" },
+    new() { Kod = "600", Ad = "Yurtici Satislar", Tur = "Gelir", UstHesap = "" },
+    new() { Kod = "621", Ad = "Satilan Ticari Mallar Maliyeti", Tur = "Gider", UstHesap = "" },
+    new() { Kod = "760", Ad = "Pazarlama Giderleri", Tur = "Gider", UstHesap = "7" },
+    new() { Kod = "770", Ad = "Genel Yonetim Giderleri", Tur = "Gider", UstHesap = "7" },
+  };
+
+  private class AccountItem
+  {
+    public string Kod { get; set; } = "";
+    public string Ad { get; set; } = "";
+    public string Tur { get; set; } = "";
+    public string UstHesap { get; set; } = "";
+  }
+}

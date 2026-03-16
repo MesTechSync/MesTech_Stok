@@ -134,8 +134,9 @@ namespace MesTechStok.Desktop.Services
 
                 return $"Element: {element?.Name ?? "Unknown"}, Position: ({position.X:F0}, {position.Y:F0})";
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(ClickTrackingService), "Click detail extraction failed");
                 return "Click details unavailable";
             }
         }

@@ -1,3 +1,4 @@
+#pragma warning disable MA0051 // Method is too long — FIFO algorithm is a single cohesive unit
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Entities;
@@ -148,7 +149,8 @@ public class FifoCostCalculationService : IFifoCostCalculationService
 
                 while (remaining > 0 && layers.Count > 0)
                 {
-                    var oldest = layers.First!.Value;
+                    var firstNode = layers.First ?? throw new InvalidOperationException("FIFO layer unexpectedly empty");
+                    var oldest = firstNode.Value;
 
                     if (oldest.Quantity <= remaining)
                     {

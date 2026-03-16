@@ -660,6 +660,56 @@
                                                     PageSizeChanged="OrdersPagination_PageSizeChanged"/>
                 </Grid>
             </Border>
+
+            <!-- Empty State -->
+            <Border x:Name="OrdersEmptyState"
+                    Grid.Row="0"
+                    Grid.RowSpan="3"
+                    Background="#F5F7FA"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="50">
+                <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#x1F6D2;"
+                            FontSize="48"
+                            HorizontalAlignment="Center"
+                            Opacity="0.5"
+                            Margin="0,0,0,8"/>
+                    <TextBlock Text="Siparis bulunamadi"
+                            FontSize="16"
+                            Foreground="#6C757D"
+                            HorizontalAlignment="Center"
+                            Opacity="0.7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Error State -->
+            <Border x:Name="OrdersErrorState"
+                    Grid.Row="0"
+                    Grid.RowSpan="3"
+                    Background="#F5F7FA"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="50">
+                <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#x26A0;"
+                            FontSize="48"
+                            HorizontalAlignment="Center"
+                            Foreground="#DC3545"
+                            Margin="0,0,0,8"/>
+                    <TextBlock x:Name="OrdersErrorText"
+                            Text="Bir hata olustu"
+                            FontSize="14"
+                            Foreground="#DC3545"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,12"
+                            TextWrapping="Wrap"
+                            MaxWidth="400"/>
+                    <Button Content="Tekrar Dene"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="RetryOrders_Click"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </ScrollViewer>
 </UserControl>

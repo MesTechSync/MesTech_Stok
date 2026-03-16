@@ -8,6 +8,7 @@ using System.Windows.Media;
 using Serilog;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using MesTechStok.Core.Diagnostics;
@@ -23,6 +24,7 @@ namespace MesTechStok.Desktop.Views
 
     public partial class LogView : UserControl
     {
+        private readonly ILogger<LogView>? _logger;
         private readonly List<LogEntry> _allLogs;
         private readonly DispatcherTimer _refreshTimer;
         private int _errorCount = 0;
@@ -49,6 +51,7 @@ namespace MesTechStok.Desktop.Views
                 throw;
             }
             _allLogs = new List<LogEntry>();
+            _logger = MesTechStok.Desktop.App.Services?.GetService<ILogger<LogView>>();
 
             // A++++ LOG İYİLEŞTİRMESİ: Türkçe karakter sorun tespiti
             Dispatcher.BeginInvoke(new Action(() =>
@@ -350,7 +353,7 @@ namespace MesTechStok.Desktop.Views
                                 foreach (var f in files)
                                 {
                                     try { File.Delete(f); deleted++; }
-                                    catch { /* Intentional: batch operation error tracking — count failure and continue */ failed++; }
+                                    catch (Exception ex) { /* Intentional: batch operation error tracking — count failure and continue */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(LogView), "Batch log file delete — count failure and continue", ex.Message); failed++; }
                                 }
                                 StatusText.Text = $"Disk logları temizlendi: {deleted} silindi, {failed} başarısız";
                                 AddLog("ℹ️", StatusText.Text, "System", Colors.Blue);
@@ -437,7 +440,7 @@ namespace MesTechStok.Desktop.Views
                 foreach (var f in files)
                 {
                     try { File.Delete(f); deleted++; }
-                    catch { /* Intentional: batch operation error tracking — count failure and continue */ failed++; }
+                    catch (Exception ex) { /* Intentional: batch operation error tracking — count failure and continue */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(LogView), "Batch log file purge — count failure and continue", ex.Message); failed++; }
                 }
 
                 // 3) Audit + UI

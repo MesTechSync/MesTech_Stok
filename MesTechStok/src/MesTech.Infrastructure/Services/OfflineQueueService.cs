@@ -1,15 +1,18 @@
+using System.Collections.Concurrent;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Services;
 
 /// <summary>
-/// Çevrimdışı kuyruk — iskelet implementasyon (Dalga 3'te tamamlanacak).
-/// Şu an NotImplementedException fırlatır.
+/// Cevrimdisi kuyruk — in-memory fallback implementasyon.
+/// Dalga 3'te kalici storage (PostgreSQL/Redis) gecisi yapilacak.
+/// Su an ConcurrentQueue ile bellek icinde calisir — uygulama restart'inda veri kaybolur.
 /// </summary>
 public class OfflineQueueService : IOfflineQueue
 {
     private readonly ILogger<OfflineQueueService> _logger;
+    private readonly ConcurrentDictionary<Guid, OfflineQueueEntry> _queue = new();
 
     public OfflineQueueService(ILogger<OfflineQueueService> logger)
     {
@@ -18,27 +21,73 @@ public class OfflineQueueService : IOfflineQueue
 
     public Task EnqueueAsync(string channel, string payload, CancellationToken ct = default)
     {
-        _logger.LogWarning("OfflineQueue.Enqueue cagrildi — henuz implementasyon yok (Dalga 3)");
-        throw new NotImplementedException("OfflineQueue Dalga 3'te tamamlanacak.");
+        var entry = new OfflineQueueEntry(
+            Guid.NewGuid(),
+            channel,
+            payload,
+            DateTime.UtcNow,
+            RetryCount: 0);
+
+        _queue.TryAdd(entry.Id, entry);
+        _logger.LogWarning(
+            "OfflineQueue: item enqueued (in-memory fallback). Id={Id}, Channel={Channel}",
+            entry.Id, channel);
+        return Task.CompletedTask;
     }
 
     public Task<IReadOnlyList<OfflineQueueEntry>> GetPendingAsync(int maxItems = 50, CancellationToken ct = default)
     {
-        throw new NotImplementedException("OfflineQueue Dalga 3'te tamamlanacak.");
+        var pending = _queue.Values
+            .OrderBy(e => e.CreatedAt)
+            .Take(maxItems)
+            .ToList();
+
+        _logger.LogInformation(
+            "OfflineQueue: GetPending returned {Count} items (in-memory fallback)", pending.Count);
+
+        return Task.FromResult<IReadOnlyList<OfflineQueueEntry>>(pending.AsReadOnly());
     }
 
     public Task MarkProcessedAsync(Guid entryId, CancellationToken ct = default)
     {
-        throw new NotImplementedException("OfflineQueue Dalga 3'te tamamlanacak.");
+        if (_queue.TryRemove(entryId, out _))
+        {
+            _logger.LogInformation(
+                "OfflineQueue: item marked processed and removed. Id={Id}", entryId);
+        }
+        else
+        {
+            _logger.LogWarning(
+                "OfflineQueue: MarkProcessed — entry not found. Id={Id}", entryId);
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task MarkFailedAsync(Guid entryId, string error, CancellationToken ct = default)
     {
-        throw new NotImplementedException("OfflineQueue Dalga 3'te tamamlanacak.");
+        if (_queue.TryGetValue(entryId, out var existing))
+        {
+            // Replace with incremented retry count
+            var updated = existing with { RetryCount = existing.RetryCount + 1 };
+            _queue.TryUpdate(entryId, updated, existing);
+            _logger.LogWarning(
+                "OfflineQueue: item marked failed (in-memory fallback). Id={Id}, Retry={Retry}, Error={Error}",
+                entryId, updated.RetryCount, error);
+        }
+        else
+        {
+            _logger.LogWarning(
+                "OfflineQueue: MarkFailed — entry not found. Id={Id}", entryId);
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task<int> GetPendingCountAsync(CancellationToken ct = default)
     {
-        return Task.FromResult(0);
+        var count = _queue.Count;
+        _logger.LogInformation("OfflineQueue: pending count = {Count} (in-memory fallback)", count);
+        return Task.FromResult(count);
     }
 }

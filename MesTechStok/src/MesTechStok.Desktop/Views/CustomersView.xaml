@@ -104,6 +104,7 @@
         </Style>
     </UserControl.Resources>
     
+    <Grid>
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F7FA">
         <Grid Margin="15">
             <Grid.RowDefinitions>
@@ -343,4 +344,47 @@
             </Border>
         </Grid>
     </ScrollViewer>
-</UserControl> 
+
+    <!-- Loading State -->
+    <Border x:Name="LoadingOverlay"
+            Background="#80000000"
+            Visibility="Collapsed"
+            Panel.ZIndex="100">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+            <TextBlock Text="Yukleniyor..." Margin="0,12,0,0"
+                       HorizontalAlignment="Center" Foreground="White" FontSize="14"/>
+        </StackPanel>
+    </Border>
+
+    <!-- Empty State -->
+    <Border x:Name="EmptyState"
+            Background="#F5F7FA"
+            Visibility="Collapsed"
+            Panel.ZIndex="50">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="&#x1F465;" FontSize="48" HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8"/>
+            <TextBlock Text="Musteri bulunamadi" FontSize="16" Foreground="#6C757D"
+                       HorizontalAlignment="Center" Opacity="0.7"/>
+        </StackPanel>
+    </Border>
+
+    <!-- Error State -->
+    <Border x:Name="ErrorState"
+            Background="#F5F7FA"
+            Visibility="Collapsed"
+            Panel.ZIndex="50">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center"
+                       Foreground="#F44336" Margin="0,0,0,8"/>
+            <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14"
+                       Foreground="#F44336" HorizontalAlignment="Center"
+                       Margin="0,0,0,12" TextWrapping="Wrap" MaxWidth="400"/>
+            <Button x:Name="RetryButton" Content="Tekrar Dene"
+                    Click="RetryButton_Click"
+                    Padding="12,8" Background="#007ACC" Foreground="White"
+                    BorderThickness="0" Cursor="Hand"/>
+        </StackPanel>
+    </Border>
+    </Grid>
+</UserControl>

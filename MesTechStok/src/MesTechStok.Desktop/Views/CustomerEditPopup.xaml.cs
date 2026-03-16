@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -16,6 +17,7 @@ namespace MesTechStok.Desktop.Views
     public partial class CustomerEditPopup : Window
     {
         private readonly MesTechStok.Core.Services.Abstract.ICustomerService _customerService;
+        private readonly ILogger<CustomerEditPopup>? _logger;
         private Guid? _editingCustomerId;
 
         public CustomerEditPopup()
@@ -23,6 +25,7 @@ namespace MesTechStok.Desktop.Views
             InitializeComponent();
             var sp = MesTechStok.Desktop.App.Services;
             _customerService = sp!.GetRequiredService<MesTechStok.Core.Services.Abstract.ICustomerService>();
+            _logger = sp!.GetService<ILogger<CustomerEditPopup>>();
         }
 
         public CustomerEditPopup(MesTechStok.Core.Data.Models.Customer existing) : this()
@@ -52,9 +55,10 @@ namespace MesTechStok.Desktop.Views
                 var docs = ParseDocs(existing.DocumentUrls);
                 foreach (var d in docs) DocsList.Items.Add(d);
             }
-            catch
+            catch (Exception ex)
             {
                 // Intentional: document list parse and UI load — non-critical initial population.
+                _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(CustomerEditPopup), "Document list parse and UI load — non-critical initial population", ex.Message);
             }
         }
 
@@ -178,7 +182,7 @@ namespace MesTechStok.Desktop.Views
             var sel = DocsList.SelectedItem as string;
             if (string.IsNullOrWhiteSpace(sel)) return;
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = sel, UseShellExecute = true }); }
-            catch { /* Intentional: shell file open — OS may reject the file type or path. */ }
+            catch (Exception ex) { /* Intentional: shell file open — OS may reject the file type or path. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(CustomerEditPopup), "Shell file open — OS may reject the file type or path", ex.Message); }
         }
 
         private void OpenDocFolder_Click(object sender, RoutedEventArgs e)
@@ -196,7 +200,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private static List<string> ParseDocs(string? json)
+        private List<string> ParseDocs(string? json)
         {
             try
             {
@@ -204,7 +208,7 @@ namespace MesTechStok.Desktop.Views
                 var list = JsonSerializer.Deserialize<List<string>>(json);
                 return list ?? new List<string>();
             }
-            catch { /* Intentional: file listing fallback — return empty list on failure */ return new List<string>(); }
+            catch (Exception ex) { /* Intentional: file listing fallback — return empty list on failure */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(CustomerEditPopup), "File listing fallback — return empty list on failure", ex.Message); return new List<string>(); }
         }
     }
 }

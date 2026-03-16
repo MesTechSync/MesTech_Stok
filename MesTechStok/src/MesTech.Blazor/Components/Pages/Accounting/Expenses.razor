@@ -1,0 +1,177 @@
+@page "/accounting/expenses"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Giderler</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-file-invoice-dollar text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Giderler</h3>
+      <small class="text-muted">Gider kayitlari ve kategori takibi</small>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label small text-muted">Baslangic Tarihi</label>
+          <input type="date" class="form-control" @bind="_startDate" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label small text-muted">Bitis Tarihi</label>
+          <input type="date" class="form-control" @bind="_endDate" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label small text-muted">Kategori</label>
+          <select class="form-select" @bind="_selectedCategory">
+            <option value="">Tumu</option>
+            @foreach (var cat in _categories)
+            {
+              <option value="@cat">@cat</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-3">
+          <button class="btn w-100" style="background-color: #2855AC; color: white;" @onclick="ApplyFilter">
+            <i class="fas fa-filter me-1"></i>Filtrele
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (_loading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!string.IsNullOrEmpty(_error))
+    {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@_error
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Gider Listesi</h6>
+        <span class="badge bg-secondary">@FilteredExpenses.Count kayit</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Tarih</th>
+                <th>Aciklama</th>
+                <th>Kategori</th>
+                <th class="text-end">Tutar</th>
+                <th class="text-center">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (FilteredExpenses.Count == 0)
+              {
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">Gider kaydi bulunamadi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var expense in FilteredExpenses)
+                {
+                  <tr>
+                    <td>@expense.Tarih.ToString("dd.MM.yyyy")</td>
+                    <td>@expense.Aciklama</td>
+                    <td><span class="badge bg-light text-dark">@expense.Kategori</span></td>
+                    <td class="text-end fw-bold text-danger">@expense.Tutar.ToString("N2") TL</td>
+                    <td class="text-center">
+                      <span class="badge @(expense.Durum == "Onaylandi" ? "bg-success" : expense.Durum == "Bekliyor" ? "bg-warning text-dark" : "bg-secondary")">
+                        @expense.Durum
+                      </span>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _loading = true;
+  private string? _error;
+  private List<ExpenseItem> _expenses = new();
+  private DateTime _startDate = DateTime.Today.AddMonths(-1);
+  private DateTime _endDate = DateTime.Today;
+  private string _selectedCategory = "";
+  private readonly List<string> _categories = new() { "Kira", "Personel", "Lojistik", "Pazarlama", "Yazilim", "Diger" };
+
+  private List<ExpenseItem> FilteredExpenses => _expenses
+    .Where(e => e.Tarih >= _startDate && e.Tarih <= _endDate)
+    .Where(e => string.IsNullOrEmpty(_selectedCategory) || e.Kategori == _selectedCategory)
+    .OrderByDescending(e => e.Tarih)
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      _expenses = await Http.GetFromJsonAsync<List<ExpenseItem>>("/api/v1/accounting/expenses")
+                  ?? GetDemoData();
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _expenses = GetDemoData();
+      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
+    }
+    finally
+    {
+      _loading = false;
+    }
+  }
+
+  private void ApplyFilter()
+  {
+    StateHasChanged();
+  }
+
+  private List<ExpenseItem> GetDemoData() => new()
+  {
+    new() { Tarih = DateTime.Today.AddDays(-2), Aciklama = "Ofis kirasi - Mart 2026", Kategori = "Kira", Tutar = 18_500.00m, Durum = "Onaylandi" },
+    new() { Tarih = DateTime.Today.AddDays(-5), Aciklama = "Google Ads kampanyasi", Kategori = "Pazarlama", Tutar = 4_250.00m, Durum = "Onaylandi" },
+    new() { Tarih = DateTime.Today.AddDays(-7), Aciklama = "Kargo giderleri - Yurtici", Kategori = "Lojistik", Tutar = 6_780.50m, Durum = "Bekliyor" },
+    new() { Tarih = DateTime.Today.AddDays(-10), Aciklama = "Azure hosting ucreti", Kategori = "Yazilim", Tutar = 3_200.00m, Durum = "Onaylandi" },
+    new() { Tarih = DateTime.Today.AddDays(-12), Aciklama = "Personel maasi - Subat", Kategori = "Personel", Tutar = 45_000.00m, Durum = "Onaylandi" },
+    new() { Tarih = DateTime.Today.AddDays(-15), Aciklama = "Kargo giderleri - Aras", Kategori = "Lojistik", Tutar = 5_430.00m, Durum = "Onaylandi" },
+    new() { Tarih = DateTime.Today.AddDays(-18), Aciklama = "Instagram reklam", Kategori = "Pazarlama", Tutar = 2_100.00m, Durum = "Bekliyor" },
+    new() { Tarih = DateTime.Today.AddDays(-22), Aciklama = "Ofis malzemeleri", Kategori = "Diger", Tutar = 890.00m, Durum = "Onaylandi" },
+  };
+
+  private class ExpenseItem
+  {
+    public DateTime Tarih { get; set; }
+    public string Aciklama { get; set; } = "";
+    public string Kategori { get; set; } = "";
+    public decimal Tutar { get; set; }
+    public string Durum { get; set; } = "";
+  }
+}

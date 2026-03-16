@@ -148,6 +148,45 @@ namespace MesTechStok.Desktop.Views
             _history.Clear();
             RefreshJobStatuses();
         }
+
+        #region L/E/E State Helpers
+
+        private void ShowLoading()
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Visible;
+            ErrorMessage.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllStates();
+            RefreshJobStatuses();
+        }
+
+        #endregion
     }
 
     internal class SyncHistoryItem

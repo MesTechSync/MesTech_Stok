@@ -391,7 +391,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 // Start with loading indicator
-                IsLoading = true;
+                ShowLoading();
 
                 // Authorization setup
                 await SetupAuthorizationsAsync();
@@ -402,6 +402,16 @@ namespace MesTechStok.Desktop.Views
                     UpdateStatisticsAsync()
                 );
 
+                // Check if there are no orders to show empty state
+                if (_displayedOrders.Count == 0)
+                {
+                    ShowEmpty();
+                }
+                else
+                {
+                    HideAllStates();
+                }
+
                 // Start auto-refresh
                 StartAutoRefresh();
 
@@ -411,11 +421,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"OrdersView başlatma hatası: {ex.Message}", "OrdersView");
-                ToastManager.ShowError("❌ Sipariş sistemi yüklenirken hata oluştu!", "Hata");
-            }
-            finally
-            {
-                IsLoading = false;
+                ShowError($"Sipariş sistemi yüklenirken hata oluştu: {ex.Message}");
             }
         }
 
@@ -491,11 +497,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 GlobalLogger.Instance.LogError($"Sipariş sayfası yükleme hatası: {ex.Message}", "OrdersView");
-                ToastManager.ShowError("❌ Sipariş verileri yüklenirken hata oluştu!", "Hata");
-            }
-            finally
-            {
-                IsLoading = false;
+                ShowError($"Sipariş verileri yüklenirken hata oluştu: {ex.Message}");
             }
         }
 
@@ -647,6 +649,45 @@ namespace MesTechStok.Desktop.Views
         }
 
         #endregion
+
+        #endregion
+
+        #region Loading/Empty/Error State Helpers
+
+        private void ShowLoading()
+        {
+            IsLoading = true;
+            OrdersEmptyState.Visibility = Visibility.Collapsed;
+            OrdersErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            IsLoading = false;
+            OrdersEmptyState.Visibility = Visibility.Visible;
+            OrdersErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            IsLoading = false;
+            OrdersEmptyState.Visibility = Visibility.Collapsed;
+            OrdersErrorState.Visibility = Visibility.Visible;
+            OrdersErrorText.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            IsLoading = false;
+            OrdersEmptyState.Visibility = Visibility.Collapsed;
+            OrdersErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void RetryOrders_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllStates();
+            _ = InitializeAsync();
+        }
 
         #endregion
 

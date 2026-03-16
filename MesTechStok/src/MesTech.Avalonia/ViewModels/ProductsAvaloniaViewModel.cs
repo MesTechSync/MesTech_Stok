@@ -16,6 +16,9 @@ public partial class ProductsAvaloniaViewModel : ObservableObject
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private bool isLoading;
+    [ObservableProperty] private bool hasError;
+    [ObservableProperty] private string errorMessage = string.Empty;
+    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<ProductItemVm> Products { get; } = [];
@@ -28,6 +31,9 @@ public partial class ProductsAvaloniaViewModel : ObservableObject
     public async Task LoadAsync()
     {
         IsLoading = true;
+        HasError = false;
+        IsEmpty = false;
+        ErrorMessage = string.Empty;
         try
         {
             // Same MediatR pipeline — Application.Queries.GetProductsPaged
@@ -40,6 +46,13 @@ public partial class ProductsAvaloniaViewModel : ObservableObject
             Products.Add(new ProductItemVm { Id = Guid.NewGuid(), Name = "Logitech MX Master 3S", Barcode = "5099206101173", Stock = 156, Price = 3299.00m, Category = "Aksesuar" });
             Products.Add(new ProductItemVm { Id = Guid.NewGuid(), Name = "Dell U2723QE Monitor", Barcode = "5397184505120", Stock = 8, Price = 18799.00m, Category = "Monitor" });
             TotalCount = Products.Count;
+
+            IsEmpty = Products.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Urunler yuklenemedi: {ex.Message}";
         }
         finally { IsLoading = false; }
     }

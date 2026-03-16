@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MesTech.Blazor</RootNamespace>
@@ -15,6 +15,8 @@
   <ItemGroup>
     <!-- GHSA-5crp fix: pin Newtonsoft.Json 13.0.3 via CPM to override transitive 11.0.1 from MassTransit -->
     <PackageReference Include="Newtonsoft.Json" />
+    <!-- JWT token parsing for JwtAuthenticationStateProvider -->
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 
 </Project>

@@ -214,6 +214,14 @@ ShippingEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
 SeedEndpoints.Map(app);
+WarehouseEndpoints.Map(app);
+CalendarEndpoints.Map(app);
+ProjectEndpoints.Map(app);
+BarcodeEndpoints.Map(app);
+TenantEndpoints.Map(app);
+StoreEndpoints.Map(app);
+SystemHealthEndpoints.Map(app);
+EInvoiceEndpoints.Map(app);
 
 app.Run();
 

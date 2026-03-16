@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+// Panel-E: DEV-E2 — IServiceProvider replaced with IFeedParserFactory (constructor DI)
+
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
@@ -22,7 +24,7 @@ public class SupplierFeedSyncJob
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdapterFactory _adapterFactory;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IFeedParserFactory _feedParserFactory;
     private readonly ILogger<SupplierFeedSyncJob> _logger;
 
     public SupplierFeedSyncJob(
@@ -31,7 +33,7 @@ public class SupplierFeedSyncJob
         IUnitOfWork unitOfWork,
         IAdapterFactory adapterFactory,
         IHttpClientFactory httpClientFactory,
-        IServiceProvider serviceProvider,
+        IFeedParserFactory feedParserFactory,
         ILogger<SupplierFeedSyncJob> logger)
     {
         _dbContext = dbContext;
@@ -39,7 +41,7 @@ public class SupplierFeedSyncJob
         _unitOfWork = unitOfWork;
         _adapterFactory = adapterFactory;
         _httpClientFactory = httpClientFactory;
-        _serviceProvider = serviceProvider;
+        _feedParserFactory = feedParserFactory;
         _logger = logger;
     }
 
@@ -84,8 +86,8 @@ public class SupplierFeedSyncJob
 
             await using var feedStream = await response.Content.ReadAsStreamAsync(ct);
 
-            // 2. Resolve keyed IFeedParserService based on feed format
-            var parser = _serviceProvider.GetKeyedService<IFeedParserService>(feed.Format);
+            // 2. Resolve IFeedParserService based on feed format (via IFeedParserFactory — proper DI)
+            var parser = _feedParserFactory.GetParser(feed.Format);
             if (parser == null)
             {
                 var error = $"No IFeedParserService registered for format {feed.Format}";

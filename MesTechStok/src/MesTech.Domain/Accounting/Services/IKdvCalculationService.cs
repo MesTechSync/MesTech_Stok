@@ -1,3 +1,4 @@
+#pragma warning disable MA0048 // File name must match type name — companion records colocated with interface
 namespace MesTech.Domain.Accounting.Services;
 
 /// <summary>

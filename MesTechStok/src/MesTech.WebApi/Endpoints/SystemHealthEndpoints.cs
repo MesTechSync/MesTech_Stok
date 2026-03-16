@@ -1,0 +1,69 @@
+using System.Diagnostics;
+using System.Reflection;
+
+namespace MesTech.WebApi.Endpoints;
+
+/// <summary>
+/// Admin-only system health endpoints — uptime, version, memory, and job status.
+/// </summary>
+public static class SystemHealthEndpoints
+{
+    private static readonly DateTime StartTime = DateTime.UtcNow;
+
+    public static void Map(WebApplication app)
+    {
+        var group = app.MapGroup("/api/v1/admin/system")
+            .WithTags("System (Admin)")
+            .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/admin/system/status — sistem durumu
+        group.MapGet("/status", () =>
+        {
+            var process = Process.GetCurrentProcess();
+            var assembly = Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version?.ToString() ?? "0.0.0";
+            var uptime = DateTime.UtcNow - StartTime;
+
+            return Results.Ok(new
+            {
+                Application = "MesTech.WebApi",
+                Version = version,
+                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+                Uptime = new
+                {
+                    TotalSeconds = (int)uptime.TotalSeconds,
+                    Formatted = $"{(int)uptime.TotalHours}h {uptime.Minutes}m {uptime.Seconds}s"
+                },
+                Memory = new
+                {
+                    WorkingSetMb = Math.Round(process.WorkingSet64 / 1024.0 / 1024.0, 1),
+                    GcTotalMemoryMb = Math.Round(GC.GetTotalMemory(false) / 1024.0 / 1024.0, 1),
+                    Gen0Collections = GC.CollectionCount(0),
+                    Gen1Collections = GC.CollectionCount(1),
+                    Gen2Collections = GC.CollectionCount(2)
+                },
+                Runtime = new
+                {
+                    DotNetVersion = Environment.Version.ToString(),
+                    OsPlatform = Environment.OSVersion.ToString(),
+                    ProcessorCount = Environment.ProcessorCount
+                },
+                Timestamp = DateTime.UtcNow
+            });
+        })
+        .WithName("GetSystemStatus")
+        .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)");
+
+        // GET /api/v1/admin/system/jobs — arka plan iş listesi
+        // DEV4-DEPENDENCY: Hangfire entegrasyonu henüz yok
+        group.MapGet("/jobs", () =>
+            Results.Ok(new
+            {
+                Message = "Background jobs endpoint — Hangfire integration pending (DEV4-DEPENDENCY)",
+                Jobs = Array.Empty<object>(),
+                Status = "not_implemented"
+            }))
+        .WithName("GetBackgroundJobs")
+        .WithSummary("Arka plan iş listesi — Hangfire (DEV4-DEPENDENCY)");
+    }
+}

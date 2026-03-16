@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using MesTech.Blazor.Components;
 using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
@@ -19,6 +20,13 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Override ICurrentUserService for Blazor PoC (scoped — per-circuit) ──
 builder.Services.AddScoped<ICurrentUserService, BlazorCurrentUserService>();
+
+// ── Authentication & Authorization (JWT token-based, scoped per circuit) ──
+builder.Services.AddScoped<JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
 
 // ── Remove hosted services that conflict with Blazor (HealthCheckEndpoint, MesaStatusEndpoint, RealtimeDashboard) ──
 // Blazor has its own HTTP pipeline; standalone TCP listeners on 5100/5101/5102 are WPF-only.

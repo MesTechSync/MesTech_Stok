@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 #pragma warning disable CS0618 // Core.Data.Models.AIConfiguration — no Domain equivalent yet (TODO H33)
 using MesTechStok.Core.Data.Models;
@@ -24,6 +25,7 @@ namespace MesTechStok.Desktop.Views
 {
     public partial class SettingsView : UserControl
     {
+        private readonly ILogger<SettingsView>? _logger;
         private DispatcherTimer? performanceTimer;
         private Random random = new Random();
 
@@ -34,6 +36,7 @@ namespace MesTechStok.Desktop.Views
         public SettingsView()
         {
             InitializeComponent();
+            _logger = Desktop.App.Services?.GetService<ILogger<SettingsView>>();
             InitializePerformanceMonitor();
             LoadSettings();
             _ = LoadCompanyFromSqlAsync();
@@ -83,7 +86,7 @@ namespace MesTechStok.Desktop.Views
                     ConnectionStringTextBox.Text = cs;
                 }
             }
-            catch { /* Intentional: settings load fallback — proceed with defaults on load failure */ }
+            catch (Exception ex) { /* Intentional: settings load fallback — proceed with defaults on load failure */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(SettingsView), "Settings load fallback — proceed with defaults on load failure", ex.Message); }
             CompanyNameTextBox.Text = string.IsNullOrWhiteSpace(CompanyNameTextBox.Text) ? "" : CompanyNameTextBox.Text;
             LastUpdateText.Text = DateTime.Now.ToString("dd.MM.yyyy");
             // Header şirket adını güncelle

@@ -1,0 +1,184 @@
+@page "/accounting/reconciliation"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Mutabakat</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-check-double text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Mutabakat</h3>
+      <small class="text-muted">Banka hareketi ve muhasebe kaydi eslestirme</small>
+    </div>
+  </div>
+
+  <!-- Summary Bar -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm border-start border-4 border-success">
+        <div class="card-body p-2 p-md-3 text-center">
+          <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Eslesen</small>
+          <h5 class="mb-0 fw-bold text-success">@_items.Count(i => i.Durum == "Eslesti")</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm border-start border-4 border-warning">
+        <div class="card-body p-2 p-md-3 text-center">
+          <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Bekleyen</small>
+          <h5 class="mb-0 fw-bold text-warning">@_items.Count(i => i.Durum == "Bekliyor")</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm border-start border-4 border-danger">
+        <div class="card-body p-2 p-md-3 text-center">
+          <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Uyumsuz</small>
+          <h5 class="mb-0 fw-bold text-danger">@_items.Count(i => i.Durum == "Uyumsuz")</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm border-start border-4" style="border-color: #2855AC !important;">
+        <div class="card-body p-2 p-md-3 text-center">
+          <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam</small>
+          <h5 class="mb-0 fw-bold" style="color: #2855AC;">@_items.Count</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (_loading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!string.IsNullOrEmpty(_error))
+    {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@_error
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Eslestirme Tablosu</h6>
+        <span class="badge bg-secondary">@_items.Count hareket</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Tarih</th>
+                <th>Banka Aciklama</th>
+                <th class="text-end">Tutar</th>
+                <th>Eslesen Kayit</th>
+                <th class="text-center">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (_items.Count == 0)
+              {
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">Mutabakat kaydi bulunamadi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var item in _items)
+                {
+                  <tr>
+                    <td>@item.Tarih.ToString("dd.MM.yyyy")</td>
+                    <td>@item.BankaAciklama</td>
+                    <td class="text-end fw-bold">@item.Tutar.ToString("N2") TL</td>
+                    <td>
+                      @if (!string.IsNullOrEmpty(item.EslesenKayit))
+                      {
+                        <span class="text-success"><i class="fas fa-link me-1"></i>@item.EslesenKayit</span>
+                      }
+                      else
+                      {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                    <td class="text-center">
+                      <span class="badge @GetStatusBadgeClass(item.Durum)">
+                        @item.Durum
+                      </span>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _loading = true;
+  private string? _error;
+  private List<ReconciliationItem> _items = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      _items = await Http.GetFromJsonAsync<List<ReconciliationItem>>("/api/v1/accounting/reconciliation")
+               ?? GetDemoData();
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _items = GetDemoData();
+      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
+    }
+    finally
+    {
+      _loading = false;
+    }
+  }
+
+  private string GetStatusBadgeClass(string durum) => durum switch
+  {
+    "Eslesti" => "bg-success",
+    "Bekliyor" => "bg-warning text-dark",
+    "Uyumsuz" => "bg-danger",
+    _ => "bg-secondary"
+  };
+
+  private List<ReconciliationItem> GetDemoData() => new()
+  {
+    new() { Tarih = DateTime.Today.AddDays(-1), BankaAciklama = "TRENDYOL ODEME - 2026/03", Tutar = 42_350.00m, EslesenKayit = "FAT-2026-0312", Durum = "Eslesti" },
+    new() { Tarih = DateTime.Today.AddDays(-2), BankaAciklama = "N11 KOMISYON IADESI", Tutar = 1_230.50m, EslesenKayit = "FAT-2026-0308", Durum = "Eslesti" },
+    new() { Tarih = DateTime.Today.AddDays(-3), BankaAciklama = "HEPSIBURADA ODEME", Tutar = 18_900.00m, EslesenKayit = "", Durum = "Bekliyor" },
+    new() { Tarih = DateTime.Today.AddDays(-4), BankaAciklama = "AMAZON TR SETTLEMENT", Tutar = 8_540.00m, EslesenKayit = "FAT-2026-0301", Durum = "Eslesti" },
+    new() { Tarih = DateTime.Today.AddDays(-5), BankaAciklama = "YURTICI KARGO FATURA", Tutar = -3_200.00m, EslesenKayit = "", Durum = "Bekliyor" },
+    new() { Tarih = DateTime.Today.AddDays(-6), BankaAciklama = "BILINMEYEN HAVALE", Tutar = 5_000.00m, EslesenKayit = "", Durum = "Uyumsuz" },
+    new() { Tarih = DateTime.Today.AddDays(-7), BankaAciklama = "CICEKSEPETI ODEME", Tutar = 12_750.00m, EslesenKayit = "FAT-2026-0295", Durum = "Eslesti" },
+    new() { Tarih = DateTime.Today.AddDays(-8), BankaAciklama = "AZURE HOSTING FATURA", Tutar = -3_200.00m, EslesenKayit = "GDR-2026-0044", Durum = "Eslesti" },
+  };
+
+  private class ReconciliationItem
+  {
+    public DateTime Tarih { get; set; }
+    public string BankaAciklama { get; set; } = "";
+    public decimal Tutar { get; set; }
+    public string EslesenKayit { get; set; } = "";
+    public string Durum { get; set; } = "";
+  }
+}

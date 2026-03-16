@@ -140,61 +140,61 @@ public class InternationalAdapterTests
     [Fact]
     public void EtsyAdapter_NullLogger_Throws()
     {
-        var act = () => new EtsyAdapter(null!);
+        var act = () => new EtsyAdapter(new HttpClient(), null!, null);
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
     }
 
     [Fact]
     public void EtsyAdapter_PlatformCode_IsEtsy()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
         sut.PlatformCode.Should().Be("Etsy");
     }
 
     [Fact]
-    public void EtsyAdapter_SupportsStockUpdate_False()
+    public void EtsyAdapter_SupportsStockUpdate_True()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
-        sut.SupportsStockUpdate.Should().BeFalse();
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
+        sut.SupportsStockUpdate.Should().BeTrue();
     }
 
     [Fact]
-    public void EtsyAdapter_SupportsPriceUpdate_False()
+    public void EtsyAdapter_SupportsPriceUpdate_True()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
-        sut.SupportsPriceUpdate.Should().BeFalse();
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
+        sut.SupportsPriceUpdate.Should().BeTrue();
     }
 
     [Fact]
     public void EtsyAdapter_SupportsShipment_False()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
         sut.SupportsShipment.Should().BeFalse();
     }
 
     [Fact]
     public async Task EtsyAdapter_TestConnectionAsync_ReturnsStubFailure()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
         var result = await sut.TestConnectionAsync(new Dictionary<string, string>());
         result.IsSuccess.Should().BeFalse();
         result.PlatformCode.Should().Be("Etsy");
     }
 
     [Fact]
-    public async Task EtsyAdapter_PullProductsAsync_ReturnsEmpty()
+    public async Task EtsyAdapter_PullProductsAsync_ThrowsWhenNotConfigured()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
-        var result = await sut.PullProductsAsync();
-        result.Should().BeEmpty();
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
+        var act = () => sut.PullProductsAsync();
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task EtsyAdapter_PushProductAsync_ReturnsFalse()
+    public async Task EtsyAdapter_PushProductAsync_ThrowsWhenNotConfigured()
     {
-        var sut = new EtsyAdapter(NullLogger<EtsyAdapter>.Instance);
-        var result = await sut.PushProductAsync(new MesTech.Domain.Entities.Product());
-        result.Should().BeFalse();
+        var sut = new EtsyAdapter(new HttpClient(), NullLogger<EtsyAdapter>.Instance, null);
+        var act = () => sut.PushProductAsync(new MesTech.Domain.Entities.Product());
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     // ═══════════════════════════════════════════

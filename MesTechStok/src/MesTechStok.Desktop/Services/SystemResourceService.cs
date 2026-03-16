@@ -155,7 +155,7 @@ public class SystemResourceService : ISystemResourceService
 
                         TryThrottleProcessCpu(p.Id, cpuCapPercent);
                     }
-                    catch { /* Intentional: resource enumeration — skip individual item errors, continue iteration */ }
+                    catch (Exception ex) { _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SystemResourceService), "Resource enumeration — skipping individual process error"); }
                     finally { p.Dispose(); }
                 }
             }
@@ -292,8 +292,9 @@ public class SystemResourceService : ISystemResourceService
             var workingSet = process.WorkingSet64 / (1024.0 * 1024.0);
             return Math.Min(10, workingSet / 100);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SystemResourceService), "Process memory priority calculation failed");
             return 0;
         }
     }
@@ -311,8 +312,9 @@ public class SystemResourceService : ISystemResourceService
                 return Convert.ToInt64(obj["TotalPhysicalMemory"]);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SystemResourceService), "Total physical memory WMI query failed, using 8GB default");
             return 8L * 1024 * 1024 * 1024; // 8 GB default
         }
         return 0;
@@ -423,8 +425,9 @@ public class SystemResourceService : ISystemResourceService
 
             return 0;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SystemResourceService), "Total memory MB detection failed, using 8192MB default");
             return 8192; // Default 8GB if unable to detect
         }
     }
@@ -443,8 +446,9 @@ public class SystemResourceService : ISystemResourceService
             }
             return 0;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SystemResourceService), "Disk usage detection failed");
             return 0;
         }
     }

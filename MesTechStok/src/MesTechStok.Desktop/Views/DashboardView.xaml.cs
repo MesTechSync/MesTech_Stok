@@ -64,8 +64,7 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                LoadingOverlay.Visibility = Visibility.Visible;
-                ErrorState.Visibility = Visibility.Collapsed;
+                ShowLoading();
 
                 _logger.LogInformation("Loading dashboard data...");
 
@@ -84,21 +83,53 @@ namespace MesTechStok.Desktop.Views
                 LastUpdatedText.Text = $"Son Güncelleme: {DateTime.Now:HH:mm:ss}";
                 _logger.LogInformation("Dashboard data loaded successfully");
 
-                LoadingOverlay.Visibility = Visibility.Collapsed;
+                HideAllStates();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load dashboard data");
-                LoadingOverlay.Visibility = Visibility.Collapsed;
-                ErrorState.Visibility = Visibility.Visible;
-                DashboardErrorText.Text = $"Dashboard yüklenemedi: {ex.Message}";
+                ShowError($"Dashboard yüklenemedi: {ex.Message}");
             }
         }
 
         private void RetryDashboard_Click(object sender, RoutedEventArgs e)
         {
+            HideAllStates();
             _ = LoadDashboardDataAsync();
         }
+
+        #region Loading/Empty/Error State Helpers
+
+        private void ShowLoading()
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Visible;
+            DashboardErrorText.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion
 
         private async Task LoadKPIDataAsync()
         {

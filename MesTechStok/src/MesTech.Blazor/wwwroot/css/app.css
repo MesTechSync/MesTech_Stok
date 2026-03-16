@@ -251,3 +251,31 @@ body {
     font-size: 0.75rem !important;
   }
 }
+
+/* ── Panel D — Module-specific badges ── */
+.badge-taslak      { background-color: #6c757d; color: #fff; }
+.badge-gonderildi  { background-color: #198754; color: #fff; }
+.badge-iptal       { background-color: #dc3545; color: #fff; }
+.badge-onaylandi   { background-color: #198754; color: #fff; }
+.badge-reddedildi  { background-color: #dc3545; color: #fff; }
+.badge-beklemede   { background-color: #ffc107; color: #212529; }
+.badge-aktif       { background-color: #0d6efd; color: #fff; }
+.badge-pasif       { background-color: #6c757d; color: #fff; }
+.badge-tamamlandi  { background-color: #198754; color: #fff; }
+
+/* Kanban board */
+.kanban-column { min-height: 200px; background: #f8f9fa; border-radius: 8px; padding: 12px; }
+.kanban-card { background: #fff; border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid #dee2e6; cursor: pointer; }
+.kanban-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* Calendar grid */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #dee2e6; }
+.calendar-cell { background: #fff; min-height: 80px; padding: 4px 8px; font-size: 0.85rem; }
+.calendar-cell.today { background: #e7f1ff; }
+.calendar-cell.other-month { color: #adb5bd; }
+.calendar-event { font-size: 0.75rem; background: #0d6efd; color: #fff; border-radius: 3px; padding: 1px 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Tree view */
+.tree-item { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
+.tree-item:hover { background: #f0f0f0; }
+.tree-item.selected { background: #e7f1ff; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.draw;
@@ -11,6 +12,13 @@ namespace MesTechStok.Desktop.Services
 {
     public class PdfReportService
     {
+        private readonly ILogger<PdfReportService>? _logger;
+
+        public PdfReportService(ILogger<PdfReportService>? logger = null)
+        {
+            _logger = logger;
+        }
+
         private class HeaderFooterPageEvent : PdfPageEventHelper
         {
             private readonly string _companyName;
@@ -102,8 +110,9 @@ namespace MesTechStok.Desktop.Services
                     headerFont = new Font(bf, 11, Font.BOLD, new BaseColor(255, 255, 255));
                     cellFont = new Font(bf, 10, Font.NORMAL, new BaseColor(0, 0, 0));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(PdfReportService), "Segoe UI font not found, falling back to Helvetica");
                     BaseFont bf = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED);
                     titleFont = new Font(bf, 16, Font.BOLD, new BaseColor(0, 0, 0));
                     headerFont = new Font(bf, 11, Font.BOLD, new BaseColor(255, 255, 255));

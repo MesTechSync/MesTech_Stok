@@ -278,6 +278,9 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IFeedParserService, ExcelFeedParser>();
         services.AddScoped<IFeedParserService, JsonFeedParser>();
 
+        // Panel-E: DEV-E2 — FeedParserFactory replaces IServiceProvider in SupplierFeedSyncJob
+        services.AddScoped<IFeedParserFactory, FeedParserFactory>();
+
         // Dalga 7.5: Feed health check service
         services.AddScoped<FeedHealthCheckService>(sp =>
             new FeedHealthCheckService(
@@ -339,6 +342,7 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ICategoryMapperService, CategoryAutoMapper>();
 
         // ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-01: IServiceLocatorBridge (sadece App.xaml.cs için)
+        // TODO(Panel-E): Desktop App.xaml.cs hala kullanıyor — Desktop DI migration sonrası kaldırılacak
         services.AddSingleton<IServiceLocatorBridge, ServiceLocatorBridge>();
 
         // MUH-01: Settlement parsers — platform-specific settlement data parsers (Singleton — stateless)
@@ -482,9 +486,14 @@ public static class IntegrationServiceRegistration
                 sp.GetService<IOptions<WooCommerceOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<WooCommerceAdapter>());
 
-        // Dalga 10 C-03: Etsy — stub (full OAuth2 PKCE impl Sprint D)
+        // Dalga 10 C-03 / Panel E: Etsy — full OAuth2 PKCE, Listings + Receipts + Inventory API
+        if (configuration is not null)
+            services.Configure<EtsyOptions>(configuration.GetSection(EtsyOptions.Section));
         services.AddSingleton<EtsyAdapter>(sp =>
-            new EtsyAdapter(sp.GetRequiredService<ILogger<EtsyAdapter>>()));
+            new EtsyAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<EtsyAdapter>>(),
+                sp.GetService<IOptions<EtsyOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EtsyAdapter>());
 
         // Dalga 10 C-03 / D11-09: Zalando — OAuth2 Client Credentials, page-based pagination, EUR currency

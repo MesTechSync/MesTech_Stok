@@ -1,0 +1,208 @@
+@page "/accounting"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Muhasebe</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-calculator text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Muhasebe</h3>
+      <small class="text-muted">Gelir, gider, kar/zarar ve fatura ozeti</small>
+    </div>
+  </div>
+
+  @if (_loading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!string.IsNullOrEmpty(_error))
+    {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@_error
+      </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Gelir</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@_summary.ToplamGelir.ToString("N2") TL</h4>
+                @if (_summary.GelirTrend >= 0)
+                {
+                  <small class="text-success"><i class="fas fa-caret-up me-1"></i>%@_summary.GelirTrend.ToString("N1")</small>
+                }
+                else
+                {
+                  <small class="text-danger"><i class="fas fa-caret-down me-1"></i>%@Math.Abs(_summary.GelirTrend).ToString("N1")</small>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Gider</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@_summary.ToplamGider.ToString("N2") TL</h4>
+                @if (_summary.GiderTrend >= 0)
+                {
+                  <small class="text-danger"><i class="fas fa-caret-up me-1"></i>%@_summary.GiderTrend.ToString("N1")</small>
+                }
+                else
+                {
+                  <small class="text-success"><i class="fas fa-caret-down me-1"></i>%@Math.Abs(_summary.GiderTrend).ToString("N1")</small>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                <i class="fas fa-coins"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Net Kar/Zarar</small>
+                <h4 class="mb-0 fw-bold fs-6 fs-md-4 @(_summary.NetKarZarar >= 0 ? "text-primary" : "text-danger")">
+                  @_summary.NetKarZarar.ToString("N2") TL
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-warning">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning d-none d-sm-flex">
+                <i class="fas fa-file-invoice"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Bekleyen Faturalar</small>
+                <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@_summary.BekleyenFaturalar</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-lg-3">
+        <a href="accounting/expenses" class="card shadow-sm text-decoration-none h-100">
+          <div class="card-body text-center py-4">
+            <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #2855AC;"></i>
+            <h6 class="mb-1">Giderler</h6>
+            <small class="text-muted">Gider kayit ve takibi</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-6 col-lg-3">
+        <a href="accounting/reconciliation" class="card shadow-sm text-decoration-none h-100">
+          <div class="card-body text-center py-4">
+            <i class="fas fa-check-double fa-2x mb-2" style="color: #2855AC;"></i>
+            <h6 class="mb-1">Mutabakat</h6>
+            <small class="text-muted">Banka eslestirme</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-6 col-lg-3">
+        <a href="accounting/reports" class="card shadow-sm text-decoration-none h-100">
+          <div class="card-body text-center py-4">
+            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #2855AC;"></i>
+            <h6 class="mb-1">Raporlar</h6>
+            <small class="text-muted">Mizan, bilanco, gelir-gider</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-6 col-lg-3">
+        <a href="accounting/settings" class="card shadow-sm text-decoration-none h-100">
+          <div class="card-body text-center py-4">
+            <i class="fas fa-sitemap fa-2x mb-2" style="color: #2855AC;"></i>
+            <h6 class="mb-1">Hesap Plani</h6>
+            <small class="text-muted">Hesap kodu yonetimi</small>
+          </div>
+        </a>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _loading = true;
+  private string? _error;
+  private AccountingSummary _summary = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      _summary = await Http.GetFromJsonAsync<AccountingSummary>("/api/v1/accounting/summary")
+                 ?? GetDemoData();
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _summary = GetDemoData();
+      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
+    }
+    finally
+    {
+      _loading = false;
+    }
+  }
+
+  private AccountingSummary GetDemoData() => new()
+  {
+    ToplamGelir = 284_750.00m,
+    ToplamGider = 167_320.50m,
+    NetKarZarar = 117_429.50m,
+    BekleyenFaturalar = 12,
+    GelirTrend = 8.3m,
+    GiderTrend = -2.1m
+  };
+
+  private class AccountingSummary
+  {
+    public decimal ToplamGelir { get; set; }
+    public decimal ToplamGider { get; set; }
+    public decimal NetKarZarar { get; set; }
+    public int BekleyenFaturalar { get; set; }
+    public decimal GelirTrend { get; set; }
+    public decimal GiderTrend { get; set; }
+  }
+}

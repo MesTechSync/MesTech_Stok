@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MesTech.Application.Commands.CreateCategory;
 using MesTech.Application.Commands.UpdateCategory;
 using MesTech.Application.Commands.DeleteCategory;
@@ -14,6 +15,7 @@ namespace MesTechStok.Desktop.Views
     public partial class CategoryManagerDialog : Window
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CategoryManagerDialog>? _logger;
         private int _currentPage = 1;
         private int _pageSize = 50;
         private int _totalItems = 0;
@@ -23,6 +25,7 @@ namespace MesTechStok.Desktop.Views
         {
             InitializeComponent();
             _mediator = MesTechStok.Desktop.App.Services!.GetRequiredService<IMediator>();
+            _logger = MesTechStok.Desktop.App.Services!.GetService<ILogger<CategoryManagerDialog>>();
             CmbCatPageSize.SelectedIndex = 1; // 50
             _ = LoadAsync();
             this.Activate(); this.Focus();
@@ -203,7 +206,7 @@ namespace MesTechStok.Desktop.Views
         private void TxtSearchCat_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             try { _currentPage = 1; _ = LoadAsync(); }
-            catch { /* Intentional: search keyup event handler — async load must not crash event chain. */ }
+            catch (Exception ex) { /* Intentional: search keyup event handler — async load must not crash event chain. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(CategoryManagerDialog), "Search keyup async load must not crash event chain", ex.Message); }
         }
 
         private void CmbCatPageSize_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

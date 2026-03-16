@@ -99,11 +99,11 @@ namespace MesTechStok.Desktop
 
                     // Canlı güncelleme için EventBus dinleyicisi
                     try { MesTechStok.Desktop.Utils.EventBus.CompanySettingsChanged += OnCompanySettingsChanged; }
-                    catch { /* Intentional: EventBus subscription — static event may be in torn-down state during tests. */ }
+                    catch (Exception ex) { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - EventBus subscription failed: {ex.Message}"); }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Intentional: header company name UI setup — non-critical, must not crash constructor.
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Header company name UI setup failed: {ex.Message}");
                 }
 
                 // APPLICATION READY: Trigger application ready event for monitoring
@@ -111,7 +111,7 @@ namespace MesTechStok.Desktop
 
                 // Setup global exception handling early
                 try { SetupGlobalExceptionHandling(); }
-                catch { /* Intentional: global exception handler setup — must not itself throw and crash startup. */ }
+                catch (Exception ex) { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Global exception handler setup failed: {ex.Message}"); }
 
                 // Authentication: Skip overlay if configured
                 try
@@ -126,7 +126,7 @@ namespace MesTechStok.Desktop
                         HidePasswordOverlay();
                     }
                 }
-                catch { /* Intentional: window initialization — non-critical feature failure swallowed */ }
+                catch (Exception ex) { MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Window initialization config read failed: {ex.Message}"); }
 
                 // CHOOSE STARTUP MODE: Welcome vs Main System
                 if (_isWelcomeMode)
@@ -160,9 +160,9 @@ namespace MesTechStok.Desktop
                     }
                 });
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: UI event handler (EventBus callback) — exceptions must not propagate to WPF dispatcher.
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - EventBus company settings callback failed: {ex.Message}");
             }
         }
 
@@ -343,9 +343,9 @@ namespace MesTechStok.Desktop
                         logoImage.Source = new BitmapImage(new Uri(logoPath));
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Intentional: optional logo asset load — file may be missing in some deployments.
+                    MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Sidebar logo load failed: {ex.Message}");
                 }
 
                 // Initialize ekran koruyucu (config'e bağlı)
@@ -630,8 +630,9 @@ namespace MesTechStok.Desktop
                     SetBackgroundImage(imagePath);
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Background image thumbnail load failed: {ex.Message}");
                 border.Background = new SolidColorBrush(Colors.Gray);
                 border.Child = new TextBlock
                 {
@@ -2120,8 +2121,9 @@ namespace MesTechStok.Desktop
                     }
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogWarning($"{nameof(MainWindow)} - Gallery image thumbnail load failed: {ex.Message}");
                 border.Background = new SolidColorBrush(Colors.Gray);
                 border.Child = new TextBlock
                 {

@@ -464,8 +464,9 @@ namespace MesTechStok.Desktop.ViewModels
                 // TODO: Real barcode device SDK integration
                 return false; // For now, always fallback to test mode
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(MainViewModel), "Barcode device connection check failed");
                 return false;
             }
         }
@@ -648,8 +649,9 @@ namespace MesTechStok.Desktop.ViewModels
                     full.NavigateToStock += (s, e) => ShowStock();
                     view = full;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(MainViewModel), "FullDashboardView init failed, falling back to SimpleDashboardView");
                     var simple = new Views.SimpleDashboardView();
                     simple.NavigateToProducts += (s, e) => ShowProducts();
                     simple.NavigateToBarcode += (s, e) => ShowBarcode();

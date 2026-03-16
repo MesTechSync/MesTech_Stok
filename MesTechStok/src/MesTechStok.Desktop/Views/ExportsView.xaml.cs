@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Microsoft.Extensions.Logging;
 using MesTechStok.Desktop.Utils;
 using ClosedXML.Excel;
 using iTextSharp.text;
@@ -29,6 +30,7 @@ namespace MesTechStok.Desktop.Views
 
     public partial class ExportsView : UserControl
     {
+        private readonly ILogger<ExportsView>? _logger;
         private ObservableCollection<ExportRecord> recentExports = new();
         private DispatcherTimer? statsTimer;
         private Random random = new Random();
@@ -36,6 +38,7 @@ namespace MesTechStok.Desktop.Views
         public ExportsView()
         {
             InitializeComponent();
+            _logger = MesTechStok.Desktop.App.Services?.GetService<ILogger<ExportsView>>();
             InitializeExports();
             SetupDataGrid();
             InitializeStatsTimer();
@@ -188,7 +191,7 @@ namespace MesTechStok.Desktop.Views
                     GlobalLogger.Instance.LogInfo($"Excel raporu oluşturuldu: {Path.GetFileName(saveFileDialog.FileName)}", "ExportsView");
                     ToastManager.ShowSuccess($"✅ Excel raporu başarıyla oluşturuldu! Dosya: {Path.GetFileName(saveFileDialog.FileName)}", "Excel Dışa Aktarma");
                     try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); }
-                    catch { /* Intentional: shell file open after export — OS may reject or file may be locked. */ }
+                    catch (Exception ex) { /* Intentional: shell file open after export — OS may reject or file may be locked. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(ExportsView), "Shell file open after Excel export — OS may reject or file may be locked", ex.Message); }
                 }
             }
             catch (Exception ex)
@@ -285,7 +288,7 @@ namespace MesTechStok.Desktop.Views
                     GlobalLogger.Instance.LogInfo($"PDF raporu oluşturuldu: {Path.GetFileName(saveFileDialog.FileName)}", "ExportsView");
                     ToastManager.ShowSuccess($"✅ PDF raporu başarıyla oluşturuldu! Dosya: {Path.GetFileName(saveFileDialog.FileName)}", "PDF Dışa Aktarma");
                     try { Process.Start(new ProcessStartInfo { FileName = saveFileDialog.FileName, UseShellExecute = true }); }
-                    catch { /* Intentional: shell file open after export — OS may reject or file may be locked. */ }
+                    catch (Exception ex) { /* Intentional: shell file open after export — OS may reject or file may be locked. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(ExportsView), "Shell file open after PDF export — OS may reject or file may be locked", ex.Message); }
                 }
             }
             catch (Exception ex)

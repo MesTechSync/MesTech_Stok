@@ -483,9 +483,9 @@ namespace MesTechStok.Desktop.Views
                 if (StartDatePicker != null) StartDatePicker.SelectedDate = null;
                 if (EndDatePicker != null) EndDatePicker.SelectedDate = null;
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: UI event handler (filter clear) — UI element access may fail if not yet loaded.
+                GlobalLogger.Instance.LogWarning($"{nameof(CargoShipmentView)} - Filter clear failed: {ex.Message}");
             }
 
             _ = LoadShipmentsAsync();
@@ -642,6 +642,45 @@ namespace MesTechStok.Desktop.Views
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        #endregion
+
+        #region L/E/E State Helpers
+
+        private void ShowLoading()
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowEmpty()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowError(string message)
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Visible;
+            ErrorMessage.Text = message;
+        }
+
+        private void HideAllStates()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Collapsed;
+            ErrorState.Visibility = Visibility.Collapsed;
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllStates();
+            _ = InitializeAsync();
         }
 
         #endregion

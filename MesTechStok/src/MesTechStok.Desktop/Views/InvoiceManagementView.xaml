@@ -61,6 +61,73 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Loading State -->
+        <Border x:Name="LoadingOverlay"
+                Grid.RowSpan="4"
+                Background="#80000000"
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True"
+                        Width="200"
+                        Height="4"/>
+                <TextBlock Text="Yukleniyor..."
+                        Margin="0,12,0,0"
+                        HorizontalAlignment="Center"
+                        Foreground="White"
+                        FontSize="14"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Grid.RowSpan="4"
+                Background="White"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4C4;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Opacity="0.5"
+                        Margin="0,0,0,8"/>
+                <TextBlock Text="Fatura yok"
+                        FontSize="16"
+                        Foreground="#6C757D"
+                        HorizontalAlignment="Center"
+                        Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState"
+                Grid.RowSpan="4"
+                Background="White"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Foreground="#DC3545"
+                        Margin="0,0,0,8"/>
+                <TextBlock x:Name="ErrorMessage"
+                        Text="Bir hata olustu"
+                        FontSize="14"
+                        Foreground="#DC3545"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,12"
+                        TextWrapping="Wrap"
+                        MaxWidth="400"/>
+                <Button Content="Tekrar Dene"
+                        Style="{StaticResource ActionBtn}"
+                        Click="RetryButton_Click"/>
+            </StackPanel>
+        </Border>
+
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="8,8,8,4">
             <Grid>
