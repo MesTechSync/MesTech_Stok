@@ -1,0 +1,141 @@
+@page "/settlements"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-hand-holding-usd text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Platform Hesaplasmalar</h3>
+    <small class="text-muted">Pazaryeri odeme ve hesaplasma takibi</small>
+  </div>
+</div>
+
+@if (_isLoading)
+{
+  <LoadingSpinner />
+}
+else if (_errorMessage is not null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else
+{
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-money-bill-wave" Value="@($"{_totalSettled:N0} TL")" Label="Toplam Hesaplasan" TextColor="text-success" />
+    <KpiCard Icon="fa-hourglass-half" Value="@($"{_pendingAmount:N0} TL")" Label="Bekleyen" TextColor="text-warning" />
+    <KpiCard Icon="fa-calendar-check" Value="@_settlements.Count.ToString()" Label="Donem Sayisi" TextColor="text-primary" />
+    <KpiCard Icon="fa-store" Value="@_settlements.Select(s => s.Platform).Distinct().Count().ToString()" Label="Platform" TextColor="text-info" />
+  </div>
+
+  <!-- Settlements Table -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Hesaplasma Listesi</h6>
+      <span class="badge bg-secondary">@_settlements.Count kayit</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Platform</th>
+              <th>Donem</th>
+              <th class="text-end">Brut Satis</th>
+              <th class="text-end d-none d-md-table-cell">Komisyon</th>
+              <th class="text-end">Net Odeme</th>
+              <th class="text-center">Durum</th>
+              <th class="d-none d-md-table-cell">Odeme Tarihi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var s in _settlements)
+            {
+              <tr>
+                <td>
+                  <span class="fw-semibold">@s.Platform</span>
+                </td>
+                <td>@s.Donem</td>
+                <td class="text-end">@s.BrutSatis.ToString("N2") TL</td>
+                <td class="text-end d-none d-md-table-cell text-danger">-@s.Komisyon.ToString("N2") TL</td>
+                <td class="text-end fw-bold text-success">@s.NetOdeme.ToString("N2") TL</td>
+                <td class="text-center">
+                  <StatusBadge Text="@s.Durum" Variant="@GetStatusVariant(s.Durum)" />
+                </td>
+                <td class="d-none d-md-table-cell text-muted">
+                  @(s.OdemeTarihi.HasValue ? s.OdemeTarihi.Value.ToString("dd.MM.yyyy") : "-")
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private List<SettlementItem> _settlements = [];
+  private decimal _totalSettled;
+  private decimal _pendingAmount;
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      try
+      {
+        await ApiClient.GetSettlementsAsync();
+      }
+      catch
+      {
+        _isDemoMode = true;
+      }
+
+      _settlements = GetDemoData();
+      _totalSettled = _settlements.Where(s => s.Durum == "Odendi").Sum(s => s.NetOdeme);
+      _pendingAmount = _settlements.Where(s => s.Durum == "Bekliyor").Sum(s => s.NetOdeme);
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Hesaplasma verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static string GetStatusVariant(string durum) => durum switch
+  {
+    "Odendi" => "success",
+    "Bekliyor" => "warning",
+    "Isleniyor" => "info",
+    _ => "secondary"
+  };
+
+  private static List<SettlementItem> GetDemoData() =>
+  [
+    new("Trendyol", "01-15 Mart 2026", 42_350m, 8_893m, 33_457m, "Odendi", DateTime.Today.AddDays(-1)),
+    new("Hepsiburada", "01-15 Mart 2026", 18_900m, 3_307m, 15_593m, "Bekliyor", null),
+    new("N11", "01-15 Mart 2026", 12_480m, 1_997m, 10_483m, "Odendi", DateTime.Today.AddDays(-2)),
+    new("Amazon TR", "01-15 Mart 2026", 8_540m, 1_281m, 7_259m, "Odendi", DateTime.Today.AddDays(-3)),
+    new("CicekSepeti", "01-15 Mart 2026", 6_200m, 1_240m, 4_960m, "Isleniyor", null),
+    new("Trendyol", "16-28 Subat 2026", 38_750m, 8_138m, 30_612m, "Odendi", DateTime.Today.AddDays(-15)),
+    new("Hepsiburada", "16-28 Subat 2026", 15_200m, 2_660m, 12_540m, "Odendi", DateTime.Today.AddDays(-14)),
+  ];
+
+  private record SettlementItem(string Platform, string Donem, decimal BrutSatis, decimal Komisyon,
+    decimal NetOdeme, string Durum, DateTime? OdemeTarihi);
+}

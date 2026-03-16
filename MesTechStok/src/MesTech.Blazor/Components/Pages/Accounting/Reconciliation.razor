@@ -3,6 +3,9 @@
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <PageTitle>Mutabakat</PageTitle>
 
@@ -54,23 +57,19 @@
     </div>
   </div>
 
-  @if (_loading)
+  @if (isLoading)
   {
-    <div class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Yukleniyor...</span>
-      </div>
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
   else
   {
-    @if (!string.IsNullOrEmpty(_error))
-    {
-      <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@_error
-      </div>
-    }
-
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
         <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Eslestirme Tablosu</h6>
@@ -130,26 +129,35 @@
 </div>
 
 @code {
-  private bool _loading = true;
-  private string? _error;
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
   private List<ReconciliationItem> _items = new();
 
   protected override async Task OnInitializedAsync()
   {
     try
     {
-      _items = await Http.GetFromJsonAsync<List<ReconciliationItem>>("/api/v1/accounting/reconciliation")
-               ?? GetDemoData();
+      var result = await ApiClient.SafeGetAsync<List<ReconciliationItem>>("accounting/reconciliation");
+      if (result.IsSuccess && result.Data is not null)
+      {
+        _items = result.Data;
+      }
+      else
+      {
+        _isDemoMode = true;
+        _items = GetDemoData();
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
       _items = GetDemoData();
-      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
     }
     finally
     {
-      _loading = false;
+      isLoading = false;
     }
   }
 

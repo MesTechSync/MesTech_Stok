@@ -1,0 +1,16 @@
+<span class="badge @CssClass">@Text</span>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string Variant { get; set; } = "secondary";
+
+    private string CssClass => Variant switch
+    {
+        "success" => "bg-success",
+        "warning" => "bg-warning text-dark",
+        "danger" => "bg-danger",
+        "info" => "bg-info text-dark",
+        "primary" => "bg-primary",
+        _ => "bg-secondary"
+    };
+}

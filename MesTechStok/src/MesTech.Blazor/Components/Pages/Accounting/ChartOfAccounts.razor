@@ -2,9 +2,13 @@
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
+@inject MesTechApiClient ApiClient
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Strings> L
 
-<PageTitle>Hesap Plani</PageTitle>
+<PageTitle>@L["PageTitle.ChartOfAccounts"]</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
@@ -13,28 +17,24 @@
       <i class="fas fa-sitemap text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Hesap Plani</h3>
+      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.ChartOfAccounts"]</h3>
       <small class="text-muted">Hesap kodu tanimlama ve yonetimi</small>
     </div>
   </div>
 
-  @if (_loading)
+  @if (isLoading)
   {
-    <div class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Yukleniyor...</span>
-      </div>
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
   else
   {
-    @if (!string.IsNullOrEmpty(_error))
-    {
-      <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@_error
-      </div>
-    }
-
     <!-- Add/Edit Form -->
     @if (_showForm)
     {
@@ -42,21 +42,21 @@
         <div class="card-header bg-white">
           <h6 class="mb-0">
             <i class="fas fa-@(_editingAccount is not null ? "edit" : "plus") me-2" style="color: #2855AC;"></i>
-            @(_editingAccount is not null ? "Hesap Duzenle" : "Yeni Hesap Ekle")
+            @(_editingAccount is not null ? L["UI.EditAccount"] : L["UI.AddAccount"])
           </h6>
         </div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12 col-md-2">
-              <label class="form-label small text-muted">Hesap Kodu</label>
+              <label class="form-label small text-muted">@L["Table.AccountCode"]</label>
               <input type="text" class="form-control" @bind="_formCode" placeholder="100" />
             </div>
             <div class="col-12 col-md-4">
-              <label class="form-label small text-muted">Hesap Adi</label>
+              <label class="form-label small text-muted">@L["Table.AccountName"]</label>
               <input type="text" class="form-control" @bind="_formName" placeholder="Kasa" />
             </div>
             <div class="col-12 col-md-2">
-              <label class="form-label small text-muted">Tur</label>
+              <label class="form-label small text-muted">@L["UI.Type"]</label>
               <select class="form-select" @bind="_formType">
                 <option value="Aktif">Aktif</option>
                 <option value="Pasif">Pasif</option>
@@ -65,12 +65,12 @@
               </select>
             </div>
             <div class="col-12 col-md-2">
-              <label class="form-label small text-muted">Ust Hesap</label>
+              <label class="form-label small text-muted">@L["UI.ParentAccount"]</label>
               <input type="text" class="form-control" @bind="_formParent" placeholder="-" />
             </div>
             <div class="col-12 col-md-2 d-flex align-items-end gap-2">
               <button class="btn flex-fill" style="background-color: #2855AC; color: white;" @onclick="SaveAccount">
-                <i class="fas fa-save me-1"></i>Kaydet
+                <i class="fas fa-save me-1"></i>@L["Common.Save"]
               </button>
               <button class="btn btn-outline-secondary" @onclick="CancelForm">
                 <i class="fas fa-times"></i>
@@ -83,9 +83,9 @@
 
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Hesap Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.AccountList"]</h6>
         <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ShowAddForm">
-          <i class="fas fa-plus me-1"></i>Yeni Hesap
+          <i class="fas fa-plus me-1"></i>@L["UI.NewAccount"]
         </button>
       </div>
       <div class="card-body p-0">
@@ -93,11 +93,11 @@
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Hesap Kodu</th>
-                <th>Hesap Adi</th>
-                <th>Tur</th>
-                <th>Ust Hesap</th>
-                <th class="text-center" style="width: 120px;">Islemler</th>
+                <th>@L["Table.AccountCode"]</th>
+                <th>@L["Table.AccountName"]</th>
+                <th>@L["UI.Type"]</th>
+                <th>@L["UI.ParentAccount"]</th>
+                <th class="text-center" style="width: 120px;">@L["UI.Actions"]</th>
               </tr>
             </thead>
             <tbody>
@@ -138,8 +138,9 @@
 </div>
 
 @code {
-  private bool _loading = true;
-  private string? _error;
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
   private List<AccountItem> _accounts = new();
 
   // Form state
@@ -154,18 +155,19 @@
   {
     try
     {
-      _accounts = await Http.GetFromJsonAsync<List<AccountItem>>("/api/v1/accounting/chart-of-accounts")
-                  ?? GetDemoData();
+      await ApiClient.GetChartOfAccountsAsync();
+      // TODO: map response to AccountItem when DTO finalized
+      _accounts = GetDemoData();
     }
     catch (Exception ex)
     {
       Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
       _accounts = GetDemoData();
-      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
     }
     finally
     {
-      _loading = false;
+      isLoading = false;
     }
   }
 

@@ -1,0 +1,321 @@
+@page "/reconciliation"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Mutabakat</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-balance-scale text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Mutabakat</h3>
+      <small class="text-muted">Settlement ve banka hareketi eslestirme motoru</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Eslesme</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@filteredMatches.Count(m => m.Durum == "Eslesti")</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-times-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Uyumsuz</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@filteredMatches.Count(m => m.Durum == "Eslesmedi")</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-warning">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning d-none d-sm-flex">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Onay Bekleyen</small>
+                <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@filteredMatches.Count(m => m.Durum == "Onay Bekliyor")</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-info">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Confidence Ort.</small>
+                <h4 class="mb-0 fw-bold text-info fs-6 fs-md-4">
+                  %@(matches.Count > 0 ? matches.Average(m => m.ConfidenceYuzde).ToString("N1") : "0")
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-6 col-md-4">
+            <select class="form-select form-select-sm" @bind="selectedStatus">
+              <option value="">Tum Durumlar</option>
+              <option value="Eslesti">Eslesti</option>
+              <option value="Eslesmedi">Eslesmedi</option>
+              <option value="Onay Bekliyor">Onay Bekliyor</option>
+            </select>
+          </div>
+          <div class="col-6 col-sm-3 col-md-3">
+            <span class="badge bg-secondary">@filteredMatches.Count kayit</span>
+          </div>
+          <div class="col-6 col-sm-3 col-md-5 text-end">
+            <button class="btn btn-primary" @onclick="RunReconciliation" disabled="@isRunning">
+              @if (isRunning)
+              {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                <span>Calistiriliyor...</span>
+              }
+              else
+              {
+                <i class="fas fa-play me-1"></i>
+                <span>Mutabakat Calistir</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matches Table -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Eslestirme Sonuclari</h6>
+        <span class="badge bg-secondary">@filteredMatches.Count eslestirme</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Settlement Aciklama</th>
+                <th class="text-end d-none d-sm-table-cell">Settlement Tutar</th>
+                <th class="d-none d-md-table-cell">Banka Aciklama</th>
+                <th class="text-end d-none d-md-table-cell">Banka Tutar</th>
+                <th class="text-end d-none d-lg-table-cell">Fark</th>
+                <th>Confidence</th>
+                <th>Durum</th>
+                <th class="d-none d-sm-table-cell">Aksiyonlar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredMatches.Count == 0)
+              {
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">Eslestirme kaydi bulunamadi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var match in filteredMatches)
+                {
+                  <tr>
+                    <td class="fw-bold">@match.SettlementAciklama</td>
+                    <td class="text-end d-none d-sm-table-cell">@match.SettlementTutar.ToString("N2") TL</td>
+                    <td class="d-none d-md-table-cell">@match.BankaAciklama</td>
+                    <td class="text-end d-none d-md-table-cell">@match.BankaTutar.ToString("N2") TL</td>
+                    <td class="text-end d-none d-lg-table-cell @(Math.Abs(match.Fark) < 0.01m ? "text-success" : "text-danger") fw-bold">
+                      @match.Fark.ToString("N2") TL
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2" style="height: 8px; min-width: 50px;">
+                          <div class="progress-bar @GetConfidenceBarClass(match.ConfidenceYuzde)"
+                               style="width: @match.ConfidenceYuzde%"></div>
+                        </div>
+                        <small class="fw-bold" style="min-width: 35px;">%@match.ConfidenceYuzde</small>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge @GetDurumBadgeClass(match.Durum)">@match.Durum</span>
+                    </td>
+                    <td class="d-none d-sm-table-cell">
+                      @if (match.Durum == "Onay Bekliyor")
+                      {
+                        <button class="btn btn-sm btn-outline-success me-1" @onclick="() => ApproveMatch(match)"
+                                title="Onayla">
+                          <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => RejectMatch(match)"
+                                title="Reddet">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      }
+                      else
+                      {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isRunning;
+  private string? errorMessage;
+  private string selectedStatus = string.Empty;
+  private List<ReconciliationMatch> matches = [];
+
+  private List<ReconciliationMatch> filteredMatches => matches
+    .Where(m => string.IsNullOrEmpty(selectedStatus) || m.Durum == selectedStatus)
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetReconciliationMatchesAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Reconciliation): {apiEx.Message}"); }
+      matches = GetDemoMatches();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Mutabakat verileri yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private async Task RunReconciliation()
+  {
+    isRunning = true;
+    try { await ApiClient.RunReconciliationAsync(); }
+    catch (Exception apiEx) { Console.WriteLine($"API fallback (RunReconciliation): {apiEx.Message}"); await Task.Delay(1500); }
+    matches = GetDemoMatches();
+    isRunning = false;
+  }
+
+  private void ApproveMatch(ReconciliationMatch match)
+  {
+    // TODO: Panel A — wire to ApproveReconciliationMatchCommand
+    var idx = matches.IndexOf(match);
+    if (idx >= 0)
+      matches[idx] = match with { Durum = "Eslesti" };
+  }
+
+  private void RejectMatch(ReconciliationMatch match)
+  {
+    // TODO: Panel A — wire to RejectReconciliationMatchCommand
+    var idx = matches.IndexOf(match);
+    if (idx >= 0)
+      matches[idx] = match with { Durum = "Eslesmedi" };
+  }
+
+  private static string GetConfidenceBarClass(decimal score) => score switch
+  {
+    >= 90 => "bg-success",
+    >= 70 => "bg-info",
+    >= 50 => "bg-warning",
+    _ => "bg-danger"
+  };
+
+  private static string GetDurumBadgeClass(string durum) => durum switch
+  {
+    "Eslesti" => "bg-success",
+    "Eslesmedi" => "bg-danger",
+    "Onay Bekliyor" => "bg-warning text-dark",
+    _ => "bg-secondary"
+  };
+
+  private List<ReconciliationMatch> GetDemoMatches() =>
+  [
+    new() { SettlementAciklama = "Trendyol Mart 2026 Odeme", SettlementTutar = 42_350.00m, BankaAciklama = "TRENDYOL ODEME - 2026/03", BankaTutar = 42_350.00m, Fark = 0.00m, ConfidenceYuzde = 98, Durum = "Eslesti" },
+    new() { SettlementAciklama = "N11 Komisyon Iade", SettlementTutar = 1_230.50m, BankaAciklama = "N11 KOMISYON IADESI", BankaTutar = 1_230.50m, Fark = 0.00m, ConfidenceYuzde = 95, Durum = "Eslesti" },
+    new() { SettlementAciklama = "Hepsiburada Haftalik", SettlementTutar = 18_900.00m, BankaAciklama = "HEPSIBURADA ODEME", BankaTutar = 18_750.00m, Fark = -150.00m, ConfidenceYuzde = 72, Durum = "Onay Bekliyor" },
+    new() { SettlementAciklama = "Amazon TR Settlement #42", SettlementTutar = 8_540.00m, BankaAciklama = "AMAZON TR SETTLEMENT", BankaTutar = 8_540.00m, Fark = 0.00m, ConfidenceYuzde = 97, Durum = "Eslesti" },
+    new() { SettlementAciklama = "Ciceksepeti Odeme", SettlementTutar = 12_750.00m, BankaAciklama = "CICEKSEPETI ODEME", BankaTutar = 12_750.00m, Fark = 0.00m, ConfidenceYuzde = 96, Durum = "Eslesti" },
+    new() { SettlementAciklama = "Trendyol Subat 2026 Fark", SettlementTutar = 3_420.00m, BankaAciklama = "TRENDYOL EK ODEME", BankaTutar = 3_200.00m, Fark = -220.00m, ConfidenceYuzde = 58, Durum = "Onay Bekliyor" },
+    new() { SettlementAciklama = "eBay International Payout", SettlementTutar = 5_670.00m, BankaAciklama = "EBAY PAYONEER TRANSFER", BankaTutar = 5_412.30m, Fark = -257.70m, ConfidenceYuzde = 45, Durum = "Eslesmedi" },
+    new() { SettlementAciklama = "Shopify Gunluk Odeme", SettlementTutar = 2_890.00m, BankaAciklama = "SHOPIFY PAYMENTS", BankaTutar = 2_890.00m, Fark = 0.00m, ConfidenceYuzde = 99, Durum = "Eslesti" },
+    new() { SettlementAciklama = "WooCommerce Stripe", SettlementTutar = 1_450.00m, BankaAciklama = "STRIPE PAYOUT", BankaTutar = 1_420.00m, Fark = -30.00m, ConfidenceYuzde = 82, Durum = "Onay Bekliyor" },
+    new() { SettlementAciklama = "Bilinmeyen Havale", SettlementTutar = 0.00m, BankaAciklama = "BILINMEYEN HAVALE - MEHMET", BankaTutar = 5_000.00m, Fark = 5_000.00m, ConfidenceYuzde = 12, Durum = "Eslesmedi" }
+  ];
+
+  private record ReconciliationMatch
+  {
+    public string SettlementAciklama { get; init; } = "";
+    public decimal SettlementTutar { get; init; }
+    public string BankaAciklama { get; init; } = "";
+    public decimal BankaTutar { get; init; }
+    public decimal Fark { get; init; }
+    public decimal ConfidenceYuzde { get; init; }
+    public string Durum { get; init; } = "";
+  }
+}

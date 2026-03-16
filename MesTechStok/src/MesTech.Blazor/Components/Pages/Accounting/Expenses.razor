@@ -3,8 +3,12 @@
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Strings> L
+@inject MesTechApiClient ApiClient
 
-<PageTitle>Giderler</PageTitle>
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>@L["PageTitle.Expenses"]</PageTitle>
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
@@ -13,7 +17,7 @@
       <i class="fas fa-file-invoice-dollar text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Giderler</h3>
+      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Expenses"]</h3>
       <small class="text-muted">Gider kayitlari ve kategori takibi</small>
     </div>
   </div>
@@ -23,15 +27,15 @@
     <div class="card-body">
       <div class="row g-3 align-items-end">
         <div class="col-12 col-md-3">
-          <label class="form-label small text-muted">Baslangic Tarihi</label>
+          <label class="form-label small text-muted">@L["Form.StartDate"]</label>
           <input type="date" class="form-control" @bind="_startDate" />
         </div>
         <div class="col-12 col-md-3">
-          <label class="form-label small text-muted">Bitis Tarihi</label>
+          <label class="form-label small text-muted">@L["Form.EndDate"]</label>
           <input type="date" class="form-control" @bind="_endDate" />
         </div>
         <div class="col-12 col-md-3">
-          <label class="form-label small text-muted">Kategori</label>
+          <label class="form-label small text-muted">@L["Table.Category"]</label>
           <select class="form-select" @bind="_selectedCategory">
             <option value="">Tumu</option>
             @foreach (var cat in _categories)
@@ -42,33 +46,29 @@
         </div>
         <div class="col-12 col-md-3">
           <button class="btn w-100" style="background-color: #2855AC; color: white;" @onclick="ApplyFilter">
-            <i class="fas fa-filter me-1"></i>Filtrele
+            <i class="fas fa-filter me-1"></i>@L["Common.Filter"]
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  @if (_loading)
+  @if (isLoading)
   {
-    <div class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Yukleniyor...</span>
-      </div>
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
   else
   {
-    @if (!string.IsNullOrEmpty(_error))
-    {
-      <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@_error
-      </div>
-    }
-
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Gider Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.ExpenseList"]</h6>
         <span class="badge bg-secondary">@FilteredExpenses.Count kayit</span>
       </div>
       <div class="card-body p-0">
@@ -116,8 +116,9 @@
 </div>
 
 @code {
-  private bool _loading = true;
-  private string? _error;
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
   private List<ExpenseItem> _expenses = new();
   private DateTime _startDate = DateTime.Today.AddMonths(-1);
   private DateTime _endDate = DateTime.Today;
@@ -134,18 +135,26 @@
   {
     try
     {
-      _expenses = await Http.GetFromJsonAsync<List<ExpenseItem>>("/api/v1/accounting/expenses")
-                  ?? GetDemoData();
+      var result = await ApiClient.SafeGetAsync<List<ExpenseItem>>("accounting/expenses");
+      if (result.IsSuccess && result.Data is not null)
+      {
+        _expenses = result.Data;
+      }
+      else
+      {
+        _isDemoMode = true;
+        _expenses = GetDemoData();
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
       _expenses = GetDemoData();
-      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
     }
     finally
     {
-      _loading = false;
+      isLoading = false;
     }
   }
 

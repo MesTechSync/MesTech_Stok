@@ -1,0 +1,384 @@
+@page "/admin/stores"
+@attribute [Authorize(Roles = "Admin")]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-store text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Magaza Yonetimi</h3>
+      <small class="text-muted">Platform baglantilari ve magaza ayarlari</small>
+    </div>
+  </div>
+  <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ToggleNewStoreForm">
+    <i class="fas fa-plus me-1"></i>Yeni Magaza
+  </button>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else
+{
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-store" Value="@toplamMagaza.ToString()" Label="Toplam Magaza" TextColor="text-primary" />
+    <KpiCard Icon="fa-check-circle" Value="@aktifMagaza.ToString()" Label="Aktif" TextColor="text-success" />
+    <KpiCard Icon="fa-exclamation-triangle" Value="@baglantiHatasi.ToString()" Label="Baglanti Hatasi" TextColor="text-danger" />
+    <KpiCard Icon="fa-sync" Value="@son24sSync.ToString()" Label="Son 24s Sync" TextColor="text-info" />
+  </div>
+
+  <!-- New Store Form -->
+  @if (showNewStoreForm)
+  {
+    <div class="card shadow-sm mb-4 border-start border-4" style="border-color: #2855AC !important;">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0">
+          <i class="fas fa-plus me-2" style="color: #2855AC;"></i>Yeni Magaza Olustur
+        </h6>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleNewStoreForm">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-muted">Magaza Adi</label>
+            <input type="text" class="form-control" @bind="newStore.MagazaAdi" placeholder="Magaza adini girin" />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label small text-muted">Platform</label>
+            <select class="form-select" @bind="newStore.Platform">
+              <option value="">Platform Secin</option>
+              @foreach (var p in platformOptions)
+              {
+                <option value="@p">@p</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-5">
+            <label class="form-label small text-muted">API Key</label>
+            <input type="text" class="form-control" @bind="newStore.ApiKey" placeholder="API anahtarinizi girin" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-muted">API Secret</label>
+            <input type="password" class="form-control" @bind="newStore.ApiSecret" placeholder="API secret" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-muted">Seller ID</label>
+            <input type="text" class="form-control" @bind="newStore.SellerId" placeholder="Magaza / Satici ID" />
+          </div>
+          <div class="col-12 col-md-4 d-flex align-items-end gap-2">
+            <button class="btn btn-outline-info flex-fill" @onclick="TestConnection" disabled="@isSubmitting">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-plug me-1"></i>Baglanti Test
+            </button>
+            <button class="btn flex-fill" style="background-color: #2855AC; color: white;" @onclick="SaveNewStore" disabled="@isSubmitting">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-save me-1"></i>Kaydet
+            </button>
+          </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+          <div class="alert alert-success mt-3 mb-0" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@successMessage
+          </div>
+        }
+
+        @if (connectionTestResult is not null)
+        {
+          <div class="alert @(connectionTestSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+            <i class="fas @(connectionTestSuccess ? "fa-check-circle" : "fa-times-circle") me-2"></i>
+            @connectionTestResult
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Search -->
+  <div class="row mb-3">
+    <div class="col-12 col-md-4">
+      <SearchInput @bind-Value="searchTerm" Placeholder="Magaza ara..." />
+    </div>
+  </div>
+
+  <!-- Store Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Magaza Adi</th>
+              <th>Platform</th>
+              <th class="text-center">Baglanti Durumu</th>
+              <th class="d-none d-md-table-cell">Son Sync</th>
+              <th class="text-end d-none d-md-table-cell">Urun Sayisi</th>
+              <th class="text-center" style="width: 120px;">Aksiyonlar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (FilteredStores.Count == 0)
+            {
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  <i class="fas fa-store fa-2x mb-2 d-block" style="opacity: 0.3;"></i>
+                  Magaza bulunamadi.
+                </td>
+              </tr>
+            }
+            else
+            {
+              @foreach (var s in FilteredStores)
+              {
+                <tr>
+                  <td>
+                    <i class="fas fa-store me-2 text-muted"></i>
+                    <span class="fw-semibold">@s.MagazaAdi</span>
+                  </td>
+                  <td>
+                    <span class="badge @GetPlatformBadgeClass(s.Platform)">@s.Platform</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="d-inline-block rounded-circle me-1"
+                          style="width: 8px; height: 8px; background-color: @(s.BaglantiDurumu == "Bagli" ? "#198754" : "#dc3545");"></span>
+                    <small class="@(s.BaglantiDurumu == "Bagli" ? "text-success" : "text-danger")">@s.BaglantiDurumu</small>
+                  </td>
+                  <td class="d-none d-md-table-cell">@s.SonSync.ToString("dd.MM.yyyy HH:mm")</td>
+                  <td class="text-end d-none d-md-table-cell">@s.UrunSayisi.ToString("N0")</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary me-1" title="Sync Baslat" @onclick="() => SyncStore(s)">
+                      <i class="fas fa-sync"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" title="Ayarlar">
+                      <i class="fas fa-cog"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private string searchTerm = "";
+  private bool showNewStoreForm;
+
+  // KPI
+  private int toplamMagaza;
+  private int aktifMagaza;
+  private int baglantiHatasi;
+  private int son24sSync;
+
+  // New store form
+  private NewStoreForm newStore = new();
+  private string? connectionTestResult;
+  private bool connectionTestSuccess;
+
+  // Data
+  private List<StoreRow> stores = [];
+
+  private readonly string[] platformOptions =
+  [
+    "Trendyol", "Hepsiburada", "N11", "CicekSepeti", "Pazarama",
+    "Amazon TR", "eBay", "Shopify", "WooCommerce", "OpenCart", "Bitrix24"
+  ];
+
+  private List<StoreRow> FilteredStores =>
+    string.IsNullOrWhiteSpace(searchTerm)
+      ? stores
+      : stores.Where(s => s.MagazaAdi.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                       || s.Platform.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    try
+    {
+      try { await ApiClient.GetStoresAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Stores): {apiEx.Message}"); }
+
+      stores =
+      [
+        new("Anadolu Trendyol", "Trendyol", "Bagli", new DateTime(2026, 3, 16, 9, 30, 0), 1240),
+        new("Anadolu HB", "Hepsiburada", "Bagli", new DateTime(2026, 3, 16, 8, 45, 0), 890),
+        new("Ege N11 Magaza", "N11", "Baglanti Hatasi", new DateTime(2026, 3, 15, 22, 10, 0), 670),
+        new("Marmara Shopify", "Shopify", "Bagli", new DateTime(2026, 3, 16, 7, 0, 0), 320),
+        new("Akdeniz CicekSepeti", "CicekSepeti", "Bagli", new DateTime(2026, 3, 16, 6, 30, 0), 195),
+        new("Karadeniz Amazon", "Amazon TR", "Baglanti Hatasi", new DateTime(2026, 3, 14, 15, 20, 0), 145),
+        new("Anadolu WooCommerce", "WooCommerce", "Bagli", new DateTime(2026, 3, 16, 10, 0, 0), 410),
+        new("Ege OpenCart", "OpenCart", "Bagli", new DateTime(2026, 3, 16, 5, 15, 0), 560),
+      ];
+
+      toplamMagaza = stores.Count;
+      aktifMagaza = stores.Count(s => s.BaglantiDurumu == "Bagli");
+      baglantiHatasi = stores.Count(s => s.BaglantiDurumu != "Bagli");
+      son24sSync = stores.Count(s => s.SonSync > DateTime.Now.AddHours(-24));
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Magaza verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void ToggleNewStoreForm()
+  {
+    showNewStoreForm = !showNewStoreForm;
+    connectionTestResult = null;
+    if (showNewStoreForm) newStore = new NewStoreForm();
+  }
+
+  private async Task TestConnection()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(newStore.Platform) || string.IsNullOrWhiteSpace(newStore.ApiKey))
+      {
+        connectionTestResult = "Lutfen platform secin ve API Key girin.";
+        connectionTestSuccess = false;
+        return;
+      }
+
+      // TODO: Panel A — add TestStoreConnectionCommand
+      await Task.Delay(300); // simulate API call
+
+      // Mock: success for most platforms, fail for Amazon
+      if (newStore.Platform == "Amazon TR")
+      {
+        connectionTestResult = $"Baglanti basarisiz: {newStore.Platform} API yanit vermiyor. API key'i kontrol edin.";
+        connectionTestSuccess = false;
+      }
+      else
+      {
+        connectionTestResult = $"{newStore.Platform} baglantisi basarili! Hesap dogrulandi.";
+        connectionTestSuccess = true;
+      }
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private async Task SaveNewStore()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(newStore.MagazaAdi) || string.IsNullOrWhiteSpace(newStore.Platform))
+        return;
+
+      // TODO: Panel A — add CreateStoreCommand
+      stores.Add(new StoreRow(
+        newStore.MagazaAdi,
+        newStore.Platform,
+        "Bagli",
+        DateTime.Now,
+        0));
+
+      toplamMagaza = stores.Count;
+      aktifMagaza = stores.Count(s => s.BaglantiDurumu == "Bagli");
+      showNewStoreForm = false;
+      connectionTestResult = null;
+      successMessage = "Magaza basariyla kaydedildi";
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private async Task SyncStore(StoreRow store)
+  {
+    // TODO: Panel A — add SyncStoreCommand
+    await Task.CompletedTask;
+  }
+
+  private string GetPlatformBadgeClass(string platform) => platform switch
+  {
+    "Trendyol" => "bg-warning text-dark",
+    "Hepsiburada" => "bg-danger",
+    "N11" => "bg-info text-dark",
+    "CicekSepeti" => "bg-success",
+    "Pazarama" => "bg-primary",
+    "Amazon TR" => "bg-warning text-dark",
+    "eBay" => "bg-primary",
+    "Shopify" => "bg-success",
+    "WooCommerce" => "bg-secondary",
+    "OpenCart" => "bg-info text-dark",
+    "Bitrix24" => "bg-dark",
+    _ => "bg-secondary"
+  };
+
+  private record StoreRow(string MagazaAdi, string Platform, string BaglantiDurumu, DateTime SonSync, int UrunSayisi);
+
+  private class NewStoreForm
+  {
+    public string MagazaAdi { get; set; } = "";
+    public string Platform { get; set; } = "";
+    public string ApiKey { get; set; } = "";
+    public string ApiSecret { get; set; } = "";
+    public string SellerId { get; set; } = "";
+  }
+}

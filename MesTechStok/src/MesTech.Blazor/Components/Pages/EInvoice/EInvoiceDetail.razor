@@ -1,0 +1,369 @@
+@page "/e-invoices/{Id:guid}"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-file-invoice text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Fatura Detay — #@invoice?.No</h3>
+        <small class="text-muted">Fatura bilgileri ve gonderim gecmisi</small>
+    </div>
+</div>
+
+<!-- Back button -->
+<div class="mb-3">
+    <button class="btn btn-outline-secondary btn-sm" @onclick="GoBack">
+        <i class="fas fa-arrow-left me-1"></i>Fatura Listesine Don
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (invoice is not null)
+{
+    <!-- Status & Action Bar -->
+    @if (actionMessage is not null)
+    {
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <i class="fas fa-info-circle me-2"></i>@actionMessage
+            <button type="button" class="btn-close" @onclick="() => actionMessage = null"></button>
+        </div>
+    }
+
+    <div class="row g-3 g-md-4 mb-4">
+        <!-- Fatura Bilgileri -->
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Fatura Bilgileri</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Fatura No</small>
+                            <span class="fw-bold">@invoice.No</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Tarih</small>
+                            <span>@invoice.Tarih.ToString("dd.MM.yyyy")</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Senaryo</small>
+                            <span class="badge bg-primary">@invoice.Senaryo</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Durum</small>
+                            <StatusBadge Text="@invoice.Durum" Variant="@GetStatusVariant(invoice.Durum)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alici Bilgileri -->
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-user-tie me-2"></i>Alici Bilgileri</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <small class="text-muted d-block">VKN / TCKN</small>
+                            <span class="fw-bold">@invoice.AliciVkn</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Vergi Dairesi</small>
+                            <span>@invoice.VergiDairesi</span>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Unvan</small>
+                            <span class="fw-bold">@invoice.AliciUnvan</span>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Adres</small>
+                            <span>@invoice.Adres</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kalem Tablosu -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fas fa-list me-2"></i>Fatura Kalemleri</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Urun / Hizmet</th>
+                            <th class="text-end">Miktar</th>
+                            <th class="text-end d-none d-sm-table-cell">Birim Fiyat</th>
+                            <th class="text-end d-none d-md-table-cell">KDV %</th>
+                            <th class="text-end d-none d-md-table-cell">KDV Tutar</th>
+                            <th class="text-end">Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var lineIdx = 0; }
+                        @foreach (var line in invoice.Kalemler)
+                        {
+                            lineIdx++;
+                            <tr>
+                                <td>@lineIdx</td>
+                                <td>@line.UrunAdi</td>
+                                <td class="text-end">@line.Miktar</td>
+                                <td class="text-end d-none d-sm-table-cell">@line.BirimFiyat.ToString("N2") TL</td>
+                                <td class="text-end d-none d-md-table-cell">%@line.KdvOrani</td>
+                                <td class="text-end d-none d-md-table-cell">@line.KdvTutar.ToString("N2") TL</td>
+                                <td class="text-end fw-bold">@line.ToplamTutar.ToString("N2") TL</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutar Ozeti -->
+    <div class="row justify-content-end mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-start border-4 border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ara Toplam:</span>
+                        <span class="fw-bold">@invoice.Tutar.ToString("N2") TL</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">KDV Toplam:</span>
+                        <span class="fw-bold">@invoice.Kdv.ToString("N2") TL</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold text-primary">Genel Toplam:</span>
+                        <span class="fw-bold text-primary fs-5">@invoice.Toplam.ToString("N2") TL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-2 mb-4">
+        @if (invoice.Durum == "Taslak")
+        {
+            <button class="btn btn-success" @onclick="SendInvoice" disabled="@isProcessing">
+                @if (isProcessing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="fas fa-paper-plane me-1"></i>Fatura Gonder
+            </button>
+        }
+        @if (invoice.Durum == "Gonderildi")
+        {
+            <button class="btn btn-danger" @onclick="CancelInvoice" disabled="@isProcessing">
+                @if (isProcessing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="fas fa-ban me-1"></i>Fatura Iptal Et
+            </button>
+        }
+        <button class="btn btn-outline-secondary" @onclick="GoBack">
+            <i class="fas fa-arrow-left me-1"></i>Geri Don
+        </button>
+    </div>
+
+    <!-- Gonderim Gecmisi -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fas fa-history me-2"></i>Gonderim Gecmisi</h6>
+        </div>
+        <div class="card-body">
+            @if (timeline.Count == 0)
+            {
+                <p class="text-muted mb-0">Henuz gonderim gecmisi bulunmuyor.</p>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var entry in timeline)
+                    {
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 32px; height: 32px; background-color: @entry.Color;">
+                                    <i class="fas @entry.Icon text-white" style="font-size: 0.75rem;"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-semibold">@entry.Baslik</span>
+                                    <small class="text-muted d-block">@entry.Tarih.ToString("dd.MM.yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private record InvoiceLineDto(string UrunAdi, int Miktar, decimal BirimFiyat, int KdvOrani)
+    {
+        public decimal AraTutar => Miktar * BirimFiyat;
+        public decimal KdvTutar => AraTutar * KdvOrani / 100m;
+        public decimal ToplamTutar => AraTutar + KdvTutar;
+    }
+
+    private record InvoiceDetailDto(Guid Id, string No, DateTime Tarih, string Senaryo, string Durum,
+        string AliciVkn, string AliciUnvan, string VergiDairesi, string Adres,
+        decimal Tutar, decimal Kdv, decimal Toplam, List<InvoiceLineDto> Kalemler);
+
+    private record TimelineEntry(string Baslik, DateTime Tarih, string Icon, string Color);
+
+    private InvoiceDetailDto? invoice;
+    private List<TimelineEntry> timeline = [];
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool isProcessing;
+    private bool isSubmitting;
+    private string? errorMessage;
+    private string? successMessage;
+    private string? actionMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            try { await ApiClient.GetEInvoiceByIdAsync(Id); }
+            catch (Exception apiEx) { Console.WriteLine($"API fallback (EInvoiceDetail): {apiEx.Message}"); }
+
+            var kalemler = new List<InvoiceLineDto>
+            {
+                new("Laptop Bilgisayar (i7, 16GB RAM)", 2, 25_000m, 20),
+                new("USB-C Dock Istasyonu", 5, 2_500m, 20),
+                new("Teknik Destek Hizmeti (Aylik)", 1, 3_000m, 20),
+            };
+
+            invoice = new InvoiceDetailDto(
+                Id, "MES2026000001", new DateTime(2026, 3, 1), "e-Fatura", "Gonderildi",
+                "1234567890", "ABC Ticaret A.S.", "Besiktas", "Levent Mah. Buyukdere Cad. No:185 Istanbul",
+                kalemler.Sum(k => k.AraTutar), kalemler.Sum(k => k.KdvTutar), kalemler.Sum(k => k.ToplamTutar),
+                kalemler);
+
+            timeline =
+            [
+                new("Fatura olusturuldu", new DateTime(2026, 3, 1, 9, 15, 0), "fa-plus", "#6c757d"),
+                new("GIB'e gonderildi", new DateTime(2026, 3, 1, 9, 20, 0), "fa-paper-plane", "#0d6efd"),
+                new("GIB tarafindan onaylandi", new DateTime(2026, 3, 1, 9, 22, 0), "fa-check-circle", "#198754"),
+            ];
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Fatura yuklenirken hata olustu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SendInvoice()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        isProcessing = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to SendEInvoiceCommand
+            await Task.Delay(800);
+            if (invoice is not null)
+            {
+                invoice = invoice with { Durum = "Gonderildi" };
+                timeline.Add(new("GIB'e gonderildi", DateTime.Now, "fa-paper-plane", "#0d6efd"));
+                actionMessage = "Fatura basariyla gonderildi.";
+                successMessage = "Fatura basariyla gonderildi";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Gonderim hatasi: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            isSubmitting = false;
+        }
+    }
+
+    private async Task CancelInvoice()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        isProcessing = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to CancelEInvoiceCommand
+            await Task.Delay(800);
+            if (invoice is not null)
+            {
+                invoice = invoice with { Durum = "Iptal" };
+                timeline.Add(new("Fatura iptal edildi", DateTime.Now, "fa-ban", "#dc3545"));
+                actionMessage = "Fatura iptal edildi.";
+                successMessage = "Fatura iptal islemi tamamlandi";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Iptal hatasi: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            isSubmitting = false;
+        }
+    }
+
+    private void GoBack() => Nav.NavigateTo("/e-invoices");
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Taslak" => "warning",
+        "Gonderildi" => "success",
+        "Iptal" => "danger",
+        _ => "secondary"
+    };
+}

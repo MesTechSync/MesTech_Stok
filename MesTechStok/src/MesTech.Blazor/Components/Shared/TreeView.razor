@@ -1,0 +1,47 @@
+@typeparam TItem
+
+@foreach (var item in Items)
+{
+    <div style="padding-left: @(Level * 20)px;" class="py-1">
+        @if (HasChildren(item))
+        {
+            <button class="btn btn-sm btn-link p-0 me-1" @onclick="() => Toggle(item)">
+                <i class="fas @(IsExpanded(item) ? "fa-chevron-down" : "fa-chevron-right") text-muted"></i>
+            </button>
+        }
+        else
+        {
+            <span class="me-3"></span>
+        }
+        @ItemTemplate(item)
+    </div>
+    @if (HasChildren(item) && IsExpanded(item))
+    {
+        <MesTech.Blazor.Components.Shared.TreeView TItem="TItem" Items="GetChildren(item)" Level="Level + 1"
+                  ItemTemplate="ItemTemplate" ChildrenSelector="ChildrenSelector"
+                  OnItemSelected="OnItemSelected" />
+    }
+}
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = [];
+    [Parameter] public int Level { get; set; } = 0;
+    [Parameter] public RenderFragment<TItem> ItemTemplate { get; set; } = default!;
+    [Parameter] public Func<TItem, IEnumerable<TItem>>? ChildrenSelector { get; set; }
+    [Parameter] public EventCallback<TItem> OnItemSelected { get; set; }
+
+    private HashSet<TItem> expandedItems = new();
+
+    private bool HasChildren(TItem item)
+        => ChildrenSelector?.Invoke(item)?.Any() ?? false;
+
+    private IEnumerable<TItem> GetChildren(TItem item)
+        => ChildrenSelector?.Invoke(item) ?? [];
+
+    private bool IsExpanded(TItem item) => expandedItems.Contains(item);
+
+    private void Toggle(TItem item)
+    {
+        if (!expandedItems.Remove(item)) expandedItems.Add(item);
+    }
+}

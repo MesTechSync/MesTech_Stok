@@ -1,0 +1,20 @@
+<div class="d-flex gap-2 align-items-center">
+    <input type="date" class="form-control form-control-sm" @bind="StartDate" @bind:after="OnChanged" />
+    <span class="text-muted">&#8212;</span>
+    <input type="date" class="form-control form-control-sm" @bind="EndDate" @bind:after="OnChanged" />
+</div>
+
+@code {
+    [Parameter] public DateTime StartDate { get; set; } = DateTime.Today.AddMonths(-1);
+    [Parameter] public EventCallback<DateTime> StartDateChanged { get; set; }
+    [Parameter] public DateTime EndDate { get; set; } = DateTime.Today;
+    [Parameter] public EventCallback<DateTime> EndDateChanged { get; set; }
+    [Parameter] public EventCallback OnRangeChanged { get; set; }
+
+    private async Task OnChanged()
+    {
+        await StartDateChanged.InvokeAsync(StartDate);
+        await EndDateChanged.InvokeAsync(EndDate);
+        await OnRangeChanged.InvokeAsync();
+    }
+}

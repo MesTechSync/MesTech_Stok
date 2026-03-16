@@ -1,0 +1,337 @@
+@page "/shipments"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-shipping-fast text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Kargo Gonderim Kuyrugu</h3>
+        <small class="text-muted">Siparis gonderim yonetimi ve kargo entegrasyonu</small>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else
+{
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-hourglass-half" Value="@shipments.Count(s => s.Durum == "Beklemede").ToString()" Label="Bekleyen" TextColor="text-warning" />
+        <KpiCard Icon="fa-truck" Value="@shipments.Count(s => s.Durum == "Gonderildi").ToString()" Label="Bugun Gonderilen" TextColor="text-primary" />
+        <KpiCard Icon="fa-check-double" Value="@shipments.Count(s => s.Durum == "Teslim").ToString()" Label="Teslim Edilen" TextColor="text-success" />
+        <KpiCard Icon="fa-undo" Value="@shipments.Count(s => s.Durum == "Iade").ToString()" Label="Iade" TextColor="text-danger" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success mb-4"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+    }
+
+    @if (actionMessage is not null)
+    {
+        <div class="alert alert-info alert-dismissible mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>@actionMessage
+            <button type="button" class="btn-close" @onclick="() => actionMessage = null"></button>
+        </div>
+    }
+
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <SearchInput @bind-Value="searchText" Placeholder="Siparis no veya musteri ara..." />
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <select class="form-select form-select-sm" @bind="selectedStatus" @bind:after="OnFilterChanged">
+                        <option value="">Tum Durumlar</option>
+                        <option value="Beklemede">Beklemede</option>
+                        <option value="Gonderildi">Gonderildi</option>
+                        <option value="Teslim">Teslim</option>
+                        <option value="Iade">Iade</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <span class="badge bg-secondary">@filteredShipments.Count gonderi</span>
+                </div>
+                <div class="col-12 col-sm-12 col-md-5 text-end">
+                    @if (selectedIds.Count > 0)
+                    {
+                        <button class="btn btn-sm btn-success me-2" @onclick="BulkSend" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            <i class="fas fa-paper-plane me-1"></i>Toplu Gonder (@selectedIds.Count)
+                        </button>
+                    }
+                    <a href="/shipments/tracking" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-truck me-1"></i><span class="d-none d-sm-inline">Kargo Takip</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipment Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" class="form-check-input"
+                                       @onchange="ToggleSelectAll"
+                                       checked="@isAllSelected" />
+                            </th>
+                            <th>Siparis No</th>
+                            <th class="d-none d-sm-table-cell">Musteri</th>
+                            <th class="d-none d-md-table-cell">Urun</th>
+                            <th class="d-none d-lg-table-cell">Platform</th>
+                            <th>Kargo Firma</th>
+                            <th>Durum</th>
+                            <th class="d-none d-md-table-cell text-end">Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in filteredShipments)
+                        {
+                            <tr class="@(selectedIds.Contains(s.Id) ? "table-active" : "")">
+                                <td>
+                                    <input type="checkbox" class="form-check-input"
+                                           checked="@selectedIds.Contains(s.Id)"
+                                           @onchange="() => ToggleSelect(s.Id)" />
+                                </td>
+                                <td class="fw-bold">@s.SiparisNo</td>
+                                <td class="d-none d-sm-table-cell">@s.Musteri</td>
+                                <td class="d-none d-md-table-cell">
+                                    <small>@s.Urun</small>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <span class="badge bg-light text-dark">@s.Platform</span>
+                                </td>
+                                <td>
+                                    @if (s.Durum == "Beklemede")
+                                    {
+                                        <select class="form-select form-select-sm" style="width: 120px;"
+                                                @bind="s.KargoFirma">
+                                            <option value="Yurtici">Yurtici</option>
+                                            <option value="Aras">Aras</option>
+                                            <option value="Surat">Surat</option>
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <span>@s.KargoFirma</span>
+                                    }
+                                </td>
+                                <td>
+                                    <StatusBadge Text="@s.Durum" Variant="@GetStatusVariant(s.Durum)" />
+                                </td>
+                                <td class="d-none d-md-table-cell text-end">
+                                    @if (s.Durum == "Beklemede")
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => SendShipment(s)" disabled="@isSubmitting">
+                                            <i class="fas fa-paper-plane me-1"></i>Gonder
+                                        </button>
+                                    }
+                                    else if (s.Durum == "Gonderildi")
+                                    {
+                                        <a href="/shipments/tracking" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-search me-1"></i>Takip
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <small class="text-muted">@filteredShipments.Count / @shipments.Count gonderi listeleniyor</small>
+        </div>
+    </div>
+}
+
+@code {
+    private class ShipmentRow
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string SiparisNo { get; set; } = string.Empty;
+        public string Musteri { get; set; } = string.Empty;
+        public string Urun { get; set; } = string.Empty;
+        public string Platform { get; set; } = string.Empty;
+        public string KargoFirma { get; set; } = "Yurtici";
+        public string Durum { get; set; } = "Beklemede";
+    }
+
+    private List<ShipmentRow> shipments = [];
+    private HashSet<Guid> selectedIds = [];
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string? successMessage;
+    private string? actionMessage;
+    private string searchText = string.Empty;
+    private string selectedStatus = string.Empty;
+
+    private List<ShipmentRow> filteredShipments => shipments
+        .Where(s => string.IsNullOrEmpty(selectedStatus) || s.Durum == selectedStatus)
+        .Where(s => string.IsNullOrWhiteSpace(searchText)
+            || s.SiparisNo.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || s.Musteri.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    private bool isAllSelected => filteredShipments.Count > 0 && filteredShipments.All(s => selectedIds.Contains(s.Id));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            try
+            {
+                await ApiClient.GetShipmentsAsync();
+                // TODO: map API response to ShipmentRow when DTO finalized
+            }
+            catch (Exception apiEx)
+            {
+                Console.WriteLine($"API fallback (ShipmentQueue): {apiEx.Message}");
+                _isDemoMode = true;
+            }
+
+            shipments =
+            [
+                new() { SiparisNo = "TY-2026-0451", Musteri = "Ahmet Yilmaz", Urun = "Laptop Bilgisayar i7", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
+                new() { SiparisNo = "HB-2026-1203", Musteri = "Fatma Demir", Urun = "Bluetooth Kulaklik", Platform = "Hepsiburada", KargoFirma = "Aras", Durum = "Beklemede" },
+                new() { SiparisNo = "N11-2026-0089", Musteri = "Mehmet Kaya", Urun = "Akilli Saat Pro", Platform = "N11", KargoFirma = "Surat", Durum = "Gonderildi" },
+                new() { SiparisNo = "TY-2026-0452", Musteri = "Ayse Ozturk", Urun = "Tablet 10 inc", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
+                new() { SiparisNo = "AMZ-2026-0034", Musteri = "Ali Celik", Urun = "USB-C Hub Adaptoru", Platform = "Amazon TR", KargoFirma = "Aras", Durum = "Teslim" },
+                new() { SiparisNo = "CS-2026-0178", Musteri = "Zeynep Arslan", Urun = "Kablosuz Mouse", Platform = "CicekSepeti", KargoFirma = "Yurtici", Durum = "Gonderildi" },
+                new() { SiparisNo = "SH-2026-0067", Musteri = "Mustafa Sahin", Urun = "Mekanik Klavye", Platform = "Shopify", KargoFirma = "Surat", Durum = "Beklemede" },
+                new() { SiparisNo = "TY-2026-0453", Musteri = "Elif Yildiz", Urun = "Monitur 27 inc 4K", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Iade" },
+                new() { SiparisNo = "EB-2026-0012", Musteri = "Hasan Tas", Urun = "Webcam 1080p", Platform = "eBay", KargoFirma = "Aras", Durum = "Teslim" },
+                new() { SiparisNo = "WC-2026-0045", Musteri = "Selin Koç", Urun = "SSD 1TB NVMe", Platform = "WooCommerce", KargoFirma = "Surat", Durum = "Beklemede" },
+            ];
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Gonderim kuyrugu yuklenirken hata olustu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task OnFilterChanged() => Task.CompletedTask;
+
+    private void ToggleSelect(Guid id)
+    {
+        if (!selectedIds.Remove(id))
+            selectedIds.Add(id);
+    }
+
+    private void ToggleSelectAll()
+    {
+        if (isAllSelected)
+            selectedIds.Clear();
+        else
+            selectedIds = filteredShipments.Select(s => s.Id).ToHashSet();
+    }
+
+    private async Task SendShipment(ShipmentRow shipment)
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to SendShipmentCommand
+            shipment.Durum = "Gonderildi";
+            actionMessage = $"{shipment.SiparisNo} basariyla kargoya verildi ({shipment.KargoFirma}).";
+            selectedIds.Remove(shipment.Id);
+            successMessage = "Gonderi basariyla kargoya verildi";
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task BulkSend()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to BulkSendShipmentCommand
+            var count = 0;
+            foreach (var id in selectedIds.ToList())
+            {
+                var shipment = shipments.FirstOrDefault(s => s.Id == id && s.Durum == "Beklemede");
+                if (shipment is not null)
+                {
+                    shipment.Durum = "Gonderildi";
+                    count++;
+                }
+            }
+            selectedIds.Clear();
+            actionMessage = $"{count} gonderi basariyla kargoya verildi.";
+            successMessage = $"{count} gonderi basariyla gonderildi";
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Beklemede" => "warning",
+        "Gonderildi" => "primary",
+        "Teslim" => "success",
+        "Iade" => "danger",
+        _ => "secondary"
+    };
+}

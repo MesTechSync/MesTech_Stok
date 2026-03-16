@@ -1,0 +1,157 @@
+@page "/cargo/settings"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-cogs text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Kargo Ayarlari</h3>
+    <small class="text-muted">Kargo firma tanimlari ve entegrasyon ayarlari</small>
+  </div>
+</div>
+
+@if (_isLoading)
+{
+  <LoadingSpinner />
+}
+else if (_errorMessage is not null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else
+{
+  <!-- Cargo Providers -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-truck me-2" style="color: #2855AC;"></i>Kargo Firmalari</h6>
+      <span class="badge bg-secondary">@_providers.Count firma</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        @foreach (var provider in _providers)
+        {
+          <div class="col-12 col-md-4">
+            <div class="card h-100 border @(provider.IsActive ? "border-success" : "border-secondary")" style="border-width: 2px !important;">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="fas fa-truck fa-lg me-3" style="color: @provider.Color;"></i>
+                  <div>
+                    <h6 class="mb-0 fw-bold">@provider.Name</h6>
+                    <small class="text-muted">@provider.ApiType</small>
+                  </div>
+                  <div class="ms-auto">
+                    <StatusBadge Text="@(provider.IsActive ? "Aktif" : "Pasif")"
+                                 Variant="@(provider.IsActive ? "success" : "secondary")" />
+                  </div>
+                </div>
+                <div class="row g-2 text-center">
+                  <div class="col-4">
+                    <small class="text-muted d-block">Ort. Sure</small>
+                    <span class="fw-semibold">@provider.AvgDeliveryDays gun</span>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted d-block">Ort. Fiyat</small>
+                    <span class="fw-semibold">@provider.AvgPrice.ToString("N2") TL</span>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted d-block">Basari</small>
+                    <span class="fw-semibold">%@provider.SuccessRate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Default Settings -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-sliders-h me-2" style="color: #2855AC;"></i>Varsayilan Ayarlar</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Varsayilan Kargo Firma</label>
+          <select class="form-select" @bind="_defaultProvider">
+            @foreach (var p in _providers.Where(p => p.IsActive))
+            {
+              <option value="@p.Name">@p.Name</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Otomatik Etiket Olustur</label>
+          <select class="form-select" @bind="_autoLabel">
+            <option value="true">Evet</option>
+            <option value="false">Hayir</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Bildirim Gonder</label>
+          <select class="form-select" @bind="_notifyCustomer">
+            <option value="true">Evet</option>
+            <option value="false">Hayir</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+
+  private List<CargoProvider> _providers = [];
+  private string _defaultProvider = "Yurtici Kargo";
+  private string _autoLabel = "true";
+  private string _notifyCustomer = "true";
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      try
+      {
+        await ApiClient.GetCargoProvidersAsync();
+        // TODO: map response to CargoProvider when DTO finalized
+      }
+      catch
+      {
+        _isDemoMode = true;
+      }
+
+      _providers = GetDemoProviders();
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Kargo ayarlari yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static List<CargoProvider> GetDemoProviders() =>
+  [
+    new("Yurtici Kargo", "#E30613", "REST API v2", true, 2.1m, 42.50m, 97),
+    new("Aras Kargo", "#FF6F00", "SOAP + REST", true, 2.4m, 38.00m, 95),
+    new("Surat Kargo", "#00897B", "REST API v1", true, 2.8m, 35.00m, 93),
+  ];
+
+  private record CargoProvider(string Name, string Color, string ApiType, bool IsActive,
+    decimal AvgDeliveryDays, decimal AvgPrice, int SuccessRate);
+}

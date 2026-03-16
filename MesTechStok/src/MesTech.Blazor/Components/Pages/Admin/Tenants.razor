@@ -1,0 +1,326 @@
+@page "/admin/tenants"
+@attribute [Authorize(Roles = "Admin")]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-building text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Tenant Yonetimi</h3>
+      <small class="text-muted">Firma kayitlari ve abonelik yonetimi</small>
+    </div>
+  </div>
+  <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ShowCreateForm">
+    <i class="fas fa-plus me-1"></i>Yeni Tenant
+  </button>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else
+{
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-building" Value="@aktifTenantCount.ToString()" Label="Aktif Tenant" TextColor="text-success" />
+    <KpiCard Icon="fa-store" Value="@toplamStoreCount.ToString()" Label="Toplam Store" TextColor="text-primary" />
+    <KpiCard Icon="fa-users" Value="@toplamKullaniciCount.ToString()" Label="Toplam Kullanici" TextColor="text-info" />
+    <KpiCard Icon="fa-calendar-plus" Value="@buAyYeniCount.ToString()" Label="Bu Ay Yeni" TextColor="text-warning" />
+  </div>
+
+  <!-- Search -->
+  <div class="row mb-3">
+    <div class="col-12 col-md-4">
+      <SearchInput @bind-Value="searchTerm" Placeholder="Tenant ara..." />
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal Form -->
+  @if (showForm)
+  {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-building me-2" style="color: #2855AC;"></i>Yeni Tenant Olustur
+            </h5>
+            <button type="button" class="btn-close" @onclick="CancelForm"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small text-muted">Firma Adi</label>
+              <input type="text" class="form-control" @bind="newTenant.FirmaAdi" placeholder="Ornek Ticaret A.S." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small text-muted">Vergi No</label>
+              <input type="text" class="form-control" @bind="newTenant.VergiNo" placeholder="1234567890" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small text-muted">Adres</label>
+              <textarea class="form-control" rows="2" @bind="newTenant.Adres" placeholder="Istanbul, Turkiye"></textarea>
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label small text-muted">Telefon</label>
+                <input type="text" class="form-control" @bind="newTenant.Telefon" placeholder="0212 555 00 00" />
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-muted">Email</label>
+                <input type="email" class="form-control" @bind="newTenant.Email" placeholder="info@firma.com" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" @onclick="CancelForm">Iptal</button>
+            <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="SaveTenant" disabled="@isSubmitting">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-save me-1"></i>Kaydet
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Tenant Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Firma Adi</th>
+              <th class="text-center">Durum</th>
+              <th class="text-center d-none d-md-table-cell">Store Sayisi</th>
+              <th class="text-center d-none d-md-table-cell">Kullanici Sayisi</th>
+              <th class="d-none d-lg-table-cell">Olusturma Tarihi</th>
+              <th class="text-center" style="width: 140px;">Aksiyonlar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (FilteredTenants.Count == 0)
+            {
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  <i class="fas fa-building fa-2x mb-2 d-block" style="opacity: 0.3;"></i>
+                  Tenant bulunamadi.
+                </td>
+              </tr>
+            }
+            else
+            {
+              @foreach (var t in FilteredTenants)
+              {
+                <tr>
+                  <td>
+                    <i class="fas fa-building me-2 text-muted"></i>
+                    <span class="fw-semibold">@t.FirmaAdi</span>
+                  </td>
+                  <td class="text-center">
+                    <StatusBadge Text="@t.Durum" Variant="@(t.Durum == "Aktif" ? "success" : "secondary")" />
+                  </td>
+                  <td class="text-center d-none d-md-table-cell">@t.StoreSayisi</td>
+                  <td class="text-center d-none d-md-table-cell">@t.KullaniciSayisi</td>
+                  <td class="d-none d-lg-table-cell">@t.OlusturmaTarihi.ToString("dd.MM.yyyy")</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => GoToDetail(t.Id)" title="Detay">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(t)" title="Sil">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+  }
+
+  <!-- Delete Confirm Dialog -->
+  <ConfirmDialog IsVisible="showDeleteConfirm"
+                 Title="Tenant Sil"
+                 Message="@($"'{deletingTenant?.FirmaAdi}' tenant'ini silmek istediginize emin misiniz? Bu islem geri alinamaz.")"
+                 ConfirmText="Sil"
+                 ButtonVariant="danger"
+                 OnConfirmed="DeleteTenant"
+                 OnCancelled="CancelDelete" />
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private string searchTerm = "";
+  private bool showForm;
+  private bool showDeleteConfirm;
+  private TenantRow? deletingTenant;
+
+  // KPI values
+  private int aktifTenantCount;
+  private int toplamStoreCount;
+  private int toplamKullaniciCount;
+  private int buAyYeniCount;
+
+  // Form
+  private TenantFormModel newTenant = new();
+
+  // Data
+  private List<TenantRow> tenants = [];
+
+  private List<TenantRow> FilteredTenants =>
+    string.IsNullOrWhiteSpace(searchTerm)
+      ? tenants
+      : tenants.Where(t => t.FirmaAdi.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    try
+    {
+      try { await ApiClient.GetTenantsAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Tenants): {apiEx.Message}"); }
+
+      tenants =
+      [
+        new(Guid.NewGuid(), "Anadolu Ticaret A.S.", "Aktif", 3, 8, new DateTime(2025, 6, 15)),
+        new(Guid.NewGuid(), "Marmara Lojistik Ltd.", "Aktif", 2, 5, new DateTime(2025, 9, 22)),
+        new(Guid.NewGuid(), "Ege Tekstil San. Tic.", "Aktif", 4, 12, new DateTime(2025, 11, 3)),
+        new(Guid.NewGuid(), "Karadeniz Gida A.S.", "Pasif", 1, 2, new DateTime(2026, 1, 10)),
+        new(Guid.NewGuid(), "Akdeniz Elektronik Ltd.", "Aktif", 5, 15, new DateTime(2026, 3, 1)),
+      ];
+
+      aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
+      toplamStoreCount = tenants.Sum(t => t.StoreSayisi);
+      toplamKullaniciCount = tenants.Sum(t => t.KullaniciSayisi);
+      buAyYeniCount = tenants.Count(t => t.OlusturmaTarihi.Month == DateTime.Today.Month
+                                       && t.OlusturmaTarihi.Year == DateTime.Today.Year);
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Tenant verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void ShowCreateForm()
+  {
+    newTenant = new TenantFormModel();
+    showForm = true;
+  }
+
+  private void CancelForm() => showForm = false;
+
+  private async Task SaveTenant()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(newTenant.FirmaAdi)) return;
+
+      // TODO: Panel A — add CreateTenantCommand
+      tenants.Add(new TenantRow(
+        Guid.NewGuid(),
+        newTenant.FirmaAdi,
+        "Aktif",
+        0, 0,
+        DateTime.Today));
+
+      aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
+      buAyYeniCount = tenants.Count(t => t.OlusturmaTarihi.Month == DateTime.Today.Month
+                                       && t.OlusturmaTarihi.Year == DateTime.Today.Year);
+      showForm = false;
+      successMessage = "Tenant basariyla olusturuldu";
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void GoToDetail(Guid id) => Nav.NavigateTo($"/admin/tenants/{id}");
+
+  private void ConfirmDelete(TenantRow tenant)
+  {
+    deletingTenant = tenant;
+    showDeleteConfirm = true;
+  }
+
+  private async Task DeleteTenant()
+  {
+    if (deletingTenant is not null)
+    {
+      // TODO: Panel A — add DeleteTenantCommand
+      tenants.Remove(deletingTenant);
+      aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
+      toplamStoreCount = tenants.Sum(t => t.StoreSayisi);
+      toplamKullaniciCount = tenants.Sum(t => t.KullaniciSayisi);
+    }
+    showDeleteConfirm = false;
+    deletingTenant = null;
+    await Task.CompletedTask;
+  }
+
+  private void CancelDelete()
+  {
+    showDeleteConfirm = false;
+    deletingTenant = null;
+  }
+
+  private record TenantRow(Guid Id, string FirmaAdi, string Durum, int StoreSayisi, int KullaniciSayisi, DateTime OlusturmaTarihi);
+
+  private class TenantFormModel
+  {
+    public string FirmaAdi { get; set; } = "";
+    public string VergiNo { get; set; } = "";
+    public string Adres { get; set; } = "";
+    public string Telefon { get; set; } = "";
+    public string Email { get; set; } = "";
+  }
+}

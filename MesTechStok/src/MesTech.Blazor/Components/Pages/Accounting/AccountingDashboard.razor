@@ -3,8 +3,12 @@
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Strings> L
+@inject MesTechApiClient ApiClient
 
-<PageTitle>Muhasebe</PageTitle>
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>@L["PageTitle.Accounting"]</PageTitle>
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
@@ -13,27 +17,24 @@
       <i class="fas fa-calculator text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Muhasebe</h3>
+      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Accounting"]</h3>
       <small class="text-muted">Gelir, gider, kar/zarar ve fatura ozeti</small>
     </div>
   </div>
 
-  @if (_loading)
+  @if (isLoading)
   {
-    <div class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Yukleniyor...</span>
-      </div>
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
   else
   {
-    @if (!string.IsNullOrEmpty(_error))
-    {
-      <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@_error
-      </div>
-    }
 
     <!-- Summary Cards -->
     <div class="row g-3 g-md-4 mb-4">
@@ -45,7 +46,7 @@
                 <i class="fas fa-arrow-up"></i>
               </div>
               <div class="ms-0 ms-sm-3">
-                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Gelir</small>
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">@L["Dashboard.TotalRevenue"]</small>
                 <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@_summary.ToplamGelir.ToString("N2") TL</h4>
                 @if (_summary.GelirTrend >= 0)
                 {
@@ -69,7 +70,7 @@
                 <i class="fas fa-arrow-down"></i>
               </div>
               <div class="ms-0 ms-sm-3">
-                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Gider</small>
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">@L["Dashboard.TotalExpenses"]</small>
                 <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@_summary.ToplamGider.ToString("N2") TL</h4>
                 @if (_summary.GiderTrend >= 0)
                 {
@@ -93,7 +94,7 @@
                 <i class="fas fa-coins"></i>
               </div>
               <div class="ms-0 ms-sm-3">
-                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Net Kar/Zarar</small>
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">@L["Dashboard.NetProfitLoss"]</small>
                 <h4 class="mb-0 fw-bold fs-6 fs-md-4 @(_summary.NetKarZarar >= 0 ? "text-primary" : "text-danger")">
                   @_summary.NetKarZarar.ToString("N2") TL
                 </h4>
@@ -111,7 +112,7 @@
                 <i class="fas fa-file-invoice"></i>
               </div>
               <div class="ms-0 ms-sm-3">
-                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Bekleyen Faturalar</small>
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">@L["Dashboard.PendingInvoices"]</small>
                 <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@_summary.BekleyenFaturalar</h4>
               </div>
             </div>
@@ -126,7 +127,7 @@
         <a href="accounting/expenses" class="card shadow-sm text-decoration-none h-100">
           <div class="card-body text-center py-4">
             <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #2855AC;"></i>
-            <h6 class="mb-1">Giderler</h6>
+            <h6 class="mb-1">@L["PageTitle.Expenses"]</h6>
             <small class="text-muted">Gider kayit ve takibi</small>
           </div>
         </a>
@@ -135,7 +136,7 @@
         <a href="accounting/reconciliation" class="card shadow-sm text-decoration-none h-100">
           <div class="card-body text-center py-4">
             <i class="fas fa-check-double fa-2x mb-2" style="color: #2855AC;"></i>
-            <h6 class="mb-1">Mutabakat</h6>
+            <h6 class="mb-1">@L["PageTitle.Reconciliation"]</h6>
             <small class="text-muted">Banka eslestirme</small>
           </div>
         </a>
@@ -144,7 +145,7 @@
         <a href="accounting/reports" class="card shadow-sm text-decoration-none h-100">
           <div class="card-body text-center py-4">
             <i class="fas fa-chart-bar fa-2x mb-2" style="color: #2855AC;"></i>
-            <h6 class="mb-1">Raporlar</h6>
+            <h6 class="mb-1">@L["PageTitle.Reports"]</h6>
             <small class="text-muted">Mizan, bilanco, gelir-gider</small>
           </div>
         </a>
@@ -153,7 +154,7 @@
         <a href="accounting/settings" class="card shadow-sm text-decoration-none h-100">
           <div class="card-body text-center py-4">
             <i class="fas fa-sitemap fa-2x mb-2" style="color: #2855AC;"></i>
-            <h6 class="mb-1">Hesap Plani</h6>
+            <h6 class="mb-1">@L["PageTitle.ChartOfAccounts"]</h6>
             <small class="text-muted">Hesap kodu yonetimi</small>
           </div>
         </a>
@@ -163,26 +164,35 @@
 </div>
 
 @code {
-  private bool _loading = true;
-  private string? _error;
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
   private AccountingSummary _summary = new();
 
   protected override async Task OnInitializedAsync()
   {
     try
     {
-      _summary = await Http.GetFromJsonAsync<AccountingSummary>("/api/v1/accounting/summary")
-                 ?? GetDemoData();
+      var result = await ApiClient.SafeGetAsync<AccountingSummary>("accounting/summary");
+      if (result.IsSuccess && result.Data is not null)
+      {
+        _summary = result.Data;
+      }
+      else
+      {
+        _isDemoMode = true;
+        _summary = GetDemoData();
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
       _summary = GetDemoData();
-      _error = "API baglantisi kurulamadi, demo veriler gosteriliyor.";
     }
     finally
     {
-      _loading = false;
+      isLoading = false;
     }
   }
 

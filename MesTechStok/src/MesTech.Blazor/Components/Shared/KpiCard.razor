@@ -1,0 +1,16 @@
+<div class="col-6 col-md-3">
+    <div class="card shadow-sm stat-card h-100">
+        <div class="card-body text-center py-3">
+            <i class="fas @Icon fa-2x mb-2 @TextColor"></i>
+            <h4 class="mb-0 fw-bold">@Value</h4>
+            <small class="text-muted">@Label</small>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Icon { get; set; } = "fa-chart-bar";
+    [Parameter] public string Value { get; set; } = "0";
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string TextColor { get; set; } = "text-primary";
+}

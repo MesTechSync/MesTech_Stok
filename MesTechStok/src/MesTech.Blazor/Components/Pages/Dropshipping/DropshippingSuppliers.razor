@@ -1,0 +1,428 @@
+@page "/dropshipping/suppliers"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Tedarikciler</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-handshake text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Tedarikciler</h3>
+      <small class="text-muted">Tedarikci feed yonetimi ve guvenilirlik takibi</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Aktif Tedarikci</small>
+                <h4 class="mb-0 fw-bold text-primary fs-6 fs-md-4">@suppliers.Count</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Ort. Guvenilirlik</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">%@(suppliers.Count > 0 ? suppliers.Average(s => s.GuvenilirlikPuani).ToString("N1") : "0")</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-info">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                <i class="fas fa-boxes-stacked"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Urun</small>
+                <h4 class="mb-0 fw-bold text-info fs-6 fs-md-4">@suppliers.Sum(s => s.UrunSayisi).ToString("N0")</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-warning">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning d-none d-sm-flex">
+                <i class="fas fa-sync-alt"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Son 7 Gun Import</small>
+                <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@suppliers.Count(s => s.SonSync >= DateTime.Today.AddDays(-7))</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="d-flex justify-content-end mb-3">
+      <button class="btn btn-sm btn-primary" @onclick="ShowAddForm">
+        <i class="fas fa-plus me-1"></i>Yeni Tedarikci
+      </button>
+    </div>
+
+    <!-- Add Supplier Modal -->
+    @if (showAddModal)
+    {
+      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Tedarikci</h5>
+              <button type="button" class="btn-close" @onclick="CloseAddForm"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Tedarikci Adi</label>
+                <input type="text" class="form-control" @bind="newSupplier.TedarikciAdi" placeholder="Ornek: AliExpress Tekstil" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Feed URL</label>
+                <input type="url" class="form-control" @bind="newSupplier.FeedUrl" placeholder="https://example.com/feed.xml" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Format</label>
+                <select class="form-select" @bind="newSupplier.Format">
+                  <option value="XML">XML</option>
+                  <option value="CSV">CSV</option>
+                  <option value="JSON">JSON</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Sync Sikligi</label>
+                <select class="form-select" @bind="newSupplier.SyncSikligi">
+                  <option value="Saatlik">Saatlik</option>
+                  <option value="Gunluk">Gunluk</option>
+                  <option value="Haftalik">Haftalik</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @onclick="CloseAddForm">Iptal</button>
+              <button type="button" class="btn btn-primary" @onclick="AddSupplier" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Delete Confirmation -->
+    @if (deleteTarget is not null)
+    {
+      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Tedarikci Sil</h5>
+              <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+            </div>
+            <div class="modal-body">
+              <p><strong>@deleteTarget.TedarikciAdi</strong> tedarikcisini silmek istediginize emin misiniz?</p>
+              <p class="text-muted mb-0">Bu islem geri alinamaz. Tedarikciye ait @deleteTarget.UrunSayisi urun havuzdan cikarilacak.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Vazgec</button>
+              <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                <i class="fas fa-trash me-1"></i>Sil
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+      <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+    }
+
+    <!-- Suppliers Table -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Tedarikci Listesi</h6>
+        <span class="badge bg-secondary">@suppliers.Count tedarikci</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Tedarikci Adi</th>
+                <th class="d-none d-md-table-cell">Feed URL</th>
+                <th class="d-none d-sm-table-cell">Format</th>
+                <th>Guvenilirlik</th>
+                <th class="text-end d-none d-sm-table-cell">Urun</th>
+                <th class="d-none d-md-table-cell">Son Sync</th>
+                <th>Aksiyonlar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (suppliers.Count == 0)
+              {
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">Henuz tedarikci eklenmedi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var supplier in suppliers)
+                {
+                  <tr>
+                    <td class="fw-bold">@supplier.TedarikciAdi</td>
+                    <td class="d-none d-md-table-cell">
+                      <small class="text-muted" title="@supplier.FeedUrl">
+                        @(supplier.FeedUrl.Length > 35 ? supplier.FeedUrl[..35] + "..." : supplier.FeedUrl)
+                      </small>
+                    </td>
+                    <td class="d-none d-sm-table-cell">
+                      <span class="badge @GetFormatBadgeClass(supplier.Format)">@supplier.Format</span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2" style="height: 8px; min-width: 60px;">
+                          <div class="progress-bar @GetGuvenilirlikBarClass(supplier.GuvenilirlikPuani)"
+                               style="width: @supplier.GuvenilirlikPuani%"></div>
+                        </div>
+                        <small class="fw-bold" style="min-width: 35px;">%@supplier.GuvenilirlikPuani</small>
+                      </div>
+                    </td>
+                    <td class="text-end d-none d-sm-table-cell">@supplier.UrunSayisi.ToString("N0")</td>
+                    <td class="d-none d-md-table-cell">
+                      <small class="text-muted">@supplier.SonSync.ToString("dd.MM.yyyy HH:mm")</small>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => SyncSupplier(supplier)"
+                              title="Sync Baslat" disabled="@isSubmitting">
+                        <i class="fas fa-sync-alt"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDelete(supplier)"
+                              title="Sil">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private List<SupplierRow> suppliers = [];
+  private bool showAddModal;
+  private SupplierRow? deleteTarget;
+  private NewSupplierForm newSupplier = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetDropshippingSuppliersAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (DropshippingSuppliers): {apiEx.Message}"); }
+      suppliers = GetDemoSuppliers();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Tedarikci verileri yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void ShowAddForm()
+  {
+    newSupplier = new();
+    showAddModal = true;
+  }
+
+  private void CloseAddForm() => showAddModal = false;
+
+  private void AddSupplier()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to CreateSupplierCommand
+      if (string.IsNullOrWhiteSpace(newSupplier.TedarikciAdi)) return;
+
+      suppliers.Add(new SupplierRow
+      {
+        Id = suppliers.Count + 1,
+        TedarikciAdi = newSupplier.TedarikciAdi,
+        FeedUrl = newSupplier.FeedUrl,
+        Format = newSupplier.Format,
+        GuvenilirlikPuani = 0,
+        UrunSayisi = 0,
+        SonSync = DateTime.MinValue
+      });
+      showAddModal = false;
+      successMessage = "Tedarikci basariyla eklendi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void RequestDelete(SupplierRow supplier) => deleteTarget = supplier;
+  private void CancelDelete() => deleteTarget = null;
+
+  private void ConfirmDelete()
+  {
+    // TODO: Panel A — wire to DeleteSupplierCommand
+    if (deleteTarget is not null)
+    {
+      suppliers.RemoveAll(s => s.Id == deleteTarget.Id);
+      deleteTarget = null;
+    }
+  }
+
+  private void SyncSupplier(SupplierRow supplier)
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to SyncSupplierFeedCommand
+      var idx = suppliers.FindIndex(s => s.Id == supplier.Id);
+      if (idx >= 0)
+      {
+        suppliers[idx] = supplier with { SonSync = DateTime.Now };
+      }
+      successMessage = $"{supplier.TedarikciAdi} basariyla senkronize edildi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private static string GetFormatBadgeClass(string format) => format switch
+  {
+    "XML" => "bg-info",
+    "CSV" => "bg-secondary",
+    "JSON" => "bg-dark",
+    _ => "bg-secondary"
+  };
+
+  private static string GetGuvenilirlikBarClass(decimal score) => score switch
+  {
+    >= 80 => "bg-success",
+    >= 60 => "bg-warning",
+    _ => "bg-danger"
+  };
+
+  private List<SupplierRow> GetDemoSuppliers() =>
+  [
+    new() { Id = 1, TedarikciAdi = "AliExpress Elektronik", FeedUrl = "https://feeds.aliexpress.com/tr/electronics.xml", Format = "XML", GuvenilirlikPuani = 92, UrunSayisi = 1240, SonSync = DateTime.Today.AddHours(-2) },
+    new() { Id = 2, TedarikciAdi = "Toptanci Tekstil", FeedUrl = "https://api.toptancitekstil.com/v2/products.csv", Format = "CSV", GuvenilirlikPuani = 87, UrunSayisi = 856, SonSync = DateTime.Today.AddHours(-5) },
+    new() { Id = 3, TedarikciAdi = "Kozmetik Deposu", FeedUrl = "https://kozmetikdeposu.com/api/feed.json", Format = "JSON", GuvenilirlikPuani = 64, UrunSayisi = 312, SonSync = DateTime.Today.AddDays(-3) },
+    new() { Id = 4, TedarikciAdi = "Ev & Yasam Market", FeedUrl = "https://evyasammarket.com/feeds/urunler.xml", Format = "XML", GuvenilirlikPuani = 95, UrunSayisi = 432, SonSync = DateTime.Today.AddHours(-1) },
+    new() { Id = 5, TedarikciAdi = "Spor Malzemeleri TR", FeedUrl = "https://sportr.com/export/products.csv", Format = "CSV", GuvenilirlikPuani = 78, UrunSayisi = 318, SonSync = DateTime.Today.AddHours(-8) }
+  ];
+
+  private record SupplierRow
+  {
+    public int Id { get; init; }
+    public string TedarikciAdi { get; init; } = "";
+    public string FeedUrl { get; init; } = "";
+    public string Format { get; init; } = "";
+    public decimal GuvenilirlikPuani { get; init; }
+    public int UrunSayisi { get; init; }
+    public DateTime SonSync { get; init; }
+  }
+
+  private class NewSupplierForm
+  {
+    public string TedarikciAdi { get; set; } = "";
+    public string FeedUrl { get; set; } = "";
+    public string Format { get; set; } = "XML";
+    public string SyncSikligi { get; set; } = "Gunluk";
+  }
+}

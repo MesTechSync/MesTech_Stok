@@ -5,9 +5,13 @@
 @using MesTech.Domain.Enums
 @inject ICrmLeadRepository LeadRepository
 @inject ICurrentUserService CurrentUser
+@inject IStringLocalizer<Strings> L
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <h3 class="mb-4">
-    <i class="fas fa-user-plus me-2 text-primary"></i>CRM Leadler
+    <i class="fas fa-user-plus me-2 text-primary"></i>@L["PageTitle.Leads"]
 </h3>
 
 <!-- Toolbar -->
@@ -17,26 +21,26 @@
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Lead ara..."
+                    <input type="text" class="form-control" placeholder="@L["Common.Search"]..."
                            @bind="searchText" @bind:event="oninput" @bind:after="OnSearchChanged" />
                 </div>
             </div>
             <div class="col-6 col-sm-3 col-md-3">
                 <select class="form-select form-select-sm" @bind="selectedStatus" @bind:after="OnFilterChanged">
-                    <option value="">Tum Durumlar</option>
-                    <option value="New">Yeni</option>
-                    <option value="Contacted">Iletisime Gecildi</option>
-                    <option value="Qualified">Nitelikli</option>
-                    <option value="Converted">Donusturuldu</option>
-                    <option value="Lost">Kaybedildi</option>
+                    <option value="">@L["UI.AllStatuses"]</option>
+                    <option value="New">@L["Lead.Status.New"]</option>
+                    <option value="Contacted">@L["Lead.Status.Contacted"]</option>
+                    <option value="Qualified">@L["Lead.Status.Qualified"]</option>
+                    <option value="Converted">@L["Lead.Status.Converted"]</option>
+                    <option value="Lost">@L["Lead.Status.Lost"]</option>
                 </select>
             </div>
             <div class="col-3 col-sm-1 col-md-3">
-                <span class="badge bg-secondary">Toplam: @totalCount</span>
+                <span class="badge bg-secondary">@L["UI.Total"]: @totalCount</span>
             </div>
             <div class="col-3 col-sm-2 col-md-2 text-end">
                 <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync">
-                    <i class="fas fa-sync-alt me-1"></i><span class="d-none d-sm-inline"> Yenile</span>
+                    <i class="fas fa-sync-alt me-1"></i><span class="d-none d-sm-inline"> @L["Common.Refresh"]</span>
                 </button>
             </div>
         </div>
@@ -47,7 +51,7 @@
 {
     <div class="loading-overlay">
         <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Yukleniyor...</span>
+            <span class="visually-hidden">@L["Common.Loading"]</span>
         </div>
     </div>
 }
@@ -61,7 +65,7 @@ else if (leads.Count == 0)
 {
     <div class="text-center text-muted py-5">
         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-        <p>Henuz lead bulunamadi.</p>
+        <p>@L["Common.NoData"]</p>
     </div>
 }
 else
@@ -72,13 +76,13 @@ else
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Ad Soyad</th>
-                            <th class="d-none d-md-table-cell">Sirket</th>
-                            <th class="d-none d-lg-table-cell">E-posta</th>
-                            <th class="d-none d-lg-table-cell">Telefon</th>
-                            <th class="d-none d-sm-table-cell">Kaynak</th>
-                            <th>Durum</th>
-                            <th class="d-none d-sm-table-cell">Olusturma</th>
+                            <th>@L["Form.FullName"]</th>
+                            <th class="d-none d-md-table-cell">@L["UI.Company"]</th>
+                            <th class="d-none d-lg-table-cell">@L["Table.Email"]</th>
+                            <th class="d-none d-lg-table-cell">@L["Table.Phone"]</th>
+                            <th class="d-none d-sm-table-cell">@L["UI.Source"]</th>
+                            <th>@L["Table.Status"]</th>
+                            <th class="d-none d-sm-table-cell">@L["Table.CreatedAt"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,6 +125,7 @@ else
 @code {
     private List<Lead> leads = [];
     private bool isLoading = true;
+    private bool _isDemoMode;
     private string? errorMessage;
     private string searchText = string.Empty;
     private string selectedStatus = string.Empty;

@@ -1,6 +1,10 @@
 @page "/accounting/commissions"
 @attribute [Authorize]
 @inject IConfiguration Configuration
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
   <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -8,18 +12,14 @@
     <i class="fas fa-percent text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Komisyon Yonetimi</h3>
+    <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Commissions"]</h3>
     <small class="text-muted">Platform komisyon oranlari CRUD</small>
   </div>
 </div>
 
 @if (isLoading)
 {
-  <div class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Yukleniyor...</span>
-    </div>
-  </div>
+  <LoadingSpinner />
 }
 else
 {
@@ -33,8 +33,8 @@ else
 
   @if (!string.IsNullOrEmpty(errorMessage))
   {
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
       <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
@@ -44,15 +44,15 @@ else
     <div class="card-header bg-white d-flex align-items-center">
       <h6 class="mb-0">
         <i class="fas fa-@(isEditing ? "edit" : "plus-circle") me-2" style="color: #2855AC;"></i>
-        @(isEditing ? "Komisyon Duzenle" : "Yeni Komisyon Ekle")
+        @(isEditing ? L["UI.EditCommission"] : L["UI.AddCommission"])
       </h6>
     </div>
     <div class="card-body">
       <div class="row g-3 align-items-end">
         <div class="col-12 col-md-3">
-          <label class="form-label fw-semibold">Platform</label>
+          <label class="form-label fw-semibold">@L["Table.Platform"]</label>
           <select class="form-select" @bind="formModel.Platform" disabled="@isSaving">
-            <option value="">-- Platform Secin --</option>
+            <option value="">-- @L["UI.SelectPlatform"] --</option>
             @foreach (var p in platformOptions)
             {
               <option value="@p">@p</option>
@@ -64,7 +64,7 @@ else
           <input type="text" class="form-control" placeholder="Genel" @bind="formModel.Category" disabled="@isSaving" />
         </div>
         <div class="col-12 col-md-2">
-          <label class="form-label fw-semibold">Komisyon Orani (%)</label>
+          <label class="form-label fw-semibold">@L["UI.CommissionRate"] (%)</label>
           <input type="number" class="form-control" min="0" max="100" step="0.01"
                  @bind="formModel.Rate" disabled="@isSaving" />
         </div>
@@ -74,12 +74,12 @@ else
             {
               <span class="spinner-border spinner-border-sm me-1" role="status"></span>
             }
-            <i class="fas fa-save me-1"></i>Kaydet
+            <i class="fas fa-save me-1"></i>@L["Common.Save"]
           </button>
           @if (isEditing)
           {
             <button class="btn btn-outline-secondary" @onclick="CancelEdit" disabled="@isSaving">
-              <i class="fas fa-times me-1"></i>Iptal
+              <i class="fas fa-times me-1"></i>@L["Common.Cancel"]
             </button>
           }
         </div>
@@ -91,7 +91,7 @@ else
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <h6 class="mb-0">
-        <i class="fas fa-table me-2" style="color: #2855AC;"></i>Komisyon Oranlari
+        <i class="fas fa-table me-2" style="color: #2855AC;"></i>@L["Accounting.CommissionRates"]
       </h6>
       <span class="badge bg-secondary">@rates.Count kayit</span>
     </div>
@@ -100,11 +100,11 @@ else
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>Platform Adi</th>
-              <th>Kategori</th>
-              <th class="text-end">Komisyon Orani (%)</th>
-              <th class="d-none d-sm-table-cell">Son Guncelleme</th>
-              <th class="text-center">Islemler</th>
+              <th>@L["UI.PlatformName"]</th>
+              <th>@L["Table.Category"]</th>
+              <th class="text-end">@L["UI.CommissionRate"] (%)</th>
+              <th class="d-none d-sm-table-cell">@L["UI.LastUpdated"]</th>
+              <th class="text-center">@L["UI.Actions"]</th>
             </tr>
           </thead>
           <tbody>
@@ -163,6 +163,7 @@ else
   private List<CommissionRateItem> rates = [];
   private CommissionFormModel formModel = new();
   private bool isLoading = true;
+  private bool _isDemoMode;
   private bool isSaving;
   private bool isEditing;
   private int? editingId;
@@ -204,6 +205,7 @@ else
     }
     catch
     {
+      _isDemoMode = true;
       // Demo fallback — realistic commission rates per platform
       rates = GetDemoRates();
     }

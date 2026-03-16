@@ -1,0 +1,23 @@
+@if (hasError)
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        Beklenmeyen bir hata olustu.
+        <button class="btn btn-sm btn-outline-danger ms-2" @onclick="Recover">
+            <i class="fas fa-redo me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private bool hasError;
+
+    protected override void OnParametersSet() { hasError = false; }
+
+    public void Recover() { hasError = false; StateHasChanged(); }
+}

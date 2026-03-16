@@ -1,0 +1,127 @@
+@page "/invoice-providers"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-plug text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Fatura Entegrasyon Saglayicilari</h3>
+    <small class="text-muted">E-fatura, e-arsiv ve e-SMM saglayici yonetimi</small>
+  </div>
+</div>
+
+@if (_isLoading)
+{
+  <LoadingSpinner />
+}
+else if (_errorMessage is not null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else if (_providers.Count == 0)
+{
+  <EmptyState Icon="fa-plug" Message="Henuz fatura saglayicisi tanimlanmamis." />
+}
+else
+{
+  <div class="row g-3">
+    @foreach (var provider in _providers)
+    {
+      <div class="col-12 col-md-6">
+        <div class="card shadow-sm h-100 @(provider.IsActive ? "border-success" : "border-secondary")" style="border-width: 2px !important;">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                   style="width: 48px; height: 48px; background-color: @(provider.IsActive ? "#19875420" : "#6c757d20");">
+                <i class="fas @provider.Icon @(provider.IsActive ? "text-success" : "text-secondary") fa-lg"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">@provider.Name</h6>
+                <small class="text-muted">@provider.Type</small>
+              </div>
+              <div class="ms-auto">
+                <StatusBadge Text="@(provider.IsActive ? "Aktif" : "Pasif")"
+                             Variant="@(provider.IsActive ? "success" : "secondary")" />
+              </div>
+            </div>
+            <div class="row g-2 text-center">
+              <div class="col-4">
+                <small class="text-muted d-block">Fatura Sayisi</small>
+                <span class="fw-semibold">@provider.InvoiceCount</span>
+              </div>
+              <div class="col-4">
+                <small class="text-muted d-block">Son Gonderim</small>
+                <span class="fw-semibold">@provider.LastSent.ToString("dd.MM")</span>
+              </div>
+              <div class="col-4">
+                <small class="text-muted d-block">Basari</small>
+                <span class="fw-semibold text-success">%@provider.SuccessRate</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white">
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary flex-fill">
+                <i class="fas fa-cog me-1"></i>Ayarlar
+              </button>
+              <button class="btn btn-sm btn-outline-info">
+                <i class="fas fa-sync-alt me-1"></i>Test
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private List<ProviderItem> _providers = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      try
+      {
+        await ApiClient.GetInvoiceProvidersAsync();
+        // TODO: map response when DTO finalized
+      }
+      catch
+      {
+        _isDemoMode = true;
+      }
+
+      _providers = GetDemoProviders();
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Saglayicilar yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static List<ProviderItem> GetDemoProviders() =>
+  [
+    new("Sovos (Foriba)", "fa-file-invoice", "UBL-TR 1.2 / e-Fatura + e-Arsiv", true, 342, DateTime.Today.AddDays(-1), 99),
+    new("GIB Portal", "fa-landmark", "GIB Dogrudan Entegrasyon", true, 58, DateTime.Today.AddDays(-3), 97),
+    new("Parasut ERP", "fa-calculator", "ERP → e-Fatura Koprusu", false, 0, DateTime.Today.AddDays(-30), 0),
+  ];
+
+  private record ProviderItem(string Name, string Icon, string Type, bool IsActive,
+    int InvoiceCount, DateTime LastSent, int SuccessRate);
+}

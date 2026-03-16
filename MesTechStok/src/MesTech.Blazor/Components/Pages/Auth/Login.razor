@@ -89,12 +89,17 @@
 @code {
   private LoginFormModel loginModel = new();
   private bool isLoading;
+  private bool isSubmitting;
   private string? errorMessage;
+  private string? successMessage;
 
   private async Task HandleLogin()
   {
+    if (isSubmitting) return;
+    isSubmitting = true;
     isLoading = true;
     errorMessage = null;
+    successMessage = null;
 
     try
     {
@@ -151,6 +156,7 @@
     finally
     {
       isLoading = false;
+      isSubmitting = false;
     }
   }
 

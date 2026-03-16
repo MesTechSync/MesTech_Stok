@@ -1,0 +1,175 @@
+@page "/shipments/{ShipmentId:guid}/labels"
+@page "/shipments/labels"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject NavigationManager Nav
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-barcode text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Gonderi Etiketleri</h3>
+    <small class="text-muted">Kargo etiketi olusturma ve yazdirma</small>
+  </div>
+</div>
+
+<div class="mb-3">
+  <button class="btn btn-outline-secondary btn-sm" @onclick="GoBack">
+    <i class="fas fa-arrow-left me-1"></i>Gonderim Kuyrugune Don
+  </button>
+</div>
+
+@if (_isLoading)
+{
+  <LoadingSpinner />
+}
+else if (_errorMessage is not null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else if (_labels.Count == 0)
+{
+  <EmptyState Icon="fa-barcode" Message="Henuz etiket bulunamadi. Gonderi secin veya toplu etiket olusturun." />
+}
+else
+{
+  <!-- Label Controls -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-center">
+        <div class="col-auto">
+          <button class="btn btn-sm btn-primary" @onclick="PrintAll">
+            <i class="fas fa-print me-1"></i>Tumu Yazdir (@_labels.Count)
+          </button>
+        </div>
+        <div class="col-auto">
+          <select class="form-select form-select-sm" @bind="_labelFormat" style="width: 150px;">
+            <option value="A4">A4 (210x297mm)</option>
+            <option value="A6">A6 (105x148mm)</option>
+            <option value="Termal">Termal (100x150mm)</option>
+          </select>
+        </div>
+        <div class="col-auto ms-auto">
+          <span class="badge bg-secondary">@_labels.Count etiket</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Labels Grid -->
+  <div class="row g-3">
+    @foreach (var label in _labels)
+    {
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <div class="border rounded p-3 mb-3" style="background: #fafafa;">
+              <div class="text-center mb-2">
+                <i class="fas fa-truck fa-lg" style="color: @label.CargoColor;"></i>
+                <span class="fw-bold ms-2">@label.CargoFirma</span>
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted">Takip No:</small>
+                <code class="fw-bold">@label.TrackingNo</code>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted">Siparis:</small>
+                <span>@label.SiparisNo</span>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted">Alici:</small>
+                <span>@label.Alici</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small class="text-muted">Tarih:</small>
+                <span>@label.Tarih.ToString("dd.MM.yyyy")</span>
+              </div>
+              <hr />
+              <div class="text-center">
+                <i class="fas fa-barcode fa-2x text-dark"></i>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary flex-fill">
+                <i class="fas fa-print me-1"></i>Yazdir
+              </button>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@code {
+  [Parameter] public Guid? ShipmentId { get; set; }
+
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private string _labelFormat = "Termal";
+  private List<LabelItem> _labels = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      if (ShipmentId.HasValue)
+      {
+        try
+        {
+          await ApiClient.GetShipmentLabelAsync(ShipmentId.Value);
+        }
+        catch { _isDemoMode = true; }
+      }
+      else
+      {
+        try
+        {
+          await ApiClient.GetShipmentsAsync();
+        }
+        catch { _isDemoMode = true; }
+      }
+
+      _labels = GetDemoLabels();
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Etiketler yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private void PrintAll()
+  {
+    // TODO: Wire to JS interop print
+  }
+
+  private void GoBack() => Nav.NavigateTo("/shipments");
+
+  private static List<LabelItem> GetDemoLabels() =>
+  [
+    new("YK-20260316-001", "TY-2026-0451", "Ahmet Yilmaz", "Yurtici Kargo", "#E30613", DateTime.Today),
+    new("AR-20260316-002", "HB-2026-1203", "Fatma Demir", "Aras Kargo", "#FF6F00", DateTime.Today),
+    new("SR-20260316-003", "SH-2026-0067", "Mustafa Sahin", "Surat Kargo", "#00897B", DateTime.Today),
+    new("YK-20260316-004", "TY-2026-0452", "Ayse Ozturk", "Yurtici Kargo", "#E30613", DateTime.Today),
+    new("AR-20260316-005", "WC-2026-0045", "Selin Koc", "Aras Kargo", "#FF6F00", DateTime.Today),
+  ];
+
+  private record LabelItem(string TrackingNo, string SiparisNo, string Alici,
+    string CargoFirma, string CargoColor, DateTime Tarih);
+}

@@ -1,0 +1,480 @@
+@page "/projects"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-project-diagram text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Proje & Gorev Yonetimi</h3>
+    <small class="text-muted">Projelerinizi ve gorevlerinizi kanban tahtasinda yonetin</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+  }
+
+  <div class="row g-3 g-md-4">
+    <!-- Project Sidebar -->
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+          <h6 class="mb-0"><i class="fas fa-folder-open me-2" style="color: #2855AC;"></i>Projeler</h6>
+          <button class="btn btn-sm btn-outline-primary" @onclick="() => showProjectForm = true" title="Yeni Proje">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            @foreach (var proj in projects)
+            {
+              <button type="button"
+                      class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(selectedProject?.Id == proj.Id ? "active" : "")"
+                      @onclick="() => SelectProject(proj)">
+                <div>
+                  <span class="fw-semibold">@proj.Name</span>
+                  <br /><small class="@(selectedProject?.Id == proj.Id ? "text-white-50" : "text-muted")">@proj.Description</small>
+                </div>
+                <span class="badge @(selectedProject?.Id == proj.Id ? "bg-light text-primary" : "bg-primary") rounded-pill">
+                  @proj.Tasks.Count
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestone Progress -->
+      @if (selectedProject is not null)
+      {
+        <div class="card shadow-sm mt-3">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fas fa-flag-checkered me-2 text-success"></i>Ilerleme</h6>
+          </div>
+          <div class="card-body">
+            @{
+              int totalTasks = selectedProject.Tasks.Count;
+              int doneTasks = selectedProject.Tasks.Count(t => t.Status == "Done");
+              int percent = totalTasks > 0 ? (doneTasks * 100) / totalTasks : 0;
+            }
+            <div class="d-flex justify-content-between mb-1">
+              <small class="fw-semibold">Tamamlanma Orani</small>
+              <small class="fw-bold text-success">%@percent</small>
+            </div>
+            <div class="progress" style="height: 10px;">
+              <div class="progress-bar bg-success" style="width: @percent%"></div>
+            </div>
+            <div class="mt-2 d-flex justify-content-between">
+              <small class="text-muted">@doneTasks / @totalTasks gorev</small>
+              @if (selectedProject.DueDate.HasValue)
+              {
+                <small class="text-muted"><i class="fas fa-clock me-1"></i>@selectedProject.DueDate.Value.ToString("dd.MM.yyyy")</small>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="col-12 col-md-9">
+      @if (selectedProject is null)
+      {
+        <EmptyState Icon="fa-hand-pointer" Message="Sol taraftan bir proje secin." />
+      }
+      else
+      {
+        <!-- Kanban Toolbar -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 fw-bold" style="color: #2855AC;">@selectedProject.Name</h5>
+          <button class="btn btn-sm btn-primary" @onclick="() => showTaskForm = true">
+            <i class="fas fa-plus me-1"></i>Yeni Gorev
+          </button>
+        </div>
+
+        <div class="row g-3">
+          <!-- Backlog -->
+          <div class="col-12 col-lg-4">
+            <div class="kanban-column">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="mb-0"><i class="fas fa-inbox me-2 text-secondary"></i>Backlog</h6>
+                <span class="badge bg-secondary rounded-pill">@GetTasksByStatus("Backlog").Count</span>
+              </div>
+              @foreach (var task in GetTasksByStatus("Backlog"))
+              {
+                <div class="kanban-card" @onclick="@(() => MoveTaskToInProgress(task.Id))" title="Tiklayarak 'Devam Ediyor' durumuna tasiyin">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="fw-semibold" style="font-size: 0.9rem;">@task.Title</span>
+                    <span class="badge @GetPriorityBadgeClass(task.Priority)" style="font-size: 0.7rem;">@GetPriorityLabel(task.Priority)</span>
+                  </div>
+                  @if (!string.IsNullOrEmpty(task.Description))
+                  {
+                    <p class="text-muted mb-2" style="font-size: 0.8rem;">@task.Description</p>
+                  }
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="fas fa-user me-1"></i>@task.Assignee</small>
+                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>@task.DueDate.ToString("dd.MM")</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- In Progress -->
+          <div class="col-12 col-lg-4">
+            <div class="kanban-column">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="mb-0"><i class="fas fa-spinner me-2 text-primary"></i>Devam Ediyor</h6>
+                <span class="badge bg-primary rounded-pill">@GetTasksByStatus("InProgress").Count</span>
+              </div>
+              @foreach (var task in GetTasksByStatus("InProgress"))
+              {
+                <div class="kanban-card" @onclick="@(() => MoveTaskToDone(task.Id))" title="Tiklayarak 'Tamamlandi' durumuna tasiyin">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="fw-semibold" style="font-size: 0.9rem;">@task.Title</span>
+                    <span class="badge @GetPriorityBadgeClass(task.Priority)" style="font-size: 0.7rem;">@GetPriorityLabel(task.Priority)</span>
+                  </div>
+                  @if (!string.IsNullOrEmpty(task.Description))
+                  {
+                    <p class="text-muted mb-2" style="font-size: 0.8rem;">@task.Description</p>
+                  }
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="fas fa-user me-1"></i>@task.Assignee</small>
+                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>@task.DueDate.ToString("dd.MM")</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Done -->
+          <div class="col-12 col-lg-4">
+            <div class="kanban-column">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="mb-0"><i class="fas fa-check-circle me-2 text-success"></i>Tamamlandi</h6>
+                <span class="badge bg-success rounded-pill">@GetTasksByStatus("Done").Count</span>
+              </div>
+              @foreach (var task in GetTasksByStatus("Done"))
+              {
+                <div class="kanban-card" style="opacity: 0.75;">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="fw-semibold text-decoration-line-through" style="font-size: 0.9rem;">@task.Title</span>
+                    <span class="badge @GetPriorityBadgeClass(task.Priority)" style="font-size: 0.7rem;">@GetPriorityLabel(task.Priority)</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="fas fa-user me-1"></i>@task.Assignee</small>
+                    <small class="text-success"><i class="fas fa-check me-1"></i>Bitti</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- New Project Modal -->
+  @if (showProjectForm)
+  {
+    <div class="modal d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-folder-plus me-2" style="color: #2855AC;"></i>Yeni Proje</h5>
+            <button type="button" class="btn-close" @onclick="() => showProjectForm = false"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Proje Adi <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" @bind="newProjectName" placeholder="Proje adi..." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Aciklama</label>
+              <textarea class="form-control" rows="2" @bind="newProjectDescription" placeholder="Proje aciklamasi..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Bitis Tarihi</label>
+              <input type="date" class="form-control" @bind="newProjectDueDate" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="() => showProjectForm = false">Iptal</button>
+            <button type="button" class="btn btn-primary" @onclick="AddProject" disabled="@(isSubmitting || string.IsNullOrWhiteSpace(newProjectName))">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-save me-1"></i>Olustur
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- New Task Modal -->
+  @if (showTaskForm)
+  {
+    <div class="modal d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-tasks me-2" style="color: #2855AC;"></i>Yeni Gorev</h5>
+            <button type="button" class="btn-close" @onclick="() => showTaskForm = false"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Baslik <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" @bind="newTaskTitle" placeholder="Gorev basligi..." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Aciklama</label>
+              <textarea class="form-control" rows="2" @bind="newTaskDescription" placeholder="Gorev detaylari..."></textarea>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold">Atanan Kisi</label>
+                <select class="form-select" @bind="newTaskAssignee">
+                  <option value="Ahmet Yilmaz">Ahmet Yilmaz</option>
+                  <option value="Mehmet Demir">Mehmet Demir</option>
+                  <option value="Ayse Kaya">Ayse Kaya</option>
+                  <option value="Fatma Celik">Fatma Celik</option>
+                  <option value="Ali Ozturk">Ali Ozturk</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Oncelik</label>
+                <select class="form-select" @bind="newTaskPriority">
+                  <option value="High">Yuksek</option>
+                  <option value="Medium">Orta</option>
+                  <option value="Low">Dusuk</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Bitis Tarihi</label>
+              <input type="date" class="form-control" @bind="newTaskDueDate" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="() => showTaskForm = false">Iptal</button>
+            <button type="button" class="btn btn-primary" @onclick="AddTask" disabled="@(isSubmitting || string.IsNullOrWhiteSpace(newTaskTitle))">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-save me-1"></i>Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+@code {
+  private bool isLoading;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private List<ProjectInfo> projects = [];
+  private ProjectInfo? selectedProject;
+
+  // Project form
+  private bool showProjectForm;
+  private string newProjectName = string.Empty;
+  private string newProjectDescription = string.Empty;
+  private DateTime? newProjectDueDate;
+
+  // Task form
+  private bool showTaskForm;
+  private string newTaskTitle = string.Empty;
+  private string newTaskDescription = string.Empty;
+  private string newTaskAssignee = "Ahmet Yilmaz";
+  private string newTaskPriority = "Medium";
+  private DateTime newTaskDueDate = DateTime.Today.AddDays(7);
+
+  private int nextProjectId = 100;
+  private int nextTaskId = 1000;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetProjectsAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Projects): {apiEx.Message}"); }
+
+      var today = DateTime.Today;
+      projects =
+      [
+        new(1, "E-Ticaret Entegrasyonu", "10 platform entegrasyon projesi", new DateTime(2026, 4, 30),
+        [
+          new(1, "Trendyol API v3 gecisi", "Yeni API endpointlerine migrasyon", "Mehmet Demir", "High", today.AddDays(5), "Done"),
+          new(2, "Hepsiburada stok senkronizasyonu", "Gercek zamanli stok guncelleme", "Ahmet Yilmaz", "High", today.AddDays(7), "InProgress"),
+          new(3, "Amazon TR magaza kurulumu", "Magaza hesap ve urun yukleme", "Ayse Kaya", "Medium", today.AddDays(10), "InProgress"),
+          new(4, "N11 siparis entegrasyonu", "Otomatik siparis cekme", "Fatma Celik", "Medium", today.AddDays(14), "Backlog"),
+          new(5, "CicekSepeti kategori eslesmesi", "Kategori mapping tablosu", "Ali Ozturk", "Low", today.AddDays(18), "Backlog"),
+          new(6, "Pazarama urun aktarimi", "Toplu urun yukleme", "Mehmet Demir", "Low", today.AddDays(21), "Backlog"),
+          new(7, "eBay uluslararasi listeleme", "Coklu dil ve para birimi destegi", "Ahmet Yilmaz", "Medium", today.AddDays(25), "Backlog"),
+          new(8, "Shopify webhook entegrasyonu", "Siparis ve stok bildirimleri", "Ayse Kaya", "High", today.AddDays(3), "Done"),
+        ]),
+        new(2, "Depo Optimizasyonu", "Depo yonetim sistemi iyilestirmesi", new DateTime(2026, 5, 15),
+        [
+          new(10, "Barkod sistemi kurulumu", "EAN-13 ve QR code okuyucu entegrasyonu", "Ali Ozturk", "High", today.AddDays(4), "InProgress"),
+          new(11, "Raf konum sistemi", "A-B-C raf kodlama ve harita", "Fatma Celik", "Medium", today.AddDays(8), "Backlog"),
+          new(12, "Sayim modulu", "Periyodik stok sayim ekrani", "Mehmet Demir", "High", today.AddDays(6), "InProgress"),
+          new(13, "Min-max stok uyarilari", "Kritik stok seviyesi bildirimleri", "Ahmet Yilmaz", "Medium", today.AddDays(12), "Done"),
+          new(14, "Toplu etiket yazdirma", "Barkod etiket tasarimi ve baski", "Ayse Kaya", "Low", today.AddDays(15), "Backlog"),
+          new(15, "Depo transferi", "Depolar arasi stok transfer islemleri", "Ali Ozturk", "Medium", today.AddDays(20), "Backlog"),
+        ]),
+        new(3, "MESA AI v2", "Yapay zeka destekli uretim optimizasyonu", new DateTime(2026, 6, 30),
+        [
+          new(20, "Talep tahmin modeli", "ML tabanli satis tahmini", "Ahmet Yilmaz", "High", today.AddDays(14), "InProgress"),
+          new(21, "Otomatik fiyatlama motoru", "Rekabet bazli dinamik fiyat", "Mehmet Demir", "High", today.AddDays(18), "Backlog"),
+          new(22, "Anomali tespit sistemi", "Siparis ve stok anomali algilama", "Ayse Kaya", "Medium", today.AddDays(21), "Backlog"),
+          new(23, "Uretim planlama AI", "Kapasite optimizasyonu", "Fatma Celik", "Medium", today.AddDays(28), "Backlog"),
+          new(24, "Chatbot entegrasyonu", "Musteri hizmetleri AI asistan", "Ali Ozturk", "Low", today.AddDays(35), "Backlog"),
+        ]),
+      ];
+
+      selectedProject = projects[0];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Projeler yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void SelectProject(ProjectInfo proj)
+  {
+    selectedProject = proj;
+  }
+
+  private List<TaskItem> GetTasksByStatus(string status)
+  {
+    return selectedProject?.Tasks.Where(t => t.Status == status).OrderBy(t => t.DueDate).ToList() ?? [];
+  }
+
+  private void MoveTaskToInProgress(int taskId) => MoveTask(taskId, "InProgress");
+  private void MoveTaskToDone(int taskId) => MoveTask(taskId, "Done");
+
+  private void MoveTask(int taskId, string newStatus)
+  {
+    if (selectedProject is null) return;
+    var task = selectedProject.Tasks.FirstOrDefault(t => t.Id == taskId);
+    if (task is not null)
+    {
+      var idx = selectedProject.Tasks.IndexOf(task);
+      selectedProject.Tasks[idx] = task with { Status = newStatus };
+    }
+  }
+
+  private void AddProject()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(newProjectName)) return;
+      projects.Add(new ProjectInfo(nextProjectId++, newProjectName, newProjectDescription, newProjectDueDate, []));
+      newProjectName = string.Empty;
+      newProjectDescription = string.Empty;
+      newProjectDueDate = null;
+      showProjectForm = false;
+      successMessage = "Proje basariyla olusturuldu";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void AddTask()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (selectedProject is null || string.IsNullOrWhiteSpace(newTaskTitle)) return;
+      selectedProject.Tasks.Add(new TaskItem(nextTaskId++, newTaskTitle, newTaskDescription, newTaskAssignee, newTaskPriority, newTaskDueDate, "Backlog"));
+      newTaskTitle = string.Empty;
+      newTaskDescription = string.Empty;
+      newTaskAssignee = "Ahmet Yilmaz";
+      newTaskPriority = "Medium";
+      newTaskDueDate = DateTime.Today.AddDays(7);
+      showTaskForm = false;
+      successMessage = "Gorev basariyla eklendi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private static string GetPriorityBadgeClass(string priority) => priority switch
+  {
+    "High" => "bg-danger",
+    "Medium" => "bg-warning text-dark",
+    "Low" => "bg-info text-dark",
+    _ => "bg-secondary"
+  };
+
+  private static string GetPriorityLabel(string priority) => priority switch
+  {
+    "High" => "Yuksek",
+    "Medium" => "Orta",
+    "Low" => "Dusuk",
+    _ => priority
+  };
+
+  private record ProjectInfo(int Id, string Name, string Description, DateTime? DueDate, List<TaskItem> Tasks);
+  private record TaskItem(int Id, string Title, string Description, string Assignee, string Priority, DateTime DueDate, string Status);
+}

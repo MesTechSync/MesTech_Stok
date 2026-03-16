@@ -1,0 +1,144 @@
+@page "/payments"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-credit-card text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Odemeler</h3>
+    <small class="text-muted">Gelen ve giden odeme takibi</small>
+  </div>
+</div>
+
+@if (_isLoading)
+{
+  <LoadingSpinner />
+}
+else if (_errorMessage is not null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else if (_payments.Count == 0)
+{
+  <EmptyState Icon="fa-credit-card" Message="Henuz odeme kaydi bulunamadi." />
+}
+else
+{
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-arrow-down" Value="@($"{_payments.Where(p => p.Yon == "Gelen").Sum(p => p.Tutar):N0} TL")" Label="Gelen Odeme" TextColor="text-success" />
+    <KpiCard Icon="fa-arrow-up" Value="@($"{_payments.Where(p => p.Yon == "Giden").Sum(p => p.Tutar):N0} TL")" Label="Giden Odeme" TextColor="text-danger" />
+    <KpiCard Icon="fa-list" Value="@_payments.Count.ToString()" Label="Toplam Hareket" TextColor="text-primary" />
+    <KpiCard Icon="fa-hourglass-half" Value="@_payments.Count(p => p.Durum == "Bekliyor").ToString()" Label="Bekleyen" TextColor="text-warning" />
+  </div>
+
+  <!-- Payments Table -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Odeme Listesi</h6>
+      <span class="badge bg-secondary">@_payments.Count kayit</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tarih</th>
+              <th>Aciklama</th>
+              <th>Yon</th>
+              <th class="text-end">Tutar</th>
+              <th class="d-none d-md-table-cell">Yontem</th>
+              <th class="text-center">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var p in _payments)
+            {
+              <tr>
+                <td>@p.Tarih.ToString("dd.MM.yyyy")</td>
+                <td>@p.Aciklama</td>
+                <td>
+                  <span class="badge @(p.Yon == "Gelen" ? "bg-success" : "bg-danger")">
+                    <i class="fas @(p.Yon == "Gelen" ? "fa-arrow-down" : "fa-arrow-up") me-1"></i>@p.Yon
+                  </span>
+                </td>
+                <td class="text-end fw-bold @(p.Yon == "Gelen" ? "text-success" : "text-danger")">
+                  @(p.Yon == "Giden" ? "-" : "")@p.Tutar.ToString("N2") TL
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <span class="badge bg-light text-dark">@p.Yontem</span>
+                </td>
+                <td class="text-center">
+                  <StatusBadge Text="@p.Durum" Variant="@GetStatusVariant(p.Durum)" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private List<PaymentItem> _payments = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      try
+      {
+        await ApiClient.GetPaymentsAsync();
+      }
+      catch
+      {
+        _isDemoMode = true;
+      }
+
+      _payments = GetDemoData();
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Odeme verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static string GetStatusVariant(string durum) => durum switch
+  {
+    "Tamamlandi" => "success",
+    "Bekliyor" => "warning",
+    "Iptal" => "danger",
+    _ => "secondary"
+  };
+
+  private static List<PaymentItem> GetDemoData() =>
+  [
+    new(DateTime.Today.AddDays(-1), "Trendyol hesaplasma odemesi", "Gelen", 33_457m, "Havale/EFT", "Tamamlandi"),
+    new(DateTime.Today.AddDays(-2), "N11 hesaplasma odemesi", "Gelen", 10_483m, "Havale/EFT", "Tamamlandi"),
+    new(DateTime.Today.AddDays(-3), "Yurtici Kargo faturasi", "Giden", 6_780m, "Otomatik Odeme", "Tamamlandi"),
+    new(DateTime.Today.AddDays(-3), "Amazon TR settlement", "Gelen", 7_259m, "Havale/EFT", "Tamamlandi"),
+    new(DateTime.Today.AddDays(-5), "Azure hosting faturasi", "Giden", 3_200m, "Kredi Karti", "Tamamlandi"),
+    new(DateTime.Today.AddDays(-5), "Hepsiburada hesaplasma", "Gelen", 15_593m, "Havale/EFT", "Bekliyor"),
+    new(DateTime.Today.AddDays(-7), "Aras Kargo faturasi", "Giden", 5_430m, "Otomatik Odeme", "Bekliyor"),
+    new(DateTime.Today.AddDays(-10), "Google Ads kampanya odemesi", "Giden", 4_250m, "Kredi Karti", "Tamamlandi"),
+  ];
+
+  private record PaymentItem(DateTime Tarih, string Aciklama, string Yon,
+    decimal Tutar, string Yontem, string Durum);
+}

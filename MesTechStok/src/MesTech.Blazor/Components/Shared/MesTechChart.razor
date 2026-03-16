@@ -1,0 +1,67 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div style="position: relative; height: @Height; width: 100%;">
+  <canvas id="@_canvasId"></canvas>
+</div>
+
+@code {
+  [Parameter] public string ChartType { get; set; } = "bar";
+  [Parameter] public object? Data { get; set; }
+  [Parameter] public object? Options { get; set; }
+  [Parameter] public string Height { get; set; } = "300px";
+
+  private string _canvasId = $"mestech-chart-{Guid.NewGuid():N}";
+  private bool _rendered;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender && Data is not null)
+    {
+      await RenderChart();
+      _rendered = true;
+    }
+  }
+
+  public async Task RefreshAsync(object newData)
+  {
+    Data = newData;
+    if (_rendered)
+    {
+      await JS.InvokeVoidAsync("updateChart", _canvasId, Data);
+    }
+    else
+    {
+      await RenderChart();
+      _rendered = true;
+    }
+  }
+
+  private async Task RenderChart()
+  {
+    try
+    {
+      await JS.InvokeVoidAsync("createChart", _canvasId, ChartType, Data, Options ?? new { });
+    }
+    catch (JSException)
+    {
+      // Chart.js henuz yuklenmemis olabilir — sessizce gec
+    }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_rendered)
+    {
+      try
+      {
+        await JS.InvokeVoidAsync("destroyChart", _canvasId);
+      }
+      catch
+      {
+        // Dispose sirasinda JS context kapanmis olabilir
+      }
+    }
+  }
+}

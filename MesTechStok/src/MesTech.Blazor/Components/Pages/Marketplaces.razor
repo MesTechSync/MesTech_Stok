@@ -1,55 +1,94 @@
 @page "/pazaryerleri"
 @attribute [Authorize]
+@inject MesTechApiClient ApiClient
 
-<div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
-    <i class="fas fa-globe text-white"></i>
-  </div>
-  <div>
-    <h3 class="mb-0" style="color: #2855AC;">Pazaryerleri</h3>
-    <small class="text-muted">10 platform entegrasyon yonetimi</small>
-  </div>
-</div>
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
-<!-- Platform Grid -->
-<div class="row g-3 mb-4">
-  @foreach (var p in platforms)
-  {
-    <div class="col-md-4 col-lg-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body text-center py-4">
-          <i class="@p.Icon fa-2x mb-2 d-block" style="color: @p.Color;"></i>
-          <h6 class="fw-semibold mb-1">@p.Name</h6>
-          <span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">
-            @(p.IsActive ? "TAM" : "YAKIN")
-          </span>
-        </div>
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else
+{
+    <div class="d-flex align-items-center mb-4">
+      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+           style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-globe text-white"></i>
+      </div>
+      <div>
+        <h3 class="mb-0" style="color: #2855AC;">Pazaryerleri</h3>
+        <small class="text-muted">10 platform entegrasyon yonetimi</small>
       </div>
     </div>
-  }
-</div>
 
-<div class="alert alert-secondary" role="alert">
-  <i class="fas fa-clock me-2"></i>
-  <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Platform API ayarlari,
-  senkronizasyon durumu, hata loglari ve toplu islem paneli eklenecek.
-</div>
+    <!-- Platform Grid -->
+    <div class="row g-3 mb-4">
+      @foreach (var p in platforms)
+      {
+        <div class="col-md-4 col-lg-3">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center py-4">
+              <i class="@p.Icon fa-2x mb-2 d-block" style="color: @p.Color;"></i>
+              <h6 class="fw-semibold mb-1">@p.Name</h6>
+              <span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">
+                @(p.IsActive ? "TAM" : "YAKIN")
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="alert alert-secondary" role="alert">
+      <i class="fas fa-clock me-2"></i>
+      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Platform API ayarlari,
+      senkronizasyon durumu, hata loglari ve toplu islem paneli eklenecek.
+    </div>
+}
 
 @code {
-  private record PlatformInfo(string Name, string Icon, string Color, bool IsActive);
+    private bool isLoading = true;
+    private string? errorMessage;
 
-  private List<PlatformInfo> platforms =
-  [
-    new("Trendyol", "fas fa-shopping-bag", "#FF6F00", true),
-    new("OpenCart", "fas fa-cart-shopping", "#2196F3", true),
-    new("N11", "fas fa-store", "#FF5722", true),
-    new("Hepsiburada", "fas fa-box", "#FF9800", true),
-    new("Amazon TR", "fab fa-amazon", "#FF9900", true),
-    new("Pazarama", "fas fa-shop", "#4CAF50", true),
-    new("CicekSepeti", "fas fa-seedling", "#E91E63", true),
-    new("Bitrix24", "fas fa-users-cog", "#00BCD4", true),
-    new("Google Merchant", "fab fa-google", "#4285F4", true),
-    new("Facebook Shop", "fab fa-facebook", "#1877F2", true),
-  ];
+    private record PlatformInfo(string Name, string Icon, string Color, bool IsActive);
+
+    private List<PlatformInfo> platforms =
+    [
+        new("Trendyol", "fas fa-shopping-bag", "#FF6F00", true),
+        new("OpenCart", "fas fa-cart-shopping", "#2196F3", true),
+        new("N11", "fas fa-store", "#FF5722", true),
+        new("Hepsiburada", "fas fa-box", "#FF9800", true),
+        new("Amazon TR", "fab fa-amazon", "#FF9900", true),
+        new("Pazarama", "fas fa-shop", "#4CAF50", true),
+        new("CicekSepeti", "fas fa-seedling", "#E91E63", true),
+        new("Bitrix24", "fas fa-users-cog", "#00BCD4", true),
+        new("Google Merchant", "fab fa-google", "#4285F4", true),
+        new("Facebook Shop", "fab fa-facebook", "#1877F2", true),
+    ];
+
+    private bool _isDemoMode;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<object>>("platforms");
+            if (result.IsSuccess) { /* TODO: map result.Data */ }
+            else { _isDemoMode = true; }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }

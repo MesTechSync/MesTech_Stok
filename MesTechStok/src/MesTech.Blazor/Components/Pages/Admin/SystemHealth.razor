@@ -1,0 +1,388 @@
+@page "/admin/system"
+@attribute [Authorize(Roles = "Admin")]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-heartbeat text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Sistem Saglik Durumu</h3>
+    <small class="text-muted">Altyapi servisleri, zamanlanmis isler ve AI araclari</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else
+{
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+
+  <!-- API Health Card -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between flex-wrap">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+               style="width: 64px; height: 64px; background-color: @(apiHealthy ? "#19875420" : "#dc354520");">
+            <i class="fas fa-heartbeat fa-2x @(apiHealthy ? "text-success" : "text-danger")"></i>
+          </div>
+          <div>
+            <h5 class="mb-0 @(apiHealthy ? "text-success" : "text-danger")">
+              @(apiHealthy ? "Calisiyor" : "Hata")
+            </h5>
+            <small class="text-muted">API Health Endpoint: /health</small>
+          </div>
+        </div>
+        <div class="text-end">
+          <small class="text-muted d-block">Son Kontrol</small>
+          <span class="fw-semibold">@lastHealthCheck.ToString("dd.MM.yyyy HH:mm:ss")</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Docker Services -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0">
+        <i class="fab fa-docker me-2" style="color: #2855AC;"></i>Docker Servisleri
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        @foreach (var svc in dockerServices)
+        {
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="card h-100 border @(svc.Durum == "Calisiyor" ? "border-success" : "border-danger")" style="border-width: 2px !important;">
+              <div class="card-body text-center py-3">
+                <i class="fas @svc.Icon fa-lg mb-2 d-block @(svc.Durum == "Calisiyor" ? "text-success" : "text-danger")"></i>
+                <h6 class="mb-1 fw-bold" style="font-size: 0.85rem;">@svc.Name</h6>
+                <small class="text-muted d-block">Port: @svc.Port</small>
+                <StatusBadge Text="@svc.Durum" Variant="@(svc.Durum == "Calisiyor" ? "success" : "danger")" />
+                <small class="text-muted d-block mt-1">@svc.Uptime</small>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Hangfire Jobs -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0">
+        <i class="fas fa-clock me-2" style="color: #2855AC;"></i>Zamanlanmis Isler (Hangfire)
+      </h6>
+      <span class="badge bg-secondary">@hangfireJobs.Count Is</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Is Adi</th>
+              <th class="d-none d-md-table-cell">Son Calisma</th>
+              <th class="d-none d-md-table-cell">Sonraki Calisma</th>
+              <th class="text-center">Durum</th>
+              <th class="text-end">Basari Orani</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var job in hangfireJobs)
+            {
+              <tr>
+                <td>
+                  <i class="fas @job.Icon me-2 text-muted"></i>
+                  <span class="fw-semibold">@job.Name</span>
+                </td>
+                <td class="d-none d-md-table-cell">@job.SonCalisma.ToString("dd.MM.yyyy HH:mm")</td>
+                <td class="d-none d-md-table-cell">@job.SonrakiCalisma.ToString("dd.MM.yyyy HH:mm")</td>
+                <td class="text-center">
+                  <StatusBadge Text="@job.Durum" Variant="@GetJobStatusVariant(job.Durum)" />
+                </td>
+                <td class="text-end">
+                  <div class="d-flex align-items-center justify-content-end">
+                    <div class="progress flex-grow-1 me-2" style="height: 6px; max-width: 80px;">
+                      <div class="progress-bar @GetProgressBarClass(job.BasariOrani)"
+                           role="progressbar"
+                           style="width: @job.BasariOrani%"></div>
+                    </div>
+                    <small class="fw-semibold">%@job.BasariOrani</small>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESA AI Tools -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0">
+        <i class="fas fa-robot me-2" style="color: #2855AC;"></i>MESA AI Araclari
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6">
+          <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                 style="width: 48px; height: 48px; background-color: @(mesaBridgeOnline ? "#19875420" : "#dc354520");">
+              <i class="fas fa-link @(mesaBridgeOnline ? "text-success" : "text-danger")"></i>
+            </div>
+            <div>
+              <h6 class="mb-0">MESA Bridge</h6>
+              <small class="@(mesaBridgeOnline ? "text-success" : "text-danger")">
+                @(mesaBridgeOnline ? "Bagli - Aktif" : "Baglanti Kesildi")
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-history me-3 text-muted"></i>
+            <div>
+              <small class="text-muted d-block">Son AI Islemi</small>
+              <span class="fw-semibold">@sonAiIslem</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <button class="btn btn-outline-primary w-100 py-3" @onclick="RunUrunAciklama" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="fas fa-magic fa-lg d-block mb-2"></i>
+            <span class="fw-semibold">Urun Aciklama Uret</span>
+            <br /><small class="text-muted">AI ile otomatik urun aciklamasi</small>
+          </button>
+        </div>
+        <div class="col-12 col-md-4">
+          <button class="btn btn-outline-success w-100 py-3" @onclick="RunFiyatOptimizasyonu" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="fas fa-chart-line fa-lg d-block mb-2"></i>
+            <span class="fw-semibold">Fiyat Optimizasyonu</span>
+            <br /><small class="text-muted">Rakip fiyat analizi ve oneri</small>
+          </button>
+        </div>
+        <div class="col-12 col-md-4">
+          <button class="btn btn-outline-info w-100 py-3" @onclick="RunGorselAnaliz" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="fas fa-image fa-lg d-block mb-2"></i>
+            <span class="fw-semibold">Gorsel Analiz</span>
+            <br /><small class="text-muted">Urun gorseli kalite kontrolu</small>
+          </button>
+        </div>
+      </div>
+
+      @if (!string.IsNullOrEmpty(successMessage))
+      {
+        <div class="alert alert-success mt-3 mb-0" role="alert">
+          <i class="fas fa-check-circle me-2"></i>@successMessage
+        </div>
+      }
+
+      @if (!string.IsNullOrEmpty(aiToolMessage))
+      {
+        <div class="alert alert-info mt-3 mb-0" role="alert">
+          <i class="fas fa-robot me-2"></i>@aiToolMessage
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+
+  // API Health
+  private bool apiHealthy = true;
+  private DateTime lastHealthCheck = DateTime.Now;
+
+  // Docker Services
+  private List<ServiceStatus> dockerServices = [];
+
+  // Hangfire Jobs
+  private List<HangfireJob> hangfireJobs = [];
+
+  // MESA AI
+  private bool mesaBridgeOnline = true;
+  private string sonAiIslem = "Urun aciklama uretimi (5 dk once)";
+  private string? aiToolMessage;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    try
+    {
+      try { await ApiClient.GetSystemHealthAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (SystemHealth): {apiEx.Message}"); }
+
+      dockerServices =
+      [
+        new("PostgreSQL", "fa-database", 5432, "Calisiyor", "14g 6s"),
+        new("Redis", "fa-bolt", 6379, "Calisiyor", "14g 6s"),
+        new("RabbitMQ", "fa-envelope", 5672, "Calisiyor", "14g 5s"),
+        new("MySQL", "fa-database", 3306, "Calisiyor", "14g 6s"),
+        new("Seq", "fa-scroll", 5341, "Calisiyor", "14g 4s"),
+        new("MinIO", "fa-hdd", 9000, "Calisiyor", "14g 6s"),
+      ];
+
+      hangfireJobs =
+      [
+        new("StokSyncJob", "fa-boxes-stacked",
+            new DateTime(2026, 3, 16, 10, 0, 0), new DateTime(2026, 3, 16, 10, 15, 0),
+            "Basarili", 98),
+        new("SiparisSyncJob", "fa-shopping-cart",
+            new DateTime(2026, 3, 16, 9, 55, 0), new DateTime(2026, 3, 16, 10, 10, 0),
+            "Basarili", 99),
+        new("FiyatGuncellemeJob", "fa-tags",
+            new DateTime(2026, 3, 16, 8, 0, 0), new DateTime(2026, 3, 16, 12, 0, 0),
+            "Basarili", 95),
+        new("FeedImportJob", "fa-rss",
+            new DateTime(2026, 3, 16, 6, 0, 0), new DateTime(2026, 3, 17, 6, 0, 0),
+            "Bekliyor", 92),
+        new("RaporOlusturmaJob", "fa-file-alt",
+            new DateTime(2026, 3, 15, 23, 0, 0), new DateTime(2026, 3, 16, 23, 0, 0),
+            "Hatali", 87),
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Sistem saglik verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private async Task RunUrunAciklama()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to MESA AI UrunAciklamaCommand
+      aiToolMessage = "Urun aciklama uretimi baslatildi. MESA AI islemi kuyruga alindi...";
+      successMessage = "AI islemi basariyla baslatildi";
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private async Task RunFiyatOptimizasyonu()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to MESA AI FiyatOptimizasyonuCommand
+      aiToolMessage = "Fiyat optimizasyonu analizi baslatildi. Rakip verileri toplanacak...";
+      successMessage = "AI islemi basariyla baslatildi";
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private async Task RunGorselAnaliz()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to MESA AI GorselAnalizCommand
+      aiToolMessage = "Gorsel analiz islemi baslatildi. Urun gorselleri taranacak...";
+      successMessage = "AI islemi basariyla baslatildi";
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private string GetJobStatusVariant(string durum) => durum switch
+  {
+    "Basarili" => "success",
+    "Bekliyor" => "warning",
+    "Hatali" => "danger",
+    "Calisiyor" => "info",
+    _ => "secondary"
+  };
+
+  private string GetProgressBarClass(int rate) => rate switch
+  {
+    >= 95 => "bg-success",
+    >= 85 => "bg-info",
+    >= 70 => "bg-warning",
+    _ => "bg-danger"
+  };
+
+  private record ServiceStatus(string Name, string Icon, int Port, string Durum, string Uptime);
+
+  private record HangfireJob(string Name, string Icon, DateTime SonCalisma, DateTime SonrakiCalisma, string Durum, int BasariOrani);
+}

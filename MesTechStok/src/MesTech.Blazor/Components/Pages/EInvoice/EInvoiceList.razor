@@ -1,0 +1,269 @@
+@page "/e-invoices"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-file-invoice text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">E-Fatura Yonetimi</h3>
+        <small class="text-muted">E-Fatura, e-Arsiv ve e-SMM islemleri</small>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-sm-6 col-md-3">
+                <SearchInput @bind-Value="searchText" Placeholder="Fatura no veya unvan ara..." />
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+                <select class="form-select form-select-sm" @bind="selectedStatus" @bind:after="OnFilterChanged">
+                    <option value="">Tumu</option>
+                    <option value="Taslak">Taslak</option>
+                    <option value="Gonderildi">Gonderildi</option>
+                    <option value="Iptal">Iptal</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <DateRangePicker @bind-StartDate="startDate" @bind-EndDate="endDate" OnRangeChanged="OnFilterChanged" />
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+                <span class="badge bg-secondary">Toplam: @totalCount</span>
+            </div>
+            <div class="col-6 col-sm-6 col-md-2 text-end">
+                <a href="/e-invoices/create" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Yeni Fatura</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (filteredInvoices.Count == 0)
+{
+    <EmptyState Icon="fa-file-invoice" Message="Henuz e-fatura bulunamadi." />
+}
+else
+{
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success mt-2 mb-3"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th class="d-none d-sm-table-cell">Tarih</th>
+                            <th class="d-none d-lg-table-cell">Alici VKN</th>
+                            <th>Alici Unvan</th>
+                            <th class="text-end d-none d-md-table-cell">Tutar</th>
+                            <th class="text-end d-none d-lg-table-cell">KDV</th>
+                            <th class="text-end">Toplam</th>
+                            <th>Durum</th>
+                            <th class="d-none d-md-table-cell">Aksiyonlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inv in filteredInvoices)
+                        {
+                            <tr>
+                                <td class="fw-bold">@inv.No</td>
+                                <td class="d-none d-sm-table-cell">
+                                    <small class="text-muted">@inv.Tarih.ToString("dd.MM.yyyy")</small>
+                                </td>
+                                <td class="d-none d-lg-table-cell">@inv.AliciVkn</td>
+                                <td>@inv.AliciUnvan</td>
+                                <td class="text-end d-none d-md-table-cell">@inv.Tutar.ToString("N2") TL</td>
+                                <td class="text-end d-none d-lg-table-cell">@inv.Kdv.ToString("N2") TL</td>
+                                <td class="text-end fw-bold">@inv.Toplam.ToString("N2") TL</td>
+                                <td>
+                                    <StatusBadge Text="@inv.Durum"
+                                                 Variant="@GetStatusVariant(inv.Durum)" />
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/e-invoices/@inv.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (inv.Durum == "Taslak")
+                                        {
+                                            <button class="btn btn-outline-success btn-sm" @onclick="() => SendInvoice(inv.Id)" disabled="@isSubmitting">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        }
+                                        @if (inv.Durum == "Gonderildi")
+                                        {
+                                            <button class="btn btn-outline-danger btn-sm" @onclick="() => CancelInvoice(inv.Id)" disabled="@isSubmitting">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <small class="text-muted">Toplam @filteredInvoices.Count fatura listeleniyor</small>
+        </div>
+    </div>
+}
+
+@code {
+    private record InvoiceRow(Guid Id, string No, DateTime Tarih, string AliciVkn, string AliciUnvan,
+        decimal Tutar, decimal Kdv, decimal Toplam, string Durum);
+
+    private List<InvoiceRow> invoices = [];
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string? successMessage;
+    private string searchText = string.Empty;
+    private string selectedStatus = string.Empty;
+    private DateTime startDate = DateTime.Today.AddMonths(-1);
+    private DateTime endDate = DateTime.Today;
+    private int totalCount;
+
+    private List<InvoiceRow> filteredInvoices => invoices
+        .Where(i => string.IsNullOrEmpty(selectedStatus) || i.Durum == selectedStatus)
+        .Where(i => string.IsNullOrWhiteSpace(searchText)
+            || i.No.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || i.AliciUnvan.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || i.AliciVkn.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(i => i.Tarih >= startDate && i.Tarih <= endDate)
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            await ApiClient.GetInvoicesAsync();
+            // TODO: map API response to InvoiceRow when DTO finalized
+            invoices = GetDemoData();
+            totalCount = invoices.Count;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API fallback (EInvoiceList): {ex.Message}");
+            _isDemoMode = true;
+            invoices = GetDemoData();
+            totalCount = invoices.Count;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnFilterChanged() => await LoadDataAsync();
+
+    private async Task SendInvoice(Guid id)
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to SendEInvoiceCommand
+            var inv = invoices.FirstOrDefault(i => i.Id == id);
+            if (inv is not null)
+            {
+                invoices = invoices.Select(i => i.Id == id
+                    ? i with { Durum = "Gonderildi" }
+                    : i).ToList();
+            }
+            successMessage = "Fatura basariyla gonderildi";
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task CancelInvoice(Guid id)
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Panel A — wire to CancelEInvoiceCommand
+            invoices = invoices.Select(i => i.Id == id
+                ? i with { Durum = "Iptal" }
+                : i).ToList();
+            successMessage = "Fatura iptal edildi";
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Taslak" => "warning",
+        "Gonderildi" => "success",
+        "Iptal" => "danger",
+        _ => "secondary"
+    };
+
+    private static List<InvoiceRow> GetDemoData() =>
+    [
+        new(Guid.NewGuid(), "MES2026000001", new DateTime(2026, 3, 1), "1234567890", "ABC Ticaret A.S.", 10_000m, 2_000m, 12_000m, "Gonderildi"),
+        new(Guid.NewGuid(), "MES2026000002", new DateTime(2026, 3, 3), "9876543210", "XYZ Sanayi Ltd.", 5_500m, 1_100m, 6_600m, "Gonderildi"),
+        new(Guid.NewGuid(), "MES2026000003", new DateTime(2026, 3, 5), "5551234567", "Demir Insaat A.S.", 22_000m, 4_400m, 26_400m, "Taslak"),
+        new(Guid.NewGuid(), "MES2026000004", new DateTime(2026, 3, 8), "1112223334", "Yildiz Gida San.", 3_200m, 640m, 3_840m, "Gonderildi"),
+        new(Guid.NewGuid(), "MES2026000005", new DateTime(2026, 3, 10), "4445556667", "Kaya Tekstil Ltd.", 15_750m, 3_150m, 18_900m, "Iptal"),
+        new(Guid.NewGuid(), "MES2026000006", new DateTime(2026, 3, 12), "7778889990", "Ozturk Elektronik", 8_400m, 1_680m, 10_080m, "Taslak"),
+        new(Guid.NewGuid(), "MES2026000007", new DateTime(2026, 3, 14), "3334445556", "Aydin Otomotiv A.S.", 45_000m, 9_000m, 54_000m, "Gonderildi"),
+        new(Guid.NewGuid(), "MES2026000008", new DateTime(2026, 3, 15), "6667778889", "Celik Makina San.", 7_200m, 1_440m, 8_640m, "Taslak"),
+    ];
+}

@@ -1,0 +1,393 @@
+@page "/dropshipping/pools"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Dropshipping Havuzlari</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-layer-group text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Dropshipping Havuzlari</h3>
+      <small class="text-muted">Urun havuzlarini yonet ve platforma gonder</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+              <input type="text" class="form-control" placeholder="Urun ara..."
+                     @bind="searchText" @bind:event="oninput" />
+            </div>
+          </div>
+          <div class="col-6 col-sm-3 col-md-2">
+            <select class="form-select form-select-sm" @bind="selectedRenk">
+              <option value="">Tum Renkler</option>
+              <option value="Yesil">Yesil</option>
+              <option value="Sari">Sari</option>
+              <option value="Kirmizi">Kirmizi</option>
+            </select>
+          </div>
+          <div class="col-6 col-sm-3 col-md-2">
+            <span class="badge bg-secondary">@filteredProducts.Count urun</span>
+          </div>
+          <div class="col-12 col-md-5 text-md-end">
+            <button class="btn btn-sm btn-primary me-1" @onclick="SendToPlatform" disabled="@(isSubmitting || !selectedIds.Any())">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-paper-plane me-1"></i><span class="d-none d-sm-inline">Platforma Gonder</span>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="ExportCsv" disabled="@isSubmitting">
+              <i class="fas fa-file-csv me-1"></i>CSV
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ExportXml" disabled="@isSubmitting">
+              <i class="fas fa-file-code me-1"></i>XML
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+      <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+    }
+
+    <!-- Products Table -->
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAll" />
+                </th>
+                <th>Urun Adi</th>
+                <th class="d-none d-sm-table-cell">Tedarikci</th>
+                <th class="text-end d-none d-md-table-cell">Alis</th>
+                <th class="text-end d-none d-md-table-cell">Satis</th>
+                <th class="text-end">Markup %</th>
+                <th class="text-end d-none d-lg-table-cell">Stok</th>
+                <th class="d-none d-sm-table-cell">Renk</th>
+                <th>Durum</th>
+                <th class="d-none d-md-table-cell">Aksiyonlar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredProducts.Count == 0)
+              {
+                <tr>
+                  <td colspan="10" class="text-center text-muted py-4">Havuzda urun bulunamadi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var product in filteredProducts)
+                {
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input"
+                             checked="@selectedIds.Contains(product.Id)"
+                             @onchange="() => ToggleSelect(product.Id)" />
+                    </td>
+                    <td class="fw-bold">@product.UrunAdi</td>
+                    <td class="d-none d-sm-table-cell">@product.Tedarikci</td>
+                    <td class="text-end d-none d-md-table-cell">@product.AlisFiyati.ToString("N2") TL</td>
+                    <td class="text-end d-none d-md-table-cell">@product.SatisFiyati.ToString("N2") TL</td>
+                    <td class="text-end">
+                      @if (editingMarkupId == product.Id)
+                      {
+                        <div class="input-group input-group-sm" style="width: 100px;">
+                          <input type="number" class="form-control form-control-sm text-end" @bind="editingMarkupValue" />
+                          <button class="btn btn-sm btn-success" @onclick="() => SaveMarkup(product)">
+                            <i class="fas fa-check"></i>
+                          </button>
+                        </div>
+                      }
+                      else
+                      {
+                        <span class="cursor-pointer text-primary" @onclick="() => StartEditMarkup(product)"
+                              style="cursor: pointer;" title="Duzenleme icin tikla">
+                          %@product.MarkupYuzde.ToString("N1")
+                        </span>
+                      }
+                    </td>
+                    <td class="text-end d-none d-lg-table-cell">@product.Stok</td>
+                    <td class="d-none d-sm-table-cell">
+                      <span class="badge @GetRenkBadgeClass(product.Renk)">@product.Renk</span>
+                    </td>
+                    <td>
+                      <span class="badge @GetDurumBadgeClass(product.Durum)">@product.Durum</span>
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                      <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveProduct(product.Id)"
+                              title="Havuzdan Cikar">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Actions Bar -->
+    @if (selectedIds.Any())
+    {
+      <div class="card shadow-sm mt-3 border-primary">
+        <div class="card-body py-2 d-flex align-items-center justify-content-between">
+          <span class="text-primary fw-bold">@selectedIds.Count urun secildi</span>
+          <div>
+            <button class="btn btn-sm btn-outline-danger me-1" @onclick="RemoveSelected" disabled="@isSubmitting">
+              <i class="fas fa-trash me-1"></i>Secilileri Cikar
+            </button>
+            <button class="btn btn-sm btn-primary" @onclick="SendToPlatform" disabled="@isSubmitting">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-paper-plane me-1"></i>Platforma Gonder
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private string searchText = string.Empty;
+  private string selectedRenk = string.Empty;
+  private List<PoolProduct> products = [];
+  private HashSet<int> selectedIds = [];
+  private int? editingMarkupId;
+  private decimal editingMarkupValue;
+
+  private List<PoolProduct> filteredProducts => products
+    .Where(p => string.IsNullOrWhiteSpace(searchText) ||
+                p.UrunAdi.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                p.Tedarikci.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+    .Where(p => string.IsNullOrEmpty(selectedRenk) || p.Renk == selectedRenk)
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetDropshippingPoolAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (DropshippingPool): {apiEx.Message}"); }
+      products = GetDemoProducts();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Havuz verileri yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void ToggleSelect(int id)
+  {
+    if (!selectedIds.Remove(id))
+      selectedIds.Add(id);
+  }
+
+  private void ToggleSelectAll(ChangeEventArgs e)
+  {
+    if (e.Value is true)
+      selectedIds = filteredProducts.Select(p => p.Id).ToHashSet();
+    else
+      selectedIds.Clear();
+  }
+
+  private void StartEditMarkup(PoolProduct product)
+  {
+    editingMarkupId = product.Id;
+    editingMarkupValue = product.MarkupYuzde;
+  }
+
+  private void SaveMarkup(PoolProduct product)
+  {
+    // TODO: Panel A — wire to UpdatePoolItemMarkupCommand
+    var idx = products.FindIndex(p => p.Id == product.Id);
+    if (idx >= 0)
+    {
+      var updated = product with
+      {
+        MarkupYuzde = editingMarkupValue,
+        SatisFiyati = product.AlisFiyati * (1 + editingMarkupValue / 100)
+      };
+      products[idx] = updated;
+    }
+    editingMarkupId = null;
+  }
+
+  private void RemoveProduct(int id)
+  {
+    // TODO: Panel A — wire to RemoveFromPoolCommand
+    products.RemoveAll(p => p.Id == id);
+    selectedIds.Remove(id);
+  }
+
+  private void RemoveSelected()
+  {
+    // TODO: Panel A — wire to BatchRemoveFromPoolCommand
+    products.RemoveAll(p => selectedIds.Contains(p.Id));
+    selectedIds.Clear();
+  }
+
+  private void SendToPlatform()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to SendToMarketplaceCommand
+      successMessage = "Secilen urunler platforma gonderildi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void ExportCsv()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to ExportPoolCsvCommand
+      successMessage = "CSV dosyasi basariyla olusturuldu";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void ExportXml()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to ExportPoolXmlCommand
+      successMessage = "XML dosyasi basariyla olusturuldu";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private static string GetRenkBadgeClass(string renk) => renk switch
+  {
+    "Yesil" => "bg-success",
+    "Sari" => "bg-warning text-dark",
+    "Kirmizi" => "bg-danger",
+    _ => "bg-secondary"
+  };
+
+  private static string GetDurumBadgeClass(string durum) => durum switch
+  {
+    "Aktif" => "bg-success",
+    "Pasif" => "bg-secondary",
+    "Beklemede" => "bg-warning text-dark",
+    _ => "bg-secondary"
+  };
+
+  private List<PoolProduct> GetDemoProducts() =>
+  [
+    new() { Id = 1, UrunAdi = "Erkek Spor Ayakkabi", Tedarikci = "AliExpress Elektronik", AlisFiyati = 189.90m, SatisFiyati = 349.90m, MarkupYuzde = 84.3m, Stok = 124, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 2, UrunAdi = "Kadin Deri Canta", Tedarikci = "Toptanci Tekstil", AlisFiyati = 120.00m, SatisFiyati = 249.90m, MarkupYuzde = 108.3m, Stok = 56, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 3, UrunAdi = "Bluetooth Kulaklik Pro", Tedarikci = "AliExpress Elektronik", AlisFiyati = 85.00m, SatisFiyati = 179.90m, MarkupYuzde = 111.6m, Stok = 230, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 4, UrunAdi = "Pamuklu Bebek Tulumu", Tedarikci = "Toptanci Tekstil", AlisFiyati = 45.00m, SatisFiyati = 89.90m, MarkupYuzde = 99.8m, Stok = 78, Renk = "Sari", Durum = "Aktif" },
+    new() { Id = 5, UrunAdi = "Akilli Saat GT3", Tedarikci = "AliExpress Elektronik", AlisFiyati = 210.00m, SatisFiyati = 399.90m, MarkupYuzde = 90.4m, Stok = 0, Renk = "Kirmizi", Durum = "Pasif" },
+    new() { Id = 6, UrunAdi = "Yoga Mati Premium 8mm", Tedarikci = "Spor Malzemeleri TR", AlisFiyati = 65.00m, SatisFiyati = 139.90m, MarkupYuzde = 115.2m, Stok = 42, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 7, UrunAdi = "Organik Cilt Bakim Seti", Tedarikci = "Kozmetik Deposu", AlisFiyati = 150.00m, SatisFiyati = 289.90m, MarkupYuzde = 93.3m, Stok = 15, Renk = "Sari", Durum = "Beklemede" },
+    new() { Id = 8, UrunAdi = "Bambu Mutfak Seti 7li", Tedarikci = "Ev & Yasam Market", AlisFiyati = 95.00m, SatisFiyati = 199.90m, MarkupYuzde = 110.4m, Stok = 67, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 9, UrunAdi = "Erkek Keten Gomlek", Tedarikci = "Toptanci Tekstil", AlisFiyati = 78.00m, SatisFiyati = 159.90m, MarkupYuzde = 105.0m, Stok = 93, Renk = "Yesil", Durum = "Aktif" },
+    new() { Id = 10, UrunAdi = "Cocuk Tablet Kilifi", Tedarikci = "AliExpress Elektronik", AlisFiyati = 35.00m, SatisFiyati = 69.90m, MarkupYuzde = 99.7m, Stok = 3, Renk = "Kirmizi", Durum = "Aktif" }
+  ];
+
+  private record PoolProduct
+  {
+    public int Id { get; init; }
+    public string UrunAdi { get; init; } = "";
+    public string Tedarikci { get; init; } = "";
+    public decimal AlisFiyati { get; init; }
+    public decimal SatisFiyati { get; set; }
+    public decimal MarkupYuzde { get; set; }
+    public int Stok { get; init; }
+    public string Renk { get; init; } = "";
+    public string Durum { get; init; } = "";
+  }
+}

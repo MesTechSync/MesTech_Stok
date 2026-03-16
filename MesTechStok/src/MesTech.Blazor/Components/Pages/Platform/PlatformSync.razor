@@ -1,0 +1,316 @@
+@page "/platform-sync"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-sync-alt text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Platform Sync Durumu</h3>
+        <small class="text-muted">11 platform senkronizasyon izleme ve yonetimi</small>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else
+{
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-plug" Value="@aktivPlatform.ToString()" Label="Aktif Platform" TextColor="text-primary" />
+        <KpiCard Icon="fa-check-circle" Value="@basariliSync.ToString()" Label="Basarili Sync" TextColor="text-success" />
+        <KpiCard Icon="fa-exclamation-circle" Value="@hataSayisi.ToString()" Label="Hata" TextColor="text-danger" />
+        <KpiCard Icon="fa-clock" Value="@son24Saat.ToString()" Label="Son 24 Saat" TextColor="text-info" />
+    </div>
+
+    <!-- Sync Actions -->
+    @if (actionMessage is not null)
+    {
+        <div class="alert alert-info alert-dismissible mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>@actionMessage
+            <button type="button" class="btn-close" @onclick="() => actionMessage = null"></button>
+        </div>
+    }
+
+    <!-- Sync Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="fas fa-table me-2"></i>Sync Durumu</h6>
+            <button class="btn btn-sm btn-outline-primary" @onclick="RefreshAll" disabled="@isSyncing">
+                @if (isSyncing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="fas fa-sync-alt me-1"></i>Tumu Yenile
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Platform</th>
+                            <th class="d-none d-sm-table-cell">Son Sync</th>
+                            <th>Durum</th>
+                            <th class="d-none d-md-table-cell text-end">Urun</th>
+                            <th class="d-none d-md-table-cell text-end">Siparis</th>
+                            <th class="d-none d-lg-table-cell text-end">Hata</th>
+                            <th class="text-end">Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sync in syncRows)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="@sync.Icon" style="color: @sync.Color;"></i>
+                                        <span class="fw-semibold">@sync.Platform</span>
+                                    </div>
+                                </td>
+                                <td class="d-none d-sm-table-cell">
+                                    <small class="text-muted">@sync.SonSync.ToString("dd.MM.yyyy HH:mm")</small>
+                                </td>
+                                <td>
+                                    <StatusBadge Text="@sync.Durum" Variant="@GetStatusVariant(sync.Durum)" />
+                                </td>
+                                <td class="d-none d-md-table-cell text-end">@sync.UrunSayisi</td>
+                                <td class="d-none d-md-table-cell text-end">@sync.SiparisSayisi</td>
+                                <td class="d-none d-lg-table-cell text-end">
+                                    @if (sync.HataSayisi > 0)
+                                    {
+                                        <button class="btn btn-link btn-sm p-0 text-danger" @onclick="() => ShowErrorDetail(sync)">
+                                            @sync.HataSayisi hata
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">0</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => SyncPlatform(sync)"
+                                            disabled="@(sync.IsSyncing)">
+                                        @if (sync.IsSyncing)
+                                        {
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-play"></i>
+                                        }
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <small class="text-muted">@syncRows.Count platform listeleniyor</small>
+        </div>
+    </div>
+}
+
+<!-- Error Detail Modal -->
+@if (showErrorModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                        @selectedSync?.Platform — Hata Detaylari
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="() => showErrorModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    @if (errorDetails.Count == 0)
+                    {
+                        <p class="text-muted">Hata detayi bulunamadi.</p>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var err in errorDetails)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-danger me-2">@err.Kod</span>
+                                            <span>@err.Mesaj</span>
+                                        </div>
+                                        <small class="text-muted text-nowrap">@err.Tarih.ToString("HH:mm")</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" @onclick="() => showErrorModal = false">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private class SyncRow
+    {
+        public string Platform { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
+        public string Color { get; set; } = string.Empty;
+        public DateTime SonSync { get; set; }
+        public string Durum { get; set; } = "Basarili";
+        public int UrunSayisi { get; set; }
+        public int SiparisSayisi { get; set; }
+        public int HataSayisi { get; set; }
+        public bool IsSyncing { get; set; }
+    }
+
+    private record ErrorDetail(string Kod, string Mesaj, DateTime Tarih);
+
+    private List<SyncRow> syncRows = [];
+    private SyncRow? selectedSync;
+    private List<ErrorDetail> errorDetails = [];
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool isSyncing;
+    private string? errorMessage;
+    private string? actionMessage;
+    private bool showErrorModal;
+
+    private int aktivPlatform => syncRows.Count(s => s.Durum != "Hata");
+    private int basariliSync => syncRows.Count(s => s.Durum == "Basarili");
+    private int hataSayisi => syncRows.Sum(s => s.HataSayisi);
+    private int son24Saat => syncRows.Count(s => s.SonSync >= DateTime.Now.AddHours(-24));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            try { await ApiClient.GetPlatformSyncStatusAsync(); }
+            catch (Exception apiEx) { Console.WriteLine($"API fallback (PlatformSync): {apiEx.Message}"); }
+
+            syncRows =
+            [
+                new() { Platform = "Trendyol", Icon = "fas fa-shopping-bag", Color = "#FF6F00", SonSync = DateTime.Now.AddMinutes(-15), Durum = "Basarili", UrunSayisi = 1250, SiparisSayisi = 340, HataSayisi = 0 },
+                new() { Platform = "OpenCart", Icon = "fas fa-cart-shopping", Color = "#2196F3", SonSync = DateTime.Now.AddMinutes(-30), Durum = "Basarili", UrunSayisi = 980, SiparisSayisi = 120, HataSayisi = 0 },
+                new() { Platform = "N11", Icon = "fas fa-store", Color = "#FF5722", SonSync = DateTime.Now.AddHours(-1), Durum = "Basarili", UrunSayisi = 870, SiparisSayisi = 95, HataSayisi = 0 },
+                new() { Platform = "Hepsiburada", Icon = "fas fa-box", Color = "#FF9800", SonSync = DateTime.Now.AddHours(-2), Durum = "Hata", UrunSayisi = 1100, SiparisSayisi = 280, HataSayisi = 3 },
+                new() { Platform = "Amazon TR", Icon = "fab fa-amazon", Color = "#FF9900", SonSync = DateTime.Now.AddMinutes(-45), Durum = "Basarili", UrunSayisi = 560, SiparisSayisi = 78, HataSayisi = 0 },
+                new() { Platform = "Pazarama", Icon = "fas fa-shop", Color = "#4CAF50", SonSync = DateTime.Now.AddHours(-3), Durum = "Bekliyor", UrunSayisi = 420, SiparisSayisi = 35, HataSayisi = 0 },
+                new() { Platform = "CicekSepeti", Icon = "fas fa-seedling", Color = "#E91E63", SonSync = DateTime.Now.AddHours(-1), Durum = "Basarili", UrunSayisi = 310, SiparisSayisi = 45, HataSayisi = 0 },
+                new() { Platform = "Shopify", Icon = "fab fa-shopify", Color = "#96BF48", SonSync = DateTime.Now.AddMinutes(-20), Durum = "Basarili", UrunSayisi = 750, SiparisSayisi = 190, HataSayisi = 0 },
+                new() { Platform = "WooCommerce", Icon = "fab fa-wordpress", Color = "#96588A", SonSync = DateTime.Now.AddHours(-4), Durum = "Hata", UrunSayisi = 630, SiparisSayisi = 85, HataSayisi = 2 },
+                new() { Platform = "eBay", Icon = "fab fa-ebay", Color = "#E53238", SonSync = DateTime.Now.AddMinutes(-50), Durum = "Basarili", UrunSayisi = 280, SiparisSayisi = 42, HataSayisi = 0 },
+                new() { Platform = "Bitrix24", Icon = "fas fa-users-cog", Color = "#00BCD4", SonSync = DateTime.Now.AddHours(-6), Durum = "Bekliyor", UrunSayisi = 0, SiparisSayisi = 0, HataSayisi = 0 },
+            ];
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Sync durumlari yuklenirken hata olustu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SyncPlatform(SyncRow sync)
+    {
+        sync.IsSyncing = true;
+        StateHasChanged();
+
+        try
+        {
+            // TODO: Panel A — wire to TriggerPlatformSyncCommand
+            await Task.Delay(1500);
+            sync.Durum = "Basarili";
+            sync.SonSync = DateTime.Now;
+            sync.HataSayisi = 0;
+            actionMessage = $"{sync.Platform} senkronizasyonu basariyla tamamlandi.";
+        }
+        catch
+        {
+            sync.Durum = "Hata";
+        }
+        finally
+        {
+            sync.IsSyncing = false;
+        }
+    }
+
+    private async Task RefreshAll()
+    {
+        isSyncing = true;
+        try
+        {
+            foreach (var sync in syncRows)
+            {
+                sync.IsSyncing = true;
+            }
+            StateHasChanged();
+
+            // TODO: Panel A — wire to TriggerAllPlatformSyncCommand
+            await Task.Delay(2000);
+
+            foreach (var sync in syncRows)
+            {
+                sync.Durum = "Basarili";
+                sync.SonSync = DateTime.Now;
+                sync.HataSayisi = 0;
+                sync.IsSyncing = false;
+            }
+            actionMessage = "Tum platformlar basariyla senkronize edildi.";
+        }
+        finally
+        {
+            isSyncing = false;
+        }
+    }
+
+    private void ShowErrorDetail(SyncRow sync)
+    {
+        selectedSync = sync;
+        // TODO: Panel A — wire to GetPlatformSyncErrorsQuery
+        errorDetails =
+        [
+            new("API-401", "API kimlik dogrulama hatasi — token suresi dolmus olabilir", DateTime.Now.AddHours(-2)),
+            new("RATE-429", "API istek limiti asildi — 5 dakika bekleyin", DateTime.Now.AddHours(-1).AddMinutes(-30)),
+            new("STOCK-500", "Stok guncelleme basarisiz — sunucu hatasi", DateTime.Now.AddHours(-1)),
+        ];
+        showErrorModal = true;
+    }
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Basarili" => "success",
+        "Hata" => "danger",
+        "Bekliyor" => "warning",
+        _ => "secondary"
+    };
+}

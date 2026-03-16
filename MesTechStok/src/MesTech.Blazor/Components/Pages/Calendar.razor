@@ -1,0 +1,417 @@
+@page "/calendar"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-calendar-alt text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Takvim</h3>
+    <small class="text-muted">Etkinlik ve gorev takvimi</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <!-- Navigation Bar -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-center">
+        <div class="col-auto">
+          <button class="btn btn-sm btn-outline-secondary" @onclick="() => NavigateMonth(-1)">
+            <i class="fas fa-chevron-left me-1"></i><span class="d-none d-sm-inline">Onceki Ay</span>
+          </button>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">
+            <i class="fas fa-calendar-day me-1"></i>Bugun
+          </button>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-sm btn-outline-secondary" @onclick="() => NavigateMonth(1)">
+            <span class="d-none d-sm-inline">Sonraki Ay</span><i class="fas fa-chevron-right ms-1"></i>
+          </button>
+        </div>
+        <div class="col text-center text-md-start">
+          <h5 class="mb-0 fw-bold" style="color: #2855AC;">@GetMonthName(currentMonth) @currentYear</h5>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-sm btn-primary" @onclick="() => showEventForm = true">
+            <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Yeni Etkinlik</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+      <!-- Header Row -->
+      <div class="calendar-grid">
+        @foreach (var dayName in dayNames)
+        {
+          <div class="calendar-cell text-center fw-bold py-2" style="min-height: auto; background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <span class="d-none d-sm-inline">@dayName</span>
+            <span class="d-sm-none">@dayName[..3]</span>
+          </div>
+        }
+      </div>
+      <!-- Day Cells -->
+      <div class="calendar-grid">
+        @foreach (var day in calendarDays)
+        {
+          <div class="calendar-cell @(day.IsToday ? "today" : "") @(day.IsOtherMonth ? "other-month" : "")"
+               style="cursor: pointer; @(selectedDate == day.Date ? "outline: 2px solid #2855AC; outline-offset: -2px;" : "")"
+               @onclick="() => SelectDate(day.Date)">
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="fw-semibold @(day.IsToday ? "text-primary" : "")">@day.Date.Day</span>
+              @if (day.Events.Count > 0)
+              {
+                <span class="badge bg-primary rounded-pill" style="font-size: 0.65rem;">@day.Events.Count</span>
+              }
+            </div>
+            @foreach (var evt in day.Events.Take(2))
+            {
+              <div class="calendar-event" style="background-color: @evt.Color;">@evt.Title</div>
+            }
+            @if (day.Events.Count > 2)
+            {
+              <small class="text-muted" style="font-size: 0.7rem;">+@(day.Events.Count - 2) daha</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Day Events -->
+  @if (selectedDate.HasValue)
+  {
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0">
+          <i class="fas fa-calendar-check me-2" style="color: #2855AC;"></i>
+          @selectedDate.Value.ToString("dd MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("tr-TR")) - Etkinlikler
+        </h6>
+        <button class="btn btn-sm btn-outline-primary" @onclick="() => { showEventForm = true; newEventDate = selectedDate.Value; }">
+          <i class="fas fa-plus me-1"></i>Ekle
+        </button>
+      </div>
+      <div class="card-body">
+        @{ var dayEvents = events.Where(e => e.Date.Date == selectedDate.Value.Date).OrderBy(e => e.Time).ToList(); }
+        @if (dayEvents.Count == 0)
+        {
+          <EmptyState Icon="fa-calendar-xmark" Message="Bu tarihte etkinlik bulunmuyor." />
+        }
+        else
+        {
+          @foreach (var evt in dayEvents)
+          {
+            <div class="d-flex align-items-start mb-3 p-3 border rounded">
+              <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                   style="width: 40px; height: 40px; background-color: @evt.Color;">
+                <i class="fas fa-calendar-alt text-white" style="font-size: 0.9rem;"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1 fw-bold">@evt.Title</h6>
+                    <small class="text-muted">
+                      <i class="fas fa-clock me-1"></i>@evt.Time
+                      @if (!string.IsNullOrEmpty(evt.Participants))
+                      {
+                        <span class="ms-2"><i class="fas fa-users me-1"></i>@evt.Participants</span>
+                      }
+                    </small>
+                    @if (!string.IsNullOrEmpty(evt.Description))
+                    {
+                      <p class="text-muted mb-0 mt-1" style="font-size: 0.85rem;">@evt.Description</p>
+                    }
+                  </div>
+                  <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => RemoveEvent(evt.Id)" title="Sil">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+  }
+
+  <!-- Event Form Modal -->
+  @if (showEventForm)
+  {
+    <div class="modal d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" style="color: #2855AC;"></i>Yeni Etkinlik</h5>
+            <button type="button" class="btn-close" @onclick="() => showEventForm = false"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Baslik <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" @bind="newEventTitle" placeholder="Etkinlik basligi..." />
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold">Tarih</label>
+                <input type="date" class="form-control" @bind="newEventDate" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Saat</label>
+                <input type="text" class="form-control" @bind="newEventTime" placeholder="09:00" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Katilimcilar</label>
+              <input type="text" class="form-control" @bind="newEventParticipants" placeholder="Isimleri virgul ile ayirin..." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Aciklama</label>
+              <textarea class="form-control" rows="2" @bind="newEventDescription" placeholder="Etkinlik detaylari..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Renk</label>
+              <div class="d-flex gap-2">
+                @foreach (var color in eventColors)
+                {
+                  <div class="rounded-circle border @(newEventColor == color ? "border-dark border-2" : "border-light")"
+                       style="width: 32px; height: 32px; background-color: @color; cursor: pointer;"
+                       @onclick="() => newEventColor = color"></div>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="() => showEventForm = false">Iptal</button>
+            <button type="button" class="btn btn-primary" @onclick="AddEvent" disabled="@(isSubmitting || string.IsNullOrWhiteSpace(newEventTitle))">
+              @if (isSubmitting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-save me-1"></i>Kaydet
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+@code {
+  private bool isLoading;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private int currentMonth;
+  private int currentYear;
+  private DateTime? selectedDate;
+  private List<CalendarEvent> events = [];
+  private List<CalendarDay> calendarDays = [];
+
+  // Event form state
+  private bool showEventForm;
+  private string newEventTitle = string.Empty;
+  private DateTime newEventDate = DateTime.Today;
+  private string newEventTime = "09:00";
+  private string newEventParticipants = string.Empty;
+  private string newEventDescription = string.Empty;
+  private string newEventColor = "#0d6efd";
+
+  private readonly string[] dayNames = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
+  private readonly string[] eventColors = ["#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14", "#0dcaf0", "#d63384"];
+
+  private int nextEventId = 100;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      var today = DateTime.Today;
+      currentMonth = today.Month;
+      currentYear = today.Year;
+      selectedDate = today;
+
+      try { await ApiClient.GetCalendarEventsAsync(currentYear, currentMonth); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Calendar): {apiEx.Message}"); }
+
+      events =
+      [
+        new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "#0d6efd"),
+        new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "#198754"),
+        new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "#6f42c1"),
+        new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "#fd7e14"),
+        new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "#dc3545"),
+        new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "#0d6efd"),
+        new(7, "Kargo Firma Degisikligi", new DateTime(currentYear, currentMonth, 18), "10:00", "Operasyon", "Yeni kargo anlasma imzasi", "#ffc107"),
+        new(8, "Muhasebe Kapanisi", new DateTime(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)), "17:00", "Muhasebe", "Aylik kapanis islemleri", "#d63384"),
+        new(9, "Amazon TR Magaza Acilisi", new DateTime(currentYear, currentMonth, 20), "09:00", "Platform Ekibi", "Amazon Turkiye magaza lansmani", "#fd7e14"),
+        new(10, "MESA AI Demo Sunumu", new DateTime(currentYear, currentMonth, 22), "15:00", "AI Ekibi, Yonetim", "Uretim tahmin modeli demo", "#0dcaf0"),
+      ];
+
+      BuildCalendarDays();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Takvim verileri yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void NavigateMonth(int offset)
+  {
+    currentMonth += offset;
+    if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+    else if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+    selectedDate = null;
+    BuildCalendarDays();
+  }
+
+  private void GoToToday()
+  {
+    var today = DateTime.Today;
+    currentMonth = today.Month;
+    currentYear = today.Year;
+    selectedDate = today;
+    BuildCalendarDays();
+  }
+
+  private void SelectDate(DateTime date)
+  {
+    selectedDate = date;
+  }
+
+  private void BuildCalendarDays()
+  {
+    calendarDays = [];
+    var firstDay = new DateTime(currentYear, currentMonth, 1);
+    var daysInMonth = DateTime.DaysInMonth(currentYear, currentMonth);
+    var today = DateTime.Today;
+
+    // Monday = 0, Sunday = 6
+    int startDayOfWeek = ((int)firstDay.DayOfWeek + 6) % 7;
+
+    // Previous month days
+    for (int i = startDayOfWeek - 1; i >= 0; i--)
+    {
+      var date = firstDay.AddDays(-(i + 1));
+      calendarDays.Add(new CalendarDay(date, date == today, true, GetEventsForDate(date)));
+    }
+
+    // Current month days
+    for (int d = 1; d <= daysInMonth; d++)
+    {
+      var date = new DateTime(currentYear, currentMonth, d);
+      calendarDays.Add(new CalendarDay(date, date == today, false, GetEventsForDate(date)));
+    }
+
+    // Next month days to fill remaining cells (6 rows x 7 = 42 cells)
+    int remaining = 42 - calendarDays.Count;
+    var lastDay = new DateTime(currentYear, currentMonth, daysInMonth);
+    for (int i = 1; i <= remaining; i++)
+    {
+      var date = lastDay.AddDays(i);
+      calendarDays.Add(new CalendarDay(date, date == today, true, GetEventsForDate(date)));
+    }
+  }
+
+  private List<CalendarEvent> GetEventsForDate(DateTime date)
+  {
+    return events.Where(e => e.Date.Date == date.Date).ToList();
+  }
+
+  private void AddEvent()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(newEventTitle)) return;
+
+      events.Add(new CalendarEvent(
+        nextEventId++,
+        newEventTitle,
+        newEventDate,
+        newEventTime,
+        newEventParticipants,
+        newEventDescription,
+        newEventColor
+      ));
+
+      // Reset form
+      newEventTitle = string.Empty;
+      newEventTime = "09:00";
+      newEventParticipants = string.Empty;
+      newEventDescription = string.Empty;
+      newEventColor = "#0d6efd";
+      showEventForm = false;
+      BuildCalendarDays();
+      successMessage = "Etkinlik basariyla eklendi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void RemoveEvent(int eventId)
+  {
+    events.RemoveAll(e => e.Id == eventId);
+    BuildCalendarDays();
+  }
+
+  private static string GetMonthName(int month) => month switch
+  {
+    1 => "Ocak", 2 => "Subat", 3 => "Mart", 4 => "Nisan",
+    5 => "Mayis", 6 => "Haziran", 7 => "Temmuz", 8 => "Agustos",
+    9 => "Eylul", 10 => "Ekim", 11 => "Kasim", 12 => "Aralik",
+    _ => ""
+  };
+
+  private record CalendarEvent(int Id, string Title, DateTime Date, string Time, string Participants, string Description, string Color);
+  private record CalendarDay(DateTime Date, bool IsToday, bool IsOtherMonth, List<CalendarEvent> Events);
+}

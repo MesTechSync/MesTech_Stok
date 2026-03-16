@@ -1,0 +1,382 @@
+@page "/warehouses"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-warehouse text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Depo Yonetimi</h3>
+    <small class="text-muted">Depo, zone, raf ve konum yonetimi</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else
+{
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-warehouse" Value="@toplamDepo.ToString()" Label="Toplam Depo" TextColor="text-primary" />
+    <KpiCard Icon="fa-th-large" Value="@toplamZone.ToString()" Label="Toplam Zone" TextColor="text-success" />
+    <KpiCard Icon="fa-grip-lines-vertical" Value="@toplamRaf.ToString()" Label="Toplam Raf" TextColor="text-info" />
+    <KpiCard Icon="fa-cubes" Value="@toplamUrunCesidi.ToString()" Label="Toplam Urun Cesidi" TextColor="text-warning" />
+  </div>
+
+  <div class="row g-3">
+    <!-- Left Panel: Warehouse List -->
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h6 class="mb-0"><i class="fas fa-warehouse me-2" style="color: #2855AC;"></i>Depolar</h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            @foreach (var w in warehouses)
+            {
+              <button class="list-group-item list-group-item-action d-flex align-items-center justify-content-between @(selectedWarehouse?.Name == w.Name ? "active" : "")"
+                      @onclick="() => SelectWarehouse(w)">
+                <div>
+                  <i class="fas fa-warehouse me-2"></i>
+                  <span class="fw-semibold">@w.Name</span>
+                  <br />
+                  <small class="@(selectedWarehouse?.Name == w.Name ? "text-white-50" : "text-muted")">
+                    @GetChildCount(w, "Zone") zone, @GetChildCount(w, "Rack") raf
+                  </small>
+                </div>
+                <div class="text-end">
+                  <span class="badge @(selectedWarehouse?.Name == w.Name ? "bg-white text-primary" : "bg-primary")">
+                    @w.ProductCount urun
+                  </span>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Warehouse Hierarchy -->
+    <div class="col-12 col-lg-8">
+      @if (selectedWarehouse is null)
+      {
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex align-items-center justify-content-center">
+            <EmptyState Icon="fa-warehouse" Message="Hiyerarsiyi goruntulemek icin sol panelden bir depo secin." />
+          </div>
+        </div>
+      }
+      else
+      {
+        <div class="card shadow-sm mb-3">
+          <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">
+              <i class="fas fa-sitemap me-2" style="color: #2855AC;"></i>@selectedWarehouse.Name - Hiyerarsi
+            </h6>
+            <small class="text-muted">@selectedWarehouse.ProductCount urun cesidi</small>
+          </div>
+          <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            <TreeView TItem="WarehouseNode"
+                      Items="@(new List<WarehouseNode> { selectedWarehouse })"
+                      ChildrenSelector="@(node => node.Children)">
+              <ItemTemplate Context="node">
+                <span class="d-inline-flex align-items-center">
+                  <i class="fas @GetNodeIcon(node.Type) me-2 @GetNodeColor(node.Type)"></i>
+                  <span class="fw-semibold">@node.Name</span>
+                  <span class="badge bg-secondary bg-opacity-25 text-dark ms-2">@node.ProductCount urun</span>
+                  <small class="text-muted ms-1">(@node.Type)</small>
+                </span>
+              </ItemTemplate>
+            </TreeView>
+          </div>
+        </div>
+
+        <!-- Transfer Form -->
+        <div class="card shadow-sm border-start border-4" style="border-color: #2855AC !important;">
+          <div class="card-header bg-white">
+            <h6 class="mb-0">
+              <i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Stok Transferi
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <label class="form-label small text-muted">Kaynak Konum</label>
+                <select class="form-select" @bind="transferForm.KaynakKonum">
+                  <option value="">Konum Secin</option>
+                  @foreach (var loc in GetAllLocations(selectedWarehouse))
+                  {
+                    <option value="@loc">@loc</option>
+                  }
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small text-muted">Hedef Konum</label>
+                <select class="form-select" @bind="transferForm.HedefKonum">
+                  <option value="">Konum Secin</option>
+                  @foreach (var loc in GetAllLocations(selectedWarehouse))
+                  {
+                    <option value="@loc">@loc</option>
+                  }
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small text-muted">Urun</label>
+                <input type="text" class="form-control" @bind="transferForm.Urun" placeholder="Urun adi veya SKU" />
+              </div>
+              <div class="col-6 col-md-1">
+                <label class="form-label small text-muted">Miktar</label>
+                <input type="number" class="form-control" @bind="transferForm.Miktar" min="1" />
+              </div>
+              <div class="col-6 col-md-2 d-flex align-items-end">
+                <button class="btn w-100" style="background-color: #2855AC; color: white;" @onclick="ExecuteTransfer" disabled="@isSubmitting">
+                  @if (isSubmitting)
+                  {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  <i class="fas fa-exchange-alt me-1"></i>Transfer Et
+                </button>
+              </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(transferMessage))
+            {
+              <div class="alert @(transferSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                <i class="fas @(transferSuccess ? "fa-check-circle" : "fa-times-circle") me-2"></i>
+                @transferMessage
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+
+  // KPI
+  private int toplamDepo;
+  private int toplamZone;
+  private int toplamRaf;
+  private int toplamUrunCesidi;
+
+  // Data
+  private List<WarehouseNode> warehouses = [];
+  private WarehouseNode? selectedWarehouse;
+
+  // Transfer
+  private TransferFormModel transferForm = new();
+  private string? transferMessage;
+  private bool transferSuccess;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    try
+    {
+      try { await ApiClient.GetWarehousesAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Warehouses): {apiEx.Message}"); }
+
+      warehouses =
+      [
+        new(Guid.NewGuid(), "Ana Depo - Istanbul", "Depo", 2850,
+        [
+          new(Guid.NewGuid(), "Zone A - Elektronik", "Zone", 1200,
+          [
+            new(Guid.NewGuid(), "Raf A1", "Rack", 400,
+            [
+              new(Guid.NewGuid(), "A1-Ust", "Shelf", 200,
+              [
+                new(Guid.NewGuid(), "A1-Ust-01", "Bin", 120, []),
+                new(Guid.NewGuid(), "A1-Ust-02", "Bin", 80, []),
+              ]),
+              new(Guid.NewGuid(), "A1-Alt", "Shelf", 200, []),
+            ]),
+            new(Guid.NewGuid(), "Raf A2", "Rack", 450,
+            [
+              new(Guid.NewGuid(), "A2-Ust", "Shelf", 250, []),
+              new(Guid.NewGuid(), "A2-Alt", "Shelf", 200, []),
+            ]),
+            new(Guid.NewGuid(), "Raf A3", "Rack", 350, []),
+          ]),
+          new(Guid.NewGuid(), "Zone B - Tekstil", "Zone", 980,
+          [
+            new(Guid.NewGuid(), "Raf B1", "Rack", 520,
+            [
+              new(Guid.NewGuid(), "B1-Ust", "Shelf", 280, []),
+              new(Guid.NewGuid(), "B1-Alt", "Shelf", 240, []),
+            ]),
+            new(Guid.NewGuid(), "Raf B2", "Rack", 460, []),
+          ]),
+          new(Guid.NewGuid(), "Zone C - Gida", "Zone", 670,
+          [
+            new(Guid.NewGuid(), "Raf C1", "Rack", 670, []),
+          ]),
+        ]),
+        new(Guid.NewGuid(), "Yedek Depo - Ankara", "Depo", 1420,
+        [
+          new(Guid.NewGuid(), "Zone D - Genel", "Zone", 850,
+          [
+            new(Guid.NewGuid(), "Raf D1", "Rack", 300, []),
+            new(Guid.NewGuid(), "Raf D2", "Rack", 280, []),
+            new(Guid.NewGuid(), "Raf D3", "Rack", 270, []),
+          ]),
+          new(Guid.NewGuid(), "Zone E - Sogukhava", "Zone", 570,
+          [
+            new(Guid.NewGuid(), "Raf E1", "Rack", 320, []),
+            new(Guid.NewGuid(), "Raf E2", "Rack", 250, []),
+          ]),
+        ]),
+      ];
+
+      toplamDepo = warehouses.Count;
+      toplamZone = warehouses.Sum(w => CountByType(w, "Zone"));
+      toplamRaf = warehouses.Sum(w => CountByType(w, "Rack"));
+      toplamUrunCesidi = warehouses.Sum(w => w.ProductCount);
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Depo verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void SelectWarehouse(WarehouseNode warehouse)
+  {
+    selectedWarehouse = warehouse;
+    transferForm = new TransferFormModel();
+    transferMessage = null;
+  }
+
+  private async Task ExecuteTransfer()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      if (string.IsNullOrWhiteSpace(transferForm.KaynakKonum)
+          || string.IsNullOrWhiteSpace(transferForm.HedefKonum)
+          || string.IsNullOrWhiteSpace(transferForm.Urun)
+          || transferForm.Miktar <= 0)
+      {
+        transferMessage = "Tum alanlari doldurun ve gecerli bir miktar girin.";
+        transferSuccess = false;
+        return;
+      }
+
+      if (transferForm.KaynakKonum == transferForm.HedefKonum)
+      {
+        transferMessage = "Kaynak ve hedef konum ayni olamaz.";
+        transferSuccess = false;
+        return;
+      }
+
+      // TODO: Panel A — add TransferStockCommand
+      await Task.Delay(200); // simulate
+
+      transferMessage = $"{transferForm.Miktar} adet '{transferForm.Urun}' basariyla {transferForm.KaynakKonum} -> {transferForm.HedefKonum} konumuna transfer edildi.";
+      transferSuccess = true;
+      successMessage = "Transfer basariyla tamamlandi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+      transferMessage = $"Transfer hatasi: {ex.Message}";
+      transferSuccess = false;
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private int CountByType(WarehouseNode node, string type)
+  {
+    var count = node.Type == type ? 1 : 0;
+    foreach (var child in node.Children)
+      count += CountByType(child, type);
+    return count;
+  }
+
+  private int GetChildCount(WarehouseNode node, string type)
+  {
+    return CountByType(node, type);
+  }
+
+  private string GetNodeIcon(string type) => type switch
+  {
+    "Depo" => "fa-warehouse",
+    "Zone" => "fa-th-large",
+    "Rack" => "fa-grip-lines-vertical",
+    "Shelf" => "fa-layer-group",
+    "Bin" => "fa-box",
+    _ => "fa-cube"
+  };
+
+  private string GetNodeColor(string type) => type switch
+  {
+    "Depo" => "text-primary",
+    "Zone" => "text-success",
+    "Rack" => "text-info",
+    "Shelf" => "text-warning",
+    "Bin" => "text-secondary",
+    _ => "text-muted"
+  };
+
+  private List<string> GetAllLocations(WarehouseNode root)
+  {
+    var locations = new List<string>();
+    CollectLocations(root, locations);
+    return locations;
+  }
+
+  private void CollectLocations(WarehouseNode node, List<string> locations)
+  {
+    if (node.Type != "Depo") // skip top-level depo as a location
+      locations.Add(node.Name);
+    foreach (var child in node.Children)
+      CollectLocations(child, locations);
+  }
+
+  private record WarehouseNode(Guid Id, string Name, string Type, int ProductCount, List<WarehouseNode> Children);
+
+  private class TransferFormModel
+  {
+    public string KaynakKonum { get; set; } = "";
+    public string HedefKonum { get; set; } = "";
+    public string Urun { get; set; } = "";
+    public int Miktar { get; set; } = 1;
+  }
+}

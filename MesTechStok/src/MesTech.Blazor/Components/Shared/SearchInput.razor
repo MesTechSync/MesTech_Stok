@@ -1,0 +1,16 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+    <input type="text" class="form-control" placeholder="@Placeholder"
+           @bind="Value" @bind:event="oninput" @bind:after="OnValueChanged" />
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Ara...";
+
+    private async Task OnValueChanged()
+    {
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

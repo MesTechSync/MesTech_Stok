@@ -1,0 +1,585 @@
+@page "/cari-hesaplar"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Cari Hesaplar</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-address-book text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Cari Hesaplar</h3>
+      <small class="text-muted">Musteri ve tedarikci hesap yonetimi</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Yukleniyor...</span>
+      </div>
+    </div>
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Cari</small>
+                <h4 class="mb-0 fw-bold text-primary fs-6 fs-md-4">@cariHesaplar.Count</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Borc</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@cariHesaplar.Sum(c => c.Borc).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Alacak</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@cariHesaplar.Sum(c => c.Alacak).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-info">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                <i class="fas fa-coins"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Net Bakiye</small>
+                <h4 class="mb-0 fw-bold fs-6 fs-md-4 @(NetBakiye >= 0 ? "text-info" : "text-danger")">
+                  @NetBakiye.ToString("N2") TL
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation + Toolbar -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-6 col-md-4">
+            <ul class="nav nav-pills nav-fill">
+              <li class="nav-item">
+                <button class="nav-link @(selectedTip == "" ? "active" : "")" @onclick='() => FilterByTip("")'>Tumu</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(selectedTip == "Musteri" ? "active" : "")" @onclick='() => FilterByTip("Musteri")'>Musteriler</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(selectedTip == "Tedarikci" ? "active" : "")" @onclick='() => FilterByTip("Tedarikci")'>Tedarikciler</button>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12 col-sm-3 col-md-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+              <input type="text" class="form-control" placeholder="Cari ara..."
+                     @bind="searchText" @bind:event="oninput" />
+            </div>
+          </div>
+          <div class="col-12 col-sm-3 col-md-4 text-end">
+            <button class="btn btn-sm btn-primary" @onclick="ShowNewCariModal">
+              <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Yeni Cari</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+      <div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>@successMessage</div>
+    }
+
+    <!-- New Cari Modal -->
+    @if (showNewCariModal)
+    {
+      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Cari Hesap</h5>
+              <button type="button" class="btn-close" @onclick="CloseNewCariModal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Unvan</label>
+                <input type="text" class="form-control" @bind="newCari.Unvan" placeholder="Firma veya kisi adi" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tip</label>
+                <select class="form-select" @bind="newCari.Tip">
+                  <option value="Musteri">Musteri</option>
+                  <option value="Tedarikci">Tedarikci</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Vergi No</label>
+                <input type="text" class="form-control" @bind="newCari.VergiNo" placeholder="10 haneli vergi no" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Telefon</label>
+                <input type="tel" class="form-control" @bind="newCari.Telefon" placeholder="0 5XX XXX XX XX" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Adres</label>
+                <textarea class="form-control" rows="2" @bind="newCari.Adres" placeholder="Adres bilgisi"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @onclick="CloseNewCariModal">Iptal</button>
+              <button type="button" class="btn btn-primary" @onclick="SaveNewCari" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- New Hareket Form -->
+    @if (showNewHareketForm)
+    {
+      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Yeni Hareket - @selectedCari?.Unvan</h5>
+              <button type="button" class="btn-close" @onclick="CloseNewHareketForm"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Tarih</label>
+                <input type="date" class="form-control" @bind="newHareket.Tarih" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Aciklama</label>
+                <input type="text" class="form-control" @bind="newHareket.Aciklama" placeholder="Hareket aciklamasi" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tutar</label>
+                <input type="number" class="form-control" @bind="newHareket.Tutar" step="0.01" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tip</label>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" id="tipBorc" value="Borc"
+                           @onchange="() => newHareket.HareketTip = HareketTipi.Borc"
+                           checked="@(newHareket.HareketTip == HareketTipi.Borc)" />
+                    <label class="form-check-label text-danger" for="tipBorc">Borc</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" id="tipAlacak" value="Alacak"
+                           @onchange="() => newHareket.HareketTip = HareketTipi.Alacak"
+                           checked="@(newHareket.HareketTip == HareketTipi.Alacak)" />
+                    <label class="form-check-label text-success" for="tipAlacak">Alacak</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @onclick="CloseNewHareketForm">Iptal</button>
+              <button type="button" class="btn btn-primary" @onclick="SaveNewHareket" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Master Table -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Cari Hesap Listesi</h6>
+        <span class="badge bg-secondary">@filteredCariHesaplar.Count hesap</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Unvan</th>
+                <th class="d-none d-sm-table-cell">Tip</th>
+                <th class="text-end d-none d-md-table-cell">Borc</th>
+                <th class="text-end d-none d-md-table-cell">Alacak</th>
+                <th class="text-end">Bakiye</th>
+                <th class="d-none d-lg-table-cell">Son Hareket</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredCariHesaplar.Count == 0)
+              {
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">Cari hesap bulunamadi.</td>
+                </tr>
+              }
+              else
+              {
+                @foreach (var cari in filteredCariHesaplar)
+                {
+                  <tr class="@(selectedCari?.Id == cari.Id ? "table-active" : "")" style="cursor: pointer;"
+                      @onclick="() => SelectCari(cari)">
+                    <td class="fw-bold">@cari.Unvan</td>
+                    <td class="d-none d-sm-table-cell">
+                      <span class="badge @(cari.Tip == "Musteri" ? "bg-primary" : "bg-info")">@cari.Tip</span>
+                    </td>
+                    <td class="text-end d-none d-md-table-cell text-danger">@cari.Borc.ToString("N2") TL</td>
+                    <td class="text-end d-none d-md-table-cell text-success">@cari.Alacak.ToString("N2") TL</td>
+                    <td class="text-end fw-bold @(cari.Bakiye >= 0 ? "text-success" : "text-danger")">
+                      @cari.Bakiye.ToString("N2") TL
+                    </td>
+                    <td class="d-none d-lg-table-cell">
+                      <small class="text-muted">@cari.SonHareketTarihi.ToString("dd.MM.yyyy")</small>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Section -->
+    @if (selectedCari is not null)
+    {
+      <div class="card shadow-sm border-primary">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+          <h6 class="mb-0">
+            <i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>
+            @selectedCari.Unvan - Hareket Gecmisi
+          </h6>
+          <button class="btn btn-sm btn-primary" @onclick="ShowNewHareketForm">
+            <i class="fas fa-plus me-1"></i>Yeni Hareket
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tarih</th>
+                  <th>Aciklama</th>
+                  <th class="text-end">Borc</th>
+                  <th class="text-end">Alacak</th>
+                  <th class="text-end">Bakiye</th>
+                </tr>
+              </thead>
+              <tbody>
+                @{ decimal runningBalance = 0; }
+                @foreach (var hareket in GetHareketler(selectedCari.Id))
+                {
+                  runningBalance += hareket.Alacak - hareket.Borc;
+                  <tr>
+                    <td><small class="text-muted">@hareket.Tarih.ToString("dd.MM.yyyy")</small></td>
+                    <td>@hareket.Aciklama</td>
+                    <td class="text-end @(hareket.Borc > 0 ? "text-danger fw-bold" : "")">
+                      @(hareket.Borc > 0 ? hareket.Borc.ToString("N2") + " TL" : "-")
+                    </td>
+                    <td class="text-end @(hareket.Alacak > 0 ? "text-success fw-bold" : "")">
+                      @(hareket.Alacak > 0 ? hareket.Alacak.ToString("N2") + " TL" : "-")
+                    </td>
+                    <td class="text-end fw-bold @(runningBalance >= 0 ? "text-success" : "text-danger")">
+                      @runningBalance.ToString("N2") TL
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+  private string searchText = string.Empty;
+  private string selectedTip = string.Empty;
+  private List<CariHesap> cariHesaplar = [];
+  private Dictionary<int, List<CariHareket>> hareketler = new();
+  private CariHesap? selectedCari;
+  private bool showNewCariModal;
+  private bool showNewHareketForm;
+  private NewCariForm newCari = new();
+  private NewHareketForm newHareket = new();
+
+  private decimal NetBakiye => cariHesaplar.Sum(c => c.Alacak) - cariHesaplar.Sum(c => c.Borc);
+
+  private List<CariHesap> filteredCariHesaplar => cariHesaplar
+    .Where(c => string.IsNullOrWhiteSpace(searchText) ||
+                c.Unvan.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+    .Where(c => string.IsNullOrEmpty(selectedTip) || c.Tip == selectedTip)
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetCariHesaplarAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (CariHesaplar): {apiEx.Message}"); }
+      cariHesaplar = GetDemoCariHesaplar();
+      hareketler = GetDemoHareketler();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Cari hesaplar yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void FilterByTip(string tip) => selectedTip = tip;
+
+  private void SelectCari(CariHesap cari) => selectedCari = cari;
+
+  private List<CariHareket> GetHareketler(int cariId)
+  {
+    // TODO: Panel A — wire to GetCariHareketlerQuery
+    return hareketler.TryGetValue(cariId, out var list) ? list : [];
+  }
+
+  private void ShowNewCariModal()
+  {
+    newCari = new();
+    showNewCariModal = true;
+  }
+
+  private void CloseNewCariModal() => showNewCariModal = false;
+
+  private void SaveNewCari()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to CreateCariHesapCommand
+      if (string.IsNullOrWhiteSpace(newCari.Unvan)) return;
+
+      cariHesaplar.Add(new CariHesap
+      {
+        Id = cariHesaplar.Count + 1,
+        Unvan = newCari.Unvan,
+        Tip = newCari.Tip,
+        VergiNo = newCari.VergiNo,
+        Telefon = newCari.Telefon,
+        Adres = newCari.Adres,
+        Borc = 0,
+        Alacak = 0,
+        Bakiye = 0,
+        SonHareketTarihi = DateTime.Today
+      });
+      showNewCariModal = false;
+      successMessage = "Cari hesap basariyla olusturuldu";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private void ShowNewHareketForm()
+  {
+    newHareket = new() { Tarih = DateTime.Today };
+    showNewHareketForm = true;
+  }
+
+  private void CloseNewHareketForm() => showNewHareketForm = false;
+
+  private void SaveNewHareket()
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      // TODO: Panel A — wire to CreateCariHareketCommand
+      if (selectedCari is null || newHareket.Tutar <= 0) return;
+
+      if (!hareketler.ContainsKey(selectedCari.Id))
+        hareketler[selectedCari.Id] = [];
+
+      hareketler[selectedCari.Id].Add(new CariHareket
+      {
+        Tarih = newHareket.Tarih,
+        Aciklama = newHareket.Aciklama,
+        Borc = newHareket.HareketTip == HareketTipi.Borc ? newHareket.Tutar : 0,
+        Alacak = newHareket.HareketTip == HareketTipi.Alacak ? newHareket.Tutar : 0
+      });
+      showNewHareketForm = false;
+      successMessage = "Hareket basariyla kaydedildi";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Hata: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private List<CariHesap> GetDemoCariHesaplar() =>
+  [
+    new() { Id = 1, Unvan = "ABC Elektronik Ltd. Sti.", Tip = "Musteri", Borc = 42_350.00m, Alacak = 38_200.00m, Bakiye = -4_150.00m, SonHareketTarihi = DateTime.Today.AddDays(-1) },
+    new() { Id = 2, Unvan = "Yildiz Tekstil A.S.", Tip = "Musteri", Borc = 18_900.00m, Alacak = 22_400.00m, Bakiye = 3_500.00m, SonHareketTarihi = DateTime.Today.AddDays(-2) },
+    new() { Id = 3, Unvan = "AliExpress Elektronik", Tip = "Tedarikci", Borc = 67_250.00m, Alacak = 67_250.00m, Bakiye = 0.00m, SonHareketTarihi = DateTime.Today.AddDays(-3) },
+    new() { Id = 4, Unvan = "Toptanci Tekstil San.", Tip = "Tedarikci", Borc = 31_200.00m, Alacak = 28_800.00m, Bakiye = -2_400.00m, SonHareketTarihi = DateTime.Today.AddDays(-5) },
+    new() { Id = 5, Unvan = "Mega Market Tic. A.S.", Tip = "Musteri", Borc = 89_400.00m, Alacak = 95_600.00m, Bakiye = 6_200.00m, SonHareketTarihi = DateTime.Today },
+    new() { Id = 6, Unvan = "Deniz Lojistik Ltd.", Tip = "Tedarikci", Borc = 12_800.00m, Alacak = 10_500.00m, Bakiye = -2_300.00m, SonHareketTarihi = DateTime.Today.AddDays(-7) }
+  ];
+
+  private Dictionary<int, List<CariHareket>> GetDemoHareketler() => new()
+  {
+    [1] =
+    [
+      new() { Tarih = DateTime.Today.AddDays(-30), Aciklama = "Acilis bakiyesi", Borc = 0, Alacak = 15_000.00m },
+      new() { Tarih = DateTime.Today.AddDays(-25), Aciklama = "Fatura FAT-2026-0280", Borc = 12_350.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-20), Aciklama = "Havale - Garanti Bankasi", Borc = 0, Alacak = 12_350.00m },
+      new() { Tarih = DateTime.Today.AddDays(-15), Aciklama = "Fatura FAT-2026-0295", Borc = 18_000.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-10), Aciklama = "Havale - Is Bankasi", Borc = 0, Alacak = 10_850.00m },
+      new() { Tarih = DateTime.Today.AddDays(-5), Aciklama = "Fatura FAT-2026-0312", Borc = 12_000.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-1), Aciklama = "Kredi karti iade", Borc = 0, Alacak = 0 }
+    ],
+    [2] =
+    [
+      new() { Tarih = DateTime.Today.AddDays(-28), Aciklama = "Fatura FAT-2026-0282", Borc = 8_900.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-21), Aciklama = "Havale - Ziraat Bankasi", Borc = 0, Alacak = 8_900.00m },
+      new() { Tarih = DateTime.Today.AddDays(-14), Aciklama = "Fatura FAT-2026-0298", Borc = 10_000.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-7), Aciklama = "Havale - Yapi Kredi", Borc = 0, Alacak = 13_500.00m },
+      new() { Tarih = DateTime.Today.AddDays(-2), Aciklama = "Iade fatura IADE-2026-0015", Borc = 0, Alacak = 0 }
+    ],
+    [5] =
+    [
+      new() { Tarih = DateTime.Today.AddDays(-20), Aciklama = "Acilis bakiyesi", Borc = 0, Alacak = 45_000.00m },
+      new() { Tarih = DateTime.Today.AddDays(-15), Aciklama = "Fatura FAT-2026-0290", Borc = 34_200.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today.AddDays(-10), Aciklama = "Havale - Halkbank", Borc = 0, Alacak = 34_200.00m },
+      new() { Tarih = DateTime.Today.AddDays(-5), Aciklama = "Fatura FAT-2026-0308", Borc = 55_200.00m, Alacak = 0 },
+      new() { Tarih = DateTime.Today, Aciklama = "Havale - Vakifbank", Borc = 0, Alacak = 16_400.00m }
+    ]
+  };
+
+  private record CariHesap
+  {
+    public int Id { get; init; }
+    public string Unvan { get; init; } = "";
+    public string Tip { get; init; } = "";
+    public string VergiNo { get; init; } = "";
+    public string Telefon { get; init; } = "";
+    public string Adres { get; init; } = "";
+    public decimal Borc { get; init; }
+    public decimal Alacak { get; init; }
+    public decimal Bakiye { get; init; }
+    public DateTime SonHareketTarihi { get; init; }
+  }
+
+  private record CariHareket
+  {
+    public DateTime Tarih { get; init; }
+    public string Aciklama { get; init; } = "";
+    public decimal Borc { get; init; }
+    public decimal Alacak { get; init; }
+  }
+
+  private enum HareketTipi { Borc, Alacak }
+
+  private class NewCariForm
+  {
+    public string Unvan { get; set; } = "";
+    public string Tip { get; set; } = "Musteri";
+    public string VergiNo { get; set; } = "";
+    public string Telefon { get; set; } = "";
+    public string Adres { get; set; } = "";
+  }
+
+  private class NewHareketForm
+  {
+    public DateTime Tarih { get; set; } = DateTime.Today;
+    public string Aciklama { get; set; } = "";
+    public decimal Tutar { get; set; }
+    public HareketTipi HareketTip { get; set; } = HareketTipi.Borc;
+  }
+}

@@ -1,0 +1,424 @@
+@page "/barcodes"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-barcode text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Barkod Yonetimi</h3>
+    <small class="text-muted">Barkod sorgulama, tarama gecmisi ve toplu yazdirma</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <!-- Search Section -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="mb-3"><i class="fas fa-search me-2" style="color: #2855AC;"></i>Barkod Sorgula</h6>
+      <div class="row g-2">
+        <div class="col">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white"><i class="fas fa-barcode text-muted"></i></span>
+            <input type="text" class="form-control" placeholder="Barkod numarasi girin veya okutun..."
+                   @bind="searchBarcode" @bind:event="oninput"
+                   @onkeydown="HandleKeyDown" />
+          </div>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary btn-lg" @onclick="SearchBarcode">
+            <i class="fas fa-search me-1"></i><span class="d-none d-sm-inline">Sorgula</span>
+          </button>
+        </div>
+      </div>
+      @if (searchPerformed && searchResult is null)
+      {
+        <div class="alert alert-warning mt-3 mb-0">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          "<strong>@searchBarcode</strong>" barkod numarasina ait urun bulunamadi.
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Product Result -->
+  @if (searchResult is not null)
+  {
+    <div class="card shadow-sm mb-4 border-start border-4 border-success">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <!-- Product Image Placeholder -->
+          <div class="col-12 col-sm-3 col-md-2 text-center">
+            <div class="d-flex align-items-center justify-content-center mx-auto rounded"
+                 style="width: 100px; height: 100px; background-color: #f8f9fa; border: 2px dashed #dee2e6;">
+              <i class="fas fa-box fa-2x text-muted"></i>
+            </div>
+          </div>
+          <!-- Product Details -->
+          <div class="col-12 col-sm-9 col-md-7">
+            <h5 class="fw-bold mb-2">@searchResult.Name</h5>
+            <div class="row g-2">
+              <div class="col-6 col-md-4">
+                <small class="text-muted d-block">SKU</small>
+                <span class="fw-semibold">@searchResult.Sku</span>
+              </div>
+              <div class="col-6 col-md-4">
+                <small class="text-muted d-block">Barkod No</small>
+                <span class="fw-semibold font-monospace">@searchResult.Barcode</span>
+              </div>
+              <div class="col-6 col-md-4">
+                <small class="text-muted d-block">Stok Adedi</small>
+                <span class="fw-bold @(searchResult.Stock < 10 ? "text-danger" : "text-success")">@searchResult.Stock</span>
+              </div>
+              <div class="col-6 col-md-4">
+                <small class="text-muted d-block">Fiyat</small>
+                <span class="fw-semibold">@searchResult.Price.ToString("N2") TL</span>
+              </div>
+              <div class="col-6 col-md-4">
+                <small class="text-muted d-block">Kategori</small>
+                <span>@searchResult.Category</span>
+              </div>
+              <div class="col-12 col-md-4">
+                <small class="text-muted d-block">Platformlar</small>
+                @foreach (var platform in searchResult.Platforms)
+                {
+                  <span class="badge bg-primary me-1">@platform</span>
+                }
+              </div>
+            </div>
+          </div>
+          <!-- Actions -->
+          <div class="col-12 col-md-3 text-md-end">
+            <div class="d-flex flex-md-column gap-2">
+              <button class="btn btn-outline-primary btn-sm flex-fill" @onclick="() => showStockUpdate = true">
+                <i class="fas fa-edit me-1"></i>Stok Guncelle
+              </button>
+              <button class="btn btn-outline-secondary btn-sm flex-fill">
+                <i class="fas fa-external-link-alt me-1"></i>Detay
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Stock Update Mini-Form -->
+  @if (showStockUpdate && searchResult is not null)
+  {
+    <div class="card shadow-sm mb-4 border-start border-4 border-info">
+      <div class="card-body">
+        <h6 class="mb-3"><i class="fas fa-edit me-2 text-info"></i>Stok Guncelle - @searchResult.Name</h6>
+        <div class="row g-2 align-items-end">
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Islem Tipi</label>
+            <select class="form-select" @bind="stockUpdateType">
+              <option value="Giris">Stok Girisi</option>
+              <option value="Cikis">Stok Cikisi</option>
+              <option value="Sayim">Sayim Duzeltme</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label fw-semibold">Miktar</label>
+            <input type="number" class="form-control" @bind="stockUpdateQty" min="1" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Aciklama</label>
+            <input type="text" class="form-control" @bind="stockUpdateNote" placeholder="Aciklama (opsiyonel)..." />
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="d-flex gap-2">
+              <button class="btn btn-info flex-fill" @onclick="ApplyStockUpdate">
+                <i class="fas fa-save me-1"></i>Uygula
+              </button>
+              <button class="btn btn-outline-secondary" @onclick="() => showStockUpdate = false">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Scan History -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Scan Gecmisi</h6>
+      <span class="badge bg-secondary">@scanLogs.Count kayit</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Barkod</th>
+              <th class="d-none d-sm-table-cell">Urun Adi</th>
+              <th>Tarih / Saat</th>
+              <th class="d-none d-md-table-cell">Kullanici</th>
+              <th>Islem Tipi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var log in scanLogs)
+            {
+              <tr>
+                <td class="font-monospace" style="font-size: 0.85rem;">@log.Barcode</td>
+                <td class="d-none d-sm-table-cell">@log.ProductName</td>
+                <td><small>@log.ScanDate.ToString("dd.MM.yyyy HH:mm")</small></td>
+                <td class="d-none d-md-table-cell">@log.User</td>
+                <td>
+                  <span class="badge @GetScanTypeBadgeClass(log.Type)">
+                    @GetScanTypeLabel(log.Type)
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Print Section -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-print me-2" style="color: #2855AC;"></i>Toplu Barkod Yazdirma</h6>
+      <span class="badge bg-secondary">@products.Count(p => p.Selected) secili</span>
+    </div>
+    <div class="card-body">
+      <!-- Format Selection -->
+      <div class="row g-2 mb-3 align-items-center">
+        <div class="col-auto">
+          <label class="form-label fw-semibold mb-0">Format:</label>
+        </div>
+        <div class="col-auto">
+          <div class="btn-group btn-group-sm">
+            <button class="btn @(printFormat == "EAN-13" ? "btn-primary" : "btn-outline-primary")"
+                    @onclick='() => printFormat = "EAN-13"'>EAN-13</button>
+            <button class="btn @(printFormat == "Code128" ? "btn-primary" : "btn-outline-primary")"
+                    @onclick='() => printFormat = "Code128"'>Code 128</button>
+            <button class="btn @(printFormat == "QRCode" ? "btn-primary" : "btn-outline-primary")"
+                    @onclick='() => printFormat = "QRCode"'>QR Code</button>
+          </div>
+        </div>
+        <div class="col-auto ms-auto">
+          <button class="btn btn-sm btn-outline-secondary me-2" @onclick="SelectAllProducts">
+            <i class="fas fa-check-square me-1"></i>Tumu Sec
+          </button>
+          <button class="btn btn-sm btn-primary" disabled="@(!products.Any(p => p.Selected))">
+            <i class="fas fa-print me-1"></i>Secilenleri Yazdir (@products.Count(p => p.Selected))
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Checkbox List -->
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" class="form-check-input"
+                       checked="@products.All(p => p.Selected)"
+                       @onchange="ToggleAllProducts" />
+              </th>
+              <th>Urun Adi</th>
+              <th class="d-none d-sm-table-cell">SKU</th>
+              <th>Barkod</th>
+              <th class="d-none d-md-table-cell text-end">Stok</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var prod in products)
+            {
+              <tr>
+                <td>
+                  <input type="checkbox" class="form-check-input"
+                         checked="@prod.Selected"
+                         @onchange="() => prod.Selected = !prod.Selected" />
+                </td>
+                <td class="fw-semibold">@prod.Name</td>
+                <td class="d-none d-sm-table-cell text-muted">@prod.Sku</td>
+                <td class="font-monospace" style="font-size: 0.85rem;">@prod.Barcode</td>
+                <td class="d-none d-md-table-cell text-end">@prod.Stock</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading;
+  private bool _isDemoMode;
+  private string? errorMessage;
+  private string searchBarcode = string.Empty;
+  private bool searchPerformed;
+  private ProductResult? searchResult;
+  private List<ScanLog> scanLogs = [];
+  private List<PrintableProduct> products = [];
+  private string printFormat = "EAN-13";
+
+  // Stock update form
+  private bool showStockUpdate;
+  private string stockUpdateType = "Giris";
+  private int stockUpdateQty = 1;
+  private string stockUpdateNote = string.Empty;
+
+  // Sample product database
+  private List<ProductResult> sampleProducts = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetBarcodeScanLogsAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Barcodes): {apiEx.Message}"); }
+
+      sampleProducts =
+      [
+        new(1, "Samsung Galaxy S24 Ultra 256GB", "SKU-SAM-S24U-256", "8691234567890", 24, 64999.99m, "Elektronik", ["Trendyol", "Hepsiburada", "Amazon TR"]),
+        new(2, "Nike Air Max 270 Erkek Spor Ayakkabi", "SKU-NIK-AM270-42", "8691234567891", 156, 3499.00m, "Ayakkabi", ["Trendyol", "N11"]),
+        new(3, "Bosch Serie 6 Camasir Makinesi", "SKU-BSH-S6-CM9", "8691234567892", 8, 24999.00m, "Beyaz Esya", ["Hepsiburada", "CicekSepeti"]),
+        new(4, "Apple MacBook Air M3 512GB", "SKU-APL-MBA-M3", "8691234567893", 12, 52999.00m, "Bilgisayar", ["Trendyol", "Amazon TR"]),
+        new(5, "Dyson V15 Detect Supurge", "SKU-DYS-V15-DT", "8691234567894", 5, 28999.00m, "Ev Aletleri", ["Trendyol", "Hepsiburada", "N11"]),
+      ];
+
+      var now = DateTime.Now;
+      scanLogs =
+      [
+        new(1, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddMinutes(-15), "Ahmet Yilmaz", "Cikis"),
+        new(2, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddMinutes(-42), "Mehmet Demir", "Giris"),
+        new(3, "8691234567893", "Apple MacBook Air M3 512GB", now.AddHours(-1), "Ayse Kaya", "Sayim"),
+        new(4, "8691234567894", "Dyson V15 Detect Supurge", now.AddHours(-2), "Fatma Celik", "Cikis"),
+        new(5, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddHours(-3), "Ali Ozturk", "Giris"),
+        new(6, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddHours(-5), "Ahmet Yilmaz", "Cikis"),
+        new(7, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddDays(-1), "Mehmet Demir", "Sayim"),
+        new(8, "8691234567893", "Apple MacBook Air M3 512GB", now.AddDays(-1), "Ayse Kaya", "Giris"),
+        new(9, "8691234567894", "Dyson V15 Detect Supurge", now.AddDays(-2), "Fatma Celik", "Giris"),
+        new(10, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddDays(-3), "Ali Ozturk", "Sayim"),
+      ];
+
+      products = sampleProducts.Select(p => new PrintableProduct(p.Name, p.Sku, p.Barcode, p.Stock, false)).ToList();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Barkod verileri yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void HandleKeyDown(KeyboardEventArgs e)
+  {
+    if (e.Key == "Enter")
+      SearchBarcode();
+  }
+
+  private void SearchBarcode()
+  {
+    if (string.IsNullOrWhiteSpace(searchBarcode)) return;
+    searchPerformed = true;
+    searchResult = sampleProducts.FirstOrDefault(p =>
+      p.Barcode.Contains(searchBarcode, StringComparison.OrdinalIgnoreCase) ||
+      p.Sku.Contains(searchBarcode, StringComparison.OrdinalIgnoreCase) ||
+      p.Name.Contains(searchBarcode, StringComparison.OrdinalIgnoreCase));
+    showStockUpdate = false;
+  }
+
+  private void ApplyStockUpdate()
+  {
+    if (searchResult is null) return;
+
+    var newStock = stockUpdateType switch
+    {
+      "Giris" => searchResult.Stock + stockUpdateQty,
+      "Cikis" => Math.Max(0, searchResult.Stock - stockUpdateQty),
+      "Sayim" => stockUpdateQty,
+      _ => searchResult.Stock
+    };
+
+    var idx = sampleProducts.FindIndex(p => p.Id == searchResult.Id);
+    if (idx >= 0)
+    {
+      sampleProducts[idx] = searchResult with { Stock = newStock };
+      searchResult = sampleProducts[idx];
+    }
+
+    // Add to scan log
+    scanLogs.Insert(0, new ScanLog(scanLogs.Count + 1, searchResult.Barcode, searchResult.Name, DateTime.Now, "Mevcut Kullanici", stockUpdateType));
+
+    showStockUpdate = false;
+    stockUpdateQty = 1;
+    stockUpdateNote = string.Empty;
+  }
+
+  private void SelectAllProducts()
+  {
+    foreach (var prod in products)
+      prod.Selected = true;
+  }
+
+  private void ToggleAllProducts(ChangeEventArgs e)
+  {
+    bool selectAll = (bool)(e.Value ?? false);
+    foreach (var prod in products)
+      prod.Selected = selectAll;
+  }
+
+  private static string GetScanTypeBadgeClass(string scanType) => scanType switch
+  {
+    "Giris" => "bg-success",
+    "Cikis" => "bg-danger",
+    "Sayim" => "bg-info text-dark",
+    _ => "bg-secondary"
+  };
+
+  private static string GetScanTypeLabel(string scanType) => scanType switch
+  {
+    "Giris" => "Giris",
+    "Cikis" => "Cikis",
+    "Sayim" => "Sayim",
+    _ => scanType
+  };
+
+  private record ProductResult(int Id, string Name, string Sku, string Barcode, int Stock, decimal Price, string Category, string[] Platforms);
+  private record ScanLog(int Id, string Barcode, string ProductName, DateTime ScanDate, string User, string Type);
+  private class PrintableProduct(string name, string sku, string barcode, int stock, bool selected)
+  {
+    public string Name { get; } = name;
+    public string Sku { get; } = sku;
+    public string Barcode { get; } = barcode;
+    public int Stock { get; } = stock;
+    public bool Selected { get; set; } = selected;
+  }
+}

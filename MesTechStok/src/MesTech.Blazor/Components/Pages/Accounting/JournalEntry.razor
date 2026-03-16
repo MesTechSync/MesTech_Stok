@@ -1,8 +1,12 @@
 @page "/accounting/journal-entry"
 @attribute [Authorize]
 @inject IConfiguration Configuration
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
 
-<PageTitle>Yevmiye Kaydi</PageTitle>
+<PageTitle>@L["PageTitle.JournalEntry"]</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="container-fluid">
   <!-- Page Header -->
@@ -12,11 +16,17 @@
       <i class="fas fa-book text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Manuel Yevmiye Kaydi</h3>
+      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.JournalEntry"]</h3>
       <small class="text-muted">Yevmiye fisi olusturma ve muhasebe kaydi</small>
     </div>
   </div>
 
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
   <!-- Success / Error Alerts -->
   @if (!string.IsNullOrEmpty(successMessage))
   {
@@ -36,7 +46,7 @@
   <!-- Date + Description Card -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-info-circle me-2" style="color: #2855AC;"></i>Fis Bilgileri</h6>
+      <h6 class="mb-0"><i class="fas fa-info-circle me-2" style="color: #2855AC;"></i>@L["UI.VoucherInfo"]</h6>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -56,10 +66,10 @@
   <!-- Journal Lines Table -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Yevmiye Satirlari</h6>
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.JournalLines"]</h6>
       <button class="btn btn-sm text-white" style="background-color: #2855AC;"
               @onclick="AddRow">
-        <i class="fas fa-plus me-1"></i>Satir Ekle
+        <i class="fas fa-plus me-1"></i>@L["UI.AddRow"]
       </button>
     </div>
     <div class="card-body p-0">
@@ -68,10 +78,10 @@
           <thead class="table-light">
             <tr>
               <th style="width: 50px;">#</th>
-              <th style="min-width: 140px;">Hesap Kodu</th>
-              <th style="min-width: 200px;">Hesap Adi</th>
-              <th class="text-end" style="min-width: 140px;">Borc (TL)</th>
-              <th class="text-end" style="min-width: 140px;">Alacak (TL)</th>
+              <th style="min-width: 140px;">@L["Table.AccountCode"]</th>
+              <th style="min-width: 200px;">@L["Table.AccountName"]</th>
+              <th class="text-end" style="min-width: 140px;">@L["Accounting.Debit"] (TL)</th>
+              <th class="text-end" style="min-width: 140px;">@L["Accounting.Credit"] (TL)</th>
               <th style="width: 60px;"></th>
             </tr>
           </thead>
@@ -114,17 +124,17 @@
           </tbody>
           <tfoot class="table-light fw-bold">
             <tr>
-              <td colspan="3" class="text-end">Toplam:</td>
+              <td colspan="3" class="text-end">@L["UI.Total"]:</td>
               <td class="text-end">@TotalDebit.ToString("N2")</td>
               <td class="text-end">@TotalCredit.ToString("N2")</td>
               <td></td>
             </tr>
             <tr>
-              <td colspan="3" class="text-end">Fark:</td>
+              <td colspan="3" class="text-end">@L["UI.Difference"]:</td>
               <td colspan="2" class="text-center">
                 @if (IsBalanced)
                 {
-                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Dengeli</span>
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>@L["UI.Balanced"]</span>
                 }
                 else
                 {
@@ -145,7 +155,7 @@
   @if (validationErrors.Count > 0)
   {
     <div class="alert alert-warning" role="alert">
-      <i class="fas fa-exclamation-triangle me-2"></i><strong>Dogrulama Hatalari:</strong>
+      <i class="fas fa-exclamation-triangle me-2"></i><strong>@L["UI.ValidationErrors"]:</strong>
       <ul class="mb-0 mt-1">
         @foreach (var err in validationErrors)
         {
@@ -162,18 +172,19 @@
       @if (isSaving)
       {
         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-        <span>Kaydediliyor...</span>
+        <span>@L["UI.Saving"]</span>
       }
       else
       {
         <i class="fas fa-save me-2"></i>
-        <span>Kaydet</span>
+        <span>@L["Common.Save"]</span>
       }
     </button>
     <button class="btn btn-outline-secondary px-4" @onclick="ClearForm" disabled="@isSaving">
-      <i class="fas fa-eraser me-2"></i>Temizle
+      <i class="fas fa-eraser me-2"></i>@L["Common.Clear"]
     </button>
   </div>
+  }
 </div>
 
 @code {
@@ -182,6 +193,8 @@
   private List<JournalRow> rows = [];
   private List<string> validationErrors = [];
 
+  private bool isLoading = true;
+  private bool _isDemoMode;
   private bool isSaving;
   private string? successMessage;
   private string? errorMessage;
@@ -215,11 +228,23 @@
   private decimal TotalCredit => rows.Sum(r => r.Credit);
   private bool IsBalanced => Math.Abs(TotalDebit - TotalCredit) < 0.005m && TotalDebit > 0;
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
-    // Start with 2 empty rows
-    rows.Add(new JournalRow());
-    rows.Add(new JournalRow());
+    try
+    {
+      // Start with 2 empty rows
+      rows.Add(new JournalRow());
+      rows.Add(new JournalRow());
+      await Task.CompletedTask;
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Sayfa yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
   }
 
   private void AddRow()

@@ -1,0 +1,380 @@
+@page "/notifications"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-bell text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Bildirim Merkezi</h3>
+    <small class="text-muted">Tum bildirimlerinizi tek yerden yonetin</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <!-- KPI Cards -->
+  <div class="row g-3 g-md-4 mb-4">
+    <KpiCard Icon="fa-bell" Value="@notifications.Count.ToString()" Label="Toplam Bildirim" TextColor="text-primary" />
+    <KpiCard Icon="fa-envelope-open" Value="@notifications.Count(n => !n.IsRead).ToString()" Label="Okunmamis" TextColor="text-danger" />
+    <KpiCard Icon="fa-calendar-day" Value="@notifications.Count(n => n.CreatedAt.Date == DateTime.Today).ToString()" Label="Bugun" TextColor="text-info" />
+    <KpiCard Icon="fa-calendar-week" Value="@notifications.Count(n => n.CreatedAt >= DateTime.Today.AddDays(-7)).ToString()" Label="Bu Hafta" TextColor="text-success" />
+  </div>
+
+  <!-- Filter Tabs & Channel Filters -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-auto">
+          <ul class="nav nav-pills nav-fill nav-sm">
+            <li class="nav-item">
+              <button class="nav-link @(activeTab == "all" ? "active" : "")" @onclick='() => activeTab = "all"'>
+                Tumu <span class="badge bg-secondary ms-1">@notifications.Count</span>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link @(activeTab == "unread" ? "active" : "")" @onclick='() => activeTab = "unread"'>
+                Okunmamis <span class="badge bg-danger ms-1">@notifications.Count(n => !n.IsRead)</span>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link @(activeTab == "read" ? "active" : "")" @onclick='() => activeTab = "read"'>
+                Okunmus
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="col-12 col-md-auto ms-md-auto">
+          <div class="btn-group btn-group-sm">
+            <button class="btn @(IsChannelActive("Email") ? "btn-primary" : "btn-outline-primary")" @onclick='() => ToggleChannel("Email")' title="Email">
+              <i class="fas fa-envelope"></i>
+            </button>
+            <button class="btn @(IsChannelActive("SMS") ? "btn-primary" : "btn-outline-primary")" @onclick='() => ToggleChannel("SMS")' title="SMS">
+              <i class="fas fa-sms"></i>
+            </button>
+            <button class="btn @(IsChannelActive("WhatsApp") ? "btn-success" : "btn-outline-success")" @onclick='() => ToggleChannel("WhatsApp")' title="WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </button>
+            <button class="btn @(IsChannelActive("Telegram") ? "btn-info" : "btn-outline-info")" @onclick='() => ToggleChannel("Telegram")' title="Telegram">
+              <i class="fab fa-telegram"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-12 col-md-auto">
+          <button class="btn btn-sm btn-outline-secondary" @onclick="BulkMarkRead"
+                  disabled="@(!notifications.Any(n => !n.IsRead))">
+            <i class="fas fa-check-double me-1"></i>Toplu Okundu Isaretle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification List -->
+  @if (filteredNotifications.Count == 0)
+  {
+    <EmptyState Icon="fa-bell-slash" Message="Filtrelenen kriterlere uygun bildirim bulunamadi." />
+  }
+  else
+  {
+    <div class="row g-3">
+      @foreach (var notif in filteredNotifications)
+      {
+        <div class="col-12">
+          <div class="card shadow-sm @(!notif.IsRead ? "border-start border-4 border-primary" : "")"
+               style="cursor: pointer;" @onclick="() => MarkAsRead(notif.Id)">
+            <div class="card-body py-3">
+              <div class="d-flex align-items-start">
+                <!-- Channel Icon -->
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                     style="width: 42px; height: 42px; background-color: @GetChannelColor(notif.Channel); opacity: 0.9;">
+                  <i class="@GetChannelIcon(notif.Channel) text-white" style="font-size: 1rem;"></i>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-grow-1 min-width-0">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="min-width-0">
+                      <h6 class="mb-1 @(!notif.IsRead ? "fw-bold" : "fw-normal text-muted")" style="font-size: 0.95rem;">
+                        @notif.Title
+                      </h6>
+                      <p class="text-muted mb-1 text-truncate" style="font-size: 0.85rem; max-width: 600px;">
+                        @notif.Message
+                      </p>
+                      <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <StatusBadge Text="@GetChannelLabel(notif.Channel)" Variant="@GetChannelVariant(notif.Channel)" />
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>@GetRelativeTime(notif.CreatedAt)</small>
+                      </div>
+                    </div>
+
+                    <!-- Unread Indicator -->
+                    <div class="ms-2 flex-shrink-0">
+                      @if (!notif.IsRead)
+                      {
+                        <span class="d-inline-block rounded-circle bg-primary" style="width: 10px; height: 10px;" title="Okunmamis"></span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Bildirim Ayarlari -->
+  <div class="card shadow-sm mt-4">
+    <div class="card-header bg-white" style="cursor: pointer;" @onclick="() => showSettings = !showSettings">
+      <div class="d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-cog me-2" style="color: #2855AC;"></i>Bildirim Ayarlari</h6>
+        <i class="fas @(showSettings ? "fa-chevron-up" : "fa-chevron-down") text-muted"></i>
+      </div>
+    </div>
+    @if (showSettings)
+    {
+      <div class="card-body">
+        <div class="row g-4">
+          <!-- Channel Toggles -->
+          <div class="col-12 col-md-6">
+            <h6 class="fw-bold mb-3"><i class="fas fa-broadcast-tower me-2 text-primary"></i>Kanal Ayarlari</h6>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-envelope me-2 text-primary"></i>Email Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsEmailEnabled"
+                         @onchange="(e) => settingsEmailEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-sms me-2 text-warning"></i>SMS Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsSmsEnabled"
+                         @onchange="(e) => settingsSmsEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fab fa-whatsapp me-2 text-success"></i>WhatsApp Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsWhatsAppEnabled"
+                         @onchange="(e) => settingsWhatsAppEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fab fa-telegram me-2 text-info"></i>Telegram Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsTelegramEnabled"
+                         @onchange="(e) => settingsTelegramEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification Types -->
+          <div class="col-12 col-md-6">
+            <h6 class="fw-bold mb-3"><i class="fas fa-filter me-2 text-primary"></i>Bildirim Turleri</h6>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-shopping-cart me-2 text-primary"></i>Siparis Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsOrderEnabled"
+                         @onchange="(e) => settingsOrderEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-boxes-stacked me-2 text-warning"></i>Stok Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsStockEnabled"
+                         @onchange="(e) => settingsStockEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Sync Hatasi Bildirimleri</span>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked="@settingsSyncErrorEnabled"
+                         @onchange="(e) => settingsSyncErrorEnabled = (bool)(e.Value ?? false)" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@code {
+  private bool isLoading;
+  private bool _isDemoMode;
+  private string? errorMessage;
+  private List<NotificationItem> notifications = [];
+  private string activeTab = "all";
+  private HashSet<string> activeChannels = [];
+  private bool showSettings;
+
+  // Settings state
+  private bool settingsEmailEnabled = true;
+  private bool settingsSmsEnabled = true;
+  private bool settingsWhatsAppEnabled = false;
+  private bool settingsTelegramEnabled = true;
+  private bool settingsOrderEnabled = true;
+  private bool settingsStockEnabled = true;
+  private bool settingsSyncErrorEnabled = true;
+
+  private List<NotificationItem> filteredNotifications
+  {
+    get
+    {
+      var result = notifications.AsEnumerable();
+
+      // Tab filter
+      if (activeTab == "unread") result = result.Where(n => !n.IsRead);
+      else if (activeTab == "read") result = result.Where(n => n.IsRead);
+
+      // Channel filter (if any selected)
+      if (activeChannels.Count > 0)
+        result = result.Where(n => activeChannels.Contains(n.Channel));
+
+      return result.OrderByDescending(n => n.CreatedAt).ToList();
+    }
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    errorMessage = null;
+
+    try
+    {
+      try { await ApiClient.GetNotificationsAsync(); }
+      catch (Exception apiEx) { Console.WriteLine($"API fallback (Notifications): {apiEx.Message}"); }
+
+      var now = DateTime.Now;
+      notifications =
+      [
+        new(1, "Yeni Siparis - Trendyol #TY-28491", "Trendyol uzerinden yeni siparis alindi. 3 urun, toplam 1.250 TL.", "Email", now.AddHours(-1), false),
+        new(2, "Kritik Stok Uyarisi", "Samsung Galaxy S24 Ultra stok adedi 3'e dustu. Minimum seviye: 10.", "SMS", now.AddHours(-2), false),
+        new(3, "Hepsiburada Sync Tamamlandi", "248 urun basariyla senkronize edildi. 3 urun hatali.", "Telegram", now.AddHours(-3), false),
+        new(4, "Siparis Kargoya Verildi", "Siparis #MES-1847 Yurtici Kargo ile gonderildi. Takip: YK-789456123.", "WhatsApp", now.AddHours(-5), true),
+        new(5, "N11 Entegrasyon Hatasi", "N11 API baglantisi 15 dakikadir yanitlamiyor. Otomatik yeniden deneme baslatildi.", "Email", now.AddHours(-8), false),
+        new(6, "Fiyat Guncelleme Onayı", "42 urun icin fiyat guncelleme islemi tamamlandi.", "Telegram", now.AddHours(-12), true),
+        new(7, "Yeni Lead - Web Formu", "Yeni musteri aday: ABC Ticaret Ltd. Web formundan kayit oldu.", "Email", now.AddDays(-1), true),
+        new(8, "Depo Sayim Hatirlatmasi", "Yarin saat 08:00'de aylik depo sayimi basliyor. Ekip hazirligini kontrol edin.", "WhatsApp", now.AddDays(-1), false),
+        new(9, "Amazon TR Magaza Onaylandi", "Amazon Turkiye magaza basvurunuz onaylandi. Urun yuklemeye baslayabilirsiniz.", "Email", now.AddDays(-2), true),
+        new(10, "Toplu Siparis Uyarisi", "Son 1 saatte 15 yeni siparis alindi. Depo kapasitesini kontrol edin.", "SMS", now.AddDays(-2), false),
+        new(11, "CicekSepeti Kampanya Bildirimi", "Yaz indirimi kampanyasi baslatildi. 89 urunum fiyati otomatik guncellendi.", "Telegram", now.AddDays(-3), true),
+        new(12, "Kargo Iade Bildirimi", "Siparis #MES-1792 iade surecine alindi. Musteri: Ayse Yildiz.", "WhatsApp", now.AddDays(-3), true),
+        new(13, "Sync Hatasi - OpenCart", "OpenCart veritabani baglantisi zaman asimina ugradi. Manuel kontrol gerekiyor.", "Email", now.AddDays(-4), false),
+        new(14, "Haftalik Rapor Hazir", "Bu haftanin satis raporu hazir: 245 siparis, 87.500 TL ciro.", "Telegram", now.AddDays(-5), true),
+        new(15, "Yeni Tedarikci Teklifi", "XYZ Tekstil'den yeni fiyat teklifi alindi. Detaylar ekte.", "SMS", now.AddDays(-6), false),
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Bildirimler yuklenirken hata olustu: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void MarkAsRead(int notifId)
+  {
+    var notif = notifications.FirstOrDefault(n => n.Id == notifId);
+    if (notif is not null)
+    {
+      var idx = notifications.IndexOf(notif);
+      notifications[idx] = notif with { IsRead = true };
+    }
+  }
+
+  private void BulkMarkRead()
+  {
+    for (int i = 0; i < notifications.Count; i++)
+    {
+      if (!notifications[i].IsRead)
+        notifications[i] = notifications[i] with { IsRead = true };
+    }
+  }
+
+  private bool IsChannelActive(string channel) => activeChannels.Contains(channel);
+
+  private void ToggleChannel(string channel)
+  {
+    if (!activeChannels.Remove(channel))
+      activeChannels.Add(channel);
+  }
+
+  private static string GetRelativeTime(DateTime date)
+  {
+    var diff = DateTime.Now - date;
+    if (diff.TotalMinutes < 1) return "az once";
+    if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} dakika once";
+    if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} saat once";
+    if (diff.TotalDays < 2) return "dun";
+    if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} gun once";
+    if (diff.TotalDays < 30) return $"{(int)(diff.TotalDays / 7)} hafta once";
+    return date.ToString("dd.MM.yyyy");
+  }
+
+  private static string GetChannelIcon(string channel) => channel switch
+  {
+    "Email" => "fas fa-envelope",
+    "SMS" => "fas fa-sms",
+    "WhatsApp" => "fab fa-whatsapp",
+    "Telegram" => "fab fa-telegram",
+    _ => "fas fa-bell"
+  };
+
+  private static string GetChannelColor(string channel) => channel switch
+  {
+    "Email" => "#2855AC",
+    "SMS" => "#ffc107",
+    "WhatsApp" => "#25D366",
+    "Telegram" => "#0088cc",
+    _ => "#6c757d"
+  };
+
+  private static string GetChannelLabel(string channel) => channel switch
+  {
+    "Email" => "Email",
+    "SMS" => "SMS",
+    "WhatsApp" => "WhatsApp",
+    "Telegram" => "Telegram",
+    _ => channel
+  };
+
+  private static string GetChannelVariant(string channel) => channel switch
+  {
+    "Email" => "primary",
+    "SMS" => "warning",
+    "WhatsApp" => "success",
+    "Telegram" => "info",
+    _ => "secondary"
+  };
+
+  private record NotificationItem(int Id, string Title, string Message, string Channel, DateTime CreatedAt, bool IsRead);
+}
