@@ -256,6 +256,7 @@ ProjectEndpoints.Map(app);
 BarcodeEndpoints.Map(app);
 TenantEndpoints.Map(app);
 StoreEndpoints.Map(app);
+StoreCredentialEndpoints.Map(app);
 SystemHealthEndpoints.Map(app);
 EInvoiceEndpoints.Map(app);
 SandboxEndpoints.Map(app);
