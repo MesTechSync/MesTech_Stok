@@ -1,0 +1,160 @@
+@page "/platform/connection-test"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-plug text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Platform Baglanti Testi</h3>
+        <small class="text-muted">Pazaryeri API baglanti durumu ve yanit suresi</small>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+else
+{
+
+<div class="row g-3 mb-4">
+    @foreach (var p in platforms)
+    {
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas @p.Icon fa-lg" style="color: @p.Color;"></i>
+                            <h6 class="mb-0 fw-bold">@p.Name</h6>
+                        </div>
+                        <span class="badge @GetStatusBadge(p.Status)">@GetStatusText(p.Status)</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Yanit Suresi</small>
+                        <span class="fw-semibold">@(p.ResponseMs > 0 ? $"{p.ResponseMs} ms" : "—")</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Son Test</small>
+                        <span>@(p.LastTested.HasValue ? p.LastTested.Value.ToString("dd.MM.yyyy HH:mm") : "Henuz test edilmedi")</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100"
+                            disabled="@p.IsTesting" @onclick="() => TestPlatform(p)">
+                        @if (p.IsTesting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        <i class="fas fa-vial me-1"></i>Baglanti Test Et
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Baglanti Ozeti</h6>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col">
+                <span class="d-block fs-4 fw-bold text-success">@platforms.Count(p => p.Status == "ok")</span>
+                <small class="text-muted">Basarili</small>
+            </div>
+            <div class="col">
+                <span class="d-block fs-4 fw-bold text-warning">@platforms.Count(p => p.Status == "slow")</span>
+                <small class="text-muted">Yavas</small>
+            </div>
+            <div class="col">
+                <span class="d-block fs-4 fw-bold text-danger">@platforms.Count(p => p.Status == "error")</span>
+                <small class="text-muted">Hata</small>
+            </div>
+            <div class="col">
+                <span class="d-block fs-4 fw-bold text-secondary">@platforms.Count(p => p.Status == "pending")</span>
+                <small class="text-muted">Bekliyor</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+} @* end isLoading else *@
+
+@code {
+    private class PlatformInfo
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string Color { get; set; } = "";
+        public string Status { get; set; } = "pending";
+        public int ResponseMs { get; set; }
+        public DateTime? LastTested { get; set; }
+        public bool IsTesting { get; set; }
+    }
+
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private List<PlatformInfo> platforms = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _isDemoMode = true;
+
+            platforms =
+            [
+                new() { Name = "Trendyol", Icon = "fa-shopping-bag", Color = "#F27A1A" },
+                new() { Name = "Hepsiburada", Icon = "fa-store", Color = "#FF6000" },
+                new() { Name = "CicekSepeti", Icon = "fa-seedling", Color = "#E91E63" },
+                new() { Name = "N11", Icon = "fa-tag", Color = "#7B1FA2" },
+                new() { Name = "Amazon TR", Icon = "fa-globe", Color = "#FF9900" },
+            ];
+        }
+        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        finally { isLoading = false; }
+    }
+
+    private async Task TestPlatform(PlatformInfo platform)
+    {
+        platform.IsTesting = true;
+        platform.Status = "pending";
+        StateHasChanged();
+
+        await Task.Delay(800 + Random.Shared.Next(400));
+
+        platform.ResponseMs = Random.Shared.Next(80, 650);
+        platform.Status = platform.ResponseMs < 300 ? "ok" : platform.ResponseMs < 500 ? "slow" : "error";
+        platform.LastTested = DateTime.Now;
+        platform.IsTesting = false;
+    }
+
+    private static string GetStatusBadge(string status) => status switch
+    {
+        "ok" => "bg-success",
+        "slow" => "bg-warning text-dark",
+        "error" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private static string GetStatusText(string status) => status switch
+    {
+        "ok" => "Basarili",
+        "slow" => "Yavas",
+        "error" => "Hata",
+        _ => "Bekliyor"
+    };
+}

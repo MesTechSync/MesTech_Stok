@@ -1,0 +1,251 @@
+@page "/products/upload"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-cloud-upload-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Platforma Urun Gonder</h3>
+      <small class="text-muted">Secili urunleri pazaryeri platformlarina aktarin</small>
+    </div>
+  </div>
+
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@_successMessage
+      <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Platform Secimi -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-store me-2" style="color: #2855AC;"></i>Platform Secimi</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        @foreach (var platform in _platforms)
+        {
+          <div class="col-6 col-md-3">
+            <div class="card h-100 cursor-pointer @(platform.Code == _selectedPlatform ? "border-primary" : "")"
+                 style="cursor: pointer;" @onclick="() => SelectPlatform(platform.Code)">
+              <div class="card-body text-center py-3">
+                <i class="@platform.Icon fa-2x mb-2 d-block"
+                   style="color: @(platform.Code == _selectedPlatform ? "#2855AC" : "#adb5bd");"></i>
+                <small class="fw-semibold">@platform.Name</small>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Urun Listesi -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h6 class="mb-0"><i class="fas fa-boxes-stacked me-2" style="color: #2855AC;"></i>Urun Secimi</h6>
+      <div>
+        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="SelectAll">
+          <i class="fas fa-check-double me-1"></i>Tumunu Sec
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="DeselectAll">
+          <i class="fas fa-times me-1"></i>Secimi Kaldir
+        </button>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" class="form-check-input" @onchange="ToggleAll"
+                       checked="@(_products.All(p => p.Selected))" />
+              </th>
+              <th>Urun Adi</th>
+              <th>SKU</th>
+              <th class="text-end">Fiyat</th>
+              <th class="text-end">Stok</th>
+              <th style="width: 120px;">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var product in _products)
+            {
+              <tr>
+                <td>
+                  <input type="checkbox" class="form-check-input" @bind="product.Selected" />
+                </td>
+                <td>@product.Name</td>
+                <td class="text-muted small">@product.SKU</td>
+                <td class="text-end">@product.Price.ToString("N2") TL</td>
+                <td class="text-end">@product.Stock</td>
+                <td>
+                  @if (product.UploadStatus == "success")
+                  {
+                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Gonderildi</span>
+                  }
+                  else if (product.UploadStatus == "error")
+                  {
+                    <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Hata</span>
+                  }
+                  else if (product.UploadStatus == "pending")
+                  {
+                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Bekliyor</span>
+                  }
+                  else
+                  {
+                    <span class="badge bg-secondary">Gonderilmedi</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gonder Butonu -->
+  <div class="d-flex gap-2 justify-content-end mb-5">
+    <span class="align-self-center text-muted me-2">
+      @_products.Count(p => p.Selected) urun secili
+    </span>
+    <button class="btn text-white px-4" style="background-color: #2855AC;"
+            @onclick="UploadProducts" disabled="@(_isUploading || string.IsNullOrEmpty(_selectedPlatform))">
+      @if (_isUploading)
+      {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+      }
+      <i class="fas fa-paper-plane me-1"></i>Platforma Gonder
+    </button>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool _isUploading;
+  private string? errorMessage;
+  private string? _successMessage;
+  private string _selectedPlatform = "";
+
+  private List<PlatformOption> _platforms =
+  [
+    new() { Code = "Trendyol", Name = "Trendyol", Icon = "fas fa-shopping-bag" },
+    new() { Code = "Hepsiburada", Name = "Hepsiburada", Icon = "fas fa-store" },
+    new() { Code = "CicekSepeti", Name = "CicekSepeti", Icon = "fas fa-seedling" },
+    new() { Code = "N11", Name = "N11", Icon = "fas fa-cart-shopping" },
+  ];
+
+  private List<ProductRow> _products = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("products");
+      if (result.IsSuccess) { /* TODO: map result.Data */ }
+      else { _isDemoMode = true; }
+
+      // Demo verisi
+      _products =
+      [
+        new() { Name = "Pamuklu Basic Tisort - Beyaz", SKU = "TSH-001-W", Price = 149.90m, Stock = 250 },
+        new() { Name = "Pamuklu Basic Tisort - Siyah", SKU = "TSH-001-B", Price = 149.90m, Stock = 180 },
+        new() { Name = "Slim Fit Jean Pantolon", SKU = "JNS-002", Price = 349.90m, Stock = 120 },
+        new() { Name = "Oversize Hoodie - Gri", SKU = "HOD-003-G", Price = 279.90m, Stock = 95 },
+        new() { Name = "Spor Sneaker Ayakkabi", SKU = "SNK-004", Price = 599.90m, Stock = 60 },
+        new() { Name = "Keten Gomlek - Mavi", SKU = "SHR-005-BL", Price = 229.90m, Stock = 140 },
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void SelectPlatform(string code) => _selectedPlatform = code;
+  private void SelectAll() { foreach (var p in _products) p.Selected = true; }
+  private void DeselectAll() { foreach (var p in _products) p.Selected = false; }
+  private void ToggleAll(ChangeEventArgs e)
+  {
+    var val = (bool)(e.Value ?? false);
+    foreach (var p in _products) p.Selected = val;
+  }
+
+  private async Task UploadProducts()
+  {
+    if (string.IsNullOrEmpty(_selectedPlatform)) return;
+
+    _isUploading = true;
+    _successMessage = null;
+
+    try
+    {
+      var selected = _products.Where(p => p.Selected).ToList();
+      foreach (var product in selected)
+      {
+        product.UploadStatus = "pending";
+      }
+      StateHasChanged();
+
+      foreach (var product in selected)
+      {
+        await Task.Delay(300); // demo simulasyon
+        product.UploadStatus = "success";
+        StateHasChanged();
+      }
+
+      _successMessage = $"{selected.Count} urun {_selectedPlatform} platformuna gonderildi (demo mod).";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Gonderim sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      _isUploading = false;
+    }
+  }
+
+  private class PlatformOption
+  {
+    public string Code { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string Icon { get; set; } = "";
+  }
+
+  private class ProductRow
+  {
+    public string Name { get; set; } = "";
+    public string SKU { get; set; } = "";
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+    public bool Selected { get; set; }
+    public string UploadStatus { get; set; } = "";
+  }
+}

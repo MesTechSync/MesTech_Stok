@@ -1,0 +1,266 @@
+@page "/products/variants"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-layer-group text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Urun Varyantlari</h3>
+      <small class="text-muted">Renk, beden ve diger varyant yonetimi</small>
+    </div>
+  </div>
+
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@_successMessage
+      <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Urun Baslik -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-box me-2" style="color: #2855AC;"></i>Urun Bilgisi</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Urun Adi</label>
+          <select class="form-select" @bind="_selectedProductId">
+            <option value="">Urun secin...</option>
+            @foreach (var p in _products)
+            {
+              <option value="@p.Id">@p.Name (SKU: @p.SKU)</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Kategori</label>
+          <input type="text" class="form-control" value="@SelectedProduct?.Category" readonly />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Ana Fiyat</label>
+          <input type="text" class="form-control" value="@(SelectedProduct?.BasePrice.ToString("N2") ?? "")" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Varyant Tablosu -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-th-list me-2" style="color: #2855AC;"></i>Varyantlar</h6>
+      <button class="btn btn-sm text-white" style="background-color: #2855AC;" @onclick="AddVariant">
+        <i class="fas fa-plus me-1"></i>Varyant Ekle
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Varyant Adi</th>
+              <th>Renk</th>
+              <th>Beden</th>
+              <th class="text-end">Stok</th>
+              <th class="text-end">Fiyat (TL)</th>
+              <th>Barkod</th>
+              <th style="width: 60px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (int i = 0; i < _variants.Count; i++)
+            {
+              var idx = i;
+              var v = _variants[idx];
+              <tr>
+                <td class="text-muted">@(idx + 1)</td>
+                <td>
+                  <input type="text" class="form-control form-control-sm"
+                         @bind="v.Name" placeholder="Varyant adi" />
+                </td>
+                <td>
+                  <select class="form-select form-select-sm" @bind="v.Color">
+                    <option value="">Sec...</option>
+                    <option value="Beyaz">Beyaz</option>
+                    <option value="Siyah">Siyah</option>
+                    <option value="Kirmizi">Kirmizi</option>
+                    <option value="Mavi">Mavi</option>
+                    <option value="Gri">Gri</option>
+                    <option value="Yesil">Yesil</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="form-select form-select-sm" @bind="v.Size">
+                    <option value="">Sec...</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="number" class="form-control form-control-sm text-end"
+                         @bind="v.Stock" min="0" />
+                </td>
+                <td>
+                  <input type="number" class="form-control form-control-sm text-end"
+                         @bind="v.Price" min="0" step="0.01" />
+                </td>
+                <td>
+                  <input type="text" class="form-control form-control-sm"
+                         @bind="v.Barcode" placeholder="8680..." />
+                </td>
+                <td class="text-center">
+                  @if (_variants.Count > 1)
+                  {
+                    <button class="btn btn-outline-danger btn-sm" @onclick="() => RemoveVariant(idx)">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td colspan="4" class="text-end">Toplam:</td>
+              <td class="text-end">@_variants.Sum(v => v.Stock)</td>
+              <td colspan="2"></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kaydet Butonu -->
+  <div class="d-flex gap-2 mb-5">
+    <button class="btn text-white px-4" style="background-color: #2855AC;"
+            @onclick="SaveVariants" disabled="@_isSaving">
+      @if (_isSaving)
+      {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+      }
+      <i class="fas fa-save me-1"></i>Varyantlari Kaydet
+    </button>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool _isSaving;
+  private string? errorMessage;
+  private string? _successMessage;
+  private string _selectedProductId = "";
+
+  private List<ProductInfo> _products = [];
+  private List<VariantRow> _variants = [];
+
+  private ProductInfo? SelectedProduct => _products.FirstOrDefault(p => p.Id == _selectedProductId);
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("products");
+      if (result.IsSuccess) { /* TODO: map result.Data */ }
+      else { _isDemoMode = true; }
+
+      // Demo verisi
+      _products =
+      [
+        new() { Id = "1", Name = "Pamuklu Basic Tisort", SKU = "TSH-001", Category = "Giyim > Tisort", BasePrice = 149.90m },
+        new() { Id = "2", Name = "Slim Fit Jean Pantolon", SKU = "JNS-002", Category = "Giyim > Pantolon", BasePrice = 349.90m },
+        new() { Id = "3", Name = "Oversize Hoodie", SKU = "HOD-003", Category = "Giyim > Sweatshirt", BasePrice = 279.90m },
+      ];
+      _selectedProductId = "1";
+
+      _variants =
+      [
+        new() { Name = "Tisort - Beyaz S", Color = "Beyaz", Size = "S", Stock = 45, Price = 149.90m, Barcode = "8680001234501" },
+        new() { Name = "Tisort - Beyaz M", Color = "Beyaz", Size = "M", Stock = 80, Price = 149.90m, Barcode = "8680001234502" },
+        new() { Name = "Tisort - Beyaz L", Color = "Beyaz", Size = "L", Stock = 60, Price = 149.90m, Barcode = "8680001234503" },
+        new() { Name = "Tisort - Siyah M", Color = "Siyah", Size = "M", Stock = 55, Price = 149.90m, Barcode = "8680001234504" },
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void AddVariant() => _variants.Add(new VariantRow { Price = SelectedProduct?.BasePrice ?? 0 });
+
+  private void RemoveVariant(int idx)
+  {
+    if (idx >= 0 && idx < _variants.Count && _variants.Count > 1)
+      _variants.RemoveAt(idx);
+  }
+
+  private async Task SaveVariants()
+  {
+    _isSaving = true;
+    _successMessage = null;
+
+    try
+    {
+      await Task.Delay(500); // demo simulasyon
+      _successMessage = $"{_variants.Count} varyant basariyla kaydedildi (demo mod).";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Kayit sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      _isSaving = false;
+    }
+  }
+
+  private class ProductInfo
+  {
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string SKU { get; set; } = "";
+    public string Category { get; set; } = "";
+    public decimal BasePrice { get; set; }
+  }
+
+  private class VariantRow
+  {
+    public string Name { get; set; } = "";
+    public string Color { get; set; } = "";
+    public string Size { get; set; } = "";
+    public int Stock { get; set; }
+    public decimal Price { get; set; }
+    public string Barcode { get; set; } = "";
+  }
+}

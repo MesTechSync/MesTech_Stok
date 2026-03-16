@@ -1,0 +1,176 @@
+@page "/accounting/settlements"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-file-invoice-dollar text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Hesap Kesimi</h3>
+        <small class="text-muted">Platform bazli donem hakedisleri ve mutabakat</small>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+else
+{
+
+<div class="row g-3 mb-4">
+    <KpiCard Icon="fa-coins" Value='@($"{totalNet:N0} TL")' Label="Toplam Net Hakedis" TextColor="text-success" />
+    <KpiCard Icon="fa-percentage" Value='@($"{totalCommission:N0} TL")' Label="Toplam Komisyon" TextColor="text-danger" />
+    <KpiCard Icon="fa-check-double" Value="@reconciledCount.ToString()" Label="Mutabik" TextColor="text-primary" />
+    <KpiCard Icon="fa-exclamation-triangle" Value="@pendingCount.ToString()" Label="Bekleyen" TextColor="text-warning" />
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Donem Filtresi</h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">Donem</label>
+                <select class="form-select" @bind="filterPeriod" @bind:after="ApplyFilter">
+                    <option value="">Tum Donemler</option>
+                    <option value="2026-03">Mart 2026</option>
+                    <option value="2026-02">Subat 2026</option>
+                    <option value="2026-01">Ocak 2026</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">Platform</label>
+                <select class="form-select" @bind="filterPlatform" @bind:after="ApplyFilter">
+                    <option value="">Tum Platformlar</option>
+                    <option value="Trendyol">Trendyol</option>
+                    <option value="Hepsiburada">Hepsiburada</option>
+                    <option value="CicekSepeti">CicekSepeti</option>
+                    <option value="N11">N11</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="fas fa-table me-2"></i>Hakedis Partileri</h6>
+        <span class="badge bg-primary">@filteredSettlements.Count kayit</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Platform</th>
+                        <th>Donem</th>
+                        <th class="text-end">Brut (TL)</th>
+                        <th class="text-end d-none d-sm-table-cell">Komisyon (TL)</th>
+                        <th class="text-end">Net (TL)</th>
+                        <th>Mutabakat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in filteredSettlements)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-store" style="color: @s.Color;"></i>
+                                    <span class="fw-semibold">@s.Platform</span>
+                                </div>
+                            </td>
+                            <td>@s.Period</td>
+                            <td class="text-end">@s.Gross.ToString("N2")</td>
+                            <td class="text-end d-none d-sm-table-cell text-danger">-@s.Commission.ToString("N2")</td>
+                            <td class="text-end fw-bold text-success">@s.Net.ToString("N2")</td>
+                            <td><span class="badge @GetReconcileBadge(s.Status)">@s.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+} @* end isLoading else *@
+
+@code {
+    private record Settlement(string Platform, string Color, string Period,
+        decimal Gross, decimal Commission, decimal Net, string Status);
+
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string filterPeriod = "";
+    private string filterPlatform = "";
+
+    private List<Settlement> allSettlements = [];
+    private List<Settlement> filteredSettlements = [];
+
+    private decimal totalNet;
+    private decimal totalCommission;
+    private int reconciledCount;
+    private int pendingCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _isDemoMode = true;
+
+            allSettlements =
+            [
+                new("Trendyol", "#F27A1A", "Mart 2026", 185_420m, 22_250m, 163_170m, "Mutabik"),
+                new("Hepsiburada", "#FF6000", "Mart 2026", 124_800m, 16_224m, 108_576m, "Beklemede"),
+                new("CicekSepeti", "#E91E63", "Mart 2026", 67_350m, 10_102m, 57_248m, "Mutabik"),
+                new("N11", "#7B1FA2", "Mart 2026", 43_200m, 5_616m, 37_584m, "Uyumsuz"),
+                new("Trendyol", "#F27A1A", "Subat 2026", 172_000m, 20_640m, 151_360m, "Mutabik"),
+                new("Hepsiburada", "#FF6000", "Subat 2026", 115_600m, 15_028m, 100_572m, "Mutabik"),
+                new("CicekSepeti", "#E91E63", "Subat 2026", 58_900m, 8_835m, 50_065m, "Mutabik"),
+            ];
+            filteredSettlements = [.. allSettlements];
+            RecalcKpis();
+        }
+        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        finally { isLoading = false; }
+    }
+
+    private void ApplyFilter()
+    {
+        filteredSettlements = allSettlements
+            .Where(s => string.IsNullOrEmpty(filterPeriod) || s.Period.Contains(filterPeriod.Replace("-", " ").Replace("2026 03", "Mart 2026").Replace("2026 02", "Subat 2026").Replace("2026 01", "Ocak 2026")))
+            .Where(s => string.IsNullOrEmpty(filterPlatform) || s.Platform == filterPlatform)
+            .ToList();
+        RecalcKpis();
+    }
+
+    private void RecalcKpis()
+    {
+        totalNet = filteredSettlements.Sum(s => s.Net);
+        totalCommission = filteredSettlements.Sum(s => s.Commission);
+        reconciledCount = filteredSettlements.Count(s => s.Status == "Mutabik");
+        pendingCount = filteredSettlements.Count(s => s.Status != "Mutabik");
+    }
+
+    private static string GetReconcileBadge(string status) => status switch
+    {
+        "Mutabik" => "bg-success",
+        "Beklemede" => "bg-warning text-dark",
+        "Uyumsuz" => "bg-danger",
+        _ => "bg-secondary"
+    };
+}

@@ -1,0 +1,262 @@
+@page "/products/price-update"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-tags text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Toplu Fiyat Guncelleme</h3>
+      <small class="text-muted">Secili urunlere toplu fiyat degisikligi uygulayiniz</small>
+    </div>
+  </div>
+
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@_successMessage
+      <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Fiyat Ayarlari -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-sliders-h me-2" style="color: #2855AC;"></i>Fiyat Guncelleme Ayarlari</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Guncelleme Tipi</label>
+          <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="updateType" id="typePercent"
+                   checked="@(_updateType == "percent")" @onchange='() => SetUpdateType("percent")' />
+            <label class="btn btn-outline-primary" for="typePercent">
+              <i class="fas fa-percent me-1"></i>Yuzde
+            </label>
+            <input type="radio" class="btn-check" name="updateType" id="typeFixed"
+                   checked="@(_updateType == "fixed")" @onchange='() => SetUpdateType("fixed")' />
+            <label class="btn btn-outline-primary" for="typeFixed">
+              <i class="fas fa-turkish-lira-sign me-1"></i>Sabit Tutar
+            </label>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">
+            @(_updateType == "percent" ? "Yuzde Degeri (%)" : "Tutar (TL)")
+          </label>
+          <input type="number" class="form-control" @bind="_updateValue" min="0" step="0.01" />
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Yon</label>
+          <select class="form-select" @bind="_direction">
+            <option value="increase">Artir</option>
+            <option value="decrease">Azalt</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button class="btn btn-outline-primary btn-sm" @onclick="PreviewChanges">
+          <i class="fas fa-eye me-1"></i>Onizleme
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Urun Tablosu + Onizleme -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Urun Fiyat Onizleme</h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" class="form-check-input" @onchange="ToggleAll"
+                       checked="@(_products.All(p => p.Selected))" />
+              </th>
+              <th>Urun Adi</th>
+              <th>SKU</th>
+              <th class="text-end">Mevcut Fiyat (TL)</th>
+              <th class="text-end">Yeni Fiyat (TL)</th>
+              <th class="text-end">Fark</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var product in _products)
+            {
+              <tr>
+                <td>
+                  <input type="checkbox" class="form-check-input" @bind="product.Selected" />
+                </td>
+                <td>@product.Name</td>
+                <td class="text-muted small">@product.SKU</td>
+                <td class="text-end">@product.CurrentPrice.ToString("N2")</td>
+                <td class="text-end fw-semibold">
+                  @if (product.NewPrice > 0)
+                  {
+                    <span class="@(product.NewPrice > product.CurrentPrice ? "text-danger" : "text-success")">
+                      @product.NewPrice.ToString("N2")
+                    </span>
+                  }
+                  else
+                  {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+                <td class="text-end small">
+                  @if (product.NewPrice > 0)
+                  {
+                    var diff = product.NewPrice - product.CurrentPrice;
+                    <span class="@(diff >= 0 ? "text-danger" : "text-success")">
+                      @(diff >= 0 ? "+" : "")@diff.ToString("N2")
+                    </span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Uygula Butonu -->
+  <div class="d-flex gap-2 justify-content-end mb-5">
+    <button class="btn text-white px-4" style="background-color: #2855AC;"
+            @onclick="ApplyPriceUpdate" disabled="@_isApplying">
+      @if (_isApplying)
+      {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+      }
+      <i class="fas fa-check me-1"></i>Fiyatlari Uygula
+    </button>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool _isApplying;
+  private string? errorMessage;
+  private string? _successMessage;
+
+  private string _updateType = "percent";
+  private decimal _updateValue = 10;
+  private string _direction = "increase";
+
+  private List<PriceRow> _products = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      _isDemoMode = true;
+
+      // Demo verisi
+      _products =
+      [
+        new() { Name = "Pamuklu Basic Tisort - Beyaz", SKU = "TSH-001-W", CurrentPrice = 149.90m, Selected = true },
+        new() { Name = "Pamuklu Basic Tisort - Siyah", SKU = "TSH-001-B", CurrentPrice = 149.90m, Selected = true },
+        new() { Name = "Slim Fit Jean Pantolon", SKU = "JNS-002", CurrentPrice = 349.90m },
+        new() { Name = "Oversize Hoodie - Gri", SKU = "HOD-003-G", CurrentPrice = 279.90m },
+        new() { Name = "Spor Sneaker Ayakkabi", SKU = "SNK-004", CurrentPrice = 599.90m, Selected = true },
+        new() { Name = "Keten Gomlek - Mavi", SKU = "SHR-005-BL", CurrentPrice = 229.90m },
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void SetUpdateType(string type) => _updateType = type;
+
+  private void ToggleAll(ChangeEventArgs e)
+  {
+    var val = (bool)(e.Value ?? false);
+    foreach (var p in _products) p.Selected = val;
+  }
+
+  private void PreviewChanges()
+  {
+    foreach (var product in _products)
+    {
+      if (!product.Selected) { product.NewPrice = 0; continue; }
+
+      if (_updateType == "percent")
+      {
+        var change = product.CurrentPrice * (_updateValue / 100m);
+        product.NewPrice = _direction == "increase"
+          ? product.CurrentPrice + change
+          : product.CurrentPrice - change;
+      }
+      else
+      {
+        product.NewPrice = _direction == "increase"
+          ? product.CurrentPrice + _updateValue
+          : product.CurrentPrice - _updateValue;
+      }
+
+      if (product.NewPrice < 0) product.NewPrice = 0;
+    }
+  }
+
+  private async Task ApplyPriceUpdate()
+  {
+    _isApplying = true;
+    _successMessage = null;
+
+    try
+    {
+      await Task.Delay(500); // demo simulasyon
+      var count = _products.Count(p => p.Selected && p.NewPrice > 0);
+      _successMessage = $"{count} urunun fiyati basariyla guncellendi (demo mod).";
+
+      foreach (var p in _products.Where(p => p.Selected && p.NewPrice > 0))
+      {
+        p.CurrentPrice = p.NewPrice;
+        p.NewPrice = 0;
+      }
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Guncelleme sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      _isApplying = false;
+    }
+  }
+
+  private class PriceRow
+  {
+    public string Name { get; set; } = "";
+    public string SKU { get; set; } = "";
+    public decimal CurrentPrice { get; set; }
+    public decimal NewPrice { get; set; }
+    public bool Selected { get; set; }
+  }
+}

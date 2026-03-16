@@ -1,0 +1,167 @@
+@page "/platform/opencart/sync"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-sync-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">OpenCart Senkronizasyon</h3>
+      <small class="text-muted">Urun, siparis ve stok senkronizasyon durumu</small>
+    </div>
+    <button class="btn btn-primary ms-auto" @onclick="SyncNow" disabled="@isSyncing">
+      <i class="fas @(isSyncing ? "fa-spinner fa-spin" : "fa-sync-alt") me-1"></i>
+      @(isSyncing ? "Senkronize Ediliyor..." : "Simdi Senkronize Et")
+    </button>
+  </div>
+
+  <!-- Status Cards -->
+  <div class="row g-3 mb-4">
+    @foreach (var card in syncCards)
+    {
+      <div class="col-12 col-md-4">
+        <div class="card shadow-sm border-start border-4 @card.BorderClass">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted d-block">@card.Label</small>
+                <h4 class="fw-bold mb-0">@card.Count.ToString("N0")</h4>
+              </div>
+              <div class="rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px; background-color: #f8f9fa;">
+                <i class="fas @card.Icon" style="color: #2855AC;"></i>
+              </div>
+            </div>
+            <small class="@(card.IsOk ? "text-success" : "text-warning")">
+              <i class="fas @(card.IsOk ? "fa-check-circle" : "fa-exclamation-circle") me-1"></i>@card.StatusText
+            </small>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Last Sync Info -->
+  <div class="alert alert-info mb-4">
+    <i class="fas fa-clock me-2"></i>
+    <strong>Son Senkronizasyon:</strong> @lastSyncTime.ToString("dd.MM.yyyy HH:mm:ss")
+    — Sure: @lastSyncDuration dakika
+  </div>
+
+  <!-- Sync History -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Senkronizasyon Gecmisi</h6>
+      <span class="badge bg-secondary">@syncHistory.Count kayit</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tarih / Saat</th>
+              <th>Tip</th>
+              <th class="d-none d-sm-table-cell">Aktarilan</th>
+              <th class="d-none d-md-table-cell">Hatali</th>
+              <th>Durum</th>
+              <th class="d-none d-md-table-cell">Sure</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var h in syncHistory)
+            {
+              <tr>
+                <td><small>@h.Date.ToString("dd.MM.yyyy HH:mm")</small></td>
+                <td><span class="badge bg-primary">@h.Type</span></td>
+                <td class="d-none d-sm-table-cell fw-semibold">@h.Transferred</td>
+                <td class="d-none d-md-table-cell text-danger">@h.Errors</td>
+                <td>
+                  <span class="badge @(h.Success ? "bg-success" : "bg-danger")">
+                    @(h.Success ? "Basarili" : "Hatali")
+                  </span>
+                </td>
+                <td class="d-none d-md-table-cell"><small>@h.Duration dk</small></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSyncing;
+  private string? errorMessage;
+  private DateTime lastSyncTime;
+  private int lastSyncDuration;
+  private List<SyncCard> syncCards = [];
+  private List<SyncHistoryEntry> syncHistory = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<object>("opencart/sync/status");
+      if (!result.IsSuccess) { _isDemoMode = true; }
+
+      var now = DateTime.Now;
+      lastSyncTime = now.AddHours(-2);
+      lastSyncDuration = 3;
+
+      syncCards =
+      [
+        new("Urunler", 1245, "fa-box", "border-primary", true, "Guncel"),
+        new("Siparisler", 87, "fa-shopping-bag", "border-success", true, "Guncel"),
+        new("Stok Hareketleri", 34, "fa-exchange-alt", "border-warning", false, "2 bekleyen"),
+      ];
+
+      syncHistory =
+      [
+        new(now.AddHours(-2), "Urun", 48, 0, true, 3),
+        new(now.AddHours(-2), "Siparis", 12, 0, true, 1),
+        new(now.AddHours(-6), "Stok", 156, 2, false, 5),
+        new(now.AddDays(-1), "Urun", 35, 0, true, 2),
+        new(now.AddDays(-1), "Siparis", 23, 1, false, 2),
+        new(now.AddDays(-2), "Stok", 89, 0, true, 4),
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Senkronizasyon verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private async Task SyncNow()
+  {
+    isSyncing = true;
+    await Task.Delay(2000); // simulate sync
+    lastSyncTime = DateTime.Now;
+    isSyncing = false;
+  }
+
+  private record SyncCard(string Label, int Count, string Icon, string BorderClass, bool IsOk, string StatusText);
+  private record SyncHistoryEntry(DateTime Date, string Type, int Transferred, int Errors, bool Success, int Duration);
+}

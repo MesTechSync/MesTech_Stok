@@ -1,0 +1,267 @@
+@page "/products/import"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-file-import text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Urun Icerik Aktarimi</h3>
+      <small class="text-muted">CSV veya Excel dosyasindan toplu urun aktarimi</small>
+    </div>
+  </div>
+
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@_successMessage
+      <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Dosya Yukleme -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-upload me-2" style="color: #2855AC;"></i>Dosya Yukle</h6>
+    </div>
+    <div class="card-body">
+      <div class="border border-2 border-dashed rounded-3 p-5 text-center"
+           style="border-color: #2855AC40 !important; background-color: #f8f9fa;">
+        <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #2855AC; opacity: 0.5;"></i>
+        <p class="mb-2 fw-semibold">CSV veya Excel (.xlsx) dosyanizi secin</p>
+        <InputFile OnChange="OnFileSelected" accept=".csv,.xlsx,.xls" class="form-control mx-auto" style="max-width: 400px;" />
+        @if (_selectedFileName is not null)
+        {
+          <p class="mt-2 text-muted small mb-0">
+            <i class="fas fa-file me-1"></i>@_selectedFileName
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Kolon Eslestirme Onizleme -->
+  @if (_previewRows.Count > 0)
+  {
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="fas fa-columns me-2" style="color: #2855AC;"></i>Kolon Eslestirme Onizleme</h6>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Dosya Kolonu</th>
+                <th>Sistem Alani</th>
+                <th>Ornek Veri</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var col in _previewRows)
+              {
+                <tr>
+                  <td class="fw-semibold">@col.SourceColumn</td>
+                  <td>
+                    <select class="form-select form-select-sm" @bind="col.MappedField">
+                      <option value="">(Eslestirilmedi)</option>
+                      <option value="UrunAdi">Urun Adi</option>
+                      <option value="SKU">SKU</option>
+                      <option value="Barkod">Barkod</option>
+                      <option value="Fiyat">Fiyat</option>
+                      <option value="Stok">Stok Miktari</option>
+                      <option value="Kategori">Kategori</option>
+                      <option value="Marka">Marka</option>
+                    </select>
+                  </td>
+                  <td class="text-muted small">@col.SampleData</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ilerleme Cubugu -->
+    @if (_importProgress > 0)
+    {
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-1">
+            <small class="fw-semibold">Aktarim Durumu</small>
+            <small class="text-muted">@_importProgress%</small>
+          </div>
+          <div class="progress" style="height: 20px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar" style="width: @(_importProgress)%; background-color: #2855AC;"
+                 aria-valuenow="@_importProgress" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Sonuc Ozeti -->
+    @if (_importCompleted)
+    {
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card border-success">
+            <div class="card-body text-center">
+              <h4 class="text-success mb-1">@_importedCount</h4>
+              <small class="text-muted">Basarili Aktarim</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-warning">
+            <div class="card-body text-center">
+              <h4 class="text-warning mb-1">@_skippedCount</h4>
+              <small class="text-muted">Atlanan</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-danger">
+            <div class="card-body text-center">
+              <h4 class="text-danger mb-1">@_errorCount</h4>
+              <small class="text-muted">Hatali</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Aktar Butonu -->
+    <div class="d-flex gap-2 mb-5">
+      <button class="btn text-white px-4" style="background-color: #2855AC;"
+              @onclick="StartImport" disabled="@_isImporting">
+        @if (_isImporting)
+        {
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+        }
+        <i class="fas fa-file-import me-1"></i>Aktarimi Baslat
+      </button>
+      <button class="btn btn-outline-secondary" @onclick="ClearAll" disabled="@_isImporting">
+        <i class="fas fa-times me-1"></i>Temizle
+      </button>
+    </div>
+  }
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
+  private string? _successMessage;
+  private string? _selectedFileName;
+
+  private bool _isImporting;
+  private bool _importCompleted;
+  private int _importProgress;
+  private int _importedCount;
+  private int _skippedCount;
+  private int _errorCount;
+
+  private List<ColumnMapping> _previewRows = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("products/import/templates");
+      if (!result.IsSuccess) { _isDemoMode = true; }
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void OnFileSelected(InputFileChangeEventArgs e)
+  {
+    _selectedFileName = e.File.Name;
+    _importCompleted = false;
+    _importProgress = 0;
+
+    // Demo: kolon eslestirme onizleme
+    _previewRows =
+    [
+      new() { SourceColumn = "product_name", MappedField = "UrunAdi", SampleData = "Pamuklu Tisort" },
+      new() { SourceColumn = "sku_code", MappedField = "SKU", SampleData = "TSH-001" },
+      new() { SourceColumn = "barcode", MappedField = "Barkod", SampleData = "8680001234567" },
+      new() { SourceColumn = "price", MappedField = "Fiyat", SampleData = "149.90" },
+      new() { SourceColumn = "quantity", MappedField = "Stok", SampleData = "250" },
+      new() { SourceColumn = "category", MappedField = "Kategori", SampleData = "Giyim > Tisort" },
+    ];
+  }
+
+  private async Task StartImport()
+  {
+    _isImporting = true;
+    _importCompleted = false;
+    _importProgress = 0;
+
+    try
+    {
+      // Demo: ilerleme simulasyonu
+      for (int i = 0; i <= 100; i += 10)
+      {
+        _importProgress = i;
+        StateHasChanged();
+        await Task.Delay(200);
+      }
+
+      _importedCount = 48;
+      _skippedCount = 2;
+      _errorCount = 0;
+      _importCompleted = true;
+      _successMessage = "Aktarim basariyla tamamlandi (demo mod).";
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Aktarim sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      _isImporting = false;
+    }
+  }
+
+  private void ClearAll()
+  {
+    _selectedFileName = null;
+    _previewRows.Clear();
+    _importCompleted = false;
+    _importProgress = 0;
+    _successMessage = null;
+  }
+
+  private class ColumnMapping
+  {
+    public string SourceColumn { get; set; } = "";
+    public string MappedField { get; set; } = "";
+    public string SampleData { get; set; } = "";
+  }
+}

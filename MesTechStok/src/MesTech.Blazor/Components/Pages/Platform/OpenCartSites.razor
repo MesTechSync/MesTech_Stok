@@ -1,0 +1,114 @@
+@page "/platform/opencart"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-shopping-cart text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">OpenCart Siteleri</h3>
+      <small class="text-muted">Bagli OpenCart magaza yonetimi ve senkronizasyon</small>
+    </div>
+    <button class="btn btn-primary ms-auto" @onclick="AddSite">
+      <i class="fas fa-plus me-1"></i>Yeni Site Ekle
+    </button>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-store me-2" style="color: #2855AC;"></i>Kayitli Siteler</h6>
+      <span class="badge bg-secondary">@sites.Count site</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Site Adi</th>
+              <th>URL</th>
+              <th>Durum</th>
+              <th class="d-none d-md-table-cell">Son Senkronizasyon</th>
+              <th class="text-end d-none d-sm-table-cell">Urun Sayisi</th>
+              <th class="text-end">Islemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var site in sites)
+            {
+              <tr>
+                <td class="fw-semibold">@site.Name</td>
+                <td><a href="@site.Url" target="_blank" class="text-decoration-none">@site.Url</a></td>
+                <td>
+                  <span class="badge @(site.Status == "Aktif" ? "bg-success" : site.Status == "Bakim" ? "bg-warning text-dark" : "bg-danger")">
+                    @site.Status
+                  </span>
+                </td>
+                <td class="d-none d-md-table-cell"><small>@site.LastSync.ToString("dd.MM.yyyy HH:mm")</small></td>
+                <td class="text-end d-none d-sm-table-cell fw-semibold">@site.ProductCount.ToString("N0")</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-primary" @onclick="() => SyncSite(site.Id)">
+                    <i class="fas fa-sync-alt me-1"></i>Senkronize Et
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
+  private List<OpenCartSite> sites = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("opencart/sites");
+      if (!result.IsSuccess) { _isDemoMode = true; }
+
+      var now = DateTime.Now;
+      sites =
+      [
+        new(1, "MesTech Ana Magaza", "https://shop.mestech.tr", "Aktif", now.AddHours(-2), 1245),
+        new(2, "MesTech Outlet", "https://outlet.mestech.tr", "Aktif", now.AddHours(-4), 387),
+        new(3, "Toptan Satis", "https://toptan.mestech.tr", "Bakim", now.AddDays(-1), 892),
+        new(4, "Test Ortami", "https://test.mestech.tr", "Pasif", now.AddDays(-7), 56),
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Site verileri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private void AddSite() { /* TODO: open add site modal */ }
+  private void SyncSite(int siteId) { /* TODO: trigger sync for site */ }
+
+  private record OpenCartSite(int Id, string Name, string Url, string Status, DateTime LastSync, int ProductCount);
+}

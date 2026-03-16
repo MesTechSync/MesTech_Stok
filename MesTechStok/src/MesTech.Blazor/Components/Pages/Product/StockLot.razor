@@ -1,0 +1,283 @@
+@page "/products/stock-lot"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  </div>
+}
+else
+{
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-pallet text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Lot Bazli Stok Girisi</h3>
+      <small class="text-muted">Urunleri lot numarasi ile depoya kaydedin</small>
+    </div>
+  </div>
+
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@_successMessage
+      <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Lot Giris Formu -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-box-open me-2" style="color: #2855AC;"></i>Lot Bilgileri</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Urun</label>
+          <select class="form-select" @bind="_form.ProductId">
+            <option value="">Urun secin...</option>
+            @foreach (var p in _products)
+            {
+              <option value="@p.Id">@p.Name (SKU: @p.SKU)</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Depo</label>
+          <select class="form-select" @bind="_form.WarehouseId">
+            <option value="">Depo secin...</option>
+            @foreach (var w in _warehouses)
+            {
+              <option value="@w.Id">@w.Name</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Lot Numarasi</label>
+          <input type="text" class="form-control" @bind="_form.LotNumber" placeholder="LOT-2026-001" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Miktar</label>
+          <input type="number" class="form-control" @bind="_form.Quantity" min="1" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Birim Maliyet (TL)</label>
+          <input type="number" class="form-control" @bind="_form.UnitCost" min="0" step="0.01" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Son Kullanma Tarihi</label>
+          <InputDate class="form-control" @bind-Value="_form.ExpiryDate" />
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Aciklama</label>
+          <input type="text" class="form-control" @bind="_form.Notes" placeholder="Lot ile ilgili notlar..." />
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn text-white px-4" style="background-color: #2855AC;"
+                @onclick="SaveLot" disabled="@_isSaving">
+          @if (_isSaving)
+          {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          }
+          <i class="fas fa-save me-1"></i>Lot Kaydet
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="ClearForm" disabled="@_isSaving">
+          <i class="fas fa-eraser me-1"></i>Temizle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Son Lot Girisleri -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Son Lot Girisleri</h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Lot No</th>
+              <th>Urun</th>
+              <th>Depo</th>
+              <th class="text-end">Miktar</th>
+              <th class="text-end">Birim Maliyet</th>
+              <th>SKT</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var lot in _recentLots)
+            {
+              <tr>
+                <td class="fw-semibold">@lot.LotNumber</td>
+                <td>@lot.ProductName</td>
+                <td>@lot.WarehouseName</td>
+                <td class="text-end">@lot.Quantity</td>
+                <td class="text-end">@lot.UnitCost.ToString("N2") TL</td>
+                <td>@(lot.ExpiryDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                <td class="text-muted small">@lot.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+              </tr>
+            }
+            @if (_recentLots.Count == 0)
+            {
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">Henuz lot girisi bulunmuyor.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool _isSaving;
+  private string? errorMessage;
+  private string? _successMessage;
+
+  private LotForm _form = new();
+  private List<ProductOption> _products = [];
+  private List<WarehouseOption> _warehouses = [];
+  private List<LotEntry> _recentLots = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("products");
+      if (result.IsSuccess) { /* TODO: map result.Data */ }
+      else { _isDemoMode = true; }
+
+      // Demo verisi
+      _products =
+      [
+        new() { Id = "1", Name = "Pamuklu Basic Tisort", SKU = "TSH-001" },
+        new() { Id = "2", Name = "Slim Fit Jean Pantolon", SKU = "JNS-002" },
+        new() { Id = "3", Name = "Oversize Hoodie", SKU = "HOD-003" },
+        new() { Id = "4", Name = "Spor Sneaker Ayakkabi", SKU = "SNK-004" },
+      ];
+
+      _warehouses =
+      [
+        new() { Id = "W1", Name = "Ana Depo - Istanbul" },
+        new() { Id = "W2", Name = "Trendyol FBT Depo" },
+        new() { Id = "W3", Name = "Hepsilojistik Depo" },
+      ];
+
+      _recentLots =
+      [
+        new() { LotNumber = "LOT-2026-003", ProductName = "Oversize Hoodie", WarehouseName = "Ana Depo - Istanbul", Quantity = 200, UnitCost = 95.00m, ExpiryDate = null, CreatedAt = DateTime.Now.AddHours(-2) },
+        new() { LotNumber = "LOT-2026-002", ProductName = "Slim Fit Jean", WarehouseName = "Trendyol FBT Depo", Quantity = 150, UnitCost = 120.50m, ExpiryDate = null, CreatedAt = DateTime.Now.AddDays(-1) },
+        new() { LotNumber = "LOT-2026-001", ProductName = "Pamuklu Tisort", WarehouseName = "Ana Depo - Istanbul", Quantity = 500, UnitCost = 48.75m, ExpiryDate = null, CreatedAt = DateTime.Now.AddDays(-3) },
+      ];
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private async Task SaveLot()
+  {
+    if (string.IsNullOrEmpty(_form.ProductId))
+    {
+      errorMessage = "Lutfen bir urun secin.";
+      return;
+    }
+
+    _isSaving = true;
+    _successMessage = null;
+    errorMessage = null;
+
+    try
+    {
+      await Task.Delay(400); // demo simulasyon
+
+      var product = _products.FirstOrDefault(p => p.Id == _form.ProductId);
+      var warehouse = _warehouses.FirstOrDefault(w => w.Id == _form.WarehouseId);
+
+      _recentLots.Insert(0, new LotEntry
+      {
+        LotNumber = _form.LotNumber,
+        ProductName = product?.Name ?? "-",
+        WarehouseName = warehouse?.Name ?? "-",
+        Quantity = _form.Quantity,
+        UnitCost = _form.UnitCost,
+        ExpiryDate = _form.ExpiryDate,
+        CreatedAt = DateTime.Now
+      });
+
+      _successMessage = $"Lot {_form.LotNumber} basariyla kaydedildi (demo mod).";
+      ClearForm();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Kayit sirasinda hata: {ex.Message}";
+    }
+    finally
+    {
+      _isSaving = false;
+    }
+  }
+
+  private void ClearForm()
+  {
+    _form = new LotForm();
+  }
+
+  private class LotForm
+  {
+    public string ProductId { get; set; } = "";
+    public string WarehouseId { get; set; } = "";
+    public string LotNumber { get; set; } = "";
+    public int Quantity { get; set; } = 1;
+    public decimal UnitCost { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public string Notes { get; set; } = "";
+  }
+
+  private class ProductOption
+  {
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string SKU { get; set; } = "";
+  }
+
+  private class WarehouseOption
+  {
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+  }
+
+  private class LotEntry
+  {
+    public string LotNumber { get; set; } = "";
+    public string ProductName { get; set; } = "";
+    public string WarehouseName { get; set; } = "";
+    public int Quantity { get; set; }
+    public decimal UnitCost { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public DateTime CreatedAt { get; set; }
+  }
+}

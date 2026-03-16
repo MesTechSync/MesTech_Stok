@@ -1,0 +1,164 @@
+@page "/admin/logs"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-scroll text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Log Goruntuleyici</h3>
+        <small class="text-muted">Sistem loglari ve hata takibi</small>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+else
+{
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtreler</h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Log Seviyesi</label>
+                <select class="form-select" @bind="filterLevel">
+                    <option value="">Tumu</option>
+                    <option value="Info">Info</option>
+                    <option value="Warning">Warning</option>
+                    <option value="Error">Error</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Kaynak</label>
+                <select class="form-select" @bind="filterSource">
+                    <option value="">Tumu</option>
+                    <option value="API">API</option>
+                    <option value="Sync">Sync</option>
+                    <option value="Auth">Auth</option>
+                    <option value="Scheduler">Scheduler</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Tarih Araligi</label>
+                <input type="date" class="form-control" @bind="filterDate" />
+            </div>
+            <div class="col-12 col-md-3 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" @onclick="ApplyFilters">
+                    <i class="fas fa-search me-1"></i>Filtrele
+                </button>
+                <button class="btn @(autoRefresh ? "btn-success" : "btn-outline-secondary")"
+                        @onclick="ToggleAutoRefresh" title="Otomatik yenile">
+                    <i class="fas fa-sync-alt @(autoRefresh ? "fa-spin" : "")"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="fas fa-list-alt me-2"></i>Log Kayitlari</h6>
+        <small class="text-muted">@filteredLogs.Count kayit</small>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0" style="font-size: 0.875rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 160px;">Zaman</th>
+                        <th style="width: 80px;">Seviye</th>
+                        <th style="width: 110px;">Kaynak</th>
+                        <th>Mesaj</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in filteredLogs)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@log.Timestamp.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td><span class="badge @GetLevelBadge(log.Level)">@log.Level</span></td>
+                            <td><span class="fw-semibold">@log.Source</span></td>
+                            <td class="text-truncate" style="max-width: 400px;">@log.Message</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+} @* end isLoading else *@
+
+@code {
+    private record LogEntry(DateTime Timestamp, string Level, string Source, string Message);
+
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private bool autoRefresh;
+
+    private string filterLevel = "";
+    private string filterSource = "";
+    private DateTime? filterDate;
+    private List<LogEntry> allLogs = [];
+    private List<LogEntry> filteredLogs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _isDemoMode = true;
+
+            var now = DateTime.Now;
+            allLogs =
+            [
+                new(now.AddMinutes(-2), "Error", "API", "Trendyol API yanit vermedi — timeout 30s"),
+                new(now.AddMinutes(-5), "Warning", "Sync", "Stok senkronizasyonu 3 urun icin atlandis"),
+                new(now.AddMinutes(-8), "Info", "Auth", "Kullanici admin@mestech.tr basariyla giris yapti"),
+                new(now.AddMinutes(-12), "Info", "Scheduler", "Gunluk yedekleme gorevi tamamlandi"),
+                new(now.AddMinutes(-18), "Error", "Sync", "HB siparis cekme hatasi: 503 Service Unavailable"),
+                new(now.AddMinutes(-25), "Warning", "API", "Rate limit uyarisi — N11 100/dk sinira yaklasti"),
+                new(now.AddMinutes(-30), "Info", "API", "CicekSepeti urun guncelleme: 42 urun basarili"),
+                new(now.AddMinutes(-45), "Info", "Scheduler", "Fiyat guncelleme gorevi basladi"),
+            ];
+            filteredLogs = [.. allLogs];
+        }
+        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        finally { isLoading = false; }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredLogs = allLogs
+            .Where(l => string.IsNullOrEmpty(filterLevel) || l.Level == filterLevel)
+            .Where(l => string.IsNullOrEmpty(filterSource) || l.Source == filterSource)
+            .Where(l => !filterDate.HasValue || l.Timestamp.Date == filterDate.Value.Date)
+            .ToList();
+    }
+
+    private void ToggleAutoRefresh() => autoRefresh = !autoRefresh;
+
+    private static string GetLevelBadge(string level) => level switch
+    {
+        "Error" => "bg-danger",
+        "Warning" => "bg-warning text-dark",
+        "Info" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+}
