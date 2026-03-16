@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-#pragma warning disable CS0618 // Obsolete Core.AppDbContext — service bridge, will migrate in H32
+#pragma warning disable CS0618 // Obsolete legacy AppDbContext — service bridge, will migrate in H32
 using MesTechStok.Core.Data;
 using MesTechStok.Core.Data.Models;
 #pragma warning restore CS0618

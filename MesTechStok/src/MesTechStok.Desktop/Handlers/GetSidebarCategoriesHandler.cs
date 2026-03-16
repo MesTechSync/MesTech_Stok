@@ -7,7 +7,7 @@ using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 namespace MesTechStok.Desktop.Handlers;
 
 /// <summary>
-/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// H32: Migrated to Infrastructure.Persistence.AppDbContext.
 /// </summary>
 public class GetSidebarCategoriesHandler : IRequestHandler<GetSidebarCategoriesQuery, IReadOnlyList<SidebarCategoryDto>>
 {

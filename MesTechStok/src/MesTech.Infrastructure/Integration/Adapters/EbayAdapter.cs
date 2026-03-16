@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter + IShipmentCapableAdapter.
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
-public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
+public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -838,4 +838,30 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
         CargoProvider.Hepsijet => "OTHER",
         _ => "OTHER"
     };
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(_ebayBaseUrl, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("eBay ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "eBay ping failed");
+            return false;
+        }
+    }
 }

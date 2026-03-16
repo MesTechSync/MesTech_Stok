@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Stock: PUT /api/product/stock
 /// Price: PUT /api/product/price
 /// </summary>
-public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
@@ -578,5 +578,31 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter
             "PttAvmAdapter.UpdateOrderStatusAsync — not supported. Package={PackageId} Status={Status}",
             packageId, status);
         return Task.FromResult(false);
+    }
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(_baseUrl, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("PttAVM ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "PttAVM ping failed");
+            return false;
+        }
     }
 }

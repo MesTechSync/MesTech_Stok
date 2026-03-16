@@ -13,13 +13,13 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class ViewModelNavigationTests
 {
-    private readonly Mock<IServiceProvider> _mockServices;
+    private readonly Mock<MesTech.Avalonia.Services.IViewModelFactory> _mockFactory;
     private readonly MainWindowViewModel _sut;
 
     public ViewModelNavigationTests()
     {
-        _mockServices = new Mock<IServiceProvider>();
-        _sut = new MainWindowViewModel(_mockServices.Object);
+        _mockFactory = new Mock<MesTech.Avalonia.Services.IViewModelFactory>();
+        _sut = new MainWindowViewModel(_mockFactory.Object);
     }
 
     [Fact]
@@ -28,8 +28,8 @@ public class ViewModelNavigationTests
         // Arrange — register a mock DashboardAvaloniaViewModel
         var mockDashVm = new Mock<DashboardAvaloniaViewModel>(
             Mock.Of<MediatR.IMediator>()).Object;
-        _mockServices
-            .Setup(s => s.GetService(typeof(DashboardAvaloniaViewModel)))
+        _mockFactory
+            .Setup(f => f.Create("Dashboard"))
             .Returns(mockDashVm);
 
         // Act

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MesTech.Application.Queries.GetCompanySettings;
 using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
@@ -8,15 +9,17 @@ namespace MesTechStok.Desktop.Handlers;
 
 /// <summary>
 /// Desktop handler for GetCompanySettingsQuery.
-/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// H32: Migrated to Infrastructure.Persistence.AppDbContext.
 /// </summary>
 public class GetCompanySettingsHandler : IRequestHandler<GetCompanySettingsQuery, CompanySettingsDto?>
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<GetCompanySettingsHandler>? _logger;
 
-    public GetCompanySettingsHandler(IServiceProvider serviceProvider)
+    public GetCompanySettingsHandler(IServiceProvider serviceProvider, ILogger<GetCompanySettingsHandler>? logger = null)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public async Task<CompanySettingsDto?> Handle(GetCompanySettingsQuery request, CancellationToken cancellationToken)
@@ -41,9 +44,9 @@ public class GetCompanySettingsHandler : IRequestHandler<GetCompanySettingsQuery
                 Address = settings.Address,
             };
         }
-        catch
+        catch (Exception ex)
         {
-            // Intentional: CompanySettings table may not exist on first run.
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(GetCompanySettingsHandler), "CompanySettings table may not exist on first run");
             return null;
         }
     }

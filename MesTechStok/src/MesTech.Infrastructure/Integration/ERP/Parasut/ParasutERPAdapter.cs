@@ -7,6 +7,7 @@ using MesTech.Application.DTOs.ERP;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Entities.EInvoice;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using InvoiceEntity = MesTech.Domain.Entities.Invoice;
 
@@ -22,6 +23,7 @@ public sealed class ParasutERPAdapter : IERPAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ParasutTokenService _tokenService;
+    private readonly ParasutOptions _options;
     private readonly ILogger<ParasutERPAdapter> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -35,14 +37,16 @@ public sealed class ParasutERPAdapter : IERPAdapter
     public ParasutERPAdapter(
         HttpClient httpClient,
         ParasutTokenService tokenService,
-        ILogger<ParasutERPAdapter> logger)
+        ILogger<ParasutERPAdapter> logger,
+        IOptions<ParasutOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new ParasutOptions();
     }
 
-    private string BaseUrl => $"https://api.parasut.com/v4/{_tokenService.CompanyId}";
+    private string BaseUrl => $"{_options.BaseUrl}/v4/{_tokenService.CompanyId}";
 
     /// <inheritdoc/>
     public async Task<bool> TestConnectionAsync(CancellationToken ct = default)

@@ -31,7 +31,7 @@ public class ExcelFeedParserTests : FeedParserTestBase
         string[] headers,
         object?[][] rows)
     {
-        OfficeOpenXml.ExcelPackage.License.SetNonCommercialOrganization("MesTech Tests");
+        OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
         var ms = new MemoryStream();
         using (var package = new OfficeOpenXml.ExcelPackage(ms))
         {

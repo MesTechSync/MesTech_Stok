@@ -46,9 +46,16 @@ public static class IntegrationServiceRegistration
         this IServiceCollection services,
         IConfiguration? configuration = null)
     {
+        // Dalga 14 S3: Trendyol options — sandbox toggle + environment-aware URLs
+        if (configuration is not null)
+            services.Configure<TrendyolOptions>(configuration.GetSection(TrendyolOptions.Section));
+
         // Adapters — singleton with manually created HttpClient
         services.AddSingleton<TrendyolAdapter>(sp =>
-            new TrendyolAdapter(new HttpClient(), sp.GetRequiredService<ILogger<TrendyolAdapter>>()));
+            new TrendyolAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<TrendyolAdapter>>(),
+                sp.GetService<IOptions<TrendyolOptions>>()));
         services.AddSingleton<OpenCartAdapter>(sp =>
             new OpenCartAdapter(new HttpClient(), sp.GetRequiredService<ILogger<OpenCartAdapter>>()));
 
@@ -114,9 +121,16 @@ public static class IntegrationServiceRegistration
             new PttAvmAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
 
+        // Dalga 14 S3: YurticiKargo options — sandbox toggle + environment-aware URLs
+        if (configuration is not null)
+            services.Configure<YurticiKargoOptions>(configuration.GetSection(YurticiKargoOptions.Section));
+
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>
-            new YurticiKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<YurticiKargoAdapter>>()));
+            new YurticiKargoAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<ILogger<YurticiKargoAdapter>>(),
+                sp.GetService<IOptions<YurticiKargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new ArasKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
@@ -342,13 +356,24 @@ public static class IntegrationServiceRegistration
         // Settlement parser factory — auto-discovers all registered ISettlementParser (8 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
+        // Dalga 14 S3: Parasut options — sandbox toggle + environment-aware URLs
+        if (configuration is not null)
+            services.Configure<ParasutOptions>(configuration.GetSection(ParasutOptions.Section));
+
         // MUH-02: Parasut ERP adapter — OAuth2 CC token service + JSON:API sync
-        services.AddSingleton<ParasutTokenService>();
+        services.AddSingleton<ParasutTokenService>(sp =>
+            new ParasutTokenService(
+                new HttpClient(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<ILogger<ParasutTokenService>>(),
+                sp.GetService<IOptions<ParasutOptions>>()));
         services.AddScoped<ParasutERPAdapter>(sp =>
             new ParasutERPAdapter(
                 new HttpClient(),
                 sp.GetRequiredService<ParasutTokenService>(),
-                sp.GetRequiredService<ILogger<ParasutERPAdapter>>()));
+                sp.GetRequiredService<ILogger<ParasutERPAdapter>>(),
+                sp.GetService<IOptions<ParasutOptions>>()));
         services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ParasutERPAdapter>());
 
         // MUH-03 + Dalga 12: Logo ERP adapter — L-Object REST API Bearer token + JSON sync

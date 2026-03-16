@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// LWA OAuth2, Catalog, Orders, Feeds (XDocument), RDT, Notifications.
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
-public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -821,5 +821,31 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "AmazonTrAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(_baseUrl, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("Amazon TR ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Amazon TR ping failed");
+            return false;
+        }
     }
 }

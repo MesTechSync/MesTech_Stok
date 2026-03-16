@@ -7,4 +7,14 @@
 **/Logs/
 **/Backups/
 **/.idea/
+**/.git/
+**/.gitignore
+**/.env
+**/.env.*
+**/TestResults/
+**/coverage/
+**/coverage-final/
+**/Docs/
+**/Scripts/
+**/Installer/
 *.md

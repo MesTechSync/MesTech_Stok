@@ -1,15 +1,25 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Middleware;
+using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Security;
 using MesTech.WebApi.Endpoints;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog structured logging — Console + Seq (Sprint 3)
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.Console()
+    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:5341")
+    .Enrich.WithProperty("Application", "MesTech.WebApi"));
 
 // JWT Options — bind from appsettings "Jwt" section (E01)
 builder.Services.Configure<JwtTokenOptions>(
@@ -55,6 +65,9 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+// ProblemDetails — RFC 7807 compliant error responses (A-M2-06)
+builder.Services.AddProblemDetails();
+
 // Swagger/OpenAPI — API documentation with API Key auth support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -78,11 +91,22 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS — React SaaS frontend + development origins
+// CORS — environment-aware production config (A-M2-08)
 builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
-    policy.WithOrigins("https://app.mestech.tr", "http://localhost:5173", "http://localhost:3000")
-          .AllowAnyHeader()
-          .AllowAnyMethod()));
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    }
+    else
+    {
+        policy.WithOrigins("https://panel.mestech.tr", "https://app.mestech.tr")
+              .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+              .WithHeaders("Authorization", "Content-Type", "X-API-Key");
+    }
+}));
 
 var app = builder.Build();
 
@@ -90,7 +114,7 @@ var app = builder.Build();
 if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
     if (pending.Count > 0)
     {
@@ -100,10 +124,27 @@ if (app.Environment.IsProduction())
     }
 }
 
+// Demo data seeder — populates DB with demo tenant, products, orders on first run (Sprint 3)
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+    await seeder.SeedAsync();
+}
+
+// Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
+{
+    using var scope = app.Services.CreateScope();
+    var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
+    await ahmetSeeder.SeedAsync();
+}
+
+// Serilog HTTP request logging — structured log per request
+app.UseSerilogRequestLogging();
+
 // CORS middleware — before auth and exception handler
 app.UseCors("SaaS");
 
-// Global exception handler — ProblemDetails response
+// Global exception handler — RFC 7807 ProblemDetails response (A-M2-06)
 app.UseExceptionHandler(error =>
 {
     error.Run(async context =>
@@ -113,22 +154,33 @@ app.UseExceptionHandler(error =>
         var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
         logger.LogError(exceptionFeature?.Error, "Unhandled exception");
-        await context.Response.WriteAsJsonAsync(new
+
+        var problem = new ProblemDetails
         {
-            type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-            title = "Internal Server Error",
-            status = 500,
-            detail = app.Environment.IsDevelopment()
-                ? exceptionFeature?.Error?.Message
-                : "An unexpected error occurred"
-        });
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            Title = "Internal Server Error",
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = app.Environment.IsDevelopment()
+                ? exceptionFeature?.Error?.ToString()
+                : "An error occurred while processing your request."
+        };
+
+        if (app.Environment.IsDevelopment() && exceptionFeature?.Error != null)
+        {
+            problem.Extensions["stackTrace"] = exceptionFeature.Error.StackTrace;
+            problem.Extensions["source"] = exceptionFeature.Error.Source;
+        }
+
+        await context.Response.WriteAsJsonAsync(problem);
     });
 });
 
-// Swagger UI — development only
+// Swagger JSON spec — all environments for external tool consumption (A-M2-05)
+app.UseSwagger();
+
+// Swagger UI — development only (not exposed in production)
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
     app.UseSwaggerUI();
 }
 
@@ -161,6 +213,7 @@ NotificationEndpoints.Map(app);
 ShippingEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
+SeedEndpoints.Map(app);
 
 app.Run();
 

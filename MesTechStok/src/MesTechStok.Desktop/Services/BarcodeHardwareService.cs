@@ -191,9 +191,9 @@ namespace MesTechStok.Desktop.Services
                     _barcodeReader.Options.PossibleFormats = allowed;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: ZXing reader options config — non-critical; defaults remain intact on failure.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "ZXing reader options config failed, using defaults");
             }
         }
 
@@ -239,8 +239,9 @@ namespace MesTechStok.Desktop.Services
                         _videoCapture.Set(VideoCaptureProperties.FrameHeight, camH);
                         _videoCapture.Set(VideoCaptureProperties.Fps, camFps);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "Camera resolution config failed, falling back to 640x480@30fps");
                         _videoCapture.Set(VideoCaptureProperties.FrameWidth, 640);
                         _videoCapture.Set(VideoCaptureProperties.FrameHeight, 480);
                         _videoCapture.Set(VideoCaptureProperties.Fps, 30);
@@ -389,7 +390,7 @@ namespace MesTechStok.Desktop.Services
                                 var roi = new Rect(roiLeft, roiTop, roiWidth, roiHeight);
                                 decodeMat = new Mat(frame, roi);
                             }
-                            catch { /* Intentional: frame processing fallback — use raw frame on decode failure */ decodeMat = frame; }
+                            catch (Exception ex) { _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "ROI frame processing fallback — using raw frame"); decodeMat = frame; }
                         }
 
                         // 2D okuma iyileştirmesi: preset 2D içeriyorsa gri + eşitleme uygula
@@ -425,7 +426,7 @@ namespace MesTechStok.Desktop.Services
                                     Cv2.Threshold(procMat, procMat, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
                                 }
                             }
-                            catch { /* Intentional: frame processing fallback — copy raw frame on processing failure */ decodeMat.CopyTo(procMat); }
+                            catch (Exception ex) { _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "Frame processing fallback — copying raw frame"); decodeMat.CopyTo(procMat); }
                         }
                         else
                         {
@@ -438,7 +439,7 @@ namespace MesTechStok.Desktop.Services
                                 Cv2.MorphologyEx(procMat, procMat, MorphTypes.Close, kernel);
                                 Cv2.Threshold(procMat, procMat, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
                             }
-                            catch { /* Intentional: frame processing fallback — copy raw frame on processing failure */ decodeMat.CopyTo(procMat); }
+                            catch (Exception ex) { _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "Frame processing fallback — copying raw frame"); decodeMat.CopyTo(procMat); }
                         }
 
                         using var bitmap = MatToBitmap(procMat);
@@ -478,9 +479,9 @@ namespace MesTechStok.Desktop.Services
                                     result = new ZXing.Result(decoded, null, null, ZXing.BarcodeFormat.QR_CODE);
                                 }
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                // Intentional: OpenCV QR fallback decode — may fail silently on low-quality or unsupported frames.
+                                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(BarcodeHardwareService), "OpenCV QR fallback decode failed on frame");
                             }
                         }
 
@@ -493,7 +494,7 @@ namespace MesTechStok.Desktop.Services
                             BarcodeScanned?.Invoke(this, new BarcodeScannedEventArgs(result.Text));
                             GlobalLogger.Instance.LogEvent("BARCODE", $"Detected value={result.Text} format={result.BarcodeFormat}", "BarcodeHW");
 
-                            // Persist to SQL via MediatR CQRS (H30: Core.AppDbContext elimination)
+                            // Persist to SQL via MediatR CQRS (H30: legacy AppDbContext elimination)
                             try
                             {
                                 if (_scopeFactory != null)

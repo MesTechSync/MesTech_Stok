@@ -1,21 +1,24 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MesTech.Application.Queries.GetProductDbStatus;
 using InfraDbContext = MesTech.Infrastructure.Persistence.AppDbContext;
 
 namespace MesTechStok.Desktop.Handlers;
 
 /// <summary>
-/// H32: Migrated from Core.AppDbContext to Infrastructure.Persistence.AppDbContext.
+/// H32: Migrated to Infrastructure.Persistence.AppDbContext.
 /// </summary>
 public class GetProductDbStatusHandler : IRequestHandler<GetProductDbStatusQuery, ProductDbStatusDto>
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<GetProductDbStatusHandler>? _logger;
 
-    public GetProductDbStatusHandler(IServiceProvider serviceProvider)
+    public GetProductDbStatusHandler(IServiceProvider serviceProvider, ILogger<GetProductDbStatusHandler>? logger = null)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public async Task<ProductDbStatusDto> Handle(GetProductDbStatusQuery request, CancellationToken cancellationToken)
@@ -41,8 +44,9 @@ public class GetProductDbStatusHandler : IRequestHandler<GetProductDbStatusQuery
                 TotalCount = toplam,
             };
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(GetProductDbStatusHandler), "Database status check failed");
             return new ProductDbStatusDto { IsConnected = false };
         }
     }

@@ -17,7 +17,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// FBO/FBS order retrieval, stock updates via /v2/products/stocks.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
@@ -715,5 +715,31 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter
         }
 
         return dto;
+    }
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(_baseUrl, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("Ozon ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Ozon ping failed");
+            return false;
+        }
     }
 }

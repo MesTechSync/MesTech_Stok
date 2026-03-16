@@ -10,7 +10,7 @@ public class ExcelExportService : IExcelExportService
 {
     static ExcelExportService()
     {
-        ExcelPackage.License.SetNonCommercialPersonal("MesTech");
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
     }
 
     public async Task<Stream> ExportProductsAsync(IEnumerable<ProductExportDto> products, CancellationToken ct = default)

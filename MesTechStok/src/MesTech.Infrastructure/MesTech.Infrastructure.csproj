@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>mestech-infrastructure-a1b2c3d4-e5f6-7890-abcd-ef1234567890</UserSecretsId>

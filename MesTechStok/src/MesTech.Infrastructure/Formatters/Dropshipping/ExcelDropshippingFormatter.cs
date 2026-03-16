@@ -13,7 +13,7 @@ public sealed class ExcelDropshippingFormatter : IDropshippingExportFormatter
 {
     static ExcelDropshippingFormatter()
     {
-        ExcelPackage.License.SetNonCommercialPersonal("MesTech");
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
     }
 
     public string Platform => "Excel";

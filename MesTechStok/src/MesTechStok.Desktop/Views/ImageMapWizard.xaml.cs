@@ -7,12 +7,14 @@ using System.Windows;
 using System.Windows.Controls;
 using ClosedXML.Excel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WinForms = System.Windows.Forms;
 
 namespace MesTechStok.Desktop.Views
 {
     public partial class ImageMapWizard : Window
     {
+        private readonly ILogger<ImageMapWizard>? _logger;
         private readonly List<Row> _rows = new();
         private readonly string _corr = $"IMAGE_MAP-{DateTime.UtcNow:yyyyMMddHHmmssfff}";
         private class Row
@@ -30,6 +32,7 @@ namespace MesTechStok.Desktop.Views
         public ImageMapWizard()
         {
             InitializeComponent();
+            _logger = MesTechStok.Desktop.App.Services?.GetService<ILogger<ImageMapWizard>>();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
@@ -68,7 +71,7 @@ namespace MesTechStok.Desktop.Views
         private void FilterToggles_Changed(object sender, RoutedEventArgs e)
         {
             try { ApplyFilters(); }
-            catch { /* Intentional: filter toggle event handler — must not crash on early UI access before ItemsSource is set. */ }
+            catch (Exception ex) { /* Intentional: filter toggle event handler — must not crash on early UI access before ItemsSource is set. */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(ImageMapWizard), "Filter toggle — early UI access before ItemsSource is set", ex.Message); }
         }
 
         private void ApplyFilters()
@@ -114,7 +117,7 @@ namespace MesTechStok.Desktop.Views
                 var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
                 if (mediator == null) return;
 
-                // Fetch all products via CQRS query (replaces Core.AppDbContext direct access)
+                // Fetch all products via CQRS query (replaces legacy AppDbContext direct access)
                 var products = mediator.Send(
                     new MesTech.Application.Queries.SearchProductsForImageMatch.SearchProductsForImageMatchQuery())
                     .GetAwaiter().GetResult();
@@ -186,7 +189,7 @@ namespace MesTechStok.Desktop.Views
                             MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"ImageUpdated Id={r.ProductId} File={System.IO.Path.GetFileName(r.FullPath)}", nameof(ImageMapWizard));
                         }
                     }
-                    catch { /* Intentional: image upload error tracking — count failure and continue batch */ fail++; r.Status = "Hata"; }
+                    catch (Exception ex) { /* Intentional: image upload error tracking — count failure and continue batch */ _logger?.LogWarning(ex, "{ViewName} - {Context}: {Message}", nameof(ImageMapWizard), "Image upload batch — count failure and continue", ex.Message); fail++; r.Status = "Hata"; }
                 }
                 PreviewGrid.Items.Refresh();
                 SummaryText.Text = $"Eşleşen: {_rows.Count(r => r.ProductId != Guid.Empty)} · Güncellendi={ok} · Hata={fail}";

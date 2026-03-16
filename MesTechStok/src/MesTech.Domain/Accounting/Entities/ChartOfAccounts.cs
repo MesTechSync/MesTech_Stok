@@ -17,6 +17,7 @@ public class ChartOfAccounts : BaseEntity, ITenantEntity
     public AccountType AccountType { get; private set; }
     public Guid? ParentId { get; private set; }
     public bool IsActive { get; private set; }
+    public bool IsSystem { get; private set; }
     public int Level { get; private set; }
 
     // Navigation
@@ -44,13 +45,26 @@ public class ChartOfAccounts : BaseEntity, ITenantEntity
             AccountType = accountType,
             ParentId = parentId,
             IsActive = true,
+            IsSystem = false,
             Level = level,
             CreatedAt = DateTime.UtcNow
         };
     }
 
+    /// <summary>
+    /// Guards against modification of system accounts.
+    /// Throws InvalidOperationException if this is a system account.
+    /// </summary>
+    public void EnsureNotSystem()
+    {
+        if (IsSystem)
+            throw new InvalidOperationException(
+                $"System account '{Code} - {Name}' cannot be modified or deleted.");
+    }
+
     public void Deactivate()
     {
+        EnsureNotSystem();
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -63,8 +77,30 @@ public class ChartOfAccounts : BaseEntity, ITenantEntity
 
     public void UpdateName(string name)
     {
+        EnsureNotSystem();
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Name = name;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Marks this account as a system account. Only for seed data.
+    /// </summary>
+    public void MarkAsSystem()
+    {
+        IsSystem = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Marks this account for deletion. System accounts cannot be deleted.
+    /// </summary>
+    public void MarkDeleted(string deletedBy)
+    {
+        EnsureNotSystem();
+        IsDeleted = true;
+        DeletedAt = DateTime.UtcNow;
+        DeletedBy = deletedBy;
         UpdatedAt = DateTime.UtcNow;
     }
 }

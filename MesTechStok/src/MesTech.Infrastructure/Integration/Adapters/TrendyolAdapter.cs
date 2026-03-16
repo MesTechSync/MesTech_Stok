@@ -7,6 +7,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -20,10 +21,12 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Rate limiting, Polly retry, Basic Auth mevcut koddan alinmistir.
 /// </summary>
 public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
-    IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter
+    IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter,
+    IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolAdapter> _logger;
+    private readonly TrendyolOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -33,10 +36,15 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     private string? _supplierId;
     private bool _isConfigured;
 
-    public TrendyolAdapter(HttpClient httpClient, ILogger<TrendyolAdapter> logger)
+    public TrendyolAdapter(HttpClient httpClient, ILogger<TrendyolAdapter> logger,
+        IOptions<TrendyolOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new TrendyolOptions();
+
+        // Initialise BaseAddress from options so sandbox toggle works without credential override
+        _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);
 
         _jsonOptions = new JsonSerializerOptions
         {
@@ -98,8 +106,15 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{apiKey}:{apiSecret}"));
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
 
+        // Support BaseUrl override for sandbox testing via credentials
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
+
+        // UseSandbox=true shortcut sets sandbox URL automatically
+        if (credentials.GetValueOrDefault("UseSandbox", "false").Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            _httpClient.BaseAddress = new Uri(_options.SandboxBaseUrl, UriKind.Absolute);
+        }
 
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Trendyol-Client/3.0");
         _isConfigured = true;
@@ -1039,6 +1054,33 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         finally
         {
             _rateLimitSemaphore.Release();
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            // HEAD request to Trendyol API root — no auth needed, any HTTP response = reachable
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(_options.BaseUrl, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("Trendyol ping: {StatusCode}", response.StatusCode);
+            return true; // Any response means the host is reachable
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Trendyol ping failed");
+            return false;
         }
     }
 }

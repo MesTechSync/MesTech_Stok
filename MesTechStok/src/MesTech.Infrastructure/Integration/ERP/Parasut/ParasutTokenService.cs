@@ -2,12 +2,13 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.ERP.Parasut;
 
 /// <summary>
 /// Parasut OAuth2 Client Credentials token service.
-/// POST https://api.parasut.com/oauth/token
+/// POST {BaseUrl}/oauth/token — sandbox or production depending on ParasutOptions.UseSandbox.
 /// Token cache: IMemoryCache, 50-minute TTL (token expires in 1h, 10min buffer).
 /// Config keys: ERP:Parasut:ClientId, ERP:Parasut:ClientSecret, ERP:Parasut:CompanyId
 /// </summary>
@@ -16,6 +17,7 @@ public sealed class ParasutTokenService
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
     private readonly ILogger<ParasutTokenService> _logger;
+    private readonly ParasutOptions _options;
     private readonly string _clientId;
     private readonly string _clientSecret;
     private readonly string _companyId;
@@ -27,15 +29,24 @@ public sealed class ParasutTokenService
         HttpClient httpClient,
         IMemoryCache cache,
         IConfiguration configuration,
-        ILogger<ParasutTokenService> logger)
+        ILogger<ParasutTokenService> logger,
+        IOptions<ParasutOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new ParasutOptions();
 
-        _clientId = configuration["ERP:Parasut:ClientId"] ?? string.Empty;
-        _clientSecret = configuration["ERP:Parasut:ClientSecret"] ?? string.Empty;
-        _companyId = configuration["ERP:Parasut:CompanyId"] ?? string.Empty;
+        // Options class values take priority; fall back to legacy IConfiguration keys
+        _clientId = !string.IsNullOrEmpty(_options.ClientId)
+            ? _options.ClientId
+            : configuration["ERP:Parasut:ClientId"] ?? string.Empty;
+        _clientSecret = !string.IsNullOrEmpty(_options.ClientSecret)
+            ? _options.ClientSecret
+            : configuration["ERP:Parasut:ClientSecret"] ?? string.Empty;
+        _companyId = !string.IsNullOrEmpty(_options.CompanyId)
+            ? _options.CompanyId
+            : configuration["ERP:Parasut:CompanyId"] ?? string.Empty;
     }
 
     /// <summary>
@@ -63,7 +74,7 @@ public sealed class ParasutTokenService
         };
 
         var content = new FormUrlEncodedContent(formData);
-        var response = await _httpClient.PostAsync("https://api.parasut.com/oauth/token", content, ct);
+        var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct);
 
         if (!response.IsSuccessStatusCode)
         {

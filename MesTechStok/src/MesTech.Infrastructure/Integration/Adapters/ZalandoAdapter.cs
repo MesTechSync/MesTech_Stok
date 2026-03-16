@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;
@@ -639,6 +639,32 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter
         catch (Exception ex)
         {
             _logger.LogError(ex, "Zalando UpdateOrderStatus exception: {OrderId}", packageId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IPingableAdapter — Lightweight Health Check
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri(ApiBase, UriKind.Absolute));
+            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("Zalando ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Zalando ping failed");
             return false;
         }
     }

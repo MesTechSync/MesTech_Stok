@@ -13,7 +13,7 @@ public class ExcelImportServiceTests
 {
     static ExcelImportServiceTests()
     {
-        ExcelPackage.License.SetNonCommercialPersonal("MesTech");
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
     }
 
     private readonly ExcelImportService _sut = new();

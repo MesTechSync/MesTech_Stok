@@ -9,7 +9,7 @@ public class ExcelImportService : IExcelImportService
 {
     static ExcelImportService()
     {
-        ExcelPackage.License.SetNonCommercialPersonal("MesTech");
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
     }
 
     public async Task<XmlImportResult> ImportProductsAsync(Stream excelStream, CancellationToken ct = default)

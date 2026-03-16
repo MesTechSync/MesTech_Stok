@@ -130,8 +130,9 @@ public partial class App : Application
                 var evt = EventWaitHandle.OpenExisting("Global\\MesTechStok.Desktop.Activate");
                 evt.Set();
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"App - Activation event signal failed: {ex.Message}");
                 // Fallback: try to bring any existing process main window to front
                 try
                 {
@@ -149,9 +150,9 @@ public partial class App : Application
                         }
                     }
                 }
-                catch
+                catch (Exception innerEx)
                 {
-                    // Intentional: Win32 P/Invoke (ShowWindow/SetForegroundWindow) — target process may exit between enumeration and call.
+                    System.Diagnostics.Debug.WriteLine($"App - Win32 P/Invoke window restore failed: {innerEx.Message}");
                 }
             }
             Shutdown(0);
@@ -197,9 +198,9 @@ public partial class App : Application
                 Log.Information("Startup EXE: {ExePath} (PID={Pid})", exePath, pid);
                 GlobalLogger.Instance.LogInfo($"🆔 EXE: {exePath} | PID: {pid}", "Application");
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: diagnostic Process.GetCurrentProcess() — non-critical startup telemetry.
+                Log.Warning(ex, "App - Diagnostic startup telemetry failed");
             }
 
             // 30 günlük log temizliği (günlük dosyaları)
@@ -214,15 +215,15 @@ public partial class App : Application
                         var fi = new FileInfo(lf);
                         if (fi.LastWriteTime < threshold) fi.Delete();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Intentional: log file cleanup — file may be locked or already deleted concurrently.
+                        Log.Warning(ex, "App - Log file cleanup: file may be locked or already deleted");
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: log cleanup block — failure must not abort app startup.
+                Log.Warning(ex, "App - Log cleanup block failed");
             }
 
             // ALPHA TEAM: Build the host with proper Core integration
@@ -374,7 +375,7 @@ public partial class App : Application
         // Kanonik context: MesTech.Infrastructure.Persistence.AppDbContext (aşağıda)
         // Bu registration mevcut Core servisleri (ProductService vb.) için korunuyor.
         // Yeni entity/repo/servis Infrastructure.AppDbContext kullanmalıdır.
-#pragma warning disable CS0618 // Obsolete Core.AppDbContext — intentional backward compat
+#pragma warning disable CS0618 // Obsolete legacy AppDbContext — intentional backward compat
         services.AddDbContext<AppDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -505,7 +506,7 @@ public partial class App : Application
                 typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly,
                 typeof(MesTechStok.Desktop.Handlers.GetCategoriesPagedHandler).Assembly));
 
-        // Infrastructure AppDbContext (Clean Architecture — Core AppDbContext ile birlikte çalışır)
+        // Infrastructure AppDbContext (Clean Architecture — legacy AppDbContext ile birlikte çalışır)
         services.AddScoped<MesTech.Infrastructure.Persistence.AuditInterceptor>();
         var infraConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
@@ -674,8 +675,9 @@ public partial class App : Application
                 "$1=***",
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "App - Connection string mask failed");
             return "(bağlantı dizesi okunamadı)";
         }
     }

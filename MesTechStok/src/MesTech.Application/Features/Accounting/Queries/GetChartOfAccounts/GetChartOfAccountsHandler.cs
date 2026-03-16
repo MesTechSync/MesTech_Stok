@@ -22,6 +22,7 @@ public class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery
             AccountType = a.AccountType.ToString(),
             ParentId = a.ParentId,
             IsActive = a.IsActive,
+            IsSystem = a.IsSystem,
             Level = a.Level
         }).ToList().AsReadOnly();
     }

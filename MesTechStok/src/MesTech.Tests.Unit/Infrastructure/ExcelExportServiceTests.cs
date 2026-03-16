@@ -14,7 +14,7 @@ public class ExcelExportServiceTests
 {
     static ExcelExportServiceTests()
     {
-        ExcelPackage.License.SetNonCommercialPersonal("MesTech");
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
     }
 
     private readonly ExcelExportService _sut = new();

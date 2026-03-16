@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-#pragma warning disable CS0618 // Obsolete Core.AppDbContext — SqlBacked service bridge, will migrate in H32
+#pragma warning disable CS0618 // Obsolete legacy AppDbContext — SqlBacked service bridge, will migrate in H32
 using MesTechStok.Core.Data;
 #pragma warning restore CS0618
+using Microsoft.Extensions.Logging;
 using MesTechStok.Desktop.Models;
 using MesTechStok.Desktop.Utils;
 
@@ -15,11 +16,13 @@ namespace MesTechStok.Desktop.Services
     {
         private readonly AppDbContext _db;
         private readonly IOfflineQueueService? _offlineQueueService;
+        private readonly ILogger<SqlBackedProductService>? _logger;
 
-        public SqlBackedProductService(AppDbContext db, IOfflineQueueService? offlineQueueService = null)
+        public SqlBackedProductService(AppDbContext db, IOfflineQueueService? offlineQueueService = null, ILogger<SqlBackedProductService>? logger = null)
         {
             _db = db;
             _offlineQueueService = offlineQueueService;
+            _logger = logger;
         }
 
         private static string? Clamp(string? s, int max)
@@ -283,7 +286,7 @@ namespace MesTechStok.Desktop.Services
                         await _db.SaveChangesAsync();
                         return true;
                     }
-                    catch { /* Intentional: database operation fallback — return false on failure */ return false; }
+                    catch (Exception innerEx) { _logger?.LogWarning(innerEx, "{ClassName} - {Context}", nameof(SqlBackedProductService), "AddProduct DB column ensure fallback failed"); return false; }
                 }
             }
 
@@ -309,9 +312,9 @@ namespace MesTechStok.Desktop.Services
                     await _db.SaveChangesAsync();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: image variant save is non-critical — product was already persisted above.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SqlBackedProductService), "AddProduct image variant save failed (non-critical)");
             }
 
             return true;
@@ -394,7 +397,7 @@ namespace MesTechStok.Desktop.Services
                         await _db.SaveChangesAsync();
                         return true;
                     }
-                    catch { /* Intentional: database operation fallback — return false on failure */ return false; }
+                    catch (Exception innerEx) { _logger?.LogWarning(innerEx, "{ClassName} - {Context}", nameof(SqlBackedProductService), "UpdateProduct DB column ensure fallback failed"); return false; }
                 }
             }
             try
@@ -404,9 +407,9 @@ namespace MesTechStok.Desktop.Services
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"PriceChanged Id={p.Id} Old={oldSale} New={p.SalePrice}", nameof(SqlBackedProductService));
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: audit telemetry (LogEvent) — must not crash primary update operation.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SqlBackedProductService), "UpdateProduct audit telemetry failed (non-critical)");
             }
             MesTechStok.Desktop.Views.GlobalLogger.Instance.LogInfo($"[PRODUCT] Ürün güncellendi Id={p.Id}, SKU={p.SKU}, Barkod={p.Barcode}", nameof(SqlBackedProductService));
 
@@ -430,9 +433,9 @@ namespace MesTechStok.Desktop.Services
                     await _db.SaveChangesAsync();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: image variant update is non-critical — primary product fields were already saved above.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SqlBackedProductService), "UpdateProduct image variant update failed (non-critical)");
             }
 
             // Entegrasyon: OpenCart stok güncellemesini offline kuyruğa ekle (Out kanal)
@@ -457,9 +460,9 @@ namespace MesTechStok.Desktop.Services
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: optional OpenCart offline-queue enqueue — integration channel may be unavailable.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SqlBackedProductService), "OpenCart offline-queue enqueue failed (non-critical)");
             }
 
             return true;
@@ -487,9 +490,9 @@ namespace MesTechStok.Desktop.Services
                 if (oldDisc != (p.DiscountRate ?? 0))
                     MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogEvent("PRODUCT_AUDIT", $"DiscountChanged Id={p.Id} Old={oldDisc} New={p.DiscountRate}", nameof(SqlBackedProductService));
             }
-            catch
+            catch (Exception ex)
             {
-                // Intentional: finance audit telemetry — must not crash the primary finance update.
+                _logger?.LogWarning(ex, "{ClassName} - {Context}", nameof(SqlBackedProductService), "UpdateFinance audit telemetry failed (non-critical)");
             }
             return true;
         }
@@ -594,7 +597,7 @@ namespace MesTechStok.Desktop.Services
                 if (arr == null || arr.Length == 0) return string.Empty;
                 return string.Join(",", arr);
             }
-            catch { /* Intentional: data extraction fallback — return empty on failure */ return string.Empty; }
+            catch { /* Intentional: static JSON parse helper — return empty on failure */ return string.Empty; }
         }
     }
 }

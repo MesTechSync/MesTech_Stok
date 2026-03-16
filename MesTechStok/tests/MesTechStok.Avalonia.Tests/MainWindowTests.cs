@@ -65,8 +65,8 @@ public class MainWindowTests
     public void MainWindow_WithViewModel_BindsDataContext()
     {
         // Arrange
-        var mockServices = new Mock<IServiceProvider>();
-        var vm = new MainWindowViewModel(mockServices.Object);
+        var mockFactory = new Mock<MesTech.Avalonia.Services.IViewModelFactory>();
+        var vm = new MainWindowViewModel(mockFactory.Object);
 
         var window = new MainWindow
         {

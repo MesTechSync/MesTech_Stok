@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-#pragma warning disable CS0618 // Obsolete Core.AppDbContext — SqlBacked service bridge, will migrate in H32
+#pragma warning disable CS0618 // Obsolete legacy AppDbContext — SqlBacked service bridge, will migrate in H32
 using MesTechStok.Core.Data;
 using CoreOrder = MesTechStok.Core.Data.Models.Order;
 using CoreOrderItem = MesTechStok.Core.Data.Models.OrderItem;

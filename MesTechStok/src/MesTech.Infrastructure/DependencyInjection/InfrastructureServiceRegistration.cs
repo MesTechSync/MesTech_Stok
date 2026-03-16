@@ -93,6 +93,9 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
 
+        // Accounting Repositories (Dalga 14 M2)
+        services.AddScoped<IPlatformCommissionRepository, PlatformCommissionRepository>();
+
         // CRM Repositories (Dalga 8)
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
         services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
@@ -206,6 +209,8 @@ public static class InfrastructureServiceRegistration
 
         // Data Seeder
         services.AddScoped<DataSeeder>();
+        services.AddScoped<DemoDataSeeder>();
+        services.AddScoped<AhmetBeyDemoSeeder>();
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();

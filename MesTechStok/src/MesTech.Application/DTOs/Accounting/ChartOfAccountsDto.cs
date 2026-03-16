@@ -8,5 +8,6 @@ public class ChartOfAccountsDto
     public string AccountType { get; set; } = string.Empty;
     public Guid? ParentId { get; set; }
     public bool IsActive { get; set; }
+    public bool IsSystem { get; set; }
     public int Level { get; set; }
 }

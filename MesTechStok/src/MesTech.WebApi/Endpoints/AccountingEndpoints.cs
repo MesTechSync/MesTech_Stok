@@ -10,7 +10,12 @@ using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
 using MesTech.Application.Features.Accounting.Queries.GetSettlementBatches;
 using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
+using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
+using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
+using MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
+using MesTech.Application.Features.Accounting.Commands.UpdatePlatformCommissionRate;
 using MesTech.Domain.Accounting.Enums;
+using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -150,5 +155,52 @@ public static class AccountingEndpoints
         })
         .WithName("GetBankTransactions")
         .WithSummary("Banka hareketleri (hesap + tarih filtresi)");
+
+        // GET /api/v1/accounting/chart-of-accounts — hesap planı listesi
+        group.MapGet("/chart-of-accounts", async (
+            Guid tenantId, bool? isActive,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetChartOfAccountsQuery(tenantId, isActive ?? true), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetChartOfAccounts")
+        .WithSummary("Hesap planı listesi (aktif/pasif filtresi)");
+
+        // GET /api/v1/accounting/commission-rates — platform komisyon oranları
+        group.MapGet("/commission-rates", async (
+            Guid tenantId, PlatformType? platformType, bool? isActive,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetPlatformCommissionRatesQuery(tenantId, platformType, isActive ?? true), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPlatformCommissionRates")
+        .WithSummary("Platform komisyon oranları listesi (platform + aktif filtresi)");
+
+        // POST /api/v1/accounting/commission-rates — yeni komisyon oranı oluştur (Dalga 14 M2)
+        group.MapPost("/commission-rates", async (
+            CreatePlatformCommissionRateCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/commission-rates/{result}", result);
+        })
+        .WithName("CreatePlatformCommissionRate")
+        .WithSummary("Yeni platform komisyon oranı oluştur");
+
+        // PUT /api/v1/accounting/commission-rates/{id} — komisyon oranı güncelle (Dalga 14 M2)
+        group.MapPut("/commission-rates/{id:guid}", async (
+            Guid id, UpdatePlatformCommissionRateCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var updated = command with { Id = id };
+            await mediator.Send(updated, ct);
+            return Results.NoContent();
+        })
+        .WithName("UpdatePlatformCommissionRate")
+        .WithSummary("Platform komisyon oranı güncelle");
     }
 }

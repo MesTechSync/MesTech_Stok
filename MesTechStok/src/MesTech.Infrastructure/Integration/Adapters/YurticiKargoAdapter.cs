@@ -5,6 +5,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -16,6 +17,7 @@ public class YurticiKargoAdapter : ICargoAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<YurticiKargoAdapter> _logger;
+    private readonly YurticiKargoOptions _options;
     private readonly SimpleSoapClient _soapClient;
 
     private string _serviceUrl = string.Empty;
@@ -26,11 +28,16 @@ public class YurticiKargoAdapter : ICargoAdapter
 
     private static readonly XNamespace YkNs = "http://yurticikargo.com/";
 
-    public YurticiKargoAdapter(HttpClient httpClient, ILogger<YurticiKargoAdapter> logger)
+    public YurticiKargoAdapter(HttpClient httpClient, ILogger<YurticiKargoAdapter> logger,
+        IOptions<YurticiKargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new YurticiKargoOptions();
         _soapClient = new SimpleSoapClient(httpClient, logger);
+
+        // Initialise service URL from options so sandbox toggle works before Configure() is called
+        _serviceUrl = _options.ServiceUrl;
     }
 
     public CargoProvider Provider => CargoProvider.YurticiKargo;
@@ -45,7 +52,22 @@ public class YurticiKargoAdapter : ICargoAdapter
         _userName = credentials.GetValueOrDefault("UserName", "");
         _password = credentials.GetValueOrDefault("Password", "");
         _userLanguage = credentials.GetValueOrDefault("UserLanguage", "TR");
-        _serviceUrl = credentials.GetValueOrDefault("ServiceUrl", "");
+
+        // Support ServiceUrl override from credentials (backwards compatible)
+        var credServiceUrl = credentials.GetValueOrDefault("ServiceUrl", "");
+        if (!string.IsNullOrEmpty(credServiceUrl))
+            _serviceUrl = credServiceUrl;
+
+        // UseSandbox=true shortcut sets sandbox URL automatically
+        if (credentials.GetValueOrDefault("UseSandbox", "false").Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            _serviceUrl = _options.SandboxServiceUrl;
+        }
+
+        // Fallback: if no URL was set via credentials or sandbox toggle, use options
+        if (string.IsNullOrEmpty(_serviceUrl))
+            _serviceUrl = _options.ServiceUrl;
+
         _isConfigured = true;
     }
 
