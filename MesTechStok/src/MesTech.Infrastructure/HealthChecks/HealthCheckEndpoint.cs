@@ -22,7 +22,7 @@ public class HealthCheckEndpoint : BackgroundService
     public HealthCheckEndpoint(
         HealthCheckService healthCheckService,
         ILogger<HealthCheckEndpoint> logger,
-        int port = 5100)
+        int port = 3100)
     {
         _healthCheckService = healthCheckService;
         _logger = logger;

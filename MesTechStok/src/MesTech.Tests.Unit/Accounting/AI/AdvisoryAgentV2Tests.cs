@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -45,7 +45,7 @@ public class AdvisoryAgentV2Tests
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Mesa:Accounting:BaseUrl"] = "http://localhost:5101"
+                ["Mesa:Accounting:BaseUrl"] = "http://localhost:3101"
             })
             .Build();
 

@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using MesTech.Application.Interfaces.Accounting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -29,7 +29,7 @@ public class RealMesaAccountingClient : IMesaAccountingService
         _mockFallback = mockFallback;
         _logger = logger;
 
-        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:5101";
+        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
     }
 

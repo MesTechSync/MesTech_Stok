@@ -1,4 +1,4 @@
-namespace MesTech.Tests.Integration.E2E.Blazor;
+﻿namespace MesTech.Tests.Integration.E2E.Blazor;
 
 /// <summary>
 /// Configuration and helper utilities for Blazor Playwright E2E tests.
@@ -12,9 +12,9 @@ public static class BlazorTestConfiguration
 
     /// <summary>
     /// Base URL for the Blazor SaaS application.
-    /// Matches Properties/launchSettings.json: http://localhost:5200
+    /// Matches Properties/launchSettings.json: http://localhost:3200
     /// </summary>
-    public const string BaseUrl = "http://localhost:5200";
+    public const string BaseUrl = "http://localhost:3200";
 
     /// <summary>
     /// Default timeout for page navigation in milliseconds.

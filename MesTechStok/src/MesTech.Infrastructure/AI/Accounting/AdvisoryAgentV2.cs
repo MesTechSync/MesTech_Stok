@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
@@ -62,7 +62,7 @@ public class AdvisoryAgentV2 : IAdvisoryAgentV2
         _tenantProvider = tenantProvider;
         _logger = logger;
 
-        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:5101";
+        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
     }
 

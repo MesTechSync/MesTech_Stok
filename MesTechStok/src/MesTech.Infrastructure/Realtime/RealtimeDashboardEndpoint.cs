@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.WebSockets;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,8 +7,8 @@ namespace MesTech.Infrastructure.Realtime;
 
 /// <summary>
 /// WPF uygulamasi icin self-hosted WebSocket server.
-/// Port 5102'de ws://localhost:5102/ws/dashboard dinler.
-/// HealthCheckEndpoint (5100) ve MesaStatusEndpoint (5101) ile ayni pattern.
+/// Port 3102'de ws://localhost:3102/ws/dashboard dinler.
+/// HealthCheckEndpoint (3100) ve MesaStatusEndpoint (3101) ile ayni pattern.
 /// </summary>
 public class RealtimeDashboardEndpoint : BackgroundService
 {
@@ -20,7 +20,7 @@ public class RealtimeDashboardEndpoint : BackgroundService
     public RealtimeDashboardEndpoint(
         WebSocketConnectionManager connectionManager,
         ILogger<RealtimeDashboardEndpoint> logger,
-        int port = 5102)
+        int port = 3102)
     {
         _connectionManager = connectionManager;
         _logger = logger;

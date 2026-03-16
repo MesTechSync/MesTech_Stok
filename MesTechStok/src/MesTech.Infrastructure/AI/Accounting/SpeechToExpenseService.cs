@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
@@ -61,7 +61,7 @@ public class SpeechToExpenseService : ISpeechToExpenseService
         _unitOfWork = unitOfWork;
         _logger = logger;
 
-        _httpClient.BaseAddress ??= new Uri("http://localhost:5101");
+        _httpClient.BaseAddress ??= new Uri("http://localhost:3101");
     }
 
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(

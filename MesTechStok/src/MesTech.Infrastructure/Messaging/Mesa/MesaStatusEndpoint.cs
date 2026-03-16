@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Hosting;
@@ -8,9 +8,9 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 
 /// <summary>
 /// MESA event monitoring HTTP endpoint.
-/// http://localhost:5101/api/mesa/status adresinde JSON formatinda
+/// http://localhost:3101/api/mesa/status adresinde JSON formatinda
 /// event publish/consume istatistiklerini sunar.
-/// HealthCheckEndpoint pattern'ini kullanir (port 5101).
+/// HealthCheckEndpoint pattern'ini kullanir (port 3101).
 /// </summary>
 public class MesaStatusEndpoint : BackgroundService
 {
@@ -22,7 +22,7 @@ public class MesaStatusEndpoint : BackgroundService
     public MesaStatusEndpoint(
         IMesaEventMonitor monitor,
         ILogger<MesaStatusEndpoint> logger,
-        int port = 5101)
+        int port = 3101)
     {
         _monitor = monitor;
         _logger = logger;

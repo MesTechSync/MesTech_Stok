@@ -80,6 +80,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
+        services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IIncomeRepository, IncomeRepository>();
@@ -131,6 +132,10 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IFeedImportLogRepository, FeedImportLogRepository>();
         services.AddScoped<IFeedSyncJobService, MesTech.Infrastructure.Jobs.FeedSyncJobService>();
         services.AddScoped<IFeedReliabilityScoreService, MesTech.Infrastructure.Services.FeedReliabilityScoreServiceAdapter>();
+
+        // Dropship Feed Fetcher (K1d-05 — SyncDropshipProducts handler icin)
+        services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipFeedFetcher,
+            MesTech.Infrastructure.Integration.Dropshipping.HttpDropshipFeedFetcher>();
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -212,7 +217,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IPriceOptimizationService, MockPriceOptimizationService>();
         services.AddScoped<IProductSearchService, MockProductSearchService>();
 
-        // MESA Status Endpoint (http://localhost:5101/api/mesa/status)
+        // MESA Status Endpoint (http://localhost:3101/api/mesa/status)
         if (!skipSelfHostedEndpoints)
             services.AddHostedService(sp =>
                 new MesaStatusEndpoint(
@@ -238,21 +243,21 @@ public static class InfrastructureServiceRegistration
             .AddCheck<RedisHealthCheck>("redis")
             .AddCheck<PostgresHealthCheck>("postgresql");
 
-        // Health Check HTTP Endpoint (http://localhost:5100/health)
+        // Health Check HTTP Endpoint (http://localhost:3100/health)
         if (!skipSelfHostedEndpoints)
             services.AddHostedService(sp =>
                 new HealthCheckEndpoint(
                     sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
 
-        // ── Realtime Dashboard (port 5102) ──
+        // ── Realtime Dashboard (port 3102) ──
         services.AddSingleton<WebSocketConnectionManager>();
         services.AddSingleton<IDashboardNotifier, WebSocketDashboardNotifier>();
         if (!skipSelfHostedEndpoints)
             services.AddHostedService(sp => new RealtimeDashboardEndpoint(
                 sp.GetRequiredService<WebSocketConnectionManager>(),
                 sp.GetRequiredService<ILogger<RealtimeDashboardEndpoint>>(),
-                port: configuration.GetValue<int>("Realtime:WebSocketPort", 5102)
+                port: configuration.GetValue<int>("Realtime:WebSocketPort", 3102)
             ));
 
         // XML Import / Export
@@ -432,6 +437,9 @@ public static class InfrastructureServiceRegistration
 
         // ── Field Encryption Service ──
         services.AddSingleton<IFieldEncryptionService, FieldEncryptionService>();
+
+        // ── Credential Encryption Service (StoreCredential sifreleme + maskeleme) ──
+        services.AddSingleton<ICredentialEncryptionService, CredentialEncryptionService>();
 
         // ── Key Rotation Service (MUH-02 KVKK) ──
         services.AddSingleton<IKeyRotationService, KeyRotationService>();
