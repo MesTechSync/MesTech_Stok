@@ -46,6 +46,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup Label="Web API">
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
   <ItemGroup Label="Infrastructure">
@@ -59,6 +60,7 @@
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.4.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Polly" Version="8.5.2" />
+    <PackageVersion Include="Polly.RateLimiting" Version="8.5.2" />
     <PackageVersion Include="prometheus-net" Version="8.2.1" />
     <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
     <PackageVersion Include="System.IO.Ports" Version="9.0.6" />
