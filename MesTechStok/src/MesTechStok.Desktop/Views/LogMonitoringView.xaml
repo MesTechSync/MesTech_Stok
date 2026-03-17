@@ -6,12 +6,37 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid Background="White">
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Visibility="Collapsed" Background="#99FFFFFF" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
+                <TextBlock Text="Veriler yükleniyor..." Margin="0,12,0,0" HorizontalAlignment="Center" FontSize="14" Foreground="#666" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Visibility="Collapsed" Background="#FFFBFE" Panel.ZIndex="50" Padding="32">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400">
+                <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" />
+                <TextBlock x:Name="ErrorText" Text="Bir hata oluştu." TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,12,0,16" FontSize="14" Foreground="#B00020" />
+                <Button Content="Tekrar Dene" HorizontalAlignment="Center" Padding="24,8" Click="Refresh_Click" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState" Visibility="Collapsed" Background="#FFFBFE" Panel.ZIndex="50" Padding="32">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;" FontSize="48" HorizontalAlignment="Center" />
+                <TextBlock Text="Henüz veri bulunmuyor." HorizontalAlignment="Center" FontSize="16" Foreground="#999" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Başlık -->
         <StackPanel Grid.Row="0" Background="#f8f9fa" Orientation="Horizontal" Margin="0,0,0,10">
             <TextBlock Text="🚨 ACİL LOG SİSTEMİ MONİTÖRÜ" FontSize="16" FontWeight="Bold" 

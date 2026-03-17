@@ -453,6 +453,23 @@
             </Grid>
         </ScrollViewer>
 
+        <!-- Error State -->
+        <Border x:Name="MesaErrorState" Visibility="Collapsed" Background="#FFFBFE" Panel.ZIndex="50" Padding="32">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400">
+                <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" />
+                <TextBlock x:Name="MesaErrorText" Text="Bir hata oluştu." TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,12,0,16" FontSize="14" Foreground="#B00020" />
+                <Button Content="Tekrar Dene" HorizontalAlignment="Center" Padding="24,8" Style="{StaticResource PrimaryButton}" Click="Refresh_Click" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="MesaEmptyState" Visibility="Collapsed" Background="#FFFBFE" Panel.ZIndex="50" Padding="32">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;" FontSize="48" HorizontalAlignment="Center" />
+                <TextBlock Text="Henüz veri bulunmuyor." HorizontalAlignment="Center" FontSize="16" Foreground="#999" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay"
                 Background="#80FFFFFF"

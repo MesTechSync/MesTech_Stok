@@ -231,6 +231,15 @@
                 </Grid>
             </Border>
 
+            <!-- Error State -->
+            <Border x:Name="ErrorState" Grid.RowSpan="4" Visibility="Collapsed" Background="#FFFBFE" Panel.ZIndex="50" Padding="32">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400">
+                    <TextBlock Text="&#x26A0;" FontSize="48" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="ErrorText" Text="Bir hata oluştu." TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,12,0,16" FontSize="14" Foreground="#B00020" />
+                    <Button Content="Tekrar Dene" HorizontalAlignment="Center" Padding="24,8" Style="{StaticResource ActionBtn}" Click="Refresh_Click" />
+                </StackPanel>
+            </Border>
+
             <!-- Loading Overlay -->
             <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

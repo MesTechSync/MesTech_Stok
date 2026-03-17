@@ -186,6 +186,14 @@
         </Style>
     </UserControl.Resources>
 
+    <!-- Loading Overlay -->
+    <Border x:Name="OrdersLoadingOverlay" Visibility="Collapsed" Background="#99FFFFFF" Panel.ZIndex="100">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
+            <TextBlock Text="Veriler yükleniyor..." Margin="0,12,0,0" HorizontalAlignment="Center" FontSize="14" Foreground="#666" />
+        </StackPanel>
+    </Border>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto"
             Background="#F5F7FA"
             Padding="0,0,0,10"

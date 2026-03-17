@@ -1,3 +1,4 @@
+using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Auth;
