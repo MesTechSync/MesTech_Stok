@@ -44,7 +44,9 @@ public class DeleteChartOfAccountHandlerTests
         result.Should().BeTrue();
 
         _repoMock.Verify(
-            r => r.UpdateAsync(It.IsAny<ChartOfAccounts>(), It.IsAny<CancellationToken>()),
+            r => r.UpdateAsync(
+                It.Is<ChartOfAccounts>(a => a.IsDeleted && a.DeletedAt != null),
+                It.IsAny<CancellationToken>()),
             Times.Once());
 
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
