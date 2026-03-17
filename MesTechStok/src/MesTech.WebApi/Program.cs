@@ -269,6 +269,9 @@ FixedExpenseEndpoints.Map(app);
 PenaltyEndpoints.Map(app);
 TaxRecordEndpoints.Map(app);
 CariHesapEndpoints.Map(app);
+BaBsEndpoints.Map(app);
+FixedAssetEndpoints.Map(app);
+TaxWithholdingEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

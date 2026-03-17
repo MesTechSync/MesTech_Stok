@@ -22,4 +22,21 @@ public class TaxWithholdingRepository : ITaxWithholdingRepository
 
     public async Task AddAsync(TaxWithholding withholding, CancellationToken ct = default)
         => await _context.TaxWithholdings.AddAsync(withholding, ct);
+
+    public async Task<IReadOnlyList<TaxWithholding>> GetAllAsync(Guid tenantId, DateTime? startDate = null, DateTime? endDate = null, CancellationToken ct = default)
+    {
+        var query = _context.TaxWithholdings
+            .Where(w => w.TenantId == tenantId);
+
+        if (startDate.HasValue)
+            query = query.Where(w => w.CreatedAt >= startDate.Value);
+
+        if (endDate.HasValue)
+            query = query.Where(w => w.CreatedAt <= endDate.Value);
+
+        return await query
+            .OrderByDescending(w => w.CreatedAt)
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
 }

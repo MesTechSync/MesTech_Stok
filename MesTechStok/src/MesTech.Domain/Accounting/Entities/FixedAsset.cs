@@ -107,6 +107,21 @@ public class FixedAsset : BaseEntity, ITenantEntity
     }
 
     /// <summary>
+    /// Duzenlenebilir alanlari gunceller (AcquisitionCost degismez — immutable).
+    /// </summary>
+    public void Update(string name, string? description, int usefulLifeYears)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (usefulLifeYears <= 0)
+            throw new ArgumentOutOfRangeException(nameof(usefulLifeYears), "Faydali omur sifirdan buyuk olmalidir.");
+
+        Name = name;
+        Description = description;
+        UsefulLifeYears = usefulLifeYears;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Varligi pasife alir (hurda, satis, devir).
     /// </summary>
     public void Deactivate()

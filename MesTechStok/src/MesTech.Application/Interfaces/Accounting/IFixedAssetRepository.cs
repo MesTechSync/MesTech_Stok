@@ -10,4 +10,5 @@ public interface IFixedAssetRepository
     Task<FixedAsset?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<FixedAsset>> GetAllAsync(Guid tenantId, bool? isActive = null, CancellationToken ct = default);
     Task AddAsync(FixedAsset asset, CancellationToken ct = default);
+    Task UpdateAsync(FixedAsset asset, CancellationToken ct = default);
 }
