@@ -43,7 +43,7 @@ public class ReliabilityColorConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
 }
 
 /// <summary>
@@ -59,5 +59,5 @@ public class ReliabilityLabelConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
 }

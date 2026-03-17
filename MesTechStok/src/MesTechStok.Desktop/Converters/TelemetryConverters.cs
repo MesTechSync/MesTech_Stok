@@ -22,7 +22,7 @@ namespace MesTechStok.Desktop.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException("UTC to Local conversion is one-way only");
+            throw new NotSupportedException("UTC to Local conversion is one-way only.");
         }
     }
 
@@ -42,7 +42,7 @@ namespace MesTechStok.Desktop.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
         }
     }
 
@@ -75,7 +75,7 @@ namespace MesTechStok.Desktop.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
         }
     }
 }

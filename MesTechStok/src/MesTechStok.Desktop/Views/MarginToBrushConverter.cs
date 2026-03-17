@@ -23,7 +23,7 @@ namespace MesTechStok.Desktop.Views
             return new SolidColorBrush(Color.FromRgb(33, 33, 33));
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 }
 

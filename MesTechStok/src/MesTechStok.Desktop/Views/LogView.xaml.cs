@@ -953,7 +953,7 @@ namespace MesTechStok.Desktop.Views
             if (value is Color c) return new SolidColorBrush(c);
             return new SolidColorBrush(Colors.Transparent);
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 
     public class ColorToLightBackgroundConverter : IValueConverter
@@ -967,7 +967,7 @@ namespace MesTechStok.Desktop.Views
             }
             return new SolidColorBrush(Color.FromArgb(10, 0, 0, 0));
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 
     public class LogEntry

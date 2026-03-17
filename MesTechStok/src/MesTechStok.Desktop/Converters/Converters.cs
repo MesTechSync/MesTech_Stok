@@ -15,7 +15,7 @@ namespace MesTechStok.Desktop.Converters
             return v > p;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 
     public class BetweenConverter : IValueConverter
@@ -33,7 +33,7 @@ namespace MesTechStok.Desktop.Converters
             return v >= min && v <= max;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 
     public class BoolToIconConverter : IValueConverter
@@ -41,7 +41,7 @@ namespace MesTechStok.Desktop.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (value is bool b && b) ? "✔" : "✖";
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 
     public class BoolToColorConverter : IValueConverter
@@ -49,7 +49,7 @@ namespace MesTechStok.Desktop.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (value is bool b && b) ? Brushes.LightGreen : Brushes.OrangeRed;
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException("ConvertBack is not supported for one-way bindings.");
     }
 }
 
