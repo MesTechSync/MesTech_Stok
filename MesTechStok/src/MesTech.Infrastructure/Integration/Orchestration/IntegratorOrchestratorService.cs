@@ -14,7 +14,7 @@ public class IntegratorOrchestratorService : IIntegratorOrchestrator
     private readonly IAdapterFactory _factory;
     private readonly ILogger<IntegratorOrchestratorService> _logger;
     private readonly List<IIntegratorAdapter> _registeredAdapters = new();
-    private readonly object _lock = new();
+    private readonly System.Threading.Lock _lock = new();
     private static readonly TimeSpan PerAdapterTimeout = TimeSpan.FromSeconds(30);
 
     public IntegratorOrchestratorService(
