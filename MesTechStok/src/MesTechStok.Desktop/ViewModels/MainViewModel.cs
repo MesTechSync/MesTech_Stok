@@ -1911,5 +1911,126 @@ namespace MesTechStok.Desktop.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // FINANS EKRANLARI — N1 DEV 2
+        [RelayCommand]
+        private void ShowIncomeList()
+        {
+            NavigationTimingService.Instance.StartTiming("Income List");
+            try
+            {
+                CurrentView = new Views.Finance.IncomeListView();
+                CurrentModule = "Gelir Listesi";
+                StatusMessage = "Gelir Listesi yuklendi";
+                GlobalLogger.Instance.LogInfo("Gelir Listesi ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Income List");
+                ToastManager.ShowSuccess("Gelir Listesi aktif!", "Finans");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Gelir Listesi yuklenemedi";
+                GlobalLogger.Instance.LogError($"Gelir Listesi yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Income List");
+                ToastManager.ShowError("Gelir Listesi yuklenemedi!", "Hata");
+                MessageBox.Show($"Gelir Listesi yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowTaxCalendar()
+        {
+            NavigationTimingService.Instance.StartTiming("Tax Calendar");
+            try
+            {
+                CurrentView = new Views.Finance.TaxCalendarView();
+                CurrentModule = "Vergi Takvimi";
+                StatusMessage = "Vergi Takvimi yuklendi";
+                GlobalLogger.Instance.LogInfo("Vergi Takvimi ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tax Calendar");
+                ToastManager.ShowSuccess("Vergi Takvimi aktif!", "Finans");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Vergi Takvimi yuklenemedi";
+                GlobalLogger.Instance.LogError($"Vergi Takvimi yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Tax Calendar");
+                ToastManager.ShowError("Vergi Takvimi yuklenemedi!", "Hata");
+                MessageBox.Show($"Vergi Takvimi yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowSalary()
+        {
+            NavigationTimingService.Instance.StartTiming("Salary");
+            try
+            {
+                CurrentView = new Views.Finance.SalaryView();
+                CurrentModule = "Maas Bordro";
+                StatusMessage = "Maas Bordro yuklendi";
+                GlobalLogger.Instance.LogInfo("Maas Bordro ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Salary");
+                ToastManager.ShowSuccess("Maas Bordro aktif!", "Finans");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Maas Bordro yuklenemedi";
+                GlobalLogger.Instance.LogError($"Maas Bordro yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Salary");
+                ToastManager.ShowError("Maas Bordro yuklenemedi!", "Hata");
+                MessageBox.Show($"Maas Bordro yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowFixedExpenses()
+        {
+            NavigationTimingService.Instance.StartTiming("Fixed Expenses");
+            try
+            {
+                CurrentView = new Views.Finance.FixedExpenseView();
+                CurrentModule = "Sabit Giderler";
+                StatusMessage = "Sabit Giderler yuklendi";
+                GlobalLogger.Instance.LogInfo("Sabit Giderler ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fixed Expenses");
+                ToastManager.ShowSuccess("Sabit Giderler aktif!", "Finans");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Sabit Giderler yuklenemedi";
+                GlobalLogger.Instance.LogError($"Sabit Giderler yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Fixed Expenses");
+                ToastManager.ShowError("Sabit Giderler yuklenemedi!", "Hata");
+                MessageBox.Show($"Sabit Giderler yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowPenalties()
+        {
+            NavigationTimingService.Instance.StartTiming("Penalties");
+            try
+            {
+                CurrentView = new Views.Finance.PenaltyView();
+                CurrentModule = "Ceza Takibi";
+                StatusMessage = "Ceza Takibi yuklendi";
+                GlobalLogger.Instance.LogInfo("Ceza Takibi ekrani acildi", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Penalties");
+                ToastManager.ShowSuccess("Ceza Takibi aktif!", "Finans");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ceza Takibi yuklenemedi";
+                GlobalLogger.Instance.LogError($"Ceza Takibi yukleme hatasi: {ex.Message}", "MainViewModel");
+                NavigationTimingService.Instance.StopTiming("Penalties");
+                ToastManager.ShowError("Ceza Takibi yuklenemedi!", "Hata");
+                MessageBox.Show($"Ceza Takibi yukleme hatasi: {ex.Message}", "Hata",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

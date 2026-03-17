@@ -1601,6 +1601,109 @@ namespace MesTechStok.Desktop
             }
         }
 
+        // FINANS NAV HANDLERS — N1 DEV 2
+        private void NavFinans_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowOnMuhasebeCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavFinans });
+                    UpdateStatusBar("On Muhasebe yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"On Muhasebe hatasi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavIncomeList_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowIncomeListCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavIncomeList });
+                    UpdateStatusBar("Gelir Listesi yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Gelir Listesi hatasi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavTaxCalendar_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowTaxCalendarCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavTaxCalendar });
+                    UpdateStatusBar("Vergi Takvimi yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Vergi Takvimi hatasi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavSalary_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowSalaryCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavSalary });
+                    UpdateStatusBar("Maas Bordro yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Maas Bordro hatasi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavFixedExpenses_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowFixedExpensesCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavFixedExpenses });
+                    UpdateStatusBar("Sabit Giderler yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Sabit Giderler hatasi: {ex.Message}", "Hata");
+            }
+        }
+
+        private void NavPenalties_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel viewModel)
+                {
+                    viewModel.ShowPenaltiesCommand.Execute(null);
+                    SetActiveNav(sender as Button, new[] { NavPenalties });
+                    UpdateStatusBar("Ceza Takibi yuklendi");
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastManager.ShowError($"Ceza Takibi hatasi: {ex.Message}", "Hata");
+            }
+        }
+
         private void NavReturnToWelcome_Click(object sender, RoutedEventArgs e)
         {
             try
