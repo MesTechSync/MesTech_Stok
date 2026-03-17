@@ -21,7 +21,7 @@ public class MinioDocumentStorageService : IDocumentStorageService
         ILogger<MinioDocumentStorageService> logger)
     {
         _minio = minio;
-        _endpoint = config["MinIO:Endpoint"] ?? "http://localhost:9000";
+        _endpoint = config["MinIO:Endpoint"] ?? "localhost:3900";
         _logger = logger;
     }
 

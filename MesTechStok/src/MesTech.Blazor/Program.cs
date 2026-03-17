@@ -42,8 +42,7 @@ var hostedServicesToRemove = builder.Services
 foreach (var descriptor in hostedServicesToRemove)
     builder.Services.Remove(descriptor);
 
-// ── Port 3200 ──
-builder.WebHost.UseUrls("http://localhost:3200");
+// Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
 
 var app = builder.Build();
 

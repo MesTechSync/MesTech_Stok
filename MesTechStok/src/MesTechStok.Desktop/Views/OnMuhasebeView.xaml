@@ -53,7 +53,73 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid>
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay"
+                Background="#99FFFFFF"
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True"
+                        Width="240"
+                        Height="4"
+                        Margin="0,0,0,12"/>
+                <TextBlock Text="Muhasebe verileri yükleniyor..."
+                        FontSize="14"
+                        Foreground="#555"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Background="#F8FAFC"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Opacity="0.5"
+                        Margin="0,0,0,8"/>
+                <TextBlock Text="Henüz muhasebe verisi bulunmuyor."
+                        FontSize="16"
+                        Foreground="#64748B"
+                        HorizontalAlignment="Center"
+                        Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState"
+                Background="#F8FAFC"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Foreground="#E53935"
+                        Margin="0,0,0,8"/>
+                <TextBlock x:Name="MuhasebeErrorText"
+                        Text="Muhasebe verileri yüklenemedi."
+                        FontSize="14"
+                        Foreground="#E53935"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,12"
+                        TextWrapping="Wrap"
+                        MaxWidth="400"/>
+                <Button Content="Tekrar Dene"
+                        Style="{StaticResource ActionBtn}"
+                        Padding="16,6"
+                        Click="ApplyFilter_Click"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -192,5 +258,6 @@
             </TabItem>
 
         </TabControl>
+    </Grid>
     </Grid>
 </UserControl>

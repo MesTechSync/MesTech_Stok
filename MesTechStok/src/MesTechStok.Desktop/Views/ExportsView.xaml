@@ -131,7 +131,72 @@
         </Style>
     </UserControl.Resources>
     
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F7FA">
+    <Grid Background="#F5F7FA">
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay"
+                Background="#99FFFFFF"
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True"
+                        Width="240"
+                        Height="4"
+                        Margin="0,0,0,12"/>
+                <TextBlock Text="Rapor verileri yükleniyor..."
+                        FontSize="14"
+                        Foreground="#555"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Background="#F5F7FA"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Opacity="0.5"
+                        Margin="0,0,0,8"/>
+                <TextBlock Text="Henüz dışa aktarma verisi bulunmuyor."
+                        FontSize="16"
+                        Foreground="#64748B"
+                        HorizontalAlignment="Center"
+                        Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState"
+                Background="#F5F7FA"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Foreground="#E53935"
+                        Margin="0,0,0,8"/>
+                <TextBlock x:Name="ExportsErrorText"
+                        Text="Dışa aktarma verileri yüklenemedi."
+                        FontSize="14"
+                        Foreground="#E53935"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,12"
+                        TextWrapping="Wrap"
+                        MaxWidth="400"/>
+                <Button Content="Tekrar Dene"
+                        Padding="16,6"
+                        Click="RefreshReports_Click"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -528,4 +593,5 @@
             </Grid>
         </Grid>
     </ScrollViewer>
+    </Grid>
 </UserControl>

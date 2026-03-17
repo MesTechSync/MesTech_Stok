@@ -47,7 +47,73 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid>
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay"
+                Background="#99FFFFFF"
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True"
+                        Width="240"
+                        Height="4"
+                        Margin="0,0,0,12"/>
+                <TextBlock Text="API sağlık verileri kontrol ediliyor..."
+                        FontSize="14"
+                        Foreground="#555"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border x:Name="EmptyState"
+                Background="#F8FAFC"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4AD;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Opacity="0.5"
+                        Margin="0,0,0,8"/>
+                <TextBlock Text="Henüz API sağlık verisi bulunmuyor."
+                        FontSize="16"
+                        Foreground="#64748B"
+                        HorizontalAlignment="Center"
+                        Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState"
+                Background="#F8FAFC"
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x26A0;"
+                        FontSize="48"
+                        HorizontalAlignment="Center"
+                        Foreground="#E53935"
+                        Margin="0,0,0,8"/>
+                <TextBlock x:Name="HealthErrorText"
+                        Text="API sağlık verileri yüklenemedi."
+                        FontSize="14"
+                        Foreground="#E53935"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,12"
+                        TextWrapping="Wrap"
+                        MaxWidth="400"/>
+                <Button Content="Tekrar Dene"
+                        Style="{StaticResource RefreshBtn}"
+                        Padding="16,6"
+                        Click="RefreshHealth_Click"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="20">
             <!-- Header -->
             <Border Style="{StaticResource CardBorder}" Margin="8,8,8,4">
@@ -177,4 +243,5 @@
             </Border>
         </StackPanel>
     </ScrollViewer>
+    </Grid>
 </UserControl>
