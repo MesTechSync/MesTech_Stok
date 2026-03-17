@@ -238,6 +238,12 @@ public class AccountingEmailScanner : IAccountingEmailScanner
                 mimeType = fallbackMime;
             }
 
+            if (mimePart.Content == null)
+            {
+                _logger.LogDebug("[EmailScanner] Ek icerigi null, atlaniyor: {FileName}", fileName);
+                continue;
+            }
+
             try
             {
                 // Eki indir
