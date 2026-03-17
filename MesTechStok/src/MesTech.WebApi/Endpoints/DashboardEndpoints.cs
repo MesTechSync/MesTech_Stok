@@ -1,5 +1,6 @@
 using System.Globalization;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -101,5 +102,31 @@ public static class DashboardEndpoints
                 new ListOrdersQuery(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow, null), ct);
             return Results.Ok(result);
         });
+
+        // GET /api/v1/dashboard/accounting-kpi — muhasebe KPI (gelir, gider, kar, siparis metrikleri)
+        group.MapGet("/accounting-kpi", async (
+            Guid tenantId, ISender mediator, CancellationToken ct) =>
+        {
+            var now = DateTime.UtcNow;
+            var summary = await mediator.Send(
+                new GetMonthlySummaryQuery(now.Year, now.Month, tenantId), ct);
+
+            return Results.Ok(new
+            {
+                month = $"{now.Year}-{now.Month:D2}",
+                totalSales = summary.TotalSales,
+                totalExpenses = summary.TotalExpenses,
+                netProfit = summary.TotalSales - summary.TotalExpenses,
+                totalOrders = summary.TotalOrders,
+                totalReturns = summary.TotalReturns,
+                returnRate = summary.ReturnRate,
+                averageOrderValue = summary.AverageOrderValue,
+                totalCommissions = summary.TotalCommissions,
+                totalShippingCost = summary.TotalShippingCost,
+                totalTaxDue = summary.TotalTaxDue
+            });
+        })
+        .WithName("GetAccountingKpi")
+        .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri");
     }
 }

@@ -307,6 +307,128 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     }
 
     /// <summary>
+    /// Gets fulfillment orders shipped from Hepsilojistik warehouse since the specified date.
+    /// GET /orders?since={since}&status=SHIPPED
+    /// </summary>
+    public async Task<IReadOnlyList<FulfillmentOrderResult>> GetFulfillmentOrdersAsync(
+        DateTime since, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[Hepsilojistik] GetFulfillmentOrders since {Since}", since);
+
+        var orders = new List<FulfillmentOrderResult>();
+
+        try
+        {
+            var page = 0;
+            var hasMore = true;
+            const int pageSize = 50;
+
+            while (hasMore)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var sinceStr = since.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                var path = $"/orders?since={Uri.EscapeDataString(sinceStr)}" +
+                           $"&page={page}&size={pageSize}";
+
+                var response = await ExecuteWithRetryAsync(
+                    () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("[Hepsilojistik] GetFulfillmentOrders failed: {Status} — {Error}",
+                        response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                var root = doc.RootElement;
+                var ordersEl = root.ValueKind == JsonValueKind.Array
+                    ? root
+                    : root.TryGetProperty("orders", out var ords) ? ords
+                    : root.TryGetProperty("data", out var data) ? data
+                    : default;
+
+                if (ordersEl.ValueKind != JsonValueKind.Array || ordersEl.GetArrayLength() == 0)
+                {
+                    hasMore = false;
+                    break;
+                }
+
+                foreach (var order in ordersEl.EnumerateArray())
+                {
+                    var orderId = order.TryGetProperty("orderId", out var oid)
+                        ? oid.GetString() ?? ""
+                        : order.TryGetProperty("id", out var id2) ? id2.GetString() ?? "" : "";
+
+                    var status = order.TryGetProperty("status", out var st)
+                        ? st.GetString() ?? "UNKNOWN" : "UNKNOWN";
+
+                    DateTime? shippedDate = null;
+                    if (order.TryGetProperty("shippedDate", out var sd) &&
+                        DateTime.TryParse(sd.GetString(), out var parsedDate))
+                        shippedDate = parsedDate;
+
+                    var trackingNumber = order.TryGetProperty("trackingNumber", out var tn)
+                        ? tn.GetString() : null;
+                    var carrierName = order.TryGetProperty("carrierName", out var cn)
+                        ? cn.GetString() : null;
+
+                    var items = new List<FulfillmentOrderItem>();
+                    var itemsEl = order.TryGetProperty("items", out var orderItems) ? orderItems
+                        : order.TryGetProperty("orderItems", out var oi2) ? oi2
+                        : default;
+
+                    if (itemsEl.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var item in itemsEl.EnumerateArray())
+                        {
+                            var sku = item.TryGetProperty("merchantSku", out var skuEl)
+                                ? skuEl.GetString() ?? ""
+                                : item.TryGetProperty("sku", out var s2) ? s2.GetString() ?? "" : "";
+
+                            var qtyOrdered = item.TryGetProperty("quantity", out var qo) ? qo.GetInt32()
+                                : item.TryGetProperty("quantityOrdered", out var qo2) ? qo2.GetInt32() : 0;
+                            var qtyShipped = item.TryGetProperty("quantityShipped", out var qs) ? qs.GetInt32()
+                                : qtyOrdered;
+
+                            if (!string.IsNullOrEmpty(sku))
+                                items.Add(new FulfillmentOrderItem(sku, qtyOrdered, qtyShipped));
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(orderId))
+                        orders.Add(new FulfillmentOrderResult(
+                            orderId, status, items.AsReadOnly(), shippedDate, trackingNumber, carrierName));
+                }
+
+                // Check if there are more pages
+                hasMore = ordersEl.GetArrayLength() >= pageSize;
+                page++;
+            }
+
+            _logger.LogInformation("[Hepsilojistik] GetFulfillmentOrders complete: {Count} orders", orders.Count);
+        }
+        catch (BrokenCircuitException ex)
+        {
+            _logger.LogWarning(ex, "[Hepsilojistik] Circuit breaker open — GetFulfillmentOrders returning empty");
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Hepsilojistik] GetFulfillmentOrders exception");
+        }
+
+        return orders.AsReadOnly();
+    }
+
+    /// <summary>
     /// Health check: lightweight GET to Hepsilojistik API (uses /inventory?limit=1 as proxy).
     /// </summary>
     public async Task<bool> IsAvailableAsync(CancellationToken ct = default)

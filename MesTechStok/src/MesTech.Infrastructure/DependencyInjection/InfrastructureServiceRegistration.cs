@@ -406,6 +406,14 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingSupplierAccountRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.AccountingSupplierAccountRepository>();
 
+        // Dalga N1 — Muhasebe genisleme
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ISalaryRecordRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.SalaryRecordRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IFixedExpenseRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.FixedExpenseRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IPenaltyRecordRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.PenaltyRecordRepository>();
+
         // ── Domain Services (somut sınıflar — handler'lar doğrudan enjekte eder) ──
         services.AddScoped<MesTech.Domain.Accounting.Services.BalanceSheetValidationService>();
         services.AddScoped<MesTech.Domain.Accounting.Services.TrialBalanceValidationService>();

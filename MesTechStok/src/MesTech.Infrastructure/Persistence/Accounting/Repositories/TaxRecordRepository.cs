@@ -29,6 +29,21 @@ public class TaxRecordRepository : ITaxRecordRepository
             .Where(r => r.TenantId == tenantId && r.Period == period)
             .SumAsync(r => r.TaxAmount, ct);
 
+    public async Task<IReadOnlyList<TaxRecord>> GetAllAsync(Guid tenantId, string? taxType = null, int? year = null, CancellationToken ct = default)
+    {
+        var query = _context.TaxRecords.Where(r => r.TenantId == tenantId);
+
+        if (!string.IsNullOrWhiteSpace(taxType))
+            query = query.Where(r => r.TaxType == taxType);
+
+        if (year.HasValue)
+            query = query.Where(r => r.Year == year.Value);
+
+        return await query
+            .OrderByDescending(r => r.DueDate)
+            .AsNoTracking().ToListAsync(ct);
+    }
+
     public async Task AddAsync(TaxRecord record, CancellationToken ct = default)
         => await _context.TaxRecords.AddAsync(record, ct);
 

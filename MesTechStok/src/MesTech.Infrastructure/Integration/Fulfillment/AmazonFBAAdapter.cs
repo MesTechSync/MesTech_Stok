@@ -378,6 +378,107 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
     }
 
     /// <summary>
+    /// Gets FBA fulfillment orders since the specified date.
+    /// GET /fba/outbound/2020-07-01/fulfillmentOrders?queryStartDate={since}
+    /// </summary>
+    public async Task<IReadOnlyList<FulfillmentOrderResult>> GetFulfillmentOrdersAsync(
+        DateTime since, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[AmazonFBA] GetFulfillmentOrders since {Since}", since);
+
+        var orders = new List<FulfillmentOrderResult>();
+
+        try
+        {
+            var queryDate = since.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var nextToken = (string?)null;
+
+            do
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var path = nextToken is not null
+                    ? $"/fba/outbound/2020-07-01/fulfillmentOrders?nextToken={Uri.EscapeDataString(nextToken)}"
+                    : $"/fba/outbound/2020-07-01/fulfillmentOrders?queryStartDate={Uri.EscapeDataString(queryDate)}";
+
+                var response = await _retryPipeline.ExecuteAsync(async token =>
+                {
+                    var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("[AmazonFBA] GetFulfillmentOrders failed: {Status} — {Error}",
+                        response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.TryGetProperty("payload", out var payload) &&
+                    payload.TryGetProperty("fulfillmentOrders", out var fulfillmentOrders))
+                {
+                    foreach (var order in fulfillmentOrders.EnumerateArray())
+                    {
+                        var orderId = order.TryGetProperty("sellerFulfillmentOrderId", out var oid)
+                            ? oid.GetString() ?? "" : "";
+                        var status = order.TryGetProperty("fulfillmentOrderStatus", out var st)
+                            ? st.GetString() ?? "UNKNOWN" : "UNKNOWN";
+
+                        DateTime? shippedDate = null;
+                        if (order.TryGetProperty("statusUpdatedDate", out var sud) &&
+                            DateTime.TryParse(sud.GetString(), out var parsedShipped))
+                            shippedDate = parsedShipped;
+
+                        var items = new List<FulfillmentOrderItem>();
+                        if (order.TryGetProperty("fulfillmentOrderItems", out var orderItems))
+                        {
+                            foreach (var item in orderItems.EnumerateArray())
+                            {
+                                var sku = item.TryGetProperty("sellerSku", out var skuEl)
+                                    ? skuEl.GetString() ?? "" : "";
+                                var qtyOrdered = item.TryGetProperty("quantity", out var qo)
+                                    ? qo.GetInt32() : 0;
+                                var qtyShipped = item.TryGetProperty("unfulfillableQuantity", out var uq)
+                                    ? qtyOrdered - uq.GetInt32() : qtyOrdered;
+
+                                if (!string.IsNullOrEmpty(sku))
+                                    items.Add(new FulfillmentOrderItem(sku, qtyOrdered, qtyShipped));
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(orderId))
+                            orders.Add(new FulfillmentOrderResult(orderId, status, items.AsReadOnly(), shippedDate));
+                    }
+                }
+
+                nextToken = payload.TryGetProperty("nextToken", out var nt)
+                    ? nt.GetString() : null;
+
+            } while (!string.IsNullOrEmpty(nextToken));
+
+            _logger.LogInformation("[AmazonFBA] GetFulfillmentOrders complete: {Count} orders", orders.Count);
+        }
+        catch (BrokenCircuitException ex)
+        {
+            _logger.LogWarning(ex, "[AmazonFBA] Circuit breaker open — GetFulfillmentOrders returning empty");
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[AmazonFBA] GetFulfillmentOrders exception");
+        }
+
+        return orders.AsReadOnly();
+    }
+
+    /// <summary>
     /// Health check: verifies SP-API access by calling FBA inventory endpoint with empty SKU list.
     /// </summary>
     public async Task<bool> IsAvailableAsync(CancellationToken ct = default)

@@ -261,7 +261,14 @@ SystemHealthEndpoints.Map(app);
 EInvoiceEndpoints.Map(app);
 SandboxEndpoints.Map(app);
 DashboardWidgetEndpoints.Map(app);
+ReportEndpoints.Map(app);
 WebhookEndpoints.Map(app);
+IncomeEndpoints.Map(app);
+SalaryEndpoints.Map(app);
+FixedExpenseEndpoints.Map(app);
+PenaltyEndpoints.Map(app);
+TaxRecordEndpoints.Map(app);
+CariHesapEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

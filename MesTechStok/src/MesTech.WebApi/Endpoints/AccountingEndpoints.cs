@@ -1,4 +1,6 @@
 using MediatR;
+using MesTech.Application.Commands.DeleteExpense;
+using MesTech.Application.Commands.UpdateExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateAccountingExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
 using MesTech.Application.Features.Accounting.Commands.RunReconciliation;
@@ -14,6 +16,7 @@ using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
 using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 using MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
 using MesTech.Application.Features.Accounting.Commands.UpdatePlatformCommissionRate;
+using MesTech.Application.Queries.GetExpenseById;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Enums;
 
@@ -108,6 +111,38 @@ public static class AccountingEndpoints
         })
         .WithName("CreateAccountingExpense")
         .WithSummary("Yeni masraf kaydı oluştur");
+
+        // GET /api/v1/accounting/expenses/{id} — tek masraf kaydi
+        group.MapGet("/expenses/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetExpenseByIdQuery(id), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetExpenseById")
+        .WithSummary("Tek masraf kaydi detayi");
+
+        // PUT /api/v1/accounting/expenses/{id} — masraf kaydi guncelle
+        group.MapPut("/expenses/{id:guid}", async (
+            Guid id, UpdateExpenseCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var updated = command with { Id = id };
+            await mediator.Send(updated, ct);
+            return Results.NoContent();
+        })
+        .WithName("UpdateExpense")
+        .WithSummary("Masraf kaydi guncelle");
+
+        // DELETE /api/v1/accounting/expenses/{id} — masraf kaydi sil (soft delete)
+        group.MapDelete("/expenses/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new DeleteExpenseCommand(id), ct);
+            return Results.NoContent();
+        })
+        .WithName("DeleteExpense")
+        .WithSummary("Masraf kaydini sil (soft delete)");
 
         // GET /api/v1/accounting/settlements — hakediş partileri
         group.MapGet("/settlements", async (

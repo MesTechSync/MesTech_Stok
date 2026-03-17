@@ -213,6 +213,13 @@ public class AppDbContext : DbContext
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
 
     // ═══════════════════════════════════════
+    // DALGA N1 — MUHASEBE GENİŞLETME
+    // ═══════════════════════════════════════
+    public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
+    public DbSet<FixedExpense> FixedExpenses => Set<FixedExpense>();
+    public DbSet<PenaltyRecord> PenaltyRecords => Set<PenaltyRecord>();
+
+    // ═══════════════════════════════════════
     // DALGA 9 — E-FATURA
     // ═══════════════════════════════════════
     public DbSet<EInvoiceDocument> EInvoiceDocuments => Set<EInvoiceDocument>();
