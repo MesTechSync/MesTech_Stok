@@ -3,14 +3,14 @@ using MesTech.Avalonia.ViewModels;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class CustomerAvaloniaView : UserControl
+public partial class CargoAvaloniaView : UserControl
 {
-    public CustomerAvaloniaView()
+    public CargoAvaloniaView()
     {
         InitializeComponent();
         Loaded += async (_, _) =>
         {
-            if (DataContext is CustomerAvaloniaViewModel vm)
+            if (DataContext is CargoAvaloniaViewModel vm)
                 await vm.LoadAsync();
         };
     }

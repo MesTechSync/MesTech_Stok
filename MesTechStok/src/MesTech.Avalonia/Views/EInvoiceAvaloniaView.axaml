@@ -1,28 +1,31 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
-             x:Class="MesTech.Avalonia.Views.CategoryAvaloniaView"
-             x:DataType="vm:CategoryAvaloniaViewModel">
+             x:Class="MesTech.Avalonia.Views.EInvoiceAvaloniaView"
+             x:DataType="vm:EInvoiceAvaloniaViewModel">
 
-    <!-- Avalonia port — Kategoriler (Categories) -->
-    <!-- DataGrid: Kategori Adi, Ust Kategori, Platform, Urun Sayisi -->
-    <!-- 12 hierarchical categories with indentation in name -->
+    <!-- M1 Avalonia canlandirma — E-Fatura -->
+    <!-- DataGrid: No, Tarih, Alici, Tutar, Durum. 8 demo e-invoices. Create button. -->
     <!-- Brand color #2855AC -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kategoriler" Foreground="White"
+                    <TextBlock Text="E-Fatura" Foreground="White"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kategori'}"
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} fatura'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yeni Fatura"
+                        Command="{Binding CreateInvoiceCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#2855AC" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -32,14 +35,14 @@
         <!-- Search Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Kategori adi, platform veya ust kategori ara..."
+            <TextBox Width="320" Watermark="Fatura no veya alici ara..."
                      Text="{Binding SearchText}"
                      HorizontalAlignment="Left" />
         </Border>
 
-        <!-- Categories DataGrid -->
+        <!-- E-Invoice DataGrid -->
         <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Categories}"
+                  ItemsSource="{Binding Invoices}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
@@ -50,10 +53,11 @@
                   Background="White">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Kategori Adi" Binding="{Binding Name}" Width="250" />
-                <DataGridTextColumn Header="Ust Kategori" Binding="{Binding ParentCategory}" Width="160" />
-                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="140" />
-                <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding ProductCount}" Width="120" />
+                <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNo}" Width="180" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
+                <DataGridTextColumn Header="Alici" Binding="{Binding Receiver}" Width="220" />
+                <DataGridTextColumn Header="Tutar (TL)" Binding="{Binding Amount, StringFormat='{}{0:N2}'}" Width="140" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -64,7 +68,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kategoriler yukleniyor..."
+                <TextBlock Text="E-faturalar yukleniyor..."
                            FontSize="14" Foreground="#555555"
                            HorizontalAlignment="Center" />
             </StackPanel>
@@ -76,9 +80,9 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kategori bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="E-fatura bulunamadi" FontSize="22" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
-                <TextBlock Text="Arama kriterlerine uygun kategori yok"
+                <TextBlock Text="Henuz e-fatura kaydedilmemis"
                            FontSize="14" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>

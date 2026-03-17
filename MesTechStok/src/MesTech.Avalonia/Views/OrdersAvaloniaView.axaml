@@ -4,45 +4,64 @@
              x:Class="MesTech.Avalonia.Views.OrdersAvaloniaView"
              x:DataType="vm:OrdersAvaloniaViewModel">
 
-    <!-- Stub view for Orders management — Dalga 10 -->
+    <!-- Avalonia Orders — DataGrid with 15 demo orders + status filter -->
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#D97706" Padding="20,14">
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Siparis Yonetimi"
-                           Foreground="White" FontSize="18" FontWeight="SemiBold"
-                           VerticalAlignment="Center" />
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Siparis Yonetimi" Foreground="White"
+                               FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} siparis'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#D97706" FontWeight="SemiBold"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Placeholder Content -->
-        <Border Grid.Row="1" Background="#F8FAFC" Margin="24"
-                CornerRadius="12" BorderBrush="#E0E6ED" BorderThickness="1">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                <Border Background="#FFFBEB" CornerRadius="50" Width="80" Height="80"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4CB;" FontSize="36"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Siparis Yonetimi" FontSize="22" FontWeight="Bold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#64748B"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Platform siparisleri | Kargo takibi | Faturalama | Iade yonetimi"
-                           FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"
-                           Margin="0,8,0,0" />
+        <!-- Row 1: Filters -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBox Width="280" Watermark="Siparis no veya musteri ara..."
+                         Text="{Binding SearchText}" />
+                <ComboBox Width="180"
+                          ItemsSource="{Binding Statuses}"
+                          SelectedItem="{Binding SelectedStatus}" />
             </StackPanel>
         </Border>
 
+        <!-- Row 2: Orders DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Orders}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="0"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="160" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
+                <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="200" />
+                <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="150" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+            </DataGrid.Columns>
+        </DataGrid>
+
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="#99FFFFFF"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -55,35 +74,36 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="#F5F7FA"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Siparis bulunamadi" FontSize="48"
-                           HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
-                <TextBlock Text="Henuz siparis kaydedilmemis"
-                           FontSize="16" Foreground="#6C757D"
+                <TextBlock Text="Kayit bulunamadi" FontSize="20"
+                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                <TextBlock Text="Arama kriterlerine uygun siparis bulunamadi"
+                           FontSize="16" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="#F5F7FA"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#DC3545"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#DC3545"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
+                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="14" Foreground="#666"
+                                   TextWrapping="Wrap" MaxWidth="400" />
+                        <Button Content="Tekrar Dene"
+                                Command="{Binding RefreshCommand}"
+                                Padding="16,6" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Border>
     </Grid>

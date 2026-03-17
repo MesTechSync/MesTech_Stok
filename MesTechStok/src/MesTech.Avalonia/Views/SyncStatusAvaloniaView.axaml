@@ -1,17 +1,107 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.SyncStatusAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.SyncStatusAvaloniaView"
+             x:DataType="vm:SyncStatusAvaloniaViewModel">
 
-    <!-- Avalonia port — Senkron Durumu -->
+    <!-- Platform Senkronizasyon Durumu — marketplace sync status with per-row actions -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="Senkron Durumu" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Platform Senkronizasyon" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Tumu Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Senkron Durumu" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Platform Sync DataGrid -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Items}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Platform Adi" Binding="{Binding PlatformAdi}" Width="160" />
+                <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding SonSenkronizasyon}" Width="180" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Durum}" Width="110" />
+                <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding UrunSayisi, StringFormat='{}{0:N0}'}" Width="120" />
+                <DataGridTextColumn Header="Siparis Sayisi" Binding="{Binding SiparisSayisi, StringFormat='{}{0:N0}'}" Width="120" />
+                <DataGridTemplateColumn Header="Islem" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:SyncStatusItemDto">
+                            <Button Content="Senkronize Et"
+                                    Command="{Binding $parent[DataGrid].((vm:SyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
+                                    CommandParameter="{Binding}"
+                                    Background="#2855AC" Foreground="White"
+                                    FontSize="12" FontWeight="SemiBold"
+                                    Padding="10,4" CornerRadius="4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Senkronizasyon durumu yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Platform bulunamadi" FontSize="16" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

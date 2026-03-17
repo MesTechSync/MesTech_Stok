@@ -1,59 +1,67 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
-             x:Class="MesTech.Avalonia.Views.CategoryAvaloniaView"
-             x:DataType="vm:CategoryAvaloniaViewModel">
+             x:Class="MesTech.Avalonia.Views.StockUpdateAvaloniaView"
+             x:DataType="vm:StockUpdateAvaloniaViewModel">
 
-    <!-- Avalonia port — Kategoriler (Categories) -->
-    <!-- DataGrid: Kategori Adi, Ust Kategori, Platform, Urun Sayisi -->
-    <!-- 12 hierarchical categories with indentation in name -->
+    <!-- M1 Avalonia canlandirma — Stok Guncelleme -->
+    <!-- DataGrid: SKU, Ad, Mevcut Stok, Yeni Stok, Platform. 10 demo items. Bulk update button. -->
     <!-- Brand color #2855AC -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kategoriler" Foreground="White"
+                    <TextBlock Text="Stok Guncelleme" Foreground="White"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kategori'}"
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Toplu Guncelle"
+                        Command="{Binding BulkUpdateCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#2855AC" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Search Bar -->
+        <!-- Search Bar + Update Status -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Kategori adi, platform veya ust kategori ara..."
-                     Text="{Binding SearchText}"
-                     HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <TextBox Width="320" Watermark="SKU, urun adi veya platform ara..."
+                         Text="{Binding SearchText}"
+                         HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding UpdateStatus}" FontSize="13" Foreground="#16A34A"
+                           FontWeight="SemiBold" VerticalAlignment="Center" />
+            </StackPanel>
         </Border>
 
-        <!-- Categories DataGrid -->
+        <!-- Stock Update DataGrid -->
         <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Categories}"
+                  ItemsSource="{Binding StockItems}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
                   CanUserSortColumns="True"
-                  IsReadOnly="True"
+                  IsReadOnly="False"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
                   Background="White">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Kategori Adi" Binding="{Binding Name}" Width="250" />
-                <DataGridTextColumn Header="Ust Kategori" Binding="{Binding ParentCategory}" Width="160" />
-                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="140" />
-                <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding ProductCount}" Width="120" />
+                <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="160" IsReadOnly="True" />
+                <DataGridTextColumn Header="Urun Adi" Binding="{Binding UrunAdi}" Width="260" IsReadOnly="True" />
+                <DataGridTextColumn Header="Mevcut Stok" Binding="{Binding MevcutStok}" Width="120" IsReadOnly="True" />
+                <DataGridTextColumn Header="Yeni Stok" Binding="{Binding YeniStok}" Width="120" />
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -64,7 +72,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kategoriler yukleniyor..."
+                <TextBlock Text="Stok verileri yukleniyor..."
                            FontSize="14" Foreground="#555555"
                            HorizontalAlignment="Center" />
             </StackPanel>
@@ -76,9 +84,9 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kategori bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Stok verisi bulunamadi" FontSize="22" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
-                <TextBlock Text="Arama kriterlerine uygun kategori yok"
+                <TextBlock Text="Arama kriterlerine uygun urun yok"
                            FontSize="14" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>

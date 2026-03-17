@@ -1,17 +1,108 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.CargoTrackingAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.CargoTrackingAvaloniaView"
+             x:DataType="vm:CargoTrackingAvaloniaViewModel">
 
-    <!-- Avalonia port — Kargo Takip -->
+    <!-- Kargo Takip — Dalga 14/15 -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#EA580C" Padding="20,14">
-            <TextBlock Text="Kargo Takip" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Kargo Takip" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} gonderi'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Kargo Takip" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Kargo Firma:" FontSize="14" Foreground="#475569"
+                           VerticalAlignment="Center" />
+                <ComboBox Width="200"
+                          ItemsSource="{Binding Firms}"
+                          SelectedItem="{Binding SelectedFirm}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Cargo DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Shipments}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Takip No" Binding="{Binding TakipNo}" Width="160" />
+                <DataGridTextColumn Header="Kargo Firma" Binding="{Binding Firma}" Width="150" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Durum}" Width="130" />
+                <DataGridTextColumn Header="Alici" Binding="{Binding Alici}" Width="200" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Kargo verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Gonderi bulunamadi" FontSize="20" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="#64748B" Margin="0,0,0,8" />
+                <TextBlock Text="Secili filtreye uygun kargo kaydı yok"
+                           FontSize="14" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

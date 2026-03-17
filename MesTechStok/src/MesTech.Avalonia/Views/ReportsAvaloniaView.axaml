@@ -4,40 +4,206 @@
              x:Class="MesTech.Avalonia.Views.ReportsAvaloniaView"
              x:DataType="vm:ReportsAvaloniaViewModel">
 
-    <!-- Stub view for Reports — Dalga 11 -->
+    <!-- Raporlar — Dalga 14/15 -->
 
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Raporlar"
                            Foreground="White" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#475569" FontWeight="SemiBold"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Placeholder Content -->
-        <Border Grid.Row="1" Background="#F8FAFC" Margin="24"
-                CornerRadius="12" BorderBrush="#E0E6ED" BorderThickness="1">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                <Border Background="#F1F5F9" CornerRadius="50" Width="80" Height="80"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4CA;" FontSize="36"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Background="#F8FAFC">
+            <StackPanel Margin="24" Spacing="20">
+
+                <!-- Date Range Picker -->
+                <Border Background="White" CornerRadius="12" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Tarih Araligi" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Baslangic" FontSize="12" Foreground="#64748B" />
+                                <DatePicker SelectedDate="{Binding StartDate}" Width="180" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Bitis" FontSize="12" Foreground="#64748B" />
+                                <DatePicker SelectedDate="{Binding EndDate}" Width="180" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </Border>
-                <TextBlock Text="Raporlar" FontSize="22" FontWeight="Bold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
+
+                <!-- Status Message -->
                 <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#64748B"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Satis analizi | Stok raporu | Platform karsilastirmasi | Ozel sablonlar"
-                           FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"
-                           Margin="0,8,0,0" />
+                           TextWrapping="Wrap" Margin="0,0,0,4" />
+
+                <!-- Generating Overlay Message -->
+                <Border Background="#FFF7ED" CornerRadius="8" Padding="16"
+                        BorderBrush="#FDBA74" BorderThickness="1"
+                        IsVisible="{Binding IsGenerating}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <ProgressBar IsIndeterminate="True" Width="120" Height="4"
+                                     VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
+                                   Foreground="#9A3412" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Summary Number Cards -->
+                <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,8">
+
+                    <!-- Satis Ozeti -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,6,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Toplam Satis" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding TotalSales}" FontSize="20" FontWeight="Bold" Foreground="#2855AC" />
+                            <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0} siparis'}" FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stok Ozeti -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="3,0,3,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="20" FontWeight="Bold" Foreground="#16A34A" />
+                            <TextBlock Text="{Binding LowStockCount, StringFormat='{}{0} dusuk stok'}" FontSize="12" Foreground="#F59E0B" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Gelir Ozeti -->
+                    <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="6,0,0,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Net Kar" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding NetProfit}" FontSize="20" FontWeight="Bold" Foreground="#059669" />
+                            <TextBlock Text="{Binding TotalExpenses, StringFormat='Gider: {0}'}" FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Report Cards -->
+                <Grid ColumnDefinitions="*,*,*">
+
+                    <!-- Satis Raporu Card -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,10,0">
+                        <StackPanel Spacing="12">
+                            <Border Background="#EFF6FF" CornerRadius="8" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <TextBlock Text="S" FontSize="22" FontWeight="Bold"
+                                           Foreground="#2855AC"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Satis Raporu" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Secili tarih araligindaki satis performansi, siparis sayilari ve ortalama sepet tutari analizi."
+                                       FontSize="13" Foreground="#64748B" TextWrapping="Wrap"
+                                       MinHeight="48" />
+                            <Button Content="Rapor Olustur"
+                                    Command="{Binding GenerateReportCommand}"
+                                    CommandParameter="Satis Raporu"
+                                    Background="#2855AC" Foreground="White"
+                                    FontWeight="SemiBold" Padding="16,10"
+                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stok Raporu Card -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="5,0,5,0">
+                        <StackPanel Spacing="12">
+                            <Border Background="#F0FDF4" CornerRadius="8" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <TextBlock Text="D" FontSize="22" FontWeight="Bold"
+                                           Foreground="#16A34A"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Stok Raporu" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Depo bazli stok durumu, dusuk stoklu urunler ve stok hareket gecmisi detaylari."
+                                       FontSize="13" Foreground="#64748B" TextWrapping="Wrap"
+                                       MinHeight="48" />
+                            <Button Content="Rapor Olustur"
+                                    Command="{Binding GenerateReportCommand}"
+                                    CommandParameter="Stok Raporu"
+                                    Background="#16A34A" Foreground="White"
+                                    FontWeight="SemiBold" Padding="16,10"
+                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Finansal Rapor Card -->
+                    <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="10,0,0,0">
+                        <StackPanel Spacing="12">
+                            <Border Background="#FEF2F2" CornerRadius="8" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <TextBlock Text="F" FontSize="22" FontWeight="Bold"
+                                           Foreground="#DC2626"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Finansal Rapor" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Gelir-gider analizi, kar-zarar tablosu ve donem bazli finansal performans ozeti."
+                                       FontSize="13" Foreground="#64748B" TextWrapping="Wrap"
+                                       MinHeight="48" />
+                            <Button Content="Rapor Olustur"
+                                    Command="{Binding GenerateReportCommand}"
+                                    CommandParameter="Finansal Rapor"
+                                    Background="#DC2626" Foreground="White"
+                                    FontWeight="SemiBold" Padding="16,10"
+                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Raporlar yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
             </StackPanel>
         </Border>
     </Grid>

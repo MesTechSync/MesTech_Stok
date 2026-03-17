@@ -32,6 +32,8 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Stock" => _provider.GetService<StockAvaloniaViewModel>(),
             "Orders" => _provider.GetService<OrdersAvaloniaViewModel>(),
             "Settings" => _provider.GetService<SettingsAvaloniaViewModel>(),
+            "Login" => _provider.GetService<LoginAvaloniaViewModel>(),
+            "Category" => _provider.GetService<CategoryAvaloniaViewModel>(),
             // Dalga 11 batch expansion
             "Contacts" => _provider.GetService<ContactsAvaloniaViewModel>(),
             "Employees" => _provider.GetService<EmployeesAvaloniaViewModel>(),
@@ -41,6 +43,14 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Marketplaces" => _provider.GetService<MarketplacesAvaloniaViewModel>(),
             "Expenses" => _provider.GetService<ExpensesAvaloniaViewModel>(),
             "BankAccounts" => _provider.GetService<BankAccountsAvaloniaViewModel>(),
+            // Dalga 14+15 functional views
+            "Inventory" => _provider.GetService<InventoryAvaloniaViewModel>(),
+            "InvoiceManagement" => _provider.GetService<InvoiceManagementAvaloniaViewModel>(),
+            "Customers" => _provider.GetService<CustomerAvaloniaViewModel>(),
+            "CariHesaplar" => _provider.GetService<CariHesaplarAvaloniaViewModel>(),
+            "SyncStatus" => _provider.GetService<SyncStatusAvaloniaViewModel>(),
+            "StockMovement" => _provider.GetService<StockMovementAvaloniaViewModel>(),
+            "CargoTracking" => _provider.GetService<CargoTrackingAvaloniaViewModel>(),
             _ => null
         };
     }

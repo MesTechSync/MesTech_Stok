@@ -4,21 +4,23 @@
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
 
-    <!-- Avalonia port of WPF DashboardView.xaml -->
-    <!-- Key changes: xmlns→avaloniaui, .axaml ext, Fluent theme, no MaterialDesign refs -->
-    <!-- ViewModel: DashboardAvaloniaViewModel (MVVM-first, no code-behind logic) -->
+    <!-- Avalonia Dashboard — 4 KPI cards + recent orders DataGrid -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-        <!-- Row 0: Refresh Bar -->
+        <!-- Row 0: Header / Refresh Bar -->
         <Border Grid.Row="0" Background="White" Padding="16,10"
                 BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Stok ve islem durum ozeti"
-                           FontSize="14" Foreground="#64748B" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Kontrol Paneli" FontSize="22" FontWeight="Bold"
+                               Foreground="#2855AC" VerticalAlignment="Center" />
+                    <TextBlock Text="Stok ve islem durum ozeti"
+                               FontSize="14" Foreground="#64748B" VerticalAlignment="Center" />
+                </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                     <Button Content="Yenile" Command="{Binding RefreshCommand}"
-                            Background="#3B82F6" Foreground="White"
+                            Background="#2855AC" Foreground="White"
                             Padding="16,8" CornerRadius="6" />
                     <TextBlock Text="{Binding LastUpdated, StringFormat='Son: {0}'}"
                                VerticalAlignment="Center" Foreground="#64748B" FontSize="12" />
@@ -29,74 +31,99 @@
         <!-- Row 1: KPI Cards -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
 
-            <!-- Total Products -->
-            <Border Grid.Column="0" Background="White" CornerRadius="12"
-                    Padding="20" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1">
-                <StackPanel>
-                    <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
-                    <TextBlock Text="{Binding TotalProducts}"
-                               FontSize="28" FontWeight="Bold" Foreground="#2563EB"
-                               Margin="0,8,0,0" />
-                    <TextBlock Text="Sistemdeki aktif urun sayisi"
-                               FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                </StackPanel>
+            <!-- Toplam Urun -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#2855AC" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalProducts}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#2855AC"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Sistemdeki aktif urun sayisi"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <!-- Total Stock Value -->
-            <Border Grid.Column="1" Background="White" CornerRadius="12"
-                    Padding="20" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1">
-                <StackPanel>
-                    <TextBlock Text="Toplam Stok Degeri" FontSize="12" Foreground="#6B7280" />
-                    <TextBlock Text="{Binding TotalStockValue}"
-                               FontSize="28" FontWeight="Bold" Foreground="#10B981"
-                               Margin="0,8,0,0" />
-                    <TextBlock Text="Toplam stok degeri"
-                               FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                </StackPanel>
+            <!-- Aktif Siparis -->
+            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#10B981" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Aktif Siparis" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding ActiveOrders}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#10B981"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Islemdeki siparis sayisi"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <!-- Low Stock -->
-            <Border Grid.Column="2" Background="White" CornerRadius="12"
-                    Padding="20" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1">
-                <StackPanel>
-                    <TextBlock Text="Dusuk Stok" FontSize="12" Foreground="#6B7280" />
-                    <TextBlock Text="{Binding LowStockCount}"
-                               FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
-                               Margin="0,8,0,0" />
-                    <TextBlock Text="Kritik stok seviyesindeki urunler"
-                               FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                </StackPanel>
+            <!-- Bugunku Gelir -->
+            <Border Grid.Column="2" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#F59E0B" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Bugunku Gelir" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TodayRevenue}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Gunluk toplam gelir"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <!-- Active Categories -->
-            <Border Grid.Column="3" Background="White" CornerRadius="12"
-                    Padding="20" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1">
-                <StackPanel>
-                    <TextBlock Text="Aktif Kategori" FontSize="12" Foreground="#6B7280" />
-                    <TextBlock Text="{Binding ActiveCategories}"
-                               FontSize="28" FontWeight="Bold" Foreground="#8B5CF6"
-                               Margin="0,8,0,0" />
-                    <TextBlock Text="Aktif urun kategorileri"
-                               FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                </StackPanel>
+            <!-- Stok Alarm -->
+            <Border Grid.Column="3" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#E74C3C" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Stok Alarm" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding StockAlerts}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#E74C3C"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Kritik stok seviyesi"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
 
-        <!-- Row 2: Placeholder for chart area -->
-        <Border Grid.Row="2" Background="White" CornerRadius="12" Margin="22,0,22,22"
-                BorderBrush="#E0E6ED" BorderThickness="1" Padding="24">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-                <TextBlock Text="Satis Analizi — Grafik Alani"
-                           FontSize="16" FontWeight="SemiBold" Foreground="#1E293B"
-                           HorizontalAlignment="Center" />
-                <TextBlock Text="LiveChartsCore.SkiaSharpView.Avalonia entegrasyonu — Dalga 10'da aktif"
-                           FontSize="13" Foreground="#94A3B8"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+        <!-- Row 2: Recent Orders Table -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Margin="22,0,22,22"
+                BorderBrush="#E0E6ED" BorderThickness="1">
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Padding="20,14"
+                        BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                    <TextBlock Text="Son Siparisler" FontSize="16" FontWeight="SemiBold"
+                               Foreground="#1E293B" />
+                </Border>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding RecentOrders}"
+                          AutoGenerateColumns="False"
+                          CanUserReorderColumns="True"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          Background="White">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="160" />
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
+                        <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="200" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="150" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Border>
 
         <!-- Loading Overlay -->
@@ -118,8 +145,8 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Veri yok" FontSize="48"
-                           HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
+                <TextBlock Text="Veri yok" FontSize="20"
+                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz veri bulunamadi"
                            FontSize="16" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
@@ -132,16 +159,17 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
+                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="14" Foreground="#666"
+                                   TextWrapping="Wrap" MaxWidth="400" />
+                        <Button Content="Tekrar Dene"
+                                Command="{Binding RefreshCommand}"
+                                Padding="16,6" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Border>
     </Grid>

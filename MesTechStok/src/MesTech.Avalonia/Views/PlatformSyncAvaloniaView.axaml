@@ -1,12 +1,11 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
-             x:Class="MesTech.Avalonia.Views.CategoryAvaloniaView"
-             x:DataType="vm:CategoryAvaloniaViewModel">
+             x:Class="MesTech.Avalonia.Views.PlatformSyncAvaloniaView"
+             x:DataType="vm:PlatformSyncAvaloniaViewModel">
 
-    <!-- Avalonia port — Kategoriler (Categories) -->
-    <!-- DataGrid: Kategori Adi, Ust Kategori, Platform, Urun Sayisi -->
-    <!-- 12 hierarchical categories with indentation in name -->
+    <!-- M1 Avalonia canlandirma — Platform Senkronizasyon -->
+    <!-- DataGrid: Platform, Son Sync, Durum, Urun Sayisi, Siparis Sayisi. 10 platforms. Sync button per row. -->
     <!-- Brand color #2855AC -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
@@ -15,10 +14,10 @@
         <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kategoriler" Foreground="White"
+                    <TextBlock Text="Platform Senkronizasyon" Foreground="White"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kategori'}"
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -32,14 +31,14 @@
         <!-- Search Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Kategori adi, platform veya ust kategori ara..."
+            <TextBox Width="320" Watermark="Platform adi ara..."
                      Text="{Binding SearchText}"
                      HorizontalAlignment="Left" />
         </Border>
 
-        <!-- Categories DataGrid -->
+        <!-- Platform Sync DataGrid -->
         <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Categories}"
+                  ItemsSource="{Binding Platforms}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
@@ -50,10 +49,11 @@
                   Background="White">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Kategori Adi" Binding="{Binding Name}" Width="250" />
-                <DataGridTextColumn Header="Ust Kategori" Binding="{Binding ParentCategory}" Width="160" />
-                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="140" />
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="160" />
+                <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding LastSync}" Width="180" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="160" />
                 <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding ProductCount}" Width="120" />
+                <DataGridTextColumn Header="Siparis Sayisi" Binding="{Binding OrderCount}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -64,7 +64,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kategoriler yukleniyor..."
+                <TextBlock Text="Platform verileri yukleniyor..."
                            FontSize="14" Foreground="#555555"
                            HorizontalAlignment="Center" />
             </StackPanel>
@@ -76,9 +76,9 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kategori bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Platform bulunamadi" FontSize="22" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
-                <TextBlock Text="Arama kriterlerine uygun kategori yok"
+                <TextBlock Text="Arama kriterlerine uygun platform yok"
                            FontSize="14" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>

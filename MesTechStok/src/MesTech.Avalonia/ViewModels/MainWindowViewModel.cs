@@ -41,6 +41,8 @@ public partial class MainWindowViewModel : ObservableObject
             "Stock" => "Stok Yonetimi",
             "Orders" => "Siparis Yonetimi",
             "Settings" => "Ayarlar",
+            "Login" => "Giris",
+            "Category" => "Kategoriler",
             // Dalga 11 batch expansion
             "Contacts" => "CRM Kisiler",
             "Employees" => "Calisanlar",
@@ -50,6 +52,14 @@ public partial class MainWindowViewModel : ObservableObject
             "Marketplaces" => "Pazaryerleri",
             "Expenses" => "Giderler",
             "BankAccounts" => "Banka Hesaplari",
+            // Dalga 14+15 functional views
+            "Inventory" => "Envanter",
+            "InvoiceManagement" => "e-Fatura Yonetimi",
+            "Customers" => "Musteriler",
+            "CariHesaplar" => "Cari Hesaplar",
+            "SyncStatus" => "Platform Senkronizasyon",
+            "StockMovement" => "Stok Guncelleme",
+            "CargoTracking" => "Kargo Takip",
             _ => CurrentViewTitle
         };
     }

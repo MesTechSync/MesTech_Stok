@@ -43,20 +43,54 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Navigation Buttons -->
-                <StackPanel DockPanel.Dock="Top" Margin="0,8">
-                    <TextBlock Text="GENEL" FontSize="11" Foreground="#64748B"
-                               Margin="20,8,0,8" FontWeight="SemiBold" />
+                <!-- Navigation Buttons — 12 Standard Groups -->
+                <ScrollViewer DockPanel.Dock="Top">
+                <StackPanel Margin="0,8">
+
+                    <!-- 1. DASHBOARD -->
+                    <TextBlock Text="DASHBOARD" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,8,0,8" />
 
                     <Button Classes="sidebar-btn"
                             Content="Kontrol Paneli"
                             Command="{Binding NavigateToCommand}"
                             CommandParameter="Dashboard" />
 
+                    <!-- 2. URUNLER -->
+                    <TextBlock Text="URUNLER" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
+
                     <Button Classes="sidebar-btn"
                             Content="Urunler"
                             Command="{Binding NavigateToCommand}"
                             CommandParameter="Products" />
+
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="Toplu Urun Guncelleme (Yakinda)"/>
+                    </Button>
+
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="Urun Varyantlari (Yakinda)"/>
+                    </Button>
+
+                    <!-- 3. SIPARISLER -->
+                    <TextBlock Text="SIPARISLER" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Siparisler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Orders" />
+
+                    <!-- 4. STOK -->
+                    <TextBlock Text="STOK" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
                             Content="Stok Yonetimi"
@@ -64,38 +98,66 @@
                             CommandParameter="Stock" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Siparisler"
+                            Content="Stok Guncelleme"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Orders" />
-
-                    <TextBlock Text="SATIS" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                            CommandParameter="StockMovement" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Pazaryerleri"
+                            Content="Envanter"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Marketplaces" />
+                            CommandParameter="Inventory" />
 
-                    <TextBlock Text="CRM" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                    <!-- 5. KATEGORILER -->
+                    <TextBlock Text="KATEGORILER" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Potansiyel Musteriler"
+                            Content="Kategoriler"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Leads" />
+                            CommandParameter="Category" />
+
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="Kategori Eslestirme (Yakinda)"/>
+                    </Button>
+
+                    <!-- 6. KARGO -->
+                    <TextBlock Text="KARGO" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Kisiler"
+                            Content="Kargo Takip"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Contacts" />
+                            CommandParameter="CargoTracking" />
+
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="Kargo Entegrasyonu (Yakinda)"/>
+                    </Button>
+
+                    <!-- 7. E-FATURA -->
+                    <TextBlock Text="E-FATURA" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Firsatlar — Kanban"
+                            Content="e-Fatura Yonetimi"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Kanban" />
+                            CommandParameter="InvoiceManagement" />
 
-                    <TextBlock Text="FINANS" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="e-Arsiv (Yakinda)"/>
+                    </Button>
+
+                    <!-- 8. FINANS -->
+                    <TextBlock Text="FINANS" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
                             Content="Kar / Zarar Raporu"
@@ -112,21 +174,49 @@
                             Command="{Binding NavigateToCommand}"
                             CommandParameter="BankAccounts" />
 
-                    <TextBlock Text="IK" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                    <Button Classes="sidebar-btn"
+                            Content="Cari Hesaplar"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="CariHesaplar" />
+
+                    <!-- 9. CRM -->
+                    <TextBlock Text="CRM" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Calisanlar"
+                            Content="Potansiyel Musteriler"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="Employees" />
+                            CommandParameter="Leads" />
 
                     <Button Classes="sidebar-btn"
-                            Content="Izin Talepleri"
+                            Content="Kisiler"
                             Command="{Binding NavigateToCommand}"
-                            CommandParameter="LeaveRequests" />
+                            CommandParameter="Contacts" />
 
-                    <TextBlock Text="DIGER" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                    <Button Classes="sidebar-btn"
+                            Content="Firsatlar — Kanban"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Kanban" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Musteriler"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Customers" />
+
+                    <!-- 10. DROPSHIPPING -->
+                    <TextBlock Text="DROPSHIPPING" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
+
+                    <Button IsEnabled="False" Opacity="0.5"
+                            Padding="20,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" Background="Transparent"
+                            Foreground="#CBD5E1" FontSize="14">
+                        <TextBlock Text="Dropshipping (Yakinda)"/>
+                    </Button>
+
+                    <!-- 11. RAPORLAR -->
+                    <TextBlock Text="RAPORLAR" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
                             Content="Belgeler"
@@ -138,14 +228,42 @@
                             Command="{Binding NavigateToCommand}"
                             CommandParameter="Reports" />
 
-                    <TextBlock Text="SISTEM" FontSize="11" Foreground="#64748B"
-                               Margin="20,16,0,8" FontWeight="SemiBold" />
+                    <!-- 12. AYARLAR -->
+                    <TextBlock Text="AYARLAR" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="20,16,0,8" />
 
                     <Button Classes="sidebar-btn"
                             Content="Ayarlar"
                             Command="{Binding NavigateToCommand}"
                             CommandParameter="Settings" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Pazaryerleri"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Marketplaces" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Platform Senkronizasyon"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="SyncStatus" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Calisanlar"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Employees" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Izin Talepleri"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="LeaveRequests" />
+
+                    <Button Classes="sidebar-btn"
+                            Content="Giris"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Login" />
+
                 </StackPanel>
+                </ScrollViewer>
 
                 <!-- Footer -->
                 <Border DockPanel.Dock="Bottom" Padding="20,12"
@@ -195,6 +313,12 @@
                     <DataTemplate DataType="vm:SettingsAvaloniaViewModel">
                         <views:SettingsAvaloniaView />
                     </DataTemplate>
+                    <DataTemplate DataType="vm:LoginAvaloniaViewModel">
+                        <views:LoginAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:CategoryAvaloniaViewModel">
+                        <views:CategoryAvaloniaView />
+                    </DataTemplate>
                     <!-- Dalga 11 batch expansion -->
                     <DataTemplate DataType="vm:ContactsAvaloniaViewModel">
                         <views:ContactsAvaloniaView />
@@ -219,6 +343,28 @@
                     </DataTemplate>
                     <DataTemplate DataType="vm:BankAccountsAvaloniaViewModel">
                         <views:BankAccountsAvaloniaView />
+                    </DataTemplate>
+                    <!-- Dalga 14+15 functional views -->
+                    <DataTemplate DataType="vm:InventoryAvaloniaViewModel">
+                        <views:InventoryAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:InvoiceManagementAvaloniaViewModel">
+                        <views:InvoiceManagementAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:CustomerAvaloniaViewModel">
+                        <views:CustomerAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:CariHesaplarAvaloniaViewModel">
+                        <views:CariHesaplarAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:SyncStatusAvaloniaViewModel">
+                        <views:SyncStatusAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:StockMovementAvaloniaViewModel">
+                        <views:StockMovementAvaloniaView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:CargoTrackingAvaloniaViewModel">
+                        <views:CargoTrackingAvaloniaView />
                     </DataTemplate>
                 </ContentControl.DataTemplates>
             </ContentControl>

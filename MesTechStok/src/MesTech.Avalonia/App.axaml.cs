@@ -71,6 +71,8 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<StockAvaloniaViewModel>();
                 services.AddTransient<OrdersAvaloniaViewModel>();
                 services.AddTransient<SettingsAvaloniaViewModel>();
+                services.AddTransient<LoginAvaloniaViewModel>();
+                services.AddTransient<CategoryAvaloniaViewModel>();
                 // ProfitLossViewModel — compile-linked from WPF Desktop, zero changes
                 services.AddTransient<MesTechStok.Desktop.ViewModels.Finance.ProfitLossViewModel>();
 
@@ -83,6 +85,15 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<MarketplacesAvaloniaViewModel>();
                 services.AddTransient<ExpensesAvaloniaViewModel>();
                 services.AddTransient<BankAccountsAvaloniaViewModel>();
+
+                // ViewModels — Dalga 14+15 functional views
+                services.AddTransient<InventoryAvaloniaViewModel>();
+                services.AddTransient<InvoiceManagementAvaloniaViewModel>();
+                services.AddTransient<CustomerAvaloniaViewModel>();
+                services.AddTransient<CariHesaplarAvaloniaViewModel>();
+                services.AddTransient<SyncStatusAvaloniaViewModel>();
+                services.AddTransient<StockMovementAvaloniaViewModel>();
+                services.AddTransient<CargoTrackingAvaloniaViewModel>();
             })
             .Build();
 

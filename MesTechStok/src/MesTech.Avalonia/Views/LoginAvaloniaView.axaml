@@ -1,17 +1,115 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.LoginAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.LoginAvaloniaView"
+             x:DataType="vm:LoginAvaloniaViewModel">
 
-    <!-- Avalonia port — Giris -->
+    <!-- Avalonia port — Giris Ekrani (Login) -->
+    <!-- Centered card: logo area, username, password (masked), login button -->
+    <!-- Brand color #2855AC, error message display for failed login -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="Giris" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid Background="#F8FAFC">
+
+        <!-- Login Form (visible when NOT authenticated) -->
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="White" CornerRadius="16"
+                Padding="48,40" Width="420"
+                BorderBrush="#E0E6ED" BorderThickness="1"
+                BoxShadow="0 4 24 #1A000000"
+                IsVisible="{Binding !IsAuthenticated}">
+            <StackPanel Spacing="20">
+
+                <!-- Logo Area -->
+                <StackPanel HorizontalAlignment="Center" Spacing="8" Margin="0,0,0,8">
+                    <Border Background="#EBF0FA" CornerRadius="50" Width="72" Height="72"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="M" FontSize="32" FontWeight="Bold"
+                                   Foreground="#2855AC"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="MesTech Stok" FontSize="22" FontWeight="Bold"
+                               Foreground="#1E293B" HorizontalAlignment="Center" />
+                    <TextBlock Text="Hesabiniza giris yapin" FontSize="13"
+                               Foreground="#64748B" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Username -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Kullanici Adi" FontSize="13" FontWeight="SemiBold"
+                               Foreground="#374151" />
+                    <TextBox Text="{Binding Username}"
+                             Watermark="Kullanici adinizi giriniz"
+                             Padding="12,10" CornerRadius="8" FontSize="14" />
+                </StackPanel>
+
+                <!-- Password -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Sifre" FontSize="13" FontWeight="SemiBold"
+                               Foreground="#374151" />
+                    <TextBox Text="{Binding Password}"
+                             PasswordChar="●"
+                             Watermark="Sifrenizi giriniz"
+                             Padding="12,10" CornerRadius="8" FontSize="14" />
+                </StackPanel>
+
+                <!-- Error Message -->
+                <Border Background="#FEF2F2" CornerRadius="8" Padding="12,10"
+                        IsVisible="{Binding HasError}"
+                        BorderBrush="#FECACA" BorderThickness="1">
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#DC2626" FontSize="13"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <!-- Login Button -->
+                <Button Content="Giris Yap"
+                        Command="{Binding LoginCommand}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Background="#2855AC" Foreground="White"
+                        FontSize="15" FontWeight="SemiBold"
+                        Padding="16,12" CornerRadius="8" />
+
+                <!-- Version Info -->
+                <TextBlock Text="MesTech Stok v10.0 — Avalonia PoC"
+                           FontSize="11" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" Margin="0,4,0,0" />
+            </StackPanel>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Giris" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Welcome State (visible when authenticated) -->
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="White" CornerRadius="16"
+                Padding="48,40" Width="420"
+                BorderBrush="#E0E6ED" BorderThickness="1"
+                BoxShadow="0 4 24 #1A000000"
+                IsVisible="{Binding IsAuthenticated}">
+            <StackPanel Spacing="16" HorizontalAlignment="Center">
+                <Border Background="#ECFDF5" CornerRadius="50" Width="72" Height="72"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#x2713;" FontSize="36" FontWeight="Bold"
+                               Foreground="#059669"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding WelcomeMessage}"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#1E293B" HorizontalAlignment="Center" />
+                <TextBlock Text="Sisteme basariyla giris yaptiniz."
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Background="#B0FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Giris yapiliyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

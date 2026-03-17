@@ -4,39 +4,189 @@
              x:Class="MesTech.Avalonia.Views.SettingsAvaloniaView"
              x:DataType="vm:SettingsAvaloniaViewModel">
 
-    <!-- Stub view for Settings — Dalga 10 -->
+    <!-- Avalonia port — Ayarlar (Settings) -->
+    <!-- Tab-like sections: API Ayarlari, Bildirimler, Tema -->
+    <!-- Brand color #2855AC -->
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#6366F1" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Ayarlar"
-                           Foreground="White" FontSize="18" FontWeight="SemiBold"
-                           VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding AppVersion}"
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Ayarlar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Kaydet"
+                        Command="{Binding SaveCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
                            Foreground="#FFFFFF99" FontSize="12"
                            VerticalAlignment="Center" />
             </Grid>
         </Border>
 
-        <!-- Placeholder Content -->
-        <Border Grid.Row="1" Background="#F8FAFC" Margin="24"
-                CornerRadius="12" BorderBrush="#E0E6ED" BorderThickness="1">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                <Border Background="#EEF2FF" CornerRadius="50" Width="80" Height="80"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x2699;" FontSize="36"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <!-- Settings Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24" MaxWidth="640">
+
+                <!-- Save Success Message -->
+                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                        IsVisible="{Binding IsSaved}"
+                        BorderBrush="#A7F3D0" BorderThickness="1">
+                    <TextBlock Text="Ayarlar basariyla kaydedildi."
+                               Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
                 </Border>
-                <TextBlock Text="Ayarlar" FontSize="22" FontWeight="Bold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#64748B"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Tenant yapisi | Kullanici tercihleri | Entegrasyon ayarlari | Tema"
-                           FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"
-                           Margin="0,8,0,0" />
+
+                <!-- Section 1: API Ayarlari -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Ayarlari" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Platform API baglanti yapilandirmasi"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="API URL" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#374151" />
+                            <TextBox Text="{Binding ApiUrl}"
+                                     Watermark="https://api.mestech.com/v1"
+                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="API Key" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#374151" />
+                            <TextBox Text="{Binding ApiKey}"
+                                     Watermark="API anahtarinizi giriniz"
+                                     PasswordChar="●"
+                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="Test Baglanti"
+                                    Command="{Binding TestConnectionCommand}"
+                                    Background="#2855AC" Foreground="White"
+                                    FontWeight="SemiBold"
+                                    Padding="16,8" CornerRadius="6" />
+
+                            <!-- Connection Result -->
+                            <TextBlock Text="{Binding ConnectionMessage}"
+                                       FontSize="13" VerticalAlignment="Center"
+                                       IsVisible="{Binding IsConnectionTested}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 2: Bildirimler -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Bildirimler" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Bildirim kanali tercihleri"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="E-posta Bildirimleri" FontSize="14"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="Siparis ve stok uyarilari e-posta ile gonderilir"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+
+                        <Border Height="1" Background="#F1F5F9" />
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="SMS Bildirimleri" FontSize="14"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="Kritik stok uyarilari SMS ile gonderilir"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSmsEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+
+                        <Border Height="1" Background="#F1F5F9" />
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="Push Bildirimleri" FontSize="14"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="Anlık bildirimler masaustu uygulamasinda gosterilir"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsPushEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 3: Tema -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Tema" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Uygulama gorunum tercihi"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="12">
+                            <RadioButton GroupName="Theme"
+                                         IsChecked="{Binding SelectedTheme,
+                                             Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                         Content="Acik Tema (Light)" FontSize="14" />
+                            <RadioButton GroupName="Theme"
+                                         Content="Koyu Tema (Dark)" FontSize="14" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Ayarlar yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
             </StackPanel>
         </Border>
     </Grid>

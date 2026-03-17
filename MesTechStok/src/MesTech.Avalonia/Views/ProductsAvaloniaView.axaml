@@ -4,44 +4,41 @@
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 
-    <!-- Avalonia simplified port of WPF ProductsView.xaml -->
-    <!-- WPF original is 600+ lines with code-behind heavy logic.
-         This Avalonia version demonstrates MVVM-first approach.
-         Key changes:
-         - xmlns → avaloniaui
-         - Watermark instead of md:HintAssist.Hint
-         - Fluent theme controls
-         - ViewModel: ProductsAvaloniaViewModel (clean MVVM, no code-behind logic) -->
+    <!-- Avalonia Products — DataGrid with SKU, Ad, Fiyat, Stok, Platform, Durum -->
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#1976D2" Padding="20,14">
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Urunler" Foreground="White"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                    <TextBlock Text="Urun Yonetimi" Foreground="White"
+                               FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#1976D2" FontWeight="SemiBold"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Search Bar -->
+        <!-- Row 1: Filters -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Urun adi, barkod veya kategori ara..."
-                     Text="{Binding SearchText}"
-                     HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBox Width="280" Watermark="Urun adi veya SKU ara..."
+                         Text="{Binding SearchText}" />
+                <ComboBox Width="180"
+                          ItemsSource="{Binding Platforms}"
+                          SelectedItem="{Binding SelectedPlatform}" />
+            </StackPanel>
         </Border>
 
-        <!-- Products DataGrid -->
+        <!-- Row 2: Products DataGrid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Products}"
                   AutoGenerateColumns="False"
@@ -51,14 +48,16 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White">
-
+                  Background="White"
+                  Margin="0"
+                  IsVisible="{Binding !IsLoading}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Urun Adi" Binding="{Binding Name}" Width="250" />
-                <DataGridTextColumn Header="Barkod" Binding="{Binding Barcode}" Width="160" />
-                <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="130" />
+                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
+                <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
+                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="130" />
                 <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
-                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120" />
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -81,9 +80,9 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Urun bulunamadi" FontSize="48"
-                           HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
-                <TextBlock Text="Henuz urun kaydedilmemis"
+                <TextBlock Text="Kayit bulunamadi" FontSize="20"
+                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                <TextBlock Text="Arama kriterlerine uygun urun bulunamadi"
                            FontSize="16" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
@@ -95,16 +94,17 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
+                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="14" Foreground="#666"
+                                   TextWrapping="Wrap" MaxWidth="400" />
+                        <Button Content="Tekrar Dene"
+                                Command="{Binding RefreshCommand}"
+                                Padding="16,6" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Border>
     </Grid>

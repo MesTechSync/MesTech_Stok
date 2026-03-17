@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -5,23 +6,29 @@ using MediatR;
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Avalonia PoC dashboard — summary KPI cards.
+/// Avalonia Dashboard — 4 KPI cards (Toplam Satis, Siparis, Stok Uyari, Gunluk Gelir)
+/// + 10 recent orders DataGrid.
 /// Mirrors DashboardView.xaml.cs logic but as a proper ViewModel (no code-behind).
-/// In production, the WPF DashboardView code-behind should be refactored to this pattern.
 /// </summary>
 public partial class DashboardAvaloniaViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
 
+    // KPI cards
     [ObservableProperty] private string totalProducts = "0";
-    [ObservableProperty] private string totalStockValue = "0 TL";
-    [ObservableProperty] private string lowStockCount = "0";
-    [ObservableProperty] private string activeCategories = "0";
+    [ObservableProperty] private string activeOrders = "0";
+    [ObservableProperty] private string todayRevenue = "0 TL";
+    [ObservableProperty] private string stockAlerts = "0";
+
+    // L/E/E states
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string lastUpdated = "--:--";
+
+    public ObservableCollection<RecentOrderDto> RecentOrders { get; } = [];
 
     public DashboardAvaloniaViewModel(IMediator mediator)
     {
@@ -36,20 +43,29 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // Uses same MediatR pipeline as WPF — queries go through Application layer
-            // TODO: Wire GetDashboardDataQuery when full migration starts
-            await Task.Delay(100); // Simulate async load
+            await Task.Delay(300); // Simulate async load
 
-            // Placeholder data for PoC demonstration
+            // KPI demo values
             TotalProducts = "1,247";
-            TotalStockValue = "2,456,890 TL";
-            LowStockCount = "23";
-            ActiveCategories = "18";
+            ActiveOrders = "38";
+            TodayRevenue = "24,580 TL";
+            StockAlerts = "7";
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
-            // Check empty state
-            if (TotalProducts == "0")
-                IsEmpty = true;
+            // Recent orders demo data (Turkish, realistic)
+            RecentOrders.Clear();
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0041", Date = "17.03.2026", Customer = "Ahmet Yilmaz", Amount = "2,450.00 TL", Status = "Yeni" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0040", Date = "17.03.2026", Customer = "Fatma Demir", Amount = "1,890.50 TL", Status = "Hazirlaniyor" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0039", Date = "16.03.2026", Customer = "Mehmet Kaya", Amount = "5,200.00 TL", Status = "Kargoda" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0038", Date = "16.03.2026", Customer = "Ayse Celik", Amount = "890.00 TL", Status = "Teslim Edildi" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0037", Date = "16.03.2026", Customer = "Ali Ozturk", Amount = "3,150.75 TL", Status = "Yeni" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0036", Date = "15.03.2026", Customer = "Zeynep Arslan", Amount = "4,720.00 TL", Status = "Hazirlaniyor" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0035", Date = "15.03.2026", Customer = "Hasan Dogan", Amount = "1,340.25 TL", Status = "Kargoda" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0034", Date = "15.03.2026", Customer = "Elif Sahin", Amount = "6,890.00 TL", Status = "Teslim Edildi" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0033", Date = "14.03.2026", Customer = "Burak Yildiz", Amount = "2,100.00 TL", Status = "Teslim Edildi" });
+            RecentOrders.Add(new RecentOrderDto { OrderNo = "SIP-2026-0032", Date = "14.03.2026", Customer = "Selin Korkmaz", Amount = "7,450.50 TL", Status = "Kargoda" });
+
+            IsEmpty = RecentOrders.Count == 0;
         }
         catch (Exception ex)
         {
@@ -64,4 +80,13 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+}
+
+public class RecentOrderDto
+{
+    public string OrderNo { get; set; } = string.Empty;
+    public string Date { get; set; } = string.Empty;
+    public string Customer { get; set; } = string.Empty;
+    public string Amount { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
 }

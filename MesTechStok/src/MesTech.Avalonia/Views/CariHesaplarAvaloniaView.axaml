@@ -1,17 +1,135 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.CariHesaplarAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.CariHesaplarAvaloniaView"
+             x:DataType="vm:CariHesaplarAvaloniaViewModel">
 
-    <!-- Avalonia port — Cari Hesaplar -->
+    <!-- Cari Hesaplar — customer/supplier accounts with balance summary -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
-            <TextBlock Text="Cari Hesaplar" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Cari Hesaplar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hesap'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Cari Hesaplar" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Tip:" FontSize="14" Foreground="#475569"
+                           VerticalAlignment="Center" />
+                <ComboBox Width="180"
+                          ItemsSource="{Binding TypeOptions}"
+                          SelectedItem="{Binding SelectedType}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Cari DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding FilteredItems}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Hesap Adi" Binding="{Binding HesapAdi}" Width="280" />
+                <DataGridTextColumn Header="Tip" Binding="{Binding Tip}" Width="120" />
+                <DataGridTextColumn Header="Borc (TL)" Binding="{Binding Borc, StringFormat='{}{0:N2}'}" Width="140" />
+                <DataGridTextColumn Header="Alacak (TL)" Binding="{Binding Alacak, StringFormat='{}{0:N2}'}" Width="140" />
+                <DataGridTextColumn Header="Bakiye (TL)" Binding="{Binding Bakiye, StringFormat='{}{0:N2}'}" Width="140" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Balance Summary Footer -->
+        <Border Grid.Row="3" Background="#F1F5F9" Padding="20,12"
+                BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
+                           Foreground="#1E293B" VerticalAlignment="Center" />
+                <Border Grid.Column="1" Background="#DBEAFE" CornerRadius="8" Padding="14,8" Margin="8,0">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Borc" FontSize="11" Foreground="#3B82F6" />
+                        <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="15" FontWeight="Bold" Foreground="#1E40AF" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="#DCFCE7" CornerRadius="8" Padding="14,8" Margin="8,0">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Alacak" FontSize="11" Foreground="#16A34A" />
+                        <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="15" FontWeight="Bold" Foreground="#15803D" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="#FEF3C7" CornerRadius="8" Padding="14,8" Margin="8,0">
+                    <StackPanel>
+                        <TextBlock Text="Net Bakiye" FontSize="11" Foreground="#D97706" />
+                        <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"
+                                   FontSize="15" FontWeight="Bold" Foreground="#B45309" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Cari hesaplar yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Cari hesap bulunamadi" FontSize="16" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>
