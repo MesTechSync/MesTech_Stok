@@ -9,6 +9,8 @@ using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Handlers;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Integration.Tests.Helpers;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -26,7 +28,16 @@ public class TrendyolRuntimeTests
     {
         var services = new ServiceCollection();
         services.AddLogging(b => b.AddConsole());
-        services.AddIntegrationServices();
+        services.AddMemoryCache();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Integrations:Trendyol:Enabled"] = "false",
+                ["Integrations:eBay:Enabled"] = "false"
+            })
+            .Build();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddIntegrationServices(configuration);
         return services.BuildServiceProvider();
     }
 
