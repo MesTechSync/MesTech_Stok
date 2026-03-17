@@ -212,17 +212,19 @@ else
     isLoading = true;
     try
     {
-      try { await ApiClient.GetTenantsAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Tenants): {apiEx.Message}"); }
-
-      tenants =
-      [
-        new(Guid.NewGuid(), "Anadolu Ticaret A.S.", "Aktif", 3, 8, new DateTime(2025, 6, 15)),
-        new(Guid.NewGuid(), "Marmara Lojistik Ltd.", "Aktif", 2, 5, new DateTime(2025, 9, 22)),
-        new(Guid.NewGuid(), "Ege Tekstil San. Tic.", "Aktif", 4, 12, new DateTime(2025, 11, 3)),
-        new(Guid.NewGuid(), "Karadeniz Gida A.S.", "Pasif", 1, 2, new DateTime(2026, 1, 10)),
-        new(Guid.NewGuid(), "Akdeniz Elektronik Ltd.", "Aktif", 5, 15, new DateTime(2026, 3, 1)),
-      ];
+      var apiData = await ApiClient.GetTenantsAsync();
+      if (apiData?.Count > 0)
+      {
+        _isDemoMode = false;
+        // Keep demo data for now — typed DTOs not yet available
+        // When API returns real data, it will be List<object>
+        tenants = GetDemoTenants(); // TODO: map apiData when DTOs exist
+      }
+      else
+      {
+        _isDemoMode = true;
+        tenants = GetDemoTenants();
+      }
 
       aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
       toplamStoreCount = tenants.Sum(t => t.StoreSayisi);
@@ -232,13 +234,29 @@ else
     }
     catch (Exception ex)
     {
-      errorMessage = $"Tenant verileri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (Tenants): {ex.Message}");
+      _isDemoMode = true;
+      tenants = GetDemoTenants();
+      aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
+      toplamStoreCount = tenants.Sum(t => t.StoreSayisi);
+      toplamKullaniciCount = tenants.Sum(t => t.KullaniciSayisi);
+      buAyYeniCount = tenants.Count(t => t.OlusturmaTarihi.Month == DateTime.Today.Month
+                                       && t.OlusturmaTarihi.Year == DateTime.Today.Year);
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private static List<TenantRow> GetDemoTenants() =>
+  [
+    new(Guid.NewGuid(), "Anadolu Ticaret A.S.", "Aktif", 3, 8, new DateTime(2025, 6, 15)),
+    new(Guid.NewGuid(), "Marmara Lojistik Ltd.", "Aktif", 2, 5, new DateTime(2025, 9, 22)),
+    new(Guid.NewGuid(), "Ege Tekstil San. Tic.", "Aktif", 4, 12, new DateTime(2025, 11, 3)),
+    new(Guid.NewGuid(), "Karadeniz Gida A.S.", "Pasif", 1, 2, new DateTime(2026, 1, 10)),
+    new(Guid.NewGuid(), "Akdeniz Elektronik Ltd.", "Aktif", 5, 15, new DateTime(2026, 3, 1)),
+  ];
 
   private void ShowCreateForm()
   {

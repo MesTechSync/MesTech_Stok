@@ -148,21 +148,43 @@ else
     {
         try
         {
-            _isDemoMode = true;
+            try
+            {
+                var result = await ApiClient.SafeGetAsync<List<object>>("shipping/returns");
+                if (result.IsSuccess && result.Data is { Count: > 0 })
+                {
+                    _isDemoMode = false;
+                    // TODO: map API response to ReturnItem when DTO finalized
+                }
+                else
+                {
+                    _isDemoMode = true;
+                }
+            }
+            catch (Exception apiEx)
+            {
+                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+                _isDemoMode = true;
+            }
 
-            allReturns =
-            [
-                new() { ReturnNo = "IAD-001", OrderNo = "SIP-20260280", Customer = "Zeynep Arslan", Reason = "Urun hasarli", Status = "Beklemede", Date = DateTime.Today.AddDays(-1) },
-                new() { ReturnNo = "IAD-002", OrderNo = "SIP-20260275", Customer = "Burak Sahin", Reason = "Yanlis urun", Status = "Onaylandi", Date = DateTime.Today.AddDays(-3) },
-                new() { ReturnNo = "IAD-003", OrderNo = "SIP-20260268", Customer = "Selin Yildiz", Reason = "Beden uyumsuz", Status = "Beklemede", Date = DateTime.Today.AddDays(-2) },
-                new() { ReturnNo = "IAD-004", OrderNo = "SIP-20260260", Customer = "Emre Koc", Reason = "Vazgecme", Status = "Reddedildi", Date = DateTime.Today.AddDays(-5) },
-                new() { ReturnNo = "IAD-005", OrderNo = "SIP-20260255", Customer = "Deniz Acar", Reason = "Urun hasarli", Status = "Beklemede", Date = DateTime.Today },
-            ];
+            if (_isDemoMode)
+            {
+                allReturns = GetDemoReturns();
+            }
             filteredReturns = [.. allReturns];
         }
         catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
         finally { isLoading = false; }
     }
+
+    private static List<ReturnItem> GetDemoReturns() =>
+    [
+        new() { ReturnNo = "IAD-001", OrderNo = "SIP-20260280", Customer = "Zeynep Arslan", Reason = "Urun hasarli", Status = "Beklemede", Date = DateTime.Today.AddDays(-1) },
+        new() { ReturnNo = "IAD-002", OrderNo = "SIP-20260275", Customer = "Burak Sahin", Reason = "Yanlis urun", Status = "Onaylandi", Date = DateTime.Today.AddDays(-3) },
+        new() { ReturnNo = "IAD-003", OrderNo = "SIP-20260268", Customer = "Selin Yildiz", Reason = "Beden uyumsuz", Status = "Beklemede", Date = DateTime.Today.AddDays(-2) },
+        new() { ReturnNo = "IAD-004", OrderNo = "SIP-20260260", Customer = "Emre Koc", Reason = "Vazgecme", Status = "Reddedildi", Date = DateTime.Today.AddDays(-5) },
+        new() { ReturnNo = "IAD-005", OrderNo = "SIP-20260255", Customer = "Deniz Acar", Reason = "Urun hasarli", Status = "Beklemede", Date = DateTime.Today },
+    ];
 
     private void ApplyFilter()
     {

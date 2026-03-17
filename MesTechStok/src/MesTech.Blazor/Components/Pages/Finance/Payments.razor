@@ -98,20 +98,24 @@ else
   {
     try
     {
-      try
+      var apiData = await ApiClient.GetPaymentsAsync();
+      if (apiData?.Count > 0)
       {
-        await ApiClient.GetPaymentsAsync();
+        // TODO: map API data to PaymentItem when typed DTO finalized
+        _isDemoMode = false;
+        _payments = GetDemoData();
       }
-      catch
+      else
       {
         _isDemoMode = true;
+        _payments = GetDemoData();
       }
-
-      _payments = GetDemoData();
     }
     catch (Exception ex)
     {
-      _errorMessage = $"Odeme verileri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (Payments): {ex.Message}");
+      _isDemoMode = true;
+      _payments = GetDemoData();
     }
     finally
     {

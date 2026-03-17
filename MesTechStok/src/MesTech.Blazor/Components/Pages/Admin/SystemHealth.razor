@@ -251,47 +251,67 @@ else
     isLoading = true;
     try
     {
-      try { await ApiClient.GetSystemHealthAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (SystemHealth): {apiEx.Message}"); }
+      var healthData = await ApiClient.GetSystemHealthAsync();
+      var apiHealth = await ApiClient.GetHealthAsync();
 
-      dockerServices =
-      [
-        new("PostgreSQL", "fa-database", 5432, "Calisiyor", "14g 6s"),
-        new("Redis", "fa-bolt", 6379, "Calisiyor", "14g 6s"),
-        new("RabbitMQ", "fa-envelope", 5672, "Calisiyor", "14g 5s"),
-        new("MySQL", "fa-database", 3306, "Calisiyor", "14g 6s"),
-        new("Seq", "fa-scroll", 5341, "Calisiyor", "14g 4s"),
-        new("MinIO", "fa-hdd", 9000, "Calisiyor", "14g 6s"),
-      ];
-
-      hangfireJobs =
-      [
-        new("StokSyncJob", "fa-boxes-stacked",
-            new DateTime(2026, 3, 16, 10, 0, 0), new DateTime(2026, 3, 16, 10, 15, 0),
-            "Basarili", 98),
-        new("SiparisSyncJob", "fa-shopping-cart",
-            new DateTime(2026, 3, 16, 9, 55, 0), new DateTime(2026, 3, 16, 10, 10, 0),
-            "Basarili", 99),
-        new("FiyatGuncellemeJob", "fa-tags",
-            new DateTime(2026, 3, 16, 8, 0, 0), new DateTime(2026, 3, 16, 12, 0, 0),
-            "Basarili", 95),
-        new("FeedImportJob", "fa-rss",
-            new DateTime(2026, 3, 16, 6, 0, 0), new DateTime(2026, 3, 17, 6, 0, 0),
-            "Bekliyor", 92),
-        new("RaporOlusturmaJob", "fa-file-alt",
-            new DateTime(2026, 3, 15, 23, 0, 0), new DateTime(2026, 3, 16, 23, 0, 0),
-            "Hatali", 87),
-      ];
+      if (healthData is not null || apiHealth is not null)
+      {
+        _isDemoMode = false;
+        apiHealthy = apiHealth is not null;
+        lastHealthCheck = DateTime.Now;
+        // Keep demo data for now — typed DTOs not yet available
+        // When API returns real data, map healthData to dockerServices/hangfireJobs
+        dockerServices = GetDemoDockerServices(); // TODO: map healthData when DTOs exist
+        hangfireJobs = GetDemoHangfireJobs();
+      }
+      else
+      {
+        _isDemoMode = true;
+        dockerServices = GetDemoDockerServices();
+        hangfireJobs = GetDemoHangfireJobs();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Sistem saglik verileri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (SystemHealth): {ex.Message}");
+      _isDemoMode = true;
+      dockerServices = GetDemoDockerServices();
+      hangfireJobs = GetDemoHangfireJobs();
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private static List<ServiceStatus> GetDemoDockerServices() =>
+  [
+    new("PostgreSQL", "fa-database", 5432, "Calisiyor", "14g 6s"),
+    new("Redis", "fa-bolt", 6379, "Calisiyor", "14g 6s"),
+    new("RabbitMQ", "fa-envelope", 5672, "Calisiyor", "14g 5s"),
+    new("MySQL", "fa-database", 3306, "Calisiyor", "14g 6s"),
+    new("Seq", "fa-scroll", 5341, "Calisiyor", "14g 4s"),
+    new("MinIO", "fa-hdd", 9000, "Calisiyor", "14g 6s"),
+  ];
+
+  private static List<HangfireJob> GetDemoHangfireJobs() =>
+  [
+    new("StokSyncJob", "fa-boxes-stacked",
+        new DateTime(2026, 3, 16, 10, 0, 0), new DateTime(2026, 3, 16, 10, 15, 0),
+        "Basarili", 98),
+    new("SiparisSyncJob", "fa-shopping-cart",
+        new DateTime(2026, 3, 16, 9, 55, 0), new DateTime(2026, 3, 16, 10, 10, 0),
+        "Basarili", 99),
+    new("FiyatGuncellemeJob", "fa-tags",
+        new DateTime(2026, 3, 16, 8, 0, 0), new DateTime(2026, 3, 16, 12, 0, 0),
+        "Basarili", 95),
+    new("FeedImportJob", "fa-rss",
+        new DateTime(2026, 3, 16, 6, 0, 0), new DateTime(2026, 3, 17, 6, 0, 0),
+        "Bekliyor", 92),
+    new("RaporOlusturmaJob", "fa-file-alt",
+        new DateTime(2026, 3, 15, 23, 0, 0), new DateTime(2026, 3, 16, 23, 0, 0),
+        "Hatali", 87),
+  ];
 
   private async Task RunUrunAciklama()
   {

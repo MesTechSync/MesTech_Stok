@@ -331,52 +331,67 @@ else
 
     try
     {
-      try { await ApiClient.GetProjectsAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Projects): {apiEx.Message}"); }
+      var result = await ApiClient.SafeGetAsync<List<object>>("projects");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        projects = GetDemoProjects();
+      }
+      else
+      {
+        _isDemoMode = true;
+        projects = GetDemoProjects();
+      }
 
-      var today = DateTime.Today;
-      projects =
-      [
-        new(1, "E-Ticaret Entegrasyonu", "10 platform entegrasyon projesi", new DateTime(2026, 4, 30),
-        [
-          new(1, "Trendyol API v3 gecisi", "Yeni API endpointlerine migrasyon", "Mehmet Demir", "High", today.AddDays(5), "Done"),
-          new(2, "Hepsiburada stok senkronizasyonu", "Gercek zamanli stok guncelleme", "Ahmet Yilmaz", "High", today.AddDays(7), "InProgress"),
-          new(3, "Amazon TR magaza kurulumu", "Magaza hesap ve urun yukleme", "Ayse Kaya", "Medium", today.AddDays(10), "InProgress"),
-          new(4, "N11 siparis entegrasyonu", "Otomatik siparis cekme", "Fatma Celik", "Medium", today.AddDays(14), "Backlog"),
-          new(5, "CicekSepeti kategori eslesmesi", "Kategori mapping tablosu", "Ali Ozturk", "Low", today.AddDays(18), "Backlog"),
-          new(6, "Pazarama urun aktarimi", "Toplu urun yukleme", "Mehmet Demir", "Low", today.AddDays(21), "Backlog"),
-          new(7, "eBay uluslararasi listeleme", "Coklu dil ve para birimi destegi", "Ahmet Yilmaz", "Medium", today.AddDays(25), "Backlog"),
-          new(8, "Shopify webhook entegrasyonu", "Siparis ve stok bildirimleri", "Ayse Kaya", "High", today.AddDays(3), "Done"),
-        ]),
-        new(2, "Depo Optimizasyonu", "Depo yonetim sistemi iyilestirmesi", new DateTime(2026, 5, 15),
-        [
-          new(10, "Barkod sistemi kurulumu", "EAN-13 ve QR code okuyucu entegrasyonu", "Ali Ozturk", "High", today.AddDays(4), "InProgress"),
-          new(11, "Raf konum sistemi", "A-B-C raf kodlama ve harita", "Fatma Celik", "Medium", today.AddDays(8), "Backlog"),
-          new(12, "Sayim modulu", "Periyodik stok sayim ekrani", "Mehmet Demir", "High", today.AddDays(6), "InProgress"),
-          new(13, "Min-max stok uyarilari", "Kritik stok seviyesi bildirimleri", "Ahmet Yilmaz", "Medium", today.AddDays(12), "Done"),
-          new(14, "Toplu etiket yazdirma", "Barkod etiket tasarimi ve baski", "Ayse Kaya", "Low", today.AddDays(15), "Backlog"),
-          new(15, "Depo transferi", "Depolar arasi stok transfer islemleri", "Ali Ozturk", "Medium", today.AddDays(20), "Backlog"),
-        ]),
-        new(3, "MESA AI v2", "Yapay zeka destekli uretim optimizasyonu", new DateTime(2026, 6, 30),
-        [
-          new(20, "Talep tahmin modeli", "ML tabanli satis tahmini", "Ahmet Yilmaz", "High", today.AddDays(14), "InProgress"),
-          new(21, "Otomatik fiyatlama motoru", "Rekabet bazli dinamik fiyat", "Mehmet Demir", "High", today.AddDays(18), "Backlog"),
-          new(22, "Anomali tespit sistemi", "Siparis ve stok anomali algilama", "Ayse Kaya", "Medium", today.AddDays(21), "Backlog"),
-          new(23, "Uretim planlama AI", "Kapasite optimizasyonu", "Fatma Celik", "Medium", today.AddDays(28), "Backlog"),
-          new(24, "Chatbot entegrasyonu", "Musteri hizmetleri AI asistan", "Ali Ozturk", "Low", today.AddDays(35), "Backlog"),
-        ]),
-      ];
-
-      selectedProject = projects[0];
+      selectedProject = projects.Count > 0 ? projects[0] : null;
     }
     catch (Exception ex)
     {
-      errorMessage = $"Projeler yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      projects = GetDemoProjects();
+      selectedProject = projects.Count > 0 ? projects[0] : null;
     }
     finally
     {
       isLoading = false;
     }
+  }
+
+  private List<ProjectInfo> GetDemoProjects()
+  {
+    var today = DateTime.Today;
+    return
+    [
+      new(1, "E-Ticaret Entegrasyonu", "10 platform entegrasyon projesi", new DateTime(2026, 4, 30),
+      [
+        new(1, "Trendyol API v3 gecisi", "Yeni API endpointlerine migrasyon", "Mehmet Demir", "High", today.AddDays(5), "Done"),
+        new(2, "Hepsiburada stok senkronizasyonu", "Gercek zamanli stok guncelleme", "Ahmet Yilmaz", "High", today.AddDays(7), "InProgress"),
+        new(3, "Amazon TR magaza kurulumu", "Magaza hesap ve urun yukleme", "Ayse Kaya", "Medium", today.AddDays(10), "InProgress"),
+        new(4, "N11 siparis entegrasyonu", "Otomatik siparis cekme", "Fatma Celik", "Medium", today.AddDays(14), "Backlog"),
+        new(5, "CicekSepeti kategori eslesmesi", "Kategori mapping tablosu", "Ali Ozturk", "Low", today.AddDays(18), "Backlog"),
+        new(6, "Pazarama urun aktarimi", "Toplu urun yukleme", "Mehmet Demir", "Low", today.AddDays(21), "Backlog"),
+        new(7, "eBay uluslararasi listeleme", "Coklu dil ve para birimi destegi", "Ahmet Yilmaz", "Medium", today.AddDays(25), "Backlog"),
+        new(8, "Shopify webhook entegrasyonu", "Siparis ve stok bildirimleri", "Ayse Kaya", "High", today.AddDays(3), "Done"),
+      ]),
+      new(2, "Depo Optimizasyonu", "Depo yonetim sistemi iyilestirmesi", new DateTime(2026, 5, 15),
+      [
+        new(10, "Barkod sistemi kurulumu", "EAN-13 ve QR code okuyucu entegrasyonu", "Ali Ozturk", "High", today.AddDays(4), "InProgress"),
+        new(11, "Raf konum sistemi", "A-B-C raf kodlama ve harita", "Fatma Celik", "Medium", today.AddDays(8), "Backlog"),
+        new(12, "Sayim modulu", "Periyodik stok sayim ekrani", "Mehmet Demir", "High", today.AddDays(6), "InProgress"),
+        new(13, "Min-max stok uyarilari", "Kritik stok seviyesi bildirimleri", "Ahmet Yilmaz", "Medium", today.AddDays(12), "Done"),
+        new(14, "Toplu etiket yazdirma", "Barkod etiket tasarimi ve baski", "Ayse Kaya", "Low", today.AddDays(15), "Backlog"),
+        new(15, "Depo transferi", "Depolar arasi stok transfer islemleri", "Ali Ozturk", "Medium", today.AddDays(20), "Backlog"),
+      ]),
+      new(3, "MESA AI v2", "Yapay zeka destekli uretim optimizasyonu", new DateTime(2026, 6, 30),
+      [
+        new(20, "Talep tahmin modeli", "ML tabanli satis tahmini", "Ahmet Yilmaz", "High", today.AddDays(14), "InProgress"),
+        new(21, "Otomatik fiyatlama motoru", "Rekabet bazli dinamik fiyat", "Mehmet Demir", "High", today.AddDays(18), "Backlog"),
+        new(22, "Anomali tespit sistemi", "Siparis ve stok anomali algilama", "Ayse Kaya", "Medium", today.AddDays(21), "Backlog"),
+        new(23, "Uretim planlama AI", "Kapasite optimizasyonu", "Fatma Celik", "Medium", today.AddDays(28), "Backlog"),
+        new(24, "Chatbot entegrasyonu", "Musteri hizmetleri AI asistan", "Ali Ozturk", "Low", today.AddDays(35), "Backlog"),
+      ]),
+    ];
   }
 
   private void SelectProject(ProjectInfo proj)

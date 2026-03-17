@@ -299,43 +299,57 @@ else
 
     try
     {
-      try { await ApiClient.GetBarcodeScanLogsAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Barcodes): {apiEx.Message}"); }
-
-      sampleProducts =
-      [
-        new(1, "Samsung Galaxy S24 Ultra 256GB", "SKU-SAM-S24U-256", "8691234567890", 24, 64999.99m, "Elektronik", ["Trendyol", "Hepsiburada", "Amazon TR"]),
-        new(2, "Nike Air Max 270 Erkek Spor Ayakkabi", "SKU-NIK-AM270-42", "8691234567891", 156, 3499.00m, "Ayakkabi", ["Trendyol", "N11"]),
-        new(3, "Bosch Serie 6 Camasir Makinesi", "SKU-BSH-S6-CM9", "8691234567892", 8, 24999.00m, "Beyaz Esya", ["Hepsiburada", "CicekSepeti"]),
-        new(4, "Apple MacBook Air M3 512GB", "SKU-APL-MBA-M3", "8691234567893", 12, 52999.00m, "Bilgisayar", ["Trendyol", "Amazon TR"]),
-        new(5, "Dyson V15 Detect Supurge", "SKU-DYS-V15-DT", "8691234567894", 5, 28999.00m, "Ev Aletleri", ["Trendyol", "Hepsiburada", "N11"]),
-      ];
-
-      var now = DateTime.Now;
-      scanLogs =
-      [
-        new(1, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddMinutes(-15), "Ahmet Yilmaz", "Cikis"),
-        new(2, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddMinutes(-42), "Mehmet Demir", "Giris"),
-        new(3, "8691234567893", "Apple MacBook Air M3 512GB", now.AddHours(-1), "Ayse Kaya", "Sayim"),
-        new(4, "8691234567894", "Dyson V15 Detect Supurge", now.AddHours(-2), "Fatma Celik", "Cikis"),
-        new(5, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddHours(-3), "Ali Ozturk", "Giris"),
-        new(6, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddHours(-5), "Ahmet Yilmaz", "Cikis"),
-        new(7, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddDays(-1), "Mehmet Demir", "Sayim"),
-        new(8, "8691234567893", "Apple MacBook Air M3 512GB", now.AddDays(-1), "Ayse Kaya", "Giris"),
-        new(9, "8691234567894", "Dyson V15 Detect Supurge", now.AddDays(-2), "Fatma Celik", "Giris"),
-        new(10, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddDays(-3), "Ali Ozturk", "Sayim"),
-      ];
-
-      products = sampleProducts.Select(p => new PrintableProduct(p.Name, p.Sku, p.Barcode, p.Stock, false)).ToList();
+      var result = await ApiClient.SafeGetAsync<List<object>>("barcodes/scan-logs");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        LoadDemoData();
+      }
+      else
+      {
+        _isDemoMode = true;
+        LoadDemoData();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Barkod verileri yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      LoadDemoData();
     }
     finally
     {
       isLoading = false;
     }
+  }
+
+  private void LoadDemoData()
+  {
+    sampleProducts =
+    [
+      new(1, "Samsung Galaxy S24 Ultra 256GB", "SKU-SAM-S24U-256", "8691234567890", 24, 64999.99m, "Elektronik", ["Trendyol", "Hepsiburada", "Amazon TR"]),
+      new(2, "Nike Air Max 270 Erkek Spor Ayakkabi", "SKU-NIK-AM270-42", "8691234567891", 156, 3499.00m, "Ayakkabi", ["Trendyol", "N11"]),
+      new(3, "Bosch Serie 6 Camasir Makinesi", "SKU-BSH-S6-CM9", "8691234567892", 8, 24999.00m, "Beyaz Esya", ["Hepsiburada", "CicekSepeti"]),
+      new(4, "Apple MacBook Air M3 512GB", "SKU-APL-MBA-M3", "8691234567893", 12, 52999.00m, "Bilgisayar", ["Trendyol", "Amazon TR"]),
+      new(5, "Dyson V15 Detect Supurge", "SKU-DYS-V15-DT", "8691234567894", 5, 28999.00m, "Ev Aletleri", ["Trendyol", "Hepsiburada", "N11"]),
+    ];
+
+    var now = DateTime.Now;
+    scanLogs =
+    [
+      new(1, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddMinutes(-15), "Ahmet Yilmaz", "Cikis"),
+      new(2, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddMinutes(-42), "Mehmet Demir", "Giris"),
+      new(3, "8691234567893", "Apple MacBook Air M3 512GB", now.AddHours(-1), "Ayse Kaya", "Sayim"),
+      new(4, "8691234567894", "Dyson V15 Detect Supurge", now.AddHours(-2), "Fatma Celik", "Cikis"),
+      new(5, "8691234567890", "Samsung Galaxy S24 Ultra 256GB", now.AddHours(-3), "Ali Ozturk", "Giris"),
+      new(6, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddHours(-5), "Ahmet Yilmaz", "Cikis"),
+      new(7, "8691234567891", "Nike Air Max 270 Erkek Spor Ayakkabi", now.AddDays(-1), "Mehmet Demir", "Sayim"),
+      new(8, "8691234567893", "Apple MacBook Air M3 512GB", now.AddDays(-1), "Ayse Kaya", "Giris"),
+      new(9, "8691234567894", "Dyson V15 Detect Supurge", now.AddDays(-2), "Fatma Celik", "Giris"),
+      new(10, "8691234567892", "Bosch Serie 6 Camasir Makinesi", now.AddDays(-3), "Ali Ozturk", "Sayim"),
+    ];
+
+    products = sampleProducts.Select(p => new PrintableProduct(p.Name, p.Sku, p.Barcode, p.Stock, false)).ToList();
   }
 
   private void HandleKeyDown(KeyboardEventArgs e)

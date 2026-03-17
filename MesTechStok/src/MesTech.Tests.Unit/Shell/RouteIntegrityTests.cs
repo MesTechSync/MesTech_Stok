@@ -17,6 +17,7 @@ public class RouteIntegrityTests
     private readonly string _repoRoot;
     private readonly string _shellDir;
     private readonly string _panelDir;
+    private readonly string _htmlDir;
     private readonly string _trendyolSrcDir;
     private readonly Dictionary<string, string> _routes;
 
@@ -25,6 +26,7 @@ public class RouteIntegrityTests
         _repoRoot = FindRepoRoot();
         _shellDir = Path.Combine(_repoRoot, "frontend", "shell");
         _panelDir = Path.Combine(_repoRoot, "frontend", "panel");
+        _htmlDir = Path.Combine(_repoRoot, "frontend", "html");
         _trendyolSrcDir = Path.Combine(_repoRoot, "MesTech_Trendyol", "apps", "web-dashboard", "src");
         _routes = ParseRouterRoutes();
     }
@@ -343,6 +345,10 @@ public class RouteIntegrityTests
         // Also check directly under panel dir (for top-level pages like dashboard.html)
         var panelDirPath = Path.Combine(_panelDir, rel);
         if (File.Exists(panelDirPath)) return panelDirPath;
+
+        // HTML dir path (B.html → frontend/html/)
+        var htmlPath = Path.Combine(_htmlDir, rel);
+        if (File.Exists(htmlPath)) return htmlPath;
 
         // Trendyol src path
         var trendyolPath = Path.Combine(_trendyolSrcDir, rel);

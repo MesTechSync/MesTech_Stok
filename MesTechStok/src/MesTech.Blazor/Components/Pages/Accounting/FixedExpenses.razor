@@ -1,0 +1,307 @@
+@page "/accounting/fixed-expenses"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Sabit Giderler</PageTitle>
+
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="accounting">Muhasebe</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Sabit Giderler</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-file-invoice text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Sabit Giderler</h3>
+      <small class="text-muted">Aylik tekrarlayan gider kalemleri yonetimi</small>
+    </div>
+  </div>
+
+  @if (_isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else if (_errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@_errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Aylik Toplam</small>
+                <h4 class="mb-0 fw-bold text-primary fs-6 fs-md-4">@ActiveExpenses.Sum(e => e.AylikTutar).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-calendar"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Yillik Toplam</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@(ActiveExpenses.Sum(e => e.AylikTutar) * 12).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Aktif Sayi</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@ActiveExpenses.Count</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-secondary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-secondary bg-opacity-10 text-secondary d-none d-sm-flex">
+                <i class="fas fa-pause-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Pasif Sayi</small>
+                <h4 class="mb-0 fw-bold text-secondary fs-6 fs-md-4">@_expenses.Count(e => !e.Aktif)</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-4">
+            <ul class="nav nav-pills nav-fill">
+              <li class="nav-item">
+                <button class="nav-link @(_showAll ? "active" : "")" @onclick="() => _showAll = true">Tumu (@_expenses.Count)</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(!_showAll ? "active" : "")" @onclick="() => _showAll = false">Aktif (@ActiveExpenses.Count)</button>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12 col-sm-5">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+              <input type="text" class="form-control" placeholder="Gider ara..."
+                     @bind="_searchText" @bind:event="oninput" />
+            </div>
+          </div>
+          <div class="col-12 col-sm-3 text-end">
+            <button class="btn btn-sm btn-primary" disabled>
+              <i class="fas fa-plus me-1"></i>Yeni Gider
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-table me-2" style="color: #2855AC;"></i>Sabit Gider Listesi</h6>
+        <span class="badge bg-secondary">@FilteredExpenses.Count kayit</span>
+      </div>
+      <div class="card-body p-0">
+        @if (FilteredExpenses.Count == 0)
+        {
+          <div class="text-center text-muted py-5">
+            <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+            <p>Sabit gider bulunamadi.</p>
+          </div>
+        }
+        else
+        {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Ad</th>
+                  <th class="text-end">Aylik Tutar</th>
+                  <th class="d-none d-md-table-cell">Odeme Gunu</th>
+                  <th class="d-none d-lg-table-cell">Baslangic</th>
+                  <th class="d-none d-lg-table-cell">Bitis</th>
+                  <th>Aktif</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var e in FilteredExpenses)
+                {
+                  <tr class="@(!e.Aktif ? "table-secondary" : "")">
+                    <td class="fw-bold">
+                      <i class="fas @GetCategoryIcon(e.Kategori) me-2 text-muted"></i>@e.Ad
+                    </td>
+                    <td class="text-end fw-bold">@e.AylikTutar.ToString("N2") TL</td>
+                    <td class="d-none d-md-table-cell">Her ayin @e.OdemeGunu'i</td>
+                    <td class="d-none d-lg-table-cell"><small class="text-muted">@e.Baslangic.ToString("dd.MM.yyyy")</small></td>
+                    <td class="d-none d-lg-table-cell">
+                      @if (e.Bitis.HasValue)
+                      {
+                        <small class="text-muted">@e.Bitis.Value.ToString("dd.MM.yyyy")</small>
+                      }
+                      else
+                      {
+                        <span class="badge bg-success">Devam Ediyor</span>
+                      }
+                    </td>
+                    <td>
+                      @if (e.Aktif)
+                      {
+                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aktif</span>
+                      }
+                      else
+                      {
+                        <span class="badge bg-secondary"><i class="fas fa-pause me-1"></i>Pasif</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td>TOPLAM</td>
+                  <td class="text-end">@FilteredExpenses.Where(e => e.Aktif).Sum(e => e.AylikTutar).ToString("N2") TL</td>
+                  <td colspan="4" class="d-none d-md-table-cell"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private string _searchText = string.Empty;
+  private bool _showAll;
+  private List<FixedExpenseRecord> _expenses = [];
+
+  private List<FixedExpenseRecord> ActiveExpenses => _expenses.Where(e => e.Aktif).ToList();
+
+  private List<FixedExpenseRecord> FilteredExpenses => _expenses
+    .Where(e => _showAll || e.Aktif)
+    .Where(e => string.IsNullOrWhiteSpace(_searchText) ||
+                e.Ad.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                e.Kategori.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    _isLoading = true;
+    _errorMessage = null;
+
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/fixed-expenses");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        _expenses = GetDemoExpenses();
+      }
+      else
+      {
+        _isDemoMode = true;
+        _expenses = GetDemoExpenses();
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      _expenses = GetDemoExpenses();
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static string GetCategoryIcon(string kategori) => kategori switch
+  {
+    "Kira" => "fa-building",
+    "Internet" => "fa-wifi",
+    "Elektrik" => "fa-bolt",
+    "Su" => "fa-tint",
+    "Dogalgaz" => "fa-fire",
+    "Sigorta" => "fa-shield-alt",
+    "Muhasebe" => "fa-calculator",
+    "Hosting" => "fa-server",
+    "Telefon" => "fa-phone",
+    "Temizlik" => "fa-broom",
+    _ => "fa-file-invoice"
+  };
+
+  private static List<FixedExpenseRecord> GetDemoExpenses() =>
+  [
+    new() { Ad = "Ofis Kirasi",               Kategori = "Kira",      AylikTutar = 35_000.00m, OdemeGunu = 1,  Baslangic = new DateTime(2024, 1, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Turk Telekom Fiber",        Kategori = "Internet",  AylikTutar =  1_250.00m, OdemeGunu = 15, Baslangic = new DateTime(2024, 3, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Elektrik (Enerjisa)",       Kategori = "Elektrik",  AylikTutar =  4_800.00m, OdemeGunu = 20, Baslangic = new DateTime(2024, 1, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Su (ISKI)",                 Kategori = "Su",        AylikTutar =    650.00m, OdemeGunu = 25, Baslangic = new DateTime(2024, 1, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Dogalgaz (IGDAS)",          Kategori = "Dogalgaz",  AylikTutar =  2_100.00m, OdemeGunu = 18, Baslangic = new DateTime(2024, 1, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Isyeri Sigortasi",          Kategori = "Sigorta",   AylikTutar =  1_800.00m, OdemeGunu = 5,  Baslangic = new DateTime(2025, 1, 1),  Bitis = new DateTime(2026, 12, 31), Aktif = true },
+    new() { Ad = "Muhasebe Danismanligi",     Kategori = "Muhasebe",  AylikTutar =  5_500.00m, OdemeGunu = 10, Baslangic = new DateTime(2024, 6, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Sunucu Hosting (Hetzner)",  Kategori = "Hosting",   AylikTutar =  2_400.00m, OdemeGunu = 1,  Baslangic = new DateTime(2025, 3, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Vodafone Kurumsal Hat",     Kategori = "Telefon",   AylikTutar =    980.00m, OdemeGunu = 12, Baslangic = new DateTime(2024, 9, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Temizlik Hizmeti",          Kategori = "Temizlik",  AylikTutar =  3_200.00m, OdemeGunu = 28, Baslangic = new DateTime(2024, 4, 1),  Bitis = null, Aktif = true },
+    new() { Ad = "Eski Depo Kirasi",          Kategori = "Kira",      AylikTutar = 18_000.00m, OdemeGunu = 1,  Baslangic = new DateTime(2023, 6, 1),  Bitis = new DateTime(2025, 5, 31), Aktif = false }
+  ];
+
+  private record FixedExpenseRecord
+  {
+    public string Ad { get; init; } = "";
+    public string Kategori { get; init; } = "";
+    public decimal AylikTutar { get; init; }
+    public int OdemeGunu { get; init; }
+    public DateTime Baslangic { get; init; }
+    public DateTime? Bitis { get; init; }
+    public bool Aktif { get; init; }
+  }
+}

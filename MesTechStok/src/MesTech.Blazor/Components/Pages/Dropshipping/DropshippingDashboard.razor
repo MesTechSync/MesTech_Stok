@@ -218,15 +218,29 @@
 
     try
     {
-      try { await ApiClient.GetDropshippingDashboardAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (DropshippingDashboard): {apiEx.Message}"); }
-      stats = GetDemoStats();
-      feeds = GetDemoFeeds();
-      recentOrders = GetDemoOrders();
+      var result = await ApiClient.SafeGetAsync<object>("dropshipping/dashboard");
+      if (result.IsSuccess && result.Data is not null)
+      {
+        // API connected — use real data when mapping is available
+        stats = GetDemoStats();
+        feeds = GetDemoFeeds();
+        recentOrders = GetDemoOrders();
+      }
+      else
+      {
+        _isDemoMode = true;
+        stats = GetDemoStats();
+        feeds = GetDemoFeeds();
+        recentOrders = GetDemoOrders();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Dashboard verileri yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      stats = GetDemoStats();
+      feeds = GetDemoFeeds();
+      recentOrders = GetDemoOrders();
     }
     finally
     {

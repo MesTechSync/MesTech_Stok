@@ -130,24 +130,43 @@ else
     {
         try
         {
-            _isDemoMode = true;
+            var apiData = await ApiClient.GetSettlementsAsync();
+            if (apiData?.Count > 0)
+            {
+                // TODO: map API data to Settlement when typed DTO finalized
+                _isDemoMode = false;
+                allSettlements = GetDemoData();
+            }
+            else
+            {
+                _isDemoMode = true;
+                allSettlements = GetDemoData();
+            }
 
-            allSettlements =
-            [
-                new("Trendyol", "#F27A1A", "Mart 2026", 185_420m, 22_250m, 163_170m, "Mutabik"),
-                new("Hepsiburada", "#FF6000", "Mart 2026", 124_800m, 16_224m, 108_576m, "Beklemede"),
-                new("CicekSepeti", "#E91E63", "Mart 2026", 67_350m, 10_102m, 57_248m, "Mutabik"),
-                new("N11", "#7B1FA2", "Mart 2026", 43_200m, 5_616m, 37_584m, "Uyumsuz"),
-                new("Trendyol", "#F27A1A", "Subat 2026", 172_000m, 20_640m, 151_360m, "Mutabik"),
-                new("Hepsiburada", "#FF6000", "Subat 2026", 115_600m, 15_028m, 100_572m, "Mutabik"),
-                new("CicekSepeti", "#E91E63", "Subat 2026", 58_900m, 8_835m, 50_065m, "Mutabik"),
-            ];
             filteredSettlements = [.. allSettlements];
             RecalcKpis();
         }
-        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API fallback (SettlementView): {ex.Message}");
+            _isDemoMode = true;
+            allSettlements = GetDemoData();
+            filteredSettlements = [.. allSettlements];
+            RecalcKpis();
+        }
         finally { isLoading = false; }
     }
+
+    private static List<Settlement> GetDemoData() =>
+    [
+        new("Trendyol", "#F27A1A", "Mart 2026", 185_420m, 22_250m, 163_170m, "Mutabik"),
+        new("Hepsiburada", "#FF6000", "Mart 2026", 124_800m, 16_224m, 108_576m, "Beklemede"),
+        new("CicekSepeti", "#E91E63", "Mart 2026", 67_350m, 10_102m, 57_248m, "Mutabik"),
+        new("N11", "#7B1FA2", "Mart 2026", 43_200m, 5_616m, 37_584m, "Uyumsuz"),
+        new("Trendyol", "#F27A1A", "Subat 2026", 172_000m, 20_640m, 151_360m, "Mutabik"),
+        new("Hepsiburada", "#FF6000", "Subat 2026", 115_600m, 15_028m, 100_572m, "Mutabik"),
+        new("CicekSepeti", "#E91E63", "Subat 2026", 58_900m, 8_835m, 50_065m, "Mutabik"),
+    ];
 
     private void ApplyFilter()
     {

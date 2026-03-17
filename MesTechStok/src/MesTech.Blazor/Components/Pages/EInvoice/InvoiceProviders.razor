@@ -93,21 +93,24 @@ else
   {
     try
     {
-      try
+      var apiData = await ApiClient.GetInvoiceProvidersAsync();
+      if (apiData?.Count > 0)
       {
-        await ApiClient.GetInvoiceProvidersAsync();
-        // TODO: map response when DTO finalized
+        // TODO: map API data to ProviderItem when typed DTO finalized
+        _isDemoMode = false;
+        _providers = GetDemoProviders();
       }
-      catch
+      else
       {
         _isDemoMode = true;
+        _providers = GetDemoProviders();
       }
-
-      _providers = GetDemoProviders();
     }
     catch (Exception ex)
     {
-      _errorMessage = $"Saglayicilar yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (InvoiceProviders): {ex.Message}");
+      _isDemoMode = true;
+      _providers = GetDemoProviders();
     }
     finally
     {

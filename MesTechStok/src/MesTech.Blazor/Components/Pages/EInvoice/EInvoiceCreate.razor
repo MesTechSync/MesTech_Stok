@@ -282,9 +282,25 @@ else
         isVknChecking = true;
         try
         {
-            await ApiClient.CheckVknAsync(form.AliciVkn);
-            // If API returns real data, map it here.
-            // Fallback to demo values until endpoint is ready.
+            var result = await ApiClient.CheckVknAsync(form.AliciVkn);
+            if (result is not null)
+            {
+                // TODO: map API result to form fields when typed DTO finalized
+                _isDemoMode = false;
+            }
+            else
+            {
+                _isDemoMode = true;
+            }
+            // Use demo values until typed DTO mapping is available
+            form.AliciUnvan = "Ornek Sirket A.S.";
+            form.VergiDairesi = "Kadikoy";
+            form.Adres = "Ornek Mah. Test Cad. No:1 Istanbul";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API fallback (CheckVkn): {ex.Message}");
+            _isDemoMode = true;
             form.AliciUnvan = "Ornek Sirket A.S.";
             form.VergiDairesi = "Kadikoy";
             form.Adres = "Ornek Mah. Test Cad. No:1 Istanbul";

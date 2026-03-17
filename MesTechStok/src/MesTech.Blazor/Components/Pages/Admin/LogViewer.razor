@@ -123,24 +123,45 @@ else
     {
         try
         {
-            _isDemoMode = true;
-
-            var now = DateTime.Now;
-            allLogs =
-            [
-                new(now.AddMinutes(-2), "Error", "API", "Trendyol API yanit vermedi — timeout 30s"),
-                new(now.AddMinutes(-5), "Warning", "Sync", "Stok senkronizasyonu 3 urun icin atlandis"),
-                new(now.AddMinutes(-8), "Info", "Auth", "Kullanici admin@mestech.tr basariyla giris yapti"),
-                new(now.AddMinutes(-12), "Info", "Scheduler", "Gunluk yedekleme gorevi tamamlandi"),
-                new(now.AddMinutes(-18), "Error", "Sync", "HB siparis cekme hatasi: 503 Service Unavailable"),
-                new(now.AddMinutes(-25), "Warning", "API", "Rate limit uyarisi — N11 100/dk sinira yaklasti"),
-                new(now.AddMinutes(-30), "Info", "API", "CicekSepeti urun guncelleme: 42 urun basarili"),
-                new(now.AddMinutes(-45), "Info", "Scheduler", "Fiyat guncelleme gorevi basladi"),
-            ];
+            var result = await ApiClient.SafeGetAsync<List<object>>("admin/logs");
+            if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+            {
+                _isDemoMode = false;
+                // Keep demo data for now — typed DTOs not yet available
+                // When API returns real data, it will be List<object>
+                allLogs = GetDemoLogs(); // TODO: map result.Data when DTOs exist
+            }
+            else
+            {
+                _isDemoMode = true;
+                allLogs = GetDemoLogs();
+            }
             filteredLogs = [.. allLogs];
         }
-        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API error, using demo data: {ex.Message}");
+            _isDemoMode = true;
+            allLogs = GetDemoLogs();
+            filteredLogs = [.. allLogs];
+        }
         finally { isLoading = false; }
+    }
+
+    private static List<LogEntry> GetDemoLogs()
+    {
+        var now = DateTime.Now;
+        return
+        [
+            new(now.AddMinutes(-2), "Error", "API", "Trendyol API yanit vermedi — timeout 30s"),
+            new(now.AddMinutes(-5), "Warning", "Sync", "Stok senkronizasyonu 3 urun icin atlandis"),
+            new(now.AddMinutes(-8), "Info", "Auth", "Kullanici admin@mestech.tr basariyla giris yapti"),
+            new(now.AddMinutes(-12), "Info", "Scheduler", "Gunluk yedekleme gorevi tamamlandi"),
+            new(now.AddMinutes(-18), "Error", "Sync", "HB siparis cekme hatasi: 503 Service Unavailable"),
+            new(now.AddMinutes(-25), "Warning", "API", "Rate limit uyarisi — N11 100/dk sinira yaklasti"),
+            new(now.AddMinutes(-30), "Info", "API", "CicekSepeti urun guncelleme: 42 urun basarili"),
+            new(now.AddMinutes(-45), "Info", "Scheduler", "Fiyat guncelleme gorevi basladi"),
+        ];
     }
 
     private void ApplyFilters()

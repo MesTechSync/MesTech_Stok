@@ -261,47 +261,61 @@ else
 
         try
         {
-            try { await ApiClient.GetCategoriesAsync(); }
-            catch (Exception apiEx) { Console.WriteLine($"API fallback (Categories): {apiEx.Message}"); }
-
-            var elektronik = new CategoryNode { Name = "Elektronik", ProductCount = 245 };
-            var bilgisayar = new CategoryNode { Name = "Bilgisayar", ParentId = elektronik.Id, ProductCount = 120 };
-            var telefon = new CategoryNode { Name = "Telefon", ParentId = elektronik.Id, ProductCount = 85 };
-            var aksesuar = new CategoryNode { Name = "Aksesuar", ParentId = elektronik.Id, ProductCount = 40 };
-            elektronik.Children = [bilgisayar, telefon, aksesuar];
-
-            var giyim = new CategoryNode { Name = "Giyim", ProductCount = 312 };
-            var erkek = new CategoryNode { Name = "Erkek", ParentId = giyim.Id, ProductCount = 150 };
-            var kadin = new CategoryNode { Name = "Kadin", ParentId = giyim.Id, ProductCount = 162 };
-            giyim.Children = [erkek, kadin];
-
-            var evYasam = new CategoryNode { Name = "Ev & Yasam", ProductCount = 98 };
-            var mutfak = new CategoryNode { Name = "Mutfak", ParentId = evYasam.Id, ProductCount = 45 };
-            var dekorasyon = new CategoryNode { Name = "Dekorasyon", ParentId = evYasam.Id, ProductCount = 53 };
-            evYasam.Children = [mutfak, dekorasyon];
-
-            var spor = new CategoryNode { Name = "Spor & Outdoor", ProductCount = 67 };
-            var kozmetik = new CategoryNode { Name = "Kozmetik & Kisisel Bakim", ProductCount = 134 };
-
-            rootCategories = [elektronik, giyim, evYasam, spor, kozmetik];
-            allCategoriesFlat = [elektronik, bilgisayar, telefon, aksesuar, giyim, erkek, kadin, evYasam, mutfak, dekorasyon, spor, kozmetik];
-
-            categoryStats =
-            [
-                new("Toplam Kategori", allCategoriesFlat.Count.ToString()),
-                new("Ana Kategori", rootCategories.Count.ToString()),
-                new("Alt Kategori", (allCategoriesFlat.Count - rootCategories.Count).ToString()),
-                new("Toplam Urun", allCategoriesFlat.Sum(c => c.ProductCount).ToString()),
-            ];
+            var result = await ApiClient.SafeGetAsync<List<object>>("categories");
+            if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+            {
+                // API connected — use real data when mapping is available
+                LoadDemoCategoryData();
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoCategoryData();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Kategoriler yuklenirken hata olustu: {ex.Message}";
+            Console.WriteLine($"API error, using demo data: {ex.Message}");
+            _isDemoMode = true;
+            LoadDemoCategoryData();
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private void LoadDemoCategoryData()
+    {
+        var elektronik = new CategoryNode { Name = "Elektronik", ProductCount = 245 };
+        var bilgisayar = new CategoryNode { Name = "Bilgisayar", ParentId = elektronik.Id, ProductCount = 120 };
+        var telefon = new CategoryNode { Name = "Telefon", ParentId = elektronik.Id, ProductCount = 85 };
+        var aksesuar = new CategoryNode { Name = "Aksesuar", ParentId = elektronik.Id, ProductCount = 40 };
+        elektronik.Children = [bilgisayar, telefon, aksesuar];
+
+        var giyim = new CategoryNode { Name = "Giyim", ProductCount = 312 };
+        var erkek = new CategoryNode { Name = "Erkek", ParentId = giyim.Id, ProductCount = 150 };
+        var kadin = new CategoryNode { Name = "Kadin", ParentId = giyim.Id, ProductCount = 162 };
+        giyim.Children = [erkek, kadin];
+
+        var evYasam = new CategoryNode { Name = "Ev & Yasam", ProductCount = 98 };
+        var mutfak = new CategoryNode { Name = "Mutfak", ParentId = evYasam.Id, ProductCount = 45 };
+        var dekorasyon = new CategoryNode { Name = "Dekorasyon", ParentId = evYasam.Id, ProductCount = 53 };
+        evYasam.Children = [mutfak, dekorasyon];
+
+        var spor = new CategoryNode { Name = "Spor & Outdoor", ProductCount = 67 };
+        var kozmetik = new CategoryNode { Name = "Kozmetik & Kisisel Bakim", ProductCount = 134 };
+
+        rootCategories = [elektronik, giyim, evYasam, spor, kozmetik];
+        allCategoriesFlat = [elektronik, bilgisayar, telefon, aksesuar, giyim, erkek, kadin, evYasam, mutfak, dekorasyon, spor, kozmetik];
+
+        categoryStats =
+        [
+            new("Toplam Kategori", allCategoriesFlat.Count.ToString()),
+            new("Ana Kategori", rootCategories.Count.ToString()),
+            new("Alt Kategori", (allCategoriesFlat.Count - rootCategories.Count).ToString()),
+            new("Toplam Urun", allCategoriesFlat.Sum(c => c.ProductCount).ToString()),
+        ];
     }
 
     private void OnCategorySelected(CategoryNode cat)

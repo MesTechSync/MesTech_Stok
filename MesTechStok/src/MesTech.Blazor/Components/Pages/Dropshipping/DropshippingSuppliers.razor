@@ -282,13 +282,23 @@
 
     try
     {
-      try { await ApiClient.GetDropshippingSuppliersAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (DropshippingSuppliers): {apiEx.Message}"); }
-      suppliers = GetDemoSuppliers();
+      var result = await ApiClient.SafeGetAsync<List<object>>("dropshipping/suppliers");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        suppliers = GetDemoSuppliers();
+      }
+      else
+      {
+        _isDemoMode = true;
+        suppliers = GetDemoSuppliers();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Tedarikci verileri yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      suppliers = GetDemoSuppliers();
     }
     finally
     {

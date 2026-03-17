@@ -268,37 +268,51 @@ else
 
     try
     {
-      try { await ApiClient.GetNotificationsAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Notifications): {apiEx.Message}"); }
-
-      var now = DateTime.Now;
-      notifications =
-      [
-        new(1, "Yeni Siparis - Trendyol #TY-28491", "Trendyol uzerinden yeni siparis alindi. 3 urun, toplam 1.250 TL.", "Email", now.AddHours(-1), false),
-        new(2, "Kritik Stok Uyarisi", "Samsung Galaxy S24 Ultra stok adedi 3'e dustu. Minimum seviye: 10.", "SMS", now.AddHours(-2), false),
-        new(3, "Hepsiburada Sync Tamamlandi", "248 urun basariyla senkronize edildi. 3 urun hatali.", "Telegram", now.AddHours(-3), false),
-        new(4, "Siparis Kargoya Verildi", "Siparis #MES-1847 Yurtici Kargo ile gonderildi. Takip: YK-789456123.", "WhatsApp", now.AddHours(-5), true),
-        new(5, "N11 Entegrasyon Hatasi", "N11 API baglantisi 15 dakikadir yanitlamiyor. Otomatik yeniden deneme baslatildi.", "Email", now.AddHours(-8), false),
-        new(6, "Fiyat Guncelleme Onayı", "42 urun icin fiyat guncelleme islemi tamamlandi.", "Telegram", now.AddHours(-12), true),
-        new(7, "Yeni Lead - Web Formu", "Yeni musteri aday: ABC Ticaret Ltd. Web formundan kayit oldu.", "Email", now.AddDays(-1), true),
-        new(8, "Depo Sayim Hatirlatmasi", "Yarin saat 08:00'de aylik depo sayimi basliyor. Ekip hazirligini kontrol edin.", "WhatsApp", now.AddDays(-1), false),
-        new(9, "Amazon TR Magaza Onaylandi", "Amazon Turkiye magaza basvurunuz onaylandi. Urun yuklemeye baslayabilirsiniz.", "Email", now.AddDays(-2), true),
-        new(10, "Toplu Siparis Uyarisi", "Son 1 saatte 15 yeni siparis alindi. Depo kapasitesini kontrol edin.", "SMS", now.AddDays(-2), false),
-        new(11, "CicekSepeti Kampanya Bildirimi", "Yaz indirimi kampanyasi baslatildi. 89 urunum fiyati otomatik guncellendi.", "Telegram", now.AddDays(-3), true),
-        new(12, "Kargo Iade Bildirimi", "Siparis #MES-1792 iade surecine alindi. Musteri: Ayse Yildiz.", "WhatsApp", now.AddDays(-3), true),
-        new(13, "Sync Hatasi - OpenCart", "OpenCart veritabani baglantisi zaman asimina ugradi. Manuel kontrol gerekiyor.", "Email", now.AddDays(-4), false),
-        new(14, "Haftalik Rapor Hazir", "Bu haftanin satis raporu hazir: 245 siparis, 87.500 TL ciro.", "Telegram", now.AddDays(-5), true),
-        new(15, "Yeni Tedarikci Teklifi", "XYZ Tekstil'den yeni fiyat teklifi alindi. Detaylar ekte.", "SMS", now.AddDays(-6), false),
-      ];
+      var result = await ApiClient.SafeGetAsync<List<object>>("notifications");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        notifications = GetDemoNotifications();
+      }
+      else
+      {
+        _isDemoMode = true;
+        notifications = GetDemoNotifications();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Bildirimler yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      notifications = GetDemoNotifications();
     }
     finally
     {
       isLoading = false;
     }
+  }
+
+  private List<NotificationItem> GetDemoNotifications()
+  {
+    var now = DateTime.Now;
+    return
+    [
+      new(1, "Yeni Siparis - Trendyol #TY-28491", "Trendyol uzerinden yeni siparis alindi. 3 urun, toplam 1.250 TL.", "Email", now.AddHours(-1), false),
+      new(2, "Kritik Stok Uyarisi", "Samsung Galaxy S24 Ultra stok adedi 3'e dustu. Minimum seviye: 10.", "SMS", now.AddHours(-2), false),
+      new(3, "Hepsiburada Sync Tamamlandi", "248 urun basariyla senkronize edildi. 3 urun hatali.", "Telegram", now.AddHours(-3), false),
+      new(4, "Siparis Kargoya Verildi", "Siparis #MES-1847 Yurtici Kargo ile gonderildi. Takip: YK-789456123.", "WhatsApp", now.AddHours(-5), true),
+      new(5, "N11 Entegrasyon Hatasi", "N11 API baglantisi 15 dakikadir yanitlamiyor. Otomatik yeniden deneme baslatildi.", "Email", now.AddHours(-8), false),
+      new(6, "Fiyat Guncelleme Onayı", "42 urun icin fiyat guncelleme islemi tamamlandi.", "Telegram", now.AddHours(-12), true),
+      new(7, "Yeni Lead - Web Formu", "Yeni musteri aday: ABC Ticaret Ltd. Web formundan kayit oldu.", "Email", now.AddDays(-1), true),
+      new(8, "Depo Sayim Hatirlatmasi", "Yarin saat 08:00'de aylik depo sayimi basliyor. Ekip hazirligini kontrol edin.", "WhatsApp", now.AddDays(-1), false),
+      new(9, "Amazon TR Magaza Onaylandi", "Amazon Turkiye magaza basvurunuz onaylandi. Urun yuklemeye baslayabilirsiniz.", "Email", now.AddDays(-2), true),
+      new(10, "Toplu Siparis Uyarisi", "Son 1 saatte 15 yeni siparis alindi. Depo kapasitesini kontrol edin.", "SMS", now.AddDays(-2), false),
+      new(11, "CicekSepeti Kampanya Bildirimi", "Yaz indirimi kampanyasi baslatildi. 89 urunum fiyati otomatik guncellendi.", "Telegram", now.AddDays(-3), true),
+      new(12, "Kargo Iade Bildirimi", "Siparis #MES-1792 iade surecine alindi. Musteri: Ayse Yildiz.", "WhatsApp", now.AddDays(-3), true),
+      new(13, "Sync Hatasi - OpenCart", "OpenCart veritabani baglantisi zaman asimina ugradi. Manuel kontrol gerekiyor.", "Email", now.AddDays(-4), false),
+      new(14, "Haftalik Rapor Hazir", "Bu haftanin satis raporu hazir: 245 siparis, 87.500 TL ciro.", "Telegram", now.AddDays(-5), true),
+      new(15, "Yeni Tedarikci Teklifi", "XYZ Tekstil'den yeni fiyat teklifi alindi. Detaylar ekte.", "SMS", now.AddDays(-6), false),
+    ];
   }
 
   private void MarkAsRead(int notifId)

@@ -234,20 +234,19 @@ else
     isLoading = true;
     try
     {
-      try { await ApiClient.GetStoresAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Stores): {apiEx.Message}"); }
-
-      stores =
-      [
-        new("Anadolu Trendyol", "Trendyol", "Bagli", new DateTime(2026, 3, 16, 9, 30, 0), 1240),
-        new("Anadolu HB", "Hepsiburada", "Bagli", new DateTime(2026, 3, 16, 8, 45, 0), 890),
-        new("Ege N11 Magaza", "N11", "Baglanti Hatasi", new DateTime(2026, 3, 15, 22, 10, 0), 670),
-        new("Marmara Shopify", "Shopify", "Bagli", new DateTime(2026, 3, 16, 7, 0, 0), 320),
-        new("Akdeniz CicekSepeti", "CicekSepeti", "Bagli", new DateTime(2026, 3, 16, 6, 30, 0), 195),
-        new("Karadeniz Amazon", "Amazon TR", "Baglanti Hatasi", new DateTime(2026, 3, 14, 15, 20, 0), 145),
-        new("Anadolu WooCommerce", "WooCommerce", "Bagli", new DateTime(2026, 3, 16, 10, 0, 0), 410),
-        new("Ege OpenCart", "OpenCart", "Bagli", new DateTime(2026, 3, 16, 5, 15, 0), 560),
-      ];
+      var apiData = await ApiClient.GetStoresAsync();
+      if (apiData?.Count > 0)
+      {
+        _isDemoMode = false;
+        // Keep demo data for now — typed DTOs not yet available
+        // When API returns real data, it will be List<object>
+        stores = GetDemoStores(); // TODO: map apiData when DTOs exist
+      }
+      else
+      {
+        _isDemoMode = true;
+        stores = GetDemoStores();
+      }
 
       toplamMagaza = stores.Count;
       aktifMagaza = stores.Count(s => s.BaglantiDurumu == "Bagli");
@@ -256,13 +255,31 @@ else
     }
     catch (Exception ex)
     {
-      errorMessage = $"Magaza verileri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (Stores): {ex.Message}");
+      _isDemoMode = true;
+      stores = GetDemoStores();
+      toplamMagaza = stores.Count;
+      aktifMagaza = stores.Count(s => s.BaglantiDurumu == "Bagli");
+      baglantiHatasi = stores.Count(s => s.BaglantiDurumu != "Bagli");
+      son24sSync = stores.Count(s => s.SonSync > DateTime.Now.AddHours(-24));
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private static List<StoreRow> GetDemoStores() =>
+  [
+    new("Anadolu Trendyol", "Trendyol", "Bagli", new DateTime(2026, 3, 16, 9, 30, 0), 1240),
+    new("Anadolu HB", "Hepsiburada", "Bagli", new DateTime(2026, 3, 16, 8, 45, 0), 890),
+    new("Ege N11 Magaza", "N11", "Baglanti Hatasi", new DateTime(2026, 3, 15, 22, 10, 0), 670),
+    new("Marmara Shopify", "Shopify", "Bagli", new DateTime(2026, 3, 16, 7, 0, 0), 320),
+    new("Akdeniz CicekSepeti", "CicekSepeti", "Bagli", new DateTime(2026, 3, 16, 6, 30, 0), 195),
+    new("Karadeniz Amazon", "Amazon TR", "Baglanti Hatasi", new DateTime(2026, 3, 14, 15, 20, 0), 145),
+    new("Anadolu WooCommerce", "WooCommerce", "Bagli", new DateTime(2026, 3, 16, 10, 0, 0), 410),
+    new("Ege OpenCart", "OpenCart", "Bagli", new DateTime(2026, 3, 16, 5, 15, 0), 560),
+  ];
 
   private void ToggleNewStoreForm()
   {

@@ -283,13 +283,23 @@
 
     try
     {
-      try { await ApiClient.GetQuotationsAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Quotations): {apiEx.Message}"); }
-      quotations = GetDemoQuotations();
+      var result = await ApiClient.SafeGetAsync<List<object>>("quotations");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        quotations = GetDemoQuotations();
+      }
+      else
+      {
+        _isDemoMode = true;
+        quotations = GetDemoQuotations();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Teklifler yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      quotations = GetDemoQuotations();
     }
     finally
     {

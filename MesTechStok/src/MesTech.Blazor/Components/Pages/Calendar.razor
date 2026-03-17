@@ -266,34 +266,50 @@ else
       currentYear = today.Year;
       selectedDate = today;
 
-      try { await ApiClient.GetCalendarEventsAsync(currentYear, currentMonth); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Calendar): {apiEx.Message}"); }
-
-      events =
-      [
-        new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "#0d6efd"),
-        new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "#198754"),
-        new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "#6f42c1"),
-        new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "#fd7e14"),
-        new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "#dc3545"),
-        new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "#0d6efd"),
-        new(7, "Kargo Firma Degisikligi", new DateTime(currentYear, currentMonth, 18), "10:00", "Operasyon", "Yeni kargo anlasma imzasi", "#ffc107"),
-        new(8, "Muhasebe Kapanisi", new DateTime(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)), "17:00", "Muhasebe", "Aylik kapanis islemleri", "#d63384"),
-        new(9, "Amazon TR Magaza Acilisi", new DateTime(currentYear, currentMonth, 20), "09:00", "Platform Ekibi", "Amazon Turkiye magaza lansmani", "#fd7e14"),
-        new(10, "MESA AI Demo Sunumu", new DateTime(currentYear, currentMonth, 22), "15:00", "AI Ekibi, Yonetim", "Uretim tahmin modeli demo", "#0dcaf0"),
-      ];
+      var result = await ApiClient.SafeGetAsync<List<object>>($"calendar/events?year={currentYear}&month={currentMonth}");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        // API connected — use real data when mapping is available
+        events = GetDemoEvents();
+      }
+      else
+      {
+        _isDemoMode = true;
+        events = GetDemoEvents();
+      }
 
       BuildCalendarDays();
     }
     catch (Exception ex)
     {
-      errorMessage = $"Takvim verileri yuklenirken hata olustu: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      var today = DateTime.Today;
+      currentMonth = today.Month;
+      currentYear = today.Year;
+      selectedDate = today;
+      events = GetDemoEvents();
+      BuildCalendarDays();
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private List<CalendarEvent> GetDemoEvents() =>
+  [
+    new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "#0d6efd"),
+    new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "#198754"),
+    new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "#6f42c1"),
+    new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "#fd7e14"),
+    new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "#dc3545"),
+    new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "#0d6efd"),
+    new(7, "Kargo Firma Degisikligi", new DateTime(currentYear, currentMonth, 18), "10:00", "Operasyon", "Yeni kargo anlasma imzasi", "#ffc107"),
+    new(8, "Muhasebe Kapanisi", new DateTime(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)), "17:00", "Muhasebe", "Aylik kapanis islemleri", "#d63384"),
+    new(9, "Amazon TR Magaza Acilisi", new DateTime(currentYear, currentMonth, 20), "09:00", "Platform Ekibi", "Amazon Turkiye magaza lansmani", "#fd7e14"),
+    new(10, "MESA AI Demo Sunumu", new DateTime(currentYear, currentMonth, 22), "15:00", "AI Ekibi, Yonetim", "Uretim tahmin modeli demo", "#0dcaf0"),
+  ];
 
   private void NavigateMonth(int offset)
   {

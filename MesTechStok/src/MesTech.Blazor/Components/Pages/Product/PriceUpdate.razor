@@ -169,28 +169,41 @@ else
   {
     try
     {
-      _isDemoMode = true;
-
-      // Demo verisi
-      _products =
-      [
-        new() { Name = "Pamuklu Basic Tisort - Beyaz", SKU = "TSH-001-W", CurrentPrice = 149.90m, Selected = true },
-        new() { Name = "Pamuklu Basic Tisort - Siyah", SKU = "TSH-001-B", CurrentPrice = 149.90m, Selected = true },
-        new() { Name = "Slim Fit Jean Pantolon", SKU = "JNS-002", CurrentPrice = 349.90m },
-        new() { Name = "Oversize Hoodie - Gri", SKU = "HOD-003-G", CurrentPrice = 279.90m },
-        new() { Name = "Spor Sneaker Ayakkabi", SKU = "SNK-004", CurrentPrice = 599.90m, Selected = true },
-        new() { Name = "Keten Gomlek - Mavi", SKU = "SHR-005-BL", CurrentPrice = 229.90m },
-      ];
+      var result = await ApiClient.SafeGetAsync<List<object>>("products/prices");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        _isDemoMode = false;
+        // Keep demo data for now — typed DTOs not yet available
+        // When API returns real data, it will be List<object>
+        _products = GetDemoProducts(); // TODO: map result.Data when DTOs exist
+      }
+      else
+      {
+        _isDemoMode = true;
+        _products = GetDemoProducts();
+      }
     }
     catch (Exception ex)
     {
-      errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      _products = GetDemoProducts();
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private static List<PriceRow> GetDemoProducts() =>
+  [
+    new() { Name = "Pamuklu Basic Tisort - Beyaz", SKU = "TSH-001-W", CurrentPrice = 149.90m, Selected = true },
+    new() { Name = "Pamuklu Basic Tisort - Siyah", SKU = "TSH-001-B", CurrentPrice = 149.90m, Selected = true },
+    new() { Name = "Slim Fit Jean Pantolon", SKU = "JNS-002", CurrentPrice = 349.90m },
+    new() { Name = "Oversize Hoodie - Gri", SKU = "HOD-003-G", CurrentPrice = 279.90m },
+    new() { Name = "Spor Sneaker Ayakkabi", SKU = "SNK-004", CurrentPrice = 599.90m, Selected = true },
+    new() { Name = "Keten Gomlek - Mavi", SKU = "SHR-005-BL", CurrentPrice = 229.90m },
+  ];
 
   private void SetUpdateType(string type) => _updateType = type;
 

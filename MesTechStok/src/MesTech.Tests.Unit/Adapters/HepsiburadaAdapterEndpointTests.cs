@@ -66,11 +66,11 @@ public class HepsiburadaAdapterEndpointTests
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
+            .Returns(() => Task.FromResult(new HttpResponseMessage
             {
                 StatusCode = statusCode,
                 Content = new StringContent(content, Encoding.UTF8, "application/json")
-            });
+            }));
     }
 
     private void SetupMockResponseForUrl(HttpStatusCode statusCode, string content, string urlContains)

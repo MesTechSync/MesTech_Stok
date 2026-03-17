@@ -125,15 +125,27 @@ else
     {
       try
       {
-        await ApiClient.GetCargoProvidersAsync();
-        // TODO: map response to CargoProvider when DTO finalized
+        var result = await ApiClient.GetCargoProvidersAsync();
+        if (result is { Count: > 0 })
+        {
+          _isDemoMode = false;
+          // TODO: map API response to CargoProvider when DTO finalized
+        }
+        else
+        {
+          _isDemoMode = true;
+        }
       }
-      catch
+      catch (Exception apiEx)
       {
+        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
         _isDemoMode = true;
       }
 
-      _providers = GetDemoProviders();
+      if (_isDemoMode)
+      {
+        _providers = GetDemoProviders();
+      }
     }
     catch (Exception ex)
     {

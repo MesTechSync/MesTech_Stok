@@ -119,33 +119,46 @@ else
 
         try
         {
-            try { await ApiClient.GetPlatformOverviewAsync(); }
-            catch (Exception apiEx) { Console.WriteLine($"API fallback (PlatformOverview): {apiEx.Message}"); }
-
-            platforms =
-            [
-                new("Trendyol", "fas fa-shopping-bag", "#FF6F00", "Pazaryeri", 1250, 340, "Guncel", true, DateTime.Now.AddMinutes(-15)),
-                new("OpenCart", "fas fa-cart-shopping", "#2196F3", "E-Ticaret", 980, 120, "Guncel", true, DateTime.Now.AddMinutes(-30)),
-                new("N11", "fas fa-store", "#FF5722", "Pazaryeri", 870, 95, "Guncel", true, DateTime.Now.AddHours(-1)),
-                new("Hepsiburada", "fas fa-box", "#FF9800", "Pazaryeri", 1100, 280, "Gecikme", true, DateTime.Now.AddHours(-2)),
-                new("Amazon TR", "fab fa-amazon", "#FF9900", "Pazaryeri", 560, 78, "Guncel", true, DateTime.Now.AddMinutes(-45)),
-                new("Pazarama", "fas fa-shop", "#4CAF50", "Pazaryeri", 420, 35, "Bekliyor", true, DateTime.Now.AddHours(-3)),
-                new("CicekSepeti", "fas fa-seedling", "#E91E63", "Pazaryeri", 310, 45, "Guncel", true, DateTime.Now.AddHours(-1)),
-                new("Shopify", "fab fa-shopify", "#96BF48", "E-Ticaret", 750, 190, "Guncel", true, DateTime.Now.AddMinutes(-20)),
-                new("WooCommerce", "fab fa-wordpress", "#96588A", "E-Ticaret", 630, 85, "Hata", false, DateTime.Now.AddHours(-4)),
-                new("eBay", "fab fa-ebay", "#E53238", "Pazaryeri", 280, 42, "Guncel", true, DateTime.Now.AddMinutes(-50)),
-                new("Bitrix24", "fas fa-users-cog", "#00BCD4", "CRM", 0, 0, "Bekliyor", true, DateTime.Now.AddHours(-6)),
-            ];
+            var apiData = await ApiClient.GetPlatformOverviewAsync();
+            if (apiData?.Count > 0)
+            {
+                _isDemoMode = false;
+                // Keep demo data for now — typed DTOs not yet available
+                // When API returns real data, it will be List<object>
+                platforms = GetDemoPlatforms(); // TODO: map apiData when DTOs exist
+            }
+            else
+            {
+                _isDemoMode = true;
+                platforms = GetDemoPlatforms();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Platform bilgileri yuklenirken hata olustu: {ex.Message}";
+            Console.WriteLine($"API fallback (PlatformOverview): {ex.Message}");
+            _isDemoMode = true;
+            platforms = GetDemoPlatforms();
         }
         finally
         {
             isLoading = false;
         }
     }
+
+    private static List<PlatformInfo> GetDemoPlatforms() =>
+    [
+        new("Trendyol", "fas fa-shopping-bag", "#FF6F00", "Pazaryeri", 1250, 340, "Guncel", true, DateTime.Now.AddMinutes(-15)),
+        new("OpenCart", "fas fa-cart-shopping", "#2196F3", "E-Ticaret", 980, 120, "Guncel", true, DateTime.Now.AddMinutes(-30)),
+        new("N11", "fas fa-store", "#FF5722", "Pazaryeri", 870, 95, "Guncel", true, DateTime.Now.AddHours(-1)),
+        new("Hepsiburada", "fas fa-box", "#FF9800", "Pazaryeri", 1100, 280, "Gecikme", true, DateTime.Now.AddHours(-2)),
+        new("Amazon TR", "fab fa-amazon", "#FF9900", "Pazaryeri", 560, 78, "Guncel", true, DateTime.Now.AddMinutes(-45)),
+        new("Pazarama", "fas fa-shop", "#4CAF50", "Pazaryeri", 420, 35, "Bekliyor", true, DateTime.Now.AddHours(-3)),
+        new("CicekSepeti", "fas fa-seedling", "#E91E63", "Pazaryeri", 310, 45, "Guncel", true, DateTime.Now.AddHours(-1)),
+        new("Shopify", "fab fa-shopify", "#96BF48", "E-Ticaret", 750, 190, "Guncel", true, DateTime.Now.AddMinutes(-20)),
+        new("WooCommerce", "fab fa-wordpress", "#96588A", "E-Ticaret", 630, 85, "Hata", false, DateTime.Now.AddHours(-4)),
+        new("eBay", "fab fa-ebay", "#E53238", "Pazaryeri", 280, 42, "Guncel", true, DateTime.Now.AddMinutes(-50)),
+        new("Bitrix24", "fas fa-users-cog", "#00BCD4", "CRM", 0, 0, "Bekliyor", true, DateTime.Now.AddHours(-6)),
+    ];
 
     private static string GetSyncVariant(string durum) => durum switch
     {

@@ -13,6 +13,8 @@
 
   <!-- Navigation Links -->
   <ul class="nav flex-column mt-3 px-2 flex-grow-1" style="overflow-y: auto;">
+
+    @* ── 1. Dashboard ── *@
     <li class="nav-item mb-1">
       <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dashboard">
         <i class="fas fa-tachometer-alt me-2" style="width: 20px; text-align: center;"></i>
@@ -20,244 +22,520 @@
       </NavLink>
     </li>
 
-    <!-- E-Ticaret -->
+    @* ── 2. Urunler ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">E-Ticaret</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showUrunler = !_showUrunler">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-box me-1"></i> @L["Nav.Products"]
+        </small>
+        <i class="fas @(_showUrunler ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="siparisler">
-        <i class="fas fa-shopping-cart me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Orders"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="stok">
-        <i class="fas fa-boxes-stacked me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Stock"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="categories">
-        <i class="fas fa-sitemap me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Categories"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="platforms">
-        <i class="fas fa-store me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Platforms"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="platform-sync">
-        <i class="fas fa-sync-alt me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.SyncStatus"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="pazaryerleri">
-        <i class="fas fa-globe me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Marketplaces"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="shipments">
-        <i class="fas fa-shipping-fast me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Shipping"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="shipments/tracking">
-        <i class="fas fa-truck me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Tracking"]
-      </NavLink>
-    </li>
+    @if (_showUrunler)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products">
+          <i class="fas fa-list me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Products"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products/upload">
+          <i class="fas fa-plus-circle me-2" style="width: 20px; text-align: center;"></i>
+          Urun Ekle
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products/import">
+          <i class="fas fa-file-import me-2" style="width: 20px; text-align: center;"></i>
+          Toplu Ice Aktar
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products/variants">
+          <i class="fas fa-sitemap me-2" style="width: 20px; text-align: center;"></i>
+          Varyantlar
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products/price-update">
+          <i class="fas fa-tags me-2" style="width: 20px; text-align: center;"></i>
+          Fiyat Guncelle
+        </NavLink>
+      </li>
+    }
 
-    <!-- Finans & Muhasebe -->
+    @* ── 3. Siparisler ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">@L["Nav.Finance"]</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showSiparisler = !_showSiparisler">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-shopping-cart me-1"></i> @L["Nav.Orders"]
+        </small>
+        <i class="fas @(_showSiparisler ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/kar-zarar">
-        <i class="fas fa-chart-line me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.ProfitLoss"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/giderler">
-        <i class="fas fa-file-invoice-dollar me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Expenses"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/banka">
-        <i class="fas fa-building-columns me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.BankAccounts"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="e-invoices">
-        <i class="fas fa-file-invoice me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.EInvoices"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="cari-hesaplar">
-        <i class="fas fa-address-book me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.CariHesap"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="quotations">
-        <i class="fas fa-file-signature me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Quotations"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="reconciliation">
-        <i class="fas fa-balance-scale me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Reconciliation"]
-      </NavLink>
-    </li>
+    @if (_showSiparisler)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="siparisler">
+          <i class="fas fa-shopping-cart me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Orders"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-search me-2" style="width: 20px; text-align: center;"></i>
+          Siparis Detay (Yakinda)
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-store me-2" style="width: 20px; text-align: center;"></i>
+          Platform Bazli (Yakinda)
+        </NavLink>
+      </li>
+    }
 
-    <!-- Dropshipping -->
+    @* ── 4. Stok ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">@L["Nav.Dropshipping"]</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showStok = !_showStok">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-warehouse me-1"></i> @L["Nav.Stock"]
+        </small>
+        <i class="fas @(_showStok ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping">
-        <i class="fas fa-parachute-box me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Dashboard"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping/pools">
-        <i class="fas fa-layer-group me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Pools"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping/suppliers">
-        <i class="fas fa-handshake me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Suppliers"]
-      </NavLink>
-    </li>
+    @if (_showStok)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="stok">
+          <i class="fas fa-boxes-stacked me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Stock"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="products/stock-lot">
+          <i class="fas fa-barcode me-2" style="width: 20px; text-align: center;"></i>
+          Lot Takip
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/stock-placement">
+          <i class="fas fa-map-marked-alt me-2" style="width: 20px; text-align: center;"></i>
+          Depo Yerlesim
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-sync me-2" style="width: 20px; text-align: center;"></i>
+          Stok Guncelle (Yakinda)
+        </NavLink>
+      </li>
+    }
 
-    <!-- CRM -->
+    @* ── 5. Kategoriler ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">@L["Nav.CRM"]</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showKategoriler = !_showKategoriler">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-layer-group me-1"></i> @L["Nav.Categories"]
+        </small>
+        <i class="fas @(_showKategoriler ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/leads">
-        <i class="fas fa-user-plus me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Leads"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/deals">
-        <i class="fas fa-handshake-angle me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Deals"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/contacts">
-        <i class="fas fa-address-card me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Contacts"]
-      </NavLink>
-    </li>
+    @if (_showKategoriler)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="categories">
+          <i class="fas fa-sitemap me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Categories"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-exchange-alt me-2" style="width: 20px; text-align: center;"></i>
+          Platform Esleme (Yakinda)
+        </NavLink>
+      </li>
+    }
 
-    <!-- Yonetim -->
+    @* ── 6. Kargo ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">Yonetim</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showKargo = !_showKargo">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-truck me-1"></i> @L["Nav.Shipping"]
+        </small>
+        <i class="fas @(_showKargo ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/calisanlar">
-        <i class="fas fa-users me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Employees"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/izinler">
-        <i class="fas fa-calendar-check me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.LeaveRequests"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="projects">
-        <i class="fas fa-project-diagram me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Projects"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="calendar">
-        <i class="fas fa-calendar-alt me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Calendar"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="warehouses">
-        <i class="fas fa-warehouse me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Warehouses"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="notifications">
-        <i class="fas fa-bell me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Notifications"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="barcodes">
-        <i class="fas fa-barcode me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Barcodes"]
-      </NavLink>
-    </li>
+    @if (_showKargo)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="shipments">
+          <i class="fas fa-shipping-fast me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Shipping"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="shipments/tracking">
+          <i class="fas fa-truck me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Tracking"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="shipments/labels">
+          <i class="fas fa-print me-2" style="width: 20px; text-align: center;"></i>
+          Etiket Yazdir
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-robot me-2" style="width: 20px; text-align: center;"></i>
+          Otomatik Atama (Yakinda)
+        </NavLink>
+      </li>
+    }
 
-    <!-- Diger -->
+    @* ── 7. E-Fatura ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">Diger</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showEFatura = !_showEFatura">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-file-invoice me-1"></i> E-Fatura
+        </small>
+        <i class="fas @(_showEFatura ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="belgeler">
-        <i class="fas fa-folder-open me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Documents"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="raporlar">
-        <i class="fas fa-chart-bar me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Reports"]
-      </NavLink>
-    </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="ayarlar">
-        <i class="fas fa-cog me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Settings"]
-      </NavLink>
-    </li>
+    @if (_showEFatura)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="e-invoices">
+          <i class="fas fa-file-invoice me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.EInvoices"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="e-invoices/create">
+          <i class="fas fa-plus me-2" style="width: 20px; text-align: center;"></i>
+          Fatura Olustur
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-eye me-2" style="width: 20px; text-align: center;"></i>
+          Fatura Detay (Yakinda)
+        </NavLink>
+      </li>
+    }
 
-    <!-- Admin -->
+    @* ── 8. Finans ── *@
     <li class="nav-section-label px-3 py-2 mt-3">
-      <small class="text-uppercase text-white-50 fw-bold">Admin</small>
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showFinans = !_showFinans">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-coins me-1"></i> @L["Nav.Finance"]
+        </small>
+        <i class="fas @(_showFinans ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/tenants">
-        <i class="fas fa-building me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Tenants"]
-      </NavLink>
+    @if (_showFinans)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/kar-zarar">
+          <i class="fas fa-chart-line me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.ProfitLoss"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/giderler">
+          <i class="fas fa-file-invoice-dollar me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Expenses"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="finans/banka">
+          <i class="fas fa-building-columns me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.BankAccounts"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="cari-hesaplar">
+          <i class="fas fa-address-book me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.CariHesap"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="quotations">
+          <i class="fas fa-file-signature me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Quotations"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="reconciliation">
+          <i class="fas fa-balance-scale me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Reconciliation"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="accounting/salaries">
+          <i class="fas fa-money-check-alt me-2" style="width: 20px; text-align: center;"></i>
+          Maas Yonetimi
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="accounting/fixed-expenses">
+          <i class="fas fa-file-invoice me-2" style="width: 20px; text-align: center;"></i>
+          Sabit Giderler
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="accounting/penalties">
+          <i class="fas fa-gavel me-2" style="width: 20px; text-align: center;"></i>
+          Ceza Kayitlari
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-calculator me-2" style="width: 20px; text-align: center;"></i>
+          KDV Hesaplama (Yakinda)
+        </NavLink>
+      </li>
+    }
+
+    @* ── 9. CRM ── *@
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showCRM = !_showCRM">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-users me-1"></i> @L["Nav.CRM"]
+        </small>
+        <i class="fas @(_showCRM ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/stores">
-        <i class="fas fa-store-alt me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.Stores"]
-      </NavLink>
+    @if (_showCRM)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/leads">
+          <i class="fas fa-user-plus me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Leads"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/deals">
+          <i class="fas fa-handshake-angle me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Deals"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="crm/contacts">
+          <i class="fas fa-address-card me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Contacts"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-filter me-2" style="width: 20px; text-align: center;"></i>
+          Pipeline (Yakinda)
+        </NavLink>
+      </li>
+    }
+
+    @* ── 10. Dropshipping ── *@
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showDropshipping = !_showDropshipping">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-truck-loading me-1"></i> @L["Nav.Dropshipping"]
+        </small>
+        <i class="fas @(_showDropshipping ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
-    <li class="nav-item mb-1">
-      <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/system">
-        <i class="fas fa-heartbeat me-2" style="width: 20px; text-align: center;"></i>
-        @L["Nav.SystemHealth"]
-      </NavLink>
+    @if (_showDropshipping)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping">
+          <i class="fas fa-parachute-box me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Dashboard"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping/pools">
+          <i class="fas fa-layer-group me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Pools"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="dropshipping/suppliers">
+          <i class="fas fa-handshake me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Suppliers"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-file-import me-2" style="width: 20px; text-align: center;"></i>
+          Ice Aktar (Yakinda)
+        </NavLink>
+      </li>
+    }
+
+    @* ── 11. Raporlar ── *@
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showRaporlar = !_showRaporlar">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-chart-bar me-1"></i> @L["Nav.Reports"]
+        </small>
+        <i class="fas @(_showRaporlar ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
     </li>
+    @if (_showRaporlar)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="raporlar">
+          <i class="fas fa-chart-bar me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Reports"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="belgeler">
+          <i class="fas fa-folder-open me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Documents"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-chart-pie me-2" style="width: 20px; text-align: center;"></i>
+          Satis Raporu (Yakinda)
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-boxes-stacked me-2" style="width: 20px; text-align: center;"></i>
+          Stok Raporu (Yakinda)
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-truck me-2" style="width: 20px; text-align: center;"></i>
+          Kargo Raporu (Yakinda)
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-coins me-2" style="width: 20px; text-align: center;"></i>
+          Muhasebe Raporu (Yakinda)
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2 disabled" style="opacity: 0.5; pointer-events: none;">
+          <i class="fas fa-globe me-2" style="width: 20px; text-align: center;"></i>
+          Platform Raporu (Yakinda)
+        </NavLink>
+      </li>
+    }
+
+    @* ── 12. Ayarlar ── *@
+    <li class="nav-section-label px-3 py-2 mt-3">
+      <a class="text-decoration-none d-flex align-items-center justify-content-between w-100 user-select-none"
+         style="cursor: pointer;" @onclick="() => _showAyarlar = !_showAyarlar">
+        <small class="text-uppercase text-white-50 fw-bold">
+          <i class="fas fa-cog me-1"></i> @L["Nav.Settings"]
+        </small>
+        <i class="fas @(_showAyarlar ? "fa-chevron-down" : "fa-chevron-right") text-white-50 small"></i>
+      </a>
+    </li>
+    @if (_showAyarlar)
+    {
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="ayarlar">
+          <i class="fas fa-cog me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Settings"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/tenants">
+          <i class="fas fa-building me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Tenants"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/stores">
+          <i class="fas fa-store-alt me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Stores"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="admin/system">
+          <i class="fas fa-heartbeat me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.SystemHealth"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="warehouses">
+          <i class="fas fa-warehouse me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Warehouses"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="notifications">
+          <i class="fas fa-bell me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Notifications"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="barcodes">
+          <i class="fas fa-barcode me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Barcodes"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/calisanlar">
+          <i class="fas fa-users me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Employees"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="hr/izinler">
+          <i class="fas fa-calendar-check me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.LeaveRequests"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="platforms">
+          <i class="fas fa-store me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Platforms"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="platform-sync">
+          <i class="fas fa-sync-alt me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.SyncStatus"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="pazaryerleri">
+          <i class="fas fa-globe me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Marketplaces"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="projects">
+          <i class="fas fa-project-diagram me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Projects"]
+        </NavLink>
+      </li>
+      <li class="nav-item mb-1">
+        <NavLink class="nav-link sidebar-link rounded px-3 py-2" href="calendar">
+          <i class="fas fa-calendar-alt me-2" style="width: 20px; text-align: center;"></i>
+          @L["Nav.Calendar"]
+        </NavLink>
+      </li>
+    }
+
   </ul>
 
   <!-- Footer -->
@@ -265,3 +543,17 @@
     <small class="text-white-50">v10.0 &mdash; Dalga 10 + Panel D</small>
   </div>
 </nav>
+
+@code {
+    private bool _showUrunler = true;
+    private bool _showSiparisler = true;
+    private bool _showStok = true;
+    private bool _showKategoriler;
+    private bool _showKargo = true;
+    private bool _showEFatura;
+    private bool _showFinans = true;
+    private bool _showCRM;
+    private bool _showDropshipping;
+    private bool _showRaporlar;
+    private bool _showAyarlar;
+}

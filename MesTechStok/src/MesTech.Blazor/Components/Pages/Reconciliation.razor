@@ -235,9 +235,29 @@
 
     try
     {
-      try { await ApiClient.GetReconciliationMatchesAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Reconciliation): {apiEx.Message}"); }
-      matches = GetDemoMatches();
+      try
+      {
+        var result = await ApiClient.GetReconciliationMatchesAsync();
+        if (result is { Count: > 0 })
+        {
+          _isDemoMode = false;
+          // TODO: map API response to ReconciliationMatch when DTO finalized
+        }
+        else
+        {
+          _isDemoMode = true;
+        }
+      }
+      catch (Exception apiEx)
+      {
+        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        _isDemoMode = true;
+      }
+
+      if (_isDemoMode)
+      {
+        matches = GetDemoMatches();
+      }
     }
     catch (Exception ex)
     {
@@ -252,10 +272,30 @@
   private async Task RunReconciliation()
   {
     isRunning = true;
-    try { await ApiClient.RunReconciliationAsync(); }
-    catch (Exception apiEx) { Console.WriteLine($"API fallback (RunReconciliation): {apiEx.Message}"); await Task.Delay(1500); }
-    matches = GetDemoMatches();
-    isRunning = false;
+    try
+    {
+      try
+      {
+        await ApiClient.RunReconciliationAsync();
+        _isDemoMode = false;
+        // TODO: reload matches from API after reconciliation run
+      }
+      catch (Exception apiEx)
+      {
+        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        _isDemoMode = true;
+        await Task.Delay(1500);
+      }
+
+      if (_isDemoMode)
+      {
+        matches = GetDemoMatches();
+      }
+    }
+    finally
+    {
+      isRunning = false;
+    }
   }
 
   private void ApproveMatch(ReconciliationMatch match)

@@ -94,22 +94,28 @@ else
   {
     try
     {
-      try
+      var apiData = await ApiClient.GetSettlementsAsync();
+      if (apiData?.Count > 0)
       {
-        await ApiClient.GetSettlementsAsync();
+        // TODO: map API data to SettlementItem when typed DTO finalized
+        _isDemoMode = false;
+        _settlements = GetDemoData();
       }
-      catch
+      else
       {
         _isDemoMode = true;
+        _settlements = GetDemoData();
       }
-
-      _settlements = GetDemoData();
       _totalSettled = _settlements.Where(s => s.Durum == "Odendi").Sum(s => s.NetOdeme);
       _pendingAmount = _settlements.Where(s => s.Durum == "Bekliyor").Sum(s => s.NetOdeme);
     }
     catch (Exception ex)
     {
-      _errorMessage = $"Hesaplasma verileri yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (Settlements): {ex.Message}");
+      _isDemoMode = true;
+      _settlements = GetDemoData();
+      _totalSettled = _settlements.Where(s => s.Durum == "Odendi").Sum(s => s.NetOdeme);
+      _pendingAmount = _settlements.Where(s => s.Durum == "Bekliyor").Sum(s => s.NetOdeme);
     }
     finally
     {

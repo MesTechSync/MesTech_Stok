@@ -216,28 +216,27 @@ else
         {
             try
             {
-                await ApiClient.GetShipmentsAsync();
-                // TODO: map API response to ShipmentRow when DTO finalized
+                var result = await ApiClient.GetShipmentsAsync();
+                if (result is { Count: > 0 })
+                {
+                    _isDemoMode = false;
+                    // TODO: map API response to ShipmentRow when DTO finalized
+                }
+                else
+                {
+                    _isDemoMode = true;
+                }
             }
             catch (Exception apiEx)
             {
-                Console.WriteLine($"API fallback (ShipmentQueue): {apiEx.Message}");
+                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
                 _isDemoMode = true;
             }
 
-            shipments =
-            [
-                new() { SiparisNo = "TY-2026-0451", Musteri = "Ahmet Yilmaz", Urun = "Laptop Bilgisayar i7", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
-                new() { SiparisNo = "HB-2026-1203", Musteri = "Fatma Demir", Urun = "Bluetooth Kulaklik", Platform = "Hepsiburada", KargoFirma = "Aras", Durum = "Beklemede" },
-                new() { SiparisNo = "N11-2026-0089", Musteri = "Mehmet Kaya", Urun = "Akilli Saat Pro", Platform = "N11", KargoFirma = "Surat", Durum = "Gonderildi" },
-                new() { SiparisNo = "TY-2026-0452", Musteri = "Ayse Ozturk", Urun = "Tablet 10 inc", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
-                new() { SiparisNo = "AMZ-2026-0034", Musteri = "Ali Celik", Urun = "USB-C Hub Adaptoru", Platform = "Amazon TR", KargoFirma = "Aras", Durum = "Teslim" },
-                new() { SiparisNo = "CS-2026-0178", Musteri = "Zeynep Arslan", Urun = "Kablosuz Mouse", Platform = "CicekSepeti", KargoFirma = "Yurtici", Durum = "Gonderildi" },
-                new() { SiparisNo = "SH-2026-0067", Musteri = "Mustafa Sahin", Urun = "Mekanik Klavye", Platform = "Shopify", KargoFirma = "Surat", Durum = "Beklemede" },
-                new() { SiparisNo = "TY-2026-0453", Musteri = "Elif Yildiz", Urun = "Monitur 27 inc 4K", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Iade" },
-                new() { SiparisNo = "EB-2026-0012", Musteri = "Hasan Tas", Urun = "Webcam 1080p", Platform = "eBay", KargoFirma = "Aras", Durum = "Teslim" },
-                new() { SiparisNo = "WC-2026-0045", Musteri = "Selin Koç", Urun = "SSD 1TB NVMe", Platform = "WooCommerce", KargoFirma = "Surat", Durum = "Beklemede" },
-            ];
+            if (_isDemoMode)
+            {
+                shipments = GetDemoShipments();
+            }
         }
         catch (Exception ex)
         {
@@ -248,6 +247,20 @@ else
             isLoading = false;
         }
     }
+
+    private static List<ShipmentRow> GetDemoShipments() =>
+    [
+        new() { SiparisNo = "TY-2026-0451", Musteri = "Ahmet Yilmaz", Urun = "Laptop Bilgisayar i7", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
+        new() { SiparisNo = "HB-2026-1203", Musteri = "Fatma Demir", Urun = "Bluetooth Kulaklik", Platform = "Hepsiburada", KargoFirma = "Aras", Durum = "Beklemede" },
+        new() { SiparisNo = "N11-2026-0089", Musteri = "Mehmet Kaya", Urun = "Akilli Saat Pro", Platform = "N11", KargoFirma = "Surat", Durum = "Gonderildi" },
+        new() { SiparisNo = "TY-2026-0452", Musteri = "Ayse Ozturk", Urun = "Tablet 10 inc", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Beklemede" },
+        new() { SiparisNo = "AMZ-2026-0034", Musteri = "Ali Celik", Urun = "USB-C Hub Adaptoru", Platform = "Amazon TR", KargoFirma = "Aras", Durum = "Teslim" },
+        new() { SiparisNo = "CS-2026-0178", Musteri = "Zeynep Arslan", Urun = "Kablosuz Mouse", Platform = "CicekSepeti", KargoFirma = "Yurtici", Durum = "Gonderildi" },
+        new() { SiparisNo = "SH-2026-0067", Musteri = "Mustafa Sahin", Urun = "Mekanik Klavye", Platform = "Shopify", KargoFirma = "Surat", Durum = "Beklemede" },
+        new() { SiparisNo = "TY-2026-0453", Musteri = "Elif Yildiz", Urun = "Monitur 27 inc 4K", Platform = "Trendyol", KargoFirma = "Yurtici", Durum = "Iade" },
+        new() { SiparisNo = "EB-2026-0012", Musteri = "Hasan Tas", Urun = "Webcam 1080p", Platform = "eBay", KargoFirma = "Aras", Durum = "Teslim" },
+        new() { SiparisNo = "WC-2026-0045", Musteri = "Selin Koç", Urun = "SSD 1TB NVMe", Platform = "WooCommerce", KargoFirma = "Surat", Durum = "Beklemede" },
+    ];
 
     private Task OnFilterChanged() => Task.CompletedTask;
 

@@ -129,20 +129,49 @@ else
       {
         try
         {
-          await ApiClient.GetShipmentLabelAsync(ShipmentId.Value);
+          var result = await ApiClient.GetShipmentLabelAsync(ShipmentId.Value);
+          if (result is not null)
+          {
+            _isDemoMode = false;
+            // TODO: map API response to LabelItem when DTO finalized
+          }
+          else
+          {
+            _isDemoMode = true;
+          }
         }
-        catch { _isDemoMode = true; }
+        catch (Exception apiEx)
+        {
+          Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+          _isDemoMode = true;
+        }
       }
       else
       {
         try
         {
-          await ApiClient.GetShipmentsAsync();
+          var result = await ApiClient.GetShipmentsAsync();
+          if (result is { Count: > 0 })
+          {
+            _isDemoMode = false;
+            // TODO: map API response to LabelItem when DTO finalized
+          }
+          else
+          {
+            _isDemoMode = true;
+          }
         }
-        catch { _isDemoMode = true; }
+        catch (Exception apiEx)
+        {
+          Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+          _isDemoMode = true;
+        }
       }
 
-      _labels = GetDemoLabels();
+      if (_isDemoMode)
+      {
+        _labels = GetDemoLabels();
+      }
     }
     catch (Exception ex)
     {

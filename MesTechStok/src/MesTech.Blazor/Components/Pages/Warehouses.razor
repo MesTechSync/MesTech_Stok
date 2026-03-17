@@ -200,60 +200,29 @@ else
     isLoading = true;
     try
     {
-      try { await ApiClient.GetWarehousesAsync(); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (Warehouses): {apiEx.Message}"); }
+      try
+      {
+        var result = await ApiClient.GetWarehousesAsync();
+        if (result is { Count: > 0 })
+        {
+          _isDemoMode = false;
+          // TODO: map API response to WarehouseNode when DTO finalized
+        }
+        else
+        {
+          _isDemoMode = true;
+        }
+      }
+      catch (Exception apiEx)
+      {
+        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        _isDemoMode = true;
+      }
 
-      warehouses =
-      [
-        new(Guid.NewGuid(), "Ana Depo - Istanbul", "Depo", 2850,
-        [
-          new(Guid.NewGuid(), "Zone A - Elektronik", "Zone", 1200,
-          [
-            new(Guid.NewGuid(), "Raf A1", "Rack", 400,
-            [
-              new(Guid.NewGuid(), "A1-Ust", "Shelf", 200,
-              [
-                new(Guid.NewGuid(), "A1-Ust-01", "Bin", 120, []),
-                new(Guid.NewGuid(), "A1-Ust-02", "Bin", 80, []),
-              ]),
-              new(Guid.NewGuid(), "A1-Alt", "Shelf", 200, []),
-            ]),
-            new(Guid.NewGuid(), "Raf A2", "Rack", 450,
-            [
-              new(Guid.NewGuid(), "A2-Ust", "Shelf", 250, []),
-              new(Guid.NewGuid(), "A2-Alt", "Shelf", 200, []),
-            ]),
-            new(Guid.NewGuid(), "Raf A3", "Rack", 350, []),
-          ]),
-          new(Guid.NewGuid(), "Zone B - Tekstil", "Zone", 980,
-          [
-            new(Guid.NewGuid(), "Raf B1", "Rack", 520,
-            [
-              new(Guid.NewGuid(), "B1-Ust", "Shelf", 280, []),
-              new(Guid.NewGuid(), "B1-Alt", "Shelf", 240, []),
-            ]),
-            new(Guid.NewGuid(), "Raf B2", "Rack", 460, []),
-          ]),
-          new(Guid.NewGuid(), "Zone C - Gida", "Zone", 670,
-          [
-            new(Guid.NewGuid(), "Raf C1", "Rack", 670, []),
-          ]),
-        ]),
-        new(Guid.NewGuid(), "Yedek Depo - Ankara", "Depo", 1420,
-        [
-          new(Guid.NewGuid(), "Zone D - Genel", "Zone", 850,
-          [
-            new(Guid.NewGuid(), "Raf D1", "Rack", 300, []),
-            new(Guid.NewGuid(), "Raf D2", "Rack", 280, []),
-            new(Guid.NewGuid(), "Raf D3", "Rack", 270, []),
-          ]),
-          new(Guid.NewGuid(), "Zone E - Sogukhava", "Zone", 570,
-          [
-            new(Guid.NewGuid(), "Raf E1", "Rack", 320, []),
-            new(Guid.NewGuid(), "Raf E2", "Rack", 250, []),
-          ]),
-        ]),
-      ];
+      if (_isDemoMode)
+      {
+        warehouses = GetDemoWarehouses();
+      }
 
       toplamDepo = warehouses.Count;
       toplamZone = warehouses.Sum(w => CountByType(w, "Zone"));
@@ -269,6 +238,58 @@ else
       isLoading = false;
     }
   }
+
+  private static List<WarehouseNode> GetDemoWarehouses() =>
+  [
+    new(Guid.NewGuid(), "Ana Depo - Istanbul", "Depo", 2850,
+    [
+      new(Guid.NewGuid(), "Zone A - Elektronik", "Zone", 1200,
+      [
+        new(Guid.NewGuid(), "Raf A1", "Rack", 400,
+        [
+          new(Guid.NewGuid(), "A1-Ust", "Shelf", 200,
+          [
+            new(Guid.NewGuid(), "A1-Ust-01", "Bin", 120, []),
+            new(Guid.NewGuid(), "A1-Ust-02", "Bin", 80, []),
+          ]),
+          new(Guid.NewGuid(), "A1-Alt", "Shelf", 200, []),
+        ]),
+        new(Guid.NewGuid(), "Raf A2", "Rack", 450,
+        [
+          new(Guid.NewGuid(), "A2-Ust", "Shelf", 250, []),
+          new(Guid.NewGuid(), "A2-Alt", "Shelf", 200, []),
+        ]),
+        new(Guid.NewGuid(), "Raf A3", "Rack", 350, []),
+      ]),
+      new(Guid.NewGuid(), "Zone B - Tekstil", "Zone", 980,
+      [
+        new(Guid.NewGuid(), "Raf B1", "Rack", 520,
+        [
+          new(Guid.NewGuid(), "B1-Ust", "Shelf", 280, []),
+          new(Guid.NewGuid(), "B1-Alt", "Shelf", 240, []),
+        ]),
+        new(Guid.NewGuid(), "Raf B2", "Rack", 460, []),
+      ]),
+      new(Guid.NewGuid(), "Zone C - Gida", "Zone", 670,
+      [
+        new(Guid.NewGuid(), "Raf C1", "Rack", 670, []),
+      ]),
+    ]),
+    new(Guid.NewGuid(), "Yedek Depo - Ankara", "Depo", 1420,
+    [
+      new(Guid.NewGuid(), "Zone D - Genel", "Zone", 850,
+      [
+        new(Guid.NewGuid(), "Raf D1", "Rack", 300, []),
+        new(Guid.NewGuid(), "Raf D2", "Rack", 280, []),
+        new(Guid.NewGuid(), "Raf D3", "Rack", 270, []),
+      ]),
+      new(Guid.NewGuid(), "Zone E - Sogukhava", "Zone", 570,
+      [
+        new(Guid.NewGuid(), "Raf E1", "Rack", 320, []),
+        new(Guid.NewGuid(), "Raf E2", "Rack", 250, []),
+      ]),
+    ]),
+  ];
 
   private void SelectWarehouse(WarehouseNode warehouse)
   {

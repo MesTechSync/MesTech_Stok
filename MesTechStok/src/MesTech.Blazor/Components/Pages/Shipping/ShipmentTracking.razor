@@ -259,16 +259,37 @@ else if (trackingSearched && trackingResult is null)
 
     private async Task LoadComparisonData()
     {
-        try { await ApiClient.GetCargoComparisonAsync(); }
-        catch (Exception apiEx) { Console.WriteLine($"API fallback (ShipmentTracking): {apiEx.Message}"); _isDemoMode = true; }
+        try
+        {
+            var result = await ApiClient.GetCargoComparisonAsync();
+            if (result is { Count: > 0 })
+            {
+                _isDemoMode = false;
+                // TODO: map API response to CargoCompare when DTO finalized
+            }
+            else
+            {
+                _isDemoMode = true;
+            }
+        }
+        catch (Exception apiEx)
+        {
+            Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+            _isDemoMode = true;
+        }
 
-        cargoComparisons =
-        [
-            new("Yurtici Kargo", "#E30613", 2.1m, 42.50m, 97.5m, 1850),
-            new("Aras Kargo", "#FF6F00", 2.4m, 38.00m, 95.8m, 1240),
-            new("Surat Kargo", "#00897B", 2.8m, 35.00m, 93.2m, 680),
-        ];
+        if (_isDemoMode)
+        {
+            cargoComparisons = GetDemoComparisons();
+        }
     }
+
+    private static List<CargoCompare> GetDemoComparisons() =>
+    [
+        new("Yurtici Kargo", "#E30613", 2.1m, 42.50m, 97.5m, 1850),
+        new("Aras Kargo", "#FF6F00", 2.4m, 38.00m, 95.8m, 1240),
+        new("Surat Kargo", "#00897B", 2.8m, 35.00m, 93.2m, 680),
+    ];
 
     private async Task SearchTracking()
     {
@@ -282,8 +303,24 @@ else if (trackingSearched && trackingResult is null)
 
         try
         {
-            try { await ApiClient.GetShipmentTrackingAsync(trackingNumber); }
-            catch (Exception apiEx) { Console.WriteLine($"API fallback (ShipmentTracking search): {apiEx.Message}"); }
+            try
+            {
+                var apiResult = await ApiClient.GetShipmentTrackingAsync(trackingNumber);
+                if (apiResult is not null)
+                {
+                    _isDemoMode = false;
+                    // TODO: map API response to TrackingResult when DTO finalized
+                }
+                else
+                {
+                    _isDemoMode = true;
+                }
+            }
+            catch (Exception apiEx)
+            {
+                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+                _isDemoMode = true;
+            }
 
             trackingResult = new TrackingResult(
                 trackingNumber,

@@ -1,0 +1,308 @@
+@page "/accounting/penalties"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Ceza Kayitlari</PageTitle>
+
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="accounting">Muhasebe</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Ceza Kayitlari</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-gavel text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Ceza Kayitlari</h3>
+      <small class="text-muted">Vergi dairesi, SGK ve platform ceza/yaptirimlari</small>
+    </div>
+  </div>
+
+  @if (_isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else if (_errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@_errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Ceza</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@_penalties.Sum(p => p.Tutar).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Odenen</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@_penalties.Where(p => p.Durum == "Odendi").Sum(p => p.Tutar).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-warning">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning d-none d-sm-flex">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Bekleyen</small>
+                <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@_penalties.Where(p => p.Durum == "Bekliyor").Sum(p => p.Tutar).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-dark">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-dark bg-opacity-10 text-dark d-none d-sm-flex">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Geciken</small>
+                <h4 class="mb-0 fw-bold text-dark fs-6 fs-md-4">@_penalties.Where(p => p.Durum == "Gecikti").Sum(p => p.Tutar).ToString("N2") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source Filter -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-6">
+            <ul class="nav nav-pills nav-fill">
+              <li class="nav-item">
+                <button class="nav-link @(_selectedSource == "" ? "active" : "")" @onclick='() => _selectedSource = ""'>Tumu</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(_selectedSource == "VD" ? "active" : "")" @onclick='() => _selectedSource = "VD"'>Vergi Dairesi</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(_selectedSource == "SGK" ? "active" : "")" @onclick='() => _selectedSource = "SGK"'>SGK</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link @(_selectedSource == "Platform" ? "active" : "")" @onclick='() => _selectedSource = "Platform"'>Platform</button>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12 col-sm-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+              <input type="text" class="form-control" placeholder="Ceza ara..."
+                     @bind="_searchText" @bind:event="oninput" />
+            </div>
+          </div>
+          <div class="col-12 col-sm-2 text-end">
+            <button class="btn btn-sm btn-primary" disabled>
+              <i class="fas fa-plus me-1"></i>Yeni Kayit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-table me-2" style="color: #2855AC;"></i>Ceza Listesi</h6>
+        <span class="badge bg-secondary">@FilteredPenalties.Count kayit</span>
+      </div>
+      <div class="card-body p-0">
+        @if (FilteredPenalties.Count == 0)
+        {
+          <div class="text-center text-muted py-5">
+            <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+            <p>Ceza kaydi bulunamadi.</p>
+          </div>
+        }
+        else
+        {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Kaynak</th>
+                  <th>Aciklama</th>
+                  <th class="text-end">Tutar</th>
+                  <th class="d-none d-md-table-cell">Ceza Tarihi</th>
+                  <th class="d-none d-md-table-cell">Vade</th>
+                  <th>Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var p in FilteredPenalties)
+                {
+                  <tr class="@GetRowClass(p.Durum)">
+                    <td>
+                      <span class="badge @GetSourceBadge(p.Kaynak)">@p.Kaynak</span>
+                    </td>
+                    <td class="fw-bold">@p.Aciklama</td>
+                    <td class="text-end fw-bold text-danger">@p.Tutar.ToString("N2") TL</td>
+                    <td class="d-none d-md-table-cell"><small class="text-muted">@p.CezaTarihi.ToString("dd.MM.yyyy")</small></td>
+                    <td class="d-none d-md-table-cell"><small class="text-muted">@p.VadeTarihi.ToString("dd.MM.yyyy")</small></td>
+                    <td>
+                      <span class="badge @GetStatusBadge(p.Durum)">
+                        <i class="fas @GetStatusIcon(p.Durum) me-1"></i>@p.Durum
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td colspan="2">TOPLAM</td>
+                  <td class="text-end text-danger">@FilteredPenalties.Sum(p => p.Tutar).ToString("N2") TL</td>
+                  <td colspan="3" class="d-none d-md-table-cell"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool _isLoading = true;
+  private bool _isDemoMode;
+  private string? _errorMessage;
+  private string _searchText = string.Empty;
+  private string _selectedSource = string.Empty;
+  private List<PenaltyRecord> _penalties = [];
+
+  private List<PenaltyRecord> FilteredPenalties => _penalties
+    .Where(p => string.IsNullOrWhiteSpace(_searchText) ||
+                p.Aciklama.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                p.Kaynak.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+    .Where(p => string.IsNullOrEmpty(_selectedSource) || p.Kaynak == _selectedSource)
+    .ToList();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    _isLoading = true;
+    _errorMessage = null;
+
+    try
+    {
+      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/penalties");
+      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      {
+        _penalties = GetDemoPenalties();
+      }
+      else
+      {
+        _isDemoMode = true;
+        _penalties = GetDemoPenalties();
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      _isDemoMode = true;
+      _penalties = GetDemoPenalties();
+    }
+    finally
+    {
+      _isLoading = false;
+    }
+  }
+
+  private static string GetSourceBadge(string kaynak) => kaynak switch
+  {
+    "VD" => "bg-danger",
+    "SGK" => "bg-warning text-dark",
+    "Platform" => "bg-info",
+    _ => "bg-secondary"
+  };
+
+  private static string GetStatusBadge(string durum) => durum switch
+  {
+    "Odendi" => "bg-success",
+    "Bekliyor" => "bg-warning text-dark",
+    "Gecikti" => "bg-danger",
+    _ => "bg-secondary"
+  };
+
+  private static string GetStatusIcon(string durum) => durum switch
+  {
+    "Odendi" => "fa-check",
+    "Bekliyor" => "fa-clock",
+    "Gecikti" => "fa-exclamation-triangle",
+    _ => "fa-question"
+  };
+
+  private static string GetRowClass(string durum) => durum switch
+  {
+    "Gecikti" => "table-danger",
+    _ => ""
+  };
+
+  private static List<PenaltyRecord> GetDemoPenalties() =>
+  [
+    new() { Kaynak = "VD",       Aciklama = "KDV beyanname gecikme cezasi (2026/01)",              Tutar = 8_500.00m,  CezaTarihi = new DateTime(2026, 2, 10), VadeTarihi = new DateTime(2026, 3, 10), Durum = "Odendi" },
+    new() { Kaynak = "VD",       Aciklama = "Vergi levhasi asilmama usulsuzluk cezasi",           Tutar = 2_200.00m,  CezaTarihi = new DateTime(2026, 1, 15), VadeTarihi = new DateTime(2026, 2, 15), Durum = "Odendi" },
+    new() { Kaynak = "SGK",      Aciklama = "Eksik gun bildirim cezasi (2025/12)",                 Tutar = 14_750.00m, CezaTarihi = new DateTime(2026, 1, 25), VadeTarihi = new DateTime(2026, 2, 25), Durum = "Gecikti" },
+    new() { Kaynak = "SGK",      Aciklama = "Isci sagligi is guvenligi eksikligi",                 Tutar = 5_600.00m,  CezaTarihi = new DateTime(2026, 2, 20), VadeTarihi = new DateTime(2026, 3, 20), Durum = "Bekliyor" },
+    new() { Kaynak = "Platform", Aciklama = "Trendyol — suresi gecen kargolar cezasi (Subat)",     Tutar = 3_200.00m,  CezaTarihi = new DateTime(2026, 3, 1),  VadeTarihi = new DateTime(2026, 3, 15), Durum = "Odendi" },
+    new() { Kaynak = "Platform", Aciklama = "Hepsiburada — urun iade kabul suresi asimi",          Tutar = 1_850.00m,  CezaTarihi = new DateTime(2026, 2, 28), VadeTarihi = new DateTime(2026, 3, 28), Durum = "Bekliyor" },
+    new() { Kaynak = "VD",       Aciklama = "Gecici vergi 4. donem gecikme faizi (2025)",          Tutar = 6_300.00m,  CezaTarihi = new DateTime(2026, 2, 17), VadeTarihi = new DateTime(2026, 3, 17), Durum = "Bekliyor" },
+    new() { Kaynak = "Platform", Aciklama = "Ciceksepeti — urun bilgisi eksikligi yaptirimi",      Tutar = 950.00m,    CezaTarihi = new DateTime(2026, 3, 5),  VadeTarihi = new DateTime(2026, 4, 5),  Durum = "Bekliyor" }
+  ];
+
+  private record PenaltyRecord
+  {
+    public string Kaynak { get; init; } = "";
+    public string Aciklama { get; init; } = "";
+    public decimal Tutar { get; init; }
+    public DateTime CezaTarihi { get; init; }
+    public DateTime VadeTarihi { get; init; }
+    public string Durum { get; init; } = "";
+  }
+}

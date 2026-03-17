@@ -19,6 +19,7 @@ public class RouteFileQualityTests
     private readonly string _repoRoot;
     private readonly string _shellDir;
     private readonly string _panelDir;
+    private readonly string _htmlDir;
     private readonly string _trendyolSrcDir;
     private readonly Dictionary<string, string> _routes;
     private readonly Dictionary<string, string> _resolvedFiles;
@@ -28,6 +29,7 @@ public class RouteFileQualityTests
         _repoRoot = FindRepoRoot();
         _shellDir = Path.Combine(_repoRoot, "frontend", "shell");
         _panelDir = Path.Combine(_repoRoot, "frontend", "panel");
+        _htmlDir = Path.Combine(_repoRoot, "frontend", "html");
         _trendyolSrcDir = Path.Combine(_repoRoot, "MesTech_Trendyol", "apps", "web-dashboard", "src");
         _routes = ParseRouterRoutes();
         _resolvedFiles = ResolveAllRoutes();
@@ -290,6 +292,10 @@ public class RouteFileQualityTests
         // Top-level panel dir (for dashboard.html etc.)
         var panelDirPath = Path.Combine(_panelDir, rel);
         if (File.Exists(panelDirPath)) return panelDirPath;
+
+        // HTML dir path (B.html → frontend/html/)
+        var htmlPath = Path.Combine(_htmlDir, rel);
+        if (File.Exists(htmlPath)) return htmlPath;
 
         // Shell dir (for B.shell paths like pages/shell-dashboard.html)
         var shellRelPath = Path.Combine(_shellDir, rel);

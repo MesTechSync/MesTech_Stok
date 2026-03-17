@@ -246,43 +246,64 @@ else
     isLoading = true;
     try
     {
-      try { await ApiClient.GetTenantByIdAsync(Id); }
-      catch (Exception apiEx) { Console.WriteLine($"API fallback (TenantDetail): {apiEx.Message}"); }
-
-      tenant = new TenantInfo("Anadolu Ticaret A.S.", "1234567890", "Aktif", new DateTime(2025, 6, 15));
+      var apiData = await ApiClient.GetTenantByIdAsync(Id);
+      if (apiData is not null)
+      {
+        _isDemoMode = false;
+        // Keep demo data for now — typed DTOs not yet available
+        // When API returns real data, map apiData to tenant/stores/users/credentials
+        tenant = GetDemoTenant(); // TODO: map apiData when DTOs exist
+      }
+      else
+      {
+        _isDemoMode = true;
+        tenant = GetDemoTenant();
+      }
 
       // TODO: Panel A — wire to GetStoresByTenantQuery
-      stores =
-      [
-        new("Anadolu Trendyol", "Trendyol", "Aktif", new DateTime(2026, 3, 16, 9, 30, 0), 1240),
-        new("Anadolu HB", "Hepsiburada", "Aktif", new DateTime(2026, 3, 16, 8, 45, 0), 890),
-        new("Anadolu N11", "N11", "Baglanti Hatasi", new DateTime(2026, 3, 15, 22, 10, 0), 670),
-      ];
-
-      users =
-      [
-        new("Ahmet Yilmaz", "ahmet@anadoluticaret.com", "Admin", new DateTime(2026, 3, 16, 10, 15, 0)),
-        new("Fatma Demir", "fatma@anadoluticaret.com", "Manager", new DateTime(2026, 3, 16, 9, 0, 0)),
-        new("Mehmet Kaya", "mehmet@anadoluticaret.com", "Operator", new DateTime(2026, 3, 15, 17, 30, 0)),
-        new("Ayse Celik", "ayse@anadoluticaret.com", "Operator", new DateTime(2026, 3, 14, 11, 20, 0)),
-      ];
-
-      credentials =
-      [
-        new("Trendyol", "trn_****7890", new DateTime(2025, 8, 10), "Aktif"),
-        new("Hepsiburada", "hb_****3456", new DateTime(2025, 9, 5), "Aktif"),
-        new("N11", "n11_****1234", new DateTime(2025, 10, 20), "Pasif"),
-      ];
+      stores = GetDemoStores();
+      users = GetDemoUsers();
+      credentials = GetDemoCredentials();
     }
     catch (Exception ex)
     {
-      errorMessage = $"Tenant detaylari yuklenirken hata: {ex.Message}";
+      Console.WriteLine($"API fallback (TenantDetail): {ex.Message}");
+      _isDemoMode = true;
+      tenant = GetDemoTenant();
+      stores = GetDemoStores();
+      users = GetDemoUsers();
+      credentials = GetDemoCredentials();
     }
     finally
     {
       isLoading = false;
     }
   }
+
+  private static TenantInfo GetDemoTenant() =>
+    new("Anadolu Ticaret A.S.", "1234567890", "Aktif", new DateTime(2025, 6, 15));
+
+  private static List<StoreInfo> GetDemoStores() =>
+  [
+    new("Anadolu Trendyol", "Trendyol", "Aktif", new DateTime(2026, 3, 16, 9, 30, 0), 1240),
+    new("Anadolu HB", "Hepsiburada", "Aktif", new DateTime(2026, 3, 16, 8, 45, 0), 890),
+    new("Anadolu N11", "N11", "Baglanti Hatasi", new DateTime(2026, 3, 15, 22, 10, 0), 670),
+  ];
+
+  private static List<UserInfo> GetDemoUsers() =>
+  [
+    new("Ahmet Yilmaz", "ahmet@anadoluticaret.com", "Admin", new DateTime(2026, 3, 16, 10, 15, 0)),
+    new("Fatma Demir", "fatma@anadoluticaret.com", "Manager", new DateTime(2026, 3, 16, 9, 0, 0)),
+    new("Mehmet Kaya", "mehmet@anadoluticaret.com", "Operator", new DateTime(2026, 3, 15, 17, 30, 0)),
+    new("Ayse Celik", "ayse@anadoluticaret.com", "Operator", new DateTime(2026, 3, 14, 11, 20, 0)),
+  ];
+
+  private static List<CredentialInfo> GetDemoCredentials() =>
+  [
+    new("Trendyol", "trn_****7890", new DateTime(2025, 8, 10), "Aktif"),
+    new("Hepsiburada", "hb_****3456", new DateTime(2025, 9, 5), "Aktif"),
+    new("N11", "n11_****1234", new DateTime(2025, 10, 20), "Pasif"),
+  ];
 
   private void GoBack() => Nav.NavigateTo("/admin/tenants");
 

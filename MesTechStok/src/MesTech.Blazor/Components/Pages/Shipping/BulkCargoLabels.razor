@@ -116,20 +116,42 @@ else
     {
         try
         {
-            _isDemoMode = true;
+            try
+            {
+                var result = await ApiClient.GetShipmentsAsync();
+                if (result is { Count: > 0 })
+                {
+                    _isDemoMode = false;
+                    // TODO: map API response to OrderRow when DTO finalized
+                }
+                else
+                {
+                    _isDemoMode = true;
+                }
+            }
+            catch (Exception apiEx)
+            {
+                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+                _isDemoMode = true;
+            }
 
-            orders =
-            [
-                new("SIP-20260301", "Ahmet Yilmaz", "Istanbul", 3),
-                new("SIP-20260302", "Fatma Demir", "Ankara", 1),
-                new("SIP-20260303", "Mehmet Kaya", "Izmir", 2),
-                new("SIP-20260304", "Ayse Celik", "Bursa", 5),
-                new("SIP-20260305", "Ali Ozturk", "Antalya", 1),
-            ];
+            if (_isDemoMode)
+            {
+                orders = GetDemoOrders();
+            }
         }
         catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
         finally { isLoading = false; }
     }
+
+    private static List<OrderRow> GetDemoOrders() =>
+    [
+        new("SIP-20260301", "Ahmet Yilmaz", "Istanbul", 3),
+        new("SIP-20260302", "Fatma Demir", "Ankara", 1),
+        new("SIP-20260303", "Mehmet Kaya", "Izmir", 2),
+        new("SIP-20260304", "Ayse Celik", "Bursa", 5),
+        new("SIP-20260305", "Ali Ozturk", "Antalya", 1),
+    ];
 
     private void ToggleAll(ChangeEventArgs e)
     {

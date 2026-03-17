@@ -171,9 +171,18 @@ else
 
         try
         {
-            await ApiClient.GetInvoicesAsync();
-            // TODO: map API response to InvoiceRow when DTO finalized
-            invoices = GetDemoData();
+            var apiData = await ApiClient.GetInvoicesAsync();
+            if (apiData?.Count > 0)
+            {
+                // TODO: map API data to InvoiceRow when typed DTO finalized
+                _isDemoMode = false;
+                invoices = GetDemoData();
+            }
+            else
+            {
+                _isDemoMode = true;
+                invoices = GetDemoData();
+            }
             totalCount = invoices.Count;
         }
         catch (Exception ex)

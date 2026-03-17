@@ -113,20 +113,37 @@ else
     {
         try
         {
-            _isDemoMode = true;
-
-            platforms =
-            [
-                new() { Name = "Trendyol", Icon = "fa-shopping-bag", Color = "#F27A1A" },
-                new() { Name = "Hepsiburada", Icon = "fa-store", Color = "#FF6000" },
-                new() { Name = "CicekSepeti", Icon = "fa-seedling", Color = "#E91E63" },
-                new() { Name = "N11", Icon = "fa-tag", Color = "#7B1FA2" },
-                new() { Name = "Amazon TR", Icon = "fa-globe", Color = "#FF9900" },
-            ];
+            var healthData = await ApiClient.GetHealthAsync();
+            if (healthData is not null)
+            {
+                _isDemoMode = false;
+                // Keep demo data for now — typed DTOs not yet available
+                // When API returns real data, map healthData to platform statuses
+                platforms = GetDemoPlatforms(); // TODO: map healthData when DTOs exist
+            }
+            else
+            {
+                _isDemoMode = true;
+                platforms = GetDemoPlatforms();
+            }
         }
-        catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API error, using demo data: {ex.Message}");
+            _isDemoMode = true;
+            platforms = GetDemoPlatforms();
+        }
         finally { isLoading = false; }
     }
+
+    private static List<PlatformInfo> GetDemoPlatforms() =>
+    [
+        new() { Name = "Trendyol", Icon = "fa-shopping-bag", Color = "#F27A1A" },
+        new() { Name = "Hepsiburada", Icon = "fa-store", Color = "#FF6000" },
+        new() { Name = "CicekSepeti", Icon = "fa-seedling", Color = "#E91E63" },
+        new() { Name = "N11", Icon = "fa-tag", Color = "#7B1FA2" },
+        new() { Name = "Amazon TR", Icon = "fa-globe", Color = "#FF9900" },
+    ];
 
     private async Task TestPlatform(PlatformInfo platform)
     {

@@ -89,9 +89,9 @@ public class DashboardViewTests
 
         // Assert
         vm.TotalProducts.Should().Be("1,247");
-        vm.TotalStockValue.Should().Be("2,456,890 TL");
-        vm.LowStockCount.Should().Be("23");
-        vm.ActiveCategories.Should().Be("18");
+        vm.ActiveOrders.Should().Be("38");
+        vm.TodayRevenue.Should().Be("24,580 TL");
+        vm.StockAlerts.Should().Be("7");
         vm.IsLoading.Should().BeFalse();
         vm.LastUpdated.Should().NotBe("--:--");
     }

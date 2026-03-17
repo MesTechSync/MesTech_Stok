@@ -138,14 +138,42 @@
     try
     {
       // Try real API endpoint based on active tab
-      var apiResult = _activeTab switch
+      if (_activeTab == "income-statement")
       {
-        "trial-balance" => await ApiClient.GetTrialBalanceAsync(),
-        "balance-sheet" => await ApiClient.GetBalanceSheetAsync(),
-        _ => await ApiClient.GetFinancialReportsAsync() is not null ? new List<object>() : null
-      };
-      // TODO: map response to ReportRow when DTO finalized
-      _reportRows = GetDemoData(_activeTab);
+        var profitResult = await ApiClient.GetProfitReportAsync();
+        if (profitResult is not null)
+        {
+          // TODO: map response to ReportRow when typed DTO finalized
+          _isDemoMode = false;
+          _reportRows = GetDemoData(_activeTab);
+        }
+        else
+        {
+          _isDemoMode = true;
+          _reportRows = GetDemoData(_activeTab);
+        }
+      }
+      else
+      {
+        var apiResult = _activeTab switch
+        {
+          "trial-balance" => await ApiClient.GetTrialBalanceAsync(),
+          "balance-sheet" => await ApiClient.GetBalanceSheetAsync(),
+          _ => new List<object>()
+        };
+
+        if (apiResult?.Count > 0)
+        {
+          // TODO: map response to ReportRow when typed DTO finalized
+          _isDemoMode = false;
+          _reportRows = GetDemoData(_activeTab);
+        }
+        else
+        {
+          _isDemoMode = true;
+          _reportRows = GetDemoData(_activeTab);
+        }
+      }
     }
     catch (Exception ex)
     {
