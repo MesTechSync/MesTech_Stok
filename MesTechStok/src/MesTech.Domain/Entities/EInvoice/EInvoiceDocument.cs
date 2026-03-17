@@ -34,6 +34,14 @@ public class EInvoiceDocument : BaseEntity
     public decimal PayableAmount { get; private set; }
     public string CurrencyCode { get; private set; } = "TRY";
 
+    // Tevkifat (KDV Withholding) — GiB KDV Genel Uygulama Tebligi md. I/C-2.1.3.2
+    /// <summary>Tevkifat orani (ornegin 0.50 = 5/10). Null ise tevkifat uygulanmaz.</summary>
+    public decimal? WithholdingRate { get; private set; }
+    /// <summary>Tevkifat tutari = KDV * WithholdingRate.</summary>
+    public decimal? WithholdingAmount { get; private set; }
+    /// <summary>Net odenecek = PayableAmount - (WithholdingAmount ?? 0).</summary>
+    public decimal NetPayable => PayableAmount - (WithholdingAmount ?? 0);
+
     // Entegrator
     public string ProviderId { get; private set; } = string.Empty;
     public string? ProviderRef { get; private set; }
@@ -109,6 +117,20 @@ public class EInvoiceDocument : BaseEntity
     {
         ArgumentNullException.ThrowIfNull(line);
         Lines.Add(line);
+    }
+
+    /// <summary>
+    /// KDV tevkifat bilgilerini ayarlar.
+    /// WithholdingAmount = TaxAmount * rate olarak hesaplanir.
+    /// </summary>
+    /// <param name="rate">Tevkifat orani (0-1 arasi, ornegin 0.50 = 5/10).</param>
+    public void SetWithholding(decimal rate)
+    {
+        if (rate < 0 || rate > 1)
+            throw new DomainValidationException(nameof(rate), "Tevkifat orani 0 ile 1 arasinda olmalidir.");
+        WithholdingRate = rate;
+        WithholdingAmount = Math.Round(TaxAmount * rate, 2);
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetFinancials(decimal lineExtension, decimal taxExclusive, decimal taxInclusive,

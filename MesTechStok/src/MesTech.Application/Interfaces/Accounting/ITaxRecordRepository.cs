@@ -8,6 +8,7 @@ public interface ITaxRecordRepository
     Task<IReadOnlyList<TaxRecord>> GetByPeriodAsync(Guid tenantId, string period, CancellationToken ct = default);
     Task<IReadOnlyList<TaxRecord>> GetUnpaidAsync(Guid tenantId, CancellationToken ct = default);
     Task<decimal> GetTotalTaxByPeriodAsync(Guid tenantId, string period, CancellationToken ct = default);
+    Task<IReadOnlyList<TaxRecord>> GetAllAsync(Guid tenantId, string? taxType = null, int? year = null, CancellationToken ct = default);
     Task AddAsync(TaxRecord record, CancellationToken ct = default);
     Task UpdateAsync(TaxRecord record, CancellationToken ct = default);
 }

@@ -29,6 +29,12 @@ public interface IFulfillmentProvider
     Task<InboundStatus> GetInboundStatusAsync(string shipmentId, CancellationToken ct = default);
 
     /// <summary>
+    /// Belirtilen tarihten itibaren fulfillment merkezinden gonderilen siparisleri getirir.
+    /// </summary>
+    Task<IReadOnlyList<FulfillmentOrderResult>> GetFulfillmentOrdersAsync(
+        DateTime since, CancellationToken ct = default);
+
+    /// <summary>
     /// Fulfillment merkezi API'sinin erisilebilir olup olmadigini kontrol eder.
     /// </summary>
     Task<bool> IsAvailableAsync(CancellationToken ct = default);

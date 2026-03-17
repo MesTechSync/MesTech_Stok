@@ -11,10 +11,13 @@ public class TaxRecord : BaseEntity, ITenantEntity
     public string Period { get; private set; } = string.Empty;
     public string TaxType { get; private set; } = string.Empty;
     public decimal TaxableAmount { get; private set; }
+    public decimal TaxRate { get; private set; }
     public decimal TaxAmount { get; private set; }
+    public int? Year { get; private set; }
     public DateTime DueDate { get; private set; }
     public bool IsPaid { get; private set; }
     public DateTime? PaidAt { get; private set; }
+    public decimal PenaltyAmount { get; private set; }
 
     private TaxRecord() { }
 

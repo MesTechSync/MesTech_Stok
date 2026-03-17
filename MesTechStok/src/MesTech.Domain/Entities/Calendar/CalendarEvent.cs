@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events.Calendar;
@@ -17,6 +18,9 @@ public class CalendarEvent : BaseEntity, ITenantEntity
     public string? RecurrenceRule { get; private set; }
     public string? Location { get; private set; }
     public string? Color { get; private set; }
+    public DateTime? ReminderDate { get; private set; }
+    public bool IsCompleted { get; private set; }
+    public CalendarPriority Priority { get; private set; } = CalendarPriority.Normal;
     public Guid? CreatedByUserId { get; private set; }
     public Guid? RelatedOrderId { get; private set; }
     public Guid? RelatedDealId { get; private set; }
@@ -65,5 +69,17 @@ public class CalendarEvent : BaseEntity, ITenantEntity
         };
         ev.RaiseDomainEvent(new CalendarEventCreatedEvent(ev.Id, startAt, DateTime.UtcNow));
         return ev;
+    }
+
+    public void MarkAsCompleted()
+    {
+        IsCompleted = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void MarkAsIncomplete()
+    {
+        IsCompleted = false;
+        UpdatedAt = DateTime.UtcNow;
     }
 }
