@@ -6,13 +6,14 @@
     <!-- Dalga 14 Panel E: EPPlus 8.5.0→7.5.2 (.NET 9 uyumlu, ExcelPackage.LicenseContext API) -->
     <PackageVersion Include="EPPlus" Version="7.5.2" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <!-- TODO: Upgrade to 2.0.0 stable when released. Latest as of 2026-03-18 is 2.0.0-rc6.1 (no stable exists yet). -->
     <PackageVersion Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc6.1" />
     <PackageVersion Include="MahApps.Metro" Version="2.4.11" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="MaterialDesignColors" Version="5.3.1" />
     <PackageVersion Include="MaterialDesignThemes" Version="5.3.1" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageVersion Include="Serilog.Sinks.Seq" Version="8.0.0" />
   </ItemGroup>
@@ -102,7 +103,7 @@
   <ItemGroup Label="Analyzers">
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" />
     <PackageVersion Include="Meziantou.Analyzer" Version="2.0.190" />
-    <PackageVersion Include="Nullable.Extended.Analyzer" Version="1.15.6169" />
+    <PackageVersion Include="Nullable.Extended.Analyzer" Version="1.15.6581" />
   </ItemGroup>
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.6" />
