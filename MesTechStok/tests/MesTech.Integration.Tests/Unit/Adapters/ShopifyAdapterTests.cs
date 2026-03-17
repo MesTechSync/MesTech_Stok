@@ -103,7 +103,7 @@ public class ShopifyAdapterTests
         result.PlatformCode.Should().Be("Shopify");
         result.HttpStatusCode.Should().Be(401);
         result.ErrorMessage.Should().NotBeNullOrEmpty();
-        result.ErrorMessage.Should().Contain("401");
+        result.ErrorMessage.Should().Contain("Unauthorized");
     }
 
     // ─────────────────────────────────────────────
