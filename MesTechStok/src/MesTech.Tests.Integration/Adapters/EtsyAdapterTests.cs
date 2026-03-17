@@ -330,7 +330,6 @@ public class EtsyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         var product = new MesTech.Domain.Entities.Product
         {
-            Id = Guid.NewGuid(),
             SKU = "ETSY-NEW-001",
             Name = "My New Listing",
             Description = "A great handmade product",
