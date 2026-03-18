@@ -50,7 +50,8 @@ public class EtsyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
     private HttpClient CreateHttpClient()
     {
-        var handler = new HttpsToHttpRedirectHandler(new HttpClientHandler());
+        var wireMockUri = new Uri(_fixture.BaseUrl); // e.g. http://localhost:XXXXX
+        var handler = new EtsyWireMockHandler(wireMockUri, new HttpClientHandler());
         return new HttpClient(handler);
     }
 
@@ -206,7 +207,8 @@ public class EtsyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("401");
+        // Adapter formats error as "HTTP Unauthorized: ..." (HttpStatusCode enum name)
+        result.ErrorMessage.Should().ContainAny("401", "Unauthorized");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -610,5 +612,41 @@ public class EtsyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         var act = async () => await adapter.PullProductsAsync();
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*EtsyAdapter*");
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Test Infrastructure
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// DelegatingHandler that redirects requests targeting openapi.etsy.com
+/// to the WireMock server (localhost:PORT). Replaces scheme, host, and port
+/// so that the adapter's hardcoded HTTPS URLs are routed to WireMock.
+/// </summary>
+internal sealed class EtsyWireMockHandler : DelegatingHandler
+{
+    private readonly Uri _wireMockBase;
+
+    public EtsyWireMockHandler(Uri wireMockBase, HttpMessageHandler inner) : base(inner)
+    {
+        _wireMockBase = wireMockBase;
+    }
+
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (request.RequestUri != null)
+        {
+            var builder = new UriBuilder(request.RequestUri)
+            {
+                Scheme = _wireMockBase.Scheme,
+                Host = _wireMockBase.Host,
+                Port = _wireMockBase.Port
+            };
+            request.RequestUri = builder.Uri;
+        }
+
+        return base.SendAsync(request, cancellationToken);
     }
 }
