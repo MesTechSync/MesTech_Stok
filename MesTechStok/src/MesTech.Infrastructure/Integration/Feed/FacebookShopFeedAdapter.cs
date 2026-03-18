@@ -191,9 +191,9 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
         var clean = value
+            .Replace("&", "&amp;")
             .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("&", "&amp;");
+            .Replace(">", "&gt;");
         return clean.Length > maxLength ? clean[..maxLength] : clean;
     }
 

@@ -22,7 +22,7 @@ namespace MesTech.Tests.Integration.Adapters;
 [Trait("Feed", "InstagramShop")]
 public class InstagramShopFeedAdapterTests : IntegrationTestBase
 {
-    private static readonly Guid TestTenantId = Guid.Parse("IG000000-0000-0000-0000-000000000001");
+    private static readonly Guid TestTenantId = Guid.Parse("16000000-0000-0000-0000-000000000001");
 
     private readonly InstagramShopFeedAdapter _adapter;
     private readonly FacebookShopFeedAdapter _facebookAdapter;
