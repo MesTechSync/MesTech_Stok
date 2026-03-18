@@ -370,9 +370,16 @@ public class InstagramShopFeedAdapterTests : IntegrationTestBase
         // Act
         var result = await _adapter.GenerateFeedAsync(request);
 
-        // Assert
+        // Assert — adapter must succeed and include the product (special chars sanitized internally)
         result.Success.Should().BeTrue();
         result.ItemCount.Should().Be(1);
         result.Errors.Should().BeNullOrEmpty("sanitized special chars must not cause feed errors");
+
+        // Verify the adapter's Sanitize method (shared with Facebook base) escapes XML special chars
+        var sanitized = FacebookShopFeedAdapter.Sanitize("Urun <Test> & Ozel", 150);
+        sanitized.Should().Contain("&lt;", "< must be escaped");
+        sanitized.Should().Contain("&gt;", "> must be escaped");
+        sanitized.Should().Contain("&amp;", "& must be escaped");
+        sanitized.Should().NotContain("<", "raw < must not appear in sanitized output");
     }
 }

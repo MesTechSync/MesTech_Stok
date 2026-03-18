@@ -187,7 +187,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
         return Encoding.UTF8.GetString(ms.ToArray());
     }
 
-    protected static string Sanitize(string? value, int maxLength)
+    public static string Sanitize(string? value, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
         var clean = value
@@ -196,4 +196,11 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             .Replace("&", "&amp;");
         return clean.Length > maxLength ? clean[..maxLength] : clean;
     }
+
+    /// <summary>Returns "in stock" or "out of stock" — mirrors BuildFacebookItem availability logic.</summary>
+    public static string FormatAvailability(int stock) => stock > 0 ? "in stock" : "out of stock";
+
+    /// <summary>Returns "NNN.NN CURRENCY" — mirrors BuildFacebookItem price formatting.</summary>
+    public static string FormatPrice(decimal price, string currency)
+        => $"{price.ToString("F2", CultureInfo.InvariantCulture)} {currency}";
 }

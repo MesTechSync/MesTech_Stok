@@ -187,10 +187,9 @@ public class FacebookShopFeedAdapterTests : IntegrationTestBase
         result.Success.Should().BeTrue();
         result.ItemCount.Should().Be(1);
 
-        // Verify availability logic used by the adapter
-        const int stock = 0;
-        var availability = stock > 0 ? "in stock" : "out of stock";
-        availability.Should().Be("out of stock");
+        // Verify the adapter's own availability formatter returns "out of stock" for stock == 0
+        FacebookShopFeedAdapter.FormatAvailability(0).Should().Be("out of stock");
+        FacebookShopFeedAdapter.FormatAvailability(1).Should().Be("in stock");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -210,8 +209,8 @@ public class FacebookShopFeedAdapterTests : IntegrationTestBase
         // Assert feed generation succeeds
         result.Success.Should().BeTrue();
 
-        // Verify the price formatting logic matches Facebook requirement: "NNN.NN TRY"
-        var priceStr = $"{299.99m.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} TRY";
+        // Verify the adapter's own price formatter produces "NNN.NN TRY" (Facebook requirement)
+        var priceStr = FacebookShopFeedAdapter.FormatPrice(299.99m, "TRY");
         priceStr.Should().Be("299.99 TRY");
         priceStr.Should().Contain(".", "Facebook requires decimal point, not comma");
         priceStr.Should().EndWith(" TRY");
@@ -240,16 +239,6 @@ public class FacebookShopFeedAdapterTests : IntegrationTestBase
         Context.Products.Add(product);
         await Context.SaveChangesAsync();
 
-        // Verify Sanitize logic mirrors the adapter implementation
-        var sanitized = rawName
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("&", "&amp;");
-
-        sanitized.Should().Contain("&lt;");
-        sanitized.Should().Contain("&gt;");
-        sanitized.Should().Contain("&amp;");
-
         var request = MakeRequest();
 
         // Act
@@ -259,6 +248,14 @@ public class FacebookShopFeedAdapterTests : IntegrationTestBase
         result.Success.Should().BeTrue();
         result.ItemCount.Should().Be(1);
         result.Errors.Should().BeNullOrEmpty("special chars must be sanitized, not cause errors");
+
+        // Verify the adapter's Sanitize method actually escapes XML special characters
+        var sanitized = FacebookShopFeedAdapter.Sanitize(rawName, 150);
+        sanitized.Should().Contain("&lt;", "< must be escaped to &lt;");
+        sanitized.Should().Contain("&gt;", "> must be escaped to &gt;");
+        sanitized.Should().Contain("&amp;", "& must be escaped to &amp;");
+        sanitized.Should().NotContain("<", "raw < must not appear in sanitized output");
+        sanitized.Should().NotContain(">", "raw > must not appear in sanitized output");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
