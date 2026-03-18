@@ -23,11 +23,9 @@ public class DashboardNavigationTests
         _fixture = fixture;
     }
 
-    [Fact]
+    [Fact(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     public void Dashboard_ShouldLoadWithoutError()
     {
-        if (DesktopAppFixture.IsCI) return;
-
         _fixture.DismissAnyDialog();
         var navDashboard = _fixture.MainWindow.FindFirstDescendant(cf =>
             cf.ByAutomationId("NavDashboard"))?.AsButton();
@@ -38,15 +36,13 @@ public class DashboardNavigationTests
         errorDialog.Should().BeNull("Dashboard should load without error dialog");
     }
 
-    [Theory]
+    [Theory(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     [InlineData("Urun")]
     [InlineData("Barkod")]
     [InlineData("Rapor")]
     [InlineData("Stok")]
     public void DashboardQuickLink_ShouldNotCrash(string linkTextContains)
     {
-        if (DesktopAppFixture.IsCI) return;
-
         _fixture.DismissAnyDialog();
 
         var navDashboard = _fixture.MainWindow.FindFirstDescendant(cf =>

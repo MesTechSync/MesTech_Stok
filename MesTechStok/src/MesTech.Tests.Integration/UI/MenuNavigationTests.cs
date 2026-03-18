@@ -43,12 +43,10 @@ public class MenuNavigationTests
         { "NavSettings",            "Ayarlar" },
     };
 
-    [Theory]
+    [Theory(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     [MemberData(nameof(SidebarButtons))]
     public void SidebarButton_ShouldNotCrash(string automationId, string displayName)
     {
-        if (DesktopAppFixture.IsCI) return;
-
         _fixture.DismissAnyDialog();
 
         var button = _fixture.MainWindow.FindFirstDescendant(cf =>
@@ -70,11 +68,9 @@ public class MenuNavigationTests
             "App should still be running after clicking " + displayName);
     }
 
-    [Fact]
+    [Fact(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     public void AllSidebarButtons_ShouldExist()
     {
-        if (DesktopAppFixture.IsCI) return;
-
         var expectedIds = new[]
         {
             "NavDashboard", "NavProducts", "NavStock", "NavOrders", "NavCustomers",

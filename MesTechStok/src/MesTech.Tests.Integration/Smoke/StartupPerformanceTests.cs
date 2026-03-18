@@ -20,14 +20,9 @@ namespace MesTech.Tests.Integration.Smoke;
 [Trait("Category", "Smoke")]
 public class StartupPerformanceTests
 {
-    private static bool IsCI => Environment.GetEnvironmentVariable("CI") != null
-                             || Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != null;
-
-    [Fact]
+    [Fact(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     public void Startup_ShouldCompleteWithin5Seconds()
     {
-        if (IsCI) return;
-
         var exePath = UI._Shared.DesktopAppFixture.FindDesktopExe();
         if (exePath == null) return; // Skip if EXE not built
 
@@ -58,11 +53,9 @@ public class StartupPerformanceTests
         try { process!.Dispose(); } catch { /* Intentional: test cleanup — process disposal failure non-critical */ }
     }
 
-    [Fact]
+    [Fact(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     public void Memory_ShouldBeUnder300MB()
     {
-        if (IsCI) return;
-
         var exePath = UI._Shared.DesktopAppFixture.FindDesktopExe();
         if (exePath == null) return;
 

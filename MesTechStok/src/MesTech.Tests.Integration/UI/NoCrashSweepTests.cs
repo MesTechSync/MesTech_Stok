@@ -34,11 +34,9 @@ public class NoCrashSweepTests
         _fixture = fixture;
     }
 
-    [Fact]
+    [Fact(Skip = "Requires physical display and compiled WPF EXE — run locally only")]
     public void FullSweep_AllScreens_ZeroCrash()
     {
-        if (DesktopAppFixture.IsCI) return;
-
         foreach (var navId in SidebarIds)
         {
             _fixture.DismissAnyDialog();
