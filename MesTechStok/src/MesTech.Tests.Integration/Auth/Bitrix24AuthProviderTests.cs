@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.Interfaces;
@@ -129,10 +130,10 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Act
     var token1 = await provider.GetTokenAsync();
-    var requestCountAfterFirst = _mockServer.LogEntries.Count;
+    var requestCountAfterFirst = _mockServer.LogEntries.Count();
 
     var token2 = await provider.GetTokenAsync();
-    var requestCountAfterSecond = _mockServer.LogEntries.Count;
+    var requestCountAfterSecond = _mockServer.LogEntries.Count();
 
     // Assert
     token1.AccessToken.Should().Be("b24-cached-token");
@@ -169,7 +170,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -184,7 +185,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -198,7 +199,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
     var provider = CreateProvider(configure: false);
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<InvalidOperationException>()
@@ -236,11 +237,11 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Act
     await provider.RefreshTokenAsync("some-refresh-token");
-    var requestCountBefore = _mockServer.LogEntries.Count;
+    var requestCountBefore = _mockServer.LogEntries.Count();
 
     // Second call to GetToken should use cache
     var cached = await provider.GetTokenAsync();
-    var requestCountAfter = _mockServer.LogEntries.Count;
+    var requestCountAfter = _mockServer.LogEntries.Count();
 
     // Assert
     cached.AccessToken.Should().Be("b24-refreshed-cached");
@@ -252,7 +253,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
   {
     var provider = CreateProvider(configure: false);
 
-    var act = () => provider.RefreshTokenAsync("any-token");
+    Func<Task> act = async () => await provider.RefreshTokenAsync("any-token");
 
     await act.Should().ThrowAsync<InvalidOperationException>()
       .WithMessage("*not configured*");

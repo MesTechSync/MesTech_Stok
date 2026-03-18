@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.Interfaces;
@@ -141,11 +142,11 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
 
     // Act — first call: fetches from server
     var token1 = await provider.GetTokenAsync();
-    var requestCountAfterFirst = _mockServer.LogEntries.Count;
+    var requestCountAfterFirst = _mockServer.LogEntries.Count();
 
     // Act — second call: should come from cache
     var token2 = await provider.GetTokenAsync();
-    var requestCountAfterSecond = _mockServer.LogEntries.Count;
+    var requestCountAfterSecond = _mockServer.LogEntries.Count();
 
     // Assert
     token1.AccessToken.Should().Be("cached-token");
@@ -166,7 +167,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -181,7 +182,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -196,7 +197,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.GetTokenAsync();
+    Func<Task> act = async () => await provider.GetTokenAsync();
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -234,7 +235,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
     var provider = CreateProvider();
 
     // Act
-    var act = () => provider.RefreshTokenAsync("expired-refresh-token");
+    Func<Task> act = async () => await provider.RefreshTokenAsync("expired-refresh-token");
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
@@ -252,9 +253,9 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
     await provider.RefreshTokenAsync("some-refresh-token");
 
     // Assert — verify cached via GetTokenAsync (should not make another HTTP call)
-    var requestCountBeforeGet = _mockServer.LogEntries.Count;
+    var requestCountBeforeGet = _mockServer.LogEntries.Count();
     var cachedToken = await provider.GetTokenAsync();
-    var requestCountAfterGet = _mockServer.LogEntries.Count;
+    var requestCountAfterGet = _mockServer.LogEntries.Count();
 
     cachedToken.AccessToken.Should().Be("refreshed-cached");
     requestCountAfterGet.Should().Be(requestCountBeforeGet,
