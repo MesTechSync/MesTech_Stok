@@ -240,11 +240,23 @@
 
     try
     {
-      var result = await ApiClient.SafeGetAsync<List<object>>(
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>(
         $"accounting/salaries?year={_selectedYear}&month={_selectedMonth}");
-      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
       {
-        _salaries = GetDemoSalaries();
+        // API is live and returned data — parse into local records
+        _isDemoMode = false;
+        _salaries = probe.Data.Select(e => new SalaryRecord
+        {
+          CalisanAdi      = e.TryGetProperty("employeeName",    out var n)  ? n.GetString()  ?? "" : e.TryGetProperty("calisanAdi",      out var n2) ? n2.GetString()  ?? "" : "",
+          BrutMaas        = e.TryGetProperty("grossSalary",     out var g)  ? g.GetDecimal() : e.TryGetProperty("brutMaas",          out var g2) ? g2.GetDecimal() : 0,
+          SgkIsveren      = e.TryGetProperty("employerSgk",     out var ei) ? ei.GetDecimal(): e.TryGetProperty("sgkIsveren",         out var ei2)? ei2.GetDecimal(): 0,
+          SgkIsci         = e.TryGetProperty("employeeSgk",     out var es) ? es.GetDecimal(): e.TryGetProperty("sgkIsci",            out var es2)? es2.GetDecimal(): 0,
+          GelirVergisi    = e.TryGetProperty("incomeTax",       out var it) ? it.GetDecimal(): e.TryGetProperty("gelirVergisi",       out var it2)? it2.GetDecimal(): 0,
+          DamgaVergisi    = e.TryGetProperty("stampTax",        out var st) ? st.GetDecimal(): e.TryGetProperty("damgaVergisi",       out var st2)? st2.GetDecimal(): 0,
+          NetMaas         = e.TryGetProperty("netSalary",       out var ns) ? ns.GetDecimal(): e.TryGetProperty("netMaas",            out var ns2)? ns2.GetDecimal(): 0,
+          IsverenMaliyet  = e.TryGetProperty("totalEmployerCost",out var tc)? tc.GetDecimal(): e.TryGetProperty("isverenMaliyet",     out var tc2)? tc2.GetDecimal(): 0,
+        }).ToList();
       }
       else
       {

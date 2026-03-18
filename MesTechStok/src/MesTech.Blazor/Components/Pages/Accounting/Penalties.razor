@@ -231,10 +231,19 @@
 
     try
     {
-      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/penalties");
-      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>("accounting/penalties");
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
       {
-        _penalties = GetDemoPenalties();
+        _isDemoMode = false;
+        _penalties = probe.Data.Select(e => new PenaltyRecord
+        {
+          Kaynak      = e.TryGetProperty("source",      out var s)  ? s.GetString()  ?? "" : e.TryGetProperty("kaynak",      out var s2)  ? s2.GetString()  ?? "" : "",
+          Aciklama    = e.TryGetProperty("description", out var d)  ? d.GetString()  ?? "" : e.TryGetProperty("aciklama",    out var d2)  ? d2.GetString()  ?? "" : "",
+          Tutar       = e.TryGetProperty("amount",      out var a)  ? a.GetDecimal() : e.TryGetProperty("tutar",       out var a2)  ? a2.GetDecimal() : 0,
+          CezaTarihi  = e.TryGetProperty("penaltyDate", out var pd) && pd.TryGetDateTime(out var pdt) ? pdt : e.TryGetProperty("cezaTarihi", out var pd2) && pd2.TryGetDateTime(out var pdt2) ? pdt2 : DateTime.Today,
+          VadeTarihi  = e.TryGetProperty("dueDate",     out var dd) && dd.TryGetDateTime(out var ddt) ? ddt : e.TryGetProperty("vadeTarihi", out var dd2) && dd2.TryGetDateTime(out var ddt2) ? ddt2 : DateTime.Today,
+          Durum       = e.TryGetProperty("status",      out var st) ? st.GetString()  ?? "" : e.TryGetProperty("durum",       out var st2) ? st2.GetString()  ?? "" : "",
+        }).ToList();
       }
       else
       {

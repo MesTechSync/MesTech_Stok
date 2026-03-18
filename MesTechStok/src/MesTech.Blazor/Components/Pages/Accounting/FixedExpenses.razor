@@ -241,10 +241,20 @@
 
     try
     {
-      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/fixed-expenses");
-      if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>("accounting/fixed-expenses");
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
       {
-        _expenses = GetDemoExpenses();
+        _isDemoMode = false;
+        _expenses = probe.Data.Select(e => new FixedExpenseRecord
+        {
+          Ad          = e.TryGetProperty("name",        out var n)  ? n.GetString()  ?? "" : e.TryGetProperty("ad",          out var n2)  ? n2.GetString()  ?? "" : "",
+          Kategori    = e.TryGetProperty("category",    out var c)  ? c.GetString()  ?? "" : e.TryGetProperty("kategori",    out var c2)  ? c2.GetString()  ?? "" : "",
+          AylikTutar  = e.TryGetProperty("monthlyAmount",out var m) ? m.GetDecimal() : e.TryGetProperty("aylikTutar",   out var m2)  ? m2.GetDecimal() : 0,
+          OdemeGunu   = e.TryGetProperty("paymentDay",  out var pd) ? pd.GetInt32()  : e.TryGetProperty("odemeGunu",    out var pd2) ? pd2.GetInt32()  : 1,
+          Baslangic   = e.TryGetProperty("startDate",   out var sd) && sd.TryGetDateTime(out var sdt) ? sdt : e.TryGetProperty("baslangic", out var sd2) && sd2.TryGetDateTime(out var sdt2) ? sdt2 : DateTime.Today,
+          Bitis       = e.TryGetProperty("endDate",     out var ed) && ed.ValueKind != System.Text.Json.JsonValueKind.Null && ed.TryGetDateTime(out var edt) ? edt : (DateTime?)null,
+          Aktif       = e.TryGetProperty("isActive",    out var ia) ? ia.GetBoolean() : e.TryGetProperty("aktif",        out var ia2) ? ia2.GetBoolean() : true,
+        }).ToList();
       }
       else
       {

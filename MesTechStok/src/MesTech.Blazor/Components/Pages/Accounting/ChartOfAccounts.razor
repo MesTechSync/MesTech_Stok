@@ -155,9 +155,23 @@
   {
     try
     {
-      await ApiClient.GetChartOfAccountsAsync();
-      // TODO: map response to AccountItem when DTO finalized
-      _accounts = GetDemoData();
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>("accounting/chart-of-accounts");
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
+      {
+        _isDemoMode = false;
+        _accounts = probe.Data.Select(e => new AccountItem
+        {
+          Kod      = e.TryGetProperty("code",          out var c)  ? c.GetString()  ?? "" : e.TryGetProperty("kod",      out var c2)  ? c2.GetString() ?? "" : "",
+          Ad       = e.TryGetProperty("name",          out var n)  ? n.GetString()  ?? "" : e.TryGetProperty("ad",       out var n2)  ? n2.GetString() ?? "" : "",
+          Tur      = e.TryGetProperty("type",          out var t)  ? t.GetString()  ?? "" : e.TryGetProperty("tur",      out var t2)  ? t2.GetString() ?? "" : "",
+          UstHesap = e.TryGetProperty("parentAccount", out var pa) ? pa.GetString() ?? "" : e.TryGetProperty("ustHesap", out var pa2) ? pa2.GetString() ?? "" : "",
+        }).ToList();
+      }
+      else
+      {
+        _isDemoMode = true;
+        _accounts = GetDemoData();
+      }
     }
     catch (Exception ex)
     {

@@ -199,8 +199,8 @@
   private string? successMessage;
   private string? errorMessage;
 
-  // Known accounts for auto-fill (demo data — will be fetched from API in Dalga 11)
-  private static readonly Dictionary<string, string> KnownAccounts = new()
+  // Known accounts for auto-fill — populated from API on init, falls back to static seed
+  private Dictionary<string, string> KnownAccounts = new()
   {
     ["100"] = "Kasa",
     ["101"] = "Alinacak Cekler",
@@ -235,7 +235,23 @@
       // Start with 2 empty rows
       rows.Add(new JournalRow());
       rows.Add(new JournalRow());
-      await Task.CompletedTask;
+
+      // Load chart-of-accounts from API to enrich the auto-fill dictionary
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>("accounting/chart-of-accounts");
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
+      {
+        _isDemoMode = false;
+        var apiAccounts = new Dictionary<string, string>();
+        foreach (var e in probe.Data)
+        {
+          var code = e.TryGetProperty("code", out var c)  ? c.GetString()  : e.TryGetProperty("kod",  out var c2) ? c2.GetString()  : null;
+          var name = e.TryGetProperty("name", out var n)  ? n.GetString()  : e.TryGetProperty("ad",   out var n2) ? n2.GetString()  : null;
+          if (!string.IsNullOrWhiteSpace(code) && !string.IsNullOrWhiteSpace(name))
+            apiAccounts[code!] = name!;
+        }
+        if (apiAccounts.Count > 0)
+          KnownAccounts = apiAccounts;
+      }
     }
     catch (Exception ex)
     {

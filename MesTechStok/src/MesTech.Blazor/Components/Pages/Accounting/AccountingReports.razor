@@ -137,42 +137,32 @@
   {
     try
     {
-      // Try real API endpoint based on active tab
-      if (_activeTab == "income-statement")
+      string endpoint = _activeTab switch
       {
-        var profitResult = await ApiClient.GetProfitReportAsync();
-        if (profitResult is not null)
+        "trial-balance"    => "accounting/trial-balance",
+        "balance-sheet"    => "accounting/balance-sheet",
+        "income-statement" => "accounting/profit-report",
+        _                  => "accounting/trial-balance"
+      };
+
+      var probe = await ApiClient.SafeGetAsync<List<System.Text.Json.JsonElement>>(endpoint);
+      if (probe.IsSuccess && probe.Data is { Count: > 0 })
+      {
+        _isDemoMode = false;
+        _reportRows = probe.Data.Select(e => new ReportRow
         {
-          // TODO: map response to ReportRow when typed DTO finalized
-          _isDemoMode = false;
-          _reportRows = GetDemoData(_activeTab);
-        }
-        else
-        {
-          _isDemoMode = true;
-          _reportRows = GetDemoData(_activeTab);
-        }
+          HesapKodu = e.TryGetProperty("accountCode",  out var ak) ? ak.GetString()  ?? "" : e.TryGetProperty("hesapKodu", out var ak2) ? ak2.GetString() ?? "" : "",
+          HesapAdi  = e.TryGetProperty("accountName",  out var an) ? an.GetString()  ?? "" : e.TryGetProperty("hesapAdi",  out var an2) ? an2.GetString() ?? "" : "",
+          Borc      = e.TryGetProperty("debit",        out var db) ? db.GetDecimal() : e.TryGetProperty("borc",      out var db2) ? db2.GetDecimal() : 0,
+          Alacak    = e.TryGetProperty("credit",       out var cr) ? cr.GetDecimal() : e.TryGetProperty("alacak",    out var cr2) ? cr2.GetDecimal() : 0,
+          Bakiye    = e.TryGetProperty("balance",      out var bl) ? bl.GetDecimal() : e.TryGetProperty("bakiye",    out var bl2) ? bl2.GetDecimal() : 0,
+          IsHeader  = e.TryGetProperty("isHeader",     out var ih) ? ih.GetBoolean() : false,
+        }).ToList();
       }
       else
       {
-        var apiResult = _activeTab switch
-        {
-          "trial-balance" => await ApiClient.GetTrialBalanceAsync(),
-          "balance-sheet" => await ApiClient.GetBalanceSheetAsync(),
-          _ => new List<object>()
-        };
-
-        if (apiResult?.Count > 0)
-        {
-          // TODO: map response to ReportRow when typed DTO finalized
-          _isDemoMode = false;
-          _reportRows = GetDemoData(_activeTab);
-        }
-        else
-        {
-          _isDemoMode = true;
-          _reportRows = GetDemoData(_activeTab);
-        }
+        _isDemoMode = true;
+        _reportRows = GetDemoData(_activeTab);
       }
     }
     catch (Exception ex)
