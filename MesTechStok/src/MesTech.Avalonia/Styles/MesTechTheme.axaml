@@ -29,4 +29,116 @@
     <GradientStop Color="#00695C" Offset="1"/>
   </LinearGradientBrush>
 
+  <!-- ============================================================ -->
+  <!-- WPF-Aligned Color Definitions (Colors.xaml birebir)          -->
+  <!-- ============================================================ -->
+
+  <!-- Primary Colors -->
+  <Color x:Key="PrimaryBlueColor">#2196F3</Color>
+  <Color x:Key="SecondaryBlueColor">#1976D2</Color>
+  <Color x:Key="AccentGreenColor">#4CAF50</Color>
+  <Color x:Key="OrangePrimaryColor">#FB8C00</Color>
+  <Color x:Key="OrangeHoverColor">#F57C00</Color>
+  <Color x:Key="OrangeDarkColor">#EF6C00</Color>
+  <Color x:Key="WarningOrangeColor">#FF9800</Color>
+  <Color x:Key="ErrorRedColor">#F44336</Color>
+  <Color x:Key="TextPrimaryColor">#212121</Color>
+  <Color x:Key="TextSecondaryColor">#757575</Color>
+  <Color x:Key="BackgroundColor">#F5F7FA</Color>
+  <Color x:Key="SurfaceColor">#FFFFFF</Color>
+  <Color x:Key="BorderColor">#E0E0E0</Color>
+
+  <!-- Sidebar Colors -->
+  <Color x:Key="SidebarBackgroundColor">#1B2838</Color>
+  <Color x:Key="SidebarHoverColor">#263850</Color>
+  <Color x:Key="SidebarActiveColor">#2196F3</Color>
+  <Color x:Key="SidebarTextColor">#B0BEC5</Color>
+  <Color x:Key="SidebarTextActiveColor">#FFFFFF</Color>
+  <Color x:Key="SidebarBorderColor">#37474F</Color>
+
+  <!-- State Colors -->
+  <Color x:Key="SuccessColor">#4CAF50</Color>
+  <Color x:Key="InfoColor">#2196F3</Color>
+  <Color x:Key="DisabledColor">#BDBDBD</Color>
+  <Color x:Key="DisabledTextColor">#9E9E9E</Color>
+  <Color x:Key="HoverOverlayColor">#0A000000</Color>
+  <Color x:Key="PressedOverlayColor">#1A000000</Color>
+  <Color x:Key="FocusBorderColor">#2196F3</Color>
+
+  <!-- ============================================================ -->
+  <!-- SolidColorBrush Definitions (WPF-Aligned)                    -->
+  <!-- ============================================================ -->
+
+  <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}"/>
+  <SolidColorBrush x:Key="SecondaryBlueBrush" Color="{StaticResource SecondaryBlueColor}"/>
+  <SolidColorBrush x:Key="AccentGreenBrush" Color="{StaticResource AccentGreenColor}"/>
+  <SolidColorBrush x:Key="OrangePrimaryBrush" Color="{StaticResource OrangePrimaryColor}"/>
+  <SolidColorBrush x:Key="OrangeHoverBrush" Color="{StaticResource OrangeHoverColor}"/>
+  <SolidColorBrush x:Key="OrangeDarkBrush" Color="{StaticResource OrangeDarkColor}"/>
+  <SolidColorBrush x:Key="WarningOrangeBrush" Color="{StaticResource WarningOrangeColor}"/>
+  <SolidColorBrush x:Key="ErrorRedBrush" Color="{StaticResource ErrorRedColor}"/>
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+  <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+  <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
+  <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+
+  <!-- Sidebar Brushes -->
+  <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{StaticResource SidebarBackgroundColor}"/>
+  <SolidColorBrush x:Key="SidebarHoverBrush" Color="{StaticResource SidebarHoverColor}"/>
+  <SolidColorBrush x:Key="SidebarActiveBrush" Color="{StaticResource SidebarActiveColor}"/>
+  <SolidColorBrush x:Key="SidebarTextBrush" Color="{StaticResource SidebarTextColor}"/>
+  <SolidColorBrush x:Key="SidebarTextActiveBrush" Color="{StaticResource SidebarTextActiveColor}"/>
+  <SolidColorBrush x:Key="SidebarBorderBrush" Color="{StaticResource SidebarBorderColor}"/>
+
+  <!-- State Brushes -->
+  <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+  <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+  <SolidColorBrush x:Key="DisabledBrush" Color="{StaticResource DisabledColor}"/>
+  <SolidColorBrush x:Key="DisabledTextBrush" Color="{StaticResource DisabledTextColor}"/>
+  <SolidColorBrush x:Key="HoverOverlayBrush" Color="{StaticResource HoverOverlayColor}"/>
+  <SolidColorBrush x:Key="PressedOverlayBrush" Color="{StaticResource PressedOverlayColor}"/>
+  <SolidColorBrush x:Key="FocusBorderBrush" Color="{StaticResource FocusBorderColor}"/>
+
+  <!-- ============================================================ -->
+  <!-- Typography                                                    -->
+  <!-- ============================================================ -->
+
+  <FontFamily x:Key="DefaultFontFamily">Segoe UI, San Francisco, Helvetica Neue, Arial</FontFamily>
+  <FontFamily x:Key="MonoFontFamily">Cascadia Code, Consolas, monospace</FontFamily>
+
+  <x:Double x:Key="FontSizeCaption">11</x:Double>
+  <x:Double x:Key="FontSizeSmall">12</x:Double>
+  <x:Double x:Key="FontSizeBody">14</x:Double>
+  <x:Double x:Key="FontSizeSubtitle">16</x:Double>
+  <x:Double x:Key="FontSizeTitle">20</x:Double>
+  <x:Double x:Key="FontSizeHeader">24</x:Double>
+  <x:Double x:Key="FontSizeDisplay">32</x:Double>
+
+  <!-- ============================================================ -->
+  <!-- Dimensions                                                    -->
+  <!-- ============================================================ -->
+
+  <CornerRadius x:Key="CornerRadiusSmall">2</CornerRadius>
+  <CornerRadius x:Key="CornerRadiusMedium">4</CornerRadius>
+  <CornerRadius x:Key="CornerRadiusLarge">8</CornerRadius>
+  <CornerRadius x:Key="CornerRadiusRound">12</CornerRadius>
+
+  <Thickness x:Key="PaddingSmall">4</Thickness>
+  <Thickness x:Key="PaddingMedium">8</Thickness>
+  <Thickness x:Key="PaddingLarge">16</Thickness>
+  <Thickness x:Key="PaddingXLarge">24</Thickness>
+
+  <Thickness x:Key="BorderThicknessThin">1</Thickness>
+  <Thickness x:Key="BorderThicknessMedium">2</Thickness>
+
+  <x:Double x:Key="SidebarWidth">240</x:Double>
+  <x:Double x:Key="SidebarCollapsedWidth">60</x:Double>
+  <x:Double x:Key="ButtonMinWidth">80</x:Double>
+  <x:Double x:Key="ButtonMinHeight">36</x:Double>
+  <x:Double x:Key="InputMinHeight">36</x:Double>
+  <x:Double x:Key="IconSizeSmall">16</x:Double>
+  <x:Double x:Key="IconSizeMedium">24</x:Double>
+  <x:Double x:Key="IconSizeLarge">32</x:Double>
+
 </ResourceDictionary>
