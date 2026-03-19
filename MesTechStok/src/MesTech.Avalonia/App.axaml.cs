@@ -18,6 +18,9 @@ namespace MesTech.Avalonia;
 /// Replaces the former static ServiceLocator (App.Services) pattern.
 /// Uses SAME AddInfrastructure() registration as WPF Desktop.
 /// Domain + Application + Infrastructure = ZERO CHANGES.
+///
+/// EMR-02: Startup flow → WelcomeWindow → LoginWindow → MainWindow (DI).
+/// CreateMainWindow() provides DI-resolved MainWindow for LoginWindow to call.
 /// </summary>
 public partial class App : global::Avalonia.Application
 {
@@ -26,6 +29,19 @@ public partial class App : global::Avalonia.Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+
+    /// <summary>
+    /// Creates a DI-resolved MainWindow with ViewModel and auto-navigates to Dashboard.
+    /// Called by LoginWindow after successful authentication.
+    /// </summary>
+    public MainWindow CreateMainWindow()
+    {
+        var mainVm = _host!.Services.GetRequiredService<MainWindowViewModel>();
+        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        mainWindow.DataContext = mainVm;
+        mainVm.NavigateToCommand.Execute("Dashboard");
+        return mainWindow;
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -94,17 +110,67 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<SyncStatusAvaloniaViewModel>();
                 services.AddTransient<StockMovementAvaloniaViewModel>();
                 services.AddTransient<CargoTrackingAvaloniaViewModel>();
+
+                // ViewModels — Dalga 17 batch (T007: 49 ViewModel iskelet)
+                services.AddTransient<AboutAvaloniaViewModel>();
+                services.AddTransient<AccountingDashboardAvaloniaViewModel>();
+                services.AddTransient<ActivityAvaloniaViewModel>();
+                services.AddTransient<AmazonAvaloniaViewModel>();
+                services.AddTransient<AmazonEuAvaloniaViewModel>();
+                services.AddTransient<BarcodeAvaloniaViewModel>();
+                services.AddTransient<CalendarAvaloniaViewModel>();
+                services.AddTransient<CargoSettingsAvaloniaViewModel>();
+                services.AddTransient<CiceksepetiAvaloniaViewModel>();
+                services.AddTransient<ContactAvaloniaViewModel>();
+                services.AddTransient<CrmDashboardAvaloniaViewModel>();
+                services.AddTransient<DealsAvaloniaViewModel>();
+                services.AddTransient<DepartmentAvaloniaViewModel>();
+                services.AddTransient<DocumentFolderAvaloniaViewModel>();
+                services.AddTransient<DocumentManagerAvaloniaViewModel>();
+                services.AddTransient<EbayAvaloniaViewModel>();
+                services.AddTransient<ErpSettingsAvaloniaViewModel>();
+                services.AddTransient<GLTransactionAvaloniaViewModel>();
+                services.AddTransient<GelirGiderAvaloniaViewModel>();
+                services.AddTransient<HealthAvaloniaViewModel>();
+                services.AddTransient<HepsiburadaAvaloniaViewModel>();
+                services.AddTransient<InvoiceSettingsAvaloniaViewModel>();
+                services.AddTransient<KanbanBoardAvaloniaViewModel>();
+                services.AddTransient<KarZararAvaloniaViewModel>();
+                services.AddTransient<MesaAvaloniaViewModel>();
+                services.AddTransient<MultiTenantAvaloniaViewModel>();
+                services.AddTransient<MutabakatAvaloniaViewModel>();
+                services.AddTransient<N11AvaloniaViewModel>();
+                services.AddTransient<NotificationAvaloniaViewModel>();
+                services.AddTransient<OpenCartAvaloniaViewModel>();
+                services.AddTransient<OrderDetailAvaloniaViewModel>();
+                services.AddTransient<OrderListAvaloniaViewModel>();
+                services.AddTransient<OzonAvaloniaViewModel>();
+                services.AddTransient<PazaramaAvaloniaViewModel>();
+                services.AddTransient<PipelineAvaloniaViewModel>();
+                services.AddTransient<ProfitLossAvaloniaViewModel>();
+                services.AddTransient<ProjectsAvaloniaViewModel>();
+                services.AddTransient<PttAvmAvaloniaViewModel>();
+                services.AddTransient<ReportAvaloniaViewModel>();
+                services.AddTransient<ShipmentAvaloniaViewModel>();
+                services.AddTransient<StoreManagementAvaloniaViewModel>();
+                services.AddTransient<SupplierAvaloniaViewModel>();
+                services.AddTransient<TenantAvaloniaViewModel>();
+                services.AddTransient<TimeEntryAvaloniaViewModel>();
+                services.AddTransient<TrendyolAvaloniaViewModel>();
+                services.AddTransient<UserManagementAvaloniaViewModel>();
+                services.AddTransient<WarehouseAvaloniaViewModel>();
+                services.AddTransient<WelcomeAvaloniaViewModel>();
+                services.AddTransient<WorkScheduleAvaloniaViewModel>();
+                services.AddTransient<WorkTaskAvaloniaViewModel>();
             })
             .Build();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var mainVm = _host.Services.GetRequiredService<MainWindowViewModel>();
-            desktop.MainWindow = _host.Services.GetRequiredService<MainWindow>();
-            desktop.MainWindow.DataContext = mainVm;
-
-            // Auto-navigate to Dashboard on startup
-            mainVm.NavigateToCommand.Execute("Dashboard");
+            // EMR-02: Baslangic → WelcomeWindow (ekran koruyucu)
+            // WelcomeWindow → LoginWindow → MainWindow (DI) akisi
+            desktop.MainWindow = new WelcomeWindow();
+            desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnLastWindowClose;
         }
 
         base.OnFrameworkInitializationCompleted();
