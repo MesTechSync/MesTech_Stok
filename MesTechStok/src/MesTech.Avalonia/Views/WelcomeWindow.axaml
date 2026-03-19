@@ -1,0 +1,81 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Views.WelcomeWindow"
+        Title="MesTech"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        SystemDecorations="None"
+        Background="Transparent"
+        Topmost="True"
+        CanResize="False">
+
+  <Panel>
+    <!-- Gradient arka plan — WPF ile ayni renk paleti -->
+    <Border>
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+          <GradientStop Color="#0D1B2A" Offset="0"/>
+          <GradientStop Color="#1B2838" Offset="0.5"/>
+          <GradientStop Color="#0078D4" Offset="1"/>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- Icerik -->
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+
+      <!-- Logo -->
+      <TextBlock Text="MesTech"
+                 FontSize="48" FontWeight="Bold"
+                 Foreground="White"
+                 HorizontalAlignment="Center"/>
+
+      <TextBlock Text="Entegratör"
+                 FontSize="24" FontWeight="Light"
+                 Foreground="#B0BEC5"
+                 HorizontalAlignment="Center"
+                 Margin="0,-12,0,0"/>
+
+      <!-- Alt baslik -->
+      <TextBlock Text="Çoklu Pazaryeri Yönetim Platformu"
+                 FontSize="16"
+                 Foreground="#78909C"
+                 HorizontalAlignment="Center"
+                 Margin="0,8,0,0"/>
+
+      <!-- Ayirici cizgi -->
+      <Border Height="1" Width="200" Background="#2A4A6B" Margin="0,16"/>
+
+      <!-- Baslama mesaji (yanip sonen animasyon) -->
+      <TextBlock x:Name="StartHintText"
+                 Text="Başlamak için tıklayın veya herhangi bir tuşa basın"
+                 FontSize="14"
+                 Foreground="#546E7A"
+                 HorizontalAlignment="Center"
+                 Opacity="1"/>
+
+    </StackPanel>
+
+    <!-- Saat + Tarih (sag alt) -->
+    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,32,24" Spacing="4">
+      <TextBlock x:Name="ClockText"
+                 Text="00:00"
+                 FontSize="36" FontWeight="Light"
+                 Foreground="White"
+                 HorizontalAlignment="Right"/>
+      <TextBlock x:Name="DateText"
+                 Text=""
+                 FontSize="14"
+                 Foreground="#78909C"
+                 HorizontalAlignment="Right"/>
+    </StackPanel>
+
+    <!-- Versiyon (sol alt) -->
+    <TextBlock Text="v1.0.0"
+               FontSize="12"
+               Foreground="#37474F"
+               HorizontalAlignment="Left" VerticalAlignment="Bottom"
+               Margin="24,0,0,24"/>
+  </Panel>
+</Window>
