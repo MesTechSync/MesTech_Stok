@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Features.Platform.Commands.CreateStore;
 using MesTech.Application.Queries.GetStoresByTenant;
 
 namespace MesTech.WebApi.Endpoints;
@@ -29,15 +30,17 @@ public static class StoreEndpoints
         .WithSummary("Kiracıya ait mağaza listesi");
 
         // POST /api/v1/admin/stores — yeni mağaza oluştur
-        // DEV1-DEPENDENCY: CreateStoreCommand not yet available
-        group.MapPost("/", () =>
-            Results.Accepted("/api/v1/admin/stores", new
-            {
-                Message = "Create store endpoint — DEV1 CreateStoreCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/", async (
+            CreateStoreCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/admin/stores/{result.StoreId}", new { id = result.StoreId })
+                : Results.BadRequest(new { error = result.ErrorMessage });
+        })
         .WithName("CreateStore")
-        .WithSummary("Yeni mağaza oluştur — admin only (DEV1-DEPENDENCY)");
+        .WithSummary("Yeni mağaza oluştur — admin only");
 
         // POST /api/v1/admin/stores/{id}/test-connection — mağaza API bağlantı testi
         // DEV1-DEPENDENCY: TestStoreConnectionCommand not yet available

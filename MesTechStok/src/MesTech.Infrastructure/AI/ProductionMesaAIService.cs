@@ -285,6 +285,52 @@ public class ProductionMesaAIService : IMesaAIService
                 productName, description, targetPlatform, ct);
         }
     }
+    public async Task<AiReplyResult> SuggestReplyAsync(
+        string messageBody, string? customerName,
+        string? orderContext, CancellationToken ct = default)
+    {
+        try
+        {
+            var payload = new { messageBody, customerName, orderContext };
+
+            var response = await _httpClient.PostAsJsonAsync(
+                "v1/ai/crm/suggest-reply", payload, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "[MESA Prod] SuggestReply failed: {StatusCode} — falling back (customer={Customer})",
+                    response.StatusCode, customerName);
+                return await _mockFallback.SuggestReplyAsync(
+                    messageBody, customerName, orderContext, ct);
+            }
+
+            var result = await response.Content
+                .ReadFromJsonAsync<MesaReplyResponse>(cancellationToken: ct);
+
+            if (result?.SuggestedReply is null)
+            {
+                _logger.LogWarning(
+                    "[MESA Prod] SuggestReply null response — falling back (customer={Customer})", customerName);
+                return await _mockFallback.SuggestReplyAsync(
+                    messageBody, customerName, orderContext, ct);
+            }
+
+            _logger.LogInformation(
+                "[MESA Prod] SuggestReply basarili: customer={Customer}, len={Len}",
+                customerName, result.SuggestedReply.Length);
+
+            return new AiReplyResult(true, result.SuggestedReply, null);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "[MESA Prod] MESA OS unreachable, falling back to mock (SuggestReply, customer={Customer})",
+                customerName);
+            return await _mockFallback.SuggestReplyAsync(
+                messageBody, customerName, orderContext, ct);
+        }
+    }
 }
 
 // ── MESA AI Response DTOs ──
@@ -314,3 +360,6 @@ public record MesaCategoryResponse(
     string? CategoryId,
     string? CategoryName,
     double Confidence);
+
+/// <summary>MESA OS /api/v1/ai/crm/suggest-reply yanit modeli.</summary>
+public record MesaReplyResponse(string? SuggestedReply);

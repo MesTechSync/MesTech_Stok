@@ -151,6 +151,7 @@ public class AppDbContext : DbContext
     public DbSet<CrmContact> CrmContacts => Set<CrmContact>();
     public DbSet<Deal> Deals => Set<Deal>();
     public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<PlatformMessage> PlatformMessages => Set<PlatformMessage>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — FİNANS
@@ -236,6 +237,12 @@ public class AppDbContext : DbContext
     // DALGA 11 — ERP ENTEGRASYONU
     // ═══════════════════════════════════════
     public DbSet<ErpSyncLog> ErpSyncLogs => Set<ErpSyncLog>();
+
+    // ═══════════════════════════════════════
+    // DALGA 14 — MUHASEBE SABİT KIYMET + Ba/Bs
+    // ═══════════════════════════════════════
+    public DbSet<FixedAsset> FixedAssets => Set<FixedAsset>();
+    public DbSet<BaBsRecord> BaBsRecords => Set<BaBsRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

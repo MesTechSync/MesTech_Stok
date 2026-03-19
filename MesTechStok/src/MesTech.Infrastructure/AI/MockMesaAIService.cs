@@ -114,6 +114,24 @@ public class MockMesaAIService : IMesaAIService
             true, categoryId, categoryName, confidence));
     }
 
+    public Task<AiReplyResult> SuggestReplyAsync(
+        string messageBody, string? customerName,
+        string? orderContext, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK] AI yanit onerisi istendi: {Customer}", customerName ?? "Bilinmeyen");
+
+        var greeting = string.IsNullOrEmpty(customerName)
+            ? "Merhaba,"
+            : $"Merhaba {customerName},";
+
+        var suggestion = $"{greeting}\n\nMesajiniz icin tesekkur ederiz. " +
+                         "Talebiniz incelenmektedir ve en kisa surede donuş yapilacaktir.\n\n" +
+                         "Saygilarimizla,\nMesTech Musteri Hizmetleri";
+
+        return Task.FromResult(new AiReplyResult(true, suggestion, null));
+    }
+
     // ── Kategori bazli icerik uretimi ──
 
     private static string BuildCategoryDescription(

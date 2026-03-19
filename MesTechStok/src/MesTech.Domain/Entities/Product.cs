@@ -147,6 +147,26 @@ public class Product : BaseEntity, ITenantEntity
             Id, SKU, oldPrice, newSalePrice, DateTime.UtcNow));
     }
 
+    public void AddStock(int quantity, string? reference = null)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Stok miktarı pozitif olmalı.", nameof(quantity));
+        AdjustStock(quantity, StockMovementType.StockIn, reference);
+    }
+
+    public void RemoveStock(int quantity, string? reference = null)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Stok miktarı pozitif olmalı.", nameof(quantity));
+        if (Stock < quantity)
+            throw new InvalidOperationException(
+                $"Yetersiz stok. Mevcut: {Stock}, İstenen: {quantity}");
+        AdjustStock(-quantity, StockMovementType.StockOut, reference);
+    }
+
+    public bool IsCriticalStock => Stock <= MinimumStock && Stock > 0;
+    public bool IsLowStockRange => Stock <= (int)(MinimumStock * 1.5m) && !IsCriticalStock && !IsOutOfStock();
+
     public bool IsLowStock() => Stock <= MinimumStock;
     public bool IsOutOfStock() => Stock <= 0;
     public bool IsOverStock() => MaximumStock > 0 && Stock > MaximumStock;
