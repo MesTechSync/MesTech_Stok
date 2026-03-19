@@ -1,0 +1,141 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.VergiTakvimiAvaloniaView"
+             x:DataType="vm:VergiTakvimiAvaloniaViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#7C3AED" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Vergi Takvimi" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#7C3AED" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- KPI Row -->
+        <Border Grid.Row="1" Background="#F8FAFC" Padding="16,12">
+            <Grid ColumnDefinitions="*,*,*">
+                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Gecikmi&#x15F;" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding OverdueCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Yaklasan" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding UpcomingCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#F59E0B" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Tamamlanan" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding CompletedCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#10B981" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="2" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}"
+                          Width="140" />
+                <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}"
+                          Width="100" />
+                <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}"
+                          Width="160" />
+            </StackPanel>
+        </Border>
+
+        <!-- Card List -->
+        <ScrollViewer Grid.Row="3" Margin="16">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,12"
+                                BorderBrush="#E0E6ED" BorderThickness="1"
+                                BoxShadow="0 2 8 0 #14000000">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <!-- Status Indicator -->
+                                <Border Grid.Column="0" Width="6" CornerRadius="3" Margin="0,0,16,0"
+                                        Background="{Binding StatusColor}" />
+                                <!-- Details -->
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="{Binding TaxName}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="#1E293B" />
+                                    <TextBlock Text="{Binding DueDateFormatted}" FontSize="13" Foreground="#64748B" />
+                                    <TextBlock Text="{Binding StatusText}" FontSize="12"
+                                               Foreground="{Binding StatusColor}" FontWeight="SemiBold" />
+                                </StackPanel>
+                                <!-- Amount -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center"
+                                            HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding AmountFormatted}" FontSize="18" FontWeight="Bold"
+                                               Foreground="#1E293B" HorizontalAlignment="Right" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Vergi takvimi yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen donem icin vergi takvimi kaydi yok"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

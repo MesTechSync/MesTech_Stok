@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.KomisyonAvaloniaView"
+             x:DataType="vm:KomisyonAvaloniaViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#f27a1a" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Komisyon Yonetimi" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yeni Komisyon"
+                        Command="{Binding AddCommissionCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#f27a1a" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Platform KPI Row -->
+        <Border Grid.Row="1" Background="#F8FAFC" Padding="16,12">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Trendyol" FontSize="12" Foreground="#f27a1a" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding TrendyolAvgRate}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#f27a1a" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Hepsiburada" FontSize="12" Foreground="#ff6000" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding HepsiburadaAvgRate}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#ff6000" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Ciceksepeti" FontSize="12" Foreground="#6c3f99" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding CiceksepetiAvgRate}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#6c3f99" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="N11" FontSize="12" Foreground="#6610f2" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding N11AvgRate}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#6610f2" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="2" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
+                          Width="180" />
+                <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
+                          Width="180" />
+                <TextBox Width="220" Watermark="Kategori ara..."
+                         Text="{Binding SearchText}" />
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
+                BorderBrush="#E0E6ED" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Items}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      CanUserSortColumns="True"
+                      CanUserResizeColumns="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" />
+                    <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="*" />
+                    <DataGridTextColumn Header="Oran (%)" Binding="{Binding RateFormatted}" Width="100" />
+                    <DataGridTextColumn Header="Sabit Ucret" Binding="{Binding FixedFeeFormatted}" Width="130" />
+                    <DataGridTextColumn Header="Gecerlilik" Binding="{Binding ValidFrom}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Komisyon verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen platform ve kategori icin komisyon orani tanimlanmamis"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
