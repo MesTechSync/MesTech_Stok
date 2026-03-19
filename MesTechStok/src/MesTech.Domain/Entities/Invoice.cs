@@ -15,6 +15,7 @@ public class Invoice : BaseEntity, ITenantEntity
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
     public InvoiceDirection Direction { get; set; } = InvoiceDirection.Outgoing;
     public InvoiceProvider Provider { get; set; } = InvoiceProvider.None;
+    public InvoiceScenario Scenario { get; set; } = InvoiceScenario.Basic;
 
     public string CustomerName { get; set; } = string.Empty;
     public string? CustomerTaxNumber { get; set; }
@@ -119,6 +120,56 @@ public class Invoice : BaseEntity, ITenantEntity
         invoice.RaiseDomainEvent(new InvoiceCreatedEvent(
             invoice.Id, order.Id, type, order.TotalAmount, DateTime.UtcNow));
         return invoice;
+    }
+
+    // ══════ EMR-08: DOMAIN IS KURALLARI ══════
+
+    /// <summary>
+    /// Fatura tipini alici bilgisine gore otomatik belirle.
+    /// VKN varsa → e-Fatura (mukellef varsayimi), yurt disi platform → e-Ihracat, diger → e-Arsiv.
+    /// GIB mukellef listesi dogrulamasi provider seviyesinde yapilir.
+    /// </summary>
+    public void DetermineInvoiceType()
+    {
+        if (!string.IsNullOrEmpty(CustomerTaxNumber) && CustomerTaxNumber.Length == 10)
+        {
+            // VKN (10 hane) → e-Fatura (mukellef varsayimi)
+            Type = InvoiceType.EFatura;
+            Scenario = InvoiceScenario.Commercial;
+            IsEInvoiceTaxpayer = true;
+        }
+        else if (PlatformCode == PlatformType.AmazonEu.ToString()
+              || PlatformCode == PlatformType.eBay.ToString()
+              || PlatformCode == PlatformType.Etsy.ToString()
+              || PlatformCode == PlatformType.Ozon.ToString())
+        {
+            // Yurt disi platform → e-Ihracat
+            Type = InvoiceType.EIhracat;
+            Scenario = InvoiceScenario.Export;
+        }
+        else
+        {
+            // Bireysel alici (TCKN veya anonim) → e-Arsiv
+            Type = InvoiceType.EArsiv;
+            Scenario = InvoiceScenario.Basic;
+        }
+    }
+
+    /// <summary>
+    /// Faturayi onayla ve gonderime hazirla.
+    /// Sadece taslak, kalemli ve pozitif tutarli fatura onaylanabilir.
+    /// </summary>
+    public void Approve()
+    {
+        if (Status != InvoiceStatus.Draft)
+            throw new InvalidOperationException($"Sadece taslak fatura onaylanabilir. Mevcut durum: {Status}");
+        if (_lines.Count == 0)
+            throw new InvalidOperationException("Fatura kalemsiz onaylanamaz.");
+        if (GrandTotal <= 0)
+            throw new InvalidOperationException("Fatura tutari sifirdan buyuk olmali.");
+
+        Status = InvoiceStatus.Queued;
+        RaiseDomainEvent(new InvoiceApprovedEvent(Id, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
     }
 
     public override string ToString() => $"Invoice #{InvoiceNumber} ({Status}) - {GrandTotal:C}";
