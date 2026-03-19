@@ -5,369 +5,526 @@
         xmlns:wpfvm="using:MesTechStok.Desktop.ViewModels.Finance"
         x:Class="MesTech.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="MesTech Stok — Avalonia PoC"
-        Width="1280" Height="800"
-        WindowStartupLocation="CenterScreen">
+        Title="MesTech Entegratör"
+        Width="1400" Height="900"
+        MinWidth="1024" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
 
     <Window.Styles>
         <!-- Sidebar button style -->
         <Style Selector="Button.sidebar-btn">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#CBD5E1" />
+            <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="20,12" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="0" />
         </Style>
         <Style Selector="Button.sidebar-btn:pointerover">
-            <Setter Property="Background" Value="#334155" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource SidebarHoverBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource SidebarTextActiveBrush}" />
+        </Style>
+        <!-- Icon button style (toolbar) -->
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover">
+            <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}" />
+        </Style>
+        <!-- Sidebar section header -->
+        <Style Selector="TextBlock.sidebar-section">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="Margin" Value="16,14,0,6" />
+        </Style>
+        <!-- Disabled sidebar item -->
+        <Style Selector="Button.sidebar-disabled">
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="Opacity" Value="0.4" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
         </Style>
     </Window.Styles>
 
-    <Grid ColumnDefinitions="240,*">
+    <DockPanel>
 
-        <!-- Sidebar -->
-        <Border Grid.Column="0" Background="#1E293B">
-            <DockPanel>
-                <!-- Logo / App Title -->
-                <Border DockPanel.Dock="Top" Padding="20,20,20,16"
-                        BorderBrush="#334155" BorderThickness="0,0,0,1">
-                    <StackPanel>
-                        <TextBlock Text="MesTech Stok" FontSize="20" FontWeight="Bold"
-                                   Foreground="White" />
-                        <TextBlock Text="Avalonia PoC" FontSize="12"
-                                   Foreground="#64748B" Margin="0,4,0,0" />
-                    </StackPanel>
-                </Border>
+        <!-- ═══ TOOLBAR (UST) ═══ -->
+        <Border DockPanel.Dock="Top"
+                Background="{StaticResource SurfaceBrush}"
+                Height="52"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
 
-                <!-- Navigation Buttons — 12 Standard Groups -->
-                <ScrollViewer DockPanel.Dock="Top">
-                <StackPanel Margin="0,8">
-
-                    <!-- 1. DASHBOARD -->
-                    <TextBlock Text="DASHBOARD" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,8,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Kontrol Paneli"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Dashboard" />
-
-                    <!-- 2. URUNLER -->
-                    <TextBlock Text="URUNLER" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Urunler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Products" />
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="Toplu Urun Guncelleme (Yakinda)"/>
+                <!-- Sol: Sidebar toggle + Baslik -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="16,0">
+                    <Button x:Name="SidebarToggleBtn" Classes="icon-btn"
+                            Click="OnSidebarToggle">
+                        <PathIcon Data="{StaticResource IconMenu}" Width="20" Height="20"/>
                     </Button>
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="Urun Varyantlari (Yakinda)"/>
-                    </Button>
-
-                    <!-- 3. SIPARISLER -->
-                    <TextBlock Text="SIPARISLER" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Siparisler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Orders" />
-
-                    <!-- 4. STOK -->
-                    <TextBlock Text="STOK" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Stok Yonetimi"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Stock" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Stok Guncelleme"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="StockMovement" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Envanter"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Inventory" />
-
-                    <!-- 5. KATEGORILER -->
-                    <TextBlock Text="KATEGORILER" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Kategoriler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Category" />
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="Kategori Eslestirme (Yakinda)"/>
-                    </Button>
-
-                    <!-- 6. KARGO -->
-                    <TextBlock Text="KARGO" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Kargo Takip"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="CargoTracking" />
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="Kargo Entegrasyonu (Yakinda)"/>
-                    </Button>
-
-                    <!-- 7. E-FATURA -->
-                    <TextBlock Text="E-FATURA" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="e-Fatura Yonetimi"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="InvoiceManagement" />
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="e-Arsiv (Yakinda)"/>
-                    </Button>
-
-                    <!-- 8. FINANS -->
-                    <TextBlock Text="FINANS" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Kar / Zarar Raporu"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="ProfitLoss" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Giderler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Expenses" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Banka Hesaplari"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="BankAccounts" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Cari Hesaplar"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="CariHesaplar" />
-
-                    <!-- 9. CRM -->
-                    <TextBlock Text="CRM" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Potansiyel Musteriler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Leads" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Kisiler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Contacts" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Firsatlar — Kanban"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Kanban" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Musteriler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Customers" />
-
-                    <!-- 10. DROPSHIPPING -->
-                    <TextBlock Text="DROPSHIPPING" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button IsEnabled="False" Opacity="0.5"
-                            Padding="20,12" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left" Background="Transparent"
-                            Foreground="#CBD5E1" FontSize="14">
-                        <TextBlock Text="Dropshipping (Yakinda)"/>
-                    </Button>
-
-                    <!-- 11. RAPORLAR -->
-                    <TextBlock Text="RAPORLAR" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Belgeler"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Documents" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Raporlar"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Reports" />
-
-                    <!-- 12. AYARLAR -->
-                    <TextBlock Text="AYARLAR" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#64748B" Margin="20,16,0,8" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Ayarlar"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Settings" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Pazaryerleri"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Marketplaces" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Platform Senkronizasyon"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="SyncStatus" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Calisanlar"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Employees" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Izin Talepleri"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="LeaveRequests" />
-
-                    <Button Classes="sidebar-btn"
-                            Content="Giris"
-                            Command="{Binding NavigateToCommand}"
-                            CommandParameter="Login" />
-
+                    <TextBlock Text="MesTech Entegratör"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" Margin="12,0,0,0"/>
                 </StackPanel>
-                </ScrollViewer>
 
-                <!-- Footer -->
-                <Border DockPanel.Dock="Bottom" Padding="20,12"
-                        BorderBrush="#334155" BorderThickness="0,1,0,0">
-                    <TextBlock Text="Dalga 11 — Avalonia Expansion" FontSize="11"
-                               Foreground="#475569" />
-                </Border>
+                <!-- Orta: Arama -->
+                <TextBox Grid.Column="1"
+                         Watermark="Ara..."
+                         MaxWidth="400" Margin="24,0"
+                         VerticalAlignment="Center"
+                         FontSize="{StaticResource FontSizeBody}"/>
 
-                <!-- Spacer -->
-                <Panel />
-            </DockPanel>
+                <!-- Sag: Saat + Bildirim + Profil -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="0,0,16,0" Spacing="4">
+                    <TextBlock x:Name="ToolbarClock" Text="00:00"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button Classes="icon-btn">
+                        <PathIcon Data="{StaticResource IconNotification}" Width="18" Height="18"/>
+                    </Button>
+                    <Button Classes="icon-btn">
+                        <PathIcon Data="{StaticResource IconPerson}" Width="18" Height="18"/>
+                    </Button>
+                    <TextBlock Text="Admin"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               VerticalAlignment="Center" Margin="4,0,0,0"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- Content Area -->
-        <DockPanel Grid.Column="1" Background="#F8FAFC">
-            <!-- Content Header -->
-            <Border DockPanel.Dock="Top" Background="White" Padding="24,16"
-                    BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
-                <TextBlock Text="{Binding CurrentViewTitle}"
-                           FontSize="20" FontWeight="SemiBold" Foreground="#1E293B" />
+        <!-- ═══ STATUSBAR (ALT) ═══ -->
+        <Border DockPanel.Dock="Bottom"
+                Background="{StaticResource SurfaceBrush}"
+                Height="30"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="16,0">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}"/>
+                    <TextBlock Text="Bağlı" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{StaticResource SuccessBrush}"/>
+                    <TextBlock Text="|" Foreground="{StaticResource BorderBrush}"/>
+                    <TextBlock Text="PostgreSQL 17" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="v1.0.0" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="|" Foreground="{StaticResource BorderBrush}"/>
+                    <TextBlock x:Name="StatusUser" Text="admin"
+                               FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ SIDEBAR (SOL) + CONTENT (ORTA) ═══ -->
+        <Grid ColumnDefinitions="Auto,*">
+
+            <!-- SIDEBAR -->
+            <Border x:Name="SidebarPanel" Grid.Column="0" Width="240"
+                    Background="{StaticResource SidebarBackgroundBrush}">
+                <DockPanel>
+
+                    <!-- Sidebar ust: MesTech mini logo -->
+                    <Border DockPanel.Dock="Top" Height="48" Padding="16,0"
+                            BorderBrush="{StaticResource SidebarBorderBrush}"
+                            BorderThickness="0,0,0,1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                            <PathIcon Data="{StaticResource IconMenu}"
+                                      Foreground="{StaticResource SidebarTextActiveBrush}"
+                                      Width="16" Height="16"/>
+                            <TextBlock x:Name="SidebarTitle" Text="MesTech"
+                                       Foreground="{StaticResource SidebarTextActiveBrush}"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sidebar alt: Footer -->
+                    <Border DockPanel.Dock="Bottom" Padding="16,10"
+                            BorderBrush="{StaticResource SidebarBorderBrush}"
+                            BorderThickness="0,1,0,0">
+                        <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="10"
+                                   Foreground="#475569"/>
+                    </Border>
+
+                    <!-- Sidebar menu — ScrollViewer icinde -->
+                    <ScrollViewer>
+                        <StackPanel Margin="0,4" Spacing="1">
+
+                            <!-- 1. DASHBOARD -->
+                            <TextBlock Classes="sidebar-section" Text="DASHBOARD"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Dashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kontrol Paneli"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 2. URUNLER -->
+                            <TextBlock Classes="sidebar-section" Text="ÜRÜNLER"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Products">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Ürün Listesi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-disabled">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
+                                    <TextBlock Text="Toplu İçe Aktarma (Yakında)"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 3. SIPARISLER -->
+                            <TextBlock Classes="sidebar-section" Text="SİPARİŞLER"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Orders">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Siparişler"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 4. STOK -->
+                            <TextBlock Classes="sidebar-section" Text="STOK"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Stock">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Takibi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Inventory">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarcode}" Width="16" Height="16"/>
+                                    <TextBlock Text="Envanter"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="StockMovement">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Güncelleme"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 5. KATEGORILER -->
+                            <TextBlock Classes="sidebar-section" Text="KATEGORİLER"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Category">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconCategory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kategoriler"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 6. KARGO -->
+                            <TextBlock Classes="sidebar-section" Text="KARGO"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CargoTracking">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kargo Takip"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 7. E-FATURA -->
+                            <TextBlock Classes="sidebar-section" Text="E-FATURA"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="InvoiceManagement">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
+                                    <TextBlock Text="Fatura Yönetimi"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 8. FINANS -->
+                            <TextBlock Classes="sidebar-section" Text="FİNANS"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ProfitLoss">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kâr / Zarar Raporu"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Expenses">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Giderler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="BankAccounts">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSave}" Width="16" Height="16"/>
+                                    <TextBlock Text="Banka Hesapları"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CariHesaplar">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
+                                    <TextBlock Text="Cari Hesaplar"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 9. CRM -->
+                            <TextBlock Classes="sidebar-section" Text="CRM"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Leads">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
+                                    <TextBlock Text="Potansiyel Müşteriler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Contacts">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kişiler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Kanban">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Fırsatlar — Kanban"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Customers">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
+                                    <TextBlock Text="Müşteriler"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 10. DROPSHIPPING -->
+                            <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
+                            <Button Classes="sidebar-disabled">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
+                                    <TextBlock Text="Dropshipping (Yakında)"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 11. RAPORLAR -->
+                            <TextBlock Classes="sidebar-section" Text="RAPORLAR"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Documents">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconCopy}" Width="16" Height="16"/>
+                                    <TextBlock Text="Belgeler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Reports">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Raporlar"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 12. AYARLAR -->
+                            <TextBlock Classes="sidebar-section" Text="AYARLAR"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Settings">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="Ayarlar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Marketplaces">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Pazaryerleri"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="SyncStatus">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Platform Senkronizasyon"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Employees">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
+                                    <TextBlock Text="Çalışanlar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="LeaveRequests">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconHome}" Width="16" Height="16"/>
+                                    <TextBlock Text="İzin Talepleri"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Cikis -->
+                            <Border Height="1" Background="{StaticResource SidebarBorderBrush}" Margin="16,8"/>
+                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
+                                    <TextBlock Text="Çıkış"/>
+                                </StackPanel>
+                            </Button>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                </DockPanel>
             </Border>
 
-            <!-- Dynamic Content -->
-            <ContentControl Content="{Binding CurrentView}" Margin="0">
-                <ContentControl.DataTemplates>
-                    <DataTemplate DataType="vm:DashboardAvaloniaViewModel">
-                        <views:DashboardAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:LeadsAvaloniaViewModel">
-                        <views:LeadsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:KanbanAvaloniaViewModel">
-                        <views:KanbanAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:ProductsAvaloniaViewModel">
-                        <views:ProductsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="wpfvm:ProfitLossViewModel">
-                        <views:ProfitLossAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:StockAvaloniaViewModel">
-                        <views:StockAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:OrdersAvaloniaViewModel">
-                        <views:OrdersAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:SettingsAvaloniaViewModel">
-                        <views:SettingsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:LoginAvaloniaViewModel">
-                        <views:LoginAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:CategoryAvaloniaViewModel">
-                        <views:CategoryAvaloniaView />
-                    </DataTemplate>
-                    <!-- Dalga 11 batch expansion -->
-                    <DataTemplate DataType="vm:ContactsAvaloniaViewModel">
-                        <views:ContactsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:EmployeesAvaloniaViewModel">
-                        <views:EmployeesAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:LeaveRequestsAvaloniaViewModel">
-                        <views:LeaveRequestsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:DocumentsAvaloniaViewModel">
-                        <views:DocumentsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:ReportsAvaloniaViewModel">
-                        <views:ReportsAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:MarketplacesAvaloniaViewModel">
-                        <views:MarketplacesAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:ExpensesAvaloniaViewModel">
-                        <views:ExpensesAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:BankAccountsAvaloniaViewModel">
-                        <views:BankAccountsAvaloniaView />
-                    </DataTemplate>
-                    <!-- Dalga 14+15 functional views -->
-                    <DataTemplate DataType="vm:InventoryAvaloniaViewModel">
-                        <views:InventoryAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:InvoiceManagementAvaloniaViewModel">
-                        <views:InvoiceManagementAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:CustomerAvaloniaViewModel">
-                        <views:CustomerAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:CariHesaplarAvaloniaViewModel">
-                        <views:CariHesaplarAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:SyncStatusAvaloniaViewModel">
-                        <views:SyncStatusAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:StockMovementAvaloniaViewModel">
-                        <views:StockMovementAvaloniaView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:CargoTrackingAvaloniaViewModel">
-                        <views:CargoTrackingAvaloniaView />
-                    </DataTemplate>
-                </ContentControl.DataTemplates>
-            </ContentControl>
-        </DockPanel>
-    </Grid>
+            <!-- CONTENT AREA -->
+            <DockPanel Grid.Column="1">
+                <!-- Content Header -->
+                <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}"
+                        Padding="24,14"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                    <TextBlock Text="{Binding CurrentViewTitle}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                </Border>
+
+                <!-- Dynamic Content -->
+                <ContentControl Content="{Binding CurrentView}" Margin="0">
+                    <ContentControl.DataTemplates>
+                        <DataTemplate DataType="vm:DashboardAvaloniaViewModel">
+                            <views:DashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:LeadsAvaloniaViewModel">
+                            <views:LeadsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KanbanAvaloniaViewModel">
+                            <views:KanbanAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProductsAvaloniaViewModel">
+                            <views:ProductsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="wpfvm:ProfitLossViewModel">
+                            <views:ProfitLossAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockAvaloniaViewModel">
+                            <views:StockAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OrdersAvaloniaViewModel">
+                            <views:OrdersAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SettingsAvaloniaViewModel">
+                            <views:SettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:LoginAvaloniaViewModel">
+                            <views:LoginAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CategoryAvaloniaViewModel">
+                            <views:CategoryAvaloniaView />
+                        </DataTemplate>
+                        <!-- Dalga 11 batch expansion -->
+                        <DataTemplate DataType="vm:ContactsAvaloniaViewModel">
+                            <views:ContactsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:EmployeesAvaloniaViewModel">
+                            <views:EmployeesAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:LeaveRequestsAvaloniaViewModel">
+                            <views:LeaveRequestsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DocumentsAvaloniaViewModel">
+                            <views:DocumentsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ReportsAvaloniaViewModel">
+                            <views:ReportsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:MarketplacesAvaloniaViewModel">
+                            <views:MarketplacesAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ExpensesAvaloniaViewModel">
+                            <views:ExpensesAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BankAccountsAvaloniaViewModel">
+                            <views:BankAccountsAvaloniaView />
+                        </DataTemplate>
+                        <!-- Dalga 14+15 functional views -->
+                        <DataTemplate DataType="vm:InventoryAvaloniaViewModel">
+                            <views:InventoryAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceManagementAvaloniaViewModel">
+                            <views:InvoiceManagementAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CustomerAvaloniaViewModel">
+                            <views:CustomerAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CariHesaplarAvaloniaViewModel">
+                            <views:CariHesaplarAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SyncStatusAvaloniaViewModel">
+                            <views:SyncStatusAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockMovementAvaloniaViewModel">
+                            <views:StockMovementAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CargoTrackingAvaloniaViewModel">
+                            <views:CargoTrackingAvaloniaView />
+                        </DataTemplate>
+                    </ContentControl.DataTemplates>
+                </ContentControl>
+            </DockPanel>
+
+        </Grid>
+
+    </DockPanel>
 </Window>
