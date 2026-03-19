@@ -1,0 +1,256 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.InvoiceCreateAvaloniaView"
+             x:DataType="vm:InvoiceCreateAvaloniaViewModel">
+
+    <!-- Fatura Olustur — 3 Adimli Sihirbaz -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <PathIcon Data="{StaticResource IconAdd}" Width="22" Height="22" Foreground="White"/>
+                <TextBlock Text="Fatura Olustur" Foreground="White"
+                           FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: Step Indicator -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="24,14"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
+                <!-- Step 1 -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{StaticResource PrimaryBlueBrush}">
+                        <TextBlock Text="1" Foreground="White" FontWeight="Bold"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Siparis Sec" VerticalAlignment="Center"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                </StackPanel>
+                <TextBlock Text="—" Foreground="{StaticResource BorderBrush}" VerticalAlignment="Center"/>
+                <!-- Step 2 -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{StaticResource BorderBrush}">
+                        <TextBlock Text="2" Foreground="White" FontWeight="Bold"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Fatura Detay" VerticalAlignment="Center"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+                <TextBlock Text="—" Foreground="{StaticResource BorderBrush}" VerticalAlignment="Center"/>
+                <!-- Step 3 -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{StaticResource BorderBrush}">
+                        <TextBlock Text="3" Foreground="White" FontWeight="Bold"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Onizleme ve Onay" VerticalAlignment="Center"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Step Content -->
+        <ScrollViewer Grid.Row="2" Padding="24">
+          <Panel>
+            <!-- Step 1: Order Selection -->
+            <StackPanel IsVisible="{Binding CurrentStep, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=1}"
+                        Spacing="12">
+                <TextBlock Text="Fatura kesilecek siparisleri secin"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <DataGrid ItemsSource="{Binding Orders}"
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True"
+                          IsReadOnly="False"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="1"
+                          BorderBrush="{StaticResource BorderBrush}"
+                          CornerRadius="{StaticResource CornerRadiusLarge}"
+                          Background="{StaticResource SurfaceBrush}"
+                          MinHeight="300">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Sec" Binding="{Binding IsSelected}" Width="60"/>
+                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderId}" Width="150"/>
+                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="240"/>
+                        <DataGridTextColumn Header="Tutar (TL)" Binding="{Binding Amount, StringFormat='{}{0:N2}'}" Width="140"/>
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+
+            <!-- Step 2: Invoice Details -->
+            <StackPanel IsVisible="{Binding CurrentStep, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=2}"
+                        Spacing="16" MaxWidth="600">
+                <TextBlock Text="Fatura Detaylari"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="14">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Fatura Tipi" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <ComboBox ItemsSource="{Binding InvoiceTypes}"
+                                      SelectedItem="{Binding SelectedType}"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Provider" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <ComboBox ItemsSource="{Binding Providers}"
+                                      SelectedItem="{Binding SelectedProvider}"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="KDV Orani (%)" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <ComboBox ItemsSource="{Binding KdvRates}"
+                                      SelectedItem="{Binding KdvRate}"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4"/>
+
+                        <TextBlock Text="Alici Bilgileri" FontSize="{StaticResource FontSizeBody}"
+                                   FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBox Watermark="Alici Adi / Unvani" Text="{Binding RecipientName}"/>
+                        <TextBox Watermark="VKN / TCKN" Text="{Binding RecipientVkn}"/>
+                        <TextBox Watermark="Adres" Text="{Binding RecipientAddress}"
+                                 AcceptsReturn="True" MinHeight="60"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Step 3: Preview -->
+            <StackPanel IsVisible="{Binding CurrentStep, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=3}"
+                        Spacing="16" MaxWidth="700">
+                <TextBlock Text="Onizleme ve Onay"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <!-- Provider + Type info -->
+                        <Grid ColumnDefinitions="*,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Fatura Tipi" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding SelectedType}" FontWeight="SemiBold"
+                                           FontSize="{StaticResource FontSizeBody}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="Provider" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding SelectedProvider}" FontWeight="SemiBold"
+                                           FontSize="{StaticResource FontSizeBody}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4"/>
+
+                        <!-- Line items -->
+                        <TextBlock Text="Kalemler" FontWeight="SemiBold"
+                                   FontSize="{StaticResource FontSizeBody}"/>
+                        <ItemsControl ItemsSource="{Binding PreviewLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:InvoiceLinePreviewDto">
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                        <TextBlock Grid.Column="0" Text="{Binding Description}"
+                                                   FontSize="{StaticResource FontSizeBody}"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Amount, StringFormat='{}{0:N2} TL'}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="{StaticResource FontSizeBody}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4"/>
+
+                        <!-- Totals -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                            <TextBlock Text="Ara Toplam" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding PreviewSubtotal, StringFormat='{}{0:N2} TL'}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                            <TextBlock Text="{Binding KdvRate, StringFormat='KDV (%{0})'}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding PreviewKdv, StringFormat='{}{0:N2} TL'}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <TextBlock Text="Genel Toplam" FontWeight="Bold"
+                                       FontSize="{StaticResource FontSizeSubtitle}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding PreviewTotal, StringFormat='{}{0:N2} TL'}"
+                                       FontWeight="Bold"
+                                       FontSize="{StaticResource FontSizeSubtitle}"
+                                       Foreground="{StaticResource PrimaryBlueBrush}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+          </Panel>
+        </ScrollViewer>
+
+        <!-- Row 3: Navigation Buttons -->
+        <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" Padding="24,12"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Content="Geri"
+                        Command="{Binding GoBackCommand}"
+                        IsVisible="{Binding CanGoBack}"
+                        Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
+                        FontSize="{StaticResource FontSizeBody}"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                    <Button Content="Ileri"
+                            Command="{Binding GoNextCommand}"
+                            IsVisible="{Binding CanGoNext}"
+                            Background="{StaticResource PrimaryBlueBrush}" Foreground="White"
+                            Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+                    <Button Content="Fatura Olustur"
+                            Command="{Binding ConfirmCommand}"
+                            IsVisible="{Binding IsConfirmStep}"
+                            Background="#16A34A" Foreground="White"
+                            Padding="20,8" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Islem yapiliyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

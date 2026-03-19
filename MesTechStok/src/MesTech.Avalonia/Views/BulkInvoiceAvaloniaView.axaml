@@ -1,0 +1,135 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.BulkInvoiceAvaloniaView"
+             x:DataType="vm:BulkInvoiceAvaloniaViewModel">
+
+    <!-- Toplu Fatura Olustur -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
+                <TextBlock Text="Toplu Fatura Olustur" Foreground="White"
+                           FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: Controls -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                <CheckBox Grid.Column="0" Content="Tumunu Sec" IsChecked="{Binding SelectAll}"
+                          VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding SelectedCount, StringFormat='{}{0} siparis secili'}"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="Provider:" VerticalAlignment="Center"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="3" Width="160"
+                          ItemsSource="{Binding Providers}"
+                          SelectedItem="{Binding SelectedProvider}"/>
+                <Button Grid.Column="4" Content="Toplu Fatura Olustur"
+                        Command="{Binding ProcessBulkCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
+                        Margin="12,0,0,0"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Content area -->
+        <Grid Grid.Row="2">
+
+            <!-- Orders DataGrid -->
+            <DataGrid ItemsSource="{Binding Orders}"
+                      AutoGenerateColumns="False"
+                      CanUserSortColumns="True"
+                      IsReadOnly="False"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="{StaticResource SurfaceBrush}"
+                      IsVisible="{Binding !IsProcessing}">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="Sec" Binding="{Binding IsSelected}" Width="60"/>
+                    <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderId}" Width="160"/>
+                    <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="250"/>
+                    <DataGridTextColumn Header="Tutar (TL)" Binding="{Binding Amount, StringFormat='{}{0:N2}'}" Width="140"/>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130"/>
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Processing Progress -->
+            <Border IsVisible="{Binding IsProcessing}"
+                    Background="{StaticResource SurfaceBrush}"
+                    ZIndex="100">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
+                            Width="400">
+                    <TextBlock Text="Faturalar olusturuluyor..."
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <ProgressBar Value="{Binding Progress}" Minimum="0" Maximum="100"
+                                 Height="8" CornerRadius="4"/>
+                    <TextBlock Text="{Binding Progress, StringFormat='%{0:F0}'}"
+                               HorizontalAlignment="Center"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Row 3: Results -->
+        <Border Grid.Row="3" IsVisible="{Binding ShowResults}"
+                Background="{StaticResource SurfaceBrush}" Padding="16,12"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="24">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconCheck}" Width="16" Height="16"
+                                  Foreground="{StaticResource SuccessBrush}"/>
+                        <TextBlock Text="{Binding SuccessCount, StringFormat='Basarili: {0}'}"
+                                   Foreground="{StaticResource SuccessBrush}"
+                                   FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconError}" Width="16" Height="16"
+                                  Foreground="{StaticResource ErrorRedBrush}"/>
+                        <TextBlock Text="{Binding FailCount, StringFormat='Basarisiz: {0}'}"
+                                   Foreground="{StaticResource ErrorRedBrush}"
+                                   FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Error details -->
+                <ItemsControl ItemsSource="{Binding ErrorDetails}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{StaticResource ErrorRedBrush}" Margin="0,2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Siparisler yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

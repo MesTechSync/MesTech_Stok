@@ -1,0 +1,160 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.InvoiceListAvaloniaView"
+             x:DataType="vm:InvoiceListAvaloniaViewModel">
+
+    <!-- Fatura Listesi — Arama, Filtre, DataGrid, Sayfalama -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
+                    <TextBlock Text="Faturalar" Foreground="White"
+                               FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="{StaticResource FontSizeSmall}"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yeni Fatura"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Filters -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBox Width="260" Watermark="Fatura no veya alici ara..."
+                         Text="{Binding SearchText}" FontSize="{StaticResource FontSizeBody}"/>
+                <ComboBox Width="140" ItemsSource="{Binding InvoiceTypes}"
+                          SelectedItem="{Binding SelectedType}"/>
+                <ComboBox Width="140" ItemsSource="{Binding StatusList}"
+                          SelectedItem="{Binding SelectedStatus}"/>
+                <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
+                          SelectedItem="{Binding SelectedPlatform}"/>
+                <Button Command="{Binding RefreshCommand}" Background="Transparent"
+                        BorderThickness="0" Padding="8"
+                        CornerRadius="{StaticResource CornerRadiusMedium}">
+                    <PathIcon Data="{StaticResource IconRefresh}" Width="18" Height="18"
+                              Foreground="{StaticResource TextSecondaryBrush}"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Invoices}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{StaticResource SurfaceBrush}"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="170"/>
+                <DataGridTextColumn Header="Alici" Binding="{Binding RecipientName}" Width="240"/>
+                <DataGridTemplateColumn Header="Tip" Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:InvoiceListItemDto">
+                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                                    Margin="4,0">
+                                <Border.Background>
+                                    <MultiBinding Converter="{x:Null}">
+                                        <Binding Path="Type"/>
+                                    </MultiBinding>
+                                </Border.Background>
+                                <TextBlock Text="{Binding Type}" FontSize="11" Foreground="White"
+                                           FontWeight="SemiBold"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Durum" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:InvoiceListItemDto">
+                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                                    Margin="4,0">
+                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                           FontWeight="SemiBold"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Tutar (TL)" Binding="{Binding Amount, StringFormat='{}{0:N2}'}" Width="140"/>
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>
+                <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Row 3: Footer — pagination -->
+        <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding TotalCount, StringFormat='Toplam: {0} fatura'}"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
+                            Padding="12,6" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeSmall}"/>
+                    <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
+                               VerticalAlignment="Center"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding TotalPages, StringFormat='/ {0}'}"
+                               VerticalAlignment="Center"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Button Content="Sonraki" Command="{Binding NextPageCommand}"
+                            Padding="12,6" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeSmall}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Faturalar yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Background="{StaticResource BackgroundBrush}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <PathIcon Data="{StaticResource IconReceipt}" Width="48" Height="48"
+                          Foreground="{StaticResource TextSecondaryBrush}" Opacity="0.4"/>
+                <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,12,0,4"/>
+                <TextBlock Text="Arama kriterlerine uygun fatura bulunamadi"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

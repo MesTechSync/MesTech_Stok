@@ -1,0 +1,159 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.InvoicePdfAvaloniaView"
+             x:DataType="vm:InvoicePdfAvaloniaViewModel">
+
+    <!-- Fatura PDF Goruntuleme -->
+
+    <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundBrush}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
+                <TextBlock Text="PDF Goruntuleme" Foreground="White"
+                           FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel HorizontalAlignment="Center" MaxWidth="600" Spacing="24" Margin="0,24">
+
+                <!-- Invoice Info Card -->
+                <Border Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="Fatura Bilgileri"
+                                   FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                        <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Fatura No:"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InvoiceNumber}"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Alici:" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RecipientName}" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Tutar:" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1"
+                                       Text="{Binding Amount, StringFormat='{}{0:N2} TL'}" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryBlueBrush}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Tip:" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding InvoiceType}" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Tarih:" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1"
+                                       Text="{Binding InvoiceDate, StringFormat='{}{0:dd.MM.yyyy}'}" Margin="0,6,0,0"
+                                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- PDF Placeholder -->
+                <Border Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="40,48" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        IsVisible="{Binding HasPdf}">
+                    <StackPanel HorizontalAlignment="Center" Spacing="12">
+                        <PathIcon Data="{StaticResource IconReceipt}" Width="48" Height="48"
+                                  Foreground="{StaticResource TextSecondaryBrush}" Opacity="0.4"/>
+                        <TextBlock Text="PDF Onizleme"
+                                   FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Avalonia native PDF goruntuleme desteklemiyor. Asagidaki butonlarla PDF dosyasina erisebilirsiniz."
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Center" TextAlignment="Center"
+                                   TextWrapping="Wrap" MaxWidth="400"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- No PDF state -->
+                <Border Background="#FFF3E0"
+                        CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="20" BorderBrush="{StaticResource WarningOrangeBrush}" BorderThickness="1"
+                        IsVisible="{Binding !HasPdf}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <PathIcon Data="{StaticResource IconWarning}" Width="20" Height="20"
+                                  Foreground="{StaticResource WarningOrangeBrush}"/>
+                        <TextBlock Text="Bu fatura icin henuz PDF olusturulmamis."
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{StaticResource WarningOrangeBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
+                    <Button Command="{Binding DownloadPdfCommand}"
+                            Background="{StaticResource PrimaryBlueBrush}" Foreground="White"
+                            Padding="20,10" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"
+                                      Foreground="White"/>
+                            <TextBlock Text="Indir"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding PrintPdfCommand}"
+                            Padding="20,10" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource IconPrint}" Width="16" Height="16"/>
+                            <TextBlock Text="Yazdir"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenInBrowserCommand}"
+                            Padding="20,10" CornerRadius="{StaticResource CornerRadiusMedium}"
+                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/>
+                            <TextBlock Text="Tarayicide Ac"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Status message -->
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource SuccessBrush}"
+                           HorizontalAlignment="Center"
+                           IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Islem yapiliyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

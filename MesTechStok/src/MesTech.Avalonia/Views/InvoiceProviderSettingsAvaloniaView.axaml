@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.InvoiceProviderSettingsAvaloniaView"
+             x:DataType="vm:InvoiceProviderSettingsAvaloniaViewModel">
+
+    <!-- E-Fatura Provider Ayarlari — 9 kart -->
+
+    <Grid RowDefinitions="Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <PathIcon Data="{StaticResource IconSettings}" Width="22" Height="22" Foreground="White"/>
+                    <TextBlock Text="E-Fatura Provider Ayarlari" Foreground="White"
+                               FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Provider Cards -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <ItemsControl ItemsSource="{Binding Providers}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProviderCardItem">
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="{StaticResource CornerRadiusLarge}"
+                                Padding="20" Margin="8"
+                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                Width="340" MinHeight="200">
+                            <StackPanel Spacing="10">
+                                <!-- Provider name + status -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                        <Ellipse Width="10" Height="10">
+                                            <Ellipse.Fill>
+                                                <SolidColorBrush Color="{Binding StatusColor}"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <TextBlock Text="{Binding Status}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Integration type label -->
+                                <Border Background="#F1F5F9" CornerRadius="4" Padding="8,4"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding IntegrationType}"
+                                               FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </Border>
+
+                                <!-- Supported types -->
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Desteklenen tipler:"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding SupportedTypes}"
+                                               FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </StackPanel>
+
+                                <!-- Last test result -->
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Son test:"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding LastTestResult}"
+                                                   FontSize="{StaticResource FontSizeBody}"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding LastTestDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Action buttons -->
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                    <Button Content="Baglanti Testi"
+                                            Command="{Binding $parent[ItemsControl].((vm:InvoiceProviderSettingsAvaloniaViewModel)DataContext).TestConnectionCommand}"
+                                            CommandParameter="{Binding Name}"
+                                            Padding="12,6"
+                                            CornerRadius="{StaticResource CornerRadiusMedium}"
+                                            FontSize="{StaticResource FontSizeSmall}"/>
+                                    <Button Content="Duzenle"
+                                            Padding="12,6"
+                                            CornerRadius="{StaticResource CornerRadiusMedium}"
+                                            FontSize="{StaticResource FontSizeSmall}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Row 2: P0 XAdES Warning Banner -->
+        <Border Grid.Row="2" Background="#FFF3F3" Padding="16,12"
+                BorderBrush="{StaticResource ErrorRedBrush}" BorderThickness="0,2,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <PathIcon Data="{StaticResource IconWarning}" Width="20" Height="20"
+                          Foreground="{StaticResource ErrorRedBrush}"/>
+                <StackPanel Spacing="2">
+                    <TextBlock Text="P0 UYARI: XAdES Imza Desteği"
+                               FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
+                               Foreground="{StaticResource ErrorRedBrush}"/>
+                    <TextBlock Text="e-Fatura UBL-TR 1.2 XAdES-BES imza zorunlulugu mevcut. Production provider'lar HSM veya yazilim sertifikasi gerektirmektedir."
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
+                <TextBlock Text="Provider bilgileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
