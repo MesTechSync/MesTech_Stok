@@ -508,6 +508,14 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ErpSettings">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="ERP Ayarlari"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
                                     CommandParameter="Marketplaces">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
@@ -663,6 +671,10 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:InvoiceReportAvaloniaViewModel">
                             <views:InvoiceReportAvaloniaView />
+                        </DataTemplate>
+                        <!-- ERP Settings -->
+                        <DataTemplate DataType="vm:ErpSettingsAvaloniaViewModel">
+                            <views:ErpSettingsAvaloniaView />
                         </DataTemplate>
                         <!-- EMR-10 Platform + Dropshipping views -->
                         <DataTemplate DataType="vm:PlatformListAvaloniaViewModel">

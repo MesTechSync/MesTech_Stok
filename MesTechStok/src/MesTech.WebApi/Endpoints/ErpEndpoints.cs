@@ -104,9 +104,10 @@ public static class ErpEndpoints
         // POST /api/v1/erp/sync/stock — trigger manual ERP stock sync
         group.MapPost("/sync/stock", async (
             IErpAdapterFactory factory,
-            ILogger<ErpEndpoints> logger,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             logger.LogInformation("[ErpEndpoints] Manual ERP stock sync triggered");
 
             var results = new List<object>();
@@ -157,9 +158,10 @@ public static class ErpEndpoints
         // POST /api/v1/erp/sync/accounts — trigger manual ERP account sync
         group.MapPost("/sync/accounts", async (
             IErpAdapterFactory factory,
-            ILogger<ErpEndpoints> logger,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             logger.LogInformation("[ErpEndpoints] Manual ERP account sync triggered");
 
             var results = new List<object>();
@@ -213,8 +215,3 @@ public static class ErpEndpoints
 
     private record ErpTestConnectionRequest(string Provider);
 }
-
-/// <summary>
-/// Logger category marker for ErpEndpoints (required for ILogger injection in minimal API).
-/// </summary>
-file class ErpEndpoints;
