@@ -41,6 +41,13 @@ public interface IMesaAIService
         string? description,
         string targetPlatform,
         CancellationToken ct = default);
+
+    /// <summary>Platform mesajina AI yanit onerisi uretir (CRM modulu).</summary>
+    Task<AiReplyResult> SuggestReplyAsync(
+        string messageBody,
+        string? customerName,
+        string? orderContext,
+        CancellationToken ct = default);
 }
 
 // ── Result Types ──
@@ -88,6 +95,12 @@ public record CompetitorPrice(
     string CompetitorName,
     decimal Price,
     string? Url);
+
+/// <summary>AI yanit onerisi sonucu.</summary>
+public record AiReplyResult(
+    bool Success,
+    string? SuggestedReply,
+    string? ErrorMessage);
 
 /// <summary>Stok gecmis verisi (zaman serisi noktasi).</summary>
 public record StockHistoryPoint(
