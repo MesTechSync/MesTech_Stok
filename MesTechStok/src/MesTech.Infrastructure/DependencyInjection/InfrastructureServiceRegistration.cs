@@ -96,6 +96,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
         services.AddScoped<ISyncLogRepository, SyncLogRepository>();
+        services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
 
         // CRM Repositories (Dalga 8)
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
@@ -425,6 +426,13 @@ public static class InfrastructureServiceRegistration
         // ── PlatformCommission Repository ──
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IPlatformCommissionRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.PlatformCommissionRepository>();
+
+        // ── FixedAsset + BaBs Repositories (DALGA 14 Muhasebe) ──
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IFixedAssetRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Accounting.FixedAssetRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IBaBsRecordRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Accounting.BaBsRecordRepository>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.DepreciationCalculationService>();
 
         // ── StockSplit / Fulfillment Stock Service ──
         services.AddScoped<MesTech.Application.Interfaces.IStockSplitService,
