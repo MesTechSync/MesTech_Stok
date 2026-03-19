@@ -1,0 +1,55 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ============================================================ -->
+  <!-- MesTech DataGrid Styles                                      -->
+  <!-- ============================================================ -->
+
+  <!-- DataGrid with MesTech class -->
+  <Style Selector="DataGrid.mestech">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+    <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="RowHeight" Value="44"/>
+    <Setter Property="HeadersVisibility" Value="Column"/>
+    <Setter Property="IsReadOnly" Value="True"/>
+    <Setter Property="CanUserResizeColumns" Value="True"/>
+    <Setter Property="CanUserSortColumns" Value="True"/>
+  </Style>
+
+  <!-- Column Headers -->
+  <Style Selector="DataGrid.mestech DataGridColumnHeader">
+    <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="MinHeight" Value="40"/>
+  </Style>
+  <Style Selector="DataGrid.mestech DataGridColumnHeader:pointerover">
+    <Setter Property="Background" Value="#ECEFF1"/>
+  </Style>
+
+  <!-- Row Styles -->
+  <Style Selector="DataGrid.mestech DataGridRow">
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+  </Style>
+  <Style Selector="DataGrid.mestech DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+    <Setter Property="Fill" Value="{StaticResource HoverOverlayBrush}"/>
+  </Style>
+  <Style Selector="DataGrid.mestech DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+    <Setter Property="Fill" Value="#1A2196F3"/>
+  </Style>
+
+  <!-- Cell Styles -->
+  <Style Selector="DataGrid.mestech DataGridCell">
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+  </Style>
+
+</Styles>

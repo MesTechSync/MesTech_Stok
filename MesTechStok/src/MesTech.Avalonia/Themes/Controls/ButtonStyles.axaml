@@ -1,0 +1,132 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ============================================================ -->
+  <!-- MesTech Button Styles                                        -->
+  <!-- Raised, Accent, Outline, Flat, Danger, Icon Button           -->
+  <!-- ============================================================ -->
+
+  <!-- Base Button Style (Raised) -->
+  <Style Selector="Button.mestech-raised">
+    <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="MinWidth" Value="{StaticResource ButtonMinWidth}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ButtonMinHeight}"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Cursor" Value="Hand"/>
+  </Style>
+  <Style Selector="Button.mestech-raised:pointerover">
+    <Setter Property="Background" Value="{StaticResource SecondaryBlueBrush}"/>
+  </Style>
+  <Style Selector="Button.mestech-raised:pressed">
+    <Setter Property="Background" Value="{StaticResource SecondaryBlueBrush}"/>
+    <Setter Property="RenderTransform" Value="scale(0.98)"/>
+  </Style>
+  <Style Selector="Button.mestech-raised:disabled">
+    <Setter Property="Background" Value="{StaticResource DisabledBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource DisabledTextBrush}"/>
+  </Style>
+
+  <!-- Accent Button (Green) -->
+  <Style Selector="Button.mestech-accent">
+    <Setter Property="Background" Value="{StaticResource AccentGreenBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="MinWidth" Value="{StaticResource ButtonMinWidth}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ButtonMinHeight}"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.mestech-accent:pointerover">
+    <Setter Property="Background" Value="#43A047"/>
+  </Style>
+  <Style Selector="Button.mestech-accent:pressed">
+    <Setter Property="Background" Value="#388E3C"/>
+  </Style>
+
+  <!-- Outline Button -->
+  <Style Selector="Button.mestech-outline">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
+    <Setter Property="MinWidth" Value="{StaticResource ButtonMinWidth}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ButtonMinHeight}"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.mestech-outline:pointerover">
+    <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}"/>
+  </Style>
+
+  <!-- Flat Button -->
+  <Style Selector="Button.mestech-flat">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="MinHeight" Value="{StaticResource ButtonMinHeight}"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.mestech-flat:pointerover">
+    <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}"/>
+  </Style>
+
+  <!-- Danger Button -->
+  <Style Selector="Button.mestech-danger">
+    <Setter Property="Background" Value="{StaticResource ErrorRedBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="MinWidth" Value="{StaticResource ButtonMinWidth}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ButtonMinHeight}"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.mestech-danger:pointerover">
+    <Setter Property="Background" Value="#E53935"/>
+  </Style>
+  <Style Selector="Button.mestech-danger:pressed">
+    <Setter Property="Background" Value="#D32F2F"/>
+  </Style>
+
+  <!-- Icon Button -->
+  <Style Selector="Button.mestech-icon-btn">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Width" Value="36"/>
+    <Setter Property="Height" Value="36"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.mestech-icon-btn:pointerover">
+    <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+  </Style>
+
+</Styles>

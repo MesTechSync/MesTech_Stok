@@ -1,0 +1,101 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ============================================================ -->
+  <!-- MesTech Sidebar Styles                                       -->
+  <!-- Dark sidebar (#1B2838) matching WPF design                   -->
+  <!-- ============================================================ -->
+
+  <!-- Sidebar Container -->
+  <Style Selector="Border.mestech-sidebar">
+    <Setter Property="Background" Value="{StaticResource SidebarBackgroundBrush}"/>
+    <Setter Property="Width" Value="{StaticResource SidebarWidth}"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+
+  <!-- Sidebar Collapsed -->
+  <Style Selector="Border.mestech-sidebar-collapsed">
+    <Setter Property="Background" Value="{StaticResource SidebarBackgroundBrush}"/>
+    <Setter Property="Width" Value="{StaticResource SidebarCollapsedWidth}"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+
+  <!-- Sidebar Header / Brand -->
+  <Style Selector="Border.sidebar-header">
+    <Setter Property="Padding" Value="16,20,16,16"/>
+    <Setter Property="BorderBrush" Value="{StaticResource SidebarBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+  </Style>
+
+  <Style Selector="TextBlock.sidebar-brand">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
+
+  <Style Selector="TextBlock.sidebar-subtitle">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+    <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}"/>
+    <Setter Property="Margin" Value="0,2,0,0"/>
+  </Style>
+
+  <!-- Sidebar Menu Item -->
+  <Style Selector="Button.sidebar-item">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="Padding" Value="16,10"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+  </Style>
+  <Style Selector="Button.sidebar-item:pointerover">
+    <Setter Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
+
+  <!-- Sidebar Active Item -->
+  <Style Selector="Button.sidebar-item-active">
+    <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="Padding" Value="16,10"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Cursor" Value="Hand"/>
+  </Style>
+  <Style Selector="Button.sidebar-item-active:pointerover">
+    <Setter Property="Background" Value="{StaticResource SecondaryBlueBrush}"/>
+  </Style>
+
+  <!-- Sidebar Section Label -->
+  <Style Selector="TextBlock.sidebar-section">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+    <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Margin" Value="16,16,16,4"/>
+    <Setter Property="Opacity" Value="0.7"/>
+  </Style>
+
+  <!-- Sidebar Separator -->
+  <Style Selector="Separator.sidebar-separator">
+    <Setter Property="Background" Value="{StaticResource SidebarBorderBrush}"/>
+    <Setter Property="Margin" Value="16,8"/>
+    <Setter Property="Height" Value="1"/>
+  </Style>
+
+  <!-- Sidebar Footer -->
+  <Style Selector="Border.sidebar-footer">
+    <Setter Property="Padding" Value="16,12"/>
+    <Setter Property="BorderBrush" Value="{StaticResource SidebarBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+  </Style>
+
+</Styles>

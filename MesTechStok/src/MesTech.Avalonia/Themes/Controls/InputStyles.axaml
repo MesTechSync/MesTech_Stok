@@ -1,0 +1,76 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ============================================================ -->
+  <!-- MesTech Input Styles                                         -->
+  <!-- TextBox, ComboBox, SearchBox                                 -->
+  <!-- ============================================================ -->
+
+  <!-- Standard TextBox -->
+  <Style Selector="TextBox.mestech">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="MinHeight" Value="{StaticResource InputMinHeight}"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+  </Style>
+  <Style Selector="TextBox.mestech:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource FocusBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessMedium}"/>
+  </Style>
+  <Style Selector="TextBox.mestech:pointerover">
+    <Setter Property="BorderBrush" Value="{StaticResource TextSecondaryBrush}"/>
+  </Style>
+  <Style Selector="TextBox.mestech:disabled">
+    <Setter Property="Background" Value="#F5F5F5"/>
+    <Setter Property="Foreground" Value="{StaticResource DisabledTextBrush}"/>
+  </Style>
+
+  <!-- Watermark / Placeholder styling -->
+  <Style Selector="TextBox.mestech /template/ TextBlock#PART_Watermark">
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="FontStyle" Value="Italic"/>
+  </Style>
+
+  <!-- ComboBox -->
+  <Style Selector="ComboBox.mestech">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
+    <Setter Property="MinHeight" Value="{StaticResource InputMinHeight}"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+  </Style>
+  <Style Selector="ComboBox.mestech:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource FocusBorderBrush}"/>
+  </Style>
+  <Style Selector="ComboBox.mestech:pointerover">
+    <Setter Property="BorderBrush" Value="{StaticResource TextSecondaryBrush}"/>
+  </Style>
+
+  <!-- SearchBox (TextBox variant with search icon styling) -->
+  <Style Selector="TextBox.mestech-search">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
+    <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}"/>
+    <Setter Property="MinHeight" Value="{StaticResource InputMinHeight}"/>
+    <Setter Property="Padding" Value="36,8,12,8"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Watermark" Value="Ara..."/>
+  </Style>
+  <Style Selector="TextBox.mestech-search:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource FocusBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessMedium}"/>
+  </Style>
+
+</Styles>
