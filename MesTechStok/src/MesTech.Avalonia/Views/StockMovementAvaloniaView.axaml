@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Stok Guncelleme" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Toplu Guncelle"
                         Command="{Binding BulkUpdateCommand}"

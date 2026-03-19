@@ -1,0 +1,106 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.CategoryMappingAvaloniaView"
+             x:DataType="vm:CategoryMappingAvaloniaViewModel">
+
+    <!-- Kategori Eslestirme — lokal ve platform kategori dual-tree + eslestirme tablosu -->
+
+    <Grid RowDefinitions="Auto,*,Auto" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Kategori Eşleştirme" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} eşleşme'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformList}"
+                          SelectedItem="{Binding SelectedPlatform}" Width="160" Margin="0,0,12,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Dual Tree + Mappings -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" Margin="16">
+
+            <!-- Local Categories -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="12"
+                    BorderBrush="#E5E9F2" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Yerel Kategoriler" FontSize="14" FontWeight="SemiBold"
+                               Foreground="#1E293B" Margin="0,0,0,8" />
+                    <ListBox ItemsSource="{Binding LocalCategories}"
+                             SelectedItem="{Binding SelectedLocalCategory}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CategoryNodeDto">
+                                <TextBlock Text="{Binding Name}" FontSize="13" Padding="4,2" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Map Button -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12">
+                <Button Content="Eşle →" Command="{Binding MapCategoryCommand}"
+                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </StackPanel>
+
+            <!-- Platform Categories -->
+            <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="12"
+                    BorderBrush="#E5E9F2" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding SelectedPlatform, StringFormat='{}{0} Kategorileri'}"
+                               FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,8" />
+                    <ListBox ItemsSource="{Binding PlatformCategories}"
+                             SelectedItem="{Binding SelectedPlatformCategory}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CategoryNodeDto">
+                                <TextBlock Text="{Binding Name}" FontSize="13" Padding="4,2" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Mappings Table -->
+        <Border Grid.Row="2" Background="White" Margin="16,0,16,16" CornerRadius="8"
+                BorderBrush="#E5E9F2" BorderThickness="1" MaxHeight="200">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Mevcut Eşleştirmeler" FontSize="14" FontWeight="SemiBold"
+                           Foreground="#1E293B" Padding="12,8" />
+                <DataGrid ItemsSource="{Binding Mappings}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Yerel Kategori" Binding="{Binding LocalCategory}" Width="*" />
+                        <DataGridTextColumn Header="Platform Kategori" Binding="{Binding PlatformCategory}" Width="*" />
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Kategoriler yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

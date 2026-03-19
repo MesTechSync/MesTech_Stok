@@ -4,12 +4,12 @@
              x:Class="MesTech.Avalonia.Views.InventoryAvaloniaView"
              x:DataType="vm:InventoryAvaloniaViewModel">
 
-    <!-- Avalonia port — Envanter (DataGrid + stok alarm gostergesi) -->
+    <!-- EMR-06 Gorev 4E: Envanter — 4 seviye stok badge + depo filtre + KPI kartlari + sayfalama -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="#F8FAFC">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Envanter" Foreground="White"
@@ -27,21 +27,65 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Search Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <!-- KPI Cards -->
+        <Border Grid.Row="1" Background="White" Padding="16,12"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..."
-                     Text="{Binding SearchText}"
-                     HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <!-- Toplam Urun -->
+                <Border Background="#EFF6FF" CornerRadius="8" Padding="16,10" MinWidth="140">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Toplam Urun" FontSize="11" Foreground="#3B82F6" />
+                        <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="#1E40AF" />
+                    </StackPanel>
+                </Border>
+                <!-- Kritik Stok -->
+                <Border Background="#FEF2F2" CornerRadius="8" Padding="16,10" MinWidth="140">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Kritik Stok" FontSize="11" Foreground="#EF4444" />
+                        <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="#DC2626" />
+                    </StackPanel>
+                </Border>
+                <!-- Stok Degeri -->
+                <Border Background="#F0FDF4" CornerRadius="8" Padding="16,10" MinWidth="160">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Stok Degeri" FontSize="11" Foreground="#22C55E" />
+                        <TextBlock Text="{Binding KpiStockValue, StringFormat='{}{0:N0} TL'}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#15803D" />
+                    </StackPanel>
+                </Border>
+                <!-- Tukenen -->
+                <Border Background="#FFF7ED" CornerRadius="8" Padding="16,10" MinWidth="140">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Tukenen" FontSize="11" Foreground="#F97316" />
+                        <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="#EA580C" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Search Bar + Warehouse Filter -->
+        <Border Grid.Row="2" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..."
+                         Text="{Binding SearchText}"
+                         HorizontalAlignment="Left" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <ComboBox Width="180" ItemsSource="{Binding WarehouseFilter}"
+                              SelectedItem="{Binding SelectedWarehouse}"
+                              PlaceholderText="Tum Depolar" />
+                </StackPanel>
+            </StackPanel>
         </Border>
 
         <!-- Inventory DataGrid -->
-        <DataGrid Grid.Row="2"
+        <DataGrid Grid.Row="3"
                   ItemsSource="{Binding Items}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
@@ -59,21 +103,53 @@
                 <DataGridTextColumn Header="Min Stok" Binding="{Binding MinStok}" Width="90" />
                 <DataGridTextColumn Header="Max Stok" Binding="{Binding MaxStok}" Width="90" />
                 <DataGridTextColumn Header="Depo" Binding="{Binding Depo}" Width="140" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding StokDurum}" Width="100" />
             </DataGrid.Columns>
 
             <DataGrid.Styles>
-                <!-- Red row highlight for items below minimum stock -->
+                <!-- EMR-06 renk tablosu — 4 seviye stok durumu satir renklendirme -->
                 <Style Selector="DataGridRow" x:DataType="vm:InventoryItemDto">
-                    <Style Selector="^[Tag=alarm]">
-                        <Setter Property="Background" Value="#FEE2E2" />
-                        <Setter Property="Foreground" Value="#B91C1C" />
+                    <Style Selector="^[Tag=TUKENDI]">
+                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=KRITIK]">
+                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=DUSUK]">
+                        <Setter Property="Background" Value="#F57C00" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=YETERLI]">
+                        <Setter Property="Background" Value="#E8F5E9" />
                     </Style>
                 </Style>
             </DataGrid.Styles>
         </DataGrid>
 
+        <!-- Pagination -->
+        <Border Grid.Row="4" Background="White" Padding="12,8"
+                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto,*">
+                <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
+                           FontSize="12" Foreground="#64748B" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
+                            IsEnabled="{Binding CanGoPrevious}"
+                            Padding="12,6" CornerRadius="4" FontSize="12" />
+                    <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
+                               FontSize="12" Foreground="#1E293B" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="8,0" />
+                    <Button Content="Sonraki" Command="{Binding NextPageCommand}"
+                            IsEnabled="{Binding CanGoNext}"
+                            Padding="12,6" CornerRadius="4" FontSize="12" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#99FFFFFF"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -86,7 +162,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#F7F9FC"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -100,7 +176,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#F7F9FC"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">

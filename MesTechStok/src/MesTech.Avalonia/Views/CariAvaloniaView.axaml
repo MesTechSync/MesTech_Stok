@@ -6,12 +6,12 @@
 
     <!-- M1 Avalonia canlandirma — Cari Hesaplar -->
     <!-- DataGrid: Ad, Tip (Musteri/Tedarikci), Borc, Alacak, Bakiye. 10 demo entries. Type filter. -->
-    <!-- Brand color #2855AC -->
+    <!-- Brand color #0078D4 -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Cari Hesaplar" Foreground="White"
@@ -23,7 +23,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>

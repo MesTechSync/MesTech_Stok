@@ -1,17 +1,149 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.MesaAvaloniaView">
-
-    <!-- Avalonia port — MESA -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.MesaAvaloniaView"
+             x:DataType="vm:MesaAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="MESA" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="MESA OS — AI Dashboard" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#10B98144" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding AiStatus}" Foreground="White"
+                                   FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — MESA" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22" Spacing="16">
+
+                <!-- Loading -->
+                <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
+                           Foreground="#64748B" HorizontalAlignment="Center" Margin="0,20" />
+
+                <!-- Error -->
+                <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
+                        CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- KPI Cards -->
+                <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
+                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Model" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding ModelVersion}" FontSize="24" FontWeight="Bold" Foreground="#0078D4" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Tahmin Sayisi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding PredictionCount}" FontSize="24" FontWeight="Bold" Foreground="#3B82F6" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Dogruluk" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding Accuracy}" FontSize="24" FontWeight="Bold" Foreground="#10B981" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Durum" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding AiStatus}" FontSize="24" FontWeight="Bold" Foreground="#10B981" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- AI Tools + Recent Predictions -->
+                <Grid ColumnDefinitions="*,*" IsVisible="{Binding !IsLoading}">
+                    <!-- AI Tools -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="AI Araclari" FontWeight="SemiBold" FontSize="15" />
+                            <ItemsControl ItemsSource="{Binding AiTools}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MesaToolVm">
+                                        <Border Margin="0,0,0,8" Padding="12" Background="#F8FAFC"
+                                                CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Grid.Column="0" Background="#0078D4" CornerRadius="6"
+                                                        Width="36" Height="36" Margin="0,0,12,0">
+                                                    <TextBlock Text="{Binding Icon}" Foreground="White"
+                                                               FontSize="16" FontWeight="Bold"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                                    <TextBlock Text="{Binding Description}" FontSize="11"
+                                                               Foreground="#64748B" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                                                        VerticalAlignment="Top">
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="#10B981" Opacity="0.15" />
+                                                    </Border.Background>
+                                                    <TextBlock Text="{Binding Status}" FontSize="10" Foreground="#10B981" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Recent Predictions -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="10" Margin="4" Padding="16"
+                            BorderBrush="#E0E6ED" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Son Tahminler" FontWeight="SemiBold" FontSize="15" />
+                            <ItemsControl ItemsSource="{Binding RecentPredictions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MesaPredictionVm">
+                                        <Border Margin="0,0,0,8" Padding="12" Background="#F8FAFC"
+                                                CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1">
+                                            <StackPanel Spacing="4">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Tool}"
+                                                               FontWeight="SemiBold" FontSize="12" Foreground="#0078D4" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding Confidence}"
+                                                               FontSize="11" Foreground="#10B981" FontWeight="Bold" />
+                                                </Grid>
+                                                <TextBlock Text="{Binding Result}" FontSize="12"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding TimeDisplay}" FontSize="10"
+                                                           Foreground="#94A3B8" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Last Updated -->
+                <TextBlock Text="{Binding LastUpdated, StringFormat='Son guncelleme: {0}'}"
+                           FontSize="11" Foreground="#94A3B8" HorizontalAlignment="Right"
+                           IsVisible="{Binding !IsLoading}" />
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

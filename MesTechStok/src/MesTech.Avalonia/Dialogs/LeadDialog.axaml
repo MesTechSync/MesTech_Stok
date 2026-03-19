@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.LeadDialog"
+        Title="Musteri Adayi"
+        Width="500" Height="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="12">
+
+      <TextBlock x:Name="TitleText"
+                 Classes="dialog-title"
+                 Text="Yeni Musteri Adayi" />
+
+      <Grid ColumnDefinitions="*,16,*">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="Ad Soyad"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <TextBox x:Name="NameBox"
+                   Classes="mestech"
+                   Watermark="Ad Soyad" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Spacing="4">
+          <TextBlock Text="Telefon"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <TextBox x:Name="PhoneBox"
+                   Classes="mestech"
+                   Watermark="05XX XXX XXXX" />
+        </StackPanel>
+      </Grid>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="E-posta"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <TextBox x:Name="EmailBox"
+                 Classes="mestech"
+                 Watermark="ornek@email.com" />
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Kaynak"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <ComboBox x:Name="SourceCombo"
+                  HorizontalAlignment="Stretch"
+                  SelectedIndex="0">
+          <ComboBoxItem Content="Web Sitesi" />
+          <ComboBoxItem Content="Telefon" />
+          <ComboBoxItem Content="Referans" />
+          <ComboBoxItem Content="Fuar" />
+          <ComboBoxItem Content="Diger" />
+        </ComboBox>
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Not"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <TextBox x:Name="NoteBox"
+                 Classes="mestech"
+                 AcceptsReturn="True"
+                 Height="60"
+                 TextWrapping="Wrap"
+                 Watermark="Ek notlar..." />
+      </StackPanel>
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Kaydet"
+                Click="OnSave" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.SelectDialog"
+        Title="Secim"
+        Width="500" Height="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Secim Yapin" />
+
+      <TextBox x:Name="SearchBox"
+               Grid.Row="1"
+               Classes="mestech"
+               Watermark="Ara..."
+               Margin="0,0,0,12" />
+
+      <ListBox x:Name="ItemsList"
+               Grid.Row="2"
+               BorderBrush="{StaticResource BorderBrush}"
+               BorderThickness="1"
+               CornerRadius="{StaticResource CornerRadiusMedium}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:CompileBindings="False">
+            <StackPanel Spacing="2" Margin="4">
+              <TextBlock Text="{Binding Name}"
+                         FontSize="{StaticResource FontSizeBody}"
+                         Foreground="{StaticResource TextPrimaryBrush}" />
+              <TextBlock Text="{Binding Description}"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Row="3" Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Sec"
+                Click="OnConfirm" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

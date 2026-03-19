@@ -1,0 +1,59 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ReplyDialog"
+        Title="Yanit"
+        Width="500" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <TextBlock Classes="dialog-title"
+                 Text="Yanit Yaz" />
+
+      <!-- Original Message -->
+      <Border Background="#F8FAFC"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Padding="12"
+              BorderBrush="{StaticResource BorderBrush}"
+              BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Orijinal Mesaj:"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <TextBlock x:Name="OriginalMessageText"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}"
+                     TextWrapping="Wrap"
+                     MaxHeight="60" />
+        </StackPanel>
+      </Border>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Yanitiniz"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <TextBox x:Name="ReplyBox"
+                 Classes="mestech"
+                 AcceptsReturn="True"
+                 Height="100"
+                 TextWrapping="Wrap"
+                 Watermark="Yanitinizi yazin..." />
+      </StackPanel>
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Gonder"
+                Click="OnSend" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

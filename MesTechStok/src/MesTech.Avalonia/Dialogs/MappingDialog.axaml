@@ -1,0 +1,62 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.MappingDialog"
+        Title="Eslestirme"
+        Width="600" Height="450"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Kolon Eslestirme" />
+
+      <!-- Column Headers -->
+      <Grid Grid.Row="1" ColumnDefinitions="*,80,*" Margin="0,8,0,4">
+        <TextBlock Grid.Column="0"
+                   Text="Kaynak Kolon"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="1"
+                   Text=""
+                   HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="2"
+                   Text="Hedef Kolon"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   HorizontalAlignment="Center" />
+      </Grid>
+
+      <!-- Mapping Area -->
+      <Border Grid.Row="2"
+              BorderBrush="{StaticResource BorderBrush}"
+              BorderThickness="1"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Padding="8">
+        <ScrollViewer>
+          <StackPanel x:Name="MappingPanel" Spacing="8">
+            <!-- Mapping rows added programmatically -->
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <StackPanel Grid.Row="3" Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Uygula"
+                Click="OnApply" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

@@ -1,0 +1,58 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ErrorDialog"
+        Title="Hata"
+        Width="500" Height="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Border Width="40" Height="40"
+                CornerRadius="20"
+                Background="{StaticResource ErrorRedBrush}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <TextBlock Text="X"
+                     FontSize="20" FontWeight="Bold"
+                     Foreground="White"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+        </Border>
+        <TextBlock Classes="dialog-title"
+                   Text="Hata"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+
+      <TextBlock x:Name="MessageText"
+                 Classes="dialog-body"
+                 Text="Bir hata olustu."
+                 TextWrapping="Wrap" />
+
+      <Expander Header="Detay" IsExpanded="False">
+        <TextBox x:Name="DetailBox"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 Height="150"
+                 FontFamily="{StaticResource MonoFontFamily}"
+                 FontSize="{StaticResource FontSizeSmall}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 BorderBrush="{StaticResource BorderBrush}"
+                 BorderThickness="1"
+                 CornerRadius="{StaticResource CornerRadiusMedium}" />
+      </Expander>
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-raised"
+                Content="Kapat"
+                Click="OnClose" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

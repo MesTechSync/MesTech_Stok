@@ -1,17 +1,129 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.KarZararAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.KarZararAvaloniaView"
+             x:DataType="vm:KarZararAvaloniaViewModel">
 
-    <!-- Avalonia port — Kar Zarar -->
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
-            <TextBlock Text="Kar Zarar" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header with period navigation -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                    <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                    <TextBlock Text="{Binding PeriodLabel}" Foreground="White"
+                               FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
+                            Background="Transparent" Foreground="White"
+                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                    <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Padding="12,6" CornerRadius="6" Margin="12,0,0,0" />
+                </StackPanel>
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
+
+        <!-- KPI Cards -->
+        <Border Grid.Row="1" Background="#F8FAFC" Padding="16">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Gelir" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalRevenue}" FontSize="22" FontWeight="Bold"
+                                   Foreground="#10B981" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Gider" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalExpenses}" FontSize="22" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Net Kar" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding NetProfit}" FontSize="22" FontWeight="Bold"
+                                   Foreground="#2563EB" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="White" CornerRadius="12" Padding="20" Margin="6"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Kar Marji" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding ProfitMarginText}" FontSize="22" FontWeight="Bold"
+                                   Foreground="#8B5CF6" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Detail Table -->
+        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Kar Zarar" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                    <TextBlock Text="Kalem Detayi" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                </Border>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding LineItems}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          CanUserSortColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Kalem" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="100" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="140" />
+                        <DataGridTextColumn Header="Oran (%)" Binding="{Binding PercentFormatted}" Width="100" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Kar/Zarar raporu yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Veri bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen donem icin kar/zarar verisi yok"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

@@ -1,17 +1,187 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.WarehouseAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.WarehouseAvaloniaView"
+             x:DataType="vm:WarehouseAvaloniaViewModel">
 
-    <!-- Avalonia port — Depolar -->
+    <!-- EMR-06 Gorev 4E: Depolar — kart gorunumu + kapasite doluluk cubugu + yeni depo ekleme -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#2563EB" Padding="20,14">
-            <TextBlock Text="Depolar" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Depolar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} depo'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yeni Depo Ekle"
+                        Command="{Binding AddWarehouseCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#2563EB" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Depolar" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <TextBox Width="320" Watermark="Depo adi veya konum ara..."
+                     Text="{Binding SearchText}"
+                     HorizontalAlignment="Left" />
+        </Border>
+
+        <!-- Warehouse Cards Grid -->
+        <ScrollViewer Grid.Row="2" Padding="16">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:WarehouseCardDto">
+                        <Border Background="White" CornerRadius="10" Padding="20"
+                                BorderBrush="#E0E6ED" BorderThickness="1"
+                                Margin="0,0,16,16" Width="320">
+                            <StackPanel Spacing="10">
+                                <!-- Depo Adi + Konum -->
+                                <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="{Binding Location}" FontSize="13" Foreground="#64748B" />
+
+                                <!-- KPI Row -->
+                                <Grid ColumnDefinitions="*,*,*" Margin="0,4,0,0">
+                                    <StackPanel Grid.Column="0" Spacing="2">
+                                        <TextBlock Text="Urun" FontSize="11" Foreground="#94A3B8" />
+                                        <TextBlock Text="{Binding ProductCount}" FontSize="16" FontWeight="Bold"
+                                                   Foreground="#1E293B" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="2">
+                                        <TextBlock Text="Toplam Stok" FontSize="11" Foreground="#94A3B8" />
+                                        <TextBlock Text="{Binding TotalStock}" FontSize="16" FontWeight="Bold"
+                                                   Foreground="#1E293B" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="2">
+                                        <TextBlock Text="Alarm" FontSize="11" Foreground="#94A3B8" />
+                                        <TextBlock Text="{Binding AlarmCount}" FontSize="16" FontWeight="Bold"
+                                                   Foreground="#EF4444" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Kapasite Doluluk Cubugu -->
+                                <StackPanel Spacing="4">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Kapasite Dolulugu" FontSize="11"
+                                                   Foreground="#94A3B8" />
+                                        <TextBlock Grid.Column="1" Text="{Binding CapacityPercent, StringFormat='{}{0}%'}"
+                                                   FontSize="11" Foreground="#64748B" FontWeight="SemiBold" />
+                                    </Grid>
+                                    <Border Background="#E2E8F0" CornerRadius="3" Height="8">
+                                        <Border Background="{Binding CapacityColor}" CornerRadius="3"
+                                                HorizontalAlignment="Left"
+                                                Width="{Binding CapacityBarWidth}" />
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Raf Sayisi -->
+                                <TextBlock Text="{Binding ShelfCount, StringFormat='{}{0} raf'}"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- New Warehouse Dialog (inline panel) -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#CC000000"
+                IsVisible="{Binding IsAddingWarehouse}"
+                ZIndex="200">
+            <Border Background="White" CornerRadius="12" Padding="28"
+                    Width="400" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="Yeni Depo Ekle" FontSize="18" FontWeight="Bold"
+                               Foreground="#1E293B" />
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Depo Adi" FontSize="12" Foreground="#64748B" />
+                        <TextBox Text="{Binding NewWarehouseName}" Watermark="Orn: Sube 2 Depo" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Konum" FontSize="12" Foreground="#64748B" />
+                        <TextBox Text="{Binding NewWarehouseLocation}" Watermark="Orn: Istanbul, Ikitelli" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Kapasite" FontSize="12" Foreground="#64748B" />
+                        <NumericUpDown Value="{Binding NewWarehouseCapacity}" Minimum="1"
+                                       FormatString="N0" />
+                    </StackPanel>
+                    <Grid ColumnDefinitions="*,8,*" Margin="0,8,0,0">
+                        <Button Grid.Column="0" Content="Iptal" Command="{Binding CancelAddWarehouseCommand}"
+                                Background="#E2E8F0" Foreground="#475569" FontWeight="SemiBold"
+                                Padding="16,10" CornerRadius="6"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                        <Button Grid.Column="2" Content="Kaydet" Command="{Binding SaveWarehouseCommand}"
+                                Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                                Padding="16,10" CornerRadius="6"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Depo verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Depo bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Henuz depo tanimlanmamis veya arama sonucu bos"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

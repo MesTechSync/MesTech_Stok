@@ -1,17 +1,104 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.GLTransactionAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.GLTransactionAvaloniaView"
+             x:DataType="vm:GLTransactionAvaloniaViewModel">
 
-    <!-- Avalonia port — Muhasebe Hareketleri -->
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
-            <TextBlock Text="Muhasebe Hareketleri" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Muhasebe Hareketleri" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yeni Hareket"
+                        Command="{Binding AddTransactionCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}"
+                          Width="220" />
+                <TextBox Width="200" Watermark="Fis no veya aciklama ara..."
+                         Text="{Binding SearchText}" />
+                <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
+                <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Muhasebe Hareketleri" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <DataGrid ItemsSource="{Binding Transactions}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      CanUserSortColumns="True"
+                      CanUserResizeColumns="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
+                    <DataGridTextColumn Header="Fis No" Binding="{Binding VoucherNo}" Width="100" />
+                    <DataGridTextColumn Header="Hesap" Binding="{Binding Account}" Width="160" />
+                    <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                    <DataGridTextColumn Header="Borc" Binding="{Binding DebitFormatted}" Width="120" />
+                    <DataGridTextColumn Header="Alacak" Binding="{Binding CreditFormatted}" Width="120" />
+                    <DataGridTextColumn Header="Bakiye" Binding="{Binding BalanceFormatted}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Muhasebe hareketleri yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Hareket bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen hesap ve donem icin hareket kaydi yok"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

@@ -6,7 +6,7 @@
 
     <!-- Avalonia port — Giris Ekrani (Login) -->
     <!-- Centered card: logo area, username, password (masked), login button -->
-    <!-- Brand color #2855AC, error message display for failed login -->
+    <!-- Brand color #0078D4, error message display for failed login -->
 
     <Grid Background="#F8FAFC">
 
@@ -24,7 +24,7 @@
                     <Border Background="#EBF0FA" CornerRadius="50" Width="72" Height="72"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="32" FontWeight="Bold"
-                                   Foreground="#2855AC"
+                                   Foreground="#0078D4"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="MesTech Stok" FontSize="22" FontWeight="Bold"
@@ -66,7 +66,7 @@
                         Command="{Binding LoginCommand}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
-                        Background="#2855AC" Foreground="White"
+                        Background="#0078D4" Foreground="White"
                         FontSize="15" FontWeight="SemiBold"
                         Padding="16,12" CornerRadius="8" />
 

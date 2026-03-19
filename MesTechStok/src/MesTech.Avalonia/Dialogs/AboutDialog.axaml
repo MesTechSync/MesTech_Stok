@@ -1,0 +1,62 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.AboutDialog"
+        Title="Hakkinda"
+        Width="450" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16" HorizontalAlignment="Center">
+
+      <!-- Logo Placeholder -->
+      <Border Width="80" Height="80"
+              CornerRadius="12"
+              Background="{StaticResource PrimaryBlueBrush}"
+              HorizontalAlignment="Center">
+        <TextBlock Text="MT"
+                   FontSize="32" FontWeight="Bold"
+                   Foreground="White"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+      </Border>
+
+      <TextBlock Text="MesTech"
+                 FontSize="{StaticResource FontSizeHeader}"
+                 FontWeight="Bold"
+                 Foreground="{StaticResource TextPrimaryBrush}"
+                 HorizontalAlignment="Center" />
+
+      <TextBlock x:Name="VersionText"
+                 Text="v1.0.0"
+                 FontSize="{StaticResource FontSizeBody}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 HorizontalAlignment="Center" />
+
+      <TextBlock Text="Pazaryeri Entegrasyon ve Stok Yonetim Platformu"
+                 FontSize="{StaticResource FontSizeSmall}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 HorizontalAlignment="Center"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap" />
+
+      <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4" />
+
+      <TextBlock x:Name="LicenseText"
+                 Text="Tum haklari saklidir. MesTech Yazilim Teknolojileri"
+                 FontSize="{StaticResource FontSizeCaption}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 HorizontalAlignment="Center"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap" />
+
+      <Button Classes="mestech-outline"
+              Content="Kapat"
+              HorizontalAlignment="Center"
+              Click="OnClose" />
+
+    </StackPanel>
+  </Border>
+
+</Window>

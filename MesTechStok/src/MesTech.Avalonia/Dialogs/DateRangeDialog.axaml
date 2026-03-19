@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.DateRangeDialog"
+        Title="Tarih Araligi"
+        Width="450" Height="280"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <TextBlock x:Name="TitleText"
+                 Classes="dialog-title"
+                 Text="Tarih Araligi Secin" />
+
+      <Grid ColumnDefinitions="*,16,*">
+        <StackPanel Grid.Column="0" Spacing="8">
+          <TextBlock Text="Baslangic"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <DatePicker x:Name="StartDatePicker"
+                      HorizontalAlignment="Stretch" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Spacing="8">
+          <TextBlock Text="Bitis"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <DatePicker x:Name="EndDatePicker"
+                      HorizontalAlignment="Stretch" />
+        </StackPanel>
+      </Grid>
+
+      <TextBlock x:Name="ErrorText"
+                 Foreground="{StaticResource ErrorRedBrush}"
+                 FontSize="{StaticResource FontSizeSmall}"
+                 IsVisible="False" />
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Uygula"
+                Click="OnConfirm" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

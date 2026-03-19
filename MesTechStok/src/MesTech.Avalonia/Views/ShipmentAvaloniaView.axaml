@@ -1,17 +1,97 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.ShipmentAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ShipmentAvaloniaView"
+             x:DataType="vm:ShipmentAvaloniaViewModel">
 
-    <!-- Avalonia port — Gonderi -->
+    <!-- EMR-12: Kargo Takip — sevkiyat listesi DataGrid + durum badge -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#EA580C" Padding="20,14">
-            <TextBlock Text="Gonderi" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Kargo Takip" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} gonderi'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Gonderi" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- KPI Row -->
+        <Border Grid.Row="1" Background="White" Padding="16,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="24">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Border Width="10" Height="10" CornerRadius="5" Background="#059669" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding DeliveredCount, StringFormat='Teslim Edildi: {0}'}"
+                               FontSize="13" Foreground="#1E293B" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Border Width="10" Height="10" CornerRadius="5" Background="#2563EB" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding InTransitCount, StringFormat='Yolda: {0}'}"
+                               FontSize="13" Foreground="#1E293B" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Border Width="10" Height="10" CornerRadius="5" Background="#F59E0B" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding PreparingCount, StringFormat='Hazirlaniyor: {0}'}"
+                               FontSize="13" Foreground="#1E293B" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Shipments DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Shipments}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="16">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Takip No" Binding="{Binding TrackingNumber}" Width="160" />
+                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="140" />
+                <DataGridTextColumn Header="Kargo Firmasi" Binding="{Binding CarrierName}" Width="140" />
+                <DataGridTextColumn Header="Alici" Binding="{Binding RecipientName}" Width="180" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                <DataGridTextColumn Header="Gonderim Tarihi" Binding="{Binding ShipDate}" Width="130" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Gonderi bilgileri yukleniyor..."
+                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Gonderi Bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Henuz aktif gonderi bulunmuyor"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

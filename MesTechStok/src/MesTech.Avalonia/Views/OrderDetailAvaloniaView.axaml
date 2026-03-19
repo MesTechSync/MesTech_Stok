@@ -1,17 +1,130 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.OrderDetailAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.OrderDetailAvaloniaView"
+             x:DataType="vm:OrderDetailAvaloniaViewModel">
 
-    <!-- Avalonia port — Siparis Detay -->
+    <!-- EMR-12: Siparis Detay — siparis bilgileri + kalem listesi -->
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#059669" Padding="20,14">
-            <TextBlock Text="Siparis Detay" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Siparis Detay" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding OrderNumber, StringFormat='#{0}'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                    <Border CornerRadius="4" Padding="8,2"
+                            Background="{Binding StatusColor}">
+                        <TextBlock Text="{Binding OrderStatus}" FontSize="11"
+                                   Foreground="White" FontWeight="Bold" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Siparis Detay" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel Spacing="16">
+
+                <!-- Order Info Card -->
+                <Border Background="White" CornerRadius="8" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                            <TextBlock Text="Musteri" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding CustomerName}" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                            <TextBlock Text="Siparis Tarihi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding OrderDate}" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                            <TextBlock Text="Toplam Tutar" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" FontSize="15"
+                                       FontWeight="SemiBold" Foreground="#059669" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                            <TextBlock Text="Platform" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding Platform}" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                            <TextBlock Text="Kargo Firmasi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding CargoCompany}" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="1" Spacing="4">
+                            <TextBlock Text="Takip No" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding TrackingNumber}" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Order Items DataGrid -->
+                <Border Background="White" CornerRadius="8"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,12"
+                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Siparis Kalemleri" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding OrderItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="White"
+                                  MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Urun Adi" Binding="{Binding ProductName}" Width="250" />
+                                <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120" />
+                                <DataGridTextColumn Header="Adet" Binding="{Binding Quantity}" Width="80" />
+                                <DataGridTextColumn Header="Birim Fiyat" Binding="{Binding UnitPrice, StringFormat='{}{0:N2} TL'}" Width="120" />
+                                <DataGridTextColumn Header="Toplam" Binding="{Binding LineTotal, StringFormat='{}{0:N2} TL'}" Width="120" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Siparis detaylari yukleniyor..."
+                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

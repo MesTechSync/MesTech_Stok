@@ -1,17 +1,110 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.AboutAvaloniaView">
-
-    <!-- Avalonia port — Hakkinda -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.AboutAvaloniaView"
+             x:DataType="vm:AboutAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <TextBlock Text="Hakkinda" Foreground="White" FontSize="18" FontWeight="SemiBold" />
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Hakkinda" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24" MaxWidth="600" HorizontalAlignment="Center" Margin="0,16">
+
+                <!-- Logo / App Name -->
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <Border Background="#0078D4" CornerRadius="16" Width="80" Height="80"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="MT" Foreground="White" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="MesTech Stok Yonetimi" FontSize="24" FontWeight="Bold"
+                               Foreground="#1E293B" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding VersionText}" FontSize="14" Foreground="#64748B"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Info Card -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Uygulama:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="MesTech Stok" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Versiyon:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding VersionText}" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Platform:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding PlatformText}" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Framework:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text=".NET 9.0 / Avalonia UI" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Lisans:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding LicenseText}" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*">
+                            <TextBlock Grid.Column="0" Text="Gelistirici:" FontSize="13"
+                                       Foreground="#64748B" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="MesTech Yazilim" FontSize="13"
+                                       Foreground="#1E293B" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Copyright -->
+                <TextBlock Text="{Binding CopyrightText}" FontSize="12" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" />
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Bilgiler yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

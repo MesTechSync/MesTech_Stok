@@ -1,17 +1,79 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.DepartmentAvaloniaView">
-
-    <!-- Avalonia port — Departmanlar -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.DepartmentAvaloniaView"
+             x:DataType="vm:DepartmentAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#0891B2" Padding="20,14">
-            <TextBlock Text="Departmanlar" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Departmanlar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} departman'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Yeni Departman"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Departmanlar" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <!-- Loading -->
+            <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
+                       Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+            <!-- Error -->
+            <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
+                    CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
+                    VerticalAlignment="Top">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Empty -->
+            <TextBlock Text="Henuz departman bulunmuyor."
+                       IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
+
+            <!-- Department Cards -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding !IsLoading}">
+                <ItemsControl ItemsSource="{Binding Departments}" Margin="22">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DepartmentItemVm">
+                            <Border Width="280" Margin="0,0,12,12" Padding="20"
+                                    Background="White" CornerRadius="10"
+                                    BorderBrush="#E2E8F0" BorderThickness="1">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="Yonetici:" FontSize="12" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding Manager}" FontSize="12" Foreground="#0078D4" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="Calisan:" FontSize="12" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding EmployeeCount}" FontSize="12" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <Border Background="#F0FDF4" CornerRadius="4" Padding="8,2"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Status}" FontSize="11" Foreground="#16A34A" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

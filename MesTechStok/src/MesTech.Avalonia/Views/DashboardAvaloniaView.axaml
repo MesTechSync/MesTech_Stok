@@ -14,13 +14,13 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kontrol Paneli" FontSize="22" FontWeight="Bold"
-                               Foreground="#2855AC" VerticalAlignment="Center" />
+                               Foreground="#0078D4" VerticalAlignment="Center" />
                     <TextBlock Text="Stok ve islem durum ozeti"
                                FontSize="14" Foreground="#64748B" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                     <Button Content="Yenile" Command="{Binding RefreshCommand}"
-                            Background="#2855AC" Foreground="White"
+                            Background="#0078D4" Foreground="White"
                             Padding="16,8" CornerRadius="6" />
                     <TextBlock Text="{Binding LastUpdated, StringFormat='Son: {0}'}"
                                VerticalAlignment="Center" Foreground="#64748B" FontSize="12" />
@@ -35,11 +35,11 @@
             <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="6"
                     BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#2855AC" />
+                    <Border Grid.Column="0" Background="#0078D4" />
                     <StackPanel Grid.Column="1" Margin="16">
                         <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
                         <TextBlock Text="{Binding TotalProducts}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#2855AC"
+                                   FontSize="28" FontWeight="Bold" Foreground="#0078D4"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Sistemdeki aktif urun sayisi"
                                    FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />

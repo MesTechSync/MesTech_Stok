@@ -1,0 +1,95 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ProductEditDialog"
+        Title="Urun Duzenle"
+        Width="600" Height="500"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Urun Duzenle" />
+
+      <ScrollViewer Grid.Row="1" Margin="0,8,0,0">
+        <StackPanel Spacing="12">
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="Urun Adi"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource TextSecondaryBrush}" />
+            <TextBox x:Name="NameBox"
+                     Classes="mestech"
+                     Watermark="Urun adini giriniz" />
+          </StackPanel>
+
+          <Grid ColumnDefinitions="*,16,*">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock Text="SKU"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+              <TextBox x:Name="SkuBox"
+                       Classes="mestech"
+                       Watermark="SKU" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+              <TextBlock Text="Barkod"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+              <TextBox x:Name="BarcodeBox"
+                       Classes="mestech"
+                       Watermark="Barkod" />
+            </StackPanel>
+          </Grid>
+
+          <Grid ColumnDefinitions="*,16,*">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock Text="Fiyat"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+              <TextBox x:Name="PriceBox"
+                       Classes="mestech"
+                       Watermark="0.00" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+              <TextBlock Text="Kategori"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+              <TextBox x:Name="CategoryBox"
+                       Classes="mestech"
+                       Watermark="Kategori" />
+            </StackPanel>
+          </Grid>
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="Aciklama"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource TextSecondaryBrush}" />
+            <TextBox x:Name="DescriptionBox"
+                     Classes="mestech"
+                     AcceptsReturn="True"
+                     Height="80"
+                     TextWrapping="Wrap"
+                     Watermark="Urun aciklamasi" />
+          </StackPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <StackPanel Grid.Row="2" Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Kaydet"
+                Click="OnSave" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

@@ -9,14 +9,14 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Raporlar"
                            Foreground="White" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -68,7 +68,7 @@
                             BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,6,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Satis" FontSize="12" Foreground="#64748B" />
-                            <TextBlock Text="{Binding TotalSales}" FontSize="20" FontWeight="Bold" Foreground="#2855AC" />
+                            <TextBlock Text="{Binding TotalSales}" FontSize="20" FontWeight="Bold" Foreground="#0078D4" />
                             <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0} siparis'}" FontSize="12" Foreground="#94A3B8" />
                         </StackPanel>
                     </Border>
@@ -104,7 +104,7 @@
                             <Border Background="#EFF6FF" CornerRadius="8" Width="48" Height="48"
                                     HorizontalAlignment="Left">
                                 <TextBlock Text="S" FontSize="22" FontWeight="Bold"
-                                           Foreground="#2855AC"
+                                           Foreground="#0078D4"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <TextBlock Text="Satis Raporu" FontSize="18" FontWeight="SemiBold"
@@ -115,7 +115,7 @@
                             <Button Content="Rapor Olustur"
                                     Command="{Binding GenerateReportCommand}"
                                     CommandParameter="Satis Raporu"
-                                    Background="#2855AC" Foreground="White"
+                                    Background="#0078D4" Foreground="White"
                                     FontWeight="SemiBold" Padding="16,10"
                                     CornerRadius="6" HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center" />

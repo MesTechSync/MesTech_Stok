@@ -1,17 +1,139 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.ErpSettingsAvaloniaView">
-
-    <!-- Avalonia port — ERP Ayarlari -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ErpSettingsAvaloniaView"
+             x:DataType="vm:ErpSettingsAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="ERP Ayarlari" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="ERP Ayarlari" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Kaydet"
+                        Command="{Binding SaveCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — ERP Ayarlari" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Settings Form -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
+
+                <!-- ERP Secimi -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="ERP Programi" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <ComboBox ItemsSource="{Binding ErpProviders}"
+                                  SelectedItem="{Binding SelectedErpProvider}"
+                                  Width="300" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Baglanti Ayarlari -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Baglanti Ayarlari" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Sunucu Adresi" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding ServerAddress}" Watermark="Orn: https://erp.sirket.com" />
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Veritabani Adi" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding DatabaseName}" Watermark="Orn: MESTECH_2026" />
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Kullanici Adi" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding ErpUsername}" Watermark="ERP kullanici adi" />
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Sifre" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding ErpPassword}" Watermark="ERP sifresi"
+                                     PasswordChar="*" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Senkronizasyon -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Senkronizasyon" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Otomatik stok senkronizasyonu"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncStock}"
+                                          OnContent="Acik" OffContent="Kapali" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Fatura otomatik aktarimi"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncInvoice}"
+                                          OnContent="Acik" OffContent="Kapali" />
+                        </Grid>
+                        <Grid ColumnDefinitions="200,*">
+                            <TextBlock Grid.Column="0" Text="Senk. Araligi (dk):"
+                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                            <NumericUpDown Grid.Column="1" Value="{Binding SyncIntervalMinutes}"
+                                          Minimum="5" Maximum="1440" FormatString="N0" Width="160"
+                                          HorizontalAlignment="Left" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Baglanti Testi -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Baglanti Durumu" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Border Grid.Column="0" Width="12" Height="12" CornerRadius="6"
+                                    Background="{Binding ConnectionStatusColor}" Margin="0,0,8,0"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding ConnectionStatusText}"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                        </Grid>
+                        <Button Content="Baglantiyi Test Et"
+                                Command="{Binding TestConnectionCommand}"
+                                Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                Padding="16,8" CornerRadius="6" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="ERP ayarlari yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

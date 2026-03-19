@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.StoreDetailAvaloniaView"
+             x:DataType="vm:StoreDetailAvaloniaViewModel">
+
+    <!-- Magaza Detay — magaza bilgi + sync gecmisi + adapter saglik -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Mağaza Detayı" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Store Info Card -->
+        <Border Grid.Row="1" Background="White" Margin="16,16,16,0" CornerRadius="8" Padding="20"
+                BorderBrush="#E5E9F2" BorderThickness="1">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Mağaza" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding StoreName}" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Platform" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding PlatformName}" FontSize="16" FontWeight="SemiBold" Foreground="#0078D4" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Ürün Sayısı" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding ProductCount, StringFormat='{}{0:N0}'}" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                </StackPanel>
+                <StackPanel Grid.Column="3" Spacing="4">
+                    <TextBlock Text="API Durumu" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding ApiStatus}" FontSize="16" FontWeight="SemiBold" Foreground="#4CAF50" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Sync History DataGrid -->
+        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="8"
+                BorderBrush="#E5E9F2" BorderThickness="1">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Senkronizasyon Geçmişi (Son 10)" FontSize="15" FontWeight="SemiBold"
+                           Foreground="#1E293B" Padding="16,12" />
+                <DataGrid ItemsSource="{Binding SyncHistory}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Zaman" Binding="{Binding SyncTime}" Width="180" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                        <DataGridTextColumn Header="Senkronize Ürün" Binding="{Binding ProductsSynced, StringFormat='{}{0:N0}'}" Width="140" />
+                        <DataGridTextColumn Header="Hata" Binding="{Binding Errors}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- Adapter Health -->
+        <Border Grid.Row="3" Background="White" Margin="16,0,16,16" CornerRadius="8" Padding="16"
+                BorderBrush="#E5E9F2" BorderThickness="1">
+            <StackPanel Orientation="Horizontal" Spacing="32">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="Adapter Durumu" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding AdapterHealth}" FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50" />
+                </StackPanel>
+                <StackPanel Spacing="2">
+                    <TextBlock Text="Adapter Versiyon" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding AdapterVersion}" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Magaza detaylari yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

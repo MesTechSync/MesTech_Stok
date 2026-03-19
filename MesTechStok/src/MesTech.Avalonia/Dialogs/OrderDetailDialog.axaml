@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.OrderDetailDialog"
+        Title="Siparis Detayi"
+        Width="650" Height="500"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+
+      <TextBlock Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Siparis Detayi" />
+
+      <!-- Order Header -->
+      <Border Grid.Row="1"
+              Background="#F8FAFC"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Padding="12"
+              Margin="0,8,0,8">
+        <Grid ColumnDefinitions="*,*,*">
+          <StackPanel Grid.Column="0" Spacing="2">
+            <TextBlock Text="Siparis No"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource TextSecondaryBrush}" />
+            <TextBlock x:Name="OrderNoText"
+                       FontSize="{StaticResource FontSizeBody}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryBrush}" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="2">
+            <TextBlock Text="Tarih"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource TextSecondaryBrush}" />
+            <TextBlock x:Name="OrderDateText"
+                       FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{StaticResource TextPrimaryBrush}" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="2">
+            <TextBlock Text="Durum"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource TextSecondaryBrush}" />
+            <TextBlock x:Name="StatusText"
+                       FontSize="{StaticResource FontSizeBody}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource AccentGreenBrush}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Items DataGrid -->
+      <DataGrid x:Name="ItemsGrid"
+                Grid.Row="2"
+                x:CompileBindings="False"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="True"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
+          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="100" />
+          <DataGridTextColumn Header="Adet" Binding="{Binding Quantity}" Width="60" />
+          <DataGridTextColumn Header="Birim Fiyat" Binding="{Binding UnitPrice}" Width="100" />
+          <DataGridTextColumn Header="Toplam" Binding="{Binding Total}" Width="100" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <!-- Total -->
+      <Border Grid.Row="3"
+              Background="#F8FAFC"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Padding="12"
+              Margin="0,8,0,0">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="16">
+          <TextBlock Text="Genel Toplam:"
+                     FontSize="{StaticResource FontSizeSubtitle}"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource TextPrimaryBrush}"
+                     VerticalAlignment="Center" />
+          <TextBlock x:Name="TotalText"
+                     FontSize="{StaticResource FontSizeTitle}"
+                     FontWeight="Bold"
+                     Foreground="{StaticResource PrimaryBlueBrush}"
+                     VerticalAlignment="Center" />
+        </StackPanel>
+      </Border>
+
+      <StackPanel Grid.Row="4" Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Kapat"
+                Click="OnClose" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

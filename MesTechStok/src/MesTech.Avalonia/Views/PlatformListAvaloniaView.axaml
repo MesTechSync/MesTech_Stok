@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.PlatformListAvaloniaView"
+             x:DataType="vm:PlatformListAvaloniaViewModel">
+
+    <!-- Platform Listesi — 13 platform karti ile pazaryeri yonetimi -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Platformlar" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Platform Cards Grid -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <ItemsControl ItemsSource="{Binding Platforms}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PlatformCardDto">
+                        <Border Background="White" CornerRadius="8" Margin="8"
+                                Width="200" Padding="0"
+                                BorderBrush="#E5E9F2" BorderThickness="1">
+                            <StackPanel>
+                                <!-- Color band -->
+                                <Border Height="6" CornerRadius="8,8,0,0"
+                                        Background="{Binding Color}" />
+                                <StackPanel Padding="16,12" Spacing="6">
+                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="#1E293B" />
+                                    <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
+                                               FontSize="12" Foreground="#64748B" />
+                                    <TextBlock Text="{Binding StatusText}" FontSize="12"
+                                               Foreground="#4CAF50" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Platformlar yukleniyor..."
+                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        Padding="16,6" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

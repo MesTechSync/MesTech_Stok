@@ -1,17 +1,181 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.EbayAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.EbayAvaloniaView"
+             x:DataType="vm:EbayAvaloniaViewModel">
 
-    <!-- Avalonia port — eBay -->
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#7C3AED" Padding="20,14">
-            <TextBlock Text="eBay" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="eBay Entegrasyonu" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2"
+                            IsVisible="{Binding IsConnected}">
+                        <TextBlock Text="Bagli" Foreground="White" FontSize="12"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="#FF634722" CornerRadius="10" Padding="8,2"
+                            IsVisible="{Binding !IsConnected}">
+                        <TextBlock Text="Bagli Degil" Foreground="#FFCDD2" FontSize="12"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Senkronize Et" Command="{Binding SyncCommand}"
+                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="6" />
+                    <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                            Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="6" />
+                </StackPanel>
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
+
+        <!-- KPI Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#E53238" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding ProductCount}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#E53238"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="eBay'deki urun sayisi"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#10B981" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Aktif Siparis" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding OrderCount}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#10B981"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Bekleyen siparis sayisi"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#F59E0B" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Gunluk Ciro" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding DailyRevenue, StringFormat='${0:N0}'}"
+                                   FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Bugunku toplam ciro (USD)"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="3" Background="White" CornerRadius="8" Margin="6"
+                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#0078D4" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Stok Senkron" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding SyncStatus}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#0078D4"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="{Binding LastSyncTime, StringFormat='Son: {0}'}"
+                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Recent Orders DataGrid -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Margin="22,0,22,22"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — eBay" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Padding="20,14"
+                        BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="Son Siparisler" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding RecentOrders}"
+                          AutoGenerateColumns="False"
+                          CanUserReorderColumns="True"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          Background="White">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Order No" Binding="{Binding OrderNumber}" Width="160" />
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
+                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="200" />
+                        <DataGridTextColumn Header="Tutar (USD)" Binding="{Binding TotalAmount}" Width="150" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="eBay verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F8FAFC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Veri bulunamadi" FontSize="20"
+                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                <TextBlock Text="eBay entegrasyonundan henuz veri cekilemedi"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                        Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F8FAFC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="14" Foreground="#666"
+                                   TextWrapping="Wrap" MaxWidth="400" />
+                        <Button Content="Tekrar Dene"
+                                Command="{Binding RefreshCommand}"
+                                Padding="16,6" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

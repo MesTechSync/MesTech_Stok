@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.PlatformSyncStatusAvaloniaView"
+             x:DataType="vm:PlatformSyncStatusAvaloniaViewModel">
+
+    <!-- Platform Senkronizasyon Durumu — platform bazli sync + saglik gostergesi -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Platform Senkronizasyon Durumu" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Tümü Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Platform Sync Status DataGrid -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Platforms}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="0"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Platform" Width="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="8,0">
+                                <Ellipse Width="10" Height="10" Fill="{Binding PlatformColor}" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding Platform}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Mağaza" Binding="{Binding StoreCount}" Width="80" />
+                <DataGridTextColumn Header="Son Sync" Binding="{Binding LastSync}" Width="160" />
+                <DataGridTextColumn Header="Son Başarılı" Binding="{Binding LastSuccess}" Width="160" />
+                <DataGridTextColumn Header="Bugün Hata" Binding="{Binding ErrorsToday}" Width="100" />
+                <DataGridTemplateColumn Header="Sağlık" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
+                            <Border Background="{Binding HealthColor}" CornerRadius="4" Padding="8,2"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HealthStatus}" FontSize="11" Foreground="White" FontWeight="SemiBold" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="İşlem" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
+                            <Button Content="Sync"
+                                    Command="{Binding $parent[DataGrid].((vm:PlatformSyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
+                                    CommandParameter="{Binding}"
+                                    Background="#0078D4" Foreground="White"
+                                    FontSize="11" FontWeight="SemiBold"
+                                    Padding="10,4" CornerRadius="4"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Platform durumu yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Platform Bulunamadı" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Henüz platform tanımlanmamış"
+                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="#F7F9FC" IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"
+                           Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        Padding="16,6" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

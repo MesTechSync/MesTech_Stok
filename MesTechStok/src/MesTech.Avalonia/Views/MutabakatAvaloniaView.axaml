@@ -1,17 +1,137 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.MutabakatAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.MutabakatAvaloniaView"
+             x:DataType="vm:MutabakatAvaloniaViewModel">
 
-    <!-- Avalonia port — Mutabakat -->
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
-            <TextBlock Text="Mutabakat" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Mutabakat" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Otomatik Eslestir"
+                            Command="{Binding AutoMatchCommand}"
+                            Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="6" />
+                    <Button Content="Yenile"
+                            Command="{Binding RefreshCommand}"
+                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="6" />
+                </StackPanel>
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
+
+        <!-- KPI Row -->
+        <Border Grid.Row="1" Background="#F8FAFC" Padding="16,12">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Kayit" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding TotalRecords}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#1E293B" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Eslesen" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding MatchedCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#10B981" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Eslesmeyen" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding UnmatchedCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                        BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel>
+                        <TextBlock Text="Esleme Skoru" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="{Binding MatchScoreText}" FontSize="20" FontWeight="Bold"
+                                   Foreground="#8B5CF6" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="2" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}"
+                          Width="220" />
+                <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}"
+                          Width="160" />
+                <TextBox Width="200" Watermark="Aciklama veya referans ara..."
+                         Text="{Binding SearchText}" />
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Mutabakat" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <DataGrid ItemsSource="{Binding Items}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      CanUserSortColumns="True"
+                      CanUserResizeColumns="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
+                    <DataGridTextColumn Header="Referans" Binding="{Binding Reference}" Width="120" />
+                    <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="120" />
+                    <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                    <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="130" />
+                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Mutabakat verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen kaynak ve filtre icin mutabakat kaydi yok"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

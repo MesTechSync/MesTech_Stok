@@ -1,17 +1,80 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.CalendarAvaloniaView">
-
-    <!-- Avalonia port — Takvim -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.CalendarAvaloniaView"
+             x:DataType="vm:CalendarAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
-            <TextBlock Text="Takvim" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Takvim" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding CurrentMonth}" Foreground="White"
+                                   FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Takvim" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22" Spacing="0">
+
+                <!-- Loading -->
+                <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
+                           Foreground="#64748B" HorizontalAlignment="Center" Margin="0,20" />
+
+                <!-- Error -->
+                <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
+                        CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- Empty -->
+                <TextBlock Text="Henuz etkinlik bulunmuyor."
+                           IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
+
+                <!-- Events List -->
+                <ItemsControl ItemsSource="{Binding Events}" IsVisible="{Binding !IsLoading}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CalendarEventVm">
+                            <Border Margin="0,0,0,10" Padding="16" Background="White"
+                                    CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <!-- Color bar -->
+                                    <Border Grid.Column="0" Width="4" CornerRadius="2" Margin="0,0,14,0">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding Color}" />
+                                        </Border.Background>
+                                    </Border>
+                                    <!-- Content -->
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" />
+                                        <TextBlock Text="{Binding DateDisplay}" FontSize="12" Foreground="#64748B" />
+                                    </StackPanel>
+                                    <!-- Time + Type -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                        <TextBlock Text="{Binding TimeRange}" FontSize="12"
+                                                   Foreground="#0078D4" HorizontalAlignment="Right" />
+                                        <Border Background="#F1F5F9" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="#64748B" />
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

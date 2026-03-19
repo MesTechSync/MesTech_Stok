@@ -123,6 +123,8 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<CiceksepetiAvaloniaViewModel>();
                 services.AddTransient<ContactAvaloniaViewModel>();
                 services.AddTransient<CrmDashboardAvaloniaViewModel>();
+                services.AddTransient<PlatformMessagesAvaloniaViewModel>();
+                services.AddTransient<CrmSettingsAvaloniaViewModel>();
                 services.AddTransient<DealsAvaloniaViewModel>();
                 services.AddTransient<DepartmentAvaloniaViewModel>();
                 services.AddTransient<DocumentFolderAvaloniaViewModel>();
@@ -159,9 +161,35 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<TrendyolAvaloniaViewModel>();
                 services.AddTransient<UserManagementAvaloniaViewModel>();
                 services.AddTransient<WarehouseAvaloniaViewModel>();
+                // EMR-06 Gorev 4D: Stok Yerlesim + Lot + Transfer
+                services.AddTransient<StockPlacementAvaloniaViewModel>();
+                services.AddTransient<StockLotAvaloniaViewModel>();
+                services.AddTransient<StockTransferAvaloniaViewModel>();
+                // Invoice views (e-Fatura batch)
+                services.AddTransient<InvoiceListAvaloniaViewModel>();
+                services.AddTransient<InvoiceCreateAvaloniaViewModel>();
+                services.AddTransient<BulkInvoiceAvaloniaViewModel>();
+                services.AddTransient<InvoicePdfAvaloniaViewModel>();
+                services.AddTransient<InvoiceProviderSettingsAvaloniaViewModel>();
+                services.AddTransient<InvoiceReportAvaloniaViewModel>();
                 services.AddTransient<WelcomeAvaloniaViewModel>();
                 services.AddTransient<WorkScheduleAvaloniaViewModel>();
                 services.AddTransient<WorkTaskAvaloniaViewModel>();
+                // EMR-10 Platform + Dropshipping ViewModels
+                services.AddTransient<PlatformListAvaloniaViewModel>();
+                services.AddTransient<StoreWizardAvaloniaViewModel>();
+                services.AddTransient<CategoryMappingAvaloniaViewModel>();
+                services.AddTransient<DropshipDashboardAvaloniaViewModel>();
+                services.AddTransient<FeedPreviewAvaloniaViewModel>();
+                services.AddTransient<StoreSettingsAvaloniaViewModel>();
+                services.AddTransient<StoreDetailAvaloniaViewModel>();
+                services.AddTransient<ProductFetchAvaloniaViewModel>();
+                services.AddTransient<SupplierFeedListAvaloniaViewModel>();
+                services.AddTransient<FeedCreateAvaloniaViewModel>();
+                services.AddTransient<DropshipOrdersAvaloniaViewModel>();
+                services.AddTransient<DropshipProfitAvaloniaViewModel>();
+                services.AddTransient<ImportSettingsAvaloniaViewModel>();
+                services.AddTransient<PlatformSyncStatusAvaloniaViewModel>();
             })
             .Build();
 

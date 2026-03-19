@@ -1,0 +1,81 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ExpenseDialog"
+        Title="Gider Kaydi"
+        Width="450" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="12">
+
+      <TextBlock x:Name="TitleText"
+                 Classes="dialog-title"
+                 Text="Gider Kaydi" />
+
+      <Grid ColumnDefinitions="*,16,*">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="Kategori"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <ComboBox x:Name="CategoryCombo"
+                    HorizontalAlignment="Stretch"
+                    SelectedIndex="0">
+            <ComboBoxItem Content="Kargo" />
+            <ComboBoxItem Content="Reklam" />
+            <ComboBoxItem Content="Personel" />
+            <ComboBoxItem Content="Kira" />
+            <ComboBoxItem Content="Diger" />
+          </ComboBox>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Spacing="4">
+          <TextBlock Text="Tutar"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <TextBox x:Name="AmountBox"
+                   Classes="mestech"
+                   Watermark="0.00" />
+        </StackPanel>
+      </Grid>
+
+      <Grid ColumnDefinitions="*,16,*">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="Tarih"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <DatePicker x:Name="DatePicker"
+                      HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Spacing="4">
+          <TextBlock Text="Belge No"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+          <TextBox x:Name="DocumentNoBox"
+                   Classes="mestech"
+                   Watermark="Belge numarasi" />
+        </StackPanel>
+      </Grid>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Aciklama"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <TextBox x:Name="DescriptionBox"
+                 Classes="mestech"
+                 Watermark="Aciklama giriniz" />
+      </StackPanel>
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Kaydet"
+                Click="OnSave" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.StoreSettingsAvaloniaView"
+             x:DataType="vm:StoreSettingsAvaloniaViewModel">
+
+    <!-- Magaza Ayarlari — kimlik + sync araligi + webhook + oto-sync -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Mağaza Ayarları" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Settings Form -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel MaxWidth="600" Spacing="16">
+
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="Mağaza Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding StoreName}" Padding="10,8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Platform" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding PlatformName}" IsReadOnly="True" Padding="10,8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Key" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding ApiKey}" PasswordChar="*" Padding="10,8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Secret" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding ApiSecret}" PasswordChar="*" Padding="10,8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Seller ID" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding SellerId}" Padding="10,8" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="Senkronizasyon Ayarları" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding SyncIntervalMinutes, StringFormat='Sync Aralığı: {0} dakika'}"
+                                       FontSize="12" Foreground="#64748B" />
+                            <Slider Minimum="5" Maximum="120" Value="{Binding SyncIntervalMinutes}"
+                                    TickFrequency="5" IsSnapToTickEnabled="True" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Webhook URL" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding WebhookUrl}" Padding="10,8"
+                                     Watermark="https://api.mestech.com/webhooks/..." />
+                        </StackPanel>
+
+                        <CheckBox Content="Otomatik Senkronizasyon" IsChecked="{Binding AutoSyncEnabled}"
+                                  FontSize="13" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Content="Kaydet" Command="{Binding SaveCommand}"
+                            Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                            Padding="20,10" CornerRadius="6"
+                            IsEnabled="{Binding !IsSaving}" />
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSaving}" Width="120" Height="4"
+                                 VerticalAlignment="Center" />
+                </StackPanel>
+
+                <Border Background="#E8F5E9" CornerRadius="8" Padding="12"
+                        IsVisible="{Binding SaveSuccess}">
+                    <TextBlock Text="Ayarlar başarıyla kaydedildi!" Foreground="#2E7D32" FontWeight="SemiBold" />
+                </Border>
+
+                <Border Background="#FFEBEE" CornerRadius="8" Padding="12"
+                        IsVisible="{Binding HasError}">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#C62828" />
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Ayarlar yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

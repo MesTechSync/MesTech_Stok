@@ -1,0 +1,172 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.StockLotAvaloniaView"
+             x:DataType="vm:StockLotAvaloniaViewModel">
+
+    <!-- EMR-06 Gorev 4A: Lot Ekleme — urun lot kaydi formu + son lotlar tablosu -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Lot Ekleme" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content: Form + Recent Lots -->
+        <Grid Grid.Row="1" ColumnDefinitions="400,*" Margin="16">
+
+            <!-- Left: Lot Entry Form -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="Yeni Lot Kaydi" FontSize="16" FontWeight="SemiBold"
+                               Foreground="#1E293B" Margin="0,0,0,4" />
+
+                    <!-- Urun Arama -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Urun" FontSize="12" Foreground="#64748B" />
+                        <TextBox Watermark="SKU veya urun adi ile ara..."
+                                 Text="{Binding ProductSearchText}" />
+                        <ListBox ItemsSource="{Binding ProductSuggestions}"
+                                 SelectedItem="{Binding SelectedProduct}"
+                                 MaxHeight="120"
+                                 IsVisible="{Binding ProductSuggestions.Count}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LotProductDto">
+                                    <TextBlock Text="{Binding Ad}" FontSize="13" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <!-- Lot Numarasi -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Lot Numarasi" FontSize="12" Foreground="#64748B" />
+                        <TextBox Watermark="LOT-2026-001"
+                                 Text="{Binding LotNumber}" />
+                    </StackPanel>
+
+                    <!-- Miktar + Birim Maliyet -->
+                    <Grid ColumnDefinitions="*,12,*">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Miktar" FontSize="12" Foreground="#64748B" />
+                            <NumericUpDown Value="{Binding Quantity}" Minimum="0"
+                                           FormatString="N0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Birim Maliyet (TL)" FontSize="12" Foreground="#64748B" />
+                            <NumericUpDown Value="{Binding UnitCost}" Minimum="0"
+                                           FormatString="N2" Increment="0.01" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Tedarikci -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Tedarikci" FontSize="12" Foreground="#64748B" />
+                        <ComboBox ItemsSource="{Binding Suppliers}"
+                                  SelectedItem="{Binding SelectedSupplier}"
+                                  PlaceholderText="Tedarikci secin..."
+                                  HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Son Kullanma Tarihi -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="12" Foreground="#64748B" />
+                        <DatePicker SelectedDate="{Binding ExpiryDate}"
+                                    HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Depo -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Depo" FontSize="12" Foreground="#64748B" />
+                        <ComboBox ItemsSource="{Binding Warehouses}"
+                                  SelectedItem="{Binding SelectedWarehouse}"
+                                  PlaceholderText="Depo secin..."
+                                  HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Kaydet -->
+                    <Button Content="Lot Kaydet" Command="{Binding SaveLotCommand}"
+                            Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                            Padding="16,10" CornerRadius="6"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Margin="0,8,0,0" />
+
+                    <!-- Status -->
+                    <TextBlock Text="{Binding SaveStatus}" FontSize="13"
+                               Foreground="#16A34A" FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Right: Recent Lots Table -->
+            <Border Grid.Column="1" Background="White" CornerRadius="8"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Son Lot Kayitlari" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                    </Border>
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding RecentLots}"
+                              AutoGenerateColumns="False"
+                              CanUserSortColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              Background="White">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Lot No" Binding="{Binding LotNo}" Width="140" />
+                            <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="200" />
+                            <DataGridTextColumn Header="Miktar" Binding="{Binding Quantity}" Width="80" />
+                            <DataGridTextColumn Header="B.Maliyet" Binding="{Binding UnitCost, StringFormat='{}{0:N2} TL'}" Width="110" />
+                            <DataGridTextColumn Header="Tedarikci" Binding="{Binding Supplier}" Width="160" />
+                            <DataGridTextColumn Header="Depo" Binding="{Binding Warehouse}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Lot verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,17 +1,151 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.InvoiceSettingsAvaloniaView">
-
-    <!-- Avalonia port — Fatura Ayarlari -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.InvoiceSettingsAvaloniaView"
+             x:DataType="vm:InvoiceSettingsAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
-            <TextBlock Text="Fatura Ayarlari" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Fatura Ayarlari" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Kaydet"
+                        Command="{Binding SaveCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Fatura Ayarlari" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Settings Form -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
+
+                <!-- E-Fatura Entegrasyonu -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="E-Fatura Entegrasyonu" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="E-Fatura Saglayici" FontSize="12" Foreground="#64748B" />
+                            <ComboBox ItemsSource="{Binding InvoiceProviders}"
+                                      SelectedItem="{Binding SelectedProvider}" Width="300" />
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="E-Fatura mukellefiyeti aktif"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEInvoiceActive}"
+                                          OnContent="Evet" OffContent="Hayir" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="E-Arsiv fatura otomatik olustur"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateEArchive}"
+                                          OnContent="Acik" OffContent="Kapali" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Firma Bilgileri -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Firma Bilgileri" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Firma Unvani" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding CompanyName}" Watermark="Orn: MesTech Yazilim A.S." />
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,16,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Vergi Dairesi" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding TaxOffice}" Watermark="Orn: Mecidiyekoy" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Text="Vergi No" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding TaxNumber}" Watermark="Orn: 1234567890" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Adres" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding CompanyAddress}" Watermark="Firma adresi"
+                                     AcceptsReturn="True" Height="60" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Fatura Numaralama -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Fatura Numaralama" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <Grid ColumnDefinitions="200,*">
+                            <TextBlock Grid.Column="0" Text="Seri Oneki:"
+                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Text="{Binding InvoicePrefix}"
+                                     Watermark="Orn: MES" Width="160" HorizontalAlignment="Left" />
+                        </Grid>
+                        <Grid ColumnDefinitions="200,*">
+                            <TextBlock Grid.Column="0" Text="Sonraki Numara:"
+                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                            <NumericUpDown Grid.Column="1" Value="{Binding NextInvoiceNumber}"
+                                          Minimum="1" FormatString="N0" Width="160"
+                                          HorizontalAlignment="Left" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- KDV Ayarlari -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="KDV Ayarlari" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <Grid ColumnDefinitions="200,*">
+                            <TextBlock Grid.Column="0" Text="Varsayilan KDV Orani (%):"
+                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                            <NumericUpDown Grid.Column="1" Value="{Binding DefaultVatRate}"
+                                          Minimum="0" Maximum="100" FormatString="N0" Width="160"
+                                          HorizontalAlignment="Left" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Fiyatlar KDV dahil gosterilsin"
+                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding PricesIncludeVat}"
+                                          OnContent="Evet" OffContent="Hayir" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Fatura ayarlari yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

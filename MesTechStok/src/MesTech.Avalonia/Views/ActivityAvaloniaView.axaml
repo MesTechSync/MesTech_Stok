@@ -1,17 +1,97 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.ActivityAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ActivityAvaloniaView"
+             x:DataType="vm:ActivityAvaloniaViewModel">
 
-    <!-- Avalonia port — Aktiviteler -->
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
-            <TextBlock Text="Aktiviteler" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Aktiviteler" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Aktiviteler" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="160" PlaceholderText="Aktivite tipi"
+                          ItemsSource="{Binding FilterOptions}"
+                          SelectedItem="{Binding SelectedFilter}" />
+            </StackPanel>
         </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22" Spacing="0">
+
+                <!-- Loading -->
+                <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
+                           Foreground="#64748B" HorizontalAlignment="Center" Margin="0,20" />
+
+                <!-- Error -->
+                <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
+                        CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- Empty -->
+                <TextBlock Text="Henuz aktivite bulunmuyor."
+                           IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
+
+                <!-- Timeline -->
+                <ItemsControl ItemsSource="{Binding Activities}" IsVisible="{Binding !IsLoading}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ActivityItemVm">
+                            <Border Margin="0,0,0,12" Padding="16" Background="White"
+                                    CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <!-- Icon -->
+                                    <Border Grid.Column="0" Background="#0078D4" CornerRadius="18"
+                                            Width="36" Height="36" Margin="0,0,14,0">
+                                        <TextBlock Text="{Binding TypeIcon}" Foreground="White"
+                                                   FontSize="14" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <!-- Content -->
+                                    <StackPanel Grid.Column="1" Spacing="2">
+                                        <TextBlock Text="{Binding Subject}" FontWeight="SemiBold" FontSize="14" />
+                                        <TextBlock Text="{Binding Description}" FontSize="12" Foreground="#64748B"
+                                                   TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding ContactName}" FontSize="11" Foreground="#0078D4" />
+                                            <TextBlock Text="|" FontSize="11" Foreground="#CBD5E1" />
+                                            <TextBlock Text="{Binding CreatedBy}" FontSize="11" Foreground="#94A3B8" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <!-- Time -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding TimeAgo}" FontSize="11" Foreground="#94A3B8"
+                                                   HorizontalAlignment="Right" />
+                                        <Border Background="#F1F5F9" CornerRadius="4" Padding="6,2" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="#64748B" />
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

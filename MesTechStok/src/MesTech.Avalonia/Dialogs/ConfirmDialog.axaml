@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ConfirmDialog"
+        Title="Onay"
+        Width="420" Height="220"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <!-- Title -->
+      <TextBlock x:Name="TitleText"
+                 Classes="dialog-title"
+                 Text="Onay" />
+
+      <!-- Message -->
+      <TextBlock x:Name="MessageText"
+                 Classes="dialog-body"
+                 Text="Devam etmek istiyor musunuz?"
+                 TextWrapping="Wrap" />
+
+      <!-- Actions -->
+      <StackPanel Classes="dialog-actions">
+        <Button x:Name="CancelBtn"
+                Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button x:Name="ConfirmBtn"
+                Classes="mestech-raised"
+                Content="Evet"
+                Click="OnConfirm" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

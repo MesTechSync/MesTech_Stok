@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.DropshipProfitAvaloniaView"
+             x:DataType="vm:DropshipProfitAvaloniaViewModel">
+
+    <!-- Dropshipping Karlilik — urun bazli kar analizi + tarih filtre + ozet -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Dropshipping Kârlılık Analizi" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Date Range Filter -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="13" Foreground="#64748B" />
+                <DatePicker SelectedDate="{Binding StartDate}" />
+                <TextBlock Text="—" VerticalAlignment="Center" Foreground="#94A3B8" />
+                <DatePicker SelectedDate="{Binding EndDate}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Profit DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Items}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="0"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Ürün" Binding="{Binding ProductName}" Width="*" />
+                <DataGridTextColumn Header="Adet" Binding="{Binding QuantitySold}" Width="80" />
+                <DataGridTextColumn Header="Müşteri Fiyat" Binding="{Binding CustomerPrice, StringFormat='₺{0:N2}'}" Width="130" />
+                <DataGridTextColumn Header="Tedarikçi Fiyat" Binding="{Binding SupplierPrice, StringFormat='₺{0:N2}'}" Width="130" />
+                <DataGridTextColumn Header="Komisyon" Binding="{Binding Commission, StringFormat='₺{0:N2}'}" Width="120" />
+                <DataGridTextColumn Header="Net Kâr" Binding="{Binding NetProfit, StringFormat='₺{0:N2}'}" Width="120" />
+                <DataGridTextColumn Header="Marj %" Binding="{Binding MarginPercent, StringFormat='{}{0:N1}%'}" Width="90" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Summary Row -->
+        <Border Grid.Row="3" Background="White" Padding="16" Margin="0"
+                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,*,*,*,*">
+                <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock Text="Toplam Ciro" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="{Binding TotalRevenue, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#1E293B" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="Toplam Maliyet" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="{Binding TotalCost, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#E53935" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="2">
+                    <TextBlock Text="Toplam Komisyon" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="{Binding TotalCommission, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#FF6F00" />
+                </StackPanel>
+                <StackPanel Grid.Column="3" Spacing="2">
+                    <TextBlock Text="Net Kâr" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="{Binding TotalNetProfit, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#4CAF50" />
+                </StackPanel>
+                <StackPanel Grid.Column="4" Spacing="2">
+                    <TextBlock Text="Genel Marj" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="{Binding OverallMargin, StringFormat='%{0:N1}'}" FontSize="16" FontWeight="Bold" Foreground="#0078D4" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Karlilik verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Veri Bulunamadı" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Seçilen tarih aralığında kârlılık verisi yok"
+                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

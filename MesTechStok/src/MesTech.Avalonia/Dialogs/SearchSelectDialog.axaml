@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.SearchSelectDialog"
+        Title="Arama ve Secim"
+        Width="550" Height="450"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Arama ve Secim" />
+
+      <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+        <TextBox x:Name="SearchBox"
+                 Grid.Column="0"
+                 Classes="mestech"
+                 Watermark="Aramak icin yazin..." />
+        <Button Grid.Column="1"
+                Classes="mestech-raised"
+                Content="Ara"
+                Margin="8,0,0,0"
+                Click="OnSearch" />
+      </Grid>
+
+      <TextBlock x:Name="StatusText"
+                 Grid.Row="2"
+                 FontSize="{StaticResource FontSizeSmall}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Margin="0,0,0,8"
+                 Text="Arama yapiniz..." />
+
+      <ListBox x:Name="ResultsList"
+               Grid.Row="3"
+               BorderBrush="{StaticResource BorderBrush}"
+               BorderThickness="1"
+               CornerRadius="{StaticResource CornerRadiusMedium}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:CompileBindings="False">
+            <StackPanel Spacing="2" Margin="4">
+              <TextBlock Text="{Binding Name}"
+                         FontSize="{StaticResource FontSizeBody}"
+                         Foreground="{StaticResource TextPrimaryBrush}" />
+              <TextBlock Text="{Binding Description}"
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource TextSecondaryBrush}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Row="4" Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Sec"
+                Click="OnConfirm" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

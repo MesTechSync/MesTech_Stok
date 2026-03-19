@@ -6,12 +6,12 @@
 
     <!-- Avalonia port — Ayarlar (Settings) -->
     <!-- Tab-like sections: API Ayarlari, Bildirimler, Tema -->
-    <!-- Brand color #2855AC -->
+    <!-- Brand color #0078D4 -->
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Ayarlar" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
                            Foreground="#FFFFFF99" FontSize="12"
@@ -70,7 +70,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Test Baglanti"
                                     Command="{Binding TestConnectionCommand}"
-                                    Background="#2855AC" Foreground="White"
+                                    Background="#0078D4" Foreground="White"
                                     FontWeight="SemiBold"
                                     Padding="16,8" CornerRadius="6" />
 

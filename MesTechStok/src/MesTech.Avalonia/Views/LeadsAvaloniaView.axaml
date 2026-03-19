@@ -15,7 +15,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header Bar -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Potansiyel Musteriler" Foreground="White"
@@ -27,7 +27,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Lead"
                         Command="{Binding CreateLeadCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>

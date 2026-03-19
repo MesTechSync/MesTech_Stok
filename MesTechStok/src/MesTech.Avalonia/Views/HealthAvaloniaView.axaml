@@ -1,17 +1,135 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.HealthAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.HealthAvaloniaView"
+             x:DataType="vm:HealthAvaloniaViewModel">
 
-    <!-- Avalonia port — Sistem Sagligi -->
+    <!-- EMR-12: Sistem Sagligi — CPU, RAM, Disk, DB baglanti durumu -->
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="Sistem Sagligi" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Sistem Sagligi" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding LastUpdated, StringFormat='Son: {0}'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Sistem Sagligi" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel Spacing="16">
+
+                <!-- KPI Cards Row -->
+                <WrapPanel Orientation="Horizontal">
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="CPU Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding CpuUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
+                                <Border CornerRadius="4" Height="6" Background="#0078D4"
+                                        HorizontalAlignment="Left" Width="120" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="RAM Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding RamUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
+                                <Border CornerRadius="4" Height="6" Background="#059669"
+                                        HorizontalAlignment="Left" Width="140" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Disk Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding DiskUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
+                                <Border CornerRadius="4" Height="6" Background="#EA580C"
+                                        HorizontalAlignment="Left" Width="100" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <!-- Service Status Table -->
+                <Border Background="White" CornerRadius="8"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,12"
+                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Servis Durumu" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding ServiceStatuses}"
+                                  AutoGenerateColumns="False"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="White"
+                                  MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Servis" Binding="{Binding ServiceName}" Width="200" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                                <DataGridTextColumn Header="Yanit Suresi" Binding="{Binding ResponseTime}" Width="120" />
+                                <DataGridTextColumn Header="Son Kontrol" Binding="{Binding LastCheck}" Width="160" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Sistem durumu kontrol ediliyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

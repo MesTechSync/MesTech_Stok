@@ -1,17 +1,112 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.TimeEntryAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.TimeEntryAvaloniaView"
+             x:DataType="vm:TimeEntryAvaloniaViewModel">
 
-    <!-- Avalonia port — Zaman Kaydi -->
+    <!-- EMR-12: Zaman Kaydi — tarih, saat, proje, aciklama girisi -->
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
-            <TextBlock Text="Zaman Kaydi" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Zaman Kaydi" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Zaman Kaydi" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel Spacing="16">
+
+                <!-- New Entry Form -->
+                <Border Background="White" CornerRadius="8" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Yeni Zaman Kaydi" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                            <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
+                                <TextBlock Text="Tarih" FontSize="12" Foreground="#64748B" />
+                                <DatePicker SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
+                                <TextBlock Text="Baslangic Saati" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding StartTime}" Watermark="09:00" Padding="10,8" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                                <TextBlock Text="Bitis Saati" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding EndTime}" Watermark="18:00" Padding="10,8" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4" Margin="0,0,12,0">
+                                <TextBlock Text="Proje" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding ProjectName}" Watermark="Proje adi" Padding="10,8" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
+                                <TextBlock Text="Aciklama" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding Description}" Watermark="Yapilan is aciklamasi" Padding="10,8" />
+                            </StackPanel>
+                        </Grid>
+                        <Button Content="Kaydet" Command="{Binding SaveEntryCommand}"
+                                Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                Padding="16,8" CornerRadius="6" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Time Entry List -->
+                <Border Background="White" CornerRadius="8"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,12"
+                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Zaman Kayitlari" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding TimeEntries}"
+                                  AutoGenerateColumns="False"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="White"
+                                  MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
+                                <DataGridTextColumn Header="Baslangic" Binding="{Binding StartTime}" Width="100" />
+                                <DataGridTextColumn Header="Bitis" Binding="{Binding EndTime}" Width="100" />
+                                <DataGridTextColumn Header="Sure" Binding="{Binding Duration}" Width="80" />
+                                <DataGridTextColumn Header="Proje" Binding="{Binding Project}" Width="160" />
+                                <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="250" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Zaman kayitlari yukleniyor..."
+                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

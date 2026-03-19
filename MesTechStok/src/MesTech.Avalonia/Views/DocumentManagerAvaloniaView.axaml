@@ -1,17 +1,78 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.DocumentManagerAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.DocumentManagerAvaloniaView"
+             x:DataType="vm:DocumentManagerAvaloniaViewModel">
 
-    <!-- Avalonia port — Belge Yonetici -->
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#D97706" Padding="20,14">
-            <TextBlock Text="Belge Yonetici" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Belge Yoneticisi" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} belge'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Belge Yukle"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Belge Yonetici" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBox Width="260" Watermark="Belge ara..."
+                         Text="{Binding SearchText}" />
+                <ComboBox Width="120" PlaceholderText="Tip"
+                          ItemsSource="{Binding TypeOptions}"
+                          SelectedItem="{Binding SelectedType}" />
+            </StackPanel>
         </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="2">
+            <!-- Loading -->
+            <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
+                       Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+            <!-- Error -->
+            <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
+                    CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
+                    VerticalAlignment="Top">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Empty -->
+            <TextBlock Text="Henuz belge bulunmuyor."
+                       IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
+
+            <!-- Data Grid -->
+            <DataGrid ItemsSource="{Binding Documents}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="White"
+                      IsVisible="{Binding !IsLoading}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Belge Adi" Binding="{Binding Name}" Width="220" />
+                    <DataGridTextColumn Header="Klasor" Binding="{Binding Folder}" Width="130" />
+                    <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="80" />
+                    <DataGridTextColumn Header="Boyut" Binding="{Binding Size}" Width="90" />
+                    <DataGridTextColumn Header="Yukleyen" Binding="{Binding UploadedBy}" Width="120" />
+                    <DataGridTextColumn Header="Tarih" Binding="{Binding UploadedDisplay}" Width="100" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </UserControl>

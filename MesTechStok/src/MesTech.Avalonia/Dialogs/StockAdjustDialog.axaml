@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.StockAdjustDialog"
+        Title="Stok Duzeltme"
+        Width="450" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <TextBlock Classes="dialog-title"
+                 Text="Stok Duzeltme" />
+
+      <!-- Product Info (readonly) -->
+      <Border Background="#F8FAFC"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Padding="12">
+        <StackPanel Spacing="4">
+          <TextBlock x:Name="ProductNameText"
+                     FontSize="{StaticResource FontSizeBody}"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource TextPrimaryBrush}" />
+          <TextBlock x:Name="CurrentStockText"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}" />
+        </StackPanel>
+      </Border>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Miktar (+/-)"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <NumericUpDown x:Name="QuantityInput"
+                       Minimum="-99999" Maximum="99999" Value="0"
+                       HorizontalAlignment="Stretch" />
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="Sebep"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}" />
+        <TextBox x:Name="ReasonBox"
+                 Classes="mestech"
+                 Watermark="Duzeltme sebebini giriniz" />
+      </StackPanel>
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Uygula"
+                Click="OnApply" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

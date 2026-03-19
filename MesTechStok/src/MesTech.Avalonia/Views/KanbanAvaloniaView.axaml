@@ -14,14 +14,14 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Firsatlar — Kanban" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
-                            Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="6" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
                             Background="Transparent" Foreground="White"
@@ -83,7 +83,7 @@
                                                                    FontSize="11" Foreground="#64748B" />
                                                         <TextBlock Text="{Binding Amount, StringFormat='TL {0:N0}'}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#2855AC" Margin="0,2,0,0" />
+                                                                   Foreground="#0078D4" Margin="0,2,0,0" />
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>

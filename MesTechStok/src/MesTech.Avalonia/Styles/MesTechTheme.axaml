@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <!-- MesTech Antigravity - Canonical Brand Colors (Avalonia) -->
-  <SolidColorBrush x:Key="MesTechPrimary" Color="#2855AC"/>
+  <SolidColorBrush x:Key="MesTechPrimary" Color="#0078D4"/>
   <SolidColorBrush x:Key="MesTechSecondary" Color="#00897B"/>
   <SolidColorBrush x:Key="MesTechAccent" Color="#FF6F00"/>
   <SolidColorBrush x:Key="MesTechBackground" Color="#FAFAFA"/>
@@ -13,7 +13,7 @@
 
   <!-- Primary Gradient -->
   <LinearGradientBrush x:Key="MesTechPrimaryGradient" StartPoint="0%,0%" EndPoint="100%,100%">
-    <GradientStop Color="#2855AC" Offset="0"/>
+    <GradientStop Color="#0078D4" Offset="0"/>
     <GradientStop Color="#1E3D7A" Offset="1"/>
   </LinearGradientBrush>
 

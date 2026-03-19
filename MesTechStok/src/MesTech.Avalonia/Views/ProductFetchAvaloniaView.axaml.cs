@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ThemeTestView : UserControl
+public partial class ProductFetchAvaloniaView : UserControl
 {
-    public ThemeTestView()
+    public ProductFetchAvaloniaView()
     {
         InitializeComponent();
     }

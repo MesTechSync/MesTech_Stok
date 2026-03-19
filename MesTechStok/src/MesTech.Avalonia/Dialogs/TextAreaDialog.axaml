@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.TextAreaDialog"
+        Title="Metin Girisi"
+        Width="500" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <StackPanel Spacing="16">
+
+      <TextBlock x:Name="TitleText"
+                 Classes="dialog-title"
+                 Text="Metin Girisi" />
+
+      <TextBlock x:Name="LabelText"
+                 Classes="dialog-body"
+                 Text="Metni giriniz:" />
+
+      <TextBox x:Name="TextAreaBox"
+               Classes="mestech"
+               AcceptsReturn="True"
+               Height="150"
+               TextWrapping="Wrap"
+               Watermark="Yaziniz..." />
+
+      <StackPanel Classes="dialog-actions">
+        <Button Classes="mestech-outline"
+                Content="Iptal"
+                Click="OnCancel" />
+        <Button Classes="mestech-raised"
+                Content="Tamam"
+                Click="OnConfirm" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+
+</Window>

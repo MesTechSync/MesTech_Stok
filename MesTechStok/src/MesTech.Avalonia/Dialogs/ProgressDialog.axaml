@@ -1,0 +1,58 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.ProgressDialog"
+        Title="Islem Durumu"
+        Width="450" Height="350"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Islem Devam Ediyor..." />
+
+      <ProgressBar x:Name="ProgressBarCtrl"
+                   Grid.Row="1"
+                   Minimum="0" Maximum="100" Value="0"
+                   Height="8"
+                   Margin="0,8,0,8"
+                   Foreground="{StaticResource PrimaryBlueBrush}" />
+
+      <TextBlock x:Name="StatusText"
+                 Grid.Row="2"
+                 FontSize="{StaticResource FontSizeSmall}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Text="Baslatiliyor..."
+                 Margin="0,0,0,8" />
+
+      <ListBox x:Name="ErrorList"
+               Grid.Row="3"
+               BorderBrush="{StaticResource ErrorRedBrush}"
+               BorderThickness="1"
+               CornerRadius="{StaticResource CornerRadiusMedium}"
+               IsVisible="False">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource ErrorRedBrush}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Row="4" Classes="dialog-actions">
+        <Button x:Name="CloseBtn"
+                Classes="mestech-raised"
+                Content="Kapat"
+                IsEnabled="False"
+                Click="OnClose" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>

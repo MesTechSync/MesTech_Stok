@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ImportSettingsAvaloniaView"
+             x:DataType="vm:ImportSettingsAvaloniaViewModel">
+
+    <!-- Icerik Aktarma Ayarlari — kolon eslestirme sablon yonetimi -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="İçe Aktarma Şablonları" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} şablon'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Yeni Şablon"
+                        Command="{Binding CreateTemplateCommand}"
+                        Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content: Template List or Edit Mode -->
+        <Grid Grid.Row="1">
+
+            <!-- Template List (when not editing) -->
+            <DataGrid ItemsSource="{Binding Templates}"
+                      AutoGenerateColumns="False"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="White"
+                      Margin="16"
+                      IsVisible="{Binding !IsEditing}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Şablon Adı" Binding="{Binding Name}" Width="*" />
+                    <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="100" />
+                    <DataGridTextColumn Header="Alan Sayısı" Binding="{Binding FieldCount}" Width="100" />
+                    <DataGridTextColumn Header="Son Kullanım" Binding="{Binding LastUsed}" Width="140" />
+                    <DataGridTemplateColumn Header="İşlem" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:ImportTemplateDto">
+                                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                    <Button Content="Düzenle"
+                                            Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).EditTemplateCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="#0078D4" Foreground="White"
+                                            FontSize="11" Padding="8,3" CornerRadius="4" />
+                                    <Button Content="Sil"
+                                            Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).DeleteTemplateCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="#FFEBEE" Foreground="#C62828"
+                                            FontSize="11" Padding="8,3" CornerRadius="4" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Edit Mode -->
+            <ScrollViewer IsVisible="{Binding IsEditing}" Padding="24">
+                <StackPanel MaxWidth="600" Spacing="16">
+                    <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="Şablon Düzenle" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Şablon Adı" FontSize="12" Foreground="#64748B" />
+                                <TextBox Text="{Binding EditTemplateName}" Padding="10,8" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Alan Eşleştirmeleri" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" />
+                                <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddFieldMappingCommand}"
+                                        Background="#0078D4" Foreground="White" Padding="8,4" CornerRadius="4" FontSize="12" />
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding EditMappings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ImportFieldMappingDto">
+                                        <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,4">
+                                            <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak" Padding="8,6" Margin="0,0,6,0" />
+                                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" Foreground="#94A3B8" Margin="4,0" />
+                                            <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef" Padding="8,6" Margin="0,0,6,0" />
+                                            <Button Grid.Column="3" Content="X" FontSize="11"
+                                                    Command="{Binding $parent[ItemsControl].((vm:ImportSettingsAvaloniaViewModel)DataContext).RemoveFieldMappingCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Background="#FFEBEE" Foreground="#C62828"
+                                                    Padding="6,2" CornerRadius="4" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Kaydet" Command="{Binding SaveTemplateCommand}"
+                                Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                                Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
+                        <Button Content="İptal" Command="{Binding CancelEditCommand}"
+                                Background="#94A3B8" Foreground="White" Padding="16,10" CornerRadius="6" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Sablonlar yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Şablon Bulunamadı" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Henüz içe aktarma şablonu tanımlanmamış"
+                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

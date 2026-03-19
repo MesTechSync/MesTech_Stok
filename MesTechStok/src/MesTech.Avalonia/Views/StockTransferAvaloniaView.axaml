@@ -1,0 +1,177 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.StockTransferAvaloniaView"
+             x:DataType="vm:StockTransferAvaloniaViewModel">
+
+    <!-- EMR-06 Gorev 4A: Depolar Arasi Transfer — kaynak/hedef depo urun transferi -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Depolar Arasi Transfer" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content: Transfer Form + History -->
+        <Grid Grid.Row="1" ColumnDefinitions="420,*" Margin="16">
+
+            <!-- Left: Transfer Form -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="Yeni Transfer" FontSize="16" FontWeight="SemiBold"
+                               Foreground="#1E293B" Margin="0,0,0,4" />
+
+                    <!-- Kaynak Depo -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="#64748B" />
+                        <ComboBox ItemsSource="{Binding Warehouses}"
+                                  SelectedItem="{Binding SelectedSourceWarehouse}"
+                                  PlaceholderText="Kaynak depo secin..."
+                                  HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Hedef Depo -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Hedef Depo" FontSize="12" Foreground="#64748B" />
+                        <ComboBox ItemsSource="{Binding Warehouses}"
+                                  SelectedItem="{Binding SelectedTargetWarehouse}"
+                                  PlaceholderText="Hedef depo secin..."
+                                  HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Urun Secimi -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Urun Ara" FontSize="12" Foreground="#64748B" />
+                        <TextBox Watermark="SKU veya urun adi..."
+                                 Text="{Binding ProductSearchText}" />
+                        <ListBox ItemsSource="{Binding SourceProducts}"
+                                 SelectedItem="{Binding SelectedProduct}"
+                                 MaxHeight="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TransferProductDto">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding Ad}" FontSize="13"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Miktar, StringFormat='Stok: {0}'}"
+                                                   FontSize="12" Foreground="#64748B"
+                                                   VerticalAlignment="Center" Margin="8,0" />
+                                        <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                                                Background="{Binding StokDurumRenk}">
+                                            <TextBlock Text="{Binding StokDurum}" FontSize="10"
+                                                       Foreground="White" FontWeight="Bold" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <!-- Transfer Miktari -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Transfer Miktari" FontSize="12" Foreground="#64748B" />
+                        <NumericUpDown Value="{Binding TransferQuantity}" Minimum="0"
+                                       FormatString="N0" />
+                    </StackPanel>
+
+                    <!-- Stok Bilgisi -->
+                    <Border Background="#F1F5F9" CornerRadius="6" Padding="12,8">
+                        <Grid ColumnDefinitions="*,*">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="#64748B" />
+                                <TextBlock Text="{Binding SourceStock}" FontSize="16" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="Kalan Stok" FontSize="11" Foreground="#64748B" />
+                                <TextBlock Text="{Binding RemainingStock}" FontSize="16" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Transfer Butonu -->
+                    <Button Content="Transfer Et" Command="{Binding TransferCommand}"
+                            Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                            Padding="16,10" CornerRadius="6"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Margin="0,4,0,0" />
+
+                    <!-- Status -->
+                    <TextBlock Text="{Binding TransferStatus}" FontSize="13"
+                               Foreground="#16A34A" FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Right: Transfer History -->
+            <Border Grid.Column="1" Background="White" CornerRadius="8"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Transfer Gecmisi" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#1E293B" />
+                    </Border>
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding TransferHistory}"
+                              AutoGenerateColumns="False"
+                              CanUserSortColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              Background="White">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120" />
+                            <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="200" />
+                            <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="110" />
+                            <DataGridTextColumn Header="Hedef" Binding="{Binding Target}" Width="110" />
+                            <DataGridTextColumn Header="Miktar" Binding="{Binding Quantity}" Width="80" />
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" Width="140" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Transfer verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

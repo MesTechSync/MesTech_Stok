@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.CrmSettingsAvaloniaView"
+             x:DataType="vm:CrmSettingsAvaloniaViewModel">
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="CRM Ayarlari" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Grid.Column="0" />
+                <Button Grid.Column="1" Content="Kaydet" Command="{Binding SaveSettingsCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6"
+                        IsEnabled="{Binding !IsSaving}" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22" Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
+
+                <!-- MESA AI Settings -->
+                <Border Background="White" CornerRadius="10" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="15" />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="MESA AI Otomatik Yanit" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Gelen mesajlar icin AI yanit onerisi olusturur"
+                                           FontSize="11" Foreground="#64748B" />
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" IsChecked="{Binding IsMesaAiEnabled}"
+                                      VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Message Check Interval -->
+                <Border Background="White" CornerRadius="10" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="15" />
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <NumericUpDown Value="{Binding MessageCheckIntervalMinutes}"
+                                           Minimum="1" Maximum="60" Increment="1"
+                                           Width="120" />
+                            <TextBlock Text="dakika" VerticalAlignment="Center"
+                                       FontSize="13" Foreground="#64748B" />
+                        </StackPanel>
+                        <TextBlock Text="Platformlardan yeni mesaj kontrolu bu aralikta yapilir."
+                                   FontSize="11" Foreground="#94A3B8" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Quick Reply Templates -->
+                <Border Background="White" CornerRadius="10" Padding="20"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="15" />
+
+                        <ListBox ItemsSource="{Binding QuickReplyTemplates}"
+                                 SelectedItem="{Binding SelectedTemplate}"
+                                 MinHeight="120" MaxHeight="280"
+                                 Background="#F8FAFC"
+                                 CornerRadius="6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap"
+                                               FontSize="12" Padding="4,6" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Add template -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                            <TextBox Grid.Column="0" Text="{Binding NewTemplateText}"
+                                     Watermark="Yeni sablon metni..."
+                                     Margin="0,0,8,0" />
+                            <Button Grid.Column="1" Content="Ekle" Command="{Binding AddTemplateCommand}"
+                                    Background="#10B981" Foreground="White" Padding="14,8"
+                                    CornerRadius="6" FontWeight="SemiBold" />
+                        </Grid>
+
+                        <!-- Remove selected -->
+                        <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
+                                Background="#EF4444" Foreground="White" Padding="14,8"
+                                CornerRadius="6" FontSize="12"
+                                HorizontalAlignment="Left"
+                                IsEnabled="{Binding SelectedTemplate, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.SupplierFeedListAvaloniaView"
+             x:DataType="vm:SupplierFeedListAvaloniaViewModel">
+
+    <!-- Tedarikci Feed Listesi — DataGrid + yeni feed butonu -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Tedarikçi Feed'leri" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} feed'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Feed DataGrid -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Feeds}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="16">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Feed Adı" Binding="{Binding FeedName}" Width="220" />
+                <DataGridTextColumn Header="Tip" Binding="{Binding FeedType}" Width="100" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100" />
+                <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding LastSync}" Width="180" />
+                <DataGridTextColumn Header="Ürün Sayısı" Binding="{Binding ProductCount, StringFormat='{}{0:N0}'}" Width="120" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Feed listesi yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Feed Bulunamadı" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Henüz tedarikçi feed'i tanımlanmamış"
+                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="#F7F9FC" IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"
+                           Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        Padding="16,6" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

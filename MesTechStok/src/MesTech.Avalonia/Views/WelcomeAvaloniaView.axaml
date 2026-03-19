@@ -1,17 +1,104 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.WelcomeAvaloniaView">
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.WelcomeAvaloniaView"
+             x:DataType="vm:WelcomeAvaloniaViewModel">
 
-    <!-- Avalonia port — Hos Geldiniz -->
+    <!-- EMR-12: Karsilama Ekrani — logo + hosgeldin mesaji + son aktiviteler -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#475569" Padding="20,14">
-            <TextBlock Text="Hos Geldiniz" Foreground="White" FontSize="18" FontWeight="SemiBold" />
-        </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Hos Geldiniz" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+    <Grid Background="#F8FAFC">
+
+        <ScrollViewer Padding="40">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24" MaxWidth="600">
+
+                <!-- Logo Area -->
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <Border Background="#EBF0FA" CornerRadius="50" Width="96" Height="96"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="M" FontSize="44" FontWeight="Bold"
+                                   Foreground="#0078D4"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="MesTech Stok" FontSize="28" FontWeight="Bold"
+                               Foreground="#1E293B" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding WelcomeText}" FontSize="15"
+                               Foreground="#64748B" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Quick Stats -->
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#0078D4" HorizontalAlignment="Center" />
+                            <TextBlock Text="Urun" FontSize="12" Foreground="#64748B"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalOrders}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#059669" HorizontalAlignment="Center" />
+                            <TextBlock Text="Siparis" FontSize="12" Foreground="#64748B"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
+                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding ActivePlatforms}" FontSize="28" FontWeight="Bold"
+                                       Foreground="#EA580C" HorizontalAlignment="Center" />
+                            <TextBlock Text="Platform" FontSize="12" Foreground="#64748B"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <!-- Recent Activity -->
+                <Border Background="White" CornerRadius="8"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,12"
+                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Son Aktiviteler" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                        </Border>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding RecentActivities}" Margin="0,0,0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="16,10" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding Description}"
+                                                       FontSize="13" Foreground="#1E293B" />
+                                            <TextBlock Grid.Column="1" Text="{Binding TimeAgo}"
+                                                       FontSize="12" Foreground="#94A3B8" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Border>
+
+                <!-- Version -->
+                <TextBlock Text="MesTech Stok v10.0 — Avalonia"
+                           FontSize="11" Foreground="#94A3B8"
+                           HorizontalAlignment="Center" />
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Veriler yukleniyor..."
+                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

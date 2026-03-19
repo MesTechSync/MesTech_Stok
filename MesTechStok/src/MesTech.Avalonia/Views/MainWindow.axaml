@@ -272,6 +272,46 @@
                                     <TextBlock Text="Fatura Yönetimi"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="InvoiceList">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
+                                    <TextBlock Text="Fatura Listesi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="InvoiceCreate">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
+                                    <TextBlock Text="Fatura Oluştur"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="BulkInvoice">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
+                                    <TextBlock Text="Toplu Fatura"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="InvoiceProviders">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="Provider Ayarları"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="InvoiceReport">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Fatura Raporları"/>
+                                </StackPanel>
+                            </Button>
 
                             <!-- 8. FINANS -->
                             <TextBlock Classes="sidebar-section" Text="FİNANS"/>
@@ -343,12 +383,97 @@
                                 </StackPanel>
                             </Button>
 
-                            <!-- 10. DROPSHIPPING -->
-                            <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
-                            <Button Classes="sidebar-disabled">
+                            <!-- 10. PLATFORM -->
+                            <TextBlock Classes="sidebar-section" Text="PLATFORM"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="PlatformList">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
-                                    <TextBlock Text="Dropshipping (Yakında)"/>
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Platformlar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="StoreWizard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
+                                    <TextBlock Text="Mağaza Ekle"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="StoreSettings">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="Mağaza Ayarları"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CategoryMapping">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconCategory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kategori Eşleştirme"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="PlatformSyncStatus">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Sync Durumu"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 10b. DROPSHIPPING -->
+                            <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="DropshipDashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Dropship Paneli"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="DropshipOrders">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Dropship Siparişler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="DropshipProfit">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kârlılık Analizi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="SupplierFeeds">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
+                                    <TextBlock Text="Tedarikçi Feed'leri"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="FeedCreate">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
+                                    <TextBlock Text="Yeni Feed"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ImportSettings">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="İçe Aktarma Ayarları"/>
                                 </StackPanel>
                             </Button>
 
@@ -519,6 +644,68 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:CargoTrackingAvaloniaViewModel">
                             <views:CargoTrackingAvaloniaView />
+                        </DataTemplate>
+                        <!-- Invoice views (e-Fatura batch) -->
+                        <DataTemplate DataType="vm:InvoiceListAvaloniaViewModel">
+                            <views:InvoiceListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceCreateAvaloniaViewModel">
+                            <views:InvoiceCreateAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BulkInvoiceAvaloniaViewModel">
+                            <views:BulkInvoiceAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoicePdfAvaloniaViewModel">
+                            <views:InvoicePdfAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceProviderSettingsAvaloniaViewModel">
+                            <views:InvoiceProviderSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceReportAvaloniaViewModel">
+                            <views:InvoiceReportAvaloniaView />
+                        </DataTemplate>
+                        <!-- EMR-10 Platform + Dropshipping views -->
+                        <DataTemplate DataType="vm:PlatformListAvaloniaViewModel">
+                            <views:PlatformListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StoreWizardAvaloniaViewModel">
+                            <views:StoreWizardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CategoryMappingAvaloniaViewModel">
+                            <views:CategoryMappingAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DropshipDashboardAvaloniaViewModel">
+                            <views:DropshipDashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FeedPreviewAvaloniaViewModel">
+                            <views:FeedPreviewAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StoreSettingsAvaloniaViewModel">
+                            <views:StoreSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StoreDetailAvaloniaViewModel">
+                            <views:StoreDetailAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProductFetchAvaloniaViewModel">
+                            <views:ProductFetchAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SupplierFeedListAvaloniaViewModel">
+                            <views:SupplierFeedListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FeedCreateAvaloniaViewModel">
+                            <views:FeedCreateAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DropshipOrdersAvaloniaViewModel">
+                            <views:DropshipOrdersAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DropshipProfitAvaloniaViewModel">
+                            <views:DropshipProfitAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ImportSettingsAvaloniaViewModel">
+                            <views:ImportSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PlatformSyncStatusAvaloniaViewModel">
+                            <views:PlatformSyncStatusAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

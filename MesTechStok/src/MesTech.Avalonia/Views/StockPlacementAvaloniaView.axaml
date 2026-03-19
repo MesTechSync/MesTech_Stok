@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.StockPlacementAvaloniaView"
+             x:DataType="vm:StockPlacementAvaloniaViewModel">
+
+    <!-- EMR-06 Gorev 4A: Stok Yerlesim — depo/raf bazli urun goruntuleme -->
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Stok Yerlesim" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar: Depo + Raf + Arama -->
+        <Border Grid.Row="1" Background="White" Padding="16,10"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <ComboBox Width="180" ItemsSource="{Binding Warehouses}"
+                              SelectedItem="{Binding SelectedWarehouse}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Raf:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <ComboBox Width="120" ItemsSource="{Binding Shelves}"
+                              SelectedItem="{Binding SelectedShelf}"
+                              PlaceholderText="Tumu" />
+                </StackPanel>
+                <TextBox Width="280" Watermark="SKU veya urun adi ara..."
+                         Text="{Binding SearchText}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Placement DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Items}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="130" />
+                <DataGridTextColumn Header="Urun Adi" Binding="{Binding Ad}" Width="250" />
+                <DataGridTextColumn Header="Depo" Binding="{Binding Depo}" Width="120" />
+                <DataGridTextColumn Header="Raf" Binding="{Binding Raf}" Width="80" />
+                <DataGridTextColumn Header="Miktar" Binding="{Binding Miktar}" Width="90" />
+                <DataGridTextColumn Header="Min Stok" Binding="{Binding MinimumStock}" Width="90" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding StokDurum}" Width="100" />
+            </DataGrid.Columns>
+
+            <DataGrid.Styles>
+                <!-- EMR-06 renk tablosu — stok durumu satir renklendirme -->
+                <Style Selector="DataGridRow" x:DataType="vm:PlacementItemDto">
+                    <Style Selector="^[Tag=TUKENDI]">
+                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=KRITIK]">
+                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=DUSUK]">
+                        <Setter Property="Background" Value="#F57C00" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                    <Style Selector="^[Tag=YETERLI]">
+                        <Setter Property="Background" Value="#E8F5E9" />
+                    </Style>
+                </Style>
+            </DataGrid.Styles>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Yerlesim verileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Yerlesim verisi bulunamadi" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secili depo/raf icin urun bulunamadi"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

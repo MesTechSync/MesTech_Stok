@@ -1,17 +1,158 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MesTech.Avalonia.Views.ReportAvaloniaView">
-
-    <!-- Avalonia port — Raporlar -->
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ReportAvaloniaView"
+             x:DataType="vm:ReportAvaloniaViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
-        <Border Grid.Row="0" Background="#2563EB" Padding="20,14">
-            <TextBlock Text="Raporlar" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Raporlar" Foreground="White"
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Margin="22" Padding="24"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <TextBlock Text="Avalonia port — Raporlar" FontSize="14" Foreground="#64748B"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="320,*" Margin="16">
+
+            <!-- Left Panel: Report Types -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0" Padding="0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Rapor Tipi" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding ReportTypes}"
+                             SelectedItem="{Binding SelectedReportType}"
+                             Padding="4">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ReportTypeDto">
+                                <Border Padding="12,10" CornerRadius="6" Margin="2">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#1E293B" />
+                                        <TextBlock Text="{Binding Description}" FontSize="12"
+                                                   Foreground="#64748B" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Right Panel: Report Config + Result -->
+            <Border Grid.Column="1" Background="White" CornerRadius="12"
+                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0" Padding="0">
+                <Grid RowDefinitions="Auto,Auto,*">
+
+                    <!-- Config Bar -->
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="{Binding SelectedReportType.Name, FallbackValue='Rapor Secin'}"
+                                       FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Baslangic" FontSize="11" Foreground="#64748B" />
+                                    <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Bitis" FontSize="11" Foreground="#64748B" />
+                                    <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                                </StackPanel>
+                                <Button Content="Rapor Olustur"
+                                        Command="{Binding GenerateReportCommand}"
+                                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                        Padding="16,8" CornerRadius="6"
+                                        VerticalAlignment="Bottom" />
+                                <Button Content="Excel'e Aktar"
+                                        Command="{Binding ExportExcelCommand}"
+                                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                                        Padding="16,8" CornerRadius="6"
+                                        VerticalAlignment="Bottom" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Summary -->
+                    <Border Grid.Row="1" Padding="16,10" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1"
+                            IsVisible="{Binding HasReportResult}">
+                        <StackPanel Orientation="Horizontal" Spacing="24">
+                            <StackPanel>
+                                <TextBlock Text="Toplam Satir" FontSize="11" Foreground="#94A3B8" />
+                                <TextBlock Text="{Binding TotalCount}" FontSize="16" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Toplam Tutar" FontSize="11" Foreground="#94A3B8" />
+                                <TextBlock Text="{Binding TotalAmount}" FontSize="16" FontWeight="Bold"
+                                           Foreground="#2563EB" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Report Result DataGrid -->
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding ReportItems}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              CanUserSortColumns="True"
+                              CanUserResizeColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
+                            <DataGridTextColumn Header="Referans" Binding="{Binding Reference}" Width="120" />
+                            <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140" />
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="130" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Rapor olusturuluyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1"
+                Background="#F7F9FC"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Rapor sonucu bos" FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen rapor tipi ve tarih araligi icin veri bulunamadi"
+                           FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

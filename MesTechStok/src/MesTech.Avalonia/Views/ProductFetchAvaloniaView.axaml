@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ProductFetchAvaloniaView"
+             x:DataType="vm:ProductFetchAvaloniaViewModel">
+
+    <!-- Urun Cekme — URL'den urun bilgisi cekme ve kaydetme -->
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <TextBlock Text="Ürün Çekme" Foreground="White"
+                       FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </Border>
+
+        <!-- URL Input -->
+        <Border Grid.Row="1" Background="White" Padding="16,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBox Width="600" Watermark="Ürün URL'si giriniz..."
+                         Text="{Binding ProductUrl}" Padding="10,8" />
+                <Button Content="Çek" Command="{Binding FetchProductCommand}"
+                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+                <Button Content="Temizle" Command="{Binding ResetCommand}"
+                        Background="#94A3B8" Foreground="White"
+                        Padding="16,8" CornerRadius="6" />
+            </StackPanel>
+        </Border>
+
+        <!-- Product Info -->
+        <ScrollViewer Grid.Row="2" Padding="24">
+            <StackPanel MaxWidth="700" Spacing="16">
+
+                <!-- Product Card (visible after fetch) -->
+                <Border Background="White" CornerRadius="8" Padding="24"
+                        BorderBrush="#E5E9F2" BorderThickness="1"
+                        IsVisible="{Binding ProductLoaded}">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="Çekilen Ürün Bilgileri" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                        <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Ürün Adı:" FontSize="13" Foreground="#64748B" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FetchedName}" FontSize="13" FontWeight="SemiBold" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Fiyat:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FetchedPrice, StringFormat='₺{0:N2}'}"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#0078D4" Margin="0,6,0,0" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="SKU:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FetchedSKU}" FontSize="13" Margin="0,6,0,0" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Stok:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FetchedStock}" FontSize="13" Margin="0,6,0,0" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Kategori:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FetchedCategory}" FontSize="13" Margin="0,6,0,0" />
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Platform:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding FetchedPlatform}" FontSize="13" Margin="0,6,0,0" />
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Açıklama:" FontSize="13" Foreground="#64748B" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding FetchedDescription}" FontSize="13"
+                                       TextWrapping="Wrap" Margin="0,6,0,0" />
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
+                            <Button Content="Ürün Olarak Kaydet" Command="{Binding SaveProductCommand}"
+                                    Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                                    Padding="20,10" CornerRadius="6"
+                                    IsEnabled="{Binding !IsSaving}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Save Success -->
+                <Border Background="#E8F5E9" CornerRadius="8" Padding="16"
+                        IsVisible="{Binding SaveCompleted}">
+                    <TextBlock Text="Ürün başarıyla kaydedildi!" FontSize="15" FontWeight="SemiBold" Foreground="#2E7D32" />
+                </Border>
+
+                <!-- Error -->
+                <Border Background="#FFEBEE" CornerRadius="8" Padding="12"
+                        IsVisible="{Binding HasError}">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#C62828" />
+                </Border>
+
+                <!-- Empty state before fetch -->
+                <StackPanel IsVisible="{Binding !ProductLoaded}" HorizontalAlignment="Center" Margin="0,48,0,0">
+                    <TextBlock Text="Ürün URL'si girin ve 'Çek' butonuna tıklayın"
+                               FontSize="16" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Ürün bilgileri çekiliyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
