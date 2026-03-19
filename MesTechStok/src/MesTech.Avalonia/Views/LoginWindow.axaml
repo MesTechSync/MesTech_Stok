@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Views.LoginWindow"
+        Title="MesTech — Giriş"
+        Width="420" Height="520"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        Background="{StaticResource BackgroundBrush}">
+
+  <Border Background="{StaticResource SurfaceBrush}"
+          CornerRadius="{StaticResource CornerRadiusLarge}"
+          Margin="32"
+          Padding="32"
+          VerticalAlignment="Center"
+          BoxShadow="0 4 24 0 #22000000">
+    <StackPanel Spacing="16">
+
+      <!-- Logo / Baslik -->
+      <StackPanel HorizontalAlignment="Center" Spacing="4" Margin="0,0,0,8">
+        <TextBlock Text="MesTech"
+                   FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
+                   Foreground="{StaticResource PrimaryBlueBrush}"
+                   HorizontalAlignment="Center"/>
+        <TextBlock Text="Entegratör Stok Yönetimi"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   HorizontalAlignment="Center"/>
+      </StackPanel>
+
+      <!-- Kullanici adi -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="Kullanıcı Adı"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBox x:Name="UsernameBox"
+                 Watermark="Kullanıcı adınızı girin"
+                 FontSize="{StaticResource FontSizeBody}"/>
+      </StackPanel>
+
+      <!-- Sifre -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="Şifre"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBox x:Name="PasswordBox"
+                 PasswordChar="●"
+                 Watermark="Şifrenizi girin"
+                 FontSize="{StaticResource FontSizeBody}"/>
+      </StackPanel>
+
+      <!-- Beni Hatirla -->
+      <CheckBox x:Name="RememberMeCheck"
+                Content="Beni Hatırla"
+                FontSize="{StaticResource FontSizeSmall}"
+                Foreground="{StaticResource TextSecondaryBrush}"/>
+
+      <!-- Giris butonu -->
+      <Button x:Name="LoginButton"
+              Content="GİRİŞ YAP"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              Height="44"
+              FontSize="{StaticResource FontSizeBody}"
+              FontWeight="SemiBold"
+              Background="{StaticResource PrimaryBlueBrush}"
+              Foreground="White"
+              CornerRadius="{StaticResource CornerRadiusMedium}"
+              Click="OnLoginClick"/>
+
+      <!-- Hata mesaji (varsayilan gizli) -->
+      <Border x:Name="ErrorPanel"
+              Background="#FFEBEE"
+              CornerRadius="{StaticResource CornerRadiusLarge}"
+              Padding="12,8"
+              IsVisible="False">
+        <TextBlock x:Name="ErrorText"
+                   Foreground="{StaticResource ErrorRedBrush}"
+                   FontSize="{StaticResource FontSizeSmall}"
+                   TextWrapping="Wrap"/>
+      </Border>
+
+    </StackPanel>
+  </Border>
+</Window>
