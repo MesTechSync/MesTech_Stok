@@ -3,6 +3,8 @@
 @using MediatR
 @using MesTech.Application.Features.Finance.Queries.GetProfitLoss
 @using MesTech.Application.DTOs.Finance
+@using MesTech.Application.DTOs.Dashboard
+@using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary
 @using MesTech.Domain.Interfaces
 @using MesTech.Domain.Enums
 @using MesTech.Blazor.Components.Shared
@@ -310,6 +312,9 @@
   private int newLeads;
   private decimal pendingExpenses;
 
+  // EMR-03-v2: Unified KPI — GetDashboardSummaryQuery
+  private DashboardSummaryDto? _summary;
+
   // Platform status list
   private List<PlatformStatus> platforms = [];
 
@@ -327,8 +332,16 @@
 
   protected override async Task OnInitializedAsync()
   {
-    var apiResult = await ApiClient.SafeGetAsync<object>("dashboard/summary");
-    if (!apiResult.IsSuccess) { _isDemoMode = true; }
+    // EMR-03-v2: GetDashboardSummaryQuery ile gerçek KPI verileri
+    try
+    {
+      _summary = await Mediator.Send(
+        new GetDashboardSummaryQuery(CurrentUser.TenantId));
+    }
+    catch
+    {
+      _isDemoMode = true;
+    }
     await LoadDashboardData();
     LoadPlatformStatuses();
     LoadChartData();
