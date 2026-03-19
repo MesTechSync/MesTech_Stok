@@ -1,0 +1,255 @@
+<UserControl x:Class="MesTechStok.Desktop.Views.Crm.CrmDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200">
+    <Grid Background="#F4F6F9">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Bar -->
+        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="CRM Dashboard" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2" Margin="12,0,0,0">
+                        <TextBlock Text="{Binding LastRefreshed, StringFormat='Son: {0:HH:mm}'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Padding="16,8" BorderThickness="0"
+                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+            </Grid>
+        </Border>
+
+        <!-- KPI Cards Row 1 -->
+        <UniformGrid Grid.Row="1" Rows="1" Margin="16,16,16,0">
+            <!-- Total Customers -->
+            <Border Background="White" CornerRadius="8" Margin="0,0,8,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Toplam Musteri" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding TotalCustomers}" FontSize="28" FontWeight="Bold"
+                               Foreground="#0078D4" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding ActiveCustomers, StringFormat='{}{0} aktif'}"
+                               FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- VIP Customers -->
+            <Border Background="White" CornerRadius="8" Margin="4,0,4,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="VIP Musteriler" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding VipCustomers}" FontSize="28" FontWeight="Bold"
+                               Foreground="#F57C00" Margin="0,4,0,0"/>
+                    <TextBlock Text="Premium segment" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Total Leads -->
+            <Border Background="White" CornerRadius="8" Margin="4,0,4,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Potansiyel Musteriler" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding TotalLeads}" FontSize="28" FontWeight="Bold"
+                               Foreground="#388E3C" Margin="0,4,0,0"/>
+                    <TextBlock Text="Aktif lead'ler" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Pipeline Value -->
+            <Border Background="White" CornerRadius="8" Margin="8,0,0,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Pipeline Degeri" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding PipelineValue, StringFormat='TL {0:N0}'}" FontSize="28" FontWeight="Bold"
+                               Foreground="#2855AC" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding OpenDeals, StringFormat='{}{0} acik firsat'}"
+                               FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- KPI Cards Row 2 -->
+        <UniformGrid Grid.Row="2" Rows="1" Margin="16,8,16,0">
+            <!-- Open Deals -->
+            <Border Background="White" CornerRadius="8" Margin="0,0,8,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Acik Firsatlar" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding OpenDeals}" FontSize="28" FontWeight="Bold"
+                               Foreground="#8B5CF6" Margin="0,4,0,0"/>
+                    <TextBlock Text="Kanban pipeline'da" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Unread Messages -->
+            <Border Background="White" CornerRadius="8" Margin="4,0,4,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Okunmamis Mesajlar" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding UnreadMessages}" FontSize="28" FontWeight="Bold"
+                               Foreground="#D32F2F" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding TotalMessages, StringFormat='toplam {0}'}"
+                               FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Total Suppliers -->
+            <Border Background="White" CornerRadius="8" Margin="4,0,4,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Tedarikciler" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding TotalSuppliers}" FontSize="28" FontWeight="Bold"
+                               Foreground="#0E7490" Margin="0,4,0,0"/>
+                    <TextBlock Text="Aktif tedarikci" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Won This Month (placeholder from pipeline) -->
+            <Border Background="White" CornerRadius="8" Margin="8,0,0,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Pipeline Asamalari" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding StageCount}" FontSize="28" FontWeight="Bold"
+                               Foreground="#10B981" Margin="0,4,0,0"/>
+                    <TextBlock Text="Aktif asama" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Bottom Section: Pipeline Summary + Recent Activities -->
+        <Grid Grid.Row="3" Margin="16,12,16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Pipeline Stage Summary -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="0,0,6,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Pipeline Ozeti" FontSize="14"
+                               FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
+                    <ItemsControl ItemsSource="{Binding StageSummaries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="4" Height="28" CornerRadius="2"
+                                            Background="{Binding StageColor}" Margin="0,0,10,0"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding StageName}" FontSize="13"
+                                                   FontWeight="SemiBold" Foreground="#1E293B"/>
+                                        <TextBlock Text="{Binding DealCount, StringFormat='{}{0} firsat'}"
+                                                   FontSize="11" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding TotalValue, StringFormat='TL {0:N0}'}"
+                                               FontSize="13" FontWeight="Bold" Foreground="#2855AC"
+                                               VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DockPanel>
+            </Border>
+
+            <!-- Recent Activities -->
+            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6,0,0,0" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.08" Color="Black"/>
+                </Border.Effect>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Son Aktiviteler" FontSize="14"
+                               FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
+                    <ListBox ItemsSource="{Binding RecentActivities}" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16"
+                                            Background="#EEF2FF" Margin="0,0,10,0">
+                                        <TextBlock Text="{Binding TypeIcon}" FontSize="14"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="#2855AC"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Subject}" FontSize="12"
+                                                   FontWeight="SemiBold" Foreground="#1E293B"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ContactName}" FontSize="11"
+                                                   Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding TimeAgo}"
+                                               FontSize="11" Foreground="#94A3B8"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border x:Name="ErrorState" Grid.RowSpan="4" Background="White" Visibility="Collapsed" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

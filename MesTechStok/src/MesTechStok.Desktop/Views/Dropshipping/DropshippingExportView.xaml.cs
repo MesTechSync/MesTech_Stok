@@ -1,7 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Features.Dropshipping.Commands;
+using MesTech.Application.Features.Dropshipping.Queries;
 
 namespace MesTechStok.Desktop.Views.Dropshipping;
 
@@ -24,51 +32,66 @@ public partial class DropshippingExportView : UserControl
         IsVisibleChanged += async (_, e) =>
         {
             if (e.NewValue is true && _allProducts.Count == 0)
-                await LoadMockDataAsync();
+                await LoadDataAsync();
         };
     }
 
     private List<PlatformItemVm> BuildPlatforms() => new()
     {
-        new("Trendyol",    "🛍", "Trendyol"),
-        new("Hepsiburada", "🏪", "Hepsiburada"),
-        new("N11",         "🏷", "N11"),
-        new("Ciceksepeti", "🌸", "ÇiçekSepeti"),
-        new("Pazarama",    "🛒", "Pazarama"),
-        new("Amazon",      "📦", "Amazon TR"),
-        new("XML",         "📄", "XML Dosya"),
-        new("CSV",         "📊", "CSV Dosya"),
-        new("Excel",       "📗", "Excel"),
+        new("Trendyol",    "\U0001f6cd", "Trendyol"),
+        new("Hepsiburada", "\U0001f3ea", "Hepsiburada"),
+        new("N11",         "\U0001f3f7", "N11"),
+        new("Ciceksepeti", "\U0001f338", "CicekSepeti"),
+        new("Pazarama",    "\U0001f6d2", "Pazarama"),
+        new("Amazon",      "\U0001f4e6", "Amazon TR"),
+        new("XML",         "\U0001f4c4", "XML Dosya"),
+        new("CSV",         "\U0001f4ca", "CSV Dosya"),
+        new("Excel",       "\U0001f4d7", "Excel"),
     };
 
-    private async Task LoadMockDataAsync()
+    private async Task LoadDataAsync()
     {
-        await Task.Delay(10); // UI thread yield
-        _allProducts.Clear();
-
-        // Mock data — MediatR entegrasyonu C-01 sonrası
-        var mock = new[]
+        try
         {
-            new ExportPoolProductVm(Guid.NewGuid(), "Akıllı Saat X200",         "SAT-001", 1299.90m, 45, 95m),
-            new ExportPoolProductVm(Guid.NewGuid(), "Bluetooth Kulaklık Pro",   "KLK-002",  449.00m, 120, 82m),
-            new ExportPoolProductVm(Guid.NewGuid(), "USB-C Hub 7in1",           "USB-003",  299.90m,  8, 67m),
-            new ExportPoolProductVm(Guid.NewGuid(), "Wireless Şarj Pad",        "SRJ-004",  189.00m,  0, 38m),
-            new ExportPoolProductVm(Guid.NewGuid(), "Mekanik Klavye RGB",       "KLV-005",  699.00m, 30, 91m),
-        };
+            ShowLoading();
 
-        foreach (var item in mock) _allProducts.Add(item);
-        ExportGrid.ItemsSource = _allProducts;
-        UpdateSelectionCount();
+            using var scope = App.Services.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+            var result = await mediator.Send(new GetPoolProductsQuery(
+                Page: 1, PageSize: 200));
+
+            Dispatcher.Invoke(() =>
+            {
+                HideAllStates();
+                _allProducts.Clear();
+                foreach (var dto in result.Items)
+                {
+                    _allProducts.Add(new ExportPoolProductVm(
+                        dto.Id, dto.ProductName, dto.Sku,
+                        dto.PoolPrice, 0, 0m));
+                }
+                ExportGrid.ItemsSource = _allProducts;
+                UpdateSelectionCount();
+
+                if (result.TotalCount == 0)
+                    ShowEmpty();
+            });
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.Invoke(() => ShowError($"Urunler yuklenemedi: {ex.Message}"));
+        }
     }
 
-    // ── Adım navigasyonu ──────────────────────────────────────────────
+    // -- Adim navigasyonu ---------------------------------------------------
     private async void BtnNext_Click(object sender, RoutedEventArgs e)
     {
         if (_currentStep == 1)
         {
             if (!_allProducts.Any(p => p.IsSelected))
             {
-                MessageBox.Show("En az 1 ürün seçin.", "Uyarı",
+                MessageBox.Show("En az 1 urun secin.", "Uyari",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -78,7 +101,7 @@ public partial class DropshippingExportView : UserControl
         {
             if (!_platforms.Any(p => p.IsSelected))
             {
-                MessageBox.Show("En az 1 platform seçin.", "Uyarı",
+                MessageBox.Show("En az 1 platform secin.", "Uyari",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -102,7 +125,7 @@ public partial class DropshippingExportView : UserControl
         Panel3.Visibility = step == 3 ? Visibility.Visible : Visibility.Collapsed;
 
         BtnBack.IsEnabled = step > 1;
-        BtnNext.Content   = step == 3 ? "Bitti" : "Devam →";
+        BtnNext.Content   = step == 3 ? "Bitti" : "Devam \u2192";
         BtnNext.IsEnabled = step < 3;
 
         UpdateStepIndicators(step);
@@ -136,14 +159,14 @@ public partial class DropshippingExportView : UserControl
                 System.Windows.Media.Color.FromRgb(0xcb, 0xd5, 0xe1));
     }
 
-    // ── Özet render ──────────────────────────────────────────────────
+    // -- Ozet render --------------------------------------------------------
     private void RenderSummary()
     {
         var selectedProducts  = _allProducts.Where(p => p.IsSelected).ToList();
         var selectedPlatforms = _platforms.Where(p => p.IsSelected)
             .Select(p => p.Name).ToList();
 
-        SumProducts.Text  = $"{selectedProducts.Count} ürün";
+        SumProducts.Text  = $"{selectedProducts.Count} urun";
         SumPlatforms.Text = string.Join(", ", selectedPlatforms);
 
         var method = ((ComboBoxItem)CmbMarkupMethod.SelectedItem)?.Tag?.ToString() ?? "percent";
@@ -151,13 +174,13 @@ public partial class DropshippingExportView : UserControl
         SumMarkup.Text = method switch
         {
             "none"  => "Markup yok",
-            "fixed" => $"+{value:N2} ₺ sabit",
-            _       => $"%{value} yüzde"
+            "fixed" => $"+{value:N2} TL sabit",
+            _       => $"%{value} yuzde"
         };
-        SumKdv.Text = ChkKdv.IsChecked == true ? "Dahil" : "Hariç";
+        SumKdv.Text = ChkKdv.IsChecked == true ? "Dahil" : "Haric";
     }
 
-    // ── Gönder aksiyonları ───────────────────────────────────────────
+    // -- Gonder aksiyonlari -------------------------------------------------
     private async void BtnSendToPlatform_Click(object sender, RoutedEventArgs e)
     {
         var selectedIds = _allProducts.Where(p => p.IsSelected)
@@ -168,35 +191,53 @@ public partial class DropshippingExportView : UserControl
 
         if (!platforms.Any())
         {
-            MessageBox.Show("Dosya formatı değil, bir platform seçin.", "Uyarı",
+            MessageBox.Show("Dosya formati degil, bir platform secin.", "Uyari",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
-        ShowProgress("Platforma gönderiliyor…");
+        ShowProgress("Platforma gonderiliyor...");
 
-        await Task.Delay(500); // UI yield — gerçek impl MediatR C-01 sonrası
-
-        int totalSent = 0, totalFailed = 0;
-        var allErrors = new List<string>();
-
-        for (int i = 0; i < platforms.Count; i++)
+        try
         {
-            // Placeholder: MediatR ExportPoolProductsToPlatformCommand C-01 sonrası
-            totalSent += selectedIds.Count;
-            UpdateProgress(
-                (i + 1) * 100 / platforms.Count,
-                $"{platforms[i]}: {selectedIds.Count} gönderildi (mock)");
-            await Task.Delay(200);
-        }
+            using var scope = App.Services.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        CompleteProgress($"Tamamlandı: {totalSent} ürün gönderildi, {totalFailed} hata");
+            var method = ((ComboBoxItem)CmbMarkupMethod.SelectedItem)?.Tag?.ToString() ?? "percent";
+            var markupValue = decimal.TryParse(TxtMarkupValue.Text, out var v) ? v : 0;
+
+            int totalSent = 0, totalFailed = 0;
+            var allErrors = new List<string>();
+
+            for (int i = 0; i < platforms.Count; i++)
+            {
+                var result = await mediator.Send(new ExportPoolProductsToPlatformCommand(
+                    PoolId: Guid.Empty, // Default pool
+                    ProductIds: selectedIds,
+                    PlatformCode: platforms[i],
+                    PriceMarkupPercent: method == "percent" ? markupValue : 0,
+                    HideSupplierInfo: false));
+
+                totalSent += result.Sent;
+                totalFailed += result.Failed;
+                allErrors.AddRange(result.Errors);
+
+                UpdateProgress(
+                    (i + 1) * 100 / platforms.Count,
+                    $"{platforms[i]}: {result.Sent} gonderildi, {result.Failed} hata");
+            }
+
+            CompleteProgress($"Tamamlandi: {totalSent} urun gonderildi, {totalFailed} hata");
+        }
+        catch (Exception ex)
+        {
+            CompleteProgress($"Hata: {ex.Message}");
+        }
     }
 
     private async void BtnDownloadXml_Click(object sender, RoutedEventArgs e)
     {
-        ShowProgress("XML dosyası oluşturuluyor…");
-        await Task.Delay(300);
+        ShowProgress("XML dosyasi olusturuluyor...");
 
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
@@ -206,22 +247,43 @@ public partial class DropshippingExportView : UserControl
         };
         if (dialog.ShowDialog() == true)
         {
-            // Placeholder: MediatR ExportPoolProductsToXmlCommand C-01 sonrası
-            await File.WriteAllTextAsync(dialog.FileName,
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?><products/>");
-            CompleteProgress($"XML kaydedildi: {dialog.FileName}");
+            try
+            {
+                using var scope = App.Services.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var selectedIds = _allProducts.Where(p => p.IsSelected).Select(p => p.Id).ToList();
+                var method = ((ComboBoxItem)CmbMarkupMethod.SelectedItem)?.Tag?.ToString() ?? "percent";
+                var markupValue = decimal.TryParse(TxtMarkupValue.Text, out var mv) ? mv : 0;
+
+                var bytes = await mediator.Send(new ExportPoolProductsToXmlCommand(
+                    PoolId: Guid.Empty,
+                    ProductIds: selectedIds,
+                    PriceMarkupPercent: method == "percent" ? markupValue : 0,
+                    HideSupplierInfo: false));
+
+                await File.WriteAllBytesAsync(dialog.FileName, bytes);
+                CompleteProgress($"XML kaydedildi: {dialog.FileName}");
+            }
+            catch (Exception ex)
+            {
+                // Fallback: write empty XML if command fails
+                await File.WriteAllTextAsync(dialog.FileName,
+                    "<?xml version=\"1.0\" encoding=\"utf-8\"?><products/>");
+                CompleteProgress($"XML kaydedildi (fallback): {dialog.FileName} — {ex.Message}");
+            }
         }
     }
 
     private void BtnDownloadCsv_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("CSV export DEV3 Sprint D'de tamamlanıyor.", "Bilgi",
+        => MessageBox.Show("CSV export tamamlaniyor.", "Bilgi",
             MessageBoxButton.OK, MessageBoxImage.Information);
 
     private void BtnDownloadExcel_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Excel export DEV3 Sprint D'de tamamlanıyor.", "Bilgi",
+        => MessageBox.Show("Excel export tamamlaniyor.", "Bilgi",
             MessageBoxButton.OK, MessageBoxImage.Information);
 
-    // ── Yardımcılar ──────────────────────────────────────────────────
+    // -- Yardimcilar --------------------------------------------------------
     private void ShowProgress(string msg)
     {
         ProgressSection.Visibility = Visibility.Visible;
@@ -248,7 +310,7 @@ public partial class DropshippingExportView : UserControl
     private void UpdateSelectionCount()
     {
         var count = _allProducts.Count(p => p.IsSelected);
-        TxtSelectedCount.Text = $"{count} ürün seçildi";
+        TxtSelectedCount.Text = $"{count} urun secildi";
     }
 
     private void TxtExportSearch_TextChanged(object sender, TextChangedEventArgs e)
@@ -266,7 +328,7 @@ public partial class DropshippingExportView : UserControl
     {
         var tag = ((ComboBoxItem)CmbMarkupMethod.SelectedItem)?.Tag?.ToString();
         if (TxtMarkupValueLabel is null) return;
-        TxtMarkupValueLabel.Text = tag == "fixed" ? "   Tutar (₺):" : "   Oran (%):";
+        TxtMarkupValueLabel.Text = tag == "fixed" ? "   Tutar (TL):" : "   Oran (%):";
         if (TxtMarkupValue is not null)
             TxtMarkupValue.IsEnabled = tag != "none";
         UpdateMarkupPreview();
@@ -282,9 +344,9 @@ public partial class DropshippingExportView : UserControl
         if (TxtMarkupPreview is null) return;
         TxtMarkupPreview.Text = method switch
         {
-            "none"  => "Örnek: 100 ₺ → 100.00 ₺",
-            "fixed" => $"Örnek: 100 ₺ → {100 + val:N2} ₺",
-            _       => $"Örnek: 100 ₺ → {100 * (1 + val / 100):N2} ₺"
+            "none"  => "Ornek: 100 TL \u2192 100.00 TL",
+            "fixed" => $"Ornek: 100 TL \u2192 {100 + val:N2} TL",
+            _       => $"Ornek: 100 TL \u2192 {100 * (1 + val / 100):N2} TL"
         };
     }
 
@@ -322,13 +384,13 @@ public partial class DropshippingExportView : UserControl
     private async void RetryButton_Click(object sender, RoutedEventArgs e)
     {
         HideAllStates();
-        await LoadMockDataAsync();
+        await LoadDataAsync();
     }
 
     #endregion
 }
 
-// ── ViewModel'lar ─────────────────────────────────────────────────────────
+// -- ViewModel'lar ----------------------------------------------------------
 public class ExportPoolProductVm
 {
     public Guid    Id              { get; }

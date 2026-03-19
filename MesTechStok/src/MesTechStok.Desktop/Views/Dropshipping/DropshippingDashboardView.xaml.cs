@@ -1,5 +1,10 @@
+using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Features.Dropshipping.Queries;
 
 namespace MesTechStok.Desktop.Views.Dropshipping;
 
@@ -11,15 +16,48 @@ public partial class DropshippingDashboardView : UserControl
         Loaded += OnLoaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Placeholder — wire to GetDropshippingDashboardQuery when available
-        TxtPoolTotal.Text = "—";
-        TxtFeeds.Text     = "—";
-        TxtAvgScore.Text  = "—";
-        TxtLastSync.Text  = "Son sync: bilinmiyor";
-        TxtGreen.Text = TxtYellow.Text = TxtRed.Text = "—";
-        TxtScoreColor.Text = "Veri bekleniyor";
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            ShowLoading();
+
+            using var scope = App.Services.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+            var stats = await mediator.Send(new GetPoolDashboardStatsQuery());
+
+            Dispatcher.Invoke(() =>
+            {
+                HideAllStates();
+                TxtPoolTotal.Text = stats.TotalPoolProducts.ToString("N0");
+                TxtFeeds.Text     = stats.ActiveFeedCount.ToString();
+                TxtAvgScore.Text  = stats.AverageReliabilityScore.ToString("F0");
+                TxtLastSync.Text  = stats.LastSyncAt.HasValue
+                    ? $"Son sync: {stats.LastSyncAt.Value:dd.MM.yyyy HH:mm}"
+                    : "Son sync: henuz yok";
+                TxtGreen.Text  = stats.GreenCount.ToString();
+                TxtYellow.Text = stats.YellowCount.ToString();
+                TxtRed.Text    = stats.RedCount.ToString();
+                TxtScoreColor.Text = stats.AverageReliabilityColor switch
+                {
+                    "Green"  => "Yesil",
+                    "Yellow" => "Sari",
+                    "Orange" => "Turuncu",
+                    "Red"    => "Kirmizi",
+                    _        => stats.AverageReliabilityColor
+                };
+            });
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.Invoke(() => ShowError($"Dashboard verileri yuklenemedi: {ex.Message}"));
+        }
     }
 
     private void BtnPool_Click(object sender, RoutedEventArgs e)   { /* Stub: Havuz navigation */ }
@@ -57,10 +95,10 @@ public partial class DropshippingDashboardView : UserControl
         ErrorState.Visibility = Visibility.Collapsed;
     }
 
-    private void RetryButton_Click(object sender, RoutedEventArgs e)
+    private async void RetryButton_Click(object sender, RoutedEventArgs e)
     {
         HideAllStates();
-        OnLoaded(this, new RoutedEventArgs());
+        await LoadDataAsync();
     }
 
     #endregion

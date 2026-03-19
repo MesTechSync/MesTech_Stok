@@ -1,5 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Features.Platform.Commands.CreateStore;
+using MesTech.Domain.Enums;
 
 namespace MesTechStok.Desktop.Views.Store
 {
@@ -8,6 +15,41 @@ namespace MesTechStok.Desktop.Views.Store
         public StoreCreateView()
         {
             InitializeComponent();
+        }
+
+        // TODO: Wire BtnSave_Click from XAML to this handler when form fields are available
+        private async Task SaveStoreAsync(string storeName, PlatformType platformType, Dictionary<string, string> credentials)
+        {
+            try
+            {
+                ShowLoading();
+
+                using var scope = App.Services.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var tenantProvider = scope.ServiceProvider.GetRequiredService<MesTech.Domain.Interfaces.ITenantProvider>();
+                var tenantId = tenantProvider.GetCurrentTenantId();
+
+                var result = await mediator.Send(new CreateStoreCommand(
+                    tenantId, storeName, platformType, credentials));
+
+                Dispatcher.Invoke(() =>
+                {
+                    HideAllStates();
+                    if (result.IsSuccess)
+                    {
+                        MessageBox.Show($"Magaza olusturuldu! (ID: {result.StoreId})", "Basari",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        ShowError(result.ErrorMessage ?? "Magaza olusturulamadi.");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() => ShowError($"Magaza olusturulamadi: {ex.Message}"));
+            }
         }
 
         #region Loading/Empty/Error State Helpers

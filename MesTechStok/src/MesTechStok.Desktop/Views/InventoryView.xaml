@@ -16,8 +16,9 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <!-- Stock Status Color Converter -->
+        <!-- EMR-06: Stock Status Converters (4-level badge) -->
         <local:StockStatusToColorConverter x:Key="StockStatusToColorConverter"/>
+        <local:StockStatusToTextConverter x:Key="StockStatusToTextConverter"/>
 
         <!-- Real-time Update Animation -->
         <Storyboard x:Key="StockUpdateAnimation">
@@ -263,14 +264,21 @@
                             <components:PaginationComponent x:Key="InventoryPagination"/>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="🔴 Durum"
-                                    Width="60">
+                            <!-- EMR-06: 4-level stock status badge -->
+                            <DataGridTemplateColumn Header="Durum"
+                                    Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Ellipse Width="12"
-                                                Height="12"
-                                                 Fill="{Binding StockStatus, Converter={StaticResource StockStatusToColorConverter}}"
-                                                 Margin="8,0"/>
+                                        <Border CornerRadius="12"
+                                                Padding="8,3"
+                                                Background="{Binding StockStatus, Converter={StaticResource StockStatusToColorConverter}}"
+                                                HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding StockStatus, Converter={StaticResource StockStatusToTextConverter}}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

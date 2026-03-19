@@ -1,7 +1,14 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Features.Dropshipping.Queries;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 
 namespace MesTechStok.Desktop.Views.Dropshipping;
 
@@ -9,6 +16,7 @@ public partial class DropshippingSupplierView : UserControl
 {
     private readonly ObservableCollection<SupplierProductVm> _allProducts = new();
     private string? _currentSearch;
+    private Guid _supplierFeedId = Guid.Empty;
 
     // Designer constructor (D-11 pattern)
     public DropshippingSupplierView() : this(null) { }
@@ -21,12 +29,12 @@ public partial class DropshippingSupplierView : UserControl
         IsVisibleChanged += async (_, e) =>
         {
             if (e.NewValue is true && _allProducts.Count == 0)
-                await LoadMockDataAsync();
+                await LoadDataAsync();
         };
     }
 
     /// <summary>
-    /// Tedarikçi adı ile açma — PoolView sağ-tık context menüsünden çağrılır.
+    /// Tedarikci adi ile acma — PoolView sag-tik context menusunden cagrilir.
     /// </summary>
     public DropshippingSupplierView(string supplierName) : this((object?)null)
     {
@@ -34,53 +42,85 @@ public partial class DropshippingSupplierView : UserControl
         TxtSupplierCode.Text = $"KOD-{supplierName.GetHashCode() & 0xFFFF:X4}";
     }
 
-    private async Task LoadMockDataAsync()
+    private async Task LoadDataAsync()
     {
-        await Task.Delay(10); // UI thread yield
-
-        // ── Skor Breakdown (mock) ──────────────────────────────────────
-        var breakdown = new[]
+        try
         {
-            new ScoreBreakdownVm("Stok Doğruluğu",      95m),
-            new ScoreBreakdownVm("Güncelleme Sıklığı",  88m),
-            new ScoreBreakdownVm("Fiyat İstikrarı",      75m),
-            new ScoreBreakdownVm("Görsel Kalitesi",      82m),
-            new ScoreBreakdownVm("Teslimat Hızı",        91m),
-            new ScoreBreakdownVm("İade Oranı (düşük)",  70m),
-        };
-        ScoreBreakdownList.ItemsSource = breakdown;
+            ShowLoading();
 
-        // ── Genel skor hesaplama ──────────────────────────────────────
-        var overallScore = breakdown.Average(b => b.Score);
-        UpdateScoreBadge(overallScore);
+            using var scope = App.Services.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        // ── Import Geçmişi (mock) ─────────────────────────────────────
-        var history = new[]
+            // -- Skor Breakdown (reliability query) --
+            if (_supplierFeedId != Guid.Empty)
+            {
+                var reliability = await mediator.Send(
+                    new GetSupplierReliabilityQuery(_supplierFeedId));
+
+                if (reliability != null)
+                {
+                    var breakdown = new[]
+                    {
+                        new ScoreBreakdownVm("Stok Dogrulugu",      reliability.StockAccuracy),
+                        new ScoreBreakdownVm("Guncelleme Sikligi",  reliability.UpdateFrequency),
+                        new ScoreBreakdownVm("Feed Erisilebilirlik", reliability.FeedAvailability),
+                        new ScoreBreakdownVm("Urun Istikrari",      reliability.ProductStability),
+                        new ScoreBreakdownVm("Yanit Suresi",        reliability.ResponseTime),
+                    };
+                    ScoreBreakdownList.ItemsSource = breakdown;
+                    UpdateScoreBadge(reliability.Score);
+                }
+            }
+            else
+            {
+                // No specific supplier — show placeholder scores
+                ScoreBreakdownList.ItemsSource = Array.Empty<ScoreBreakdownVm>();
+                UpdateScoreBadge(0);
+            }
+
+            // -- Import Gecmisi --
+            if (_supplierFeedId != Guid.Empty)
+            {
+                var history = await mediator.Send(
+                    new GetFeedImportHistoryQuery(_supplierFeedId, Page: 1, PageSize: 10));
+
+                HistoryGrid.ItemsSource = history.Items.Select(h => new ImportHistoryVm(
+                    h.StartedAt,
+                    h.TotalProducts,
+                    h.TotalProducts - (h.TotalProducts > 0 ? h.UpdatedProducts : 0),
+                    h.TotalProducts > 0 ? h.UpdatedProducts : 0));
+            }
+            else
+            {
+                HistoryGrid.ItemsSource = Array.Empty<ImportHistoryVm>();
+            }
+
+            // -- Urunler (from pool products) --
+            var poolProducts = await mediator.Send(new GetPoolProductsQuery(
+                Page: 1, PageSize: 100));
+
+            Dispatcher.Invoke(() =>
+            {
+                HideAllStates();
+                _allProducts.Clear();
+
+                foreach (var p in poolProducts.Items)
+                {
+                    _allProducts.Add(new SupplierProductVm(
+                        p.ProductName, p.Sku, p.PoolPrice,
+                        0m, p.LastUpdated));
+                }
+
+                UpdateProductCount();
+
+                if (_allProducts.Count == 0)
+                    ShowEmpty();
+            });
+        }
+        catch (Exception ex)
         {
-            new ImportHistoryVm(DateTime.Today.AddDays(-1),  340, 338, 2),
-            new ImportHistoryVm(DateTime.Today.AddDays(-4),  280, 280, 0),
-            new ImportHistoryVm(DateTime.Today.AddDays(-8),  412, 405, 7),
-            new ImportHistoryVm(DateTime.Today.AddDays(-12), 190, 188, 2),
-            new ImportHistoryVm(DateTime.Today.AddDays(-17), 320, 320, 0),
-            new ImportHistoryVm(DateTime.Today.AddDays(-22), 255, 248, 7),
-            new ImportHistoryVm(DateTime.Today.AddDays(-28), 400, 395, 5),
-        };
-        HistoryGrid.ItemsSource = history;
-
-        // ── Ürünler (mock) ────────────────────────────────────────────
-        _allProducts.Clear();
-        var products = new[]
-        {
-            new SupplierProductVm("Akıllı Saat X200",         "SAT-001", 1299.90m, 95m, DateTime.Today.AddDays(-1)),
-            new SupplierProductVm("Bluetooth Kulaklık Pro",   "KLK-002",  449.00m, 82m, DateTime.Today.AddDays(-1)),
-            new SupplierProductVm("USB-C Hub 7in1",           "USB-003",  299.90m, 67m, DateTime.Today.AddDays(-4)),
-            new SupplierProductVm("Wireless Şarj Pad",        "SRJ-004",  189.00m, 38m, DateTime.Today.AddDays(-4)),
-            new SupplierProductVm("Mekanik Klavye RGB",       "KLV-005",  699.00m, 91m, DateTime.Today.AddDays(-8)),
-            new SupplierProductVm("Oyuncu Mouse 6400DPI",     "MOU-006",  349.00m, 85m, DateTime.Today.AddDays(-8)),
-            new SupplierProductVm("USB Webcam 1080p",         "CAM-007",  599.00m, 78m, DateTime.Today.AddDays(-12)),
-        };
-        foreach (var p in products) _allProducts.Add(p);
-        UpdateProductCount();
+            Dispatcher.Invoke(() => ShowError($"Tedarikci verileri yuklenemedi: {ex.Message}"));
+        }
     }
 
     private void UpdateScoreBadge(decimal score)
@@ -88,12 +128,12 @@ public partial class DropshippingSupplierView : UserControl
         TxtOverallScore.Text = $" {score:F0}";
         if (score >= 90)
         {
-            TxtOverallScoreLabel.Text  = "Yeşil";
+            TxtOverallScoreLabel.Text  = "Yesil";
             ScoreBadge.Background      = new SolidColorBrush(Color.FromRgb(0x10, 0xb9, 0x81));
         }
         else if (score >= 70)
         {
-            TxtOverallScoreLabel.Text  = "Sarı";
+            TxtOverallScoreLabel.Text  = "Sari";
             ScoreBadge.Background      = new SolidColorBrush(Color.FromRgb(0xf5, 0x9e, 0x0b));
         }
         else if (score >= 50)
@@ -103,7 +143,7 @@ public partial class DropshippingSupplierView : UserControl
         }
         else
         {
-            TxtOverallScoreLabel.Text  = "Kırmızı";
+            TxtOverallScoreLabel.Text  = "Kirmizi";
             ScoreBadge.Background      = new SolidColorBrush(Color.FromRgb(0xef, 0x44, 0x44));
         }
     }
@@ -115,11 +155,11 @@ public partial class DropshippingSupplierView : UserControl
             : _allProducts.Count(p =>
                 p.ProductName.ToLowerInvariant().Contains(_currentSearch) ||
                 p.Sku.ToLowerInvariant().Contains(_currentSearch));
-        TxtProductCount.Text = $"{visible} ürün";
+        TxtProductCount.Text = $"{visible} urun";
     }
 
     private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
-        => await LoadMockDataAsync();
+        => await LoadDataAsync();
 
     private void TxtProductSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -171,13 +211,13 @@ public partial class DropshippingSupplierView : UserControl
     private async void RetryButton_Click(object sender, RoutedEventArgs e)
     {
         HideAllStates();
-        await LoadMockDataAsync();
+        await LoadDataAsync();
     }
 
     #endregion
 }
 
-// ── ViewModel'lar ─────────────────────────────────────────────────────────
+// -- ViewModel'lar ----------------------------------------------------------
 public class ScoreBreakdownVm
 {
     public string  Label { get; }
@@ -197,7 +237,7 @@ public class ImportHistoryVm
     public int      Successful  { get; }
     public int      Failed      { get; }
     public bool     HasErrors   => Failed > 0;
-    public string   StatusText  => Failed == 0 ? "Başarılı" : $"{Failed} hata";
+    public string   StatusText  => Failed == 0 ? "Basarili" : $"{Failed} hata";
 
     public ImportHistoryVm(DateTime date, int processed, int successful, int failed)
     {

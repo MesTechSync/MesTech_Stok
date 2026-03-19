@@ -1,13 +1,65 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.DTOs;
+using MesTech.Application.Queries.GetStoresByTenant;
 
 namespace MesTechStok.Desktop.Views.OpenCart
 {
     public partial class OpenCartSiteDetailView : UserControl
     {
+        private Guid _storeId = Guid.Empty;
+
         public OpenCartSiteDetailView()
         {
             InitializeComponent();
+            Loaded += async (_, _) => await LoadDataAsync();
+        }
+
+        /// <summary>
+        /// Set the store ID externally before navigation.
+        /// </summary>
+        public void SetStoreId(Guid storeId)
+        {
+            _storeId = storeId;
+            _ = LoadDataAsync();
+        }
+
+        private async Task LoadDataAsync()
+        {
+            if (_storeId == Guid.Empty) return;
+
+            try
+            {
+                ShowLoading();
+
+                using var scope = App.Services.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var tenantProvider = scope.ServiceProvider.GetRequiredService<MesTech.Domain.Interfaces.ITenantProvider>();
+                var tenantId = tenantProvider.GetCurrentTenantId();
+
+                var stores = await mediator.Send(new GetStoresByTenantQuery(tenantId));
+                var store = stores.FirstOrDefault(s => s.Id == _storeId);
+
+                Dispatcher.Invoke(() =>
+                {
+                    HideAllStates();
+                    if (store == null)
+                    {
+                        ShowEmpty();
+                        return;
+                    }
+                    DataContext = store;
+                });
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() => ShowError($"Site detayi yuklenemedi: {ex.Message}"));
+            }
         }
 
         #region Loading/Empty/Error State Helpers
@@ -41,9 +93,10 @@ namespace MesTechStok.Desktop.Views.OpenCart
             ErrorState.Visibility = Visibility.Collapsed;
         }
 
-        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        private async void RetryButton_Click(object sender, RoutedEventArgs e)
         {
             HideAllStates();
+            await LoadDataAsync();
         }
 
         #endregion

@@ -1,5 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MesTech.Application.Features.Platform.Commands.CreateStore;
+using MesTech.Domain.Enums;
 
 namespace MesTechStok.Desktop.Views.OpenCart
 {
@@ -8,6 +15,41 @@ namespace MesTechStok.Desktop.Views.OpenCart
         public OpenCartAddSiteView()
         {
             InitializeComponent();
+        }
+
+        // TODO: Wire BtnSave_Click from XAML to this handler when form fields are available
+        private async Task SaveSiteAsync(string storeName, Dictionary<string, string> credentials)
+        {
+            try
+            {
+                ShowLoading();
+
+                using var scope = App.Services.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var tenantProvider = scope.ServiceProvider.GetRequiredService<MesTech.Domain.Interfaces.ITenantProvider>();
+                var tenantId = tenantProvider.GetCurrentTenantId();
+
+                var result = await mediator.Send(new CreateStoreCommand(
+                    tenantId, storeName, PlatformType.OpenCart, credentials));
+
+                Dispatcher.Invoke(() =>
+                {
+                    HideAllStates();
+                    if (result.IsSuccess)
+                    {
+                        MessageBox.Show($"OpenCart sitesi eklendi! (ID: {result.StoreId})", "Basari",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        ShowError(result.ErrorMessage ?? "Site eklenemedi.");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() => ShowError($"Site eklenemedi: {ex.Message}"));
+            }
         }
 
         #region Loading/Empty/Error State Helpers

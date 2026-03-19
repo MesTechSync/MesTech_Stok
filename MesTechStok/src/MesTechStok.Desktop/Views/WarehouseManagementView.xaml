@@ -4,12 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:MesTechStok.Desktop.ViewModels"
-             mc:Ignorable="d" 
+             xmlns:converters="clr-namespace:MesTechStok.Desktop.Converters"
+             mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400">
-    
+
     <UserControl.DataContext>
         <vm:WarehouseManagementViewModel/>
     </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <!-- EMR-06: Depo doluluk oranı renk converter -->
+        <converters:OccupancyRateToColorConverter x:Key="OccupancyRateToColorConverter"/>
+    </UserControl.Resources>
     
     <Grid Background="#F5F5F5">
         <Grid.RowDefinitions>
@@ -78,12 +84,18 @@
                               SelectedItemChanged="WarehouseTreeView_SelectedItemChanged">
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Icon}" FontSize="16" Margin="0,0,8,0"/>
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
                                     <TextBlock Text=" (" Foreground="#666"/>
                                     <TextBlock Text="{Binding Code}" Foreground="#666"/>
                                     <TextBlock Text=")" Foreground="#666"/>
+                                    <!-- EMR-06: Inline capacity bar -->
+                                    <ProgressBar Value="{Binding OccupancyRate, FallbackValue=0}"
+                                                 Maximum="100" Width="60" Height="6"
+                                                 Foreground="{Binding OccupancyRate, FallbackValue=0, Converter={StaticResource OccupancyRateToColorConverter}}"
+                                                 Background="#E0E0E0"
+                                                 Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
@@ -157,6 +169,30 @@
                                         
                                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Durum:" FontWeight="SemiBold" Margin="0,0,16,8"/>
                                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedZone.IsActive, Converter={StaticResource BooleanToActiveTextConverter}}" Margin="0,0,0,8"/>
+                                    </Grid>
+
+                                    <!-- EMR-06: Depo kapasite/doluluk gösterimi -->
+                                    <TextBlock Text="Doluluk Oranı" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ProgressBar Grid.Column="0"
+                                                     Value="{Binding SelectedZone.OccupancyRate, FallbackValue=0}"
+                                                     Maximum="100"
+                                                     Height="8"
+                                                     Foreground="{Binding SelectedZone.OccupancyRate, FallbackValue=0, Converter={StaticResource OccupancyRateToColorConverter}}"
+                                                     Background="#E0E0E0"
+                                                     Margin="0,0,12,0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{Binding SelectedZone.OccupancyRate, FallbackValue=0, Converter={StaticResource OccupancyRateToColorConverter}}">
+                                            <TextBlock.Text>
+                                                <Binding Path="SelectedZone.OccupancyRate" FallbackValue="0"
+                                                         StringFormat="{}{0:F0}%"/>
+                                            </TextBlock.Text>
+                                        </TextBlock>
                                     </Grid>
                                 </StackPanel>
                             </Border>
