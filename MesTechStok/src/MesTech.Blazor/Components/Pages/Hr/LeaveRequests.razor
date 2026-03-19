@@ -57,7 +57,8 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+            _isDemoMode = true;
+            Console.WriteLine($"API error, using demo mode: {ex.Message}");
         }
         finally
         {

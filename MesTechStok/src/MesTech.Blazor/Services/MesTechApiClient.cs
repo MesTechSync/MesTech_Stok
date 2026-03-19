@@ -247,6 +247,9 @@ public sealed class MesTechApiClient
     public Task<List<object>> GetWarehousesAsync()
         => GetAsync<List<object>>("/api/v1/warehouses");
 
+    public Task<object?> GetWarehouseByIdAsync(Guid id)
+        => GetNullableAsync<object>($"/api/v1/warehouses/{id}");
+
     // ── System Health ──
 
     public Task<object?> GetSystemHealthAsync()
@@ -343,6 +346,9 @@ public sealed class MesTechApiClient
     public Task<object?> GetDashboardSummaryAsync()
         => GetNullableAsync<object>("/api/v1/dashboard/summary");
 
+    public Task<object?> GetDashboardKpiAsync()
+        => GetNullableAsync<object>("/api/v1/dashboard/kpi");
+
     public Task<object?> GetUserSettingsAsync()
         => GetNullableAsync<object>("/api/v1/users/me/settings");
 
@@ -360,6 +366,17 @@ public sealed class MesTechApiClient
 
     public Task<object?> GetHealthAsync()
         => GetNullableAsync<object>("/api/v1/health");
+
+    // ── Settings (EMR-15-P) ──
+
+    public Task<object?> GetSettingsProfileAsync()
+        => GetNullableAsync<object>("/api/v1/settings/profile");
+
+    public Task<List<object>> GetSettingsCredentialsAsync()
+        => GetAsync<List<object>>("/api/v1/settings/credentials");
+
+    public Task UpdateSettingsProfileAsync(object profile)
+        => PostAsync("/api/v1/settings/profile", profile);
 
     private async Task<T> PutAsync<T>(string path, T body) where T : new()
     {

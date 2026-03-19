@@ -58,5 +58,10 @@
     <StreamGeometry x:Key="IconChart">M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z</StreamGeometry>
     <StreamGeometry x:Key="IconBarChart">M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z</StreamGeometry>
 
+    <!-- Trend Icons (KPI Card) -->
+    <StreamGeometry x:Key="IconTrendUp">M7,14L12,9L17,14H7Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTrendDown">M7,10L12,15L17,10H7Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTrendFlat">M4,12H20</StreamGeometry>
+
   </Styles.Resources>
 </Styles>

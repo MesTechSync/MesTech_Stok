@@ -1,6 +1,6 @@
 @page "/accounting/commissions"
 @attribute [Authorize]
-@inject IConfiguration Configuration
+
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L
 
@@ -184,12 +184,6 @@ else
   }
 
   // --- API Calls with Demo Fallback ---
-  private HttpClient CreateHttpClient()
-  {
-    var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:5100";
-    return new HttpClient { BaseAddress = new Uri(apiBase) };
-  }
-
   private async Task LoadRatesAsync()
   {
     isLoading = true;
@@ -197,16 +191,21 @@ else
 
     try
     {
-      using var http = CreateHttpClient();
-      var result = await http.GetFromJsonAsync<List<CommissionRateItem>>(
-        "/api/v1/accounting/commission-rates");
-
-      rates = result ?? [];
+      var result = await ApiClient.SafeGetAsync<List<CommissionRateItem>>("accounting/commission-rates");
+      if (result.IsSuccess && result.Data is { Count: > 0 })
+      {
+        rates = result.Data;
+        _isDemoMode = false;
+      }
+      else
+      {
+        _isDemoMode = true;
+        rates = GetDemoRates();
+      }
     }
     catch
     {
       _isDemoMode = true;
-      // Demo fallback — realistic commission rates per platform
       rates = GetDemoRates();
     }
     finally
@@ -234,7 +233,6 @@ else
 
     try
     {
-      using var http = CreateHttpClient();
       var payload = new
       {
         platform = formModel.Platform,
@@ -244,10 +242,10 @@ else
 
       if (isEditing && editingId.HasValue)
       {
-        var response = await http.PutAsJsonAsync(
-          $"/api/v1/accounting/commission-rates/{editingId.Value}", payload);
+        var result = await ApiClient.SafePutAsync<object>(
+          $"accounting/commission-rates/{editingId.Value}", payload);
 
-        if (response.IsSuccessStatusCode)
+        if (result.IsSuccess)
         {
           successMessage = $"{formModel.Platform} komisyon orani guncellendi.";
           await LoadRatesAsync();
@@ -257,10 +255,10 @@ else
       }
       else
       {
-        var response = await http.PostAsJsonAsync(
-          "/api/v1/accounting/commission-rates", payload);
+        var result = await ApiClient.SafePostAsync<object>(
+          "accounting/commission-rates", payload);
 
-        if (response.IsSuccessStatusCode)
+        if (result.IsSuccess)
         {
           successMessage = $"{formModel.Platform} komisyon orani eklendi.";
           await LoadRatesAsync();
@@ -321,11 +319,10 @@ else
 
     try
     {
-      using var http = CreateHttpClient();
-      var response = await http.DeleteAsync(
-        $"/api/v1/accounting/commission-rates/{rate.Id}");
+      var result = await ApiClient.SafeDeleteAsync(
+        $"accounting/commission-rates/{rate.Id}");
 
-      if (response.IsSuccessStatusCode)
+      if (result.IsSuccess)
       {
         successMessage = $"{rate.Platform} komisyon orani silindi.";
         await LoadRatesAsync();

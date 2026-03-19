@@ -286,6 +286,8 @@ BaBsEndpoints.Map(app);
 FixedAssetEndpoints.Map(app);
 TaxWithholdingEndpoints.Map(app);
 ErpEndpoints.Map(app);
+SettingsEndpoints.Map(app);
+BulkProductEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

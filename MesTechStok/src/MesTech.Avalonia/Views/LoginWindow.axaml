@@ -42,10 +42,22 @@
         <TextBlock Text="Şifre"
                    FontSize="{StaticResource FontSizeSmall}"
                    Foreground="{StaticResource TextSecondaryBrush}"/>
-        <TextBox x:Name="PasswordBox"
-                 PasswordChar="●"
-                 Watermark="Şifrenizi girin"
-                 FontSize="{StaticResource FontSizeBody}"/>
+        <Grid>
+          <TextBox x:Name="PasswordBox"
+                   PasswordChar="●"
+                   Watermark="Şifrenizi girin"
+                   FontSize="{StaticResource FontSizeBody}"/>
+          <Button x:Name="TogglePasswordBtn"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  Margin="0,0,8,0"
+                  Background="Transparent"
+                  Padding="4"
+                  Cursor="Hand"
+                  Click="OnTogglePassword">
+            <TextBlock x:Name="PasswordToggleIcon" Text="👁" FontSize="14"/>
+          </Button>
+        </Grid>
       </StackPanel>
 
       <!-- Beni Hatirla -->
@@ -77,6 +89,23 @@
                    Foreground="{StaticResource ErrorRedBrush}"
                    FontSize="{StaticResource FontSizeSmall}"
                    TextWrapping="Wrap"/>
+      </Border>
+
+      <!-- Lockout panel (brute-force kilitleme) -->
+      <Border x:Name="LockoutPanel"
+              Background="#FFF3E0"
+              CornerRadius="{StaticResource CornerRadiusLarge}"
+              Padding="12,8"
+              IsVisible="False">
+        <StackPanel Spacing="4">
+          <TextBlock x:Name="LockoutText"
+                     Foreground="#E65100"
+                     FontSize="{StaticResource FontSizeSmall}"
+                     FontWeight="SemiBold"/>
+          <TextBlock x:Name="LockoutCountdown"
+                     Foreground="{StaticResource TextSecondaryBrush}"
+                     FontSize="11"/>
+        </StackPanel>
       </Border>
 
     </StackPanel>

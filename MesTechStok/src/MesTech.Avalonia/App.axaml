@@ -18,6 +18,8 @@
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/InputStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/SidebarStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/DialogStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/TypographyStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/AccessibilityStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/MesTechIcons.axaml"/>
     </Application.Styles>
 </Application>

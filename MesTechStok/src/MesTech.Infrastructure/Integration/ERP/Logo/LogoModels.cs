@@ -255,3 +255,224 @@ internal sealed class LogoAccountBalanceItem
     [JsonPropertyName("currency")]
     public string Currency { get; set; } = "TRY";
 }
+
+// ── ISP Capability Models ─────────────────────────────────────────────
+
+/// <summary>
+/// GET /salesInvoices/{number} — invoice detail response.
+/// </summary>
+internal sealed class LogoInvoiceDetailResponse
+{
+    [JsonPropertyName("invoiceNumber")]
+    public string InvoiceNumber { get; set; } = string.Empty;
+
+    [JsonPropertyName("erpRef")]
+    public string? ErpRef { get; set; }
+
+    [JsonPropertyName("issueDate")]
+    public string? IssueDate { get; set; }
+
+    [JsonPropertyName("grossTotal")]
+    public string? GrossTotal { get; set; }
+
+    [JsonPropertyName("pdfUrl")]
+    public string? PdfUrl { get; set; }
+}
+
+/// <summary>
+/// GET /salesInvoices?filter=DATE_ — invoice list wrapper.
+/// </summary>
+internal sealed class LogoInvoiceListResponse
+{
+    [JsonPropertyName("items")]
+    public List<LogoInvoiceDetailResponse> Items { get; set; } = new();
+}
+
+/// <summary>
+/// GET /currentAccounts/{code} — account detail response.
+/// </summary>
+internal sealed class LogoAccountDetailResponse
+{
+    [JsonPropertyName("code")]
+    public string Code { get; set; } = string.Empty;
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
+
+    [JsonPropertyName("balance")]
+    public string Balance { get; set; } = "0.00";
+
+    [JsonPropertyName("currency")]
+    public string Currency { get; set; } = "TRY";
+
+    [JsonPropertyName("taxNumber")]
+    public string? TaxNumber { get; set; }
+
+    [JsonPropertyName("taxOffice")]
+    public string? TaxOffice { get; set; }
+
+    [JsonPropertyName("address")]
+    public string? Address { get; set; }
+
+    [JsonPropertyName("city")]
+    public string? City { get; set; }
+
+    [JsonPropertyName("phone")]
+    public string? Phone { get; set; }
+
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
+}
+
+/// <summary>
+/// GET /currentAccounts?filter= — account search wrapper.
+/// </summary>
+internal sealed class LogoAccountSearchResponse
+{
+    [JsonPropertyName("items")]
+    public List<LogoAccountDetailResponse> Items { get; set; } = new();
+}
+
+/// <summary>
+/// GET /items — stock item response.
+/// </summary>
+internal sealed class LogoStockItemResponse
+{
+    [JsonPropertyName("code")]
+    public string Code { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonPropertyName("unitCode")]
+    public string UnitCode { get; set; } = "ADET";
+
+    [JsonPropertyName("warehouseCode")]
+    public string? WarehouseCode { get; set; }
+
+    [JsonPropertyName("unitCost")]
+    public string? UnitCost { get; set; }
+}
+
+/// <summary>
+/// GET /items — stock list wrapper.
+/// </summary>
+internal sealed class LogoStockListResponse
+{
+    [JsonPropertyName("items")]
+    public List<LogoStockItemResponse> Items { get; set; } = new();
+}
+
+/// <summary>
+/// POST /items/{code}/inventory — stock update request.
+/// </summary>
+internal sealed class LogoStockUpdateRequest
+{
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonPropertyName("warehouseCode")]
+    public string WarehouseCode { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// POST /salesDispatches — waybill creation request.
+/// </summary>
+internal sealed class LogoSalesDispatchRequest
+{
+    [JsonPropertyName("customerCode")]
+    public string CustomerCode { get; set; } = string.Empty;
+
+    [JsonPropertyName("shippingAddress")]
+    public string? ShippingAddress { get; set; }
+
+    [JsonPropertyName("cargoFirm")]
+    public string? CargoFirm { get; set; }
+
+    [JsonPropertyName("trackingNumber")]
+    public string? TrackingNumber { get; set; }
+
+    [JsonPropertyName("lines")]
+    public List<LogoSalesDispatchLineRequest> Lines { get; set; } = new();
+}
+
+/// <summary>
+/// Sales dispatch line item.
+/// </summary>
+internal sealed class LogoSalesDispatchLineRequest
+{
+    [JsonPropertyName("productCode")]
+    public string ProductCode { get; set; } = string.Empty;
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonPropertyName("unitCode")]
+    public string UnitCode { get; set; } = "ADET";
+}
+
+/// <summary>
+/// GET /salesDispatches/{number} — waybill detail response.
+/// </summary>
+internal sealed class LogoWaybillDetailResponse
+{
+    [JsonPropertyName("waybillNumber")]
+    public string WaybillNumber { get; set; } = string.Empty;
+
+    [JsonPropertyName("waybillDate")]
+    public string? WaybillDate { get; set; }
+}
+
+/// <summary>
+/// GET /bankSlips — bank transaction response.
+/// </summary>
+internal sealed class LogoBankTransactionResponse
+{
+    [JsonPropertyName("transactionDate")]
+    public string TransactionDate { get; set; } = string.Empty;
+
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; } = "0.00";
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("transactionType")]
+    public string TransactionType { get; set; } = string.Empty;
+
+    [JsonPropertyName("reference")]
+    public string? Reference { get; set; }
+}
+
+/// <summary>
+/// GET /bankSlips — bank transaction list wrapper.
+/// </summary>
+internal sealed class LogoBankTransactionListResponse
+{
+    [JsonPropertyName("items")]
+    public List<LogoBankTransactionResponse> Items { get; set; } = new();
+}
+
+/// <summary>
+/// POST /bankSlips — bank payment request.
+/// </summary>
+internal sealed class LogoBankPaymentRequest
+{
+    [JsonPropertyName("accountCode")]
+    public string AccountCode { get; set; } = string.Empty;
+
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; } = "0.00";
+
+    [JsonPropertyName("paymentType")]
+    public string PaymentType { get; set; } = string.Empty;
+
+    [JsonPropertyName("dueDate")]
+    public string? DueDate { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+}

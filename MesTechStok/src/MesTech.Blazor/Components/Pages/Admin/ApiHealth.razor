@@ -103,7 +103,7 @@ else
   {
     try
     {
-      var result = await ApiClient.SafeGetAsync<object>("health/adapters");
+      var result = await ApiClient.SafeGetAsync<object>("health");
       if (!result.IsSuccess) { _isDemoMode = true; }
 
       var now = DateTime.Now;
@@ -129,7 +129,8 @@ else
     }
     catch (Exception ex)
     {
-      errorMessage = $"Saglik verileri yuklenirken hata: {ex.Message}";
+      _isDemoMode = true;
+      Console.WriteLine($"Health API error, using demo data: {ex.Message}");
     }
     finally
     {

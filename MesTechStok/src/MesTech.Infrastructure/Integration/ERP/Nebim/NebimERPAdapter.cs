@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 /// <summary>
 /// Nebim V3 ERP adapter — Nebim V3 REST API.
 /// Auth: API Key header ("X-Nebim-ApiKey").
-/// Implements IErpAdapter (Dalga 11 enum-based interface) + IErpStockCapable.
+/// Implements IErpAdapter (Dalga 11 enum-based interface) + IErpStockCapable + IErpInvoiceCapable + IErpAccountCapable.
 ///
 /// Config keys (via NebimOptions):
 ///   - ERP:Nebim:BaseUrl       (e.g. "https://api.nebim.com/v3")
@@ -28,7 +28,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 ///   - GET  /api/customers         (account balances)
 ///   - GET  /api/ping              (health check)
 /// </summary>
-public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable
+public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable
 {
     private readonly HttpClient _httpClient;
     private readonly NebimOptions _options;
@@ -439,6 +439,354 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable
             _logger.LogError(ex,
                 "[NebimERPAdapter] UpdateStockAsync exception — ProductCode:{ProductCode}", productCode);
             return false;
+        }
+#pragma warning restore CA1031
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpInvoiceCapable — Invoice CRUD via Nebim V3 API
+    // ═══════════════════════════════════════════════════════════════════
+
+    public async Task<ErpInvoiceResult> CreateInvoiceAsync(ErpInvoiceRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[NebimERPAdapter] CreateInvoiceAsync — Customer:{Customer}", request.CustomerCode);
+
+#pragma warning disable CA1031 // Intentional: ERP invoice failure must be returned, not propagated
+        try
+        {
+            SetApiKeyHeader();
+
+            var nebimInvoice = new
+            {
+                officeCode = _options.OfficeCode,
+                warehouseCode = _options.WarehouseCode,
+                currAccCode = request.CustomerCode,
+                invoiceDate = DateTime.Today.ToString("yyyy-MM-dd"),
+                invoiceType = "Sales",
+                lines = request.Lines.Select(l => new
+                {
+                    productCode = l.ProductCode,
+                    productName = l.ProductName,
+                    qty = l.Quantity,
+                    price = (double)l.UnitPrice,
+                    vatRate = l.TaxRate,
+                    discountAmount = (double)(l.DiscountAmount ?? 0m)
+                }).ToArray(),
+                description = request.Notes,
+                currency = request.Currency,
+                subTotal = (double)request.SubTotal,
+                taxTotal = (double)request.TaxTotal,
+                grandTotal = (double)request.GrandTotal
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(nebimInvoice, JsonOptions),
+                Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/invoices", content, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct);
+                var json = JsonDocument.Parse(body);
+                var invoiceNumber = json.RootElement.TryGetProperty("invoiceNumber", out var inv)
+                    ? inv.GetString() ?? string.Empty : $"NEBIM-{DateTime.UtcNow:yyyyMMddHHmmss}";
+                var erpRef = json.RootElement.TryGetProperty("erpRef", out var er)
+                    ? er.GetString() ?? invoiceNumber : invoiceNumber;
+                var totalAmount = json.RootElement.TryGetProperty("grandTotal", out var ta)
+                    ? ta.GetDecimal() : request.GrandTotal;
+                var pdfUrl = json.RootElement.TryGetProperty("pdfUrl", out var pu)
+                    ? pu.GetString() : null;
+
+                _logger.LogInformation("[NebimERPAdapter] Invoice created — Number:{Number}", invoiceNumber);
+                return ErpInvoiceResult.Ok(invoiceNumber, erpRef, DateTime.Today, totalAmount, pdfUrl);
+            }
+
+            var err = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("[NebimERPAdapter] CreateInvoice failed: HTTP {Status}: {Error}",
+                (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
+            return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] CreateInvoiceAsync exception");
+            return ErpInvoiceResult.Failed(ex.Message);
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<ErpInvoiceResult?> GetInvoiceAsync(string invoiceNumber, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(invoiceNumber)) return null;
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return null on error
+        try
+        {
+            SetApiKeyHeader();
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct);
+
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            var date = json.RootElement.TryGetProperty("invoiceDate", out var d)
+                ? DateTime.TryParse(d.GetString(), out var dt) ? dt : DateTime.Today : DateTime.Today;
+            var amount = json.RootElement.TryGetProperty("grandTotal", out var a) ? a.GetDecimal() : 0m;
+            var erpRef = json.RootElement.TryGetProperty("erpRef", out var er)
+                ? er.GetString() ?? invoiceNumber : invoiceNumber;
+            var pdfUrl = json.RootElement.TryGetProperty("pdfUrl", out var pu)
+                ? pu.GetString() : null;
+
+            return ErpInvoiceResult.Ok(invoiceNumber, erpRef, date, amount, pdfUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetInvoiceAsync exception — {Number}", invoiceNumber);
+            return null;
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<List<ErpInvoiceResult>> GetInvoicesAsync(DateTime from, DateTime to, CancellationToken ct = default)
+    {
+#pragma warning disable CA1031 // Intentional: graceful degradation — return empty on error
+        try
+        {
+            SetApiKeyHeader();
+            var url = $"{BaseUrl}/api/invoices?fromDate={from:yyyy-MM-dd}&toDate={to:yyyy-MM-dd}&officeCode={_options.OfficeCode}";
+            var response = await _httpClient.GetAsync(url, ct);
+
+            if (!response.IsSuccessStatusCode) return new List<ErpInvoiceResult>();
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            var results = new List<ErpInvoiceResult>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var number = item.TryGetProperty("invoiceNumber", out var n) ? n.GetString() ?? "" : "";
+                var erpRef = item.TryGetProperty("erpRef", out var er) ? er.GetString() ?? number : number;
+                var date = item.TryGetProperty("invoiceDate", out var d)
+                    ? DateTime.TryParse(d.GetString(), out var dt) ? dt : DateTime.Today : DateTime.Today;
+                var amount = item.TryGetProperty("grandTotal", out var a) ? a.GetDecimal() : 0m;
+                var pdfUrl = item.TryGetProperty("pdfUrl", out var pu) ? pu.GetString() : null;
+
+                results.Add(ErpInvoiceResult.Ok(number, erpRef, date, amount, pdfUrl));
+            }
+
+            return results;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetInvoicesAsync exception");
+            return new List<ErpInvoiceResult>();
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<bool> CancelInvoiceAsync(string invoiceNumber, string reason, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(invoiceNumber)) return false;
+
+#pragma warning disable CA1031 // Intentional: ERP cancel failure must be returned, not propagated
+        try
+        {
+            SetApiKeyHeader();
+            var payload = new { invoiceNumber, reason, status = "Cancelled" };
+            var content = new StringContent(
+                JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Put,
+                $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel")
+            { Content = content };
+
+            var response = await _httpClient.SendAsync(request, ct);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] CancelInvoiceAsync exception — {Number}", invoiceNumber);
+            return false;
+        }
+#pragma warning restore CA1031
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpAccountCapable — Account CRUD via Nebim V3 API
+    // ═══════════════════════════════════════════════════════════════════
+
+    public async Task<ErpAccountResult> CreateAccountAsync(ErpAccountRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[NebimERPAdapter] CreateAccountAsync — Code:{Code}", request.AccountCode);
+
+#pragma warning disable CA1031 // Intentional: ERP account failure must be returned, not propagated
+        try
+        {
+            SetApiKeyHeader();
+            var nebimAccount = new
+            {
+                currAccCode = request.AccountCode,
+                currAccDescription = request.CompanyName,
+                taxNumber = request.TaxId,
+                taxOffice = request.TaxOffice,
+                address = request.Address,
+                city = request.City,
+                phone = request.Phone,
+                email = request.Email,
+                officeCode = _options.OfficeCode
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(nebimAccount, JsonOptions), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/customers", content, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("[NebimERPAdapter] Account created — Code:{Code}", request.AccountCode);
+                return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
+            }
+
+            var err = await response.Content.ReadAsStringAsync(ct);
+            return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] CreateAccountAsync exception");
+            return ErpAccountResult.Failed(ex.Message);
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<ErpAccountResult?> GetAccountAsync(string accountCode, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(accountCode)) return null;
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return null on error
+        try
+        {
+            SetApiKeyHeader();
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct);
+
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            var name = json.RootElement.TryGetProperty("currAccDescription", out var n)
+                ? n.GetString() ?? "" : "";
+            var balance = json.RootElement.TryGetProperty("balance", out var b)
+                ? b.GetDecimal() : 0m;
+            var currency = json.RootElement.TryGetProperty("currencyCode", out var c)
+                ? c.GetString() ?? "TRY" : "TRY";
+
+            return ErpAccountResult.Ok(accountCode, name, balance, currency);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetAccountAsync exception — {Code}", accountCode);
+            return null;
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<ErpAccountResult> UpdateAccountAsync(ErpAccountRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+#pragma warning disable CA1031 // Intentional: ERP update failure must be returned, not propagated
+        try
+        {
+            SetApiKeyHeader();
+            var nebimAccount = new
+            {
+                currAccDescription = request.CompanyName,
+                taxNumber = request.TaxId,
+                taxOffice = request.TaxOffice,
+                address = request.Address,
+                city = request.City,
+                phone = request.Phone,
+                email = request.Email
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(nebimAccount, JsonOptions), Encoding.UTF8, "application/json");
+            var httpRequest = new HttpRequestMessage(HttpMethod.Put,
+                $"{BaseUrl}/api/customers/{Uri.EscapeDataString(request.AccountCode)}")
+            { Content = content };
+
+            var response = await _httpClient.SendAsync(httpRequest, ct);
+
+            if (response.IsSuccessStatusCode)
+                return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
+
+            var err = await response.Content.ReadAsStringAsync(ct);
+            return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] UpdateAccountAsync exception");
+            return ErpAccountResult.Failed(ex.Message);
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<List<ErpAccountResult>> SearchAccountsAsync(string query, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return new List<ErpAccountResult>();
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return empty on error
+        try
+        {
+            SetApiKeyHeader();
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/customers?search={Uri.EscapeDataString(query)}&officeCode={_options.OfficeCode}", ct);
+
+            if (!response.IsSuccessStatusCode) return new List<ErpAccountResult>();
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            var results = new List<ErpAccountResult>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var code = item.TryGetProperty("currAccCode", out var c) ? c.GetString() ?? "" : "";
+                var name = item.TryGetProperty("currAccDescription", out var n) ? n.GetString() ?? "" : "";
+                var balance = item.TryGetProperty("balance", out var b) ? b.GetDecimal() : 0m;
+                var currency = item.TryGetProperty("currencyCode", out var cur)
+                    ? cur.GetString() ?? "TRY" : "TRY";
+                results.Add(ErpAccountResult.Ok(code, name, balance, currency));
+            }
+
+            return results;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] SearchAccountsAsync exception");
+            return new List<ErpAccountResult>();
+        }
+#pragma warning restore CA1031
+    }
+
+    public async Task<decimal> GetAccountBalanceAsync(string accountCode, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(accountCode)) return 0m;
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return 0 on error
+        try
+        {
+            SetApiKeyHeader();
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct);
+
+            if (!response.IsSuccessStatusCode) return 0m;
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            return json.RootElement.TryGetProperty("balance", out var b) ? b.GetDecimal() : 0m;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalanceAsync exception — {Code}", accountCode);
+            return 0m;
         }
 #pragma warning restore CA1031
     }

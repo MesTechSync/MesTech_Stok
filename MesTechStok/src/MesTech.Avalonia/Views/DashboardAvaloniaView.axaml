@@ -1,173 +1,380 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
 
-    <!-- Avalonia Dashboard — 4 KPI cards + recent orders DataGrid -->
+    <!-- Premium Dashboard — 6 KPI + Tables + Platform Health + AI Insight -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Background="#F8FAFC">
 
-        <!-- Row 0: Header / Refresh Bar -->
-        <Border Grid.Row="0" Background="White" Padding="16,10"
-                BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 0: Header Bar                                           -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Background="White" Padding="20,12"
+                BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                BoxShadow="0 1 3 0 #0D000000">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kontrol Paneli" FontSize="22" FontWeight="Bold"
-                               Foreground="#0078D4" VerticalAlignment="Center" />
-                    <TextBlock Text="Stok ve islem durum ozeti"
-                               FontSize="14" Foreground="#64748B" VerticalAlignment="Center" />
+                    <PathIcon Data="{StaticResource IconDashboard}"
+                              Width="24" Height="24" Foreground="#0078D4" />
+                    <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold"
+                               Foreground="#0F172A" VerticalAlignment="Center" />
+                    <Border Background="#EFF6FF" CornerRadius="12" Padding="10,4"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="Canli" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#0078D4" />
+                    </Border>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
-                    <Button Content="Yenile" Command="{Binding RefreshCommand}"
-                            Background="#0078D4" Foreground="White"
-                            Padding="16,8" CornerRadius="6" />
-                    <TextBlock Text="{Binding LastUpdated, StringFormat='Son: {0}'}"
-                               VerticalAlignment="Center" Foreground="#64748B" FontSize="12" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding LastRefreshText}"
+                               FontSize="12" Foreground="#94A3B8"
+                               VerticalAlignment="Center" />
+                    <ToggleSwitch IsChecked="{Binding IsAutoRefreshEnabled}"
+                                  OnContent="Canli" OffContent="Durdur"
+                                  VerticalAlignment="Center" />
+                    <Button Command="{Binding RefreshCommand}"
+                            ToolTip.Tip="Yenile"
+                            Background="Transparent" BorderThickness="1"
+                            BorderBrush="#E2E8F0" CornerRadius="6"
+                            Padding="8">
+                        <PathIcon Data="{StaticResource IconRefresh}"
+                                  Width="16" Height="16" Foreground="#64748B" />
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Row 1: KPI Cards -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 1: 6 KPI Cards                                         -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <WrapPanel Grid.Row="1" Margin="20,16,20,4"
+                   Orientation="Horizontal">
 
-            <!-- Toplam Urun -->
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
-                <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#0078D4" />
-                    <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
-                        <TextBlock Text="{Binding TotalProducts}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#0078D4"
-                                   Margin="0,8,0,0" />
-                        <TextBlock Text="Sistemdeki aktif urun sayisi"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                    </StackPanel>
+            <!-- KPI 1: Bugun Satis -->
+            <controls:KpiCardControl DataContext="{Binding TodaySalesKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+
+            <!-- KPI 2: Bu Hafta Ciro -->
+            <controls:KpiCardControl DataContext="{Binding WeekRevenueKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+
+            <!-- KPI 3: Urunler Toplam -->
+            <controls:KpiCardControl DataContext="{Binding TotalProductsKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+
+            <!-- KPI 4: Dusuk Stok -->
+            <controls:KpiCardControl DataContext="{Binding LowStockKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+
+            <!-- KPI 5: Bekleyen Siparis -->
+            <controls:KpiCardControl DataContext="{Binding PendingOrdersKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+
+            <!-- KPI 6: Iadeler -->
+            <controls:KpiCardControl DataContext="{Binding ReturnsKpi}"
+                                     Width="180" Margin="0,0,12,12" />
+        </WrapPanel>
+
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 2: Tables — Son Siparisler + Stok Uyarilari            -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*"
+              Margin="20,8,20,8">
+
+            <!-- Left: Son Siparisler -->
+            <Border Grid.Column="0" Classes="mestech-card" Margin="0,0,8,0"
+                    Padding="0" ClipToBounds="True">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <PathIcon Grid.Column="0"
+                                      Data="{StaticResource IconShoppingCart}"
+                                      Width="18" Height="18" Foreground="#0078D4"
+                                      Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="1" Text="Son Siparisler"
+                                       FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="10 kayit"
+                                       FontSize="11" Foreground="#94A3B8"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding RecentOrders}"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="True"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              Background="White"
+                              MaxHeight="380">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Siparis No"
+                                                Binding="{Binding OrderNo}"
+                                                Width="130" />
+                            <DataGridTextColumn Header="Tarih"
+                                                Binding="{Binding Date}"
+                                                Width="90" />
+                            <DataGridTextColumn Header="Musteri"
+                                                Binding="{Binding Customer}"
+                                                Width="150" />
+                            <DataGridTextColumn Header="Tutar"
+                                                Binding="{Binding Amount}"
+                                                Width="100" />
+                            <DataGridTextColumn Header="Durum"
+                                                Binding="{Binding Status}"
+                                                Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </Border>
 
-            <!-- Aktif Siparis -->
-            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
-                <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#10B981" />
-                    <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Aktif Siparis" FontSize="12" Foreground="#6B7280" />
-                        <TextBlock Text="{Binding ActiveOrders}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#10B981"
-                                   Margin="0,8,0,0" />
-                        <TextBlock Text="Islemdeki siparis sayisi"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <!-- Right: Stok Uyarilari -->
+            <Border Grid.Column="1" Classes="mestech-card" Margin="8,0,0,0"
+                    Padding="0" ClipToBounds="True">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <PathIcon Grid.Column="0"
+                                      Data="{StaticResource IconWarning}"
+                                      Width="18" Height="18" Foreground="#F59E0B"
+                                      Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="1" Text="Stok Uyarilari"
+                                       FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1E293B"
+                                       VerticalAlignment="Center" />
+                            <Border Grid.Column="2" Background="#FEF3C7"
+                                    CornerRadius="10" Padding="8,2">
+                                <TextBlock Text="{Binding CriticalStockCount}"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="#D97706"
+                                           HorizontalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding CriticalStockItems}"
+                                      Margin="0,4,0,4">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="8,2" Padding="0"
+                                            CornerRadius="6"
+                                            Background="#FAFAFA"
+                                            BorderBrush="#F0F0F0"
+                                            BorderThickness="1">
+                                        <Grid ColumnDefinitions="4,*,Auto,Auto"
+                                              MinHeight="48">
+                                            <!-- Color severity bar -->
+                                            <Border Grid.Column="0"
+                                                    Background="{Binding SeverityColor}"
+                                                    CornerRadius="6,0,0,6" />
 
-            <!-- Bugunku Gelir -->
-            <Border Grid.Column="2" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
-                <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#F59E0B" />
-                    <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Bugunku Gelir" FontSize="12" Foreground="#6B7280" />
-                        <TextBlock Text="{Binding TodayRevenue}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
-                                   Margin="0,8,0,0" />
-                        <TextBlock Text="Gunluk toplam gelir"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+                                            <!-- Product info -->
+                                            <StackPanel Grid.Column="1"
+                                                        Margin="12,6,8,6"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ProductName}"
+                                                           FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="#1E293B"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxWidth="180" />
+                                                <TextBlock Text="{Binding SKU}"
+                                                           FontSize="11" Foreground="#94A3B8" />
+                                            </StackPanel>
 
-            <!-- Stok Alarm -->
-            <Border Grid.Column="3" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
-                <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#E74C3C" />
-                    <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Stok Alarm" FontSize="12" Foreground="#6B7280" />
-                        <TextBlock Text="{Binding StockAlerts}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#E74C3C"
-                                   Margin="0,8,0,0" />
-                        <TextBlock Text="Kritik stok seviyesi"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
-                    </StackPanel>
+                                            <!-- Stock count -->
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding StockText}"
+                                                       FontSize="13" FontWeight="Bold"
+                                                       Foreground="{Binding SeverityColor}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0" />
+
+                                            <!-- Order button -->
+                                            <Button Grid.Column="3"
+                                                    Content="Siparis &#x2192;"
+                                                    Command="{Binding OrderCommand}"
+                                                    FontSize="11"
+                                                    Padding="10,4"
+                                                    CornerRadius="4"
+                                                    Background="#0078D4"
+                                                    Foreground="White"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,8,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- Row 2: Recent Orders Table -->
-        <Border Grid.Row="2" Background="White" CornerRadius="8" Margin="22,0,22,22"
-                BorderBrush="#E0E6ED" BorderThickness="1">
-            <Grid RowDefinitions="Auto,*">
-                <Border Grid.Row="0" Padding="20,14"
-                        BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
-                    <TextBlock Text="Son Siparisler" FontSize="16" FontWeight="SemiBold"
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 3: Platform Saglik Durumu                               -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="3" Classes="mestech-card" Margin="20,4,20,8"
+                Padding="16,12">
+            <Grid RowDefinitions="Auto,Auto">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8"
+                            Margin="0,0,0,10">
+                    <PathIcon Data="{StaticResource IconChart}"
+                              Width="16" Height="16" Foreground="#0078D4" />
+                    <TextBlock Text="Platform Saglik Durumu"
+                               FontSize="14" FontWeight="SemiBold"
                                Foreground="#1E293B" />
-                </Border>
-                <DataGrid Grid.Row="1"
-                          ItemsSource="{Binding RecentOrders}"
-                          AutoGenerateColumns="False"
-                          CanUserReorderColumns="True"
-                          CanUserResizeColumns="True"
-                          CanUserSortColumns="True"
-                          IsReadOnly="True"
-                          GridLinesVisibility="Horizontal"
-                          BorderThickness="0"
-                          Background="White">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="160" />
-                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
-                        <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="200" />
-                        <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="150" />
-                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
-                    </DataGrid.Columns>
-                </DataGrid>
+                </StackPanel>
+                <ItemsControl Grid.Row="1"
+                              ItemsSource="{Binding PlatformStatuses}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,16,6" Padding="8,4"
+                                    CornerRadius="12"
+                                    Background="#F8FAFC"
+                                    BorderBrush="#E2E8F0"
+                                    BorderThickness="1"
+                                    ToolTip.Tip="{Binding TooltipText}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Ellipse Width="8" Height="8"
+                                             Fill="{Binding StatusColor}" />
+                                    <TextBlock Text="{Binding PlatformName}"
+                                               FontSize="12" Foreground="#475569"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Grid>
         </Border>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 4: AI Onerisi (MESA OS — Mor/Purple)                    -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="4" Margin="20,0,20,20"
+                Background="#EDE9FE" CornerRadius="12"
+                Padding="20,16"
+                BorderBrush="#DDD6FE" BorderThickness="1"
+                IsVisible="{Binding HasAIInsight}">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- AI Icon + Title -->
+                <StackPanel Grid.Column="0" Margin="0,0,16,0"
+                            VerticalAlignment="Center">
+                    <Border Background="#7C3AED" CornerRadius="8"
+                            Width="40" Height="40"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="AI" FontSize="14" FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="MESA OS" FontSize="9" FontWeight="SemiBold"
+                               Foreground="#7C3AED" Margin="0,4,0,0"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- AI Content -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                            Spacing="4">
+                    <TextBlock Text="AI Onerisi" FontSize="14" FontWeight="Bold"
+                               Foreground="#7C3AED" />
+                    <TextBlock Text="{Binding AIInsightText}"
+                               FontSize="13" Foreground="#4C1D95"
+                               TextWrapping="Wrap"
+                               MaxWidth="600" />
+                </StackPanel>
+
+                <!-- Action Button -->
+                <Button Grid.Column="2"
+                        Content="Detaylar &#x2192;"
+                        Command="{Binding OpenAIInsightCommand}"
+                        Background="#7C3AED" Foreground="White"
+                        FontSize="12" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="8"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Loading Overlay                                             -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#99FFFFFF"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4"
+                             Margin="0,0,0,12" />
                 <TextBlock Text="Dashboard verileri yukleniyor..."
                            FontSize="14" Foreground="#555555"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
-        <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Empty State                                                 -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#F8FAFC"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <PathIcon Data="{StaticResource IconDashboard}"
+                          Width="48" Height="48" Foreground="#CBD5E1" />
                 <TextBlock Text="Veri yok" FontSize="20"
-                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center"
+                           Foreground="#94A3B8" Margin="0,12,0,4" />
                 <TextBlock Text="Henuz veri bulunamadi"
-                           FontSize="16" Foreground="#64748B"
+                           FontSize="14" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                        Margin="0,16,0,0" Padding="20,8" CornerRadius="6"
+                        Background="#0078D4" Foreground="White"
+                        HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Error State                                                 -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="#F8FAFC"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                <Border Background="#FFF3F3" CornerRadius="12" Padding="32"
+                        HorizontalAlignment="Center"
+                        BoxShadow="0 2 8 0 #1A000000">
+                    <StackPanel Spacing="8" HorizontalAlignment="Center">
+                        <PathIcon Data="{StaticResource IconError}"
+                                  Width="32" Height="32" Foreground="#E74C3C"
+                                  HorizontalAlignment="Center" />
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold"
+                                   Foreground="#E74C3C" FontSize="16"
+                                   HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14" Foreground="#666"
-                                   TextWrapping="Wrap" MaxWidth="400" />
+                                   TextWrapping="Wrap" MaxWidth="400"
+                                   HorizontalAlignment="Center" />
                         <Button Content="Tekrar Dene"
                                 Command="{Binding RefreshCommand}"
-                                Padding="16,6" Margin="0,8,0,0" />
+                                Padding="20,8" Margin="0,8,0,0"
+                                CornerRadius="6"
+                                Background="#0078D4" Foreground="White"
+                                HorizontalAlignment="Center" />
                     </StackPanel>
                 </Border>
             </StackPanel>

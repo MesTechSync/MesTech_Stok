@@ -5,8 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -24,7 +26,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// RegisterWebhook: webhooks.json POST.
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
-public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter
+public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;
@@ -73,7 +75,7 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     public string PlatformCode => "Shopify";
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
-    public bool SupportsShipment => false;
+    public bool SupportsShipment => true;
 
     // ─────────────────────────────────────────────
     // Helpers
@@ -1030,6 +1032,235 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
         {
             _logger.LogError(ex, "Shopify VerifyWebhookSignature exception");
             return false;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // IShipmentCapableAdapter — Shipment
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Sends shipment notification to Shopify by creating a fulfillment on the order.
+    /// POST /admin/api/2024-01/orders/{orderId}/fulfillments.json
+    /// Also implements IShipmentCapableAdapter.SendShipmentAsync.
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        var shipment = new ShipmentInfoDto
+        {
+            TrackingNumber = trackingNumber,
+            TrackingCompany = provider.ToString(),
+            NotifyCustomer = true
+        };
+        return await SendShipmentAsync(platformOrderId, shipment, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Creates a fulfillment with tracking info on a Shopify order.
+    /// POST /admin/api/2024-01/orders/{orderId}/fulfillments.json
+    /// Body: { "fulfillment": { "tracking_number": "...", "tracking_company": "...", "tracking_url": "...", "notify_customer": true } }
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, ShipmentInfoDto shipment,
+        CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(shipment);
+        _logger.LogInformation(
+            "ShopifyAdapter.SendShipmentAsync: OrderId={OrderId} Tracking={Tracking}",
+            platformOrderId, shipment.TrackingNumber);
+
+        if (string.IsNullOrWhiteSpace(platformOrderId))
+        {
+            _logger.LogWarning("ShopifyAdapter.SendShipmentAsync — platformOrderId gereklidir");
+            return false;
+        }
+
+        try
+        {
+            var payload = JsonSerializer.Serialize(new
+            {
+                fulfillment = new
+                {
+                    tracking_number = shipment.TrackingNumber,
+                    tracking_company = shipment.TrackingCompany,
+                    tracking_url = shipment.TrackingUrl,
+                    notify_customer = shipment.NotifyCustomer
+                }
+            });
+
+            using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+            var url = $"{BaseUrl}/orders/{Uri.EscapeDataString(platformOrderId)}/fulfillments.json";
+            var response = await _httpClient.PostAsync(url, requestContent, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Shopify SendShipment failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation(
+                "Shopify SendShipment success: OrderId={OrderId} Tracking={Tracking}",
+                platformOrderId, shipment.TrackingNumber);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Shopify SendShipment exception: OrderId={OrderId}", platformOrderId);
+            return false;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // Extended methods — Inventory Locations & Variants
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Lists all inventory locations for the Shopify store.
+    /// GET /admin/api/2024-01/locations.json
+    /// </summary>
+    public async Task<IReadOnlyList<InventoryLocationDto>> GetInventoryLocationsAsync(
+        CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.GetInventoryLocationsAsync called");
+
+        try
+        {
+            var url = $"{BaseUrl}/locations.json";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Shopify GetInventoryLocations failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return Array.Empty<InventoryLocationDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var locations = new List<InventoryLocationDto>();
+
+            if (doc.RootElement.TryGetProperty("locations", out var locationsArr))
+            {
+                foreach (var locEl in locationsArr.EnumerateArray())
+                {
+                    var id = locEl.TryGetProperty("id", out var idEl)
+                        ? idEl.GetInt64().ToString(CultureInfo.InvariantCulture)
+                        : string.Empty;
+
+                    var name = locEl.TryGetProperty("name", out var nameEl)
+                        ? nameEl.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var address1 = locEl.TryGetProperty("address1", out var a1El)
+                        ? a1El.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var address2 = locEl.TryGetProperty("address2", out var a2El)
+                        ? a2El.GetString() ?? string.Empty
+                        : string.Empty;
+
+                    var address = string.IsNullOrEmpty(address2)
+                        ? address1
+                        : $"{address1} {address2}".Trim();
+
+                    var active = locEl.TryGetProperty("active", out var activeEl) && activeEl.GetBoolean();
+
+                    locations.Add(new InventoryLocationDto
+                    {
+                        LocationId = id,
+                        Name = name,
+                        Address = string.IsNullOrEmpty(address) ? null : address,
+                        Active = active
+                    });
+                }
+            }
+
+            _logger.LogInformation("Shopify GetInventoryLocations: {Count} locations retrieved",
+                locations.Count);
+            return locations.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Shopify GetInventoryLocations failed");
+            return Array.Empty<InventoryLocationDto>();
+        }
+    }
+
+    /// <summary>
+    /// Lists variants for a specific Shopify product.
+    /// GET /admin/api/2024-01/products/{productId}/variants.json
+    /// </summary>
+    public async Task<IReadOnlyList<ProductVariantDto>> GetProductVariantsAsync(
+        string productId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.GetProductVariantsAsync: ProductId={ProductId}", productId);
+
+        if (string.IsNullOrWhiteSpace(productId))
+        {
+            _logger.LogWarning("ShopifyAdapter.GetProductVariantsAsync — productId gereklidir");
+            return Array.Empty<ProductVariantDto>();
+        }
+
+        try
+        {
+            var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Shopify GetProductVariants failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return Array.Empty<ProductVariantDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var variants = new List<ProductVariantDto>();
+
+            if (doc.RootElement.TryGetProperty("variants", out var variantsArr))
+            {
+                foreach (var vEl in variantsArr.EnumerateArray())
+                {
+                    variants.Add(new ProductVariantDto
+                    {
+                        VariantId = vEl.TryGetProperty("id", out var idEl)
+                            ? idEl.GetInt64().ToString(CultureInfo.InvariantCulture)
+                            : string.Empty,
+                        Sku = vEl.TryGetProperty("sku", out var skuEl)
+                            ? skuEl.GetString()
+                            : null,
+                        Title = vEl.TryGetProperty("title", out var titleEl)
+                            ? titleEl.GetString()
+                            : null,
+                        Price = vEl.TryGetProperty("price", out var priceEl)
+                            ? priceEl.GetString()
+                            : null,
+                        StockQuantity = vEl.TryGetProperty("inventory_quantity", out var iqEl)
+                            ? iqEl.GetInt32()
+                            : 0,
+                        ManageStock = vEl.TryGetProperty("inventory_management", out var imEl)
+                            && !string.IsNullOrEmpty(imEl.GetString())
+                    });
+                }
+            }
+
+            _logger.LogInformation("Shopify GetProductVariants: {Count} variants for product {ProductId}",
+                variants.Count, productId);
+            return variants.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Shopify GetProductVariants failed: ProductId={ProductId}", productId);
+            return Array.Empty<ProductVariantDto>();
         }
     }
 

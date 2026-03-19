@@ -51,6 +51,18 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<ITenantProvider, DevelopmentTenantProvider>();
         services.AddSingleton<ICurrentUserService, DevelopmentUserService>();
 
+        // Security — brute-force koruması + session + audit (İ-02)
+        services.AddSingleton<LoginAttemptTracker>();
+        services.AddSingleton<DesktopSessionManager>();
+        services.AddSingleton<LoginAuditLogger>();
+
+        // E-Fatura — XAdES + QuestPDF + Paraşüt sync (İ-08)
+        services.Configure<Services.XAdESOptions>(configuration.GetSection("XAdES"));
+        services.AddScoped<IDigitalSignatureService, Services.XAdESSignatureService>();
+        services.AddScoped<IInvoicePdfGenerator, Services.QuestPdfInvoiceGenerator>();
+        services.Configure<Integration.ERP.ParasutOptions>(configuration.GetSection("Parasut"));
+        services.AddScoped<Integration.ERP.IParasutInvoiceSyncService, Integration.ERP.ParasutInvoiceSyncService>();
+
         // AuditInterceptor
         services.AddScoped<AuditInterceptor>();
 
@@ -200,7 +212,10 @@ public static class InfrastructureServiceRegistration
             services.AddHttpClient<IMesaAIService, ProductionMesaAIService>();
         else
             services.AddScoped<IMesaAIService, MockMesaAIService>();
-        services.AddScoped<IMesaBotService, MockMesaBotService>();
+        if (useMesaProd)
+            services.AddHttpClient<IMesaBotService, ProductionMesaBotService>();
+        else
+            services.AddScoped<IMesaBotService, MockMesaBotService>();
 
         // Feature flag: Mesa:BridgeEnabled=true → RealMesaEventPublisher (HTTP REST)
         //               Mesa:BridgeEnabled=false (default) → MesaEventPublisher (MassTransit/Mock)
@@ -240,9 +255,11 @@ public static class InfrastructureServiceRegistration
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
+        services.AddHttpClient("MesaOSHealth");
         services.AddHealthChecks()
             .AddCheck<RedisHealthCheck>("redis")
-            .AddCheck<PostgresHealthCheck>("postgresql");
+            .AddCheck<PostgresHealthCheck>("postgresql")
+            .AddCheck<MesaOSHealthCheck>("mesa-os");
 
         // Health Check HTTP Endpoint (http://localhost:3100/health)
         if (!skipSelfHostedEndpoints)

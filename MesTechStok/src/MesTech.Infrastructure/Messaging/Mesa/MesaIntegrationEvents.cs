@@ -14,7 +14,18 @@ public record MesaProductCreatedEvent(
     decimal SalePrice,
     List<string>? ImageUrls,
     Guid TenantId,
-    DateTime OccurredAt);
+    DateTime OccurredAt,
+    // EMR-13 M-04: MESA OS Zod validasyonu icin ek alanlar (nullable — geriye uyumlu)
+    string? Description = null,
+    string? CategoryId = null,
+    int? StockQuantity = null,
+    string? Barcode = null,
+    decimal? Weight = null,
+    decimal? Desi = null,
+    List<PlatformRef>? Platforms = null);
+
+/// <summary>Platform referans bilgisi (EMR-13).</summary>
+public record PlatformRef(string PlatformType, string? ExternalId);
 
 /// <summary>Stok kritik seviyeye dustu — MESA OS stok tahmini + Telegram alarm tetikler.</summary>
 public record MesaStockLowEvent(
@@ -24,7 +35,11 @@ public record MesaStockLowEvent(
     int MinimumStock,
     int? ReorderSuggestion,
     Guid TenantId,
-    DateTime OccurredAt);
+    DateTime OccurredAt,
+    // EMR-13 M-04: Ek alanlar
+    string? ProductName = null,
+    decimal? AverageDailySales = null,
+    int? EstimatedDaysLeft = null);
 
 /// <summary>Yeni siparis alindi — MESA OS WhatsApp bildirim tetikler.</summary>
 public record MesaOrderReceivedEvent(
@@ -34,7 +49,16 @@ public record MesaOrderReceivedEvent(
     decimal TotalAmount,
     string? CustomerPhone,
     Guid TenantId,
-    DateTime OccurredAt);
+    DateTime OccurredAt,
+    // EMR-13 M-04: Ek alanlar
+    string? CustomerName = null,
+    string? CustomerEmail = null,
+    string? Currency = null,
+    string? ShippingAddress = null,
+    List<OrderItemRef>? Items = null);
+
+/// <summary>Siparis kalemi referansi (EMR-13).</summary>
+public record OrderItemRef(Guid ProductId, string SKU, string Name, int Quantity, decimal UnitPrice);
 
 /// <summary>Fiyat degisti — MESA OS fiyat optimizasyonu analiz tetikler.</summary>
 public record MesaPriceChangedEvent(
@@ -43,7 +67,13 @@ public record MesaPriceChangedEvent(
     decimal OldPrice,
     decimal NewPrice,
     Guid TenantId,
-    DateTime OccurredAt);
+    DateTime OccurredAt,
+    // EMR-13 M-04: Ek alanlar
+    string? Platform = null,
+    string? ProductName = null,
+    string? Currency = null,
+    string? ChangeReason = null,
+    decimal? CompetitorPrice = null);
 
 /// <summary>Fatura GIB'e basariyla gonderildi — MESA OS WhatsApp + e-posta bildirim tetikler.</summary>
 public record MesaInvoiceGeneratedEvent(
@@ -98,7 +128,10 @@ public record MesaBuyboxLostEvent(
     string CompetitorName,
     decimal PriceDifference,
     Guid TenantId,
-    DateTime OccurredAt);
+    DateTime OccurredAt,
+    // EMR-13 M-04: Ek alanlar
+    string? ProductName = null,
+    string? Platform = null);
 
 /// <summary>Tedarikci feed sync tamamlandi.</summary>
 public record MesaSupplierFeedSyncedEvent(

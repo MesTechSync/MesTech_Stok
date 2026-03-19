@@ -189,7 +189,15 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<DropshipOrdersAvaloniaViewModel>();
                 services.AddTransient<DropshipProfitAvaloniaViewModel>();
                 services.AddTransient<ImportSettingsAvaloniaViewModel>();
+                services.AddTransient<ImportProductsAvaloniaViewModel>();
+                services.AddTransient<ProductVariantMatrixViewModel>();
                 services.AddTransient<PlatformSyncStatusAvaloniaViewModel>();
+                // İ-05 Siparis/Kargo Celiklestirme ViewModels
+                services.AddTransient<BulkShipmentAvaloniaViewModel>();
+                services.AddTransient<ReturnListAvaloniaViewModel>();
+                services.AddTransient<ReturnDetailAvaloniaViewModel>();
+                services.AddTransient<LabelPreviewAvaloniaViewModel>();
+                services.AddTransient<CargoProvidersAvaloniaViewModel>();
             })
             .Build();
 

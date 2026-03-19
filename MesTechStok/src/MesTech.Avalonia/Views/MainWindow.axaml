@@ -261,6 +261,41 @@
                                     <TextBlock Text="Kargo Takip"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CargoProviders">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kargo Firmalari"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="BulkShipment">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
+                                    <TextBlock Text="Toplu Gonderim"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="LabelPreview">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconPrint}" Width="16" Height="16"/>
+                                    <TextBlock Text="Etiket Yazdir"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- IADELER -->
+                            <TextBlock Classes="sidebar-section" Text="IADELER"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ReturnList">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Iade Listesi"/>
+                                </StackPanel>
+                            </Button>
 
                             <!-- 7. E-FATURA -->
                             <TextBlock Classes="sidebar-section" Text="E-FATURA"/>
@@ -718,6 +753,22 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:PlatformSyncStatusAvaloniaViewModel">
                             <views:PlatformSyncStatusAvaloniaView />
+                        </DataTemplate>
+                        <!-- İ-05 Siparis/Kargo Celiklestirme views -->
+                        <DataTemplate DataType="vm:BulkShipmentAvaloniaViewModel">
+                            <views:BulkShipmentAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ReturnListAvaloniaViewModel">
+                            <views:ReturnListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ReturnDetailAvaloniaViewModel">
+                            <views:ReturnDetailAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:LabelPreviewAvaloniaViewModel">
+                            <views:LabelPreviewAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CargoProvidersAvaloniaViewModel">
+                            <views:CargoProvidersAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

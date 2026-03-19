@@ -147,7 +147,7 @@ else
   {
     try
     {
-      var result = await ApiClient.SafeGetAsync<object>("warehouses/placement");
+      var result = await ApiClient.SafeGetAsync<object>("warehouses");
       if (!result.IsSuccess) { _isDemoMode = true; }
 
       warehouses =

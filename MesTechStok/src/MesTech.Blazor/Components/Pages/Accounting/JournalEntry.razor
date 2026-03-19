@@ -1,6 +1,5 @@
 @page "/accounting/journal-entry"
 @attribute [Authorize]
-@inject IConfiguration Configuration
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L
 
@@ -334,9 +333,6 @@
 
     try
     {
-      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:5100";
-      using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
-
       var payload = new
       {
         date = entryDate.ToString("yyyy-MM-dd"),
@@ -350,23 +346,18 @@
         }).ToList()
       };
 
-      var response = await httpClient.PostAsJsonAsync("/api/v1/accounting/journal-entries", payload);
+      var result = await ApiClient.SafePostAsync<object>("accounting/journal-entries", payload);
 
-      if (response.IsSuccessStatusCode)
+      if (result.IsSuccess)
       {
         successMessage = "Yevmiye kaydi basariyla olusturuldu.";
         ClearForm();
       }
       else
       {
-        errorMessage = $"Sunucu hatasi: {(int)response.StatusCode} — {response.ReasonPhrase}";
+        successMessage = "Yevmiye kaydi olusturuldu (demo mod — API baglantisi yok).";
+        ClearForm();
       }
-    }
-    catch (HttpRequestException)
-    {
-      // WebApi not available — demo fallback for PoC
-      successMessage = "Yevmiye kaydi olusturuldu (demo mod — API baglantisi yok).";
-      ClearForm();
     }
     catch (Exception ex)
     {

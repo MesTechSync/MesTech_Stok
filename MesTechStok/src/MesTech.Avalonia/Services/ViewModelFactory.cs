@@ -128,7 +128,15 @@ public sealed class ViewModelFactory : IViewModelFactory
             "DropshipOrders" => _provider.GetService<DropshipOrdersAvaloniaViewModel>(),
             "DropshipProfit" => _provider.GetService<DropshipProfitAvaloniaViewModel>(),
             "ImportSettings" => _provider.GetService<ImportSettingsAvaloniaViewModel>(),
+            "ImportProducts" => _provider.GetService<ImportProductsAvaloniaViewModel>(),
+            "ProductVariantMatrix" => _provider.GetService<ProductVariantMatrixViewModel>(),
             "PlatformSyncStatus" => _provider.GetService<PlatformSyncStatusAvaloniaViewModel>(),
+            // İ-05 Siparis/Kargo Celiklestirme views
+            "BulkShipment" => _provider.GetService<BulkShipmentAvaloniaViewModel>(),
+            "ReturnList" => _provider.GetService<ReturnListAvaloniaViewModel>(),
+            "ReturnDetail" => _provider.GetService<ReturnDetailAvaloniaViewModel>(),
+            "LabelPreview" => _provider.GetService<LabelPreviewAvaloniaViewModel>(),
+            "CargoProviders" => _provider.GetService<CargoProvidersAvaloniaViewModel>(),
             _ => null
         };
     }

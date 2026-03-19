@@ -4,9 +4,9 @@
              x:Class="MesTech.Avalonia.Views.DropshipDashboardAvaloniaView"
              x:DataType="vm:DropshipDashboardAvaloniaViewModel">
 
-    <!-- Dropshipping Dashboard — KPI kartlari + tedarikci performans tablosu -->
+    <!-- Dropshipping Dashboard — KPI + tedarikci performans + karli urunler + oto siparis -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
@@ -23,67 +23,122 @@
         <!-- KPI Cards -->
         <Border Grid.Row="1" Padding="16,16,16,0">
             <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,0,8">
-                <!-- Total Orders -->
+                <!-- Tedarikci Sayisi -->
                 <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="#E5E9F2" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Toplam Sipariş" FontSize="12" Foreground="#64748B" />
-                        <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0:N0}'}"
+                        <TextBlock Text="Tedarikci Sayisi" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="{Binding SupplierCount, StringFormat='{}{0:N0}'}"
                                    FontSize="24" FontWeight="Bold" Foreground="#1E293B" />
+                        <TextBlock Text="{Binding ActiveSupplierText}" FontSize="11" Foreground="#4CAF50" />
                     </StackPanel>
                 </Border>
-                <!-- Revenue -->
+                <!-- Aktif Urun -->
                 <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="#E5E9F2" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Toplam Ciro" FontSize="12" Foreground="#64748B" />
-                        <TextBlock Text="{Binding TotalRevenue, StringFormat='₺{0:N0}'}"
+                        <TextBlock Text="Aktif Urun" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="{Binding ActiveProductCount, StringFormat='{}{0:N0}'}"
                                    FontSize="24" FontWeight="Bold" Foreground="#0078D4" />
+                        <TextBlock Text="{Binding ProductGrowthText}" FontSize="11" Foreground="#4CAF50" />
                     </StackPanel>
                 </Border>
-                <!-- Profit -->
+                <!-- Karlilik % -->
                 <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="#E5E9F2" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Net Kâr" FontSize="12" Foreground="#64748B" />
-                        <TextBlock Text="{Binding TotalProfit, StringFormat='₺{0:N0}'}"
+                        <TextBlock Text="Karlilik" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="{Binding ProfitabilityPercent, StringFormat='%{0:N1}'}"
                                    FontSize="24" FontWeight="Bold" Foreground="#4CAF50" />
+                        <TextBlock Text="{Binding ProfitTrendText}" FontSize="11" Foreground="#64748B" />
                     </StackPanel>
                 </Border>
-                <!-- Margin -->
+                <!-- Ort Teslim Suresi -->
                 <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="#E5E9F2" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Ort. Marj" FontSize="12" Foreground="#64748B" />
-                        <TextBlock Text="{Binding AverageMargin, StringFormat='%{0:N1}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="#FF6F00" />
+                        <TextBlock Text="Ort. Teslim Suresi" FontSize="12" Foreground="#64748B" />
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding AverageDeliveryDays, StringFormat='{}{0:N1}'}"
+                                       FontSize="24" FontWeight="Bold" Foreground="#FF6F00" />
+                            <TextBlock Text="gun" FontSize="14" Foreground="#FF6F00" VerticalAlignment="Bottom"
+                                       Margin="0,0,0,4" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding DeliveryTrendText}" FontSize="11" Foreground="#64748B" />
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- Supplier Performance Table -->
-        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="8"
-                BorderBrush="#E5E9F2" BorderThickness="1">
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Tedarikçi Performansı" FontSize="15" FontWeight="SemiBold"
-                           Foreground="#1E293B" Padding="16,12" />
-                <DataGrid ItemsSource="{Binding Suppliers}"
-                          AutoGenerateColumns="False" IsReadOnly="True"
-                          GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Tedarikçi" Binding="{Binding SupplierName}" Width="200" />
-                        <DataGridTextColumn Header="Sipariş" Binding="{Binding OrderCount}" Width="100" />
-                        <DataGridTextColumn Header="Ciro" Binding="{Binding Revenue, StringFormat='₺{0:N0}'}" Width="140" />
-                        <DataGridTextColumn Header="Karşılama %" Binding="{Binding FulfillRate, StringFormat='{}{0:N1}%'}" Width="120" />
-                        <DataGridTextColumn Header="Ort. Teslimat (Gün)" Binding="{Binding AvgDeliveryDays, StringFormat='{}{0:N1}'}" Width="160" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
+        <!-- Main Content: Supplier Performance + Top Products -->
+        <Grid Grid.Row="2" ColumnDefinitions="3*,2*" Margin="16,8,16,8">
+
+            <!-- Supplier Performance Table -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="0,0,8,0"
+                    BorderBrush="#E5E9F2" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="15" FontWeight="SemiBold"
+                               Foreground="#1E293B" Padding="16,12" />
+                    <DataGrid ItemsSource="{Binding Suppliers}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tedarikci" Binding="{Binding SupplierName}" Width="160" />
+                            <DataGridTextColumn Header="Siparis" Binding="{Binding OrderCount}" Width="80" />
+                            <DataGridTextColumn Header="Tamamlanan" Binding="{Binding CompletedCount}" Width="100" />
+                            <DataGridTextColumn Header="Hata" Binding="{Binding ErrorCount}" Width="70" />
+                            <DataGridTextColumn Header="Sure (gun)" Binding="{Binding AvgDeliveryDays, StringFormat='{}{0:N1}'}" Width="90" />
+                            <DataGridTextColumn Header="Rating" Binding="{Binding RatingStars}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+
+            <!-- Top 10 Profitable Products -->
+            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="8,0,0,0"
+                    BorderBrush="#E5E9F2" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="15" FontWeight="SemiBold"
+                               Foreground="#1E293B" Padding="16,12" />
+                    <DataGrid ItemsSource="{Binding TopProfitableProducts}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
+                            <DataGridTextColumn Header="Satis" Binding="{Binding SalesCount}" Width="70" />
+                            <DataGridTextColumn Header="Kar" Binding="{Binding Profit, StringFormat='TL{0:N0}'}" Width="90" />
+                            <DataGridTextColumn Header="Marj %" Binding="{Binding MarginPercent, StringFormat='{}{0:N1}%'}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Auto-Order Settings -->
+        <Border Grid.Row="3" Background="White" Margin="16,0,16,16" CornerRadius="8"
+                BorderBrush="#E5E9F2" BorderThickness="1" Padding="16,12">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="Otomatik Siparis Ayarlari"
+                           FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"
+                           VerticalAlignment="Center" Margin="0,0,16,0" />
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoOrderEnabled}"
+                              OnContent="Aktif" OffContent="Pasif"
+                              VerticalAlignment="Center" Margin="0,0,16,0" />
+                <TextBlock Grid.Column="2" Text="Min. Stok Esigi:"
+                           FontSize="13" Foreground="#64748B"
+                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                <NumericUpDown Grid.Column="3" Value="{Binding AutoOrderThreshold}"
+                               Minimum="1" Maximum="999" Width="120"
+                               VerticalAlignment="Center" Margin="0,0,16,0" />
+                <Button Grid.Column="5" Content="Ayarlari Kaydet"
+                        Command="{Binding SaveAutoOrderSettingsCommand}"
+                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
         </Border>
 
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />

@@ -5,8 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -21,7 +23,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// PushPriceUpdate: GET products?sku={sku} → PUT products/{id} with regular_price.
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
-public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;
@@ -69,7 +71,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public string PlatformCode => "WooCommerce";
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
-    public bool SupportsShipment => false;
+    public bool SupportsShipment => true;
 
     // ─────────────────────────────────────────────
     // Helpers
@@ -538,6 +540,258 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter
         {
             _logger.LogError(ex, "WooCommerce UpdateOrderStatus failed");
             return false;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // IShipmentCapableAdapter — Shipment
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Sends shipment notification to WooCommerce by updating order status to "completed"
+    /// and attaching tracking metadata.
+    /// Also implements IShipmentCapableAdapter.SendShipmentAsync.
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        var shipment = new ShipmentInfoDto
+        {
+            TrackingNumber = trackingNumber,
+            TrackingCompany = provider.ToString(),
+            NotifyCustomer = true
+        };
+        return await SendShipmentAsync(platformOrderId, shipment, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Updates a WooCommerce order to "completed" status with tracking metadata.
+    /// PUT /wp-json/wc/v3/orders/{orderId}
+    /// Body: { "status": "completed", "meta_data": [{ "key": "_tracking_number", "value": "..." }, ...] }
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, ShipmentInfoDto shipment,
+        CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(shipment);
+        _logger.LogInformation(
+            "WooCommerceAdapter.SendShipmentAsync: OrderId={OrderId} Tracking={Tracking}",
+            platformOrderId, shipment.TrackingNumber);
+
+        if (string.IsNullOrWhiteSpace(platformOrderId))
+        {
+            _logger.LogWarning("WooCommerceAdapter.SendShipmentAsync — platformOrderId gereklidir");
+            return false;
+        }
+
+        try
+        {
+            var metaData = new List<object>
+            {
+                new { key = "_tracking_number", value = shipment.TrackingNumber },
+                new { key = "_tracking_provider", value = shipment.TrackingCompany }
+            };
+
+            if (!string.IsNullOrWhiteSpace(shipment.TrackingUrl))
+                metaData.Add(new { key = "_tracking_url", value = shipment.TrackingUrl });
+
+            var payload = JsonSerializer.Serialize(new
+            {
+                status = "completed",
+                meta_data = metaData
+            });
+
+            using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+            var url = $"{ApiBase}/orders/{Uri.EscapeDataString(platformOrderId)}";
+            var response = await _httpClient.PutAsync(url, requestContent, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("WooCommerce SendShipment failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation(
+                "WooCommerce SendShipment success: OrderId={OrderId} Tracking={Tracking}",
+                platformOrderId, shipment.TrackingNumber);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "WooCommerce SendShipment exception: OrderId={OrderId}", platformOrderId);
+            return false;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // Extended methods — Batch Update & Variations
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Batch updates products in WooCommerce (max 100 per request).
+    /// POST /wp-json/wc/v3/products/batch
+    /// Body: { "update": [{ "id": 1, "regular_price": "10.00", "stock_quantity": 5 }, ...] }
+    /// </summary>
+    public async Task<BatchUpdateResultDto> BatchUpdateProductsAsync(
+        List<BatchProductUpdateDto> updates, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        ArgumentNullException.ThrowIfNull(updates);
+        _logger.LogInformation("WooCommerceAdapter.BatchUpdateProductsAsync: {Count} products", updates.Count);
+
+        var result = new BatchUpdateResultDto();
+
+        if (updates.Count == 0)
+            return result;
+
+        try
+        {
+            // WooCommerce batch API supports max 100 items per request
+            const int batchSize = 100;
+            var batches = new List<List<BatchProductUpdateDto>>();
+
+            for (var i = 0; i < updates.Count; i += batchSize)
+            {
+                batches.Add(updates.GetRange(i, Math.Min(batchSize, updates.Count - i)));
+            }
+
+            foreach (var batch in batches)
+            {
+                var updateItems = new List<object>();
+
+                foreach (var item in batch)
+                {
+                    var updateObj = new Dictionary<string, object> { { "id", item.ProductId } };
+
+                    if (item.Price.HasValue)
+                        updateObj["regular_price"] = item.Price.Value.ToString("F2", CultureInfo.InvariantCulture);
+
+                    if (item.Stock.HasValue)
+                    {
+                        updateObj["stock_quantity"] = item.Stock.Value;
+                        updateObj["manage_stock"] = true;
+                    }
+
+                    updateItems.Add(updateObj);
+                }
+
+                var payload = JsonSerializer.Serialize(new { update = updateItems });
+                using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+
+                var url = $"{ApiBase}/products/batch";
+                var response = await _httpClient.PostAsync(url, requestContent, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("WooCommerce BatchUpdate failed: {Status} - {Error}",
+                        response.StatusCode, error);
+                    result.Errors.Add($"Batch failed: HTTP {(int)response.StatusCode}");
+                    continue;
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(responseContent);
+
+                // Count updated items from response
+                if (doc.RootElement.TryGetProperty("update", out var updatedArr))
+                    result.Updated += updatedArr.GetArrayLength();
+            }
+
+            _logger.LogInformation(
+                "WooCommerce BatchUpdate complete: {Updated} updated, {Errors} errors",
+                result.Updated, result.Errors.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "WooCommerce BatchUpdateProducts failed");
+            result.Errors.Add($"Exception: {ex.Message}");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Gets variations for a WooCommerce variable product.
+    /// GET /wp-json/wc/v3/products/{productId}/variations?per_page=100
+    /// </summary>
+    public async Task<IReadOnlyList<ProductVariantDto>> GetProductVariationsAsync(
+        string productId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.GetProductVariationsAsync: ProductId={ProductId}", productId);
+
+        if (string.IsNullOrWhiteSpace(productId))
+        {
+            _logger.LogWarning("WooCommerceAdapter.GetProductVariationsAsync — productId gereklidir");
+            return Array.Empty<ProductVariantDto>();
+        }
+
+        try
+        {
+            var variations = new List<ProductVariantDto>();
+            var page = 1;
+            int totalPages;
+
+            do
+            {
+                var url = $"{ApiBase}/products/{Uri.EscapeDataString(productId)}/variations?per_page={PageSize}&page={page}";
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("WooCommerce GetProductVariations failed: {Status} - {Error}",
+                        response.StatusCode, error);
+                    break;
+                }
+
+                totalPages = 1;
+                if (response.Headers.TryGetValues("X-WP-TotalPages", out var tpValues))
+                    int.TryParse(tpValues.FirstOrDefault(), out totalPages);
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                foreach (var vEl in doc.RootElement.EnumerateArray())
+                {
+                    variations.Add(new ProductVariantDto
+                    {
+                        VariantId = vEl.TryGetProperty("id", out var idEl)
+                            ? idEl.GetInt64().ToString(CultureInfo.InvariantCulture)
+                            : string.Empty,
+                        Sku = vEl.TryGetProperty("sku", out var skuEl)
+                            ? skuEl.GetString()
+                            : null,
+                        Title = vEl.TryGetProperty("description", out var descEl)
+                            ? descEl.GetString()
+                            : null,
+                        Price = vEl.TryGetProperty("regular_price", out var priceEl)
+                            ? priceEl.GetString()
+                            : null,
+                        StockQuantity = vEl.TryGetProperty("stock_quantity", out var sqEl)
+                            && sqEl.ValueKind == JsonValueKind.Number
+                            ? sqEl.GetInt32()
+                            : 0,
+                        ManageStock = vEl.TryGetProperty("manage_stock", out var msEl)
+                            && msEl.ValueKind == JsonValueKind.True
+                    });
+                }
+
+                page++;
+            }
+            while (page <= totalPages);
+
+            _logger.LogInformation("WooCommerce GetProductVariations: {Count} variations for product {ProductId}",
+                variations.Count, productId);
+            return variations.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
+            return Array.Empty<ProductVariantDto>();
         }
     }
 }

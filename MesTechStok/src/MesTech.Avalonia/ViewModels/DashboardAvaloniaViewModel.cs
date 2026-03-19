@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -9,13 +10,18 @@ using MesTech.Domain.Interfaces;
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Avalonia Dashboard — 8 KPI cards + son siparişler + kritik stok DataGrid.
+/// Avalonia Dashboard — 8 KPI cards + 6 premium KPI cards + son siparişler + kritik stok DataGrid.
 /// Demo data'dan gerçek MediatR GetDashboardSummaryQuery'ye dönüştürüldü (EMR-03-v2 ALAN-D).
+/// İ-03 GÖREV 4: Auto-refresh (30s DispatcherTimer) + premium KPI card VMs + platform statuses + AI insight.
 /// </summary>
-public partial class DashboardAvaloniaViewModel : ObservableObject
+public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+
+    // ── Auto-refresh timer ────────────────────────────────────────────────
+    private DispatcherTimer? _refreshTimer;
+    private DateTime _lastRefresh;
 
     // ── Satır 1: Ana metrikler ────────────────────────────────────────────
     [ObservableProperty] private string totalProducts = "0";
@@ -36,6 +42,29 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string lastUpdated = "--:--";
 
+    // ── Auto-refresh toggle ───────────────────────────────────────────────
+    [ObservableProperty] private bool _isAutoRefreshEnabled = true;
+    [ObservableProperty] private string _lastRefreshText = "";
+
+    // ── Premium KPI Card ViewModels (6 cards) ─────────────────────────────
+    [ObservableProperty] private KpiCardViewModel _todaySalesKpi = new();
+    [ObservableProperty] private KpiCardViewModel _weekRevenueKpi = new();
+    [ObservableProperty] private KpiCardViewModel _totalProductsKpi = new();
+    [ObservableProperty] private KpiCardViewModel _lowStockKpi = new();
+    [ObservableProperty] private KpiCardViewModel _pendingOrdersKpi = new();
+    [ObservableProperty] private KpiCardViewModel _returnsKpi = new();
+
+    // ── Platform Health (15 platforms) ────────────────────────────────────
+    [ObservableProperty]
+    private ObservableCollection<PlatformStatusViewModel> _platformStatuses = new();
+
+    // ── AI Insight ────────────────────────────────────────────────────────
+    [ObservableProperty] private bool _hasAIInsight;
+    [ObservableProperty] private string _aiInsightText = "";
+
+    // ── Critical stock badge count (int for badge binding) ────────────────
+    [ObservableProperty] private int _criticalStockBadgeCount;
+
     public ObservableCollection<RecentOrderDto> RecentOrders { get; } = [];
     public ObservableCollection<CriticalStockDto> CriticalStockItems { get; } = [];
 
@@ -43,6 +72,28 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+
+        // Initialize auto-refresh timer (30 second interval)
+        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _refreshTimer.Tick += OnRefreshTimerTick;
+        _refreshTimer.Start();
+    }
+
+    private async void OnRefreshTimerTick(object? sender, EventArgs e)
+    {
+        if (IsAutoRefreshEnabled && !IsLoading)
+            await LoadAsync();
+    }
+
+    /// <summary>
+    /// Toggle auto-refresh timer on/off when property changes.
+    /// </summary>
+    partial void OnIsAutoRefreshEnabledChanged(bool value)
+    {
+        if (value)
+            _refreshTimer?.Start();
+        else
+            _refreshTimer?.Stop();
     }
 
     public async Task LoadAsync()
@@ -69,6 +120,55 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
             MonthlyRevenue = summary.MonthlySalesAmount.ToString("N2") + " TL";
             ReturnRate = "%" + summary.ReturnRate.ToString("F1");
 
+            // ── Premium KPI Cards ──
+            TodaySalesKpi = new KpiCardViewModel
+            {
+                Title = "Bugün Satış",
+                Value = $"₺{summary.TodaySalesAmount:N0}",
+                ComparisonPeriod = "vs dün"
+            };
+
+            WeekRevenueKpi = new KpiCardViewModel
+            {
+                Title = "Haftalık Gelir",
+                Value = $"₺{summary.MonthlySalesAmount:N0}",
+                ComparisonPeriod = "vs geçen hafta"
+            };
+
+            TotalProductsKpi = new KpiCardViewModel
+            {
+                Title = "Toplam Ürün",
+                Value = summary.ActiveProductCount.ToString("N0"),
+                IsPositiveTrend = true,
+                ComparisonPeriod = "aktif"
+            };
+
+            LowStockKpi = new KpiCardViewModel
+            {
+                Title = "Kritik Stok",
+                Value = summary.CriticalStockCount.ToString("N0"),
+                IsPositiveTrend = summary.CriticalStockCount == 0,
+                ComparisonPeriod = "ürün"
+            };
+
+            PendingOrdersKpi = new KpiCardViewModel
+            {
+                Title = "Bekleyen Sipariş",
+                Value = summary.PendingShipmentCount.ToString("N0"),
+                ComparisonPeriod = "kargoya hazır"
+            };
+
+            ReturnsKpi = new KpiCardViewModel
+            {
+                Title = "İade Oranı",
+                Value = "%" + summary.ReturnRate.ToString("F1"),
+                IsPositiveTrend = summary.ReturnRate < 3.0m,
+                ComparisonPeriod = "bu ay"
+            };
+
+            // ── Critical stock badge count ──
+            CriticalStockBadgeCount = summary.CriticalStockCount;
+
             // ── Tablolar ──
             RecentOrders.Clear();
             foreach (var o in summary.RecentOrders)
@@ -94,7 +194,11 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
                 });
 
             IsEmpty = RecentOrders.Count == 0;
-            LastUpdated = DateTime.Now.ToString("HH:mm:ss");
+
+            // ── Refresh timestamp ──
+            _lastRefresh = DateTime.Now;
+            LastUpdated = _lastRefresh.ToString("HH:mm:ss");
+            LastRefreshText = $"Son güncelleme: {_lastRefresh:HH:mm:ss}";
         }
         catch (Exception ex)
         {
@@ -109,6 +213,22 @@ public partial class DashboardAvaloniaViewModel : ObservableObject
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void OpenAIInsight()
+    {
+        // Navigate to AI details or show dialog — placeholder for AI insight navigation
+    }
+
+    public void Dispose()
+    {
+        if (_refreshTimer is not null)
+        {
+            _refreshTimer.Stop();
+            _refreshTimer.Tick -= OnRefreshTimerTick;
+            _refreshTimer = null;
+        }
+    }
 }
 
 public class RecentOrderDto

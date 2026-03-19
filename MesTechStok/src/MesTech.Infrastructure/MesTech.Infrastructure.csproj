@@ -9,6 +9,8 @@
 
     <PackageReference Include="EPPlus" />
     <PackageReference Include="ClosedXML" />
+    <PackageReference Include="QuestPDF" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
 
     <PackageReference Include="MediatR" />
 

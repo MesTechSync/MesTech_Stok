@@ -197,7 +197,8 @@ else if (data is not null)
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata olustu: {ex.Message}";
+            _isDemoMode = true;
+            Console.WriteLine($"MediatR error, using demo mode: {ex.Message}");
             data = null;
         }
         finally

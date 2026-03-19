@@ -101,6 +101,129 @@
   <SolidColorBrush x:Key="FocusBorderBrush" Color="{StaticResource FocusBorderColor}"/>
 
   <!-- ============================================================ -->
+  <!-- Status Palette — Tüm modüllerde tutarlı durum renkleri       -->
+  <!-- ============================================================ -->
+
+  <!-- Platform Status -->
+  <Color x:Key="PlatformActiveColor">#388E3C</Color>
+  <Color x:Key="PlatformInactiveColor">#9CA3AF</Color>
+  <Color x:Key="PlatformErrorColor">#D32F2F</Color>
+  <Color x:Key="PlatformSyncingColor">#0078D4</Color>
+  <SolidColorBrush x:Key="PlatformActiveBrush" Color="{StaticResource PlatformActiveColor}"/>
+  <SolidColorBrush x:Key="PlatformInactiveBrush" Color="{StaticResource PlatformInactiveColor}"/>
+  <SolidColorBrush x:Key="PlatformErrorBrush" Color="{StaticResource PlatformErrorColor}"/>
+  <SolidColorBrush x:Key="PlatformSyncingBrush" Color="{StaticResource PlatformSyncingColor}"/>
+
+  <!-- Order Status -->
+  <Color x:Key="OrderNewColor">#0078D4</Color>
+  <Color x:Key="OrderProcessingColor">#F57C00</Color>
+  <Color x:Key="OrderShippedColor">#7B1FA2</Color>
+  <Color x:Key="OrderDeliveredColor">#388E3C</Color>
+  <Color x:Key="OrderCancelledColor">#D32F2F</Color>
+  <Color x:Key="OrderReturnedColor">#E91E63</Color>
+  <SolidColorBrush x:Key="OrderNewBrush" Color="{StaticResource OrderNewColor}"/>
+  <SolidColorBrush x:Key="OrderProcessingBrush" Color="{StaticResource OrderProcessingColor}"/>
+  <SolidColorBrush x:Key="OrderShippedBrush" Color="{StaticResource OrderShippedColor}"/>
+  <SolidColorBrush x:Key="OrderDeliveredBrush" Color="{StaticResource OrderDeliveredColor}"/>
+  <SolidColorBrush x:Key="OrderCancelledBrush" Color="{StaticResource OrderCancelledColor}"/>
+  <SolidColorBrush x:Key="OrderReturnedBrush" Color="{StaticResource OrderReturnedColor}"/>
+
+  <!-- Cargo Status -->
+  <Color x:Key="CargoPickedUpColor">#0078D4</Color>
+  <Color x:Key="CargoInTransitColor">#F57C00</Color>
+  <Color x:Key="CargoAtBranchColor">#7B1FA2</Color>
+  <Color x:Key="CargoDeliveredColor">#388E3C</Color>
+  <Color x:Key="CargoFailedColor">#D32F2F</Color>
+  <SolidColorBrush x:Key="CargoPickedUpBrush" Color="{StaticResource CargoPickedUpColor}"/>
+  <SolidColorBrush x:Key="CargoInTransitBrush" Color="{StaticResource CargoInTransitColor}"/>
+  <SolidColorBrush x:Key="CargoAtBranchBrush" Color="{StaticResource CargoAtBranchColor}"/>
+  <SolidColorBrush x:Key="CargoDeliveredBrush" Color="{StaticResource CargoDeliveredColor}"/>
+  <SolidColorBrush x:Key="CargoFailedBrush" Color="{StaticResource CargoFailedColor}"/>
+
+  <!-- Invoice Status -->
+  <Color x:Key="InvoiceDraftColor">#9CA3AF</Color>
+  <Color x:Key="InvoiceSentColor">#0078D4</Color>
+  <Color x:Key="InvoiceAcceptedColor">#388E3C</Color>
+  <Color x:Key="InvoiceRejectedColor">#D32F2F</Color>
+  <SolidColorBrush x:Key="InvoiceDraftBrush" Color="{StaticResource InvoiceDraftColor}"/>
+  <SolidColorBrush x:Key="InvoiceSentBrush" Color="{StaticResource InvoiceSentColor}"/>
+  <SolidColorBrush x:Key="InvoiceAcceptedBrush" Color="{StaticResource InvoiceAcceptedColor}"/>
+  <SolidColorBrush x:Key="InvoiceRejectedBrush" Color="{StaticResource InvoiceRejectedColor}"/>
+
+  <!-- Stock Level -->
+  <Color x:Key="StockNormalColor">#388E3C</Color>
+  <Color x:Key="StockLowColor">#F57C00</Color>
+  <Color x:Key="StockCriticalColor">#D32F2F</Color>
+  <Color x:Key="StockOutColor">#1A1A1A</Color>
+  <SolidColorBrush x:Key="StockNormalBrush" Color="{StaticResource StockNormalColor}"/>
+  <SolidColorBrush x:Key="StockLowBrush" Color="{StaticResource StockLowColor}"/>
+  <SolidColorBrush x:Key="StockCriticalBrush" Color="{StaticResource StockCriticalColor}"/>
+  <SolidColorBrush x:Key="StockOutBrush" Color="{StaticResource StockOutColor}"/>
+
+  <!-- ============================================================ -->
+  <!-- MESA OS Renk Token'ları — AI/Bot/RAG ayrı renk ailesi        -->
+  <!-- ============================================================ -->
+
+  <Color x:Key="AIInsightColor">#7C3AED</Color>
+  <Color x:Key="AIInsightBgColor">#EDE9FE</Color>
+  <Color x:Key="BotNotificationColor">#059669</Color>
+  <Color x:Key="BotNotificationBgColor">#D1FAE5</Color>
+  <Color x:Key="RagSearchColor">#0891B2</Color>
+  <Color x:Key="RagSearchBgColor">#CFFAFE</Color>
+  <SolidColorBrush x:Key="AIInsightBrush" Color="{StaticResource AIInsightColor}"/>
+  <SolidColorBrush x:Key="AIInsightBgBrush" Color="{StaticResource AIInsightBgColor}"/>
+  <SolidColorBrush x:Key="BotNotificationBrush" Color="{StaticResource BotNotificationColor}"/>
+  <SolidColorBrush x:Key="BotNotificationBgBrush" Color="{StaticResource BotNotificationBgColor}"/>
+  <SolidColorBrush x:Key="RagSearchBrush" Color="{StaticResource RagSearchColor}"/>
+  <SolidColorBrush x:Key="RagSearchBgBrush" Color="{StaticResource RagSearchBgColor}"/>
+
+  <!-- ============================================================ -->
+  <!-- Platform Marka Renkleri (resmi)                               -->
+  <!-- ============================================================ -->
+
+  <Color x:Key="TrendyolColor">#F27A1A</Color>
+  <Color x:Key="HepsiburadaColor">#FF6000</Color>
+  <Color x:Key="N11Color">#6610F2</Color>
+  <Color x:Key="CiceksepetiColor">#6C3F99</Color>
+  <Color x:Key="AmazonColor">#FF9900</Color>
+  <Color x:Key="PazaramaColor">#0095D9</Color>
+  <Color x:Key="EbayColor">#E53238</Color>
+  <Color x:Key="OpenCartColor">#2D9FD9</Color>
+  <Color x:Key="OzonColor">#005BFF</Color>
+  <Color x:Key="PttAvmColor">#FFD100</Color>
+  <Color x:Key="ShopifyColor">#96BF48</Color>
+  <Color x:Key="WooCommerceColor">#9B5C8F</Color>
+  <Color x:Key="EtsyColor">#F16521</Color>
+  <Color x:Key="BitrixColor">#2FC6F6</Color>
+  <SolidColorBrush x:Key="TrendyolBrush" Color="{StaticResource TrendyolColor}"/>
+  <SolidColorBrush x:Key="HepsiburadaBrush" Color="{StaticResource HepsiburadaColor}"/>
+  <SolidColorBrush x:Key="N11Brush" Color="{StaticResource N11Color}"/>
+  <SolidColorBrush x:Key="CiceksepetiBrush" Color="{StaticResource CiceksepetiColor}"/>
+  <SolidColorBrush x:Key="AmazonBrush" Color="{StaticResource AmazonColor}"/>
+  <SolidColorBrush x:Key="PazaramaBrush" Color="{StaticResource PazaramaColor}"/>
+  <SolidColorBrush x:Key="EbayBrush" Color="{StaticResource EbayColor}"/>
+  <SolidColorBrush x:Key="OpenCartBrush" Color="{StaticResource OpenCartColor}"/>
+  <SolidColorBrush x:Key="OzonBrush" Color="{StaticResource OzonColor}"/>
+  <SolidColorBrush x:Key="PttAvmBrush" Color="{StaticResource PttAvmColor}"/>
+  <SolidColorBrush x:Key="ShopifyBrush" Color="{StaticResource ShopifyColor}"/>
+  <SolidColorBrush x:Key="WooCommerceBrush" Color="{StaticResource WooCommerceColor}"/>
+  <SolidColorBrush x:Key="EtsyBrush" Color="{StaticResource EtsyColor}"/>
+  <SolidColorBrush x:Key="BitrixBrush" Color="{StaticResource BitrixColor}"/>
+
+  <!-- ============================================================ -->
+  <!-- Semantik Light Backgrounds (alert/badge arka planları)       -->
+  <!-- ============================================================ -->
+
+  <Color x:Key="ErrorLightColor">#FFEBEE</Color>
+  <Color x:Key="SuccessLightColor">#E8F5E9</Color>
+  <Color x:Key="WarningLightColor">#FFF3E0</Color>
+  <Color x:Key="InfoLightColor">#E3F2FD</Color>
+  <SolidColorBrush x:Key="ErrorLightBrush" Color="{StaticResource ErrorLightColor}"/>
+  <SolidColorBrush x:Key="SuccessLightBrush" Color="{StaticResource SuccessLightColor}"/>
+  <SolidColorBrush x:Key="WarningLightBrush" Color="{StaticResource WarningLightColor}"/>
+  <SolidColorBrush x:Key="InfoLightBrush" Color="{StaticResource InfoLightColor}"/>
+
+  <!-- ============================================================ -->
   <!-- Typography                                                    -->
   <!-- ============================================================ -->
 
@@ -140,5 +263,75 @@
   <x:Double x:Key="IconSizeSmall">16</x:Double>
   <x:Double x:Key="IconSizeMedium">24</x:Double>
   <x:Double x:Key="IconSizeLarge">32</x:Double>
+
+  <!-- ============================================================ -->
+  <!-- Dark Mode Color Overrides                                     -->
+  <!-- Avalonia ThemeDictionaries: Light = yukarıdaki default'lar    -->
+  <!-- Dark = aşağıdaki override'lar                                -->
+  <!-- RequestedThemeVariant="Dark" yapıldığında otomatik swap olur  -->
+  <!-- WCAG 2.2 AA kontrast oranları doğrulanmış                    -->
+  <!-- ============================================================ -->
+
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <!-- Arka plan — koyu yüzeyler -->
+      <Color x:Key="BackgroundColor">#0F1419</Color>
+      <Color x:Key="SurfaceColor">#1A2332</Color>
+      <Color x:Key="BorderColor">#2D3748</Color>
+
+      <!-- Metin — açık renkler koyu zemin üzerinde -->
+      <Color x:Key="TextPrimaryColor">#E2E8F0</Color>
+      <Color x:Key="TextSecondaryColor">#A0AEC0</Color>
+
+      <!-- Sidebar (dark'ta daha koyu) -->
+      <Color x:Key="SidebarBackgroundColor">#0D1520</Color>
+      <Color x:Key="SidebarHoverColor">#162233</Color>
+      <Color x:Key="SidebarBorderColor">#1E2D3D</Color>
+      <Color x:Key="SidebarTextColor">#94A3B8</Color>
+
+      <!-- State renkler (dark'ta biraz yumuşak) -->
+      <Color x:Key="DisabledColor">#4A5568</Color>
+      <Color x:Key="DisabledTextColor">#718096</Color>
+      <Color x:Key="HoverOverlayColor">#0AFFFFFF</Color>
+      <Color x:Key="PressedOverlayColor">#1AFFFFFF</Color>
+
+      <!-- Semantik arka planlar (dark variant) -->
+      <Color x:Key="ErrorLightColor">#331A1A</Color>
+      <Color x:Key="SuccessLightColor">#1A332A</Color>
+      <Color x:Key="WarningLightColor">#332A1A</Color>
+      <Color x:Key="InfoLightColor">#1A2633</Color>
+
+      <!-- MESA OS arka planlar (dark variant) -->
+      <Color x:Key="AIInsightBgColor">#2D1B69</Color>
+      <Color x:Key="BotNotificationBgColor">#1A332A</Color>
+      <Color x:Key="RagSearchBgColor">#1A2C33</Color>
+
+      <!-- Stok tükendi (dark'ta görünür olsun) -->
+      <Color x:Key="StockOutColor">#718096</Color>
+
+      <!-- Dark Brush'lar -->
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E2E8F0"/>
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A0AEC0"/>
+      <SolidColorBrush x:Key="BackgroundBrush" Color="#0F1419"/>
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#1A2332"/>
+      <SolidColorBrush x:Key="BorderBrush" Color="#2D3748"/>
+      <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#0D1520"/>
+      <SolidColorBrush x:Key="SidebarHoverBrush" Color="#162233"/>
+      <SolidColorBrush x:Key="SidebarBorderBrush" Color="#1E2D3D"/>
+      <SolidColorBrush x:Key="SidebarTextBrush" Color="#94A3B8"/>
+      <SolidColorBrush x:Key="DisabledBrush" Color="#4A5568"/>
+      <SolidColorBrush x:Key="DisabledTextBrush" Color="#718096"/>
+      <SolidColorBrush x:Key="HoverOverlayBrush" Color="#0AFFFFFF"/>
+      <SolidColorBrush x:Key="PressedOverlayBrush" Color="#1AFFFFFF"/>
+      <SolidColorBrush x:Key="ErrorLightBrush" Color="#331A1A"/>
+      <SolidColorBrush x:Key="SuccessLightBrush" Color="#1A332A"/>
+      <SolidColorBrush x:Key="WarningLightBrush" Color="#332A1A"/>
+      <SolidColorBrush x:Key="InfoLightBrush" Color="#1A2633"/>
+      <SolidColorBrush x:Key="AIInsightBgBrush" Color="#2D1B69"/>
+      <SolidColorBrush x:Key="BotNotificationBgBrush" Color="#1A332A"/>
+      <SolidColorBrush x:Key="RagSearchBgBrush" Color="#1A2C33"/>
+      <SolidColorBrush x:Key="StockOutBrush" Color="#718096"/>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
 
 </ResourceDictionary>

@@ -1,7 +1,7 @@
 @page "/accounting/settings"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
+
 @inject MesTechApiClient ApiClient
 @inject NavigationManager Navigation
 @inject IStringLocalizer<Strings> L
@@ -236,7 +236,7 @@
     // Fire-and-forget API call — local state already updated
     try
     {
-      await Http.PostAsJsonAsync("/api/v1/accounting/chart-of-accounts", account);
+      await ApiClient.SafePostAsync<object>("accounting/chart-of-accounts", account);
     }
     catch (Exception ex)
     {
@@ -250,7 +250,7 @@
 
     try
     {
-      await Http.DeleteAsync($"/api/v1/accounting/chart-of-accounts/{account.Kod}");
+      await ApiClient.SafeDeleteAsync($"accounting/chart-of-accounts/{account.Kod}");
     }
     catch (Exception ex)
     {

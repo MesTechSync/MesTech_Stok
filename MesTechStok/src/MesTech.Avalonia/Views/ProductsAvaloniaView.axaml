@@ -5,12 +5,13 @@
              x:DataType="vm:ProductsAvaloniaViewModel">
 
     <!-- Avalonia Products — DataGrid with SKU, Ad, Fiyat, Stok, Platform, Durum -->
+    <!-- GOREV 4: Smart Search + GOREV 5: Grid/List Toggle -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Urun Yonetimi" Foreground="White"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
@@ -19,28 +20,147 @@
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+
+                <!-- GOREV 5: Grid/List Toggle Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Button Command="{Binding SetListViewCommand}"
+                            Background="{Binding IsListView, Converter={x:Static BoolConverters.True}}"
+                            Padding="8,6" CornerRadius="4,0,0,4"
+                            ToolTip.Tip="Liste Gorunumu">
+                        <Button.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Background" Value="#FFFFFF44" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Style>
+                        </Button.Styles>
+                        <TextBlock Text="&#x2630;" FontSize="16" />
+                    </Button>
+                    <Button Command="{Binding SetGridViewCommand}"
+                            Padding="8,6" CornerRadius="0,4,4,0"
+                            ToolTip.Tip="Kart Gorunumu">
+                        <Button.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Background" Value="#FFFFFF44" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Style>
+                        </Button.Styles>
+                        <TextBlock Text="&#x25A6;" FontSize="16" />
+                    </Button>
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="Yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
-        <!-- Row 1: Filters -->
+        <!-- Row 1: Enhanced Search Bar (GOREV 4) -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="280" Watermark="Urun adi veya SKU ara..."
-                         Text="{Binding SearchText}" />
-                <ComboBox Width="180"
-                          ItemsSource="{Binding Platforms}"
-                          SelectedItem="{Binding SelectedPlatform}" />
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBox Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..."
+                             Text="{Binding SearchText}" />
+                    <!-- Barcode quick-search button -->
+                    <Button Command="{Binding BarcodeSearchCommand}"
+                            ToolTip.Tip="Barkod ile Hizli Ara"
+                            Padding="10,8" CornerRadius="6"
+                            Background="#F0F4FF" Foreground="#0078D4">
+                        <TextBlock Text="&#x2B1C;" FontSize="14" />
+                    </Button>
+                    <ComboBox Width="180"
+                              ItemsSource="{Binding Platforms}"
+                              SelectedItem="{Binding SelectedPlatform}" />
+                    <!-- Search match indicator -->
+                    <TextBlock Text="{Binding SearchMatchInfo}"
+                               VerticalAlignment="Center"
+                               FontSize="12" Foreground="#64748B"
+                               IsVisible="{Binding SearchMatchInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- Row 2: Products DataGrid -->
-        <DataGrid Grid.Row="2"
+        <!-- Row 2: Quick Filter Chips (GOREV 4) -->
+        <Border Grid.Row="2" Background="#FAFBFC" Padding="16,8"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Filtreler:" FontSize="12" Foreground="#94A3B8"
+                           VerticalAlignment="Center" Margin="0,0,4,0" />
+                <ToggleButton IsChecked="{Binding FilterOutOfStock}"
+                              Padding="10,5" CornerRadius="12" FontSize="12">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton">
+                            <Setter Property="Background" Value="#F1F5F9" />
+                            <Setter Property="Foreground" Value="#64748B" />
+                        </Style>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#FEE2E2" />
+                            <Setter Property="Foreground" Value="#DC2626" />
+                        </Style>
+                    </ToggleButton.Styles>
+                    <TextBlock Text="Stokta Yok" />
+                </ToggleButton>
+                <ToggleButton IsChecked="{Binding FilterLowStock}"
+                              Padding="10,5" CornerRadius="12" FontSize="12">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton">
+                            <Setter Property="Background" Value="#F1F5F9" />
+                            <Setter Property="Foreground" Value="#64748B" />
+                        </Style>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#FEF3C7" />
+                            <Setter Property="Foreground" Value="#D97706" />
+                        </Style>
+                    </ToggleButton.Styles>
+                    <TextBlock Text="Dusuk Stok" />
+                </ToggleButton>
+                <ToggleButton IsChecked="{Binding FilterDiscounted}"
+                              Padding="10,5" CornerRadius="12" FontSize="12">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton">
+                            <Setter Property="Background" Value="#F1F5F9" />
+                            <Setter Property="Foreground" Value="#64748B" />
+                        </Style>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#DBEAFE" />
+                            <Setter Property="Foreground" Value="#2563EB" />
+                        </Style>
+                    </ToggleButton.Styles>
+                    <TextBlock Text="Indirimli" />
+                </ToggleButton>
+
+                <!-- Recent Searches -->
+                <Border Margin="12,0,0,0" IsVisible="{Binding RecentSearches.Count}"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="Son:" FontSize="11" Foreground="#94A3B8"
+                                   VerticalAlignment="Center" />
+                        <ItemsControl ItemsSource="{Binding RecentSearches}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="4" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding}"
+                                            Command="{Binding $parent[UserControl].((vm:ProductsAvaloniaViewModel)DataContext).ApplyRecentSearchCommand}"
+                                            CommandParameter="{Binding}"
+                                            FontSize="11" Padding="6,2" CornerRadius="8"
+                                            Background="#F1F5F9" Foreground="#64748B" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 3: Products - List View (DataGrid) -->
+        <DataGrid Grid.Row="3"
                   ItemsSource="{Binding Products}"
+                  SelectedItem="{Binding SelectedProduct}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
@@ -50,7 +170,7 @@
                   BorderThickness="0"
                   Background="White"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                  IsVisible="{Binding IsListView}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
                 <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
@@ -61,8 +181,88 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <!-- Row 3: Products - Grid View (GOREV 5) -->
+        <ScrollViewer Grid.Row="3"
+                      IsVisible="{Binding IsGridView}"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Products}" Margin="16">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProductItemDto">
+                        <Border Width="220" Height="280" Margin="8"
+                                Background="White" CornerRadius="10"
+                                BorderBrush="#E5E9F2" BorderThickness="1"
+                                BoxShadow="0 2 8 0 #14000000"
+                                ClipToBounds="True">
+                            <Grid RowDefinitions="140,*">
+                                <!-- Product Image Placeholder -->
+                                <Border Grid.Row="0" Background="#F1F5F9" CornerRadius="10,10,0,0">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="&#x1F4E6;" FontSize="36"
+                                                   HorizontalAlignment="Center" Opacity="0.4" />
+                                        <TextBlock Text="{Binding SKU}" FontSize="10"
+                                                   Foreground="#94A3B8" HorizontalAlignment="Center"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <!-- Discount badge -->
+                                    <Border IsVisible="{Binding HasDiscount}"
+                                            Background="#E74C3C" CornerRadius="0,0,0,8"
+                                            Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <TextBlock Text="INDIRIM" FontSize="10"
+                                                   Foreground="White" FontWeight="Bold" />
+                                    </Border>
+                                </Border>
+
+                                <!-- Product Info -->
+                                <StackPanel Grid.Row="1" Margin="12,10,12,10" Spacing="4">
+                                    <!-- Product Name (2 lines max) -->
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="#1E293B"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="2" TextWrapping="Wrap"
+                                               Height="36" />
+
+                                    <!-- Price -->
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding PriceDisplay}"
+                                                   FontSize="16" FontWeight="Bold"
+                                                   Foreground="#0078D4" />
+                                        <TextBlock Text="{Binding OriginalPriceDisplay}"
+                                                   FontSize="12" Foreground="#94A3B8"
+                                                   IsVisible="{Binding HasDiscount}"
+                                                   TextDecorations="Strikethrough"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <!-- Stock -->
+                                    <TextBlock Text="{Binding StockDisplay}"
+                                               FontSize="12"
+                                               Foreground="{Binding StockColor}" />
+
+                                    <!-- Platform Badge -->
+                                    <Border Background="#F0F4FF" CornerRadius="4"
+                                            Padding="6,2" HorizontalAlignment="Left"
+                                            Margin="0,2,0,0">
+                                        <TextBlock Text="{Binding PlatformBadge}"
+                                                   FontSize="10" Foreground="#0078D4"
+                                                   FontWeight="SemiBold" />
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="#99FFFFFF"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -75,7 +275,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="#F7F9FC"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -89,7 +289,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="#F7F9FC"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
