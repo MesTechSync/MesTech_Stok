@@ -57,6 +57,11 @@ public static class HangfireConfig
         // H27 DEV 4 — CRM periyodik job'ları
         services.AddScoped<CrmHangfireJobs>();
 
+        // Dalga 15 — ERP sync job'ları
+        services.AddScoped<ErpStockSyncJob>();
+        services.AddScoped<ErpPriceSyncJob>();
+        services.AddScoped<ErpAccountSyncJob>();
+
         // Dalga 10 — SocialFeedRefreshJob (registered via IntegrationServiceRegistration — Scoped)
         // No AddScoped here; it is already registered in IntegrationServiceRegistration.
 
@@ -202,6 +207,26 @@ public static class HangfireConfig
             "webhook-retry",
             job => job.ExecuteAsync(CancellationToken.None),
             "* * * * *");
+
+        // === Dalga 15 — ERP Sync Job'lari ===
+
+        // Her 15 dakika — ERP stok seviyesi sync
+        RecurringJob.AddOrUpdate<ErpStockSyncJob>(
+            "erp-stock-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/15 * * * *");
+
+        // Gunluk 4x (06:00, 12:00, 18:00, 23:00) — ERP fiyat sync
+        RecurringJob.AddOrUpdate<ErpPriceSyncJob>(
+            "erp-price-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 6,12,18,23 * * *");
+
+        // Her gece 03:00 — ERP hesap/musteri sync
+        RecurringJob.AddOrUpdate<ErpAccountSyncJob>(
+            "erp-account-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(3));
 
         // === Dalga 10 — Sosyal Ticaret Feed Yenileme ===
 

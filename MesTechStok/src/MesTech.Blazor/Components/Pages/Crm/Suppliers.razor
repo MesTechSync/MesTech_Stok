@@ -1,0 +1,222 @@
+@page "/crm/suppliers"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #6f42c1;">
+    <i class="fas fa-truck text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #6f42c1;">Tedarikciler</h3>
+    <small class="text-muted">Tedarikci listesi ve bakiye takibi</small>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Tedarikci ara..."
+                           @bind="searchText" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-3 col-md-3">
+                <select class="form-select form-select-sm" @bind="selectedType" @bind:after="OnFilterChanged">
+                    <option value="">Tum Tipler</option>
+                    <option value="Yerli">Yerli</option>
+                    <option value="Ithalat">Ithalat</option>
+                    <option value="Lojistik">Lojistik</option>
+                </select>
+            </div>
+            <div class="col-3 col-sm-1 col-md-3">
+                <span class="badge bg-secondary">Toplam: @totalCount</span>
+            </div>
+            <div class="col-3 col-sm-2 col-md-2 text-end">
+                <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync">
+                    <i class="fas fa-sync-alt me-1"></i><span class="d-none d-sm-inline">Yenile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (filteredSuppliers.Count == 0)
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-truck fa-3x mb-3 d-block"></i>
+        <p>Tedarikci bulunamadi</p>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Kod</th>
+                            <th>Tedarikci Adi</th>
+                            <th class="d-none d-md-table-cell">Iletisim</th>
+                            <th class="d-none d-lg-table-cell">Sehir</th>
+                            <th class="d-none d-sm-table-cell">Tip</th>
+                            <th class="text-end">Bakiye</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in filteredSuppliers)
+                        {
+                            <tr>
+                                <td><code>@s.Code</code></td>
+                                <td class="fw-semibold">@s.Name</td>
+                                <td class="d-none d-md-table-cell">
+                                    @if (s.Email is not null)
+                                    {
+                                        <a href="mailto:@s.Email">@s.Email</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="d-none d-lg-table-cell">@(s.City ?? "-")</td>
+                                <td class="d-none d-sm-table-cell">
+                                    <span class="badge bg-secondary">@s.SupplierType</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-bold @(s.Balance >= 0 ? "text-success" : "text-danger")">
+                                        @s.Balance.ToString("N2") TL
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (s.IsActive)
+                                    {
+                                        <span class="badge bg-success">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Pasif</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string searchText = string.Empty;
+    private string selectedType = string.Empty;
+    private int totalCount;
+
+    private List<SupplierItem> suppliers = [];
+
+    private IReadOnlyList<SupplierItem> filteredSuppliers
+    {
+        get
+        {
+            var result = suppliers.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                result = result.Where(s =>
+                    s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    s.Code.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    (s.Email?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false));
+            }
+            if (!string.IsNullOrEmpty(selectedType))
+            {
+                result = result.Where(s => s.SupplierType == selectedType);
+            }
+            return result.ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<SupplierItem>>("crm/suppliers");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                suppliers = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoSuppliers();
+            }
+            totalCount = suppliers.Count;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Tedarikciler yuklenirken hata olustu: {ex.Message}";
+            _isDemoMode = true;
+            LoadDemoSuppliers();
+            totalCount = suppliers.Count;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnFilterChanged() => await Task.CompletedTask;
+
+    private void LoadDemoSuppliers()
+    {
+        suppliers =
+        [
+            new("TED-001", "Anatolya Tekstil A.S.", "satis@anatolya.com", "Istanbul", "Yerli", 45_200.50m, true),
+            new("TED-002", "Global Import Ltd.", "info@globalimport.com", "Izmir", "Ithalat", -12_750.00m, true),
+            new("TED-003", "Hizli Lojistik", "destek@hizlilojistik.com", "Ankara", "Lojistik", 8_300.00m, true),
+            new("TED-004", "Shenzhen Electronics Co.", "export@szelectronics.cn", "Shenzhen", "Ithalat", -28_400.00m, true),
+            new("TED-005", "Ege Ambalaj San.", "info@egeambalaj.com", "Izmir", "Yerli", 5_100.00m, true),
+            new("TED-006", "Aras Kargo", "kurumsal@araskargo.com", "Istanbul", "Lojistik", 0.00m, true),
+            new("TED-007", "Marmara Kimya", "satis@marmarakimya.com", "Bursa", "Yerli", 15_800.00m, true),
+            new("TED-008", "Istanbul Depo Hizmetleri", null, "Istanbul", "Lojistik", -3_200.00m, false),
+            new("TED-009", "Guangzhou Trading Co.", "trade@gztrading.com", "Guangzhou", "Ithalat", -42_100.00m, true),
+            new("TED-010", "Yurtici Kargo", "kurumsal@yurticikargo.com", "Istanbul", "Lojistik", 1_250.00m, true),
+        ];
+    }
+
+    private record SupplierItem(
+        string Code,
+        string Name,
+        string? Email,
+        string? City,
+        string SupplierType,
+        decimal Balance,
+        bool IsActive);
+}

@@ -22,6 +22,7 @@ using MesTech.Infrastructure.Integration.ERP;
 using MesTech.Infrastructure.Integration.ERP.BizimHesap;
 using MesTech.Infrastructure.Integration.ERP.Logo;
 using MesTech.Infrastructure.Integration.ERP.Netsis;
+using MesTech.Infrastructure.Integration.ERP.Nebim;
 using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Infrastructure.Integration.Settlement;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -422,6 +423,17 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<IOrderRepository>(),
                 sp.GetRequiredService<ILogger<NetsisERPAdapter>>()));
         services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<NetsisERPAdapter>());
+
+        // Dalga 15: Nebim V3 ERP adapter — API Key auth + REST JSON sync
+        if (configuration is not null)
+            services.Configure<NebimOptions>(configuration.GetSection(NebimOptions.SectionName));
+        services.AddScoped<NebimERPAdapter>(sp =>
+            new NebimERPAdapter(
+                new HttpClient(),
+                sp.GetRequiredService<IOptions<NebimOptions>>(),
+                sp.GetRequiredService<IOrderRepository>(),
+                sp.GetRequiredService<ILogger<NebimERPAdapter>>()));
+        services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<NebimERPAdapter>());
 
         // MUH-02 + Dalga 12: ERP adapter factory — Scoped (depends on scoped IERPAdapter + IErpAdapter instances)
         // Implements both IERPAdapterFactory (legacy) and IErpAdapterFactory (Dalga 11)

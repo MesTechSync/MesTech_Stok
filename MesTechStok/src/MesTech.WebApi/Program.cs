@@ -99,9 +99,10 @@ builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
     }
     else
     {
-        policy.WithOrigins("https://panel.mestech.tr", "https://app.mestech.tr")
+        policy.WithOrigins("https://mestech.tr", "https://panel.mestech.tr", "https://app.mestech.tr")
               .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-              .WithHeaders("Authorization", "Content-Type", "X-API-Key");
+              .WithHeaders("Authorization", "Content-Type", "X-API-Key")
+              .AllowCredentials();
     }
 }));
 
@@ -284,6 +285,7 @@ CariHesapEndpoints.Map(app);
 BaBsEndpoints.Map(app);
 FixedAssetEndpoints.Map(app);
 TaxWithholdingEndpoints.Map(app);
+ErpEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

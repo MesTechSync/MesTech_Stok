@@ -1,0 +1,268 @@
+@page "/crm/messages"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-envelope text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Platform Mesajlari</h3>
+    <small class="text-muted">Pazaryeri mesajlarini tek panelden yonet</small>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-sm-5 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Mesaj ara..."
+                           @bind="searchText" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+                <select class="form-select form-select-sm" @bind="selectedStatus" @bind:after="OnFilterChanged">
+                    <option value="">Tum Durumlar</option>
+                    <option value="Unread">Okunmamis</option>
+                    <option value="Read">Okundu</option>
+                    <option value="Replied">Yanitlandi</option>
+                    <option value="Archived">Arsivlendi</option>
+                </select>
+            </div>
+            <div class="col-6 col-sm-2 col-md-2">
+                <select class="form-select form-select-sm" @bind="selectedPlatform" @bind:after="OnFilterChanged">
+                    <option value="">Tum Platformlar</option>
+                    <option value="Trendyol">Trendyol</option>
+                    <option value="Hepsiburada">Hepsiburada</option>
+                    <option value="N11">N11</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="eBay">eBay</option>
+                    <option value="Ciceksepeti">Ciceksepeti</option>
+                </select>
+            </div>
+            <div class="col-3 col-sm-1 col-md-2">
+                <span class="badge bg-secondary">Toplam: @totalCount</span>
+            </div>
+            <div class="col-3 col-sm-1 col-md-2 text-end">
+                <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync">
+                    <i class="fas fa-sync-alt me-1"></i><span class="d-none d-sm-inline">Yenile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else if (filteredMessages.Count == 0)
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+        <p>Mesaj bulunamadi</p>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Platform</th>
+                            <th>Gonderen</th>
+                            <th>Konu</th>
+                            <th class="d-none d-md-table-cell">Yon</th>
+                            <th>Durum</th>
+                            <th class="d-none d-sm-table-cell">Tarih</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var msg in filteredMessages)
+                        {
+                            <tr class="@(msg.Status == "Unread" ? "table-warning" : "")">
+                                <td>
+                                    <span class="badge @GetPlatformBadgeClass(msg.Platform)">
+                                        @msg.Platform
+                                    </span>
+                                </td>
+                                <td class="fw-semibold">@msg.SenderName</td>
+                                <td>
+                                    @if (msg.Status == "Unread")
+                                    {
+                                        <strong>@msg.Subject</strong>
+                                    }
+                                    else
+                                    {
+                                        @msg.Subject
+                                    }
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    @if (msg.Direction == "Incoming")
+                                    {
+                                        <i class="fas fa-arrow-down text-primary" title="Gelen"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-arrow-up text-success" title="Giden"></i>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(msg.Status)">
+                                        @GetStatusLabel(msg.Status)
+                                    </span>
+                                </td>
+                                <td class="d-none d-sm-table-cell">
+                                    <small class="text-muted">@msg.ReceivedAt</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string searchText = string.Empty;
+    private string selectedStatus = string.Empty;
+    private string selectedPlatform = string.Empty;
+    private int totalCount;
+
+    private List<MessageItem> messages = [];
+
+    private IReadOnlyList<MessageItem> filteredMessages
+    {
+        get
+        {
+            var result = messages.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                result = result.Where(m =>
+                    m.SenderName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    m.Subject.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+            if (!string.IsNullOrEmpty(selectedStatus))
+            {
+                result = result.Where(m => m.Status == selectedStatus);
+            }
+            if (!string.IsNullOrEmpty(selectedPlatform))
+            {
+                result = result.Where(m => m.Platform == selectedPlatform);
+            }
+            return result.ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<MessageItem>>("crm/messages");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                messages = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoMessages();
+            }
+            totalCount = messages.Count;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Mesajlar yuklenirken hata olustu: {ex.Message}";
+            _isDemoMode = true;
+            LoadDemoMessages();
+            totalCount = messages.Count;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnFilterChanged() => await Task.CompletedTask;
+
+    private void LoadDemoMessages()
+    {
+        messages =
+        [
+            new("Trendyol", "Ahmet Yilmaz", "Urun iade talebi #TY-4521", "Incoming", "Unread", "19.03.2026 14:30"),
+            new("Hepsiburada", "Elif Demir", "Siparis teslimat sorunu", "Incoming", "Unread", "19.03.2026 13:15"),
+            new("N11", "Burak Celik", "Toplu fiyat teklifi", "Incoming", "Read", "19.03.2026 11:00"),
+            new("Trendyol", "Zeynep Kaya", "Urun bilgi talebi", "Incoming", "Replied", "18.03.2026 16:45"),
+            new("Amazon", "Kemal Arslan", "FBA gonderi durumu", "Incoming", "Read", "18.03.2026 14:20"),
+            new("eBay", "John Smith", "International shipping inquiry", "Incoming", "Unread", "18.03.2026 12:00"),
+            new("Ciceksepeti", "Fatma Yildiz", "Kampanya katilim talebi", "Incoming", "Archived", "17.03.2026 10:30"),
+            new("Trendyol", "MesTech Destek", "Iade onaylandi #TY-4510", "Outgoing", "Replied", "17.03.2026 09:15"),
+            new("Hepsiburada", "Merve Koc", "Garanti sorgusu", "Incoming", "Read", "16.03.2026 15:00"),
+            new("N11", "MesTech Satis", "Toplu teklif gonderildi", "Outgoing", "Replied", "16.03.2026 11:30"),
+        ];
+    }
+
+    private static string GetPlatformBadgeClass(string platform) => platform switch
+    {
+        "Trendyol" => "bg-warning text-dark",
+        "Hepsiburada" => "bg-danger",
+        "N11" => "bg-dark",
+        "Amazon" => "bg-warning text-dark",
+        "eBay" => "bg-primary",
+        "Ciceksepeti" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private static string GetStatusBadgeClass(string status) => status switch
+    {
+        "Unread" => "bg-warning text-dark",
+        "Read" => "bg-info",
+        "Replied" => "bg-success",
+        "Archived" => "bg-secondary",
+        _ => "bg-secondary"
+    };
+
+    private static string GetStatusLabel(string status) => status switch
+    {
+        "Unread" => "Okunmamis",
+        "Read" => "Okundu",
+        "Replied" => "Yanitlandi",
+        "Archived" => "Arsivlendi",
+        _ => status
+    };
+
+    private record MessageItem(
+        string Platform,
+        string SenderName,
+        string Subject,
+        string Direction,
+        string Status,
+        string ReceivedAt);
+}

@@ -1,20 +1,60 @@
+# ── Build artifacts ──
 **/bin/
 **/obj/
+**/out/
+
+# ── IDE / Editor ──
 **/.vs/
-**/node_modules/
+**/.idea/
+**/.vscode/
 **/*.user
 **/*.suo
-**/Logs/
-**/Backups/
-**/.idea/
+**/*.sln.docstates
+
+# ── Dependencies ──
+**/node_modules/
+
+# ── Version control ──
 **/.git/
 **/.gitignore
+**/.gitmodules
+
+# ── Environment / Secrets ──
 **/.env
 **/.env.*
+
+# ── Test output ──
 **/TestResults/
 **/coverage/
 **/coverage-final/
+**/coveragereport/
+
+# ── Logs / Backups ──
+**/Logs/
+**/Backups/
+
+# ── Documentation (not needed in image) ──
 **/Docs/
+*.md
+
+# ── Scripts / Installer (not needed in image) ──
 **/Scripts/
 **/Installer/
-*.md
+
+# ── Docker files (prevent recursive COPY) ──
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# ── CI/CD ──
+**/.github/
+**/.gitlab-ci.yml
+
+# ── Frontend (not needed for WebAPI image) ──
+**/frontend/
+**/wwwroot/
+
+# ── Misc ──
+**/*.md
+**/*.log
+**/npm-debug.log*

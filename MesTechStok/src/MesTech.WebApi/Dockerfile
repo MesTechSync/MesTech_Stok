@@ -1,11 +1,14 @@
 # ─────────────────────────────────────────────────────────────
 # MesTech WebAPI — Multi-stage Docker build (Production)
 # Target: Coolify / Docker Compose deployment on port 5100
-# Base: .NET 9.0 SDK (build) + ASP.NET 9.0 Runtime (run)
+# Base: .NET 9.0 SDK Alpine (build) + ASP.NET 9.0 Runtime Alpine (run)
+# Image size target: <150MB
+#
+# Build context: mono-repo root (e.g. docker build -f MesTech_Stok/MesTechStok/src/MesTech.WebApi/Dockerfile .)
 # ─────────────────────────────────────────────────────────────
 
 # ── Stage 1: Restore (layer-cached) ──
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS restore
 WORKDIR /src
 
 # Copy solution and build props first for optimal layer caching
@@ -27,40 +30,59 @@ COPY MesTech_Stok/MesTechStok/src/MesTech.Tests.Integration/MesTech.Tests.Integr
 COPY MesTech_Stok/MesTechStok/src/MesTech.Tests.Architecture/MesTech.Tests.Architecture.csproj ./src/MesTech.Tests.Architecture/
 
 # Restore only WebApi project (pulls transitive deps via solution graph)
-RUN dotnet restore src/MesTech.WebApi/MesTech.WebApi.csproj
+RUN dotnet restore src/MesTech.WebApi/MesTech.WebApi.csproj \
+    --runtime linux-musl-x64
 
+# ── Stage 2: Build + Publish ──
+FROM restore AS publish
 # Copy full source (changes frequently — this layer rebuilds on code change)
 COPY MesTech_Stok/MesTechStok/src/ ./src/
 
-# ── Stage 2: Publish ──
-FROM build AS publish
 RUN dotnet publish src/MesTech.WebApi/MesTech.WebApi.csproj \
     -c Release \
     -o /app/publish \
     --no-restore \
-    /p:UseAppHost=false
+    --runtime linux-musl-x64 \
+    --self-contained false \
+    /p:UseAppHost=false \
+    /p:PublishTrimmed=false
 
 # ── Stage 3: Runtime (minimal attack surface) ──
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
+
+# Install wget for healthcheck (busybox wget already in alpine, but ensure it exists)
+# Alpine ships busybox with wget built-in — no extra install needed
+
+# Security: non-root user
+RUN addgroup -S mestech && adduser -S mestech -G mestech \
+    && mkdir -p /app \
+    && chown -R mestech:mestech /app
+
 WORKDIR /app
 
-# Security: run as non-root user
-RUN addgroup -S mestech && adduser -S mestech -G mestech
-USER mestech
+# Copy published output from build stage (owned by mestech)
+COPY --from=publish --chown=mestech:mestech /app/publish .
 
-# Copy published output from build stage
-COPY --from=publish /app/publish .
+# Switch to non-root user
+USER mestech
 
 # Expose WebAPI port
 EXPOSE 5100
 
 # ASP.NET Core configuration
-ENV ASPNETCORE_URLS=http://+:5100
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_URLS=http://+:5100 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_EnableDiagnostics=0
 
-# Health check — uses existing /health endpoint (interval 30s, timeout 5s, 3 retries)
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:5100/health || exit 1
+# Labels for container metadata
+LABEL org.opencontainers.image.source="https://github.com/MesTechSync/MesTech" \
+      org.opencontainers.image.title="MesTech WebAPI" \
+      org.opencontainers.image.description="MesTech Stok Management WebAPI" \
+      org.opencontainers.image.vendor="MesTech"
+
+# Health check — /health endpoint (30s interval, 10s timeout, 3 retries, 40s startup grace)
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
+    CMD wget -qO- http://localhost:5100/health || exit 1
 
 ENTRYPOINT ["dotnet", "MesTech.WebApi.dll"]

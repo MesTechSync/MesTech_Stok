@@ -1,0 +1,313 @@
+@page "/crm/dashboard"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject IStringLocalizer<Strings> L
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-chart-pie text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">CRM Dashboard</h3>
+    <small class="text-muted">Musteri iliskileri yonetimi ozet paneli</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+}
+else
+{
+    <!-- KPI Cards -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Toplam Musteri</small>
+                <h4 class="mb-0 fw-bold text-primary fs-6 fs-md-4">@totalCustomers</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                <i class="fas fa-handshake"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Pipeline Degeri</small>
+                <h4 class="mb-0 fw-bold text-success fs-6 fs-md-4">@pipelineTotalValue.ToString("N0") TL</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-warning">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning d-none d-sm-flex">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Okunmamis Mesaj</small>
+                <h4 class="mb-0 fw-bold text-warning fs-6 fs-md-4">@unreadMessageCount</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-info">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Yeni Lead</small>
+                <h4 class="mb-0 fw-bold text-info fs-6 fs-md-4">@newLeadCount</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Row KPI -->
+    <div class="row g-3 g-md-4 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-danger">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger d-none d-sm-flex">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">VIP Musteri</small>
+                <h4 class="mb-0 fw-bold text-danger fs-6 fs-md-4">@vipCustomerCount</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4" style="border-color: #6f42c1 !important;">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-opacity-10 d-none d-sm-flex" style="background-color: rgba(111,66,193,0.1); color: #6f42c1;">
+                <i class="fas fa-truck"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Tedarikci</small>
+                <h4 class="mb-0 fw-bold fs-6 fs-md-4" style="color: #6f42c1;">@supplierCount</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-secondary">
+          <div class="card-body p-2 p-md-3">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-secondary bg-opacity-10 text-secondary d-none d-sm-flex">
+                <i class="fas fa-percent"></i>
+              </div>
+              <div class="ms-0 ms-sm-3">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Donusum Orani</small>
+                <h4 class="mb-0 fw-bold text-secondary fs-6 fs-md-4">@conversionRate.ToString("F1")%</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3 g-md-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fas fa-bolt me-2 text-warning"></i>CRM Hizli Erisim</h6>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              <a href="crm/leads" class="list-group-item list-group-item-action d-flex align-items-center px-0 border-0">
+                <div class="stat-icon bg-info bg-opacity-10 text-info me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold">Potansiyel Musteriler</span>
+                  <br /><small class="text-muted">Lead yonetimi ve takibi</small>
+                </div>
+              </a>
+              <a href="crm/deals" class="list-group-item list-group-item-action d-flex align-items-center px-0 border-0">
+                <div class="stat-icon bg-success bg-opacity-10 text-success me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                  <i class="fas fa-handshake"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold">Firsatlar (Deals)</span>
+                  <br /><small class="text-muted">Kanban gorunumu ile firsat takibi</small>
+                </div>
+              </a>
+              <a href="crm/messages" class="list-group-item list-group-item-action d-flex align-items-center px-0 border-0">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold">Platform Mesajlari</span>
+                  <br /><small class="text-muted">Pazaryeri mesaj yonetimi</small>
+                </div>
+              </a>
+              <a href="crm/suppliers" class="list-group-item list-group-item-action d-flex align-items-center px-0 border-0">
+                <div class="stat-icon bg-opacity-10 me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background-color: rgba(111,66,193,0.1); color: #6f42c1;">
+                  <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold">Tedarikciler</span>
+                  <br /><small class="text-muted">Tedarikci listesi ve bakiye takibi</small>
+                </div>
+              </a>
+              <a href="crm/contacts" class="list-group-item list-group-item-action d-flex align-items-center px-0 border-0">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                  <i class="fas fa-address-book"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold">Kisiler</span>
+                  <br /><small class="text-muted">Musteri ve tedarikci rehberi</small>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fas fa-clock-rotate-left me-2 text-secondary"></i>Son Aktiviteler</h6>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              @foreach (var activity in recentActivities)
+              {
+                <div class="list-group-item px-0 border-0 d-flex align-items-start">
+                  <i class="fas @activity.Icon me-3 mt-1" style="color: @activity.Color; width: 16px; text-align: center;"></i>
+                  <div>
+                    <span class="small fw-semibold">@activity.Text</span>
+                    <br /><small class="text-muted">@activity.Time</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage = null;
+
+    // KPI values
+    private int totalCustomers;
+    private decimal pipelineTotalValue;
+    private int unreadMessageCount;
+    private int newLeadCount;
+    private int vipCustomerCount;
+    private int supplierCount;
+    private decimal conversionRate;
+
+    // Recent activities
+    private List<ActivityItem> recentActivities = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<CrmDashboardDto>("crm/dashboard");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                var d = result.Data;
+                totalCustomers = d.TotalCustomers;
+                pipelineTotalValue = d.PipelineTotalValue;
+                unreadMessageCount = d.UnreadMessageCount;
+                newLeadCount = d.NewLeadCount;
+                vipCustomerCount = d.VipCustomerCount;
+                supplierCount = d.SupplierCount;
+                conversionRate = d.ConversionRate;
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch
+        {
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+        finally
+        {
+            LoadRecentActivities();
+            isLoading = false;
+        }
+    }
+
+    private void LoadDemoData()
+    {
+        totalCustomers = 248;
+        pipelineTotalValue = 1_450_000m;
+        unreadMessageCount = 17;
+        newLeadCount = 12;
+        vipCustomerCount = 34;
+        supplierCount = 18;
+        conversionRate = 23.5m;
+    }
+
+    private void LoadRecentActivities()
+    {
+        recentActivities =
+        [
+            new("fa-user-plus", "#0d6efd", "Yeni lead: Ahmet Yilmaz — TechCo A.S.", "5 dk once"),
+            new("fa-handshake", "#198754", "Firsat kazanildi: Mega Ticaret — 85.000 TL", "32 dk once"),
+            new("fa-envelope", "#fd7e14", "Trendyol mesaji: Urun iade talebi", "1 saat once"),
+            new("fa-star", "#dc3545", "VIP musteri eklendi: Global Import A.S.", "2 saat once"),
+            new("fa-truck", "#6f42c1", "Tedarikci odeme: Hizli Lojistik — 12.500 TL", "3 saat once"),
+            new("fa-chart-line", "#17a2b8", "Aylik donusum orani %23.5'e yukseldi", "5 saat once"),
+        ];
+    }
+
+    private record CrmDashboardDto(
+        int TotalCustomers,
+        decimal PipelineTotalValue,
+        int UnreadMessageCount,
+        int NewLeadCount,
+        int VipCustomerCount,
+        int SupplierCount,
+        decimal ConversionRate);
+
+    private record ActivityItem(string Icon, string Color, string Text, string Time);
+}
