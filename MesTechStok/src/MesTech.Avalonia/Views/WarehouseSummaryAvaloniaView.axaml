@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.WarehouseSummaryAvaloniaView"
+             x:DataType="vm:WarehouseSummaryAvaloniaViewModel">
+
+    <!-- I-06 Gorev 6: Depo Ozet Kartlari — kapasite + kritik urun + doluluk cubugu -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#059669" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Depo Ozet Paneli" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TotalWarehouses, StringFormat='{}{0} depo'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#059669" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Warehouse Cards Grid -->
+        <ScrollViewer Grid.Row="1" Padding="16">
+            <ItemsControl ItemsSource="{Binding WarehouseCards}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:WarehouseSummaryCardDto">
+                        <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,12,12"
+                                BorderBrush="#E0E6ED" BorderThickness="1" Width="320">
+                            <StackPanel Spacing="12">
+                                <!-- Warehouse Name -->
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"
+                                               Foreground="#1E293B" />
+                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="#64748B" />
+                                </StackPanel>
+
+                                <!-- Product Count -->
+                                <TextBlock Text="{Binding ProductCountText}" FontSize="14" Foreground="#475569" />
+
+                                <!-- Capacity Bar -->
+                                <StackPanel Spacing="4">
+                                    <Grid>
+                                        <Border Height="10" CornerRadius="5" Background="#E5E7EB" />
+                                        <Border Height="10" CornerRadius="5"
+                                                Background="{Binding CapacityBarColor}"
+                                                Width="{Binding CapacityBarWidth}"
+                                                HorizontalAlignment="Left" />
+                                    </Grid>
+                                    <TextBlock Text="{Binding CapacityText}" FontSize="11" Foreground="#64748B" />
+                                </StackPanel>
+
+                                <!-- Stock Health -->
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                                IsVisible="{Binding HasOutOfStock}">
+                                        <Border Width="8" Height="8" CornerRadius="4" Background="#DC2626" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding OutOfStockText}" FontSize="12" Foreground="#DC2626" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                                IsVisible="{Binding HasCritical}">
+                                        <Border Width="8" Height="8" CornerRadius="4" Background="#D97706" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="#D97706" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                                IsVisible="{Binding IsHealthy}">
+                                        <Border Width="8" Height="8" CornerRadius="4" Background="#16A34A" VerticalAlignment="Center" />
+                                        <TextBlock Text="Saglikli" FontSize="12" Foreground="#16A34A" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding NormalText}" FontSize="12" Foreground="#64748B" />
+                                </StackPanel>
+
+                                <!-- Detail Button -->
+                                <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
+                                        Background="#F1F5F9" Foreground="#475569"
+                                        Padding="12,6" CornerRadius="6" FontSize="12" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Depo verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
