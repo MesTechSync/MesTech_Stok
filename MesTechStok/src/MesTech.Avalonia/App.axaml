@@ -2,8 +2,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="MesTech.Avalonia.App"
              RequestedThemeVariant="Light">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://MesTech.Avalonia/Styles/MesTechTheme.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/ButtonStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/CardStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/DataGridStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/InputStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/SidebarStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/DialogStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/MesTechIcons.axaml"/>
     </Application.Styles>
 </Application>
