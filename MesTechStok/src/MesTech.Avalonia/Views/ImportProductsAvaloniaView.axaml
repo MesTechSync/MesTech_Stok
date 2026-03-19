@@ -1,0 +1,282 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="MesTech.Avalonia.Views.ImportProductsAvaloniaView"
+             x:DataType="vm:ImportProductsAvaloniaViewModel">
+
+    <!-- 4-Step Import Wizard: File Selection → Preview → Column Mapping → Import Progress -->
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Urun Iceri Aktarma" Foreground="White"
+                           FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                    <TextBlock Text="{Binding StepTitle}" Foreground="White"
+                               FontSize="12" VerticalAlignment="Center" />
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: Step Indicators -->
+        <Border Grid.Row="1" Background="White" Padding="20,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,*,*,*" HorizontalAlignment="Stretch">
+                <!-- Step 1 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{Binding Step1Color}">
+                        <TextBlock Text="1" Foreground="White" FontWeight="Bold"
+                                   FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Dosya Secimi" VerticalAlignment="Center"
+                               FontSize="12" Foreground="{Binding Step1TextColor}" FontWeight="SemiBold" />
+                </StackPanel>
+                <!-- Step 2 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{Binding Step2Color}">
+                        <TextBlock Text="2" Foreground="White" FontWeight="Bold"
+                                   FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="On Izleme" VerticalAlignment="Center"
+                               FontSize="12" Foreground="{Binding Step2TextColor}" FontWeight="SemiBold" />
+                </StackPanel>
+                <!-- Step 3 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{Binding Step3Color}">
+                        <TextBlock Text="3" Foreground="White" FontWeight="Bold"
+                                   FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Kolon Eslestirme" VerticalAlignment="Center"
+                               FontSize="12" Foreground="{Binding Step3TextColor}" FontWeight="SemiBold" />
+                </StackPanel>
+                <!-- Step 4 -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="14"
+                            Background="{Binding Step4Color}">
+                        <TextBlock Text="4" Foreground="White" FontWeight="Bold"
+                                   FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Aktarma" VerticalAlignment="Center"
+                               FontSize="12" Foreground="{Binding Step4TextColor}" FontWeight="SemiBold" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Step Content -->
+        <Grid Grid.Row="2" Margin="20">
+
+            <!-- Step 1: File Selection -->
+            <Border IsVisible="{Binding IsStep1}" Background="White" CornerRadius="8"
+                    Padding="32" BorderBrush="#E5E9F2" BorderThickness="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+                    <!-- Drag-Drop Area -->
+                    <Border Background="#F1F5F9" CornerRadius="12" Padding="48,32"
+                            BorderBrush="#CBD5E1" BorderThickness="2"
+                            HorizontalAlignment="Stretch">
+                        <StackPanel Spacing="12" HorizontalAlignment="Center">
+                            <TextBlock Text="Dosya Surukle-Birak" FontSize="20" FontWeight="Bold"
+                                       Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Excel (.xlsx, .xls) veya CSV dosyasi yukleyin"
+                                       FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Maksimum 50.000 satir"
+                                       FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- File Dialog Button -->
+                    <Button Content="Dosya Sec" Command="{Binding SelectFileCommand}"
+                            Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                            Padding="24,12" CornerRadius="6" FontSize="14"
+                            HorizontalAlignment="Center" />
+
+                    <!-- Selected File Info -->
+                    <Border Background="#F0FFF4" CornerRadius="6" Padding="16,10"
+                            IsVisible="{Binding HasFile}" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="Dosya:" FontWeight="SemiBold" Foreground="#166534" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SelectedFileName}" Foreground="#15803D" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding FileSizeText}" Foreground="#22C55E" VerticalAlignment="Center" FontSize="12" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Step 2: Preview -->
+            <Grid IsVisible="{Binding IsStep2}" RowDefinitions="Auto,*,Auto">
+                <Border Grid.Row="0" Background="White" CornerRadius="8,8,0,0" Padding="16,12"
+                        BorderBrush="#E5E9F2" BorderThickness="1,1,1,0">
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <TextBlock Text="On Izleme (ilk 10 satir)" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#1E293B" VerticalAlignment="Center" />
+                        <Border Background="#DBEAFE" CornerRadius="10" Padding="10,4">
+                            <TextBlock Text="{Binding TotalRowCount, StringFormat='{}{0} satir'}"
+                                       FontSize="12" Foreground="#1D4ED8" />
+                        </Border>
+                        <Border Background="{Binding ErrorCountBackground}" CornerRadius="10" Padding="10,4"
+                                IsVisible="{Binding HasPreviewErrors}">
+                            <TextBlock Text="{Binding ErrorRowCount, StringFormat='{}{0} hata'}"
+                                       FontSize="12" Foreground="#DC2626" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding PreviewRows}"
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="#E5E9F2"
+                          Background="White">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Satir" Binding="{Binding RowNumber}" Width="60" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80" />
+                        <DataGridTextColumn Header="Kolon A" Binding="{Binding ColumnA}" Width="160" />
+                        <DataGridTextColumn Header="Kolon B" Binding="{Binding ColumnB}" Width="160" />
+                        <DataGridTextColumn Header="Kolon C" Binding="{Binding ColumnC}" Width="120" />
+                        <DataGridTextColumn Header="Kolon D" Binding="{Binding ColumnD}" Width="120" />
+                        <DataGridTextColumn Header="Kolon E" Binding="{Binding ColumnE}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Border Grid.Row="2" Background="#FFFBEB" CornerRadius="0,0,8,8" Padding="16,10"
+                        BorderBrush="#FDE68A" BorderThickness="1,0,1,1"
+                        IsVisible="{Binding HasPreviewErrors}">
+                    <TextBlock Text="{Binding PreviewErrorSummary}" FontSize="12" Foreground="#92400E" TextWrapping="Wrap" />
+                </Border>
+            </Grid>
+
+            <!-- Step 3: Column Mapping -->
+            <Border IsVisible="{Binding IsStep3}" Background="White" CornerRadius="8"
+                    Padding="24" BorderBrush="#E5E9F2" BorderThickness="1">
+                <ScrollViewer>
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Kolon Eslestirme" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="Kaynak dosyadaki kolonlari hedef alanlara esleyin"
+                                   FontSize="13" Foreground="#64748B" />
+
+                        <!-- Mapping Header -->
+                        <Grid ColumnDefinitions="*,40,*" Margin="0,8,0,0">
+                            <TextBlock Grid.Column="0" Text="Kaynak Kolon" FontWeight="SemiBold" Foreground="#475569" FontSize="12" />
+                            <TextBlock Grid.Column="2" Text="Hedef Alan" FontWeight="SemiBold" Foreground="#475569" FontSize="12" />
+                        </Grid>
+
+                        <!-- Mapping Rows -->
+                        <ItemsControl ItemsSource="{Binding ColumnMappings}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ImportColumnMappingDto">
+                                    <Grid ColumnDefinitions="*,40,*" Margin="0,4">
+                                        <Border Grid.Column="0" Background="#F1F5F9" CornerRadius="6" Padding="12,8">
+                                            <TextBlock Text="{Binding SourceColumn}" Foreground="#334155" />
+                                        </Border>
+                                        <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center" Foreground="#94A3B8" FontSize="16" />
+                                        <ComboBox Grid.Column="2"
+                                                  ItemsSource="{Binding $parent[ItemsControl].((vm:ImportProductsAvaloniaViewModel)DataContext).TargetFields}"
+                                                  SelectedItem="{Binding TargetField}"
+                                                  Padding="8,6" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Step 4: Import Progress -->
+            <Border IsVisible="{Binding IsStep4}" Background="White" CornerRadius="8"
+                    Padding="32" BorderBrush="#E5E9F2" BorderThickness="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" MinWidth="400">
+                    <!-- Progress -->
+                    <StackPanel Spacing="8" IsVisible="{Binding IsImporting}">
+                        <TextBlock Text="Urunler aktariliyor..." FontSize="18" FontWeight="SemiBold"
+                                   Foreground="#1E293B" HorizontalAlignment="Center" />
+                        <ProgressBar Value="{Binding ImportProgress}" Minimum="0" Maximum="100"
+                                     Height="8" Foreground="#0078D4" />
+                        <TextBlock Text="{Binding ImportProgress, StringFormat='%{0:N0}'}"
+                                   FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Result Summary -->
+                    <Border IsVisible="{Binding ImportCompleted}" Background="#F0FFF4"
+                            CornerRadius="8" Padding="24">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Aktarma Tamamlandi" FontSize="20" FontWeight="Bold"
+                                       Foreground="#166534" HorizontalAlignment="Center" />
+                            <Grid ColumnDefinitions="*,*,*" HorizontalAlignment="Center">
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="16,0">
+                                    <TextBlock Text="{Binding SuccessCount}" FontSize="24" FontWeight="Bold"
+                                               Foreground="#16A34A" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Basarili" FontSize="12" Foreground="#15803D"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Center" Margin="16,0">
+                                    <TextBlock Text="{Binding SkippedCount}" FontSize="24" FontWeight="Bold"
+                                               Foreground="#CA8A04" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Atlanan" FontSize="12" Foreground="#A16207"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Center" Margin="16,0">
+                                    <TextBlock Text="{Binding FailedCount}" FontSize="24" FontWeight="Bold"
+                                               Foreground="#DC2626" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Hatali" FontSize="12" Foreground="#B91C1C"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="{Binding ImportDuration, StringFormat='Sure: {0}'}"
+                                       FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Error Summary -->
+                    <Border IsVisible="{Binding HasImportErrors}" Background="#FEF2F2"
+                            CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Hatali Satirlar" FontWeight="SemiBold" Foreground="#991B1B" />
+                            <ItemsControl ItemsSource="{Binding ImportErrors}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ImportErrorDto">
+                                        <TextBlock Text="{Binding Message}" FontSize="12" Foreground="#DC2626"
+                                                   TextWrapping="Wrap" Margin="0,2" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Row 3: Navigation Buttons -->
+        <Border Grid.Row="3" Background="White" Padding="20,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Content="Geri" Command="{Binding GoBackCommand}"
+                        IsVisible="{Binding CanGoBack}"
+                        Background="#94A3B8" Foreground="White" FontWeight="SemiBold"
+                        Padding="20,10" CornerRadius="6" />
+                <Button Grid.Column="2" Content="{Binding NextButtonText}" Command="{Binding GoNextCommand}"
+                        IsVisible="{Binding CanGoNext}"
+                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Padding="20,10" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Dosya isleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

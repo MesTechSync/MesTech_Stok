@@ -1,0 +1,141 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.LabelPreviewAvaloniaView"
+             x:DataType="vm:LabelPreviewAvaloniaViewModel">
+
+    <!-- Etiket Onizleme — I-05 -->
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Kargo Etiketi Onizleme" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding TrackingNumber}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <ComboBox Grid.Column="1" Width="100" Margin="0,0,8,0"
+                          ItemsSource="{Binding Formats}"
+                          SelectedItem="{Binding SelectedFormat}" />
+                <Button Grid.Column="2" Content="Yazdir"
+                        Command="{Binding PrintCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="3" Content="Indir"
+                        Command="{Binding DownloadCommand}"
+                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Label Preview Content -->
+        <ScrollViewer Grid.Row="1" Background="#F1F5F9" HorizontalScrollBarVisibility="Disabled">
+            <Border Background="White" CornerRadius="8" Margin="40,24" Padding="0"
+                    MaxWidth="500" HorizontalAlignment="Center"
+                    BorderBrush="#CBD5E1" BorderThickness="2">
+
+                <StackPanel>
+                    <!-- Label Header -->
+                    <Border Background="#1E293B" Padding="16,12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="{Binding CargoProvider}"
+                                       Foreground="White" FontSize="16" FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding TrackingNumber}"
+                                       Foreground="White" FontSize="14" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Barcode Area -->
+                    <Border Background="#F8FAFC" Padding="20,16"
+                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <StackPanel HorizontalAlignment="Center" Spacing="4">
+                            <Border Background="#1E293B" Height="60" Width="300" CornerRadius="2" />
+                            <TextBlock Text="{Binding BarcodeText}" FontSize="12"
+                                       HorizontalAlignment="Center" Foreground="#64748B"
+                                       FontFamily="Consolas" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sender -->
+                    <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="GONDEREN" FontSize="10" FontWeight="Bold"
+                                       Foreground="#94A3B8" />
+                            <TextBlock Text="{Binding SenderName}" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="{Binding SenderAddress}" FontSize="12" Foreground="#475569" />
+                            <TextBlock Text="{Binding SenderPhone}" FontSize="12" Foreground="#475569" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Recipient -->
+                    <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="ALICI" FontSize="10" FontWeight="Bold"
+                                       Foreground="#94A3B8" />
+                            <TextBlock Text="{Binding RecipientName}" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="{Binding RecipientAddress}" FontSize="13" Foreground="#475569" />
+                            <TextBlock Text="{Binding RecipientCity}" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="{Binding RecipientPhone}" FontSize="13" Foreground="#475569" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Parcel Info -->
+                    <Border Padding="16,12">
+                        <Grid ColumnDefinitions="*,*">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="KOLI SAYISI" FontSize="10" FontWeight="Bold" Foreground="#94A3B8" />
+                                <TextBlock Text="{Binding ParcelCount}" FontSize="20" FontWeight="Bold" Foreground="#1E293B" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="AGIRLIK" FontSize="10" FontWeight="Bold" Foreground="#94A3B8" />
+                                <TextBlock Text="{Binding Weight, StringFormat='{}{0:N1} kg'}" FontSize="20" FontWeight="Bold" Foreground="#1E293B" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Etiket hazirlaniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F7F9FC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

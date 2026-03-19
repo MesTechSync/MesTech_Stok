@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Controls.KpiCardControl"
+             x:DataType="vm:KpiCardViewModel">
+
+  <Border Classes="mestech-kpi-card" Padding="20">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+
+      <!-- Row 0: Title (overline) + Icon -->
+      <TextBlock Grid.Row="0" Grid.Column="0"
+                 Text="{Binding Title}"
+                 Classes="kpi-label"
+                 FontSize="11"
+                 FontWeight="Medium"
+                 VerticalAlignment="Center"/>
+
+      <Border Grid.Row="0" Grid.Column="1"
+              Width="36" Height="36"
+              CornerRadius="8"
+              Background="{Binding IconBackground}"
+              Padding="6">
+        <PathIcon Data="{Binding IconData}"
+                  Width="20" Height="20"
+                  Foreground="White"/>
+      </Border>
+
+      <!-- Row 1: Main value (large bold) -->
+      <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                 Text="{Binding Value}"
+                 Classes="kpi-value"
+                 Foreground="{Binding ValueColor}"
+                 Margin="0,8,0,0"/>
+
+      <!-- Row 2: Trend indicator (arrow + percentage + period) -->
+      <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                  Orientation="Horizontal"
+                  Spacing="4"
+                  Margin="0,8,0,0">
+        <PathIcon Data="{Binding TrendIcon}"
+                  Width="14" Height="14"
+                  Foreground="{Binding TrendColor}"/>
+        <TextBlock Text="{Binding TrendText}"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="{Binding TrendColor}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding ComparisonPeriod}"
+                   FontSize="12"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   VerticalAlignment="Center"
+                   Margin="4,0,0,0"/>
+      </StackPanel>
+
+      <!-- Row 3: Mini spark line (optional) -->
+      <Canvas Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+              Height="24"
+              Margin="0,8,0,0"
+              IsVisible="{Binding HasSparkLine}"
+              ClipToBounds="True">
+        <Polyline Points="{Binding SparkLinePoints}"
+                  Stroke="{Binding TrendColor}"
+                  StrokeThickness="1.5"
+                  StrokeLineCap="Round"
+                  StrokeLineJoin="Round"/>
+      </Canvas>
+
+    </Grid>
+  </Border>
+
+</UserControl>

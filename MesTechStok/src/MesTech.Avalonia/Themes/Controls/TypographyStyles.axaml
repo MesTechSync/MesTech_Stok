@@ -1,0 +1,74 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ============================================================ -->
+  <!-- Typography Presets — Tutarlı metin hiyerarşisi                -->
+  <!-- Kullanım: <TextBlock Classes="page-title" Text="..."/>       -->
+  <!-- DRY: Her view'da FontSize/Weight tekrar tanımlamak YOK        -->
+  <!-- ============================================================ -->
+
+  <!-- Sayfa başlığı (H1) — 24px, bold -->
+  <Style Selector="TextBlock.page-title">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeHeader}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Margin" Value="0,0,0,8"/>
+  </Style>
+
+  <!-- Bölüm başlığı (H2) — 20px, semibold -->
+  <Style Selector="TextBlock.section-title">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}"/>
+    <Setter Property="FontWeight" Value="DemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Margin" Value="0,16,0,8"/>
+  </Style>
+
+  <!-- Alt başlık (H3) — 16px, semibold -->
+  <Style Selector="TextBlock.subtitle">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeSubtitle}"/>
+    <Setter Property="FontWeight" Value="DemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+  </Style>
+
+  <!-- Gövde metin — 14px, normal -->
+  <Style Selector="TextBlock.body">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+  </Style>
+
+  <!-- Küçük metin — 12px, secondary renk -->
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+  </Style>
+
+  <!-- Üst etiket — 11px, semibold, uppercase -->
+  <Style Selector="TextBlock.overline">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="FontWeight" Value="DemiBold"/>
+  </Style>
+
+  <!-- Mono metin — kod, SKU, barkod -->
+  <Style Selector="TextBlock.mono">
+    <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
+    <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+  </Style>
+
+  <!-- KPI büyük sayı — 32px, bold -->
+  <Style Selector="TextBlock.kpi-value">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeDisplay}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+  </Style>
+
+  <!-- KPI etiket — 12px, secondary -->
+  <Style Selector="TextBlock.kpi-label">
+    <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="FontWeight" Value="DemiBold"/>
+  </Style>
+
+</Styles>

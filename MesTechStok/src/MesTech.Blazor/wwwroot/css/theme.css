@@ -1,0 +1,110 @@
+/* theme.css — Manuel dark/light toggle destegi
+   Mevcut app.css @media prefers-color-scheme ile birlikte calisir.
+   [data-theme] secicisi manuel toggle icin override saglar. */
+
+:root {
+  --mestech-border: #dee2e6;
+}
+
+[data-theme="dark"] {
+  --mestech-bg: #1a1a2e;
+  --mestech-surface: #16213e;
+  --mestech-text: #e0e0e0;
+  --mestech-border: #2a2a4a;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: var(--mestech-bg);
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .card {
+  background: var(--mestech-surface);
+  border-color: var(--mestech-border);
+}
+
+[data-theme="dark"] .table {
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: var(--mestech-surface) !important;
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: var(--mestech-bg) !important;
+}
+
+[data-theme="dark"] .border-bottom {
+  border-color: var(--mestech-border) !important;
+}
+
+[data-theme="dark"] .text-muted {
+  color: #a0a0b8 !important;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--mestech-surface);
+  border-color: var(--mestech-border);
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: var(--mestech-surface);
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--mestech-surface);
+  border-color: var(--mestech-border);
+}
+
+[data-theme="dark"] .dropdown-item {
+  color: var(--mestech-text);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .sidebar {
+  background: var(--mestech-secondary) !important;
+}
+
+/* Light tema — acik override (system dark modda bile) */
+[data-theme="light"] {
+  --mestech-bg: #ffffff;
+  --mestech-surface: #f8f9fa;
+  --mestech-text: #212529;
+  --mestech-border: #dee2e6;
+  color-scheme: light;
+}
+
+[data-theme="light"] body {
+  background: var(--mestech-bg);
+  color: var(--mestech-text);
+}
+
+[data-theme="light"] .card {
+  background: var(--mestech-surface);
+  border-color: var(--mestech-border);
+}
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+}

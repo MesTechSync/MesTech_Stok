@@ -1,0 +1,216 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="MesTech.Avalonia.Views.ProductVariantMatrixView"
+             x:DataType="vm:ProductVariantMatrixViewModel">
+
+    <!-- Variant Matrix Editor: Attribute groups → Cartesian product → DataGrid -->
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="#F8FAFC">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Varyant Matrisi" Foreground="White"
+                               FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                        <TextBlock Text="{Binding ProductName}" Foreground="White"
+                                   FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                        <TextBlock Text="{Binding ProductSKU}" Foreground="White"
+                                   FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Toplu Fiyat Guncelle"
+                        Command="{Binding BulkUpdatePriceCommand}"
+                        Background="#F59E0B" Foreground="White" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Platformlara Gonder"
+                        Command="{Binding SendToPlatformCommand}"
+                        Background="#8B5CF6" Foreground="White" FontWeight="SemiBold"
+                        Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="3" Content="Tumu Kaydet"
+                        Command="{Binding SaveAllCommand}"
+                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Attribute Editor -->
+        <Border Grid.Row="1" Background="White" Padding="16,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Column="0" Text="Ozellik Gruplari" FontSize="16" FontWeight="SemiBold"
+                               Foreground="#1E293B" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                        <TextBox Width="160" Text="{Binding NewAttributeName}"
+                                 Watermark="Ozellik adi (orn: Renk)" Padding="8,6" />
+                        <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
+                                Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                Padding="12,6" CornerRadius="4" FontSize="12" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Attribute Groups with Values -->
+                <ItemsControl ItemsSource="{Binding Attributes}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AttributeGroupDto">
+                            <Border Background="#F8FAFC" CornerRadius="8" Padding="12,8" Margin="0,4">
+                                <Grid ColumnDefinitions="120,*,Auto,Auto">
+                                    <!-- Attribute Name -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
+                                                   Foreground="#334155" VerticalAlignment="Center" />
+                                        <TextBlock Text=":" Foreground="#94A3B8" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <!-- Value Chips -->
+                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Values}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:AttributeValueDto">
+                                                <Border Background="#DBEAFE" CornerRadius="12" Padding="10,4" Margin="4,2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <TextBlock Text="{Binding Value}" FontSize="12"
+                                                                   Foreground="#1D4ED8" VerticalAlignment="Center" />
+                                                        <Button Content="x" FontSize="9"
+                                                                Command="{Binding $parent[ItemsControl].((vm:AttributeGroupDto)DataContext).RemoveValueCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" Foreground="#6B7280"
+                                                                Padding="2,0" MinWidth="16" MinHeight="16"
+                                                                VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Add Value -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                                        <TextBox Width="100" Text="{Binding NewValue}"
+                                                 Watermark="Deger ekle" Padding="6,4" FontSize="12" />
+                                        <Button Content="+" Command="{Binding AddValueCommand}"
+                                                Background="#0078D4" Foreground="White"
+                                                Padding="8,4" CornerRadius="4" FontSize="12" />
+                                    </StackPanel>
+
+                                    <!-- Remove Attribute -->
+                                    <Button Grid.Column="3" Content="Sil"
+                                            Command="{Binding $parent[ItemsControl].((vm:ProductVariantMatrixViewModel)DataContext).RemoveAttributeCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="#FFEBEE" Foreground="#C62828"
+                                            Padding="8,4" CornerRadius="4" FontSize="11"
+                                            Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Generate Button -->
+                <Button Content="Varyantlari Olustur" Command="{Binding GenerateVariantsCommand}"
+                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" HorizontalAlignment="Left"
+                        IsEnabled="{Binding CanGenerate}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Summary Bar -->
+        <Border Grid.Row="2" Background="#EFF6FF" Padding="16,10"
+                BorderBrush="#BFDBFE" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="24">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Toplam Varyant:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="{Binding TotalVariants}" FontSize="13" FontWeight="Bold" Foreground="#1D4ED8" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Toplam Stok:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="{Binding TotalStock}" FontSize="13" FontWeight="Bold" Foreground="#16A34A" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Stok Bitti:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="{Binding OutOfStockCount}" FontSize="13" FontWeight="Bold"
+                               Foreground="{Binding OutOfStockColor}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Aktif:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="{Binding ActiveVariantCount}" FontSize="13" FontWeight="Bold" Foreground="#0078D4" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 3: Variant DataGrid -->
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding Variants}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="False"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="White"
+                  Margin="0"
+                  IsVisible="{Binding HasVariants}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Varyant" Binding="{Binding DisplayName}" Width="220" IsReadOnly="True" />
+                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="160" />
+                <DataGridTextColumn Header="Barkod" Binding="{Binding Barcode}" Width="140" />
+                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
+                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120" />
+                <DataGridCheckBoxColumn Header="Aktif" Binding="{Binding IsActive}" Width="70" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding StockStatus}" Width="100" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty State for Variants -->
+        <Border Grid.Row="3" Background="#F7F9FC"
+                IsVisible="{Binding !HasVariants}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Varyant Bulunamadi" FontSize="20" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                <TextBlock Text="Ozellik gruplari ekleyip 'Varyantlari Olustur' butonuna tiklayin"
+                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Row 4: Bulk Price Update Panel -->
+        <Border Grid.Row="4" Background="White" Padding="16,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0"
+                IsVisible="{Binding IsBulkPriceVisible}">
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                <TextBlock Text="Toplu Fiyat:" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#1E293B" />
+                <ComboBox Width="160" ItemsSource="{Binding PriceUpdateModes}"
+                          SelectedItem="{Binding SelectedPriceUpdateMode}" />
+                <TextBox Width="120" Text="{Binding PriceUpdateValue}"
+                         Watermark="Deger" Padding="8,6" />
+                <Button Content="Uygula" Command="{Binding ApplyBulkPriceCommand}"
+                        Background="#F59E0B" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,6" CornerRadius="4" />
+                <Button Content="Iptal" Command="{Binding CancelBulkPriceCommand}"
+                        Background="#94A3B8" Foreground="White"
+                        Padding="12,6" CornerRadius="4" />
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
+                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Varyantlar yukleniyor..." FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

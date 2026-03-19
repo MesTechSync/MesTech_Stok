@@ -1,0 +1,40 @@
+@using Microsoft.JSInterop
+
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn"
+        @onclick="ToggleTheme"
+        title="@(_isDark ? "Acik Tema" : "Koyu Tema")">
+  <i class="fa-solid @(_isDark ? "fa-sun" : "fa-moon")"></i>
+</button>
+
+@code {
+    private bool _isDark;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var saved = await JS.InvokeAsync<string>("localStorage.getItem", "mestech-theme");
+            _isDark = saved == "dark";
+            if (!string.IsNullOrEmpty(saved))
+            {
+                await ApplyTheme();
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _isDark = !_isDark;
+        await ApplyTheme();
+        await JS.InvokeVoidAsync("localStorage.setItem", "mestech-theme", _isDark ? "dark" : "light");
+    }
+
+    private async Task ApplyTheme()
+    {
+        var theme = _isDark ? "dark" : "light";
+        await JS.InvokeVoidAsync("eval",
+            $"document.documentElement.setAttribute('data-theme', '{theme}')");
+    }
+}
