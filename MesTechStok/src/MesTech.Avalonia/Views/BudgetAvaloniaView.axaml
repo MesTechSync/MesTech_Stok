@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MesTech.Avalonia.Views.BudgetAvaloniaView"
+             x:DataType="vm:BudgetAvaloniaViewModel"
+             xmlns:vm="clr-namespace:MesTech.Avalonia.ViewModels">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+    <!-- Header -->
+    <Border Grid.Row="0" Background="#7C3AED" Padding="16" CornerRadius="8" Margin="0,0,0,12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel>
+          <TextBlock Text="Butce &amp; Gerceklesme" FontSize="20" FontWeight="Bold" Foreground="White"/>
+          <TextBlock Text="Aylik butce takibi ve gerceklesme karsilastirmasi" FontSize="12" Foreground="#E0E0E0"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Content="Yenile" Command="{Binding RefreshCommand}" Classes="accent"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- KPI Cards -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,12">
+      <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="0,0,8,0" BoxShadow="0 1 3 0 #1A000000">
+        <StackPanel>
+          <TextBlock Text="BUTCE" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="{Binding TotalBudget}" FontSize="22" FontWeight="Bold" Foreground="#1D4ED8"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="0 1 3 0 #1A000000">
+        <StackPanel>
+          <TextBlock Text="GERCEKLESEN" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="{Binding TotalActual}" FontSize="22" FontWeight="Bold" Foreground="#059669"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="0 1 3 0 #1A000000">
+        <StackPanel>
+          <TextBlock Text="KALAN" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="{Binding TotalRemaining}" FontSize="22" FontWeight="Bold" Foreground="#D97706"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="8,0,0,0" BoxShadow="0 1 3 0 #1A000000">
+        <StackPanel>
+          <TextBlock Text="KULLANIM ORANI" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="{Binding UsageRate}" FontSize="22" FontWeight="Bold" Foreground="#7C3AED"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- Filters -->
+    <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,12" BoxShadow="0 1 3 0 #1A000000">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Width="120" PlaceholderText="Ay"/>
+        <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Width="100" PlaceholderText="Yil"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Budget DataGrid -->
+    <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="8" BoxShadow="0 1 3 0 #1A000000">
+      <Panel>
+        <DataGrid ItemsSource="{Binding Items}" IsReadOnly="True" AutoGenerateColumns="False"
+                  GridLinesVisibility="Horizontal" BorderThickness="0"
+                  IsVisible="{Binding !IsLoading}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="*"/>
+            <DataGridTextColumn Header="Butce" Binding="{Binding BudgetFormatted}" Width="120"/>
+            <DataGridTextColumn Header="Gerceklesen" Binding="{Binding ActualFormatted}" Width="120"/>
+            <DataGridTextColumn Header="Kalan" Binding="{Binding RemainingFormatted}" Width="120"/>
+            <DataGridTextColumn Header="Durum" Binding="{Binding StatusText}" Width="100"/>
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading overlay -->
+        <Border Background="#80FFFFFF" IsVisible="{Binding IsLoading}" CornerRadius="8">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="#6B7280"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Empty state -->
+        <Border Background="White" IsVisible="{Binding IsEmpty}" CornerRadius="8">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="Butce verisi bulunamadi" FontSize="16" FontWeight="DemiBold" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+            <TextBlock Text="Bu donem icin butce tanimlanmamis" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Error state -->
+        <Border Background="#FFF5F5" IsVisible="{Binding HasError}" CornerRadius="8" Padding="16">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="Hata" FontSize="16" FontWeight="Bold" Foreground="#DC2626" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="#DC2626" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+      </Panel>
+    </Border>
+
+  </Grid>
+</UserControl>

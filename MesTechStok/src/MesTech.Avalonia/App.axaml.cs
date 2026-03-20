@@ -198,6 +198,15 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ReturnDetailAvaloniaViewModel>();
                 services.AddTransient<LabelPreviewAvaloniaViewModel>();
                 services.AddTransient<CargoProvidersAvaloniaViewModel>();
+                // İ-07 Muhasebe & Finans Saglamlastirma ViewModels
+                services.AddTransient<NakitAkisAvaloniaViewModel>();
+                services.AddTransient<KomisyonAvaloniaViewModel>();
+                services.AddTransient<VergiTakvimiAvaloniaViewModel>();
+                services.AddTransient<SabitGiderlerAvaloniaViewModel>();
+                services.AddTransient<KarlilikAnaliziAvaloniaViewModel>();
+                services.AddTransient<KdvRaporAvaloniaViewModel>();
+                services.AddTransient<BordroAvaloniaViewModel>();
+                services.AddTransient<BudgetAvaloniaViewModel>();
             })
             .Build();
 

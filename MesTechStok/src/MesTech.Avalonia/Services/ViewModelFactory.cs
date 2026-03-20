@@ -137,6 +137,15 @@ public sealed class ViewModelFactory : IViewModelFactory
             "ReturnDetail" => _provider.GetService<ReturnDetailAvaloniaViewModel>(),
             "LabelPreview" => _provider.GetService<LabelPreviewAvaloniaViewModel>(),
             "CargoProviders" => _provider.GetService<CargoProvidersAvaloniaViewModel>(),
+            // İ-07 Muhasebe & Finans Saglamlastirma views
+            "NakitAkis" => _provider.GetService<NakitAkisAvaloniaViewModel>(),
+            "Komisyon" => _provider.GetService<KomisyonAvaloniaViewModel>(),
+            "VergiTakvimi" => _provider.GetService<VergiTakvimiAvaloniaViewModel>(),
+            "SabitGiderler" => _provider.GetService<SabitGiderlerAvaloniaViewModel>(),
+            "KarlilikAnalizi" => _provider.GetService<KarlilikAnaliziAvaloniaViewModel>(),
+            "KdvRapor" => _provider.GetService<KdvRaporAvaloniaViewModel>(),
+            "Bordro" => _provider.GetService<BordroAvaloniaViewModel>(),
+            "Budget" => _provider.GetService<BudgetAvaloniaViewModel>(),
             _ => null
         };
     }
