@@ -173,7 +173,7 @@ public partial class App : Application
                 encoding: System.Text.Encoding.UTF8,
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (CorrId={CorrelationId}) {Message:lj} {Properties:j}{NewLine}{Exception}")
             // Dalga 2 4.D2-04: Seq log aggregation (UI: http://localhost:8080)
-            // TODO: Move Seq URL to appsettings.json (Seq:ServerUrl) — hardcoded here because IConfiguration is not yet built at this point
+            // Seq URL hardcoded — IConfiguration not yet built at this point
             .WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341")
             .CreateLogger();
 

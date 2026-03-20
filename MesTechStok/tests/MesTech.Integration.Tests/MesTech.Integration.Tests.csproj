@@ -33,6 +33,7 @@
     <ProjectReference Include="..\..\src\MesTech.Application\MesTech.Application.csproj" />
     <ProjectReference Include="..\..\src\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\MesTech.WebApi\MesTech.WebApi.csproj" />
+    <ProjectReference Include="..\..\src\MesTech.Blazor\MesTech.Blazor.csproj" />
   </ItemGroup>
 
 </Project>

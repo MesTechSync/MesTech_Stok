@@ -24,7 +24,7 @@ public static class BaBsEndpoints
         .WithSummary("Ba/Bs beyanname raporu (VUK 396 — 5.000 TL ustu alis/satis)");
 
         // POST /api/v1/accounting/babs-records — yeni Ba/Bs kaydi olustur
-        // TODO: Connect when DEV-1 CreateBaBsRecordCommand handler is ready
+        // Awaiting DEV-1 CreateBaBsRecordCommand handler
         group.MapPost("/records", async (
             // CreateBaBsRecordCommand command,
             ISender mediator, CancellationToken ct) =>

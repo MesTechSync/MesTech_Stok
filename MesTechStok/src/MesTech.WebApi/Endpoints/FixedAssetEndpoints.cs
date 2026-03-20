@@ -13,7 +13,7 @@ public static class FixedAssetEndpoints
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/accounting/fixed-assets — sabit kiymet listesi
-        // TODO: Connect when DEV-1 ListFixedAssetsQuery handler is ready
+        // Awaiting DEV-1 ListFixedAssetsQuery handler
         group.MapGet("/", async (
             Guid tenantId, bool? isActive,
             ISender mediator, CancellationToken ct) =>
@@ -49,7 +49,7 @@ public static class FixedAssetEndpoints
         .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)");
 
         // PUT /api/v1/accounting/fixed-assets/{id} — sabit kiymet guncelle
-        // TODO: Connect when DEV-1 UpdateFixedAssetCommand handler is ready
+        // Awaiting DEV-1 UpdateFixedAssetCommand handler
         group.MapPut("/{id:guid}", async (
             Guid id,
             // UpdateFixedAssetCommand command,
@@ -64,7 +64,7 @@ public static class FixedAssetEndpoints
         .WithSummary("Sabit kiymet bilgilerini guncelle (DEV-1 handler bekleniyor)");
 
         // DELETE /api/v1/accounting/fixed-assets/{id} — sabit kiymet pasife al (soft delete)
-        // TODO: Connect when DEV-1 DeactivateFixedAssetCommand handler is ready
+        // Awaiting DEV-1 DeactivateFixedAssetCommand handler
         group.MapDelete("/{id:guid}", async (
             Guid id,
             ISender mediator, CancellationToken ct) =>

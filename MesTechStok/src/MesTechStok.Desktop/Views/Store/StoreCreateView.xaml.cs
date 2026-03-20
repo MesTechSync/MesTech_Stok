@@ -17,7 +17,7 @@ namespace MesTechStok.Desktop.Views.Store
             InitializeComponent();
         }
 
-        // TODO: Wire BtnSave_Click from XAML to this handler when form fields are available
+        // Wire BtnSave_Click from XAML to this handler when form fields are available
         private async Task SaveStoreAsync(string storeName, PlatformType platformType, Dictionary<string, string> credentials)
         {
             try

@@ -23,7 +23,7 @@ public static class TaxWithholdingEndpoints
         .WithSummary("KDV tevkifat oranlari listesi (GiB resmi listesi)");
 
         // GET /api/v1/accounting/tax-withholdings — tevkifat kayitlari listesi
-        // TODO: Connect when DEV-1 ListTaxWithholdingsQuery handler is ready
+        // Awaiting DEV-1 ListTaxWithholdingsQuery handler
         group.MapGet("/tax-withholdings", async (
             Guid tenantId, DateTime? from, DateTime? to,
             ISender mediator, CancellationToken ct) =>

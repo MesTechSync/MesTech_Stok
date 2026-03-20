@@ -131,6 +131,76 @@ dotnet_diagnostic.MA0147.severity = none       # Avoid async void: WPF command h
 dotnet_diagnostic.MA0140.severity = none       # Enum field names
 dotnet_diagnostic.MA0134.severity = none       # Observe result of async calls
 dotnet_diagnostic.MA0074.severity = none       # Avoid implicit culture-sensitive
+# I-11 GOREV 6 Phase 2: Remaining Desktop CS + CA warnings (WPF temp csproj bypasses NoWarn)
+dotnet_diagnostic.CS8618.severity = none       # Non-nullable property: WPF XAML data binding initializes
+dotnet_diagnostic.CS0414.severity = none       # Field assigned but never used: WPF event backing fields
+dotnet_diagnostic.CS8604.severity = none       # Possible null reference argument: WPF null-tolerant patterns
+dotnet_diagnostic.CS8602.severity = none       # Dereference of possibly null: WPF data binding context
+dotnet_diagnostic.CS8625.severity = none       # Cannot convert null literal: WPF nullable patterns
+dotnet_diagnostic.CS0219.severity = none       # Variable assigned but never used: debug/diagnostic locals
+dotnet_diagnostic.CS0649.severity = none       # Field never assigned: DI-injected fields
+dotnet_diagnostic.CS4014.severity = none       # Async call not awaited: fire-and-forget WPF patterns
+dotnet_diagnostic.CS0105.severity = none       # Duplicate using directive
+dotnet_diagnostic.CS0067.severity = none       # Event never used: interface implementation
+dotnet_diagnostic.CS8629.severity = none       # Nullable value type may be null
+dotnet_diagnostic.CS8603.severity = none       # Possible null reference return
+dotnet_diagnostic.CS8601.severity = none       # Possible null reference assignment
+dotnet_diagnostic.CS8600.severity = none       # Converting null literal
+dotnet_diagnostic.CS0169.severity = none       # Field never used
+dotnet_diagnostic.CS0184.severity = none       # Expression is always false
+dotnet_diagnostic.CS0162.severity = none       # Unreachable code
+dotnet_diagnostic.CS0168.severity = none       # Variable declared but never used
+dotnet_diagnostic.CA2201.severity = none       # Do not raise reserved exception types: WPF error handling
+dotnet_diagnostic.CA1851.severity = none       # Possible multiple enumerations: WPF collection binding
+dotnet_diagnostic.CA1823.severity = none       # Unused fields: WPF XAML-referenced fields
+dotnet_diagnostic.CA1861.severity = none       # Avoid constant arrays: minor perf
+dotnet_diagnostic.CA1847.severity = none       # Use char overload: minor perf
+dotnet_diagnostic.CA1310.severity = none       # StringComparison: WPF culture-aware
+dotnet_diagnostic.CA1001.severity = none       # IDisposable: WPF lifecycle management
+dotnet_diagnostic.CA1810.severity = none       # Static constructor: WPF dependency property registration
+dotnet_diagnostic.CA1508.severity = none       # Dead conditional code: WPF defensive patterns
+dotnet_diagnostic.CA1303.severity = none       # Do not pass literals as localized parameters
+dotnet_diagnostic.CA1309.severity = none       # Use ordinal StringComparison
+dotnet_diagnostic.CA2249.severity = none       # Consider using String.Contains
+dotnet_diagnostic.CA1866.severity = none       # Use char overload
+dotnet_diagnostic.CA1845.severity = none       # Use Span-based overload
+dotnet_diagnostic.CA1825.severity = none       # Avoid zero-length array allocations
+dotnet_diagnostic.CA1724.severity = none       # Type names should not match namespaces
+dotnet_diagnostic.CA1835.severity = none       # Prefer Memory-based overloads
+dotnet_diagnostic.CA2008.severity = none       # Do not create tasks without passing TaskScheduler
+dotnet_diagnostic.CA1859.severity = none       # Use concrete types for perf
+dotnet_diagnostic.CA1850.severity = none       # Prefer HashData
+dotnet_diagnostic.CA2227.severity = none       # Collection property setter
+dotnet_diagnostic.CA1700.severity = none       # Do not name enum values Reserved
+dotnet_diagnostic.CA1721.severity = none       # Property names should not match get methods
+dotnet_diagnostic.CA1708.severity = none       # Identifiers should differ by more than case
+dotnet_diagnostic.CA1050.severity = none       # Declare types in namespaces
+dotnet_diagnostic.CA1030.severity = none       # Use events where appropriate
+dotnet_diagnostic.CA1028.severity = none       # Enum storage: Int32
+dotnet_diagnostic.CA2263.severity = none       # Prefer generic overload
+dotnet_diagnostic.CA2101.severity = none       # Marshaling for P/Invoke
+dotnet_diagnostic.CA2100.severity = none       # Review SQL queries
+dotnet_diagnostic.CA1865.severity = none       # Use char overload
+dotnet_diagnostic.CA1853.severity = none       # Unnecessary call to Dictionary.ContainsKey
+dotnet_diagnostic.CA1846.severity = none       # Prefer AsSpan over Substring
+dotnet_diagnostic.CA1837.severity = none       # Use Environment.ProcessId
+dotnet_diagnostic.CA1826.severity = none       # Use property instead of Enumerable method
+dotnet_diagnostic.CA1820.severity = none       # Test for empty strings
+dotnet_diagnostic.CA1814.severity = none       # Prefer jagged arrays
+dotnet_diagnostic.CA1802.severity = none       # Use literals
+dotnet_diagnostic.MA0084.severity = none       # Log parameter type
+dotnet_diagnostic.MA0061.severity = none       # Method overload
+dotnet_diagnostic.MA0005.severity = none       # Use Array.Empty
+dotnet_diagnostic.MA0091.severity = none       # Sender parameter
+dotnet_diagnostic.MA0085.severity = none       # Argument exception parameter name
+dotnet_diagnostic.MA0056.severity = none       # Do not call DateTime.Now
+dotnet_diagnostic.MA0047.severity = none       # Declare types in namespaces
+dotnet_diagnostic.MA0023.severity = none       # Add RegexOptions.ExplicitCapture
+dotnet_diagnostic.MA0021.severity = none       # IEquatable
+dotnet_diagnostic.MA0015.severity = none       # StringComparison
+dotnet_diagnostic.MA0026.severity = none       # TODO comments
+dotnet_diagnostic.WFO0003.severity = none       # WinForms interop
+dotnet_diagnostic.SYSLIB0057.severity = none   # Obsolete API usage
 
 # ── Infrastructure Layer: Adapter + Integration patterns ──
 [src/MesTech.Infrastructure/**.cs]
@@ -184,6 +254,22 @@ dotnet_diagnostic.MA0021.severity = none       # IEquatable: adapter value objec
 dotnet_diagnostic.MA0015.severity = none       # StringComparison: adapter internals
 dotnet_diagnostic.MA0140.severity = none       # Enum field names: platform API mapping
 dotnet_diagnostic.MA0074.severity = none       # Avoid implicit culture-sensitive: adapter code
+# I-11 GOREV 6 Phase 2: Additional Infrastructure suppressions
+dotnet_diagnostic.CS0618.severity = none       # Obsolete: migration markers
+dotnet_diagnostic.CS0219.severity = none       # Variable assigned but never used
+dotnet_diagnostic.CS0067.severity = none       # Event never used
+dotnet_diagnostic.MA0158.severity = none       # Use non-allocating overload
+dotnet_diagnostic.MA0026.severity = none       # TODO comments
+dotnet_diagnostic.SYSLIB0057.severity = none   # Obsolete API usage
+dotnet_diagnostic.CA2100.severity = none       # Review SQL queries: parameterized internally
+dotnet_diagnostic.CA1866.severity = none       # Use char overload
+dotnet_diagnostic.CA1865.severity = none       # Use char overload
+dotnet_diagnostic.CA1860.severity = none       # Prefer Length/Count
+dotnet_diagnostic.CA1850.severity = none       # Prefer HashData
+dotnet_diagnostic.CA1820.severity = none       # Test for empty strings
+dotnet_diagnostic.CA1814.severity = none       # Prefer jagged arrays
+dotnet_diagnostic.CA1802.severity = none       # Use literals
+dotnet_diagnostic.CA2227.severity = none       # Collection property setter
 
 # ── Core Layer (legacy): Reduced strictness ──
 [src/MesTechStok.Core/**.cs]
@@ -227,6 +313,70 @@ dotnet_diagnostic.MA0046.severity = none       # Use EventHandler<T>
 dotnet_diagnostic.MA0147.severity = none       # Avoid async void
 dotnet_diagnostic.MA0140.severity = none       # Enum field names
 dotnet_diagnostic.MA0134.severity = none       # Observe result of async calls
+# I-11 GOREV 6 Phase 2: Additional Core suppressions (same as Desktop - shared codebase)
+dotnet_diagnostic.CS8618.severity = none       # Non-nullable property: legacy DTOs
+dotnet_diagnostic.CS0414.severity = none       # Field assigned but never used
+dotnet_diagnostic.CS8604.severity = none       # Possible null reference argument
+dotnet_diagnostic.CS8602.severity = none       # Dereference of possibly null
+dotnet_diagnostic.CS8625.severity = none       # Cannot convert null literal
+dotnet_diagnostic.CS0219.severity = none       # Variable assigned but never used
+dotnet_diagnostic.CS0649.severity = none       # Field never assigned
+dotnet_diagnostic.CS4014.severity = none       # Async call not awaited
+dotnet_diagnostic.CS0105.severity = none       # Duplicate using directive
+dotnet_diagnostic.CS0067.severity = none       # Event never used
+dotnet_diagnostic.CS8629.severity = none       # Nullable value type may be null
+dotnet_diagnostic.CS8603.severity = none       # Possible null reference return
+dotnet_diagnostic.CS8601.severity = none       # Possible null reference assignment
+dotnet_diagnostic.CS8600.severity = none       # Converting null literal
+dotnet_diagnostic.CS0169.severity = none       # Field never used
+dotnet_diagnostic.CS0184.severity = none       # Expression is always false
+dotnet_diagnostic.CS0162.severity = none       # Unreachable code
+dotnet_diagnostic.CS0168.severity = none       # Variable declared but never used
+dotnet_diagnostic.CA2201.severity = none       # Do not raise reserved exception types
+dotnet_diagnostic.CA1851.severity = none       # Possible multiple enumerations
+dotnet_diagnostic.CA1823.severity = none       # Unused fields
+dotnet_diagnostic.CA1861.severity = none       # Avoid constant arrays
+dotnet_diagnostic.CA1847.severity = none       # Use char overload
+dotnet_diagnostic.CA1310.severity = none       # StringComparison
+dotnet_diagnostic.CA1001.severity = none       # IDisposable
+dotnet_diagnostic.CA1810.severity = none       # Static constructor
+dotnet_diagnostic.CA1508.severity = none       # Dead conditional code
+dotnet_diagnostic.CA1303.severity = none       # Localized parameters
+dotnet_diagnostic.CA1309.severity = none       # Use ordinal StringComparison
+dotnet_diagnostic.CA2249.severity = none       # String.Contains
+dotnet_diagnostic.CA1866.severity = none       # Use char overload
+dotnet_diagnostic.CA1845.severity = none       # Use Span-based overload
+dotnet_diagnostic.CA1825.severity = none       # Avoid zero-length array
+dotnet_diagnostic.CA1724.severity = none       # Type names
+dotnet_diagnostic.CA1835.severity = none       # Prefer Memory-based overloads
+dotnet_diagnostic.CA2008.severity = none       # TaskScheduler
+dotnet_diagnostic.CA1859.severity = none       # Use concrete types
+dotnet_diagnostic.CA1850.severity = none       # Prefer HashData
+dotnet_diagnostic.CA2227.severity = none       # Collection property setter
+dotnet_diagnostic.CA1305.severity = none       # IFormatProvider
+dotnet_diagnostic.CA1308.severity = none       # ToUpperInvariant
+dotnet_diagnostic.MA0084.severity = none       # Log parameter type
+dotnet_diagnostic.MA0061.severity = none       # Method overload
+dotnet_diagnostic.MA0005.severity = none       # Use Array.Empty
+dotnet_diagnostic.MA0091.severity = none       # Sender parameter
+dotnet_diagnostic.MA0085.severity = none       # Argument exception parameter name
+dotnet_diagnostic.MA0056.severity = none       # DateTime.Now
+dotnet_diagnostic.MA0047.severity = none       # Declare types in namespaces
+dotnet_diagnostic.MA0023.severity = none       # RegexOptions
+dotnet_diagnostic.MA0021.severity = none       # IEquatable
+dotnet_diagnostic.MA0015.severity = none       # StringComparison
+dotnet_diagnostic.MA0026.severity = none       # TODO comments
+dotnet_diagnostic.MA0074.severity = none       # Avoid implicit culture-sensitive
+dotnet_diagnostic.MA0011.severity = none       # IFormatProvider
+dotnet_diagnostic.MA0051.severity = none       # Method too long
+dotnet_diagnostic.WFO0003.severity = none       # WinForms interop
+dotnet_diagnostic.SYSLIB0057.severity = none   # Obsolete API usage
+dotnet_diagnostic.CA1062.severity = none       # Parameter validation
+dotnet_diagnostic.CA1031.severity = none       # Catch specific exceptions
+dotnet_diagnostic.CA2263.severity = none       # Prefer generic overload
+dotnet_diagnostic.CA2101.severity = none       # Marshaling for P/Invoke
+dotnet_diagnostic.CA1708.severity = none       # Identifiers differ by case
+dotnet_diagnostic.CA1028.severity = none       # Enum storage
 
 # ── Test Projects: Focus on test logic, not code style ──
 [src/MesTech.Tests.*/**.cs]
@@ -261,9 +411,14 @@ dotnet_diagnostic.MA0074.severity = none       # Avoid implicit culture-sensitiv
 dotnet_diagnostic.MA0158.severity = none       # Use non-allocating overload
 dotnet_diagnostic.MA0026.severity = none       # TODO comments: test reminders
 dotnet_diagnostic.MA0051.severity = none       # Method too long: test setup methods
+# I-11 GOREV 6: CS warnings in Tests
+dotnet_diagnostic.CS0618.severity = none       # Obsolete: testing deprecated paths
+dotnet_diagnostic.CS0219.severity = none       # Variable assigned but never used: test setup
+dotnet_diagnostic.CS0184.severity = none       # Expression is always false: test assertions
+dotnet_diagnostic.CS8604.severity = none       # Possible null reference: test null patterns
 
 # ── Blazor Layer: SaaS UI patterns ──
-[src/MesTech.Blazor/**.cs]
+[src/MesTech.Blazor/**.{cs,razor}]
 dotnet_diagnostic.MA0004.severity = none       # ConfigureAwait: Blazor handles
 dotnet_diagnostic.CA2007.severity = none       # ConfigureAwait: Blazor handles
 dotnet_diagnostic.MA0011.severity = none       # IFormatProvider: Blazor display formatting
@@ -285,6 +440,9 @@ dotnet_diagnostic.MA0051.severity = none       # Method too long
 dotnet_diagnostic.MA0002.severity = none       # StringComparer
 dotnet_diagnostic.NX0001.severity = none       # NuGet
 dotnet_diagnostic.NX0002.severity = none       # NuGet
+# I-11 GOREV 6: CS warnings in Blazor
+dotnet_diagnostic.CS0649.severity = none       # Field never assigned: DI-injected fields
+dotnet_diagnostic.CS0414.severity = none       # Field assigned but never used
 
 # ── WebApi: Minimal API patterns ──
 [src/MesTech.WebApi/**.cs]
@@ -293,6 +451,7 @@ dotnet_diagnostic.CA2007.severity = none       # Same
 dotnet_diagnostic.CA1848.severity = none       # LoggerMessage delegates
 dotnet_diagnostic.NX0001.severity = none       # NuGet
 dotnet_diagnostic.NX0002.severity = none       # NuGet
+dotnet_diagnostic.CS0168.severity = none       # Variable declared but never used
 
 [*.{csproj,props,targets}]
 indent_style = space

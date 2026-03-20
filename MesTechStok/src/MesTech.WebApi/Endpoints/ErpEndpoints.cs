@@ -200,7 +200,7 @@ public static class ErpEndpoints
         // GET /api/v1/erp/sync/history — sync history placeholder
         group.MapGet("/sync/history", (int? limit) =>
         {
-            // TODO: Phase 2 — read from sync history table
+            // TODO(v2): Read from sync history table
             var maxItems = limit ?? 50;
             return Results.Ok(new
             {

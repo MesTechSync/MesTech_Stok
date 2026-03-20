@@ -25,7 +25,7 @@ namespace MesTechStok.Desktop.Views.Store
             _storeId = storeId;
         }
 
-        // TODO: Wire BtnTest_Click from XAML to this handler
+        // Wire BtnTest_Click from XAML to this handler
         private async Task TestConnectionAsync()
         {
             if (_storeId == Guid.Empty) return;

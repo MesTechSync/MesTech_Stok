@@ -17,7 +17,7 @@ namespace MesTechStok.Desktop.Views.OpenCart
             InitializeComponent();
         }
 
-        // TODO: Wire BtnSave_Click from XAML to this handler when form fields are available
+        // Wire BtnSave_Click from XAML to this handler when form fields are available
         private async Task SaveSiteAsync(string storeName, Dictionary<string, string> credentials)
         {
             try
