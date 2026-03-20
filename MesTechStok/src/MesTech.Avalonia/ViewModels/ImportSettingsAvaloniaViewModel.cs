@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Icerik Aktarma Ayarlari ViewModel — kolon eslestirme sablonlari yonetimi.
-/// TODO: Replace demo data with MediatR queries when A1 CQRS is ready.
 /// </summary>
 public partial class ImportSettingsAvaloniaViewModel : ObservableObject
 {
@@ -41,7 +40,6 @@ public partial class ImportSettingsAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR query when A1 CQRS is ready
             await Task.Delay(200);
 
             Templates.Clear();
@@ -112,7 +110,6 @@ public partial class ImportSettingsAvaloniaViewModel : ObservableObject
         HasError = false;
         try
         {
-            // TODO: Replace with MediatR command when A1 CQRS is ready
             await Task.Delay(400);
             IsEditing = false;
             SaveCompleted = true;

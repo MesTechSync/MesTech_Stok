@@ -1,0 +1,72 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
+@inject NavigationManager Navigation
+
+<div class="dropdown">
+  <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          title="@GetCurrentLanguageLabel()">
+    <i class="fas fa-globe me-1"></i>
+    <span class="d-none d-lg-inline">@GetCurrentLanguageLabel()</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end" style="min-width: 180px;">
+    @foreach (var lang in _supportedLanguages)
+    {
+      <li>
+        <a class="dropdown-item @(IsCurrentLanguage(lang.Culture) ? "active" : "")"
+           href="@GetCultureChangeUrl(lang.Culture)"
+           @onclick="() => ChangeCulture(lang.Culture)"
+           @onclick:preventDefault>
+          <span class="me-2">@lang.Flag</span> @lang.Name
+        </a>
+      </li>
+    }
+  </ul>
+</div>
+
+@code {
+  private record LanguageOption(string Culture, string Name, string Flag);
+
+  private readonly LanguageOption[] _supportedLanguages =
+  [
+    new("tr", "Türkçe", "\U0001f1f9\U0001f1f7"),
+    new("en", "English", "\U0001f1ec\U0001f1e7"),
+    new("ar", "\u0627\u0644\u0639\u0631\u0628\u064a\u0629", "\U0001f1f8\U0001f1e6"),
+    new("de", "Deutsch", "\U0001f1e9\U0001f1ea")
+  ];
+
+  private string GetCurrentCulture()
+  {
+    return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+  }
+
+  private string GetCurrentLanguageLabel()
+  {
+    var current = GetCurrentCulture();
+    var lang = _supportedLanguages.FirstOrDefault(l => l.Culture == current);
+    return lang?.Name ?? "Türkçe";
+  }
+
+  private bool IsCurrentLanguage(string culture)
+  {
+    return GetCurrentCulture() == culture;
+  }
+
+  private string GetCultureChangeUrl(string culture)
+  {
+    var currentUri = Uri.EscapeDataString(Navigation.Uri);
+    return $"Culture/Set?culture={culture}&redirectUri={currentUri}";
+  }
+
+  private void ChangeCulture(string culture)
+  {
+    // Navigate to Culture/Set endpoint which sets the culture cookie
+    // (CookieRequestCultureProvider.DefaultCookieName) and redirects back
+    var currentUri = Uri.EscapeDataString(Navigation.Uri);
+    Navigation.NavigateTo(
+      $"Culture/Set?culture={culture}&redirectUri={currentUri}",
+      forceLoad: true);
+  }
+}

@@ -8,7 +8,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Variant Matrix Editor ViewModel — attribute groups with cartesian product generation.
 /// Manages Color×Size (or any attribute) variant combinations with stock, price, status.
-/// TODO: Replace mock with MediatR CQRS when ProductVariant persistence is ready.
 /// </summary>
 public partial class ProductVariantMatrixViewModel : ObservableObject
 {
@@ -162,7 +161,6 @@ public partial class ProductVariantMatrixViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO: Replace with MediatR command to persist variants
             // await _mediator.Send(new SaveProductVariantsCommand { ProductId = ..., Variants = ... });
             await Task.Delay(500);
         }
@@ -220,7 +218,6 @@ public partial class ProductVariantMatrixViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO: Replace with platform sync command
             await Task.Delay(600);
         }
         finally

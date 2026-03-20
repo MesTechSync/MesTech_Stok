@@ -146,6 +146,11 @@ public sealed class ViewModelFactory : IViewModelFactory
             "KdvRapor" => _provider.GetService<KdvRaporAvaloniaViewModel>(),
             "Bordro" => _provider.GetService<BordroAvaloniaViewModel>(),
             "Budget" => _provider.GetService<BudgetAvaloniaViewModel>(),
+            // İ-11 Görev 4: System Management views
+            "NotificationSettings" => _provider.GetService<NotificationSettingsAvaloniaViewModel>(),
+            "ReportDashboard" => _provider.GetService<ReportDashboardAvaloniaViewModel>(),
+            "AuditLog" => _provider.GetService<AuditLogAvaloniaViewModel>(),
+            "Backup" => _provider.GetService<BackupAvaloniaViewModel>(),
             _ => null
         };
     }

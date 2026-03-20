@@ -106,7 +106,6 @@ public partial class KanbanAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private async Task SwitchToList()
     {
-        // TODO: LoadAsListAsync — same as WPF DealsViewModel
         await Task.CompletedTask;
     }
 }

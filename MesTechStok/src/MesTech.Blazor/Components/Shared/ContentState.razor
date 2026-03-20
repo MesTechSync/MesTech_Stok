@@ -1,0 +1,50 @@
+@*
+  ContentState — Unified Loading / Error / Empty state wrapper.
+  Composes LoadingSpinner + EmptyState + inline error alert.
+
+  Usage:
+    <ContentState IsLoading="isLoading" HasError="hasError" ErrorMessage="@errorMessage"
+                  IsEmpty="items.Count == 0" EmptyIcon="fa-inbox" EmptyMessage="Veri bulunamadi."
+                  OnRetry="LoadAsync">
+      <ChildContent>
+        ... your data content ...
+      </ChildContent>
+    </ContentState>
+*@
+
+@if (IsLoading)
+{
+  <LoadingSpinner />
+}
+else if (HasError)
+{
+  <div class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span class="flex-grow-1">@(string.IsNullOrWhiteSpace(ErrorMessage) ? "Beklenmeyen bir hata olustu." : ErrorMessage)</span>
+    @if (OnRetry.HasDelegate)
+    {
+      <button class="btn btn-sm btn-outline-danger ms-2" @onclick="OnRetry">
+        <i class="fas fa-redo me-1"></i>Tekrar Dene
+      </button>
+    }
+  </div>
+}
+else if (IsEmpty)
+{
+  <EmptyState Icon="@EmptyIcon" Message="@EmptyMessage" />
+}
+else
+{
+  @ChildContent
+}
+
+@code {
+  [Parameter] public bool IsLoading { get; set; }
+  [Parameter] public bool HasError { get; set; }
+  [Parameter] public string ErrorMessage { get; set; } = string.Empty;
+  [Parameter] public bool IsEmpty { get; set; }
+  [Parameter] public string EmptyIcon { get; set; } = "fa-inbox";
+  [Parameter] public string EmptyMessage { get; set; } = "Henuz veri bulunamadi.";
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+  [Parameter] public EventCallback OnRetry { get; set; }
+}

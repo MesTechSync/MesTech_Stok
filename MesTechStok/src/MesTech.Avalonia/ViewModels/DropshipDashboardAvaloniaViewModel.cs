@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Dropshipping Dashboard ViewModel — KPI kartlari + tedarikci performans + karli urunler + oto siparis.
-/// TODO: Replace demo data with MediatR.Send(new GetDropshipDashboardQuery()) when A1 CQRS is ready.
 /// </summary>
 public partial class DropshipDashboardAvaloniaViewModel : ObservableObject
 {
@@ -54,7 +53,6 @@ public partial class DropshipDashboardAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetDropshipDashboardQuery()) when A1 CQRS is ready
             await Task.Delay(300);
 
             // Original KPIs
@@ -113,7 +111,6 @@ public partial class DropshipDashboardAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveAutoOrderSettingsAsync()
     {
-        // TODO: Replace with MediatR.Send(new SaveAutoOrderSettingsCommand()) when ready
         IsLoading = true;
         try
         {

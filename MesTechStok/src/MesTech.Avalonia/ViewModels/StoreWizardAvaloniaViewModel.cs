@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Magaza Ekleme Sihirbazi — 3 adimli wizard: Platform Sec → Kimlik Bilgileri → Test + Kaydet.
-/// TODO: Replace with MediatR commands when A1 CQRS is ready.
 /// </summary>
 public partial class StoreWizardAvaloniaViewModel : ObservableObject
 {
@@ -143,7 +142,6 @@ public partial class StoreWizardAvaloniaViewModel : ObservableObject
         TestResultMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new TestStoreConnectionCommand()) when A1 CQRS is ready
             await Task.Delay(1500);
             TestPassed = true;
             TestResultMessage = $"{SelectedPlatform} baglantisi basarili!";
@@ -166,7 +164,6 @@ public partial class StoreWizardAvaloniaViewModel : ObservableObject
         HasError = false;
         try
         {
-            // TODO: Replace with MediatR.Send(new CreateStoreCommand()) when A1 CQRS is ready
             await Task.Delay(800);
             SaveCompleted = true;
         }

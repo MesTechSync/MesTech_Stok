@@ -1,0 +1,272 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.NotificationSettingsAvaloniaView"
+             x:DataType="vm:NotificationSettingsAvaloniaViewModel">
+
+    <!-- Bildirim Ayarlari — İ-11 Görev 4A -->
+    <!-- Channels, category matrix, quiet hours, digest mode -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Bildirim Ayarlari"
+                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Test Gonder"
+                        Command="{Binding SendTestNotificationCommand}"
+                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Kaydet"
+                        Command="{Binding SaveCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24" MaxWidth="720">
+
+                <!-- Save Success -->
+                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                        IsVisible="{Binding IsSaved}"
+                        BorderBrush="#A7F3D0" BorderThickness="1">
+                    <TextBlock Text="Bildirim ayarlari basariyla kaydedildi."
+                               Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
+                </Border>
+
+                <!-- Test Result -->
+                <Border Background="#EFF6FF" CornerRadius="8" Padding="14,10"
+                        IsVisible="{Binding IsTestSent}"
+                        BorderBrush="#93C5FD" BorderThickness="1">
+                    <TextBlock Text="{Binding TestResult}"
+                               Foreground="#1D4ED8" FontSize="13" FontWeight="SemiBold" />
+                </Border>
+
+                <!-- Section 1: Bildirim Kanallari -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Bildirim Kanallari" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Bildirimlerin gonderilecegi kanallari secin"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <!-- InApp Channel -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="Uygulama Ici" FontSize="14" Foreground="#1E293B" />
+                                <TextBlock Text="Anlık bildirimler uygulama icerisinde gosterilir"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsInAppEnabled}"
+                                          OnContent="" OffContent="" IsEnabled="False" />
+                        </Grid>
+
+                        <Border Height="1" Background="#F1F5F9" />
+
+                        <!-- Email Channel -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="E-posta" FontSize="14" Foreground="#1E293B" />
+                                <TextBlock Text="Onemli bildirimler e-posta adresinize gonderilir"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+
+                        <!-- Email Address (shown when email enabled) -->
+                        <StackPanel Spacing="6" IsVisible="{Binding IsEmailEnabled}" Margin="16,0,0,0">
+                            <TextBlock Text="E-posta Adresi" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#374151" />
+                            <TextBox Text="{Binding EmailAddress}"
+                                     Watermark="ornek@sirket.com"
+                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                        </StackPanel>
+
+                        <Border Height="1" Background="#F1F5F9" />
+
+                        <!-- Telegram Channel -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="Telegram" FontSize="14" Foreground="#1E293B" />
+                                <TextBlock Text="Telegram bot uzerinden anlık bildirimler"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTelegramEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+
+                        <Border Height="1" Background="#F1F5F9" />
+
+                        <!-- WhatsApp Channel -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="WhatsApp" FontSize="14" Foreground="#1E293B" />
+                                <TextBlock Text="WhatsApp Business API ile bildirimler"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsWhatsAppEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 2: Kategori Matrisi -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Bildirim Kategorileri" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Her kategori icin hangi kanallardan bildirim alacaginizi secin"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <!-- Column Headers -->
+                        <Grid ColumnDefinitions="2*,*,*,*,*" Margin="0,4">
+                            <TextBlock Grid.Column="0" Text="Kategori" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#64748B" />
+                            <TextBlock Grid.Column="1" Text="Uygulama" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#64748B" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="E-posta" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#64748B" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="3" Text="Telegram" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#64748B" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="4" Text="WhatsApp" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#64748B" HorizontalAlignment="Center" />
+                        </Grid>
+
+                        <Border Height="1" Background="#E0E6ED" />
+
+                        <!-- Category rows -->
+                        <ItemsControl ItemsSource="{Binding Categories}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:NotificationCategoryItem">
+                                    <StackPanel Spacing="0">
+                                        <Grid ColumnDefinitions="2*,*,*,*,*" Margin="0,6">
+                                            <TextBlock Grid.Column="0" Text="{Binding CategoryName}"
+                                                       FontSize="13" Foreground="#1E293B"
+                                                       VerticalAlignment="Center" />
+                                            <CheckBox Grid.Column="1" IsChecked="{Binding InApp}"
+                                                      HorizontalAlignment="Center" />
+                                            <CheckBox Grid.Column="2" IsChecked="{Binding Email}"
+                                                      HorizontalAlignment="Center" />
+                                            <CheckBox Grid.Column="3" IsChecked="{Binding Telegram}"
+                                                      HorizontalAlignment="Center" />
+                                            <CheckBox Grid.Column="4" IsChecked="{Binding WhatsApp}"
+                                                      HorizontalAlignment="Center" />
+                                        </Grid>
+                                        <Border Height="1" Background="#F1F5F9" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 3: Sessiz Saatler -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Sessiz Saatler" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Belirtilen saatler arasinda bildirim gonderilmez"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                            <TextBlock Grid.Column="0" Text="Sessiz saatleri etkinlestir" FontSize="14"
+                                       Foreground="#1E293B" VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsQuietHoursEnabled}"
+                                          OnContent="" OffContent="" />
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Spacing="16"
+                                    IsVisible="{Binding IsQuietHoursEnabled}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Baslangic" FontSize="12" Foreground="#64748B" />
+                                <TimePicker SelectedTime="{Binding QuietStart}" Width="140" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Bitis" FontSize="12" Foreground="#64748B" />
+                                <TimePicker SelectedTime="{Binding QuietEnd}" Width="140" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 4: Ozet Modu -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Bildirim Gonderim Modu" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Bildirimlerin anlık mi yoksa gunluk ozet olarak mi gonderilecegini secin"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="12">
+                            <RadioButton GroupName="DigestMode"
+                                         IsChecked="{Binding IsInstantMode}"
+                                         Content="Anlık Bildirim — Her olay aninda gonderilir"
+                                         FontSize="14" />
+                            <RadioButton GroupName="DigestMode"
+                                         IsChecked="{Binding IsDailyDigestMode}"
+                                         Content="Gunluk Ozet — Tum bildirimler tek e-postada"
+                                         FontSize="14" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12"
+                                    IsVisible="{Binding IsDailyDigestMode}">
+                            <TextBlock Text="Ozet gonderim saati:" FontSize="13" Foreground="#374151"
+                                       VerticalAlignment="Center" />
+                            <TimePicker SelectedTime="{Binding DigestTime}" Width="140" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Bildirim ayarlari yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

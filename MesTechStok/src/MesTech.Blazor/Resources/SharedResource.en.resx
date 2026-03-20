@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — BUTTONS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Button.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common.Button.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common.Button.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Common.Button.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Common.Button.Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Common.Button.New" xml:space="preserve"><value>New</value></data>
+  <data name="Common.Button.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common.Button.Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Common.Button.Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Common.Button.Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Common.Button.Import" xml:space="preserve"><value>Import</value></data>
+  <data name="Common.Button.Print" xml:space="preserve"><value>Print</value></data>
+  <data name="Common.Button.Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Common.Button.Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Common.Button.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Common.Button.Approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="Common.Button.Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Common.Button.Send" xml:space="preserve"><value>Send</value></data>
+  <data name="Common.Button.Upload" xml:space="preserve"><value>Upload</value></data>
+  <data name="Common.Button.Download" xml:space="preserve"><value>Download</value></data>
+  <data name="Common.Button.Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Common.Button.Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Common.Button.Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Common.Button.SelectAll" xml:space="preserve"><value>Select All</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — STATUS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Status.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Common.Status.Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="Common.Status.NoData" xml:space="preserve"><value>No data found</value></data>
+  <data name="Common.Status.NoResults" xml:space="preserve"><value>No results found</value></data>
+  <data name="Common.Status.Error" xml:space="preserve"><value>An error occurred</value></data>
+  <data name="Common.Status.Success" xml:space="preserve"><value>Operation successful</value></data>
+  <data name="Common.Status.Processing" xml:space="preserve"><value>Processing...</value></data>
+  <data name="Common.Status.Connecting" xml:space="preserve"><value>Connecting...</value></data>
+  <data name="Common.Status.Syncing" xml:space="preserve"><value>Syncing...</value></data>
+  <data name="Common.Status.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Common.Status.Online" xml:space="preserve"><value>Online</value></data>
+  <data name="Common.Status.Offline" xml:space="preserve"><value>Offline</value></data>
+  <data name="Common.Status.Enabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="Common.Status.Disabled" xml:space="preserve"><value>Disabled</value></data>
+  <data name="Common.Status.Deleting" xml:space="preserve"><value>Deleting...</value></data>
+  <data name="Common.Status.Uploading" xml:space="preserve"><value>Uploading...</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — TABLE
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Table.Showing" xml:space="preserve"><value>Showing</value></data>
+  <data name="Common.Table.Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Common.Table.Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Common.Table.RowsPerPage" xml:space="preserve"><value>Rows per page</value></data>
+  <data name="Common.Table.NoRecords" xml:space="preserve"><value>No records found</value></data>
+  <data name="Common.Table.Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Common.Table.Of" xml:space="preserve"><value>of</value></data>
+  <data name="Common.Table.Page" xml:space="preserve"><value>Page</value></data>
+  <data name="Common.Table.First" xml:space="preserve"><value>First</value></data>
+  <data name="Common.Table.Last" xml:space="preserve"><value>Last</value></data>
+  <data name="Common.Table.SortAsc" xml:space="preserve"><value>Sort ascending</value></data>
+  <data name="Common.Table.SortDesc" xml:space="preserve"><value>Sort descending</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — SEARCH
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Search.Search" xml:space="preserve"><value>Search...</value></data>
+  <data name="Common.Search.Filter" xml:space="preserve"><value>Filter</value></data>
+  <data name="Common.Search.ClearFilters" xml:space="preserve"><value>Clear Filters</value></data>
+  <data name="Common.Search.DateFrom" xml:space="preserve"><value>Start Date</value></data>
+  <data name="Common.Search.DateTo" xml:space="preserve"><value>End Date</value></data>
+  <data name="Common.Search.All" xml:space="preserve"><value>All</value></data>
+  <data name="Common.Search.SelectAll" xml:space="preserve"><value>Select All</value></data>
+  <data name="Common.Search.Advanced" xml:space="preserve"><value>Advanced Search</value></data>
+  <data name="Common.Search.Placeholder" xml:space="preserve"><value>Type to search...</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NAV — NAVIGATION
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Nav.Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Nav.Products" xml:space="preserve"><value>Products</value></data>
+  <data name="Nav.Orders" xml:space="preserve"><value>Orders</value></data>
+  <data name="Nav.Stock" xml:space="preserve"><value>Stock</value></data>
+  <data name="Nav.Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="Nav.Shipping" xml:space="preserve"><value>Shipping</value></data>
+  <data name="Nav.Invoices" xml:space="preserve"><value>Invoices</value></data>
+  <data name="Nav.Accounting" xml:space="preserve"><value>Accounting</value></data>
+  <data name="Nav.Finance" xml:space="preserve"><value>Finance</value></data>
+  <data name="Nav.Reports" xml:space="preserve"><value>Reports</value></data>
+  <data name="Nav.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Nav.Users" xml:space="preserve"><value>Users</value></data>
+  <data name="Nav.Platforms" xml:space="preserve"><value>Platforms</value></data>
+  <data name="Nav.Stores" xml:space="preserve"><value>Stores</value></data>
+  <data name="Nav.Sync" xml:space="preserve"><value>Synchronization</value></data>
+  <data name="Nav.Dropshipping" xml:space="preserve"><value>Dropshipping</value></data>
+  <data name="Nav.Crm" xml:space="preserve"><value>CRM</value></data>
+  <data name="Nav.Calendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="Nav.Projects" xml:space="preserve"><value>Projects</value></data>
+  <data name="Nav.Tasks" xml:space="preserve"><value>Tasks</value></data>
+  <data name="Nav.Notifications" xml:space="preserve"><value>Notifications</value></data>
+  <data name="Nav.Hr" xml:space="preserve"><value>Human Resources</value></data>
+  <data name="Nav.Academy" xml:space="preserve"><value>MesAcademy</value></data>
+  <data name="Nav.Faq" xml:space="preserve"><value>FAQ</value></data>
+  <data name="Nav.Changelog" xml:space="preserve"><value>What's New</value></data>
+  <data name="Nav.Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Nav.Logout" xml:space="preserve"><value>Logout</value></data>
+  <data name="Nav.Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Nav.About" xml:space="preserve"><value>About</value></data>
+  <data name="Nav.Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav.Warehouse" xml:space="preserve"><value>Warehouse</value></data>
+  <data name="Nav.Suppliers" xml:space="preserve"><value>Suppliers</value></data>
+  <data name="Nav.Brands" xml:space="preserve"><value>Brands</value></data>
+  <data name="Nav.BulkProduct" xml:space="preserve"><value>Bulk Product</value></data>
+  <data name="Nav.CategoryMapping" xml:space="preserve"><value>Category Mapping</value></data>
+  <data name="Nav.Returns" xml:space="preserve"><value>Returns</value></data>
+  <data name="Nav.Analytics" xml:space="preserve"><value>Analytics</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FORM — FORM FIELDS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Form.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Form.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Form.Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Form.Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Form.CompanyName" xml:space="preserve"><value>Company Name</value></data>
+  <data name="Form.TaxId" xml:space="preserve"><value>Tax ID</value></data>
+  <data name="Form.TaxOffice" xml:space="preserve"><value>Tax Office</value></data>
+  <data name="Form.City" xml:space="preserve"><value>City</value></data>
+  <data name="Form.District" xml:space="preserve"><value>District</value></data>
+  <data name="Form.Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Form.PostalCode" xml:space="preserve"><value>Postal Code</value></data>
+  <data name="Form.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Form.Notes" xml:space="preserve"><value>Notes</value></data>
+  <data name="Form.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Form.StartDate" xml:space="preserve"><value>Start Date</value></data>
+  <data name="Form.EndDate" xml:space="preserve"><value>End Date</value></data>
+  <data name="Form.Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Form.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Form.Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Form.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Form.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Form.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Form.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Form.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Form.ConfirmPassword" xml:space="preserve"><value>Confirm Password</value></data>
+  <data name="Form.Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Form.Role" xml:space="preserve"><value>Role</value></data>
+  <data name="Form.Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Form.Optional" xml:space="preserve"><value>Optional</value></data>
+  <data name="Form.Required" xml:space="preserve"><value>Required</value></data>
+  <data name="Form.Surname" xml:space="preserve"><value>Surname</value></data>
+  <data name="Form.FullName" xml:space="preserve"><value>Full Name</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ERROR — VALIDATION
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Error.Required" xml:space="preserve"><value>This field is required</value></data>
+  <data name="Error.InvalidEmail" xml:space="preserve"><value>Invalid email address</value></data>
+  <data name="Error.MinLength" xml:space="preserve"><value>Must be at least {0} characters</value></data>
+  <data name="Error.MaxLength" xml:space="preserve"><value>Must be at most {0} characters</value></data>
+  <data name="Error.InvalidPhone" xml:space="preserve"><value>Invalid phone number</value></data>
+  <data name="Error.InvalidUrl" xml:space="preserve"><value>Invalid URL</value></data>
+  <data name="Error.PasswordMismatch" xml:space="preserve"><value>Passwords do not match</value></data>
+  <data name="Error.AlreadyExists" xml:space="preserve"><value>This record already exists</value></data>
+  <data name="Error.NotFound" xml:space="preserve"><value>Record not found</value></data>
+  <data name="Error.Unauthorized" xml:space="preserve"><value>Unauthorized access</value></data>
+  <data name="Error.ServerError" xml:space="preserve"><value>Server error</value></data>
+  <data name="Error.Timeout" xml:space="preserve"><value>Request timed out</value></data>
+  <data name="Error.NetworkError" xml:space="preserve"><value>Network connection error</value></data>
+  <data name="Error.InvalidFormat" xml:space="preserve"><value>Invalid format</value></data>
+  <data name="Error.MinValue" xml:space="preserve"><value>Must be at least {0}</value></data>
+  <data name="Error.MaxValue" xml:space="preserve"><value>Must be at most {0}</value></data>
+  <data name="Error.UniqueRequired" xml:space="preserve"><value>This value must be unique</value></data>
+  <data name="Error.FileTooBig" xml:space="preserve"><value>File size is too large</value></data>
+  <data name="Error.InvalidFileType" xml:space="preserve"><value>Invalid file type</value></data>
+  <data name="Error.DateRange" xml:space="preserve"><value>End date must be after start date</value></data>
+  <data name="Error.Forbidden" xml:space="preserve"><value>You do not have permission for this action</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONFIRM — DIALOGS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Confirm.Delete" xml:space="preserve"><value>Are you sure you want to delete this record?</value></data>
+  <data name="Confirm.Cancel" xml:space="preserve"><value>Are you sure you want to cancel?</value></data>
+  <data name="Confirm.Approve" xml:space="preserve"><value>Are you sure you want to approve?</value></data>
+  <data name="Confirm.Logout" xml:space="preserve"><value>Are you sure you want to log out?</value></data>
+  <data name="Confirm.Sync" xml:space="preserve"><value>Do you want to start synchronization?</value></data>
+  <data name="Confirm.UnsavedChanges" xml:space="preserve"><value>You have unsaved changes. Do you want to leave this page?</value></data>
+  <data name="Confirm.BulkDelete" xml:space="preserve"><value>Are you sure you want to delete the selected {0} records?</value></data>
+  <data name="Confirm.Import" xml:space="preserve"><value>Do you want to start the import process?</value></data>
+  <data name="Confirm.Overwrite" xml:space="preserve"><value>Existing data will be overwritten. Do you want to continue?</value></data>
+  <data name="Confirm.Disconnect" xml:space="preserve"><value>Are you sure you want to disconnect?</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STATUS — ENTITY STATES
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Status.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Status.Passive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="Status.Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Status.Approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="Status.Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Status.Shipped" xml:space="preserve"><value>Shipped</value></data>
+  <data name="Status.Delivered" xml:space="preserve"><value>Delivered</value></data>
+  <data name="Status.Returned" xml:space="preserve"><value>Returned</value></data>
+  <data name="Status.Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Status.Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Status.Published" xml:space="preserve"><value>Published</value></data>
+  <data name="Status.Archived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Status.InProgress" xml:space="preserve"><value>In Progress</value></data>
+  <data name="Status.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Status.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Status.PartiallyShipped" xml:space="preserve"><value>Partially Shipped</value></data>
+  <data name="Status.PartiallyDelivered" xml:space="preserve"><value>Partially Delivered</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PRODUCTS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Products.Title" xml:space="preserve"><value>Product List</value></data>
+  <data name="Products.AddNew" xml:space="preserve"><value>Add New Product</value></data>
+  <data name="Products.Detail" xml:space="preserve"><value>Product Details</value></data>
+  <data name="Products.Name" xml:space="preserve"><value>Product Name</value></data>
+  <data name="Products.SKU" xml:space="preserve"><value>SKU</value></data>
+  <data name="Products.Barcode" xml:space="preserve"><value>Barcode</value></data>
+  <data name="Products.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Products.SalePrice" xml:space="preserve"><value>Sale Price</value></data>
+  <data name="Products.PurchasePrice" xml:space="preserve"><value>Purchase Price</value></data>
+  <data name="Products.ListPrice" xml:space="preserve"><value>List Price</value></data>
+  <data name="Products.Stock" xml:space="preserve"><value>Stock</value></data>
+  <data name="Products.MinStock" xml:space="preserve"><value>Minimum Stock</value></data>
+  <data name="Products.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Products.Brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="Products.Weight" xml:space="preserve"><value>Weight</value></data>
+  <data name="Products.Dimensions" xml:space="preserve"><value>Dimensions</value></data>
+  <data name="Products.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Products.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Products.Variants" xml:space="preserve"><value>Variants</value></data>
+  <data name="Products.Platforms" xml:space="preserve"><value>Platforms</value></data>
+  <data name="Products.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Products.Created" xml:space="preserve"><value>Created Date</value></data>
+  <data name="Products.BulkImport" xml:space="preserve"><value>Bulk Import</value></data>
+  <data name="Products.BulkExport" xml:space="preserve"><value>Bulk Export</value></data>
+  <data name="Products.BulkUpdate" xml:space="preserve"><value>Bulk Update</value></data>
+  <data name="Products.Desi" xml:space="preserve"><value>Volumetric Weight</value></data>
+  <data name="Products.VatRate" xml:space="preserve"><value>VAT Rate</value></data>
+  <data name="Products.Currency" xml:space="preserve"><value>Currency</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ORDERS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Orders.Title" xml:space="preserve"><value>Order List</value></data>
+  <data name="Orders.Detail" xml:space="preserve"><value>Order Details</value></data>
+  <data name="Orders.OrderNumber" xml:space="preserve"><value>Order No</value></data>
+  <data name="Orders.Customer" xml:space="preserve"><value>Customer</value></data>
+  <data name="Orders.Platform" xml:space="preserve"><value>Platform</value></data>
+  <data name="Orders.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Orders.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Orders.Total" xml:space="preserve"><value>Total Amount</value></data>
+  <data name="Orders.Items" xml:space="preserve"><value>Items</value></data>
+  <data name="Orders.Shipping" xml:space="preserve"><value>Shipping Info</value></data>
+  <data name="Orders.Payment" xml:space="preserve"><value>Payment Info</value></data>
+  <data name="Orders.TrackingNumber" xml:space="preserve"><value>Tracking No</value></data>
+  <data name="Orders.CargoFirm" xml:space="preserve"><value>Carrier</value></data>
+  <data name="Orders.ShippedDate" xml:space="preserve"><value>Shipped Date</value></data>
+  <data name="Orders.DeliveryDate" xml:space="preserve"><value>Delivery Date</value></data>
+  <data name="Orders.InvoiceStatus" xml:space="preserve"><value>Invoice Status</value></data>
+  <data name="Orders.Notes" xml:space="preserve"><value>Order Notes</value></data>
+  <data name="Orders.Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Orders.Processing" xml:space="preserve"><value>Processing</value></data>
+  <data name="Orders.Fulfilled" xml:space="preserve"><value>Fulfilled</value></data>
+  <data name="Orders.Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Orders.ReturnRequests" xml:space="preserve"><value>Return Requests</value></data>
+  <data name="Orders.Commission" xml:space="preserve"><value>Commission</value></data>
+  <data name="Orders.NetAmount" xml:space="preserve"><value>Net Amount</value></data>
+  <data name="Orders.RefundAmount" xml:space="preserve"><value>Refund Amount</value></data>
+  <data name="Orders.BuyerName" xml:space="preserve"><value>Buyer Name</value></data>
+  <data name="Orders.BuyerAddress" xml:space="preserve"><value>Buyer Address</value></data>
+  <data name="Orders.Discount" xml:space="preserve"><value>Discount</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       INVOICES
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Invoices.Title" xml:space="preserve"><value>Invoice List</value></data>
+  <data name="Invoices.AddNew" xml:space="preserve"><value>Create New Invoice</value></data>
+  <data name="Invoices.Detail" xml:space="preserve"><value>Invoice Details</value></data>
+  <data name="Invoices.Number" xml:space="preserve"><value>Invoice No</value></data>
+  <data name="Invoices.Date" xml:space="preserve"><value>Invoice Date</value></data>
+  <data name="Invoices.DueDate" xml:space="preserve"><value>Due Date</value></data>
+  <data name="Invoices.Customer" xml:space="preserve"><value>Customer</value></data>
+  <data name="Invoices.Subtotal" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="Invoices.Tax" xml:space="preserve"><value>Tax</value></data>
+  <data name="Invoices.TaxRate" xml:space="preserve"><value>Tax Rate</value></data>
+  <data name="Invoices.Total" xml:space="preserve"><value>Grand Total</value></data>
+  <data name="Invoices.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Invoices.Type" xml:space="preserve"><value>Invoice Type</value></data>
+  <data name="Invoices.Sales" xml:space="preserve"><value>Sales Invoice</value></data>
+  <data name="Invoices.Purchase" xml:space="preserve"><value>Purchase Invoice</value></data>
+  <data name="Invoices.EInvoice" xml:space="preserve"><value>E-Invoice</value></data>
+  <data name="Invoices.EArchive" xml:space="preserve"><value>E-Archive</value></data>
+  <data name="Invoices.Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Invoices.SendToCustomer" xml:space="preserve"><value>Send to Customer</value></data>
+  <data name="Invoices.Paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Invoices.Unpaid" xml:space="preserve"><value>Unpaid</value></data>
+  <data name="Invoices.Overdue" xml:space="preserve"><value>Overdue</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SHIPPING
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Shipping.Title" xml:space="preserve"><value>Shipping Management</value></data>
+  <data name="Shipping.Carrier" xml:space="preserve"><value>Carrier</value></data>
+  <data name="Shipping.TrackingNumber" xml:space="preserve"><value>Tracking Number</value></data>
+  <data name="Shipping.Status" xml:space="preserve"><value>Shipping Status</value></data>
+  <data name="Shipping.Weight" xml:space="preserve"><value>Weight</value></data>
+  <data name="Shipping.Desi" xml:space="preserve"><value>Volumetric Weight</value></data>
+  <data name="Shipping.Cost" xml:space="preserve"><value>Shipping Cost</value></data>
+  <data name="Shipping.ShipDate" xml:space="preserve"><value>Ship Date</value></data>
+  <data name="Shipping.DeliveryDate" xml:space="preserve"><value>Delivery Date</value></data>
+  <data name="Shipping.EstimatedDelivery" xml:space="preserve"><value>Estimated Delivery</value></data>
+  <data name="Shipping.Address" xml:space="preserve"><value>Delivery Address</value></data>
+  <data name="Shipping.ReceiverName" xml:space="preserve"><value>Receiver Name</value></data>
+  <data name="Shipping.ReceiverPhone" xml:space="preserve"><value>Receiver Phone</value></data>
+  <data name="Shipping.BulkShip" xml:space="preserve"><value>Bulk Ship</value></data>
+  <data name="Shipping.PrintLabel" xml:space="preserve"><value>Print Label</value></data>
+  <data name="Shipping.Yurtici" xml:space="preserve"><value>Yurtici Cargo</value></data>
+  <data name="Shipping.Aras" xml:space="preserve"><value>Aras Cargo</value></data>
+  <data name="Shipping.Surat" xml:space="preserve"><value>Surat Cargo</value></data>
+  <data name="Shipping.CreateShipment" xml:space="preserve"><value>Create Shipment</value></data>
+  <data name="Shipping.CancelShipment" xml:space="preserve"><value>Cancel Shipment</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STOCK
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Stock.Title" xml:space="preserve"><value>Stock Management</value></data>
+  <data name="Stock.Current" xml:space="preserve"><value>Current Stock</value></data>
+  <data name="Stock.Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Stock.Reserved" xml:space="preserve"><value>Reserved</value></data>
+  <data name="Stock.Minimum" xml:space="preserve"><value>Minimum Stock</value></data>
+  <data name="Stock.Maximum" xml:space="preserve"><value>Maximum Stock</value></data>
+  <data name="Stock.Movement" xml:space="preserve"><value>Stock Movement</value></data>
+  <data name="Stock.In" xml:space="preserve"><value>Inbound</value></data>
+  <data name="Stock.Out" xml:space="preserve"><value>Outbound</value></data>
+  <data name="Stock.Warehouse" xml:space="preserve"><value>Warehouse</value></data>
+  <data name="Stock.Location" xml:space="preserve"><value>Shelf Location</value></data>
+  <data name="Stock.LowStock" xml:space="preserve"><value>Low Stock</value></data>
+  <data name="Stock.OutOfStock" xml:space="preserve"><value>Out of Stock</value></data>
+  <data name="Stock.Adjustment" xml:space="preserve"><value>Stock Adjustment</value></data>
+  <data name="Stock.Transfer" xml:space="preserve"><value>Warehouse Transfer</value></data>
+  <data name="Stock.Count" xml:space="preserve"><value>Stock Count</value></data>
+  <data name="Stock.History" xml:space="preserve"><value>Stock History</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ACCOUNTING
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Accounting.Title" xml:space="preserve"><value>Accounting</value></data>
+  <data name="Accounting.Revenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="Accounting.Expense" xml:space="preserve"><value>Expense</value></data>
+  <data name="Accounting.Profit" xml:space="preserve"><value>Profit</value></data>
+  <data name="Accounting.Loss" xml:space="preserve"><value>Loss</value></data>
+  <data name="Accounting.NetProfit" xml:space="preserve"><value>Net Profit</value></data>
+  <data name="Accounting.GrossProfit" xml:space="preserve"><value>Gross Profit</value></data>
+  <data name="Accounting.TrialBalance" xml:space="preserve"><value>Trial Balance</value></data>
+  <data name="Accounting.BalanceSheet" xml:space="preserve"><value>Balance Sheet</value></data>
+  <data name="Accounting.IncomeStatement" xml:space="preserve"><value>Income Statement</value></data>
+  <data name="Accounting.COGS" xml:space="preserve"><value>Cost of Goods Sold</value></data>
+  <data name="Accounting.Commission" xml:space="preserve"><value>Commission</value></data>
+  <data name="Accounting.Tax" xml:space="preserve"><value>Tax</value></data>
+  <data name="Accounting.VAT" xml:space="preserve"><value>VAT</value></data>
+  <data name="Accounting.Reconciliation" xml:space="preserve"><value>Reconciliation</value></data>
+  <data name="Accounting.FIFO" xml:space="preserve"><value>FIFO Cost</value></data>
+  <data name="Accounting.Period" xml:space="preserve"><value>Period</value></data>
+  <data name="Accounting.FiscalYear" xml:space="preserve"><value>Fiscal Year</value></data>
+  <data name="Accounting.Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Accounting.Debit" xml:space="preserve"><value>Debit</value></data>
+  <data name="Accounting.Credit" xml:space="preserve"><value>Credit</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SETTINGS
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Settings.Title" xml:space="preserve"><value>Settings</value></data>
+  <data name="Settings.General" xml:space="preserve"><value>General Settings</value></data>
+  <data name="Settings.Company" xml:space="preserve"><value>Company Information</value></data>
+  <data name="Settings.Users" xml:space="preserve"><value>User Management</value></data>
+  <data name="Settings.Roles" xml:space="preserve"><value>Role Management</value></data>
+  <data name="Settings.Notifications" xml:space="preserve"><value>Notification Settings</value></data>
+  <data name="Settings.Integration" xml:space="preserve"><value>Integration Settings</value></data>
+  <data name="Settings.Api" xml:space="preserve"><value>API Settings</value></data>
+  <data name="Settings.Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings.Timezone" xml:space="preserve"><value>Timezone</value></data>
+  <data name="Settings.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Settings.Backup" xml:space="preserve"><value>Backup</value></data>
+  <data name="Settings.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Settings.Audit" xml:space="preserve"><value>Audit Logs</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PLATFORM
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Platform.Title" xml:space="preserve"><value>Platform Management</value></data>
+  <data name="Platform.Trendyol" xml:space="preserve"><value>Trendyol</value></data>
+  <data name="Platform.Hepsiburada" xml:space="preserve"><value>Hepsiburada</value></data>
+  <data name="Platform.N11" xml:space="preserve"><value>N11</value></data>
+  <data name="Platform.Amazon" xml:space="preserve"><value>Amazon</value></data>
+  <data name="Platform.eBay" xml:space="preserve"><value>eBay</value></data>
+  <data name="Platform.Shopify" xml:space="preserve"><value>Shopify</value></data>
+  <data name="Platform.WooCommerce" xml:space="preserve"><value>WooCommerce</value></data>
+  <data name="Platform.OpenCart" xml:space="preserve"><value>OpenCart</value></data>
+  <data name="Platform.Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Platform.Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Platform.LastSync" xml:space="preserve"><value>Last Sync</value></data>
+  <data name="Platform.ApiKey" xml:space="preserve"><value>API Key</value></data>
+  <data name="Platform.ApiSecret" xml:space="preserve"><value>API Secret</value></data>
+  <data name="Platform.SellerId" xml:space="preserve"><value>Seller ID</value></data>
+  <data name="Platform.StoreUrl" xml:space="preserve"><value>Store URL</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       REPORT
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Report.Title" xml:space="preserve"><value>Reports</value></data>
+  <data name="Report.Sales" xml:space="preserve"><value>Sales Report</value></data>
+  <data name="Report.Revenue" xml:space="preserve"><value>Revenue Report</value></data>
+  <data name="Report.Stock" xml:space="preserve"><value>Stock Report</value></data>
+  <data name="Report.Orders" xml:space="preserve"><value>Order Report</value></data>
+  <data name="Report.Platform" xml:space="preserve"><value>Platform Report</value></data>
+  <data name="Report.Commission" xml:space="preserve"><value>Commission Report</value></data>
+  <data name="Report.DateRange" xml:space="preserve"><value>Date Range</value></data>
+  <data name="Report.Generate" xml:space="preserve"><value>Generate Report</value></data>
+  <data name="Report.ExportPdf" xml:space="preserve"><value>Download as PDF</value></data>
+  <data name="Report.ExportExcel" xml:space="preserve"><value>Download as Excel</value></data>
+  <data name="Report.Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Report.Detailed" xml:space="preserve"><value>Detailed</value></data>
+  <data name="Report.Comparison" xml:space="preserve"><value>Comparison</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DASHBOARD
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Dashboard.Title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Dashboard.TotalSales" xml:space="preserve"><value>Total Sales</value></data>
+  <data name="Dashboard.TotalOrders" xml:space="preserve"><value>Total Orders</value></data>
+  <data name="Dashboard.TotalProducts" xml:space="preserve"><value>Total Products</value></data>
+  <data name="Dashboard.TotalRevenue" xml:space="preserve"><value>Total Revenue</value></data>
+  <data name="Dashboard.TodayOrders" xml:space="preserve"><value>Today's Orders</value></data>
+  <data name="Dashboard.PendingOrders" xml:space="preserve"><value>Pending Orders</value></data>
+  <data name="Dashboard.LowStockItems" xml:space="preserve"><value>Low Stock Items</value></data>
+  <data name="Dashboard.RecentOrders" xml:space="preserve"><value>Recent Orders</value></data>
+  <data name="Dashboard.TopProducts" xml:space="preserve"><value>Top Selling Products</value></data>
+  <data name="Dashboard.SalesChart" xml:space="preserve"><value>Sales Chart</value></data>
+  <data name="Dashboard.PlatformDistribution" xml:space="preserve"><value>Platform Distribution</value></data>
+  <data name="Dashboard.MonthlyComparison" xml:space="preserve"><value>Monthly Comparison</value></data>
+  <data name="Dashboard.Welcome" xml:space="preserve"><value>Welcome</value></data>
+  <data name="Dashboard.QuickActions" xml:space="preserve"><value>Quick Actions</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CRM
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Crm.Title" xml:space="preserve"><value>Customer Relations</value></data>
+  <data name="Crm.Customers" xml:space="preserve"><value>Customers</value></data>
+  <data name="Crm.AddCustomer" xml:space="preserve"><value>Add New Customer</value></data>
+  <data name="Crm.CustomerDetail" xml:space="preserve"><value>Customer Details</value></data>
+  <data name="Crm.TotalOrders" xml:space="preserve"><value>Total Orders</value></data>
+  <data name="Crm.TotalSpent" xml:space="preserve"><value>Total Spent</value></data>
+  <data name="Crm.LastOrder" xml:space="preserve"><value>Last Order</value></data>
+  <data name="Crm.OrderHistory" xml:space="preserve"><value>Order History</value></data>
+  <data name="Crm.Notes" xml:space="preserve"><value>Customer Notes</value></data>
+  <data name="Crm.Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="Crm.Segment" xml:space="preserve"><value>Segment</value></data>
+  <data name="Crm.VIP" xml:space="preserve"><value>VIP Customer</value></data>
+  <data name="Crm.Regular" xml:space="preserve"><value>Regular Customer</value></data>
+  <data name="Crm.NewCustomer" xml:space="preserve"><value>New Customer</value></data>
+  <data name="Crm.Communication" xml:space="preserve"><value>Communication</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DROPSHIPPING
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Dropshipping.Title" xml:space="preserve"><value>Dropshipping Management</value></data>
+  <data name="Dropshipping.Suppliers" xml:space="preserve"><value>Suppliers</value></data>
+  <data name="Dropshipping.AddSupplier" xml:space="preserve"><value>Add Supplier</value></data>
+  <data name="Dropshipping.Products" xml:space="preserve"><value>Products</value></data>
+  <data name="Dropshipping.Margin" xml:space="preserve"><value>Profit Margin</value></data>
+  <data name="Dropshipping.AutoSync" xml:space="preserve"><value>Auto Sync</value></data>
+  <data name="Dropshipping.PriceRule" xml:space="preserve"><value>Price Rule</value></data>
+  <data name="Dropshipping.StockSync" xml:space="preserve"><value>Stock Sync</value></data>
+  <data name="Dropshipping.Mapping" xml:space="preserve"><value>Product Mapping</value></data>
+  <data name="Dropshipping.Feed" xml:space="preserve"><value>Product Feed</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       AUTH
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Auth.Login" xml:space="preserve"><value>Log In</value></data>
+  <data name="Auth.Logout" xml:space="preserve"><value>Log Out</value></data>
+  <data name="Auth.Register" xml:space="preserve"><value>Sign Up</value></data>
+  <data name="Auth.ForgotPassword" xml:space="preserve"><value>Forgot Password</value></data>
+  <data name="Auth.ResetPassword" xml:space="preserve"><value>Reset Password</value></data>
+  <data name="Auth.ChangePassword" xml:space="preserve"><value>Change Password</value></data>
+  <data name="Auth.RememberMe" xml:space="preserve"><value>Remember Me</value></data>
+  <data name="Auth.LoginFailed" xml:space="preserve"><value>Invalid username or password</value></data>
+  <data name="Auth.SessionExpired" xml:space="preserve"><value>Your session has expired. Please log in again.</value></data>
+  <data name="Auth.Welcome" xml:space="preserve"><value>Welcome</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       LANGUAGE
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Language.Turkish" xml:space="preserve"><value>Turkish</value></data>
+  <data name="Language.English" xml:space="preserve"><value>English</value></data>
+  <data name="Language.Arabic" xml:space="preserve"><value>Arabic</value></data>
+  <data name="Language.German" xml:space="preserve"><value>German</value></data>
+  <data name="Language.Select" xml:space="preserve"><value>Select Language</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NOTIFICATION
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Notification.Title" xml:space="preserve"><value>Notifications</value></data>
+  <data name="Notification.MarkAllRead" xml:space="preserve"><value>Mark All as Read</value></data>
+  <data name="Notification.NoNew" xml:space="preserve"><value>No new notifications</value></data>
+  <data name="Notification.NewOrder" xml:space="preserve"><value>New order received</value></data>
+  <data name="Notification.LowStock" xml:space="preserve"><value>Low stock alert</value></data>
+  <data name="Notification.SyncComplete" xml:space="preserve"><value>Synchronization completed</value></data>
+  <data name="Notification.Error" xml:space="preserve"><value>Error notification</value></data>
+  <data name="Notification.Settings" xml:space="preserve"><value>Notification Settings</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MISC / APP-WIDE
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="App.Title" xml:space="preserve"><value>MesTech Enterprise Management</value></data>
+  <data name="App.Subtitle" xml:space="preserve"><value>E-Commerce Management Platform</value></data>
+  <data name="App.Version" xml:space="preserve"><value>Version</value></data>
+  <data name="App.Copyright" xml:space="preserve"><value>All rights reserved</value></data>
+  <data name="App.SkipToContent" xml:space="preserve"><value>Skip to main content</value></data>
+  <data name="App.MenuToggle" xml:space="preserve"><value>Toggle menu</value></data>
+  <data name="App.UnexpectedError" xml:space="preserve"><value>An unexpected error occurred</value></data>
+  <data name="App.TryAgain" xml:space="preserve"><value>Try Again</value></data>
+  <data name="App.Manager" xml:space="preserve"><value>Manager</value></data>
+  <data name="App.DemoUser" xml:space="preserve"><value>Demo User</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ONBOARDING — WIZARD (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Onboarding.StepOf" xml:space="preserve"><value>Step {0} of {1}</value></data>
+  <data name="Onboarding.WelcomeDescription" xml:space="preserve"><value>Get started in minutes with quick setup.</value></data>
+  <data name="Onboarding.CompanyDescription" xml:space="preserve"><value>Enter your company's basic information.</value></data>
+  <data name="Onboarding.MarketplaceDescription" xml:space="preserve"><value>Connect a marketplace to sync your products.</value></data>
+  <data name="Onboarding.FirstProductDescription" xml:space="preserve"><value>Start by adding your first product.</value></data>
+  <data name="Onboarding.StockSettingsDescription" xml:space="preserve"><value>Set stock thresholds and alert preferences.</value></data>
+  <data name="Onboarding.NotificationDescription" xml:space="preserve"><value>Configure your notification channels and preferences.</value></data>
+  <data name="Onboarding.NotificationChannels" xml:space="preserve"><value>Notification Channels</value></data>
+  <data name="Onboarding.NotificationTypes" xml:space="preserve"><value>Notification Types</value></data>
+  <data name="Onboarding.EmailNotifications" xml:space="preserve"><value>Email Notifications</value></data>
+  <data name="Onboarding.SmsNotifications" xml:space="preserve"><value>SMS Notifications</value></data>
+  <data name="Onboarding.PushNotifications" xml:space="preserve"><value>Push Notifications</value></data>
+  <data name="Onboarding.AutoReorder" xml:space="preserve"><value>Auto reorder when low</value></data>
+  <data name="Onboarding.Skip" xml:space="preserve"><value>Skip</value></data>
+  <data name="Onboarding.Completed" xml:space="preserve"><value>Setup Complete!</value></data>
+  <data name="Onboarding.CompletedDescription" xml:space="preserve"><value>MesTech is ready to use. Happy selling!</value></data>
+  <data name="Onboarding.SetupSummary" xml:space="preserve"><value>Setup Summary</value></data>
+
+</root>

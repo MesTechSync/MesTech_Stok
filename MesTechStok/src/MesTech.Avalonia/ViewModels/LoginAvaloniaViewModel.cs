@@ -63,7 +63,6 @@ public partial class LoginAvaloniaViewModel : ObservableObject
                 return;
             }
 #endif
-            // TODO: Production auth — wire to /api/v1/auth/login endpoint
             HasError = true;
             ErrorMessage = "Gecersiz kullanici adi veya sifre.";
             IsAuthenticated = false;

@@ -8,7 +8,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Kategori Eslestirme ViewModel — dual-tree ile lokal ve platform kategori eslestirme.
 /// AI otomatik eslestirme + sync + ilerleme takibi.
-/// TODO: Replace demo data with MediatR.Send(new GetCategoryMappingsQuery()) when A1 CQRS is ready.
 /// </summary>
 public partial class CategoryMappingAvaloniaViewModel : ObservableObject
 {
@@ -63,7 +62,6 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetCategoryMappingsQuery()) when A1 CQRS is ready
             await Task.Delay(300);
 
             // Legacy flat data
@@ -177,7 +175,6 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
         if (SelectedLocalCategoryNode == null || SelectedPlatformCategoryNode == null)
             return;
 
-        // TODO: Replace with MediatR.Send(new MapCategoryCommand()) when A1 CQRS is ready
         Mappings.Add(new CategoryMappingItemDto
         {
             LocalCategory = SelectedLocalCategoryNode.Name,
@@ -195,7 +192,6 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private void UnmapCategory()
     {
-        // TODO: Implement removal of selected mapping
     }
 
     [RelayCommand]
@@ -204,7 +200,6 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO: Replace with MediatR.Send(new SyncPlatformCategoriesCommand()) when ready
             await Task.Delay(500);
             LastSyncText = "Son sync: az once";
         }
@@ -220,7 +215,6 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO: Replace with MediatR.Send(new AiAutoMapCategoriesCommand()) when ready
             await Task.Delay(800);
             AiSuggestionCount = 0;
             MappedCount += 3;

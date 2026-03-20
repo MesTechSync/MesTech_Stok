@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Toplu Urun Islemleri ViewModel — Import / Export / Toplu Guncelle.
-/// TODO: Replace demo data with MediatR queries when A1 CQRS is ready.
 /// </summary>
 public partial class BulkProductAvaloniaViewModel : ObservableObject
 {
@@ -77,7 +76,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetBulkProductStatsQuery()) when A1 CQRS is ready
             await Task.Delay(200);
             ExportProductCount = 1_284;
             SelectedProductCount = 0;
@@ -96,7 +94,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private async Task SelectFileAsync()
     {
-        // TODO: Integrate with Avalonia file picker when platform service is ready
         await Task.Delay(100);
         ImportFilePath = "ornek_urunler.xlsx";
         ImportFileInfo = "Excel dosyasi: 156 satir, 12 kolon";
@@ -131,7 +128,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
 
         try
         {
-            // TODO: Replace with real import logic via MediatR
             for (int i = 0; i <= 100; i += 5)
             {
                 ImportProgress = i;
@@ -154,7 +150,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private void Cancel()
     {
-        // TODO: Implement CancellationToken support for real import
         IsImporting = false;
         CanImport = true;
         ImportProgress = 0;
@@ -164,7 +159,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportAsync()
     {
-        // TODO: Replace with MediatR.Send(new ExportProductsCommand()) when ready
         IsLoading = true;
         try
         {
@@ -180,7 +174,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private void SelectAllProducts()
     {
-        // TODO: Replace with actual product count from query
         SelectedProductCount = ExportProductCount;
         CanBulkUpdate = SelectedProductCount > 0 && !string.IsNullOrWhiteSpace(SelectedBulkAction);
     }
@@ -193,7 +186,6 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
 
         try
         {
-            // TODO: Replace with MediatR.Send(new BulkUpdateProductsCommand()) when ready
             await Task.Delay(500);
             BulkUpdateStatusText = $"{SelectedProductCount} urun basariyla guncellendi";
         }

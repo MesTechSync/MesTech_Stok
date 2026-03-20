@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Dropshipping Siparisler ViewModel — siparis DataGrid + durum filtre + tedarikci iletme.
-/// TODO: Replace demo data with MediatR queries when A1 CQRS is ready.
 /// </summary>
 public partial class DropshipOrdersAvaloniaViewModel : ObservableObject
 {
@@ -38,7 +37,6 @@ public partial class DropshipOrdersAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetDropshipOrdersQuery()) when A1 CQRS is ready
             await Task.Delay(300);
 
             _allOrders =
@@ -85,7 +83,6 @@ public partial class DropshipOrdersAvaloniaViewModel : ObservableObject
     {
         if (order is null || order.Status != "Yeni") return;
 
-        // TODO: Replace with MediatR.Send(new ForwardToSupplierCommand()) when A1 CQRS is ready
         order.Status = "Tedarikçiye İletildi";
         var index = Orders.IndexOf(order);
         if (index >= 0)

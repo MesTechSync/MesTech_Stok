@@ -2,18 +2,20 @@
 @inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 
+<a class="visually-hidden-focusable" href="#main-content">Ana icerige atla</a>
+
 <div class="d-flex" style="min-height: 100vh;">
   <!-- Sidebar overlay for mobile -->
   <div class="sidebar-overlay @(sidebarOpen ? "show" : "")" @onclick="CloseSidebar"></div>
 
-  <div class="@(sidebarOpen ? "show" : "")">
+  <aside class="@(sidebarOpen ? "show" : "")" role="navigation" aria-label="Ana navigasyon">
     <NavMenu />
-  </div>
+  </aside>
 
-  <main class="flex-grow-1 bg-light" style="overflow-y: auto;">
-    <div class="top-bar d-flex align-items-center justify-content-between px-3 px-md-4 py-2 bg-white border-bottom">
+  <main class="flex-grow-1 bg-light" role="main" style="overflow-y: auto;">
+    <header class="top-bar d-flex align-items-center justify-content-between px-3 px-md-4 py-2 bg-white border-bottom" role="banner">
       <div class="d-flex align-items-center">
-        <button class="btn btn-sm btn-outline-secondary d-md-none me-2" @onclick="ToggleSidebar">
+        <button class="btn btn-sm btn-outline-secondary d-md-none me-2" @onclick="ToggleSidebar" aria-label="Menu ac/kapat">
           <i class="fas fa-bars"></i>
         </button>
         <h5 class="mb-0 text-muted d-none d-sm-block">MesTech Kurumsal Yonetim</h5>
@@ -33,28 +35,45 @@
             <small class="text-muted" style="font-size: 0.7rem;">Yonetici</small>
           </div>
         </div>
+        <NotificationBell />
+        <LanguageSelector />
         <ThemeToggle />
-        <button class="btn btn-outline-secondary btn-sm" title="Cikis Yap" @onclick="HandleLogout">
+        <button class="btn btn-outline-secondary btn-sm" title="Cikis Yap" aria-label="Cikis Yap" @onclick="HandleLogout">
           <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
-    </div>
-    <div class="p-2 p-md-4">
-      @Body
+    </header>
+    <div id="main-content" class="p-2 p-md-4">
+      <ErrorBoundary @ref="errorBoundary">
+        <ChildContent>
+          @Body
+        </ChildContent>
+        <ErrorContent Context="ex">
+          <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Beklenmeyen bir hata olustu.
+            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="RecoverError">
+              <i class="fas fa-redo me-1"></i>Tekrar Dene
+            </button>
+          </div>
+        </ErrorContent>
+      </ErrorBoundary>
     </div>
   </main>
 </div>
 
 <!-- Mobile floating sidebar toggle -->
-<button class="sidebar-toggle d-md-none" @onclick="ToggleSidebar" title="Menu">
+<button class="sidebar-toggle d-md-none" @onclick="ToggleSidebar" title="Menu" aria-label="Menu ac/kapat">
   <i class="fas @(sidebarOpen ? "fa-times" : "fa-bars")"></i>
 </button>
 
 @code {
+  private ErrorBoundary? errorBoundary;
   private bool sidebarOpen;
 
   private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
   private void CloseSidebar() => sidebarOpen = false;
+  private void RecoverError() => errorBoundary?.Recover();
 
   private void HandleLogout()
   {

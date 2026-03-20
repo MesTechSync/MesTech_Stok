@@ -6,6 +6,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://MesTech.Avalonia/Styles/MesTechTheme.axaml"/>
+                <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDesignTokens.axaml"/>
+                <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechComponentStyles.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

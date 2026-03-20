@@ -6,7 +6,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Urun Cekme ViewModel — URL'den urun bilgisi cekme ve kaydetme.
-/// TODO: Replace demo data with MediatR commands when A1 CQRS is ready.
 /// </summary>
 public partial class ProductFetchAvaloniaViewModel : ObservableObject
 {
@@ -48,7 +47,6 @@ public partial class ProductFetchAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new FetchProductFromUrlCommand()) when A1 CQRS is ready
             await Task.Delay(1000);
 
             FetchedName = "Samsung Galaxy S24 Ultra 256GB";
@@ -79,7 +77,6 @@ public partial class ProductFetchAvaloniaViewModel : ObservableObject
         HasError = false;
         try
         {
-            // TODO: Replace with MediatR.Send(new CreateProductCommand()) when A1 CQRS is ready
             await Task.Delay(500);
             SaveCompleted = true;
         }

@@ -1,0 +1,193 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.BackupAvaloniaView"
+             x:DataType="vm:BackupAvaloniaViewModel">
+
+    <!-- Yedekleme Yonetimi — İ-11 Görev 4D -->
+    <!-- Last backup info, manual backup, history, restore test -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Yedekleme Yonetimi"
+                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Manuel Yedekle"
+                        Command="{Binding ManualBackupCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24" MaxWidth="900">
+
+                <!-- Backup Progress -->
+                <Border Background="#FFF7ED" CornerRadius="8" Padding="16"
+                        BorderBrush="#FDBA74" BorderThickness="1"
+                        IsVisible="{Binding IsBackingUp}">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ProgressBar IsIndeterminate="True" Width="120" Height="4"
+                                         VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding BackupMessage}" FontSize="14"
+                                       Foreground="#9A3412" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ProgressBar Value="{Binding BackupProgress}" Maximum="100"
+                                     Height="6" CornerRadius="3" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Backup Success Message (non-progress) -->
+                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                        IsVisible="{Binding BackupMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                        BorderBrush="#A7F3D0" BorderThickness="1">
+                    <TextBlock Text="{Binding BackupMessage}"
+                               Foreground="#059669" FontSize="13" FontWeight="SemiBold"
+                               IsVisible="{Binding !IsBackingUp}" />
+                </Border>
+
+                <!-- Last Backup Info + Restore Test -->
+                <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
+
+                    <!-- Last Backup Card -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Son Yedekleme" FontSize="16" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="En son basarili yedekleme bilgileri"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Tarih:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LastBackupDate}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Boyut:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastBackupSize}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Tip:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LastBackupType}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Durum:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,0" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupStatus}"
+                                           FontSize="13" FontWeight="Bold" Foreground="#16A34A" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Restore Test Card -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Geri Yukleme Testi" FontSize="16" FontWeight="Bold"
+                                           Foreground="#1E293B" />
+                                <TextBlock Text="Son geri yukleme dogrulama sonucu"
+                                           FontSize="12" Foreground="#94A3B8" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Son Test:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LastRestoreTestDate}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Sonuc:"
+                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,0" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastRestoreTestResult}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#16A34A"
+                                           TextWrapping="Wrap" />
+                            </Grid>
+
+                            <Border Background="#F0FDF4" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
+                                <TextBlock Text="Otomatik dogrulama her gece 04:00'te calisir"
+                                           FontSize="12" Foreground="#166534" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Backup History -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Yedekleme Gecmisi" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Son yedekleme islemlerinin listesi"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding BackupHistory}"
+                                  AutoGenerateColumns="False"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  MaxHeight="400">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="180" />
+                                <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="120" />
+                                <DataGridTextColumn Header="Boyut" Binding="{Binding Size}" Width="120" />
+                                <DataGridTextColumn Header="Sure" Binding="{Binding Duration}" Width="100" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Yedekleme bilgileri yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

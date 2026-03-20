@@ -195,10 +195,12 @@
                                     <TextBlock Text="Ürün Listesi"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-disabled">
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ImportProducts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
-                                    <TextBlock Text="Toplu İçe Aktarma (Yakında)"/>
+                                    <TextBlock Text="Toplu İçe Aktarma"/>
                                 </StackPanel>
                             </Button>
 

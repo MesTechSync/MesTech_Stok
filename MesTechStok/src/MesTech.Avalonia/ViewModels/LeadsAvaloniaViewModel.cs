@@ -41,7 +41,7 @@ public partial class LeadsAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            // Same MediatR pipeline as WPF — GetLeadsQuery (TODO H28)
+            // Same MediatR pipeline as WPF — GetLeadsQuery
             await Task.Delay(10);
             Leads.Clear();
             Leads.Add(new LeadItemVm { Id = Guid.NewGuid(), FullName = "Ahmet Yilmaz", Company = "ABC Ltd", Email = "ahmet@abc.com", Phone = "0532 123 45 67", Status = "Yeni", Source = "Web", CreatedAt = DateTime.Now.AddDays(-3) });

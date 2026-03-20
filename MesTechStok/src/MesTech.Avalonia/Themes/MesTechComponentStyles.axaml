@@ -1,0 +1,159 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ MesTech Component Styles — İ-16 ═══ -->
+    <!-- macOS-inspired button, card, input, sidebar styles -->
+    <!-- Design Tokens referansı ile magic number YASAK -->
+
+    <!-- ═══ BUTTON: PRIMARY ═══ -->
+    <Style Selector="Button.mes-primary">
+        <Setter Property="Background" Value="{DynamicResource MesBrandPrimary}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusMd}" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="FontSize" Value="{StaticResource MesFontBody}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" />
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.08" />
+                <DoubleTransition Property="Opacity" Duration="0:0:0.08" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.mes-primary:pointerover">
+        <Setter Property="Opacity" Value="0.9" />
+    </Style>
+    <Style Selector="Button.mes-primary:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.97)" />
+        <Setter Property="Opacity" Value="0.85" />
+    </Style>
+
+    <!-- ═══ BUTTON: SECONDARY ═══ -->
+    <Style Selector="Button.mes-secondary">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MesSeparator}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusMd}" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="FontSize" Value="{StaticResource MesFontBody}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.mes-secondary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MesBgTertiary}" />
+    </Style>
+
+    <!-- ═══ CARD ═══ -->
+    <Style Selector="Border.mes-card">
+        <Setter Property="Background" Value="{DynamicResource MesBgElevated}" />
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusLg}" />
+        <Setter Property="BoxShadow" Value="{StaticResource MesElevation1}" />
+        <Setter Property="Padding" Value="{StaticResource MesSpaceLg}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Border.mes-card:pointerover">
+        <Setter Property="BoxShadow" Value="{StaticResource MesElevation2}" />
+    </Style>
+
+    <!-- ═══ INPUT ═══ -->
+    <Style Selector="TextBox.mes-input">
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusMd}" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="FontSize" Value="{StaticResource MesFontBody}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MesSeparator}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="TextBox.mes-input:focus">
+        <Setter Property="BorderBrush" Value="{DynamicResource MesBrandPrimary}" />
+    </Style>
+
+    <!-- ═══ SIDEBAR ITEM ═══ -->
+    <Style Selector="ListBoxItem.mes-sidebar-item">
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusMd}" />
+        <Setter Property="Margin" Value="4,1" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="ListBoxItem.mes-sidebar-item:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MesBgTertiary}" />
+    </Style>
+    <Style Selector="ListBoxItem.mes-sidebar-item:selected">
+        <Setter Property="Background" Value="{DynamicResource MesBrandPrimary}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!-- ═══ TYPOGRAPHY STYLES ═══ -->
+    <Style Selector="TextBlock.mes-large-title">
+        <Setter Property="FontSize" Value="{StaticResource MesFontLargeTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource MesTextPrimary}" />
+    </Style>
+    <Style Selector="TextBlock.mes-title1">
+        <Setter Property="FontSize" Value="{StaticResource MesFontTitle1}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.mes-title2">
+        <Setter Property="FontSize" Value="{StaticResource MesFontTitle2}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.mes-title3">
+        <Setter Property="FontSize" Value="{StaticResource MesFontTitle3}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.mes-headline">
+        <Setter Property="FontSize" Value="{StaticResource MesFontHeadline}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.mes-body">
+        <Setter Property="FontSize" Value="{StaticResource MesFontBody}" />
+    </Style>
+    <Style Selector="TextBlock.mes-callout">
+        <Setter Property="FontSize" Value="{StaticResource MesFontCallout}" />
+    </Style>
+    <Style Selector="TextBlock.mes-subhead">
+        <Setter Property="FontSize" Value="{StaticResource MesFontSubhead}" />
+        <Setter Property="Foreground" Value="{DynamicResource MesTextSecondary}" />
+    </Style>
+    <Style Selector="TextBlock.mes-footnote">
+        <Setter Property="FontSize" Value="{StaticResource MesFontFootnote}" />
+        <Setter Property="Foreground" Value="{DynamicResource MesTextSecondary}" />
+    </Style>
+    <Style Selector="TextBlock.mes-caption">
+        <Setter Property="FontSize" Value="{StaticResource MesFontCaption1}" />
+        <Setter Property="Foreground" Value="{DynamicResource MesTextTertiary}" />
+    </Style>
+
+    <!-- ═══ BADGE ═══ -->
+    <Style Selector="Border.mes-badge">
+        <Setter Property="CornerRadius" Value="{StaticResource MesRadiusFull}" />
+        <Setter Property="Padding" Value="8,3" />
+    </Style>
+    <Style Selector="Border.mes-badge-success">
+        <Setter Property="Background" Value="{DynamicResource MesSuccess}" />
+    </Style>
+    <Style Selector="Border.mes-badge-warning">
+        <Setter Property="Background" Value="{DynamicResource MesWarning}" />
+    </Style>
+    <Style Selector="Border.mes-badge-error">
+        <Setter Property="Background" Value="{DynamicResource MesError}" />
+    </Style>
+
+</ResourceDictionary>

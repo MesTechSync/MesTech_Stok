@@ -80,8 +80,7 @@ public partial class LoginWindow : Window
             // BCrypt doğrulama — ICurrentUserService DI'dan
             bool isValid = await Task.Run(() =>
             {
-                // TODO: Gerçek IAuthService.ValidateAsync(username, password)
-                // WPF'teki login mantığı buraya bağlanacak.
+                // TODO(v2): Wire IAuthService.ValidateAsync(username, password)
                 return username == "admin" && password == "admin";
             });
 

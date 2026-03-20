@@ -1,0 +1,76 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ MesTech Design System (MDS) — İ-16 ═══ -->
+    <!-- Tek kaynak: Tüm renk, tipografi, spacing, elevation token'ları -->
+    <!-- macOS HIG + Material Design 3 hibrit yaklaşım -->
+
+    <!-- ═══ BRAND COLORS ═══ -->
+    <Color x:Key="MesBrandPrimary">#2855AC</Color>
+    <Color x:Key="MesBrandSecondary">#1a2332</Color>
+    <Color x:Key="MesBrandAccent">#f27a1a</Color>
+
+    <!-- ═══ SEMANTIC COLORS (Light) ═══ -->
+    <Color x:Key="MesBgPrimary">#FFFFFF</Color>
+    <Color x:Key="MesBgSecondary">#F5F7FA</Color>
+    <Color x:Key="MesBgTertiary">#EDF0F5</Color>
+    <Color x:Key="MesBgElevated">#FFFFFF</Color>
+    <Color x:Key="MesTextPrimary">#1D1D1F</Color>
+    <Color x:Key="MesTextSecondary">#6E6E73</Color>
+    <Color x:Key="MesTextTertiary">#AEAEB2</Color>
+    <Color x:Key="MesSeparator">#E5E5EA</Color>
+    <Color x:Key="MesSeparatorOpaque">#C6C6C8</Color>
+
+    <!-- ═══ STATUS COLORS ═══ -->
+    <Color x:Key="MesSuccess">#34C759</Color>
+    <Color x:Key="MesWarning">#FF9500</Color>
+    <Color x:Key="MesError">#FF3B30</Color>
+    <Color x:Key="MesInfo">#007AFF</Color>
+
+    <!-- ═══ ELEVATION (BoxShadow) ═══ -->
+    <BoxShadow x:Key="MesElevation0">0 0 0 0 #00000000</BoxShadow>
+    <BoxShadow x:Key="MesElevation1">0 1 3 0 #0000001A</BoxShadow>
+    <BoxShadow x:Key="MesElevation2">0 4 12 0 #00000026</BoxShadow>
+    <BoxShadow x:Key="MesElevation3">0 8 24 0 #00000033</BoxShadow>
+    <BoxShadow x:Key="MesElevation4">0 16 48 0 #0000003D</BoxShadow>
+
+    <!-- ═══ TYPOGRAPHY (macOS SF Pro esinlenmesi) ═══ -->
+    <FontFamily x:Key="MesFontFamily">Inter, Segoe UI, SF Pro Display, system-ui</FontFamily>
+
+    <x:Double x:Key="MesFontLargeTitle">28</x:Double>
+    <x:Double x:Key="MesFontTitle1">22</x:Double>
+    <x:Double x:Key="MesFontTitle2">18</x:Double>
+    <x:Double x:Key="MesFontTitle3">16</x:Double>
+    <x:Double x:Key="MesFontHeadline">14</x:Double>
+    <x:Double x:Key="MesFontBody">14</x:Double>
+    <x:Double x:Key="MesFontCallout">13</x:Double>
+    <x:Double x:Key="MesFontSubhead">12</x:Double>
+    <x:Double x:Key="MesFontFootnote">11</x:Double>
+    <x:Double x:Key="MesFontCaption1">10</x:Double>
+    <x:Double x:Key="MesFontCaption2">9</x:Double>
+
+    <!-- ═══ SPACING (4px grid) ═══ -->
+    <Thickness x:Key="MesSpaceXxs">2</Thickness>
+    <Thickness x:Key="MesSpaceXs">4</Thickness>
+    <Thickness x:Key="MesSpaceSm">8</Thickness>
+    <Thickness x:Key="MesSpaceMd">12</Thickness>
+    <Thickness x:Key="MesSpaceLg">16</Thickness>
+    <Thickness x:Key="MesSpaceXl">24</Thickness>
+    <Thickness x:Key="MesSpaceXxl">32</Thickness>
+    <Thickness x:Key="MesSpace3xl">48</Thickness>
+
+    <!-- ═══ BORDER RADIUS ═══ -->
+    <CornerRadius x:Key="MesRadiusNone">0</CornerRadius>
+    <CornerRadius x:Key="MesRadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="MesRadiusMd">8</CornerRadius>
+    <CornerRadius x:Key="MesRadiusLg">12</CornerRadius>
+    <CornerRadius x:Key="MesRadiusXl">16</CornerRadius>
+    <CornerRadius x:Key="MesRadiusFull">9999</CornerRadius>
+
+    <!-- ═══ ANIMATION DURATIONS ═══ -->
+    <x:String x:Key="MesDurationFast">0:0:0.08</x:String>
+    <x:String x:Key="MesDurationNormal">0:0:0.15</x:String>
+    <x:String x:Key="MesDurationMedium">0:0:0.25</x:String>
+    <x:String x:Key="MesDurationSlow">0:0:0.3</x:String>
+
+</ResourceDictionary>

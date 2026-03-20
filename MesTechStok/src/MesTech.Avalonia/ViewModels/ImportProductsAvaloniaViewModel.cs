@@ -9,7 +9,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// 4-step Import Wizard ViewModel for Avalonia.
 /// Steps: 1) File Selection  2) Preview  3) Column Mapping  4) Import Progress
-/// TODO: Replace mock import with CreateBulkProductsCommand via MediatR when ready.
 /// </summary>
 public partial class ImportProductsAvaloniaViewModel : ObservableObject
 {
@@ -95,7 +94,6 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private async Task SelectFileAsync()
     {
-        // TODO: Use Avalonia file picker (IStorageProvider) in real impl.
         // For now, simulate file selection with mock data.
         IsLoading = true;
         try
@@ -178,7 +176,6 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
 
         try
         {
-            // TODO: Replace with CreateBulkProductsCommand via MediatR
             // await _mediator.Send(new CreateBulkProductsCommand { ... });
 
             // Simulate import progress

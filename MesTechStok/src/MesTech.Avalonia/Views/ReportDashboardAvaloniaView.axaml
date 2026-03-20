@@ -1,0 +1,245 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ReportDashboardAvaloniaView"
+             x:DataType="vm:ReportDashboardAvaloniaViewModel">
+
+    <!-- Rapor Paneli — İ-11 Görev 4B -->
+    <!-- Quick reports, parameters, scheduled & recent reports -->
+
+    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Rapor Paneli"
+                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24" MaxWidth="900">
+
+                <!-- Generating Overlay -->
+                <Border Background="#FFF7ED" CornerRadius="8" Padding="16"
+                        BorderBrush="#FDBA74" BorderThickness="1"
+                        IsVisible="{Binding IsGenerating}">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ProgressBar IsIndeterminate="True" Width="120" Height="4"
+                                         VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
+                                       Foreground="#9A3412" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                     Height="6" CornerRadius="3" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Quick Report Buttons -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Hizli Raporlar" FontSize="16" FontWeight="Bold"
+                                   Foreground="#1E293B" />
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Content="Stok Degerleme"
+                                    Command="{Binding GenerateQuickReportCommand}"
+                                    CommandParameter="Stok Degerleme"
+                                    Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                            <Button Content="Platform Performans"
+                                    Command="{Binding GenerateQuickReportCommand}"
+                                    CommandParameter="Platform Performans"
+                                    Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                            <Button Content="Musteri Yasam Boyu"
+                                    Command="{Binding GenerateQuickReportCommand}"
+                                    CommandParameter="CLV Analizi"
+                                    Background="#7C3AED" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                            <Button Content="Gonderim Raporu"
+                                    Command="{Binding GenerateQuickReportCommand}"
+                                    CommandParameter="Gonderim Raporu"
+                                    Background="#EA580C" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                            <Button Content="Vergi Ozeti"
+                                    Command="{Binding GenerateQuickReportCommand}"
+                                    CommandParameter="Vergi Ozeti"
+                                    Background="#DC2626" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Report Parameters -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Rapor Parametreleri" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Ozel rapor olusturmak icin parametreleri ayarlayin"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
+                            <!-- Report Type -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
+                                <TextBlock Text="Rapor Turu" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#374151" />
+                                <ComboBox ItemsSource="{Binding ReportTypes}"
+                                          SelectedItem="{Binding SelectedReportType}"
+                                          HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <!-- Platform Filter -->
+                            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
+                                <TextBlock Text="Platform" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#374151" />
+                                <ComboBox ItemsSource="{Binding Platforms}"
+                                          SelectedItem="{Binding SelectedPlatform}"
+                                          HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <!-- Start Date -->
+                            <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
+                                <TextBlock Text="Baslangic Tarihi" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#374151" />
+                                <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <!-- End Date -->
+                            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
+                                <TextBlock Text="Bitis Tarihi" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#374151" />
+                                <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <!-- Export Format -->
+                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,0,0,12">
+                                <TextBlock Text="Disari Aktarma Formati" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#374151" />
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <RadioButton GroupName="ExportFmt" Content="Excel"
+                                                 IsChecked="{Binding SelectedExportFormat,
+                                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                 FontSize="14" />
+                                    <RadioButton GroupName="ExportFmt" Content="PDF" FontSize="14" />
+                                    <RadioButton GroupName="ExportFmt" Content="CSV" FontSize="14" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Generate Button -->
+                            <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
+                                <Button Content="Rapor Olustur"
+                                        Command="{Binding GenerateReportCommand}"
+                                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                        Padding="24,12" CornerRadius="6"
+                                        HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Scheduled Reports -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Zamanlanmis Raporlar" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="Otomatik olarak olusturulan periyodik raporlar"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding ScheduledReports}"
+                                  AutoGenerateColumns="False"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  MaxHeight="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Rapor Adi" Binding="{Binding Name}" Width="200" />
+                                <DataGridTextColumn Header="Periyot" Binding="{Binding Period}" Width="100" />
+                                <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="80" />
+                                <DataGridTextColumn Header="Son Calisma" Binding="{Binding LastRun}" Width="120" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Recent Reports -->
+                <Border Background="White" CornerRadius="12" Padding="24"
+                        BorderBrush="#E0E6ED" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Son Raporlar" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1E293B" />
+                            <TextBlock Text="En son olusturulan raporlar"
+                                       FontSize="12" Foreground="#94A3B8" />
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding RecentReports}"
+                                  AutoGenerateColumns="False"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
+                                <DataGridTextColumn Header="Rapor Adi" Binding="{Binding ReportName}" Width="220" />
+                                <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="80" />
+                                <DataGridTextColumn Header="Boyut" Binding="{Binding Size}" Width="100" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Rapor paneli yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#F8FAFC"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

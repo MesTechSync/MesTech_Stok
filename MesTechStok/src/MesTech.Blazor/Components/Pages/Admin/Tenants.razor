@@ -63,40 +63,46 @@ else
             </h5>
             <button type="button" class="btn-close" @onclick="CancelForm"></button>
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label small text-muted">Firma Adi</label>
-              <input type="text" class="form-control" @bind="newTenant.FirmaAdi" placeholder="Ornek Ticaret A.S." />
-            </div>
-            <div class="mb-3">
-              <label class="form-label small text-muted">Vergi No</label>
-              <input type="text" class="form-control" @bind="newTenant.VergiNo" placeholder="1234567890" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label small text-muted">Adres</label>
-              <textarea class="form-control" rows="2" @bind="newTenant.Adres" placeholder="Istanbul, Turkiye"></textarea>
-            </div>
-            <div class="row g-3">
-              <div class="col-6">
-                <label class="form-label small text-muted">Telefon</label>
-                <input type="text" class="form-control" @bind="newTenant.Telefon" placeholder="0212 555 00 00" />
+          <EditForm Model="newTenant" OnValidSubmit="SaveTenant">
+            <DataAnnotationsValidator />
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label small text-muted">Firma Adi</label>
+                <InputText class="form-control" @bind-Value="newTenant.FirmaAdi" placeholder="Ornek Ticaret A.S." />
+                <ValidationMessage For="() => newTenant.FirmaAdi" />
               </div>
-              <div class="col-6">
-                <label class="form-label small text-muted">Email</label>
-                <input type="email" class="form-control" @bind="newTenant.Email" placeholder="info@firma.com" />
+              <div class="mb-3">
+                <label class="form-label small text-muted">Vergi No</label>
+                <InputText class="form-control" @bind-Value="newTenant.VergiNo" placeholder="1234567890" />
+                <ValidationMessage For="() => newTenant.VergiNo" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label small text-muted">Adres</label>
+                <InputTextArea class="form-control" rows="2" @bind-Value="newTenant.Adres" placeholder="Istanbul, Turkiye" />
+              </div>
+              <div class="row g-3">
+                <div class="col-6">
+                  <label class="form-label small text-muted">Telefon</label>
+                  <InputText class="form-control" @bind-Value="newTenant.Telefon" placeholder="0212 555 00 00" />
+                </div>
+                <div class="col-6">
+                  <label class="form-label small text-muted">Email</label>
+                  <InputText class="form-control" @bind-Value="newTenant.Email" placeholder="info@firma.com" />
+                  <ValidationMessage For="() => newTenant.Email" />
+                </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary btn-sm" @onclick="CancelForm">Iptal</button>
-            <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="SaveTenant" disabled="@isSubmitting">
-              @if (isSubmitting)
-              {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="fas fa-save me-1"></i>Kaydet
-            </button>
-          </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" @onclick="CancelForm">Iptal</button>
+              <button type="submit" class="btn btn-sm" style="background-color: #2855AC; color: white;" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+            </div>
+          </EditForm>
         </div>
       </div>
     </div>
@@ -218,7 +224,7 @@ else
         _isDemoMode = false;
         // Keep demo data for now — typed DTOs not yet available
         // When API returns real data, it will be List<object>
-        tenants = GetDemoTenants(); // TODO: map apiData when DTOs exist
+        tenants = GetDemoTenants(); // Panel A: map apiData → TenantRow when typed DTOs finalized
       }
       else
       {
@@ -275,8 +281,6 @@ else
 
     try
     {
-      if (string.IsNullOrWhiteSpace(newTenant.FirmaAdi)) return;
-
       // TODO: Panel A — add CreateTenantCommand
       tenants.Add(new TenantRow(
         Guid.NewGuid(),
@@ -335,10 +339,17 @@ else
 
   private class TenantFormModel
   {
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Firma adi zorunludur.")]
+    [System.ComponentModel.DataAnnotations.StringLength(200, MinimumLength = 2, ErrorMessage = "Firma adi 2-200 karakter olmalidir.")]
     public string FirmaAdi { get; set; } = "";
+
+    [System.ComponentModel.DataAnnotations.RegularExpression(@"^\d{10,11}$", ErrorMessage = "Vergi No 10 veya 11 haneli olmalidir.")]
     public string VergiNo { get; set; } = "";
+
     public string Adres { get; set; } = "";
     public string Telefon { get; set; } = "";
+
+    [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Gecerli bir email adresi giriniz.")]
     public string Email { get; set; } = "";
   }
 }

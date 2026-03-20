@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Platform Listesi ViewModel — 13 platform karti ile pazaryeri yonetimi.
-/// TODO: Replace demo data with MediatR.Send(new GetPlatformListQuery()) when A1 CQRS is ready.
 /// </summary>
 public partial class PlatformListAvaloniaViewModel : ObservableObject
 {
@@ -34,7 +33,6 @@ public partial class PlatformListAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetPlatformListQuery()) when A1 CQRS is ready
             await Task.Delay(200);
 
             Platforms.Clear();

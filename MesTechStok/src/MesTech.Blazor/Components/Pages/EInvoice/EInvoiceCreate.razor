@@ -46,6 +46,9 @@ else
         </div>
     }
 
+    <EditForm Model="form" OnValidSubmit="SubmitInvoice">
+    <DataAnnotationsValidator />
+
     <!-- Senaryo Secimi -->
     <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
@@ -55,20 +58,20 @@ else
         <div class="row g-3">
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Senaryo</label>
-                <select class="form-select form-select-sm" @bind="form.Senaryo">
+                <InputSelect class="form-select form-select-sm" @bind-Value="form.Senaryo">
                     <option value="eFatura">e-Fatura</option>
                     <option value="eArsiv">e-Arsiv</option>
                     <option value="eSMM">e-SMM</option>
                     <option value="eIhracat">e-Ihracat</option>
-                </select>
+                </InputSelect>
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Fatura Tarihi</label>
-                <input type="date" class="form-control form-control-sm" @bind="form.Tarih" />
+                <InputDate class="form-control form-control-sm" @bind-Value="form.Tarih" />
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Fatura No</label>
-                <input type="text" class="form-control form-control-sm" @bind="form.FaturaNo"
+                <InputText class="form-control form-control-sm" @bind-Value="form.FaturaNo"
                        placeholder="Otomatik olusturulacak" readonly />
             </div>
         </div>
@@ -85,27 +88,29 @@ else
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">VKN / TCKN</label>
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" @bind="form.AliciVkn"
+                    <InputText class="form-control" @bind-Value="form.AliciVkn"
                            placeholder="Vergi / TC Kimlik No" maxlength="11" />
-                    <button class="btn btn-outline-primary" @onclick="CheckVkn" disabled="@isVknChecking">
+                    <button type="button" class="btn btn-outline-primary" @onclick="CheckVkn" disabled="@isVknChecking">
                         <i class="fas @(isVknChecking ? "fa-spinner fa-spin" : "fa-search") me-1"></i>Sorgula
                     </button>
                 </div>
+                <ValidationMessage For="() => form.AliciVkn" />
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Unvan</label>
-                <input type="text" class="form-control form-control-sm" @bind="form.AliciUnvan"
+                <InputText class="form-control form-control-sm" @bind-Value="form.AliciUnvan"
                        placeholder="Sirket / Kisi adi" />
+                <ValidationMessage For="() => form.AliciUnvan" />
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Vergi Dairesi</label>
-                <input type="text" class="form-control form-control-sm" @bind="form.VergiDairesi"
+                <InputText class="form-control form-control-sm" @bind-Value="form.VergiDairesi"
                        placeholder="Vergi dairesi" />
             </div>
             <div class="col-12">
                 <label class="form-label fw-semibold">Adres</label>
-                <textarea class="form-control form-control-sm" rows="2" @bind="form.Adres"
-                          placeholder="Fatura adresi"></textarea>
+                <InputTextArea class="form-control form-control-sm" rows="2" @bind-Value="form.Adres"
+                          placeholder="Fatura adresi" />
             </div>
         </div>
     </div>
@@ -201,10 +206,10 @@ else
 
 <!-- Submit -->
 <div class="d-flex gap-2 justify-content-end mb-5">
-    <button class="btn btn-outline-secondary" @onclick="GoBack">
+    <button type="button" class="btn btn-outline-secondary" @onclick="GoBack">
         <i class="fas fa-times me-1"></i>Vazgec
     </button>
-    <button class="btn btn-primary" @onclick="SubmitInvoice" disabled="@isSubmitting">
+    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
         @if (isSubmitting)
         {
             <span class="spinner-border spinner-border-sm me-1" role="status"></span>
@@ -212,17 +217,25 @@ else
         <i class="fas fa-check me-1"></i>Fatura Olustur
     </button>
 </div>
+</EditForm>
 
 } @* end isLoading else *@
 
 @code {
     private class InvoiceFormModel
     {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Senaryo secimi zorunludur.")]
         public string Senaryo { get; set; } = "eFatura";
         public DateTime Tarih { get; set; } = DateTime.Today;
         public string FaturaNo { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "VKN / TCKN zorunludur.")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^\d{10,11}$", ErrorMessage = "VKN (10 hane) veya TCKN (11 hane) olmalidir.")]
         public string AliciVkn { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Alici unvani zorunludur.")]
         public string AliciUnvan { get; set; } = string.Empty;
+
         public string VergiDairesi { get; set; } = string.Empty;
         public string Adres { get; set; } = string.Empty;
     }
@@ -315,12 +328,6 @@ else
     {
         errorMessage = null;
         successMessage = null;
-
-        if (string.IsNullOrWhiteSpace(form.AliciVkn))
-        {
-            errorMessage = "Alici VKN/TCKN alani zorunludur.";
-            return;
-        }
 
         if (lines.All(l => string.IsNullOrWhiteSpace(l.UrunAdi)))
         {

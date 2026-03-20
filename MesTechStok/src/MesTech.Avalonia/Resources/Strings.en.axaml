@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+
+  <!-- ═══ Common Buttons ═══ -->
+  <sys:String x:Key="Common.Save">Save</sys:String>
+  <sys:String x:Key="Common.Cancel">Cancel</sys:String>
+  <sys:String x:Key="Common.Delete">Delete</sys:String>
+  <sys:String x:Key="Common.Edit">Edit</sys:String>
+  <sys:String x:Key="Common.Add">Add</sys:String>
+  <sys:String x:Key="Common.Close">Close</sys:String>
+  <sys:String x:Key="Common.Back">Back</sys:String>
+  <sys:String x:Key="Common.Next">Next</sys:String>
+  <sys:String x:Key="Common.Search">Search...</sys:String>
+  <sys:String x:Key="Common.Refresh">Refresh</sys:String>
+  <sys:String x:Key="Common.Export">Export</sys:String>
+  <sys:String x:Key="Common.Import">Import</sys:String>
+
+  <!-- ═══ Common Status ═══ -->
+  <sys:String x:Key="Common.Loading">Loading...</sys:String>
+  <sys:String x:Key="Common.Saving">Saving...</sys:String>
+  <sys:String x:Key="Common.NoData">No data found</sys:String>
+  <sys:String x:Key="Common.Success">Operation successful</sys:String>
+  <sys:String x:Key="Common.Error">An error occurred</sys:String>
+
+  <!-- ═══ Navigation ═══ -->
+  <sys:String x:Key="Nav.Dashboard">Dashboard</sys:String>
+  <sys:String x:Key="Nav.Products">Products</sys:String>
+  <sys:String x:Key="Nav.Orders">Orders</sys:String>
+  <sys:String x:Key="Nav.Stock">Stock</sys:String>
+  <sys:String x:Key="Nav.Settings">Settings</sys:String>
+  <sys:String x:Key="Nav.Categories">Categories</sys:String>
+  <sys:String x:Key="Nav.Shipping">Shipping</sys:String>
+  <sys:String x:Key="Nav.Invoices">Invoices</sys:String>
+  <sys:String x:Key="Nav.Reports">Reports</sys:String>
+  <sys:String x:Key="Nav.Platforms">Platforms</sys:String>
+
+  <!-- ═══ Product ═══ -->
+  <sys:String x:Key="Products.Title">Product List</sys:String>
+  <sys:String x:Key="Products.AddNew">Add New Product</sys:String>
+  <sys:String x:Key="Products.Name">Product Name</sys:String>
+  <sys:String x:Key="Products.SKU">SKU</sys:String>
+  <sys:String x:Key="Products.Price">Price</sys:String>
+  <sys:String x:Key="Products.Stock">Stock</sys:String>
+
+  <!-- ═══ Orders ═══ -->
+  <sys:String x:Key="Orders.Title">Order List</sys:String>
+  <sys:String x:Key="Orders.Detail">Order Detail</sys:String>
+  <sys:String x:Key="Orders.Customer">Customer</sys:String>
+  <sys:String x:Key="Orders.Status">Status</sys:String>
+  <sys:String x:Key="Orders.Total">Total</sys:String>
+
+  <!-- ═══ Status ═══ -->
+  <sys:String x:Key="Status.Active">Active</sys:String>
+  <sys:String x:Key="Status.Passive">Inactive</sys:String>
+  <sys:String x:Key="Status.Pending">Pending</sys:String>
+
+  <!-- ═══ Confirm ═══ -->
+  <sys:String x:Key="Confirm.Delete">Are you sure you want to delete this record?</sys:String>
+  <sys:String x:Key="Confirm.Logout">Are you sure you want to log out?</sys:String>
+
+  <!-- ═══ Error ═══ -->
+  <sys:String x:Key="Error.Required">This field is required</sys:String>
+  <sys:String x:Key="Error.InvalidEmail">Invalid email address</sys:String>
+
+  <!-- ═══ Form ═══ -->
+  <sys:String x:Key="Form.Name">Name</sys:String>
+  <sys:String x:Key="Form.Email">Email</sys:String>
+  <sys:String x:Key="Form.Phone">Phone</sys:String>
+  <sys:String x:Key="Form.Description">Description</sys:String>
+  <sys:String x:Key="Form.Notes">Notes</sys:String>
+
+</ResourceDictionary>

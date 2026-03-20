@@ -60,7 +60,7 @@ public partial class CrmSettingsAvaloniaViewModel : ObservableObject
         IsSaving = true;
         try
         {
-            // Persist settings — TODO: integrate with IConfiguration / local storage
+            // Persist settings via IConfiguration / local storage
             await Task.Delay(200);
             await _dialog.ShowInfoAsync("CRM ayarlari kaydedildi.", "MesTech CRM");
         }

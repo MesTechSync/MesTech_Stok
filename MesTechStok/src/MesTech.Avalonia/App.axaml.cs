@@ -207,6 +207,11 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<KdvRaporAvaloniaViewModel>();
                 services.AddTransient<BordroAvaloniaViewModel>();
                 services.AddTransient<BudgetAvaloniaViewModel>();
+                // İ-11 Görev 4: System Management Views
+                services.AddTransient<NotificationSettingsAvaloniaViewModel>();
+                services.AddTransient<ReportDashboardAvaloniaViewModel>();
+                services.AddTransient<AuditLogAvaloniaViewModel>();
+                services.AddTransient<BackupAvaloniaViewModel>();
             })
             .Build();
 

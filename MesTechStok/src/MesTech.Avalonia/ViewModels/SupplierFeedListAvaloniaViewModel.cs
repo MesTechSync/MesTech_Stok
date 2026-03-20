@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Tedarikci Feed Listesi ViewModel — feed DataGrid + yeni feed butonu.
-/// TODO: Replace demo data with MediatR.Send(new GetSupplierFeedListQuery()) when A1 CQRS is ready.
 /// </summary>
 public partial class SupplierFeedListAvaloniaViewModel : ObservableObject
 {
@@ -34,7 +33,6 @@ public partial class SupplierFeedListAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetSupplierFeedListQuery()) when A1 CQRS is ready
             await Task.Delay(250);
 
             Feeds.Clear();

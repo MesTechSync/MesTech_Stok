@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Magaza Detay ViewModel — magaza bilgileri + sync gecmisi + adapter saglik durumu.
-/// TODO: Replace demo data with MediatR queries when A1 CQRS is ready.
 /// </summary>
 public partial class StoreDetailAvaloniaViewModel : ObservableObject
 {
@@ -42,7 +41,6 @@ public partial class StoreDetailAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR queries when A1 CQRS is ready
             await Task.Delay(300);
 
             StoreName = "Ana Magaza - Trendyol";

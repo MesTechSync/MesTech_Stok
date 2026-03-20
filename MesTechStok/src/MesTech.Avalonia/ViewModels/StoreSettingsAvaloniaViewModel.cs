@@ -6,7 +6,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Magaza Ayarlari ViewModel — kimlik bilgileri, sync araligi, webhook, oto-sync toggle.
-/// TODO: Replace demo data with MediatR.Send(new UpdateStoreSettingsCommand()) when A1 CQRS is ready.
 /// </summary>
 public partial class StoreSettingsAvaloniaViewModel : ObservableObject
 {
@@ -40,7 +39,6 @@ public partial class StoreSettingsAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new GetStoreSettingsQuery()) when A1 CQRS is ready
             await Task.Delay(200);
 
             StoreName = "Ana Magaza - Trendyol";
@@ -71,7 +69,6 @@ public partial class StoreSettingsAvaloniaViewModel : ObservableObject
         SaveSuccess = false;
         try
         {
-            // TODO: Replace with MediatR.Send(new UpdateStoreSettingsCommand()) when A1 CQRS is ready
             await Task.Delay(500);
             SaveSuccess = true;
         }

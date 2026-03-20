@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+
+  <!-- ═══ Common Buttons ═══ -->
+  <sys:String x:Key="Common.Save">Kaydet</sys:String>
+  <sys:String x:Key="Common.Cancel">İptal</sys:String>
+  <sys:String x:Key="Common.Delete">Sil</sys:String>
+  <sys:String x:Key="Common.Edit">Düzenle</sys:String>
+  <sys:String x:Key="Common.Add">Ekle</sys:String>
+  <sys:String x:Key="Common.Close">Kapat</sys:String>
+  <sys:String x:Key="Common.Back">Geri</sys:String>
+  <sys:String x:Key="Common.Next">İleri</sys:String>
+  <sys:String x:Key="Common.Search">Ara...</sys:String>
+  <sys:String x:Key="Common.Refresh">Yenile</sys:String>
+  <sys:String x:Key="Common.Export">Dışa Aktar</sys:String>
+  <sys:String x:Key="Common.Import">İçe Aktar</sys:String>
+
+  <!-- ═══ Common Status ═══ -->
+  <sys:String x:Key="Common.Loading">Yükleniyor...</sys:String>
+  <sys:String x:Key="Common.Saving">Kaydediliyor...</sys:String>
+  <sys:String x:Key="Common.NoData">Veri bulunamadı</sys:String>
+  <sys:String x:Key="Common.Success">İşlem başarılı</sys:String>
+  <sys:String x:Key="Common.Error">Bir hata oluştu</sys:String>
+
+  <!-- ═══ Navigation ═══ -->
+  <sys:String x:Key="Nav.Dashboard">Gösterge Paneli</sys:String>
+  <sys:String x:Key="Nav.Products">Ürünler</sys:String>
+  <sys:String x:Key="Nav.Orders">Siparişler</sys:String>
+  <sys:String x:Key="Nav.Stock">Stok</sys:String>
+  <sys:String x:Key="Nav.Settings">Ayarlar</sys:String>
+  <sys:String x:Key="Nav.Categories">Kategoriler</sys:String>
+  <sys:String x:Key="Nav.Shipping">Kargo</sys:String>
+  <sys:String x:Key="Nav.Invoices">Faturalar</sys:String>
+  <sys:String x:Key="Nav.Reports">Raporlar</sys:String>
+  <sys:String x:Key="Nav.Platforms">Platformlar</sys:String>
+
+  <!-- ═══ Product ═══ -->
+  <sys:String x:Key="Products.Title">Ürün Listesi</sys:String>
+  <sys:String x:Key="Products.AddNew">Yeni Ürün Ekle</sys:String>
+  <sys:String x:Key="Products.Name">Ürün Adı</sys:String>
+  <sys:String x:Key="Products.SKU">Stok Kodu</sys:String>
+  <sys:String x:Key="Products.Price">Fiyat</sys:String>
+  <sys:String x:Key="Products.Stock">Stok</sys:String>
+
+  <!-- ═══ Orders ═══ -->
+  <sys:String x:Key="Orders.Title">Sipariş Listesi</sys:String>
+  <sys:String x:Key="Orders.Detail">Sipariş Detayı</sys:String>
+  <sys:String x:Key="Orders.Customer">Müşteri</sys:String>
+  <sys:String x:Key="Orders.Status">Durum</sys:String>
+  <sys:String x:Key="Orders.Total">Toplam</sys:String>
+
+  <!-- ═══ Status ═══ -->
+  <sys:String x:Key="Status.Active">Aktif</sys:String>
+  <sys:String x:Key="Status.Passive">Pasif</sys:String>
+  <sys:String x:Key="Status.Pending">Beklemede</sys:String>
+
+  <!-- ═══ Confirm ═══ -->
+  <sys:String x:Key="Confirm.Delete">Bu kaydı silmek istediğinizden emin misiniz?</sys:String>
+  <sys:String x:Key="Confirm.Logout">Çıkış yapmak istediğinizden emin misiniz?</sys:String>
+
+  <!-- ═══ Error ═══ -->
+  <sys:String x:Key="Error.Required">Bu alan zorunludur</sys:String>
+  <sys:String x:Key="Error.InvalidEmail">Geçersiz e-posta adresi</sys:String>
+
+  <!-- ═══ Form ═══ -->
+  <sys:String x:Key="Form.Name">Ad</sys:String>
+  <sys:String x:Key="Form.Email">E-posta</sys:String>
+  <sys:String x:Key="Form.Phone">Telefon</sys:String>
+  <sys:String x:Key="Form.Description">Açıklama</sys:String>
+  <sys:String x:Key="Form.Notes">Notlar</sys:String>
+
+</ResourceDictionary>

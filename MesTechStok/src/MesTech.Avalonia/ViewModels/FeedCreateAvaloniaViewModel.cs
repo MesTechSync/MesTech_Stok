@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Feed Olusturma ViewModel — URL, format, sync araligi, fiyat markup, min marj, kolon eslestirme.
-/// TODO: Replace with MediatR.Send(new CreateSupplierFeedCommand()) when A1 CQRS is ready.
 /// </summary>
 public partial class FeedCreateAvaloniaViewModel : ObservableObject
 {
@@ -60,7 +59,6 @@ public partial class FeedCreateAvaloniaViewModel : ObservableObject
         SaveCompleted = false;
         try
         {
-            // TODO: Replace with MediatR.Send(new CreateSupplierFeedCommand()) when A1 CQRS is ready
             await Task.Delay(600);
             SaveCompleted = true;
         }

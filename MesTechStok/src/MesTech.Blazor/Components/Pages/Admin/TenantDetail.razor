@@ -309,12 +309,14 @@ else
 
   private void ShowAddStore()
   {
-    // TODO: Panel A — open store creation form
+    // Awaiting CreateStoreCommand integration (Panel A)
+    errorMessage = "Store ekleme henuz aktif degil — Panel A entegrasyonu bekleniyor.";
   }
 
   private void ShowAddUser()
   {
-    // TODO: Panel A — open user creation form
+    // Awaiting CreateTenantUserCommand integration (Panel A)
+    errorMessage = "Kullanici ekleme henuz aktif degil — Panel A entegrasyonu bekleniyor.";
   }
 
   private record TenantInfo(string FirmaAdi, string VergiNo, string Durum, DateTime OlusturmaTarihi);

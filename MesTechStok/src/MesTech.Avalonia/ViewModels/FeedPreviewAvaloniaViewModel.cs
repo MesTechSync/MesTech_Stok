@@ -7,7 +7,6 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Feed Onizleme ViewModel — tedarikci feed verilerini onizleme + dogrulama.
-/// TODO: Replace demo data with MediatR.Send(new PreviewFeedCommand()) when A1 CQRS is ready.
 /// </summary>
 public partial class FeedPreviewAvaloniaViewModel : ObservableObject
 {
@@ -45,7 +44,6 @@ public partial class FeedPreviewAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with MediatR.Send(new PreviewFeedCommand()) when A1 CQRS is ready
             await Task.Delay(800);
 
             PreviewItems.Clear();

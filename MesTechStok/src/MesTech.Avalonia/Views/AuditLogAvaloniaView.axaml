@@ -1,0 +1,208 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.AuditLogAvaloniaView"
+             x:DataType="vm:AuditLogAvaloniaViewModel">
+
+    <!-- Denetim Kayitlari — İ-11 Görev 4C -->
+    <!-- Filter bar, DataGrid, CSV export, detail panel -->
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Denetim Kayitlari" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="CSV Disari Aktar"
+                        Command="{Binding ExportCsvCommand}"
+                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="White" Padding="16,12"
+                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Kullanici" FontSize="11" Foreground="#64748B" />
+                    <ComboBox Width="180"
+                              ItemsSource="{Binding Users}"
+                              SelectedItem="{Binding SelectedUser}" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Islem Tipi" FontSize="11" Foreground="#64748B" />
+                    <ComboBox Width="140"
+                              ItemsSource="{Binding ActionTypes}"
+                              SelectedItem="{Binding SelectedAction}" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Baslangic" FontSize="11" Foreground="#64748B" />
+                    <DatePicker SelectedDate="{Binding StartDate}" Width="150" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Bitis" FontSize="11" Foreground="#64748B" />
+                    <DatePicker SelectedDate="{Binding EndDate}" Width="150" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Export Success Message -->
+        <Border Grid.Row="1" Background="#ECFDF5" CornerRadius="0" Padding="12,8"
+                IsVisible="{Binding IsExported}"
+                BorderBrush="#A7F3D0" BorderThickness="0,0,0,1"
+                Margin="0,52,0,0">
+            <TextBlock Text="{Binding ExportMessage}"
+                       Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
+        </Border>
+
+        <!-- Main Content: DataGrid + Detail Panel -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+
+            <!-- Audit Log DataGrid -->
+            <DataGrid Grid.Column="0"
+                      ItemsSource="{Binding LogEntries}"
+                      SelectedItem="{Binding SelectedEntry}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="White"
+                      IsVisible="{Binding !IsLoading}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Zaman" Binding="{Binding Timestamp}" Width="150" />
+                    <DataGridTextColumn Header="Kullanici" Binding="{Binding User}" Width="180" />
+                    <DataGridTextColumn Header="Islem" Binding="{Binding Action}" Width="90" />
+                    <DataGridTextColumn Header="Varlik Tipi" Binding="{Binding EntityType}" Width="100" />
+                    <DataGridTextColumn Header="Varlik ID" Binding="{Binding EntityId}" Width="100" />
+                    <DataGridTextColumn Header="Ozet" Binding="{Binding Summary}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Detail Panel -->
+            <Border Grid.Column="1" Width="320" Background="White"
+                    BorderBrush="#E0E6ED" BorderThickness="1,0,0,0"
+                    Padding="20" IsVisible="{Binding IsDetailVisible}">
+                <StackPanel Spacing="16">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="Detay" FontSize="16" FontWeight="Bold"
+                                   Foreground="#1E293B" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Content="X"
+                                Command="{Binding CloseDetailCommand}"
+                                Background="Transparent" Foreground="#94A3B8"
+                                FontWeight="Bold" Padding="8,4" />
+                    </Grid>
+
+                    <Border Height="1" Background="#E0E6ED" />
+
+                    <StackPanel Spacing="8" DataContext="{Binding SelectedEntry}">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Zaman" FontSize="11" Foreground="#64748B" />
+                            <TextBlock Text="{Binding Timestamp}" FontSize="14" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Kullanici" FontSize="11" Foreground="#64748B" />
+                            <TextBlock Text="{Binding User}" FontSize="14" Foreground="#1E293B" />
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Islem" FontSize="11" Foreground="#64748B" />
+                            <TextBlock Text="{Binding Action}" FontSize="14" Foreground="#1E293B"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Varlik" FontSize="11" Foreground="#64748B" />
+                            <TextBlock FontSize="14" Foreground="#1E293B">
+                                <Run Text="{Binding EntityType}" />
+                                <Run Text=" / " />
+                                <Run Text="{Binding EntityId}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Ozet" FontSize="11" Foreground="#64748B" />
+                            <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#1E293B"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <Border Height="1" Background="#E0E6ED" Margin="0,8" />
+
+                        <!-- Old Values -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Eski Deger" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#DC2626" />
+                            <Border Background="#FEF2F2" CornerRadius="6" Padding="12,8">
+                                <TextBlock Text="{Binding OldValues}" FontSize="13"
+                                           Foreground="#991B1B" TextWrapping="Wrap" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- New Values -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Yeni Deger" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#16A34A" />
+                            <Border Background="#F0FDF4" CornerRadius="6" Padding="12,8">
+                                <TextBlock Text="{Binding NewValues}" FontSize="13"
+                                           Foreground="#166534" TextWrapping="Wrap" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#99FFFFFF"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Denetim kayitlari yukleniyor..."
+                           FontSize="14" Foreground="#555555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F5F7FA"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Kayit bulunamadi" FontSize="20"
+                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                <TextBlock Text="Secili filtrelere uygun denetim kaydi bulunamadi"
+                           FontSize="16" Foreground="#64748B"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#F5F7FA"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#E53935"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

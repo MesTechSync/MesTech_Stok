@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — BUTTONS (~20 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Button.Save" xml:space="preserve"><value>Kaydet</value></data>
+  <data name="Common.Button.Cancel" xml:space="preserve"><value>İptal</value></data>
+  <data name="Common.Button.Delete" xml:space="preserve"><value>Sil</value></data>
+  <data name="Common.Button.Edit" xml:space="preserve"><value>Düzenle</value></data>
+  <data name="Common.Button.Add" xml:space="preserve"><value>Ekle</value></data>
+  <data name="Common.Button.New" xml:space="preserve"><value>Yeni</value></data>
+  <data name="Common.Button.Close" xml:space="preserve"><value>Kapat</value></data>
+  <data name="Common.Button.Back" xml:space="preserve"><value>Geri</value></data>
+  <data name="Common.Button.Next" xml:space="preserve"><value>İleri</value></data>
+  <data name="Common.Button.Export" xml:space="preserve"><value>Dışa Aktar</value></data>
+  <data name="Common.Button.Import" xml:space="preserve"><value>İçe Aktar</value></data>
+  <data name="Common.Button.Print" xml:space="preserve"><value>Yazdır</value></data>
+  <data name="Common.Button.Refresh" xml:space="preserve"><value>Yenile</value></data>
+  <data name="Common.Button.Apply" xml:space="preserve"><value>Uygula</value></data>
+  <data name="Common.Button.Confirm" xml:space="preserve"><value>Onayla</value></data>
+  <data name="Common.Button.Approve" xml:space="preserve"><value>Onayla</value></data>
+  <data name="Common.Button.Reject" xml:space="preserve"><value>Reddet</value></data>
+  <data name="Common.Button.Send" xml:space="preserve"><value>Gönder</value></data>
+  <data name="Common.Button.Upload" xml:space="preserve"><value>Yükle</value></data>
+  <data name="Common.Button.Download" xml:space="preserve"><value>İndir</value></data>
+  <data name="Common.Button.Search" xml:space="preserve"><value>Ara</value></data>
+  <data name="Common.Button.Reset" xml:space="preserve"><value>Sıfırla</value></data>
+  <data name="Common.Button.Copy" xml:space="preserve"><value>Kopyala</value></data>
+  <data name="Common.Button.SelectAll" xml:space="preserve"><value>Tümünü Seç</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — STATUS (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Status.Loading" xml:space="preserve"><value>Yükleniyor...</value></data>
+  <data name="Common.Status.Saving" xml:space="preserve"><value>Kaydediliyor...</value></data>
+  <data name="Common.Status.NoData" xml:space="preserve"><value>Veri bulunamadı</value></data>
+  <data name="Common.Status.NoResults" xml:space="preserve"><value>Sonuç bulunamadı</value></data>
+  <data name="Common.Status.Error" xml:space="preserve"><value>Bir hata oluştu</value></data>
+  <data name="Common.Status.Success" xml:space="preserve"><value>İşlem başarılı</value></data>
+  <data name="Common.Status.Processing" xml:space="preserve"><value>İşleniyor...</value></data>
+  <data name="Common.Status.Connecting" xml:space="preserve"><value>Bağlanıyor...</value></data>
+  <data name="Common.Status.Syncing" xml:space="preserve"><value>Senkronize ediliyor...</value></data>
+  <data name="Common.Status.Completed" xml:space="preserve"><value>Tamamlandı</value></data>
+  <data name="Common.Status.Online" xml:space="preserve"><value>Çevrimiçi</value></data>
+  <data name="Common.Status.Offline" xml:space="preserve"><value>Çevrimdışı</value></data>
+  <data name="Common.Status.Enabled" xml:space="preserve"><value>Aktif</value></data>
+  <data name="Common.Status.Disabled" xml:space="preserve"><value>Deaktif</value></data>
+  <data name="Common.Status.Deleting" xml:space="preserve"><value>Siliniyor...</value></data>
+  <data name="Common.Status.Uploading" xml:space="preserve"><value>Yükleniyor...</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — TABLE (~10 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Table.Showing" xml:space="preserve"><value>Gösterilen</value></data>
+  <data name="Common.Table.Previous" xml:space="preserve"><value>Önceki</value></data>
+  <data name="Common.Table.Next" xml:space="preserve"><value>Sonraki</value></data>
+  <data name="Common.Table.RowsPerPage" xml:space="preserve"><value>Sayfa başı satır</value></data>
+  <data name="Common.Table.NoRecords" xml:space="preserve"><value>Kayıt bulunamadı</value></data>
+  <data name="Common.Table.Total" xml:space="preserve"><value>Toplam</value></data>
+  <data name="Common.Table.Of" xml:space="preserve"><value>/</value></data>
+  <data name="Common.Table.Page" xml:space="preserve"><value>Sayfa</value></data>
+  <data name="Common.Table.First" xml:space="preserve"><value>İlk</value></data>
+  <data name="Common.Table.Last" xml:space="preserve"><value>Son</value></data>
+  <data name="Common.Table.SortAsc" xml:space="preserve"><value>Artan sırala</value></data>
+  <data name="Common.Table.SortDesc" xml:space="preserve"><value>Azalan sırala</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMMON — SEARCH (~8 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Common.Search.Search" xml:space="preserve"><value>Ara...</value></data>
+  <data name="Common.Search.Filter" xml:space="preserve"><value>Filtrele</value></data>
+  <data name="Common.Search.ClearFilters" xml:space="preserve"><value>Filtreleri Temizle</value></data>
+  <data name="Common.Search.DateFrom" xml:space="preserve"><value>Başlangıç Tarihi</value></data>
+  <data name="Common.Search.DateTo" xml:space="preserve"><value>Bitiş Tarihi</value></data>
+  <data name="Common.Search.All" xml:space="preserve"><value>Tümü</value></data>
+  <data name="Common.Search.SelectAll" xml:space="preserve"><value>Tümünü Seç</value></data>
+  <data name="Common.Search.Advanced" xml:space="preserve"><value>Gelişmiş Arama</value></data>
+  <data name="Common.Search.Placeholder" xml:space="preserve"><value>Arama yapın...</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NAV — NAVIGATION (~35 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Nav.Dashboard" xml:space="preserve"><value>Gösterge Paneli</value></data>
+  <data name="Nav.Products" xml:space="preserve"><value>Ürünler</value></data>
+  <data name="Nav.Orders" xml:space="preserve"><value>Siparişler</value></data>
+  <data name="Nav.Stock" xml:space="preserve"><value>Stok</value></data>
+  <data name="Nav.Categories" xml:space="preserve"><value>Kategoriler</value></data>
+  <data name="Nav.Shipping" xml:space="preserve"><value>Kargo</value></data>
+  <data name="Nav.Invoices" xml:space="preserve"><value>Faturalar</value></data>
+  <data name="Nav.Accounting" xml:space="preserve"><value>Muhasebe</value></data>
+  <data name="Nav.Finance" xml:space="preserve"><value>Finans</value></data>
+  <data name="Nav.Reports" xml:space="preserve"><value>Raporlar</value></data>
+  <data name="Nav.Settings" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="Nav.Users" xml:space="preserve"><value>Kullanıcılar</value></data>
+  <data name="Nav.Platforms" xml:space="preserve"><value>Platformlar</value></data>
+  <data name="Nav.Stores" xml:space="preserve"><value>Mağazalar</value></data>
+  <data name="Nav.Sync" xml:space="preserve"><value>Senkronizasyon</value></data>
+  <data name="Nav.Dropshipping" xml:space="preserve"><value>Dropshipping</value></data>
+  <data name="Nav.Crm" xml:space="preserve"><value>CRM</value></data>
+  <data name="Nav.Calendar" xml:space="preserve"><value>Takvim</value></data>
+  <data name="Nav.Projects" xml:space="preserve"><value>Projeler</value></data>
+  <data name="Nav.Tasks" xml:space="preserve"><value>Görevler</value></data>
+  <data name="Nav.Notifications" xml:space="preserve"><value>Bildirimler</value></data>
+  <data name="Nav.Hr" xml:space="preserve"><value>İnsan Kaynakları</value></data>
+  <data name="Nav.Academy" xml:space="preserve"><value>MesAkademi</value></data>
+  <data name="Nav.Faq" xml:space="preserve"><value>SSS</value></data>
+  <data name="Nav.Changelog" xml:space="preserve"><value>Yenilikler</value></data>
+  <data name="Nav.Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="Nav.Logout" xml:space="preserve"><value>Çıkış</value></data>
+  <data name="Nav.Help" xml:space="preserve"><value>Yardım</value></data>
+  <data name="Nav.About" xml:space="preserve"><value>Hakkında</value></data>
+  <data name="Nav.Home" xml:space="preserve"><value>Ana Sayfa</value></data>
+  <data name="Nav.Warehouse" xml:space="preserve"><value>Depo</value></data>
+  <data name="Nav.Suppliers" xml:space="preserve"><value>Tedarikçiler</value></data>
+  <data name="Nav.Brands" xml:space="preserve"><value>Markalar</value></data>
+  <data name="Nav.BulkProduct" xml:space="preserve"><value>Toplu Ürün</value></data>
+  <data name="Nav.CategoryMapping" xml:space="preserve"><value>Kategori Eşleştirme</value></data>
+  <data name="Nav.Returns" xml:space="preserve"><value>İadeler</value></data>
+  <data name="Nav.Analytics" xml:space="preserve"><value>Analitik</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FORM — FORM FIELDS (~30 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Form.Name" xml:space="preserve"><value>Ad</value></data>
+  <data name="Form.Email" xml:space="preserve"><value>E-posta</value></data>
+  <data name="Form.Phone" xml:space="preserve"><value>Telefon</value></data>
+  <data name="Form.Address" xml:space="preserve"><value>Adres</value></data>
+  <data name="Form.CompanyName" xml:space="preserve"><value>Firma Adı</value></data>
+  <data name="Form.TaxId" xml:space="preserve"><value>Vergi No</value></data>
+  <data name="Form.TaxOffice" xml:space="preserve"><value>Vergi Dairesi</value></data>
+  <data name="Form.City" xml:space="preserve"><value>Şehir</value></data>
+  <data name="Form.District" xml:space="preserve"><value>İlçe</value></data>
+  <data name="Form.Country" xml:space="preserve"><value>Ülke</value></data>
+  <data name="Form.PostalCode" xml:space="preserve"><value>Posta Kodu</value></data>
+  <data name="Form.Description" xml:space="preserve"><value>Açıklama</value></data>
+  <data name="Form.Notes" xml:space="preserve"><value>Notlar</value></data>
+  <data name="Form.Date" xml:space="preserve"><value>Tarih</value></data>
+  <data name="Form.StartDate" xml:space="preserve"><value>Başlangıç</value></data>
+  <data name="Form.EndDate" xml:space="preserve"><value>Bitiş</value></data>
+  <data name="Form.Amount" xml:space="preserve"><value>Tutar</value></data>
+  <data name="Form.Price" xml:space="preserve"><value>Fiyat</value></data>
+  <data name="Form.Quantity" xml:space="preserve"><value>Miktar</value></data>
+  <data name="Form.Currency" xml:space="preserve"><value>Para Birimi</value></data>
+  <data name="Form.Status" xml:space="preserve"><value>Durum</value></data>
+  <data name="Form.Type" xml:space="preserve"><value>Tip</value></data>
+  <data name="Form.Category" xml:space="preserve"><value>Kategori</value></data>
+  <data name="Form.Password" xml:space="preserve"><value>Şifre</value></data>
+  <data name="Form.ConfirmPassword" xml:space="preserve"><value>Şifre Tekrar</value></data>
+  <data name="Form.Username" xml:space="preserve"><value>Kullanıcı Adı</value></data>
+  <data name="Form.Role" xml:space="preserve"><value>Rol</value></data>
+  <data name="Form.Title" xml:space="preserve"><value>Başlık</value></data>
+  <data name="Form.Optional" xml:space="preserve"><value>İsteğe bağlı</value></data>
+  <data name="Form.Required" xml:space="preserve"><value>Zorunlu</value></data>
+  <data name="Form.Surname" xml:space="preserve"><value>Soyad</value></data>
+  <data name="Form.FullName" xml:space="preserve"><value>Ad Soyad</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ERROR — VALIDATION (~20 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Error.Required" xml:space="preserve"><value>Bu alan zorunludur</value></data>
+  <data name="Error.InvalidEmail" xml:space="preserve"><value>Geçersiz e-posta adresi</value></data>
+  <data name="Error.MinLength" xml:space="preserve"><value>En az {0} karakter olmalıdır</value></data>
+  <data name="Error.MaxLength" xml:space="preserve"><value>En fazla {0} karakter olabilir</value></data>
+  <data name="Error.InvalidPhone" xml:space="preserve"><value>Geçersiz telefon numarası</value></data>
+  <data name="Error.InvalidUrl" xml:space="preserve"><value>Geçersiz URL</value></data>
+  <data name="Error.PasswordMismatch" xml:space="preserve"><value>Şifreler eşleşmiyor</value></data>
+  <data name="Error.AlreadyExists" xml:space="preserve"><value>Bu kayıt zaten mevcut</value></data>
+  <data name="Error.NotFound" xml:space="preserve"><value>Kayıt bulunamadı</value></data>
+  <data name="Error.Unauthorized" xml:space="preserve"><value>Yetkisiz erişim</value></data>
+  <data name="Error.ServerError" xml:space="preserve"><value>Sunucu hatası</value></data>
+  <data name="Error.Timeout" xml:space="preserve"><value>İstek zaman aşımına uğradı</value></data>
+  <data name="Error.NetworkError" xml:space="preserve"><value>Ağ bağlantı hatası</value></data>
+  <data name="Error.InvalidFormat" xml:space="preserve"><value>Geçersiz format</value></data>
+  <data name="Error.MinValue" xml:space="preserve"><value>En az {0} olmalıdır</value></data>
+  <data name="Error.MaxValue" xml:space="preserve"><value>En fazla {0} olabilir</value></data>
+  <data name="Error.UniqueRequired" xml:space="preserve"><value>Bu değer benzersiz olmalıdır</value></data>
+  <data name="Error.FileTooBig" xml:space="preserve"><value>Dosya boyutu çok büyük</value></data>
+  <data name="Error.InvalidFileType" xml:space="preserve"><value>Geçersiz dosya türü</value></data>
+  <data name="Error.DateRange" xml:space="preserve"><value>Bitiş tarihi başlangıçtan sonra olmalıdır</value></data>
+  <data name="Error.Forbidden" xml:space="preserve"><value>Bu işlem için yetkiniz bulunmamaktadır</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONFIRM — DIALOGS (~10 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Confirm.Delete" xml:space="preserve"><value>Bu kaydı silmek istediğinizden emin misiniz?</value></data>
+  <data name="Confirm.Cancel" xml:space="preserve"><value>İptal etmek istediğinizden emin misiniz?</value></data>
+  <data name="Confirm.Approve" xml:space="preserve"><value>Onaylamak istediğinizden emin misiniz?</value></data>
+  <data name="Confirm.Logout" xml:space="preserve"><value>Çıkış yapmak istediğinizden emin misiniz?</value></data>
+  <data name="Confirm.Sync" xml:space="preserve"><value>Senkronizasyonu başlatmak istiyor musunuz?</value></data>
+  <data name="Confirm.UnsavedChanges" xml:space="preserve"><value>Kaydedilmemiş değişiklikler var. Sayfadan ayrılmak istiyor musunuz?</value></data>
+  <data name="Confirm.BulkDelete" xml:space="preserve"><value>Seçili {0} kaydı silmek istediğinizden emin misiniz?</value></data>
+  <data name="Confirm.Import" xml:space="preserve"><value>İçe aktarma işlemini başlatmak istiyor musunuz?</value></data>
+  <data name="Confirm.Overwrite" xml:space="preserve"><value>Mevcut verilerin üzerine yazılacak. Devam etmek istiyor musunuz?</value></data>
+  <data name="Confirm.Disconnect" xml:space="preserve"><value>Bağlantıyı kesmek istediğinizden emin misiniz?</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STATUS — ENTITY STATES (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Status.Active" xml:space="preserve"><value>Aktif</value></data>
+  <data name="Status.Passive" xml:space="preserve"><value>Pasif</value></data>
+  <data name="Status.Pending" xml:space="preserve"><value>Beklemede</value></data>
+  <data name="Status.Approved" xml:space="preserve"><value>Onaylandı</value></data>
+  <data name="Status.Rejected" xml:space="preserve"><value>Reddedildi</value></data>
+  <data name="Status.Shipped" xml:space="preserve"><value>Kargoya Verildi</value></data>
+  <data name="Status.Delivered" xml:space="preserve"><value>Teslim Edildi</value></data>
+  <data name="Status.Returned" xml:space="preserve"><value>İade Edildi</value></data>
+  <data name="Status.Cancelled" xml:space="preserve"><value>İptal Edildi</value></data>
+  <data name="Status.Draft" xml:space="preserve"><value>Taslak</value></data>
+  <data name="Status.Published" xml:space="preserve"><value>Yayında</value></data>
+  <data name="Status.Archived" xml:space="preserve"><value>Arşivlendi</value></data>
+  <data name="Status.InProgress" xml:space="preserve"><value>Devam Ediyor</value></data>
+  <data name="Status.Completed" xml:space="preserve"><value>Tamamlandı</value></data>
+  <data name="Status.Failed" xml:space="preserve"><value>Başarısız</value></data>
+  <data name="Status.PartiallyShipped" xml:space="preserve"><value>Kısmen Kargoya Verildi</value></data>
+  <data name="Status.PartiallyDelivered" xml:space="preserve"><value>Kısmen Teslim Edildi</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PRODUCTS (~25 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Products.Title" xml:space="preserve"><value>Ürün Listesi</value></data>
+  <data name="Products.AddNew" xml:space="preserve"><value>Yeni Ürün Ekle</value></data>
+  <data name="Products.Detail" xml:space="preserve"><value>Ürün Detayı</value></data>
+  <data name="Products.Name" xml:space="preserve"><value>Ürün Adı</value></data>
+  <data name="Products.SKU" xml:space="preserve"><value>Stok Kodu</value></data>
+  <data name="Products.Barcode" xml:space="preserve"><value>Barkod</value></data>
+  <data name="Products.Price" xml:space="preserve"><value>Fiyat</value></data>
+  <data name="Products.SalePrice" xml:space="preserve"><value>Satış Fiyatı</value></data>
+  <data name="Products.PurchasePrice" xml:space="preserve"><value>Alış Fiyatı</value></data>
+  <data name="Products.ListPrice" xml:space="preserve"><value>Liste Fiyatı</value></data>
+  <data name="Products.Stock" xml:space="preserve"><value>Stok</value></data>
+  <data name="Products.MinStock" xml:space="preserve"><value>Minimum Stok</value></data>
+  <data name="Products.Category" xml:space="preserve"><value>Kategori</value></data>
+  <data name="Products.Brand" xml:space="preserve"><value>Marka</value></data>
+  <data name="Products.Weight" xml:space="preserve"><value>Ağırlık</value></data>
+  <data name="Products.Dimensions" xml:space="preserve"><value>Boyutlar</value></data>
+  <data name="Products.Description" xml:space="preserve"><value>Açıklama</value></data>
+  <data name="Products.Images" xml:space="preserve"><value>Görseller</value></data>
+  <data name="Products.Variants" xml:space="preserve"><value>Varyantlar</value></data>
+  <data name="Products.Platforms" xml:space="preserve"><value>Platformlar</value></data>
+  <data name="Products.Status" xml:space="preserve"><value>Durum</value></data>
+  <data name="Products.Created" xml:space="preserve"><value>Oluşturma Tarihi</value></data>
+  <data name="Products.BulkImport" xml:space="preserve"><value>Toplu İçe Aktar</value></data>
+  <data name="Products.BulkExport" xml:space="preserve"><value>Toplu Dışa Aktar</value></data>
+  <data name="Products.BulkUpdate" xml:space="preserve"><value>Toplu Güncelle</value></data>
+  <data name="Products.Desi" xml:space="preserve"><value>Desi</value></data>
+  <data name="Products.VatRate" xml:space="preserve"><value>KDV Oranı</value></data>
+  <data name="Products.Currency" xml:space="preserve"><value>Para Birimi</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ORDERS (~25 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Orders.Title" xml:space="preserve"><value>Sipariş Listesi</value></data>
+  <data name="Orders.Detail" xml:space="preserve"><value>Sipariş Detayı</value></data>
+  <data name="Orders.OrderNumber" xml:space="preserve"><value>Sipariş No</value></data>
+  <data name="Orders.Customer" xml:space="preserve"><value>Müşteri</value></data>
+  <data name="Orders.Platform" xml:space="preserve"><value>Platform</value></data>
+  <data name="Orders.Date" xml:space="preserve"><value>Tarih</value></data>
+  <data name="Orders.Status" xml:space="preserve"><value>Durum</value></data>
+  <data name="Orders.Total" xml:space="preserve"><value>Toplam Tutar</value></data>
+  <data name="Orders.Items" xml:space="preserve"><value>Ürünler</value></data>
+  <data name="Orders.Shipping" xml:space="preserve"><value>Kargo Bilgisi</value></data>
+  <data name="Orders.Payment" xml:space="preserve"><value>Ödeme Bilgisi</value></data>
+  <data name="Orders.TrackingNumber" xml:space="preserve"><value>Takip No</value></data>
+  <data name="Orders.CargoFirm" xml:space="preserve"><value>Kargo Firması</value></data>
+  <data name="Orders.ShippedDate" xml:space="preserve"><value>Kargoya Veriliş</value></data>
+  <data name="Orders.DeliveryDate" xml:space="preserve"><value>Teslim Tarihi</value></data>
+  <data name="Orders.InvoiceStatus" xml:space="preserve"><value>Fatura Durumu</value></data>
+  <data name="Orders.Notes" xml:space="preserve"><value>Sipariş Notları</value></data>
+  <data name="Orders.Pending" xml:space="preserve"><value>Bekleyen</value></data>
+  <data name="Orders.Processing" xml:space="preserve"><value>İşleniyor</value></data>
+  <data name="Orders.Fulfilled" xml:space="preserve"><value>Tamamlanan</value></data>
+  <data name="Orders.Cancelled" xml:space="preserve"><value>İptal Edilen</value></data>
+  <data name="Orders.ReturnRequests" xml:space="preserve"><value>İade Talepleri</value></data>
+  <data name="Orders.Commission" xml:space="preserve"><value>Komisyon</value></data>
+  <data name="Orders.NetAmount" xml:space="preserve"><value>Net Tutar</value></data>
+  <data name="Orders.RefundAmount" xml:space="preserve"><value>İade Tutarı</value></data>
+  <data name="Orders.BuyerName" xml:space="preserve"><value>Alıcı Adı</value></data>
+  <data name="Orders.BuyerAddress" xml:space="preserve"><value>Alıcı Adresi</value></data>
+  <data name="Orders.Discount" xml:space="preserve"><value>İndirim</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       INVOICES (~20 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Invoices.Title" xml:space="preserve"><value>Fatura Listesi</value></data>
+  <data name="Invoices.AddNew" xml:space="preserve"><value>Yeni Fatura Oluştur</value></data>
+  <data name="Invoices.Detail" xml:space="preserve"><value>Fatura Detayı</value></data>
+  <data name="Invoices.Number" xml:space="preserve"><value>Fatura No</value></data>
+  <data name="Invoices.Date" xml:space="preserve"><value>Fatura Tarihi</value></data>
+  <data name="Invoices.DueDate" xml:space="preserve"><value>Vade Tarihi</value></data>
+  <data name="Invoices.Customer" xml:space="preserve"><value>Müşteri</value></data>
+  <data name="Invoices.Subtotal" xml:space="preserve"><value>Ara Toplam</value></data>
+  <data name="Invoices.Tax" xml:space="preserve"><value>KDV</value></data>
+  <data name="Invoices.TaxRate" xml:space="preserve"><value>KDV Oranı</value></data>
+  <data name="Invoices.Total" xml:space="preserve"><value>Genel Toplam</value></data>
+  <data name="Invoices.Status" xml:space="preserve"><value>Durum</value></data>
+  <data name="Invoices.Type" xml:space="preserve"><value>Fatura Tipi</value></data>
+  <data name="Invoices.Sales" xml:space="preserve"><value>Satış Faturası</value></data>
+  <data name="Invoices.Purchase" xml:space="preserve"><value>Alış Faturası</value></data>
+  <data name="Invoices.EInvoice" xml:space="preserve"><value>E-Fatura</value></data>
+  <data name="Invoices.EArchive" xml:space="preserve"><value>E-Arşiv</value></data>
+  <data name="Invoices.Preview" xml:space="preserve"><value>Önizleme</value></data>
+  <data name="Invoices.SendToCustomer" xml:space="preserve"><value>Müşteriye Gönder</value></data>
+  <data name="Invoices.Paid" xml:space="preserve"><value>Ödendi</value></data>
+  <data name="Invoices.Unpaid" xml:space="preserve"><value>Ödenmedi</value></data>
+  <data name="Invoices.Overdue" xml:space="preserve"><value>Vadesi Geçmiş</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SHIPPING (~20 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Shipping.Title" xml:space="preserve"><value>Kargo Yönetimi</value></data>
+  <data name="Shipping.Carrier" xml:space="preserve"><value>Kargo Firması</value></data>
+  <data name="Shipping.TrackingNumber" xml:space="preserve"><value>Takip Numarası</value></data>
+  <data name="Shipping.Status" xml:space="preserve"><value>Kargo Durumu</value></data>
+  <data name="Shipping.Weight" xml:space="preserve"><value>Ağırlık</value></data>
+  <data name="Shipping.Desi" xml:space="preserve"><value>Desi</value></data>
+  <data name="Shipping.Cost" xml:space="preserve"><value>Kargo Ücreti</value></data>
+  <data name="Shipping.ShipDate" xml:space="preserve"><value>Gönderim Tarihi</value></data>
+  <data name="Shipping.DeliveryDate" xml:space="preserve"><value>Teslim Tarihi</value></data>
+  <data name="Shipping.EstimatedDelivery" xml:space="preserve"><value>Tahmini Teslim</value></data>
+  <data name="Shipping.Address" xml:space="preserve"><value>Teslimat Adresi</value></data>
+  <data name="Shipping.ReceiverName" xml:space="preserve"><value>Alıcı Adı</value></data>
+  <data name="Shipping.ReceiverPhone" xml:space="preserve"><value>Alıcı Telefon</value></data>
+  <data name="Shipping.BulkShip" xml:space="preserve"><value>Toplu Kargo Gönder</value></data>
+  <data name="Shipping.PrintLabel" xml:space="preserve"><value>Etiket Yazdır</value></data>
+  <data name="Shipping.Yurtici" xml:space="preserve"><value>Yurtiçi Kargo</value></data>
+  <data name="Shipping.Aras" xml:space="preserve"><value>Aras Kargo</value></data>
+  <data name="Shipping.Surat" xml:space="preserve"><value>Sürat Kargo</value></data>
+  <data name="Shipping.CreateShipment" xml:space="preserve"><value>Gönderi Oluştur</value></data>
+  <data name="Shipping.CancelShipment" xml:space="preserve"><value>Gönderiyi İptal Et</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STOCK (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Stock.Title" xml:space="preserve"><value>Stok Yönetimi</value></data>
+  <data name="Stock.Current" xml:space="preserve"><value>Mevcut Stok</value></data>
+  <data name="Stock.Available" xml:space="preserve"><value>Kullanılabilir</value></data>
+  <data name="Stock.Reserved" xml:space="preserve"><value>Rezerve</value></data>
+  <data name="Stock.Minimum" xml:space="preserve"><value>Minimum Stok</value></data>
+  <data name="Stock.Maximum" xml:space="preserve"><value>Maksimum Stok</value></data>
+  <data name="Stock.Movement" xml:space="preserve"><value>Stok Hareketi</value></data>
+  <data name="Stock.In" xml:space="preserve"><value>Giriş</value></data>
+  <data name="Stock.Out" xml:space="preserve"><value>Çıkış</value></data>
+  <data name="Stock.Warehouse" xml:space="preserve"><value>Depo</value></data>
+  <data name="Stock.Location" xml:space="preserve"><value>Raf Konumu</value></data>
+  <data name="Stock.LowStock" xml:space="preserve"><value>Düşük Stok</value></data>
+  <data name="Stock.OutOfStock" xml:space="preserve"><value>Stokta Yok</value></data>
+  <data name="Stock.Adjustment" xml:space="preserve"><value>Stok Düzeltme</value></data>
+  <data name="Stock.Transfer" xml:space="preserve"><value>Depo Transferi</value></data>
+  <data name="Stock.Count" xml:space="preserve"><value>Sayım</value></data>
+  <data name="Stock.History" xml:space="preserve"><value>Stok Geçmişi</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ACCOUNTING (~20 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Accounting.Title" xml:space="preserve"><value>Muhasebe</value></data>
+  <data name="Accounting.Revenue" xml:space="preserve"><value>Gelir</value></data>
+  <data name="Accounting.Expense" xml:space="preserve"><value>Gider</value></data>
+  <data name="Accounting.Profit" xml:space="preserve"><value>Kar</value></data>
+  <data name="Accounting.Loss" xml:space="preserve"><value>Zarar</value></data>
+  <data name="Accounting.NetProfit" xml:space="preserve"><value>Net Kar</value></data>
+  <data name="Accounting.GrossProfit" xml:space="preserve"><value>Brüt Kar</value></data>
+  <data name="Accounting.TrialBalance" xml:space="preserve"><value>Mizan</value></data>
+  <data name="Accounting.BalanceSheet" xml:space="preserve"><value>Bilanço</value></data>
+  <data name="Accounting.IncomeStatement" xml:space="preserve"><value>Gelir Tablosu</value></data>
+  <data name="Accounting.COGS" xml:space="preserve"><value>Satılan Malın Maliyeti</value></data>
+  <data name="Accounting.Commission" xml:space="preserve"><value>Komisyon</value></data>
+  <data name="Accounting.Tax" xml:space="preserve"><value>Vergi</value></data>
+  <data name="Accounting.VAT" xml:space="preserve"><value>KDV</value></data>
+  <data name="Accounting.Reconciliation" xml:space="preserve"><value>Mutabakat</value></data>
+  <data name="Accounting.FIFO" xml:space="preserve"><value>FIFO Maliyet</value></data>
+  <data name="Accounting.Period" xml:space="preserve"><value>Dönem</value></data>
+  <data name="Accounting.FiscalYear" xml:space="preserve"><value>Mali Yıl</value></data>
+  <data name="Accounting.Account" xml:space="preserve"><value>Hesap</value></data>
+  <data name="Accounting.Debit" xml:space="preserve"><value>Borç</value></data>
+  <data name="Accounting.Credit" xml:space="preserve"><value>Alacak</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SETTINGS (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Settings.Title" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="Settings.General" xml:space="preserve"><value>Genel Ayarlar</value></data>
+  <data name="Settings.Company" xml:space="preserve"><value>Firma Bilgileri</value></data>
+  <data name="Settings.Users" xml:space="preserve"><value>Kullanıcı Yönetimi</value></data>
+  <data name="Settings.Roles" xml:space="preserve"><value>Rol Yönetimi</value></data>
+  <data name="Settings.Notifications" xml:space="preserve"><value>Bildirim Ayarları</value></data>
+  <data name="Settings.Integration" xml:space="preserve"><value>Entegrasyon Ayarları</value></data>
+  <data name="Settings.Api" xml:space="preserve"><value>API Ayarları</value></data>
+  <data name="Settings.Theme" xml:space="preserve"><value>Tema</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Dil</value></data>
+  <data name="Settings.Timezone" xml:space="preserve"><value>Saat Dilimi</value></data>
+  <data name="Settings.Currency" xml:space="preserve"><value>Para Birimi</value></data>
+  <data name="Settings.Backup" xml:space="preserve"><value>Yedekleme</value></data>
+  <data name="Settings.Security" xml:space="preserve"><value>Güvenlik</value></data>
+  <data name="Settings.Audit" xml:space="preserve"><value>Denetim Kayıtları</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PLATFORM (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Platform.Title" xml:space="preserve"><value>Platform Yönetimi</value></data>
+  <data name="Platform.Trendyol" xml:space="preserve"><value>Trendyol</value></data>
+  <data name="Platform.Hepsiburada" xml:space="preserve"><value>Hepsiburada</value></data>
+  <data name="Platform.N11" xml:space="preserve"><value>N11</value></data>
+  <data name="Platform.Amazon" xml:space="preserve"><value>Amazon</value></data>
+  <data name="Platform.eBay" xml:space="preserve"><value>eBay</value></data>
+  <data name="Platform.Shopify" xml:space="preserve"><value>Shopify</value></data>
+  <data name="Platform.WooCommerce" xml:space="preserve"><value>WooCommerce</value></data>
+  <data name="Platform.OpenCart" xml:space="preserve"><value>OpenCart</value></data>
+  <data name="Platform.Connected" xml:space="preserve"><value>Bağlı</value></data>
+  <data name="Platform.Disconnected" xml:space="preserve"><value>Bağlı Değil</value></data>
+  <data name="Platform.LastSync" xml:space="preserve"><value>Son Senkronizasyon</value></data>
+  <data name="Platform.ApiKey" xml:space="preserve"><value>API Anahtarı</value></data>
+  <data name="Platform.ApiSecret" xml:space="preserve"><value>API Gizli Anahtar</value></data>
+  <data name="Platform.SellerId" xml:space="preserve"><value>Satıcı Kimliği</value></data>
+  <data name="Platform.StoreUrl" xml:space="preserve"><value>Mağaza URL</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       REPORT (~12 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Report.Title" xml:space="preserve"><value>Raporlar</value></data>
+  <data name="Report.Sales" xml:space="preserve"><value>Satış Raporu</value></data>
+  <data name="Report.Revenue" xml:space="preserve"><value>Gelir Raporu</value></data>
+  <data name="Report.Stock" xml:space="preserve"><value>Stok Raporu</value></data>
+  <data name="Report.Orders" xml:space="preserve"><value>Sipariş Raporu</value></data>
+  <data name="Report.Platform" xml:space="preserve"><value>Platform Raporu</value></data>
+  <data name="Report.Commission" xml:space="preserve"><value>Komisyon Raporu</value></data>
+  <data name="Report.DateRange" xml:space="preserve"><value>Tarih Aralığı</value></data>
+  <data name="Report.Generate" xml:space="preserve"><value>Rapor Oluştur</value></data>
+  <data name="Report.ExportPdf" xml:space="preserve"><value>PDF Olarak İndir</value></data>
+  <data name="Report.ExportExcel" xml:space="preserve"><value>Excel Olarak İndir</value></data>
+  <data name="Report.Summary" xml:space="preserve"><value>Özet</value></data>
+  <data name="Report.Detailed" xml:space="preserve"><value>Detaylı</value></data>
+  <data name="Report.Comparison" xml:space="preserve"><value>Karşılaştırma</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DASHBOARD (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Dashboard.Title" xml:space="preserve"><value>Gösterge Paneli</value></data>
+  <data name="Dashboard.TotalSales" xml:space="preserve"><value>Toplam Satış</value></data>
+  <data name="Dashboard.TotalOrders" xml:space="preserve"><value>Toplam Sipariş</value></data>
+  <data name="Dashboard.TotalProducts" xml:space="preserve"><value>Toplam Ürün</value></data>
+  <data name="Dashboard.TotalRevenue" xml:space="preserve"><value>Toplam Gelir</value></data>
+  <data name="Dashboard.TodayOrders" xml:space="preserve"><value>Bugünkü Siparişler</value></data>
+  <data name="Dashboard.PendingOrders" xml:space="preserve"><value>Bekleyen Siparişler</value></data>
+  <data name="Dashboard.LowStockItems" xml:space="preserve"><value>Düşük Stoklu Ürünler</value></data>
+  <data name="Dashboard.RecentOrders" xml:space="preserve"><value>Son Siparişler</value></data>
+  <data name="Dashboard.TopProducts" xml:space="preserve"><value>En Çok Satan Ürünler</value></data>
+  <data name="Dashboard.SalesChart" xml:space="preserve"><value>Satış Grafiği</value></data>
+  <data name="Dashboard.PlatformDistribution" xml:space="preserve"><value>Platform Dağılımı</value></data>
+  <data name="Dashboard.MonthlyComparison" xml:space="preserve"><value>Aylık Karşılaştırma</value></data>
+  <data name="Dashboard.Welcome" xml:space="preserve"><value>Hoş Geldiniz</value></data>
+  <data name="Dashboard.QuickActions" xml:space="preserve"><value>Hızlı İşlemler</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CRM (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Crm.Title" xml:space="preserve"><value>Müşteri İlişkileri</value></data>
+  <data name="Crm.Customers" xml:space="preserve"><value>Müşteriler</value></data>
+  <data name="Crm.AddCustomer" xml:space="preserve"><value>Yeni Müşteri Ekle</value></data>
+  <data name="Crm.CustomerDetail" xml:space="preserve"><value>Müşteri Detayı</value></data>
+  <data name="Crm.TotalOrders" xml:space="preserve"><value>Toplam Sipariş</value></data>
+  <data name="Crm.TotalSpent" xml:space="preserve"><value>Toplam Harcama</value></data>
+  <data name="Crm.LastOrder" xml:space="preserve"><value>Son Sipariş</value></data>
+  <data name="Crm.OrderHistory" xml:space="preserve"><value>Sipariş Geçmişi</value></data>
+  <data name="Crm.Notes" xml:space="preserve"><value>Müşteri Notları</value></data>
+  <data name="Crm.Tags" xml:space="preserve"><value>Etiketler</value></data>
+  <data name="Crm.Segment" xml:space="preserve"><value>Segment</value></data>
+  <data name="Crm.VIP" xml:space="preserve"><value>VIP Müşteri</value></data>
+  <data name="Crm.Regular" xml:space="preserve"><value>Normal Müşteri</value></data>
+  <data name="Crm.NewCustomer" xml:space="preserve"><value>Yeni Müşteri</value></data>
+  <data name="Crm.Communication" xml:space="preserve"><value>İletişim</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DROPSHIPPING (~10 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Dropshipping.Title" xml:space="preserve"><value>Dropshipping Yönetimi</value></data>
+  <data name="Dropshipping.Suppliers" xml:space="preserve"><value>Tedarikçiler</value></data>
+  <data name="Dropshipping.AddSupplier" xml:space="preserve"><value>Tedarikçi Ekle</value></data>
+  <data name="Dropshipping.Products" xml:space="preserve"><value>Ürünler</value></data>
+  <data name="Dropshipping.Margin" xml:space="preserve"><value>Kar Marjı</value></data>
+  <data name="Dropshipping.AutoSync" xml:space="preserve"><value>Otomatik Senkronizasyon</value></data>
+  <data name="Dropshipping.PriceRule" xml:space="preserve"><value>Fiyat Kuralı</value></data>
+  <data name="Dropshipping.StockSync" xml:space="preserve"><value>Stok Senkronizasyonu</value></data>
+  <data name="Dropshipping.Mapping" xml:space="preserve"><value>Ürün Eşleştirme</value></data>
+  <data name="Dropshipping.Feed" xml:space="preserve"><value>Ürün Beslemesi</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       AUTH (~10 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Auth.Login" xml:space="preserve"><value>Giriş Yap</value></data>
+  <data name="Auth.Logout" xml:space="preserve"><value>Çıkış Yap</value></data>
+  <data name="Auth.Register" xml:space="preserve"><value>Kayıt Ol</value></data>
+  <data name="Auth.ForgotPassword" xml:space="preserve"><value>Şifremi Unuttum</value></data>
+  <data name="Auth.ResetPassword" xml:space="preserve"><value>Şifre Sıfırla</value></data>
+  <data name="Auth.ChangePassword" xml:space="preserve"><value>Şifre Değiştir</value></data>
+  <data name="Auth.RememberMe" xml:space="preserve"><value>Beni Hatırla</value></data>
+  <data name="Auth.LoginFailed" xml:space="preserve"><value>Kullanıcı adı veya şifre hatalı</value></data>
+  <data name="Auth.SessionExpired" xml:space="preserve"><value>Oturumunuz sona erdi. Lütfen tekrar giriş yapın.</value></data>
+  <data name="Auth.Welcome" xml:space="preserve"><value>Hoş Geldiniz</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       LANGUAGE (~5 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Language.Turkish" xml:space="preserve"><value>Türkçe</value></data>
+  <data name="Language.English" xml:space="preserve"><value>İngilizce</value></data>
+  <data name="Language.Arabic" xml:space="preserve"><value>Arapça</value></data>
+  <data name="Language.German" xml:space="preserve"><value>Almanca</value></data>
+  <data name="Language.Select" xml:space="preserve"><value>Dil Seçin</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NOTIFICATION (~8 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Notification.Title" xml:space="preserve"><value>Bildirimler</value></data>
+  <data name="Notification.MarkAllRead" xml:space="preserve"><value>Tümünü Okundu İşaretle</value></data>
+  <data name="Notification.NoNew" xml:space="preserve"><value>Yeni bildirim yok</value></data>
+  <data name="Notification.NewOrder" xml:space="preserve"><value>Yeni sipariş alındı</value></data>
+  <data name="Notification.LowStock" xml:space="preserve"><value>Stok uyarısı</value></data>
+  <data name="Notification.SyncComplete" xml:space="preserve"><value>Senkronizasyon tamamlandı</value></data>
+  <data name="Notification.Error" xml:space="preserve"><value>Hata bildirimi</value></data>
+  <data name="Notification.Settings" xml:space="preserve"><value>Bildirim Ayarları</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MISC / APP-WIDE (~10 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="App.Title" xml:space="preserve"><value>MesTech Kurumsal Yönetim</value></data>
+  <data name="App.Subtitle" xml:space="preserve"><value>E-Ticaret Yönetim Platformu</value></data>
+  <data name="App.Version" xml:space="preserve"><value>Sürüm</value></data>
+  <data name="App.Copyright" xml:space="preserve"><value>Tüm hakları saklıdır</value></data>
+  <data name="App.SkipToContent" xml:space="preserve"><value>Ana içeriğe atla</value></data>
+  <data name="App.MenuToggle" xml:space="preserve"><value>Menü aç/kapat</value></data>
+  <data name="App.UnexpectedError" xml:space="preserve"><value>Beklenmeyen bir hata oluştu</value></data>
+  <data name="App.TryAgain" xml:space="preserve"><value>Tekrar Dene</value></data>
+  <data name="App.Manager" xml:space="preserve"><value>Yönetici</value></data>
+  <data name="App.DemoUser" xml:space="preserve"><value>Demo Kullanıcı</value></data>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ONBOARDING — WIZARD (~15 keys)
+       ═══════════════════════════════════════════════════════════════ -->
+  <data name="Onboarding.StepOf" xml:space="preserve"><value>Adım {0} / {1}</value></data>
+  <data name="Onboarding.WelcomeDescription" xml:space="preserve"><value>Hızlı kurulum ile birkaç dakikada başlayın.</value></data>
+  <data name="Onboarding.CompanyDescription" xml:space="preserve"><value>Şirketinizin temel bilgilerini girin.</value></data>
+  <data name="Onboarding.MarketplaceDescription" xml:space="preserve"><value>Ürünlerinizi senkronize etmek için bir pazaryeri bağlayın.</value></data>
+  <data name="Onboarding.FirstProductDescription" xml:space="preserve"><value>İlk ürününüzü ekleyerek başlayın.</value></data>
+  <data name="Onboarding.StockSettingsDescription" xml:space="preserve"><value>Stok eşik değerlerini ve uyarı tercihlerini ayarlayın.</value></data>
+  <data name="Onboarding.NotificationDescription" xml:space="preserve"><value>Bildirim kanallarınızı ve tercihlerinizi belirleyin.</value></data>
+  <data name="Onboarding.NotificationChannels" xml:space="preserve"><value>Bildirim Kanalları</value></data>
+  <data name="Onboarding.NotificationTypes" xml:space="preserve"><value>Bildirim Türleri</value></data>
+  <data name="Onboarding.EmailNotifications" xml:space="preserve"><value>E-posta Bildirimleri</value></data>
+  <data name="Onboarding.SmsNotifications" xml:space="preserve"><value>SMS Bildirimleri</value></data>
+  <data name="Onboarding.PushNotifications" xml:space="preserve"><value>Push Bildirimleri</value></data>
+  <data name="Onboarding.AutoReorder" xml:space="preserve"><value>Otomatik yeniden sipariş ver</value></data>
+  <data name="Onboarding.Skip" xml:space="preserve"><value>Atla</value></data>
+  <data name="Onboarding.Completed" xml:space="preserve"><value>Kurulum Tamamlandı!</value></data>
+  <data name="Onboarding.CompletedDescription" xml:space="preserve"><value>MesTech kullanıma hazır. İyi satışlar!</value></data>
+  <data name="Onboarding.SetupSummary" xml:space="preserve"><value>Kurulum Özeti</value></data>
+
+</root>
