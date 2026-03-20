@@ -237,6 +237,7 @@ public class AppDbContext : DbContext
     // DALGA 11 — ERP ENTEGRASYONU
     // ═══════════════════════════════════════
     public DbSet<ErpSyncLog> ErpSyncLogs => Set<ErpSyncLog>();
+    public DbSet<ErpConflictLog> ErpConflictLogs => Set<ErpConflictLog>();
 
     // ═══════════════════════════════════════
     // DALGA 14 — MUHASEBE SABİT KIYMET + Ba/Bs

@@ -65,6 +65,9 @@ public static class HangfireConfig
         // Dalga 10 — SocialFeedRefreshJob (registered via IntegrationServiceRegistration — Scoped)
         // No AddScoped here; it is already registered in IntegrationServiceRegistration.
 
+        // I-11 GOREV 3 — Zamanlanmis rapor uretimi job
+        services.AddScoped<ScheduledReportGenerationJob>();
+
         return services;
     }
 
@@ -227,6 +230,26 @@ public static class HangfireConfig
             "erp-account-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Daily(3));
+
+        // === I-11 GOREV 3 — Zamanlanmis Rapor Uretimi ===
+
+        // Her gun 06:00 — gunluk satis raporu
+        RecurringJob.AddOrUpdate<ScheduledReportGenerationJob>(
+            "scheduled-report-daily-sales",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(6));
+
+        // Her Pazartesi 08:00 — haftalik performans raporu
+        RecurringJob.AddOrUpdate<ScheduledReportGenerationJob>(
+            "scheduled-report-weekly-performance",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 8 * * 1");
+
+        // Her ayin 1'i 06:00 — aylik finansal rapor
+        RecurringJob.AddOrUpdate<ScheduledReportGenerationJob>(
+            "scheduled-report-monthly-financial",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 6 1 * *");
 
         // === Dalga 10 — Sosyal Ticaret Feed Yenileme ===
 

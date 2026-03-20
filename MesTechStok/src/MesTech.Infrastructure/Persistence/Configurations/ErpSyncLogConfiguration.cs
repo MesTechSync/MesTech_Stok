@@ -20,6 +20,8 @@ public class ErpSyncLogConfiguration : IEntityTypeConfiguration<ErpSyncLog>
         builder.Property(x => x.EntityType).IsRequired().HasMaxLength(100);
         builder.Property(x => x.ErpRef).HasMaxLength(200);
         builder.Property(x => x.ErrorMessage).HasMaxLength(2000);
+        builder.Property(e => e.ErrorDetails).HasColumnType("text");
+        builder.Property(e => e.TriggeredBy).HasMaxLength(50).HasDefaultValue("Manual");
 
         // Provider enum -> string donusumu (okunabilirlik)
         builder.Property(x => x.Provider)

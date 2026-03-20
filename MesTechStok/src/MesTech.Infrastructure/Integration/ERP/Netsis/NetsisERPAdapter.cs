@@ -26,7 +26,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Netsis;
 ///   - GET  /cariler      (account balances)
 ///   - GET  /ping         (health check)
 /// </summary>
-public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable
+public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable, IErpBankCapable
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
@@ -922,6 +922,110 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
             return null;
+        }
+#pragma warning restore CA1031
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpBankCapable — Dalga 15: Netsis banka yetkinligi
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<List<ErpBankTransaction>> GetTransactionsAsync(DateTime from, DateTime to, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[NetsisERPAdapter] GetTransactionsAsync — From:{From} To:{To}", from, to);
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return empty on error
+        try
+        {
+            SetBasicAuthHeader();
+
+            var fromStr = from.ToString("yyyy-MM-dd");
+            var toStr = to.ToString("yyyy-MM-dd");
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/bankTransaction?startDate={fromStr}&endDate={toStr}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("[NetsisERPAdapter] GetTransactions — HTTP {Status}", (int)response.StatusCode);
+                return [];
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            var json = JsonDocument.Parse(body);
+            var transactions = new List<ErpBankTransaction>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var date = item.TryGetProperty("tarih", out var t) && DateTime.TryParse(t.GetString(), out var dt)
+                    ? dt : DateTime.Today;
+                var amount = item.TryGetProperty("tutar", out var a) ? a.GetDecimal() : 0m;
+                var description = item.TryGetProperty("aciklama", out var d) ? d.GetString() ?? string.Empty : string.Empty;
+                var transactionType = item.TryGetProperty("hareketTip", out var ht) ? ht.GetString() ?? string.Empty : string.Empty;
+                var reference = item.TryGetProperty("referans", out var r) ? r.GetString() : null;
+
+                transactions.Add(new ErpBankTransaction(date, amount, description, transactionType, reference));
+            }
+
+            _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} bank transactions", transactions.Count);
+            return transactions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NetsisERPAdapter] GetTransactionsAsync exception");
+            return [];
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <inheritdoc />
+    public async Task<ErpPaymentResult> RecordPaymentAsync(ErpPaymentRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[NetsisERPAdapter] RecordPaymentAsync — Account:{Account} Amount:{Amount}",
+            request.AccountCode, request.Amount);
+
+#pragma warning disable CA1031 // Intentional: ERP failure must be returned, not propagated
+        try
+        {
+            SetBasicAuthHeader();
+
+            var netsisPayment = new
+            {
+                cariKod = request.AccountCode,
+                tutar = (double)request.Amount,
+                odemeTip = request.PaymentType,
+                vadeTarih = request.DueDate?.ToString("dd.MM.yyyy"),
+                aciklama = request.Description
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(netsisPayment, JsonOptions),
+                Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct);
+                var json = JsonDocument.Parse(body).RootElement;
+
+                var reference = json.TryGetProperty("referans", out var r)
+                    ? r.GetString() ?? string.Empty : string.Empty;
+
+                _logger.LogInformation("[NetsisERPAdapter] Payment recorded — Reference:{Reference}", reference);
+                return ErpPaymentResult.Ok(reference);
+            }
+
+            var err = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("[NetsisERPAdapter] RecordPayment failed — HTTP {Status}: {Error}",
+                (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
+            return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NetsisERPAdapter] RecordPaymentAsync exception");
+            return ErpPaymentResult.Failed(ex.Message);
         }
 #pragma warning restore CA1031
     }

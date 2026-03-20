@@ -1,4 +1,9 @@
 using MassTransit;
+using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Accounting.Enums;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
@@ -6,25 +11,83 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 
 /// <summary>
 /// MESA AI ERP uzlastirmasi tamamladi — uyusmazliklar raporlanir.
-/// Dalga 9: Handler logic Sprint D'de eklenecek — simdilik log.
+/// Her mismatch icin NeedsReview statulu ReconciliationMatch olusturur.
 /// </summary>
 public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDoneIntegrationEvent>
 {
+    private readonly IReconciliationMatchRepository _matchRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMesaEventMonitor _monitor;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<AiErpReconciliationDoneConsumer> _logger;
 
-    public AiErpReconciliationDoneConsumer(ILogger<AiErpReconciliationDoneConsumer> logger)
+    public AiErpReconciliationDoneConsumer(
+        IReconciliationMatchRepository matchRepository,
+        IUnitOfWork unitOfWork,
+        IMesaEventMonitor monitor,
+        ITenantProvider tenantProvider,
+        ILogger<AiErpReconciliationDoneConsumer> logger)
     {
+        _matchRepository = matchRepository;
+        _unitOfWork = unitOfWork;
+        _monitor = monitor;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<AiErpReconciliationDoneIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<AiErpReconciliationDoneIntegrationEvent> context)
     {
         var msg = context.Message;
+        var tenantId = msg.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            tenantId = _tenantProvider.GetCurrentTenantId();
+            _logger.LogWarning(
+                "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
         _logger.LogInformation(
             "[MESA Consumer] AI ERP uzlastirma tamamlandi: ErpProvider={ErpProvider}, " +
             "ReconciledCount={ReconciledCount}, MismatchCount={MismatchCount}, TenantId={TenantId}",
-            msg.ErpProvider, msg.ReconciledCount, msg.MismatchCount, msg.TenantId);
-        // Handler logic Sprint D'de eklenecek — simdilik log
-        return Task.CompletedTask;
+            msg.ErpProvider, msg.ReconciledCount, msg.MismatchCount, tenantId);
+
+        try
+        {
+            // Create a NeedsReview ReconciliationMatch for each mismatch reported by AI
+            for (var i = 0; i < msg.MismatchCount; i++)
+            {
+                var match = ReconciliationMatch.Create(
+                    tenantId: tenantId,
+                    matchDate: DateTime.UtcNow,
+                    confidence: 0.0m, // AI ERP mismatch — no confidence, needs human review
+                    status: ReconciliationStatus.NeedsReview);
+
+                await _matchRepository.AddAsync(match);
+
+                _logger.LogDebug(
+                    "[MESA Consumer] ERP mismatch ReconciliationMatch olusturuldu: " +
+                    "MatchId={MatchId}, ErpProvider={ErpProvider}, Index={Index}",
+                    match.Id, msg.ErpProvider, i + 1);
+            }
+
+            if (msg.MismatchCount > 0)
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            _logger.LogInformation(
+                "[MESA Consumer] AI ERP uzlastirma islendi: " +
+                "ErpProvider={ErpProvider}, OlusturulanMismatch={MismatchCount}, Reconciled={ReconciledCount}",
+                msg.ErpProvider, msg.MismatchCount, msg.ReconciledCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "[MESA Consumer] AI ERP uzlastirma islenirken hata: ErpProvider={ErpProvider}",
+                msg.ErpProvider);
+            throw; // MassTransit retry policy
+        }
+
+        _monitor.RecordConsume("ai.erp.reconciliation.done");
     }
 }

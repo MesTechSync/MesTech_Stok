@@ -1,4 +1,5 @@
 using MassTransit;
+using MesTech.Infrastructure.Messaging.Filters;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
@@ -43,6 +44,9 @@ public static class MassTransitConfig
             bus.AddConsumer<AiDocumentExtractedConsumer>();
             bus.AddConsumer<AiReconciliationSuggestedConsumer>();
             bus.AddConsumer<AiAdvisoryRecommendationConsumer>();
+
+            // Bildirim Consumer (İ-13: kayıt eksik düzeltildi)
+            bus.AddConsumer<NotificationSentConsumer>();
 
             // Dalga 9 — On Muhasebe & E-Fatura MESA Consumers
             bus.AddConsumer<AiEInvoiceDraftGeneratedConsumer>();
@@ -151,9 +155,25 @@ public static class MassTransitConfig
                 cfg.Message<BotEFaturaRequestedIntegrationEvent>(x =>
                     x.SetEntityName("mesa.bot.efatura.requested.v1"));
 
+                // İ-13: Idempotency filter — tüm consumer'lara otomatik uygulanır
+                cfg.UseConsumeFilter(typeof(IdempotencyFilter<>), context);
+
+                // İ-13: Event version header — tüm outbound mesajlara uygulanır
+                cfg.UsePublishFilter(typeof(EventVersionPublishFilter<>), context);
+
                 cfg.ConfigureEndpoints(context);
             });
         });
+
+        // İ-13: Idempotency store DI kaydı
+        services.AddSingleton<IProcessedMessageStore, InMemoryProcessedMessageStore>();
+
+        // İ-13: DLQ servisleri
+        services.AddScoped<DlqMonitorService>();
+        services.AddScoped<DlqReprocessService>();
+
+        // İ-13: MESA event broadcast (SignalR)
+        services.AddSingleton<MesaEventBroadcastService>();
 
         return services;
     }

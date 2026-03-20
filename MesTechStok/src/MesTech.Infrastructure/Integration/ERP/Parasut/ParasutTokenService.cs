@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using MesTech.Infrastructure.Monitoring;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -24,6 +25,7 @@ public sealed class ParasutTokenService
 
     private const string CacheKey = "Parasut:AccessToken";
     private static readonly TimeSpan TokenTtl = TimeSpan.FromMinutes(50); // 1h token, 10min buffer
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     public ParasutTokenService(
         HttpClient httpClient,
@@ -59,49 +61,68 @@ public sealed class ParasutTokenService
     /// </summary>
     public async Task<string> GetAccessTokenAsync(CancellationToken ct = default)
     {
+        // Fast path: return cached token without lock
         if (_cache.TryGetValue(CacheKey, out string? cachedToken) && !string.IsNullOrEmpty(cachedToken))
         {
             return cachedToken;
         }
 
-        _logger.LogInformation("[ParasutTokenService] Requesting new OAuth2 token");
-
-        var formData = new Dictionary<string, string>
+        // Double-check locking: only one thread fetches a new token
+        await _tokenLock.WaitAsync(ct);
+        try
         {
-            ["grant_type"] = "client_credentials",
-            ["client_id"] = _clientId,
-            ["client_secret"] = _clientSecret
-        };
+            // Re-check after acquiring lock — another thread may have already fetched
+            if (_cache.TryGetValue(CacheKey, out cachedToken) && !string.IsNullOrEmpty(cachedToken))
+            {
+                return cachedToken;
+            }
 
-        var content = new FormUrlEncodedContent(formData);
-        var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct);
+            _logger.LogInformation("[ParasutTokenService] Requesting new OAuth2 token");
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogError(
-                "[ParasutTokenService] Token request failed: {Status} — {Error}",
-                response.StatusCode, errorBody);
-            throw new HttpRequestException(
-                $"Parasut OAuth2 token request failed: {response.StatusCode} — {errorBody}");
+            var formData = new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["client_id"] = _clientId,
+                ["client_secret"] = _clientSecret
+            };
+
+            var content = new FormUrlEncodedContent(formData);
+            var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError(
+                    "[ParasutTokenService] Token request failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                ErpMetrics.AuthRefreshTotal.WithLabels("parasut", "error").Inc();
+                throw new HttpRequestException(
+                    $"Parasut OAuth2 token request failed: {response.StatusCode} — {errorBody}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct);
+            var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json);
+
+            if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+            {
+                ErpMetrics.AuthRefreshTotal.WithLabels("parasut", "error").Inc();
+                throw new InvalidOperationException("Parasut OAuth2 token response was empty or invalid");
+            }
+
+            // Cache with 50-minute TTL (10-minute buffer before actual 1h expiry)
+            _cache.Set(CacheKey, tokenResponse.AccessToken, TokenTtl);
+            ErpMetrics.AuthRefreshTotal.WithLabels("parasut", "success").Inc();
+
+            _logger.LogInformation(
+                "[ParasutTokenService] Token acquired, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
+                tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
+
+            return tokenResponse.AccessToken;
         }
-
-        var json = await response.Content.ReadAsStringAsync(ct);
-        var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json);
-
-        if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        finally
         {
-            throw new InvalidOperationException("Parasut OAuth2 token response was empty or invalid");
+            _tokenLock.Release();
         }
-
-        // Cache with 50-minute TTL (10-minute buffer before actual 1h expiry)
-        _cache.Set(CacheKey, tokenResponse.AccessToken, TokenTtl);
-
-        _logger.LogInformation(
-            "[ParasutTokenService] Token acquired, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
-            tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
-
-        return tokenResponse.AccessToken;
     }
 
     /// <summary>

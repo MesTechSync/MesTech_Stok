@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using MesTech.Infrastructure.Monitoring;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.ERP.Logo;
@@ -24,6 +25,7 @@ public sealed class LogoTokenService
 
     private const string CacheKey = "Logo:AccessToken";
     private static readonly TimeSpan TokenTtl = TimeSpan.FromMinutes(45); // ~1h token, 15min buffer
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     public LogoTokenService(
         HttpClient httpClient,
@@ -51,50 +53,69 @@ public sealed class LogoTokenService
     /// </summary>
     public async Task<string> GetAccessTokenAsync(CancellationToken ct = default)
     {
+        // Fast path: return cached token without lock
         if (_cache.TryGetValue(CacheKey, out string? cachedToken) && !string.IsNullOrEmpty(cachedToken))
         {
             return cachedToken;
         }
 
-        _logger.LogInformation("[LogoTokenService] Requesting new license token");
-
-        var requestBody = new
+        // Double-check locking: only one thread fetches a new token
+        await _tokenLock.WaitAsync(ct);
+        try
         {
-            username = _username,
-            password = _password,
-            firmId = _firmId
-        };
+            // Re-check after acquiring lock — another thread may have already fetched
+            if (_cache.TryGetValue(CacheKey, out cachedToken) && !string.IsNullOrEmpty(cachedToken))
+            {
+                return cachedToken;
+            }
 
-        var json = JsonSerializer.Serialize(requestBody);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct);
+            _logger.LogInformation("[LogoTokenService] Requesting new license token");
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogError(
-                "[LogoTokenService] Token request failed: {Status} — {Error}",
-                response.StatusCode, errorBody);
-            throw new HttpRequestException(
-                $"Logo token request failed: {response.StatusCode} — {errorBody}");
+            var requestBody = new
+            {
+                username = _username,
+                password = _password,
+                firmId = _firmId
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError(
+                    "[LogoTokenService] Token request failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                ErpMetrics.AuthRefreshTotal.WithLabels("logo", "error").Inc();
+                throw new HttpRequestException(
+                    $"Logo token request failed: {response.StatusCode} — {errorBody}");
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson);
+
+            if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+            {
+                ErpMetrics.AuthRefreshTotal.WithLabels("logo", "error").Inc();
+                throw new InvalidOperationException("Logo token response was empty or invalid");
+            }
+
+            // Cache with 45-minute TTL (15-minute buffer before actual ~1h expiry)
+            _cache.Set(CacheKey, tokenResponse.AccessToken, TokenTtl);
+            ErpMetrics.AuthRefreshTotal.WithLabels("logo", "success").Inc();
+
+            _logger.LogInformation(
+                "[LogoTokenService] Token acquired, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
+                tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
+
+            return tokenResponse.AccessToken;
         }
-
-        var responseJson = await response.Content.ReadAsStringAsync(ct);
-        var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson);
-
-        if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        finally
         {
-            throw new InvalidOperationException("Logo token response was empty or invalid");
+            _tokenLock.Release();
         }
-
-        // Cache with 45-minute TTL (15-minute buffer before actual ~1h expiry)
-        _cache.Set(CacheKey, tokenResponse.AccessToken, TokenTtl);
-
-        _logger.LogInformation(
-            "[LogoTokenService] Token acquired, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
-            tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
-
-        return tokenResponse.AccessToken;
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.ERP.Parasut;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -116,16 +117,6 @@ public class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync(ct);
     }
-}
-
-public class ParasutOptions
-{
-    public string CompanyId { get; set; } = string.Empty;
-    public string ClientId { get; set; } = string.Empty;
-    public string ClientSecret { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public bool InvoiceSyncEnabled { get; set; }
 }
 
 public record ParasutInvoiceRequest(

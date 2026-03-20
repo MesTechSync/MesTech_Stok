@@ -1,5 +1,6 @@
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.ERP;
+using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,7 @@ public class ParasutInvoiceSyncJob
         }
 
         var pendingInvoices = await _db.Set<Domain.Entities.Invoice>()
-            .Where(i => (i.ParasutSyncStatus == null || i.ParasutSyncStatus == SyncStatus.Pending)
+            .Where(i => (i.ParasutSyncStatus == null || i.ParasutSyncStatus == SyncStatus.PendingSync)
                      && (i.Type == InvoiceType.EFatura || i.Type == InvoiceType.EArsiv)
                      && i.CreatedAt > DateTime.UtcNow.AddDays(-7)
                      && i.Status != InvoiceStatus.Cancelled)

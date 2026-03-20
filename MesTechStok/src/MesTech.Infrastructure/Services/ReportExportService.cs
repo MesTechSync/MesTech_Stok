@@ -4,6 +4,9 @@ using System.Text;
 using MesTech.Application.Interfaces;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace MesTech.Infrastructure.Services;
 
@@ -19,6 +22,7 @@ public class ReportExportService : IReportExportService
     static ReportExportService()
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        QuestPDF.Settings.License = LicenseType.Community;
     }
 
     /// <inheritdoc />
@@ -38,6 +42,89 @@ public class ReportExportService : IReportExportService
         ArgumentNullException.ThrowIfNull(data);
 
         return await Task.Run(() => BuildCsv(data), ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<byte[]> ExportToPdfAsync<T>(
+        IEnumerable<T> data, string title, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
+
+        return await Task.Run(() => BuildPdf(data, title), ct);
+    }
+
+    private static byte[] BuildPdf<T>(IEnumerable<T> data, string title)
+    {
+        var properties = GetPublicProperties<T>();
+        var items = data.ToList();
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4.Landscape());
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(9));
+
+                page.Header().Column(col =>
+                {
+                    col.Item().Text(title).FontSize(16).Bold().FontColor(Colors.Blue.Darken2);
+                    col.Item().Text($"Olusturulma: {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC")
+                        .FontSize(8).FontColor(Colors.Grey.Darken1);
+                    col.Item().PaddingBottom(10);
+                });
+
+                page.Content().Table(table =>
+                {
+                    // Define columns
+                    table.ColumnsDefinition(columns =>
+                    {
+                        foreach (var _ in properties)
+                            columns.RelativeColumn();
+                    });
+
+                    // Header row
+                    table.Header(header =>
+                    {
+                        foreach (var prop in properties)
+                        {
+                            header.Cell()
+                                .Background(Colors.Blue.Lighten3)
+                                .Padding(4)
+                                .Text(prop.Name)
+                                .Bold()
+                                .FontSize(8);
+                        }
+                    });
+
+                    // Data rows
+                    foreach (var item in items)
+                    {
+                        foreach (var prop in properties)
+                        {
+                            var value = prop.GetValue(item);
+                            table.Cell()
+                                .BorderBottom(1)
+                                .BorderColor(Colors.Grey.Lighten2)
+                                .Padding(3)
+                                .Text(FormatValue(value))
+                                .FontSize(8);
+                        }
+                    }
+                });
+
+                page.Footer().AlignCenter().Text(text =>
+                {
+                    text.Span("Sayfa ").FontSize(8);
+                    text.CurrentPageNumber().FontSize(8);
+                    text.Span(" / ").FontSize(8);
+                    text.TotalPages().FontSize(8);
+                });
+            });
+        });
+
+        return document.GeneratePdf();
     }
 
     private static byte[] BuildExcel<T>(IEnumerable<T> data, string sheetName)

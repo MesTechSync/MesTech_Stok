@@ -188,3 +188,66 @@ internal sealed class BizimHesapAccountResponse
     [JsonPropertyName("currency")]
     public string? Currency { get; set; }
 }
+
+/// <summary>
+/// Invoice response from BizimHesap API (GET/POST /api/v1/invoices).
+/// </summary>
+internal sealed class BizimHesapInvoiceResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("invoiceNumber")]
+    public string? InvoiceNumber { get; set; }
+
+    [JsonPropertyName("invoiceDate")]
+    public DateTime? InvoiceDate { get; set; }
+
+    [JsonPropertyName("grandTotal")]
+    public string? GrandTotal { get; set; }
+
+    [JsonPropertyName("pdfUrl")]
+    public string? PdfUrl { get; set; }
+}
+
+/// <summary>
+/// Contact response from BizimHesap API (GET/POST /api/v1/contacts).
+/// </summary>
+internal sealed class BizimHesapContactResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("code")]
+    public string? Code { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("balance")]
+    public string? Balance { get; set; }
+}
+
+/// <summary>
+/// Stock item response from BizimHesap API (GET /api/v1/stock-items).
+/// </summary>
+internal sealed class BizimHesapStockItemResponse
+{
+    [JsonPropertyName("code")]
+    public string? Code { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonPropertyName("unitCode")]
+    public string? UnitCode { get; set; }
+
+    [JsonPropertyName("warehouseCode")]
+    public string? WarehouseCode { get; set; }
+
+    [JsonPropertyName("unitCost")]
+    public string? UnitCost { get; set; }
+}

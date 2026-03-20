@@ -1,5 +1,7 @@
 using MassTransit;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities;
+using MesTech.Domain.Entities.AI;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -10,26 +12,34 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// Dalga 1: Sadece log'a yazar.
 /// Dalga 2+: Gercek is mantigi eklenir (Product.Description guncelle, fiyat onerisi kaydet vb.)
 /// Dalga 5 IP-5: TenantId eklendi — fallback: ITenantProvider.
+/// I-13 S-02: 7 consumer deepened — domain logic on top of existing logs.
 /// </summary>
 public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaAiContentConsumer> _logger;
 
     public MesaAiContentConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaAiContentConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaAiContentGeneratedEvent> context)
+    public async Task Consume(ConsumeContext<MesaAiContentGeneratedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -56,7 +66,29 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
             "[MESA Consumer] Product aciklamasi guncellenmeli: SKU={SKU}, uzunluk={Length} karakter",
             msg.SKU, msg.GeneratedContent.Length);
 
-        return Task.CompletedTask;
+        // I-13 S-02: Product description update
+        try
+        {
+            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            if (product is not null)
+            {
+                product.Description = msg.GeneratedContent;
+                product.UpdatedAt = DateTime.UtcNow;
+                product.UpdatedBy = "mesa-ai";
+                await _productRepository.UpdateAsync(product);
+                await _unitOfWork.SaveChangesAsync(ct);
+                _logger.LogInformation("[MESA Consumer] Product description updated: SKU={SKU}", msg.SKU);
+            }
+            else
+            {
+                _logger.LogWarning("[MESA Consumer] Product not found for SKU={SKU}, skipping update", msg.SKU);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to update product description: SKU={SKU}", msg.SKU);
+            throw; // MassTransit retry
+        }
     }
 }
 
@@ -64,21 +96,31 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IPriceRecommendationRepository _priceRecommendationRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaAiPriceConsumer> _logger;
 
     public MesaAiPriceConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IPriceRecommendationRepository priceRecommendationRepository,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaAiPriceConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _priceRecommendationRepository = priceRecommendationRepository;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaAiPriceRecommendedEvent> context)
+    public async Task Consume(ConsumeContext<MesaAiPriceRecommendedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -104,7 +146,32 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
             "[MESA Consumer] Fiyat onerisi kaydedilmeli: SKU={SKU}, oneri={Price:N2} TL, aralik=[{Min:N2}-{Max:N2}]",
             msg.SKU, msg.RecommendedPrice, msg.MinPrice, msg.MaxPrice);
 
-        return Task.CompletedTask;
+        // I-13 S-02: Save PriceRecommendation
+        try
+        {
+            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            if (product is not null)
+            {
+                var recommendation = new PriceRecommendation
+                {
+                    TenantId = tenantId,
+                    ProductId = product.Id,
+                    RecommendedPrice = msg.RecommendedPrice,
+                    CurrentPrice = product.SalePrice,
+                    Confidence = 0, // MesaAiPriceRecommendedEvent does not carry Confidence
+                    Reasoning = msg.Reasoning ?? string.Empty,
+                    Source = "ai.price.recommended"
+                };
+                await _priceRecommendationRepository.AddAsync(recommendation);
+                await _unitOfWork.SaveChangesAsync(ct);
+                _logger.LogInformation("[MESA Consumer] PriceRecommendation saved: SKU={SKU}, Id={Id}", msg.SKU, recommendation.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to save price recommendation: SKU={SKU}", msg.SKU);
+            throw;
+        }
     }
 }
 
@@ -112,21 +179,28 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly INotificationLogRepository _notificationLogRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaBotStatusConsumer> _logger;
 
     public MesaBotStatusConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        INotificationLogRepository notificationLogRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaBotStatusConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notificationLogRepository = notificationLogRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaBotNotificationSentEvent> context)
+    public async Task Consume(ConsumeContext<MesaBotNotificationSentEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -148,7 +222,25 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
         }
 
         _monitor.RecordConsume("bot.notification.sent");
-        return Task.CompletedTask;
+
+        // I-13 S-02: Save NotificationLog
+        try
+        {
+            var notification = NotificationLog.Create(
+                tenantId,
+                MesTech.Domain.Enums.NotificationChannel.Push,
+                msg.Recipient ?? "unknown",
+                $"Bot Notification: {msg.Channel}",
+                msg.Success ? $"Bildirim başarılı: {msg.Channel}" : $"Bildirim hatası: {msg.ErrorMessage}");
+            if (msg.Success) notification.MarkAsSent(); else notification.MarkAsFailed(msg.ErrorMessage ?? "Unknown error");
+            await _notificationLogRepository.AddAsync(notification, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to save notification log");
+            throw;
+        }
     }
 }
 
@@ -156,21 +248,31 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IPriceRecommendationRepository _priceRecommendationRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaAiPriceOptimizedConsumer> _logger;
 
     public MesaAiPriceOptimizedConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IPriceRecommendationRepository priceRecommendationRepository,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaAiPriceOptimizedConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _priceRecommendationRepository = priceRecommendationRepository;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaAiPriceOptimizedEvent> context)
+    public async Task Consume(ConsumeContext<MesaAiPriceOptimizedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -187,7 +289,45 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
         // Fiyat farki > %20 ise Telegram Critical alert
 
         _monitor.RecordConsume("ai.price.optimized");
-        return Task.CompletedTask;
+
+        // I-13 S-02: Save PriceRecommendation + alert check
+        try
+        {
+            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            if (product is not null)
+            {
+                var recommendation = new PriceRecommendation
+                {
+                    TenantId = tenantId,
+                    ProductId = product.Id,
+                    RecommendedPrice = msg.RecommendedPrice,
+                    CurrentPrice = product.SalePrice,
+                    CompetitorMinPrice = msg.CompetitorMinPrice,
+                    Confidence = msg.Confidence,
+                    Reasoning = msg.Reasoning ?? string.Empty,
+                    Source = "ai.price.optimized"
+                };
+                await _priceRecommendationRepository.AddAsync(recommendation);
+                await _unitOfWork.SaveChangesAsync(ct);
+                _logger.LogInformation("[MESA Consumer] PriceRecommendation saved: SKU={SKU}, Id={Id}", msg.SKU, recommendation.Id);
+            }
+
+            if (product is not null && product.SalePrice > 0)
+            {
+                var deviationPct = Math.Abs((double)(msg.RecommendedPrice - product.SalePrice) / (double)product.SalePrice);
+                if (deviationPct > 0.20)
+                {
+                    _logger.LogWarning(
+                        "[MESA Consumer] PRICE ALERT: SKU={SKU} deviation {Pct:P1} — current={Current:N2}, recommended={Recommended:N2}",
+                        msg.SKU, deviationPct, product.SalePrice, msg.RecommendedPrice);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to save price recommendation: SKU={SKU}", msg.SKU);
+            throw;
+        }
     }
 }
 
@@ -195,21 +335,31 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IStockPredictionRepository _stockPredictionRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaAiStockPredictedConsumer> _logger;
 
     public MesaAiStockPredictedConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IStockPredictionRepository stockPredictionRepository,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaAiStockPredictedConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _stockPredictionRepository = stockPredictionRepository;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaAiStockPredictedEvent> context)
+    public async Task Consume(ConsumeContext<MesaAiStockPredictedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -231,7 +381,35 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
         // Future: StockPrediction history INSERT + Product snapshot UPDATE (tek transaction)
 
         _monitor.RecordConsume("ai.stock.predicted");
-        return Task.CompletedTask;
+
+        // I-13 S-02: Save StockPrediction
+        try
+        {
+            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            if (product is not null)
+            {
+                var prediction = new StockPrediction
+                {
+                    TenantId = tenantId,
+                    ProductId = product.Id,
+                    PredictedDemand7d = msg.PredictedDemand7d,
+                    PredictedDemand14d = msg.PredictedDemand14d,
+                    PredictedDemand30d = msg.PredictedDemand30d,
+                    DaysUntilStockout = msg.DaysUntilStockout,
+                    ReorderSuggestion = msg.ReorderSuggestion,
+                    Confidence = msg.Confidence,
+                    Reasoning = msg.Reasoning ?? string.Empty
+                };
+                await _stockPredictionRepository.AddAsync(prediction);
+                await _unitOfWork.SaveChangesAsync(ct);
+                _logger.LogInformation("[MESA Consumer] StockPrediction saved: SKU={SKU}, Id={Id}", msg.SKU, prediction.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to save stock prediction: SKU={SKU}", msg.SKU);
+            throw;
+        }
     }
 }
 
@@ -239,21 +417,31 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaBotInvoiceRequestConsumer> _logger;
 
     public MesaBotInvoiceRequestConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IOrderRepository orderRepository,
+        IInvoiceRepository invoiceRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaBotInvoiceRequestConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _orderRepository = orderRepository;
+        _invoiceRepository = invoiceRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaBotInvoiceRequestedEvent> context)
+    public async Task Consume(ConsumeContext<MesaBotInvoiceRequestedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -270,7 +458,36 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         // Invoice varsa: PdfUrl ile "invoice_ready" template gonder
 
         _monitor.RecordConsume("bot.invoice.requested");
-        return Task.CompletedTask;
+
+        // I-13 S-02: Order+Invoice lookup
+        try
+        {
+            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber);
+            if (order is null)
+            {
+                _logger.LogWarning("[MESA Consumer] Order not found: OrderNumber={OrderNumber}", msg.OrderNumber);
+                return;
+            }
+            var invoice = await _invoiceRepository.GetByOrderIdAsync(order.Id);
+            if (invoice is not null)
+            {
+                _logger.LogInformation(
+                    "[MESA Consumer] Invoice found for order: OrderNumber={OrderNumber}, InvoiceId={InvoiceId}, PdfUrl={PdfUrl}",
+                    msg.OrderNumber, invoice.Id, invoice.PdfUrl);
+                // Future: Send PdfUrl via WhatsApp using IMesaBotService
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "[MESA Consumer] No invoice yet for order: OrderNumber={OrderNumber}", msg.OrderNumber);
+                // Future: Send "faturaniz henuz hazirlanmadi" message
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to lookup invoice: OrderNumber={OrderNumber}", msg.OrderNumber);
+            throw;
+        }
     }
 }
 
@@ -278,21 +495,31 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IReturnRequestRepository _returnRequestRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaBotReturnRequestConsumer> _logger;
 
     public MesaBotReturnRequestConsumer(
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IOrderRepository orderRepository,
+        IReturnRequestRepository returnRequestRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaBotReturnRequestConsumer> logger)
     {
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _orderRepository = orderRepository;
+        _returnRequestRepository = returnRequestRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task Consume(ConsumeContext<MesaBotReturnRequestedEvent> context)
+    public async Task Consume(ConsumeContext<MesaBotReturnRequestedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
@@ -310,7 +537,38 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         // Saticiya Telegram: "Musteri X iade talep etti, siparis #Y"
 
         _monitor.RecordConsume("bot.return.requested");
-        return Task.CompletedTask;
+
+        // I-13 S-02: Create ReturnRequest
+        try
+        {
+            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber);
+            if (order is null)
+            {
+                _logger.LogWarning("[MESA Consumer] Order not found for return: OrderNumber={OrderNumber}", msg.OrderNumber);
+                return;
+            }
+            var returnRequest = new ReturnRequest
+            {
+                TenantId = tenantId,
+                OrderId = order.Id,
+                Platform = default, // TODO: Add PlatformType.Bot or PlatformType.Manual enum value
+                Status = MesTech.Domain.Enums.ReturnStatus.Pending,
+                CustomerPhone = msg.CustomerPhone,
+                ReasonDetail = msg.ReturnReason,
+                RequestDate = DateTime.UtcNow,
+                Notes = $"Bot return request — channel: {msg.RequestChannel}"
+            };
+            await _returnRequestRepository.AddAsync(returnRequest);
+            await _unitOfWork.SaveChangesAsync(ct);
+            _logger.LogInformation(
+                "[MESA Consumer] ReturnRequest created: OrderNumber={OrderNumber}, ReturnId={ReturnId}",
+                msg.OrderNumber, returnRequest.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Consumer] Failed to create return request: OrderNumber={OrderNumber}", msg.OrderNumber);
+            throw;
+        }
     }
 }
 

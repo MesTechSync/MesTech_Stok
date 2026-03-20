@@ -48,7 +48,7 @@ public class ErpPriceSyncJob : ISyncJob
                     continue;
                 }
 
-                // TODO: Implement price fetch from ERP
+                // TODO(v2): Implement price fetch from ERP
                 // Phase 2: adapter.GetProductPricesAsync() → update MesTech prices
                 _logger.LogInformation(
                     "[{JobId}] {Provider} connected — price sync placeholder (Phase 2)",

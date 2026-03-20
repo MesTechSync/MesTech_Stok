@@ -60,7 +60,7 @@ public static class InfrastructureServiceRegistration
         services.Configure<Services.XAdESOptions>(configuration.GetSection("XAdES"));
         services.AddScoped<IDigitalSignatureService, Services.XAdESSignatureService>();
         services.AddScoped<IInvoicePdfGenerator, Services.QuestPdfInvoiceGenerator>();
-        services.Configure<Integration.ERP.ParasutOptions>(configuration.GetSection("Parasut"));
+        services.Configure<Integration.ERP.Parasut.ParasutOptions>(configuration.GetSection("Parasut"));
         services.AddScoped<Integration.ERP.IParasutInvoiceSyncService, Integration.ERP.ParasutInvoiceSyncService>();
 
         // AuditInterceptor
@@ -104,6 +104,9 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<IPriceRecommendationRepository, PriceRecommendationRepository>();
+        services.AddScoped<IStockPredictionRepository, StockPredictionRepository>();
+        services.AddScoped<IReturnRequestRepository, ReturnRequestRepository>();
         services.AddScoped<IEInvoiceDocumentRepository, EInvoiceDocumentRepository>();
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();

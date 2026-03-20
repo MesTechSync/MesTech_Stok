@@ -45,4 +45,13 @@ public sealed class ParasutOptions
 
     /// <summary>Parasut company ID for API URL path: /v4/{CompanyId}/...</summary>
     public string CompanyId { get; set; } = string.Empty;
+
+    /// <summary>Parasut Username for Resource Owner Password flow (invoice sync).</summary>
+    public string Username { get; set; } = string.Empty;
+
+    /// <summary>Parasut Password for Resource Owner Password flow (invoice sync).</summary>
+    public string Password { get; set; } = string.Empty;
+
+    /// <summary>Feature flag: enable/disable automatic invoice sync to Parasut.</summary>
+    public bool InvoiceSyncEnabled { get; set; }
 }

@@ -69,6 +69,21 @@ public sealed class BizimHesapApiClient
     }
 
     /// <summary>
+    /// Sends a PUT request with JSON body and API key authentication.
+    /// </summary>
+    public async Task<HttpResponseMessage> PutJsonAsync<T>(string endpoint, T payload, CancellationToken ct = default)
+    {
+        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{_baseUrl}/{endpoint}")
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        SetApiKeyHeader(request);
+
+        return await _httpClient.SendAsync(request, ct);
+    }
+
+    /// <summary>
     /// Deserializes a JSON response body to the specified type.
     /// Returns default if deserialization fails.
     /// </summary>

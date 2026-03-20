@@ -38,6 +38,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace MesTech.Infrastructure.DependencyInjection;
 
@@ -378,17 +379,20 @@ public static class IntegrationServiceRegistration
         if (configuration is not null)
             services.Configure<ParasutOptions>(configuration.GetSection(ParasutOptions.Section));
 
+        // İ-14 R-01: Register Polly-resilient named HttpClients for all ERP adapters
+        services.AddErpResilientHttpClients();
+
         // MUH-02: Parasut ERP adapter — OAuth2 CC token service + JSON:API sync
         services.AddSingleton<ParasutTokenService>(sp =>
             new ParasutTokenService(
-                new HttpClient(),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.ParasutToken),
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IConfiguration>(),
                 sp.GetRequiredService<ILogger<ParasutTokenService>>(),
                 sp.GetService<IOptions<ParasutOptions>>()));
         services.AddScoped<ParasutERPAdapter>(sp =>
             new ParasutERPAdapter(
-                new HttpClient(),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.Parasut),
                 sp.GetRequiredService<ParasutTokenService>(),
                 sp.GetRequiredService<ILogger<ParasutERPAdapter>>(),
                 sp.GetService<IOptions<ParasutOptions>>()));
@@ -396,10 +400,15 @@ public static class IntegrationServiceRegistration
 
         // MUH-03 + Dalga 12: Logo ERP adapter — L-Object REST API Bearer token + JSON sync
         // Implements both IERPAdapter (legacy batch) and IErpAdapter (Dalga 11 ID-based)
-        services.AddSingleton<LogoTokenService>();
+        services.AddSingleton<LogoTokenService>(sp =>
+            new LogoTokenService(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.LogoToken),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<ILogger<LogoTokenService>>()));
         services.AddScoped<LogoERPAdapter>(sp =>
             new LogoERPAdapter(
-                new HttpClient(),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.Logo),
                 sp.GetRequiredService<LogoTokenService>(),
                 sp.GetRequiredService<IOrderRepository>(),
                 sp.GetRequiredService<IInvoiceRepository>(),
@@ -418,7 +427,7 @@ public static class IntegrationServiceRegistration
         // Dalga 13: Netsis ERP adapter — Basic Auth REST API + JSON sync
         services.AddScoped<NetsisERPAdapter>(sp =>
             new NetsisERPAdapter(
-                new HttpClient(),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.Netsis),
                 sp.GetRequiredService<IConfiguration>(),
                 sp.GetRequiredService<IOrderRepository>(),
                 sp.GetRequiredService<ILogger<NetsisERPAdapter>>()));
@@ -429,7 +438,7 @@ public static class IntegrationServiceRegistration
             services.Configure<NebimOptions>(configuration.GetSection(NebimOptions.SectionName));
         services.AddScoped<NebimERPAdapter>(sp =>
             new NebimERPAdapter(
-                new HttpClient(),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.Nebim),
                 sp.GetRequiredService<IOptions<NebimOptions>>(),
                 sp.GetRequiredService<IOrderRepository>(),
                 sp.GetRequiredService<ILogger<NebimERPAdapter>>()));
@@ -440,6 +449,12 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ERPAdapterFactory>();
         services.AddScoped<IERPAdapterFactory>(sp => sp.GetRequiredService<ERPAdapterFactory>());
         services.AddScoped<IErpAdapterFactory>(sp => sp.GetRequiredService<ERPAdapterFactory>());
+
+        // İ-14 D-03: ERP reconciliation service — compares MesTech vs ERP stock data
+        services.AddScoped<ErpReconciliationService>();
+
+        // İ-14 D-03: ERP conflict resolver — deterministic merge strategies for ERP sync conflicts
+        services.AddSingleton<ErpConflictResolver>();
 
         // MUH-02: Canonical finance mapper — normalizes entities for ERP sync
         services.AddSingleton<CanonicalFinanceMapper>();

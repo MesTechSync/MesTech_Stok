@@ -40,6 +40,12 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILogger<LogoERPAdapter> _logger;
 
+    /// <summary>
+    /// İ-14 R-03: Concurrency limiter — max 50 parallel requests to Logo REST API.
+    /// Prevents overwhelming the Logo server which has limited connection capacity.
+    /// </summary>
+    private static readonly SemaphoreSlim RateLimiter = new(50, 50);
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -1203,32 +1209,40 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
     private async Task<bool> PostJsonAsync<T>(string endpoint, T payload, CancellationToken ct)
     {
-        var json = JsonSerializer.Serialize(payload, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
-
-        if (response.IsSuccessStatusCode)
+        await RateLimiter.WaitAsync(ct);
+        try
         {
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogDebug(
-                "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
-                endpoint, responseJson);
-            return true;
+            var json = JsonSerializer.Serialize(payload, JsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogDebug(
+                    "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
+                    endpoint, responseJson);
+                return true;
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning(
+                "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
+                endpoint, response.StatusCode, errorBody);
+
+            // Invalidate token on 401 — next call will re-authenticate
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _tokenService.InvalidateToken();
+            }
+
+            return false;
         }
-
-        var errorBody = await response.Content.ReadAsStringAsync(ct);
-        _logger.LogWarning(
-            "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
-            endpoint, response.StatusCode, errorBody);
-
-        // Invalidate token on 401 — next call will re-authenticate
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        finally
         {
-            _tokenService.InvalidateToken();
+            RateLimiter.Release();
         }
-
-        return false;
     }
 
     /// <summary>
@@ -1239,41 +1253,49 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
     private async Task<(bool Success, string? ErpId, string? Error)> PostJsonWithRefAsync<T>(
         string endpoint, T payload, CancellationToken ct)
     {
-        var json = JsonSerializer.Serialize(payload, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
-
-        if (response.IsSuccessStatusCode)
+        await RateLimiter.WaitAsync(ct);
+        try
         {
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogDebug(
-                "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
-                endpoint, responseJson);
+            var json = JsonSerializer.Serialize(payload, JsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var parsed = JsonSerializer.Deserialize<LogoCreateResponse>(responseJson, JsonOptions);
-            var erpId = parsed?.Id;
+            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
 
-            // If response doesn't contain an ID, generate a synthetic reference
-            if (string.IsNullOrEmpty(erpId))
+            if (response.IsSuccessStatusCode)
             {
-                erpId = $"LOGO-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}"[..32];
+                var responseJson = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogDebug(
+                    "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
+                    endpoint, responseJson);
+
+                var parsed = JsonSerializer.Deserialize<LogoCreateResponse>(responseJson, JsonOptions);
+                var erpId = parsed?.Id;
+
+                // If response doesn't contain an ID, generate a synthetic reference
+                if (string.IsNullOrEmpty(erpId))
+                {
+                    erpId = $"LOGO-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}"[..32];
+                }
+
+                return (true, erpId, null);
             }
 
-            return (true, erpId, null);
+            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning(
+                "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
+                endpoint, response.StatusCode, errorBody);
+
+            // Invalidate token on 401 — next call will re-authenticate
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _tokenService.InvalidateToken();
+            }
+
+            return (false, null, errorBody);
         }
-
-        var errorBody = await response.Content.ReadAsStringAsync(ct);
-        _logger.LogWarning(
-            "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
-            endpoint, response.StatusCode, errorBody);
-
-        // Invalidate token on 401 — next call will re-authenticate
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        finally
         {
-            _tokenService.InvalidateToken();
+            RateLimiter.Release();
         }
-
-        return (false, null, errorBody);
     }
 }

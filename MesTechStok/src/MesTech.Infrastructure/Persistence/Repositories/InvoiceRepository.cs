@@ -1,5 +1,6 @@
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
@@ -11,6 +12,9 @@ public class InvoiceRepository : IInvoiceRepository
 
     public async Task<Invoice?> GetByIdAsync(Guid id)
         => await _context.Invoices.FindAsync(id).ConfigureAwait(false);
+
+    public async Task<Invoice?> GetByOrderIdAsync(Guid orderId)
+        => await _context.Invoices.FirstOrDefaultAsync(i => i.OrderId == orderId).ConfigureAwait(false);
 
     public async Task AddAsync(Invoice invoice)
         => await _context.Invoices.AddAsync(invoice).ConfigureAwait(false);

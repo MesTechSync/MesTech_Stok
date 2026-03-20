@@ -28,7 +28,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 ///   - GET  /api/customers         (account balances)
 ///   - GET  /api/ping              (health check)
 /// </summary>
-public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable
+public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable, IErpWaybillCapable
 {
     private readonly HttpClient _httpClient;
     private readonly NebimOptions _options;
@@ -787,6 +787,108 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalanceAsync exception — {Code}", accountCode);
             return 0m;
+        }
+#pragma warning restore CA1031
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpWaybillCapable — Dalga 15: Nebim irsaliye yetkinligi
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<ErpWaybillResult> CreateWaybillAsync(ErpWaybillRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[NebimERPAdapter] CreateWaybillAsync — Customer:{Customer}", request.CustomerCode);
+
+#pragma warning disable CA1031 // Intentional: ERP failure must be returned, not propagated
+        try
+        {
+            SetApiKeyHeader();
+
+            var nebimDispatch = new
+            {
+                officeCode = _options.OfficeCode,
+                warehouseCode = _options.WarehouseCode,
+                currAccCode = request.CustomerCode,
+                shippingAddress = request.ShippingAddress,
+                carrierCode = request.CargoFirm,
+                trackingNumber = request.TrackingNumber,
+                dispatchDate = DateTime.Today.ToString("yyyy-MM-dd"),
+                lines = request.Lines.Select(l => new
+                {
+                    productCode = l.ProductCode,
+                    qty = l.Quantity,
+                    unitCode = l.UnitCode
+                }).ToArray()
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(nebimDispatch, JsonOptions),
+                Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/dispatches", content, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct);
+                var json = JsonDocument.Parse(body).RootElement;
+
+                var waybillNumber = json.TryGetProperty("dispatchNumber", out var dn)
+                    ? dn.GetString() ?? string.Empty : string.Empty;
+                var waybillDate = json.TryGetProperty("dispatchDate", out var dd) && DateTime.TryParse(dd.GetString(), out var dt)
+                    ? dt : DateTime.Today;
+
+                _logger.LogInformation("[NebimERPAdapter] Waybill created — Number:{Number}", waybillNumber);
+                return ErpWaybillResult.Ok(waybillNumber, waybillDate);
+            }
+
+            var err = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("[NebimERPAdapter] CreateWaybill failed — HTTP {Status}: {Error}",
+                (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
+            return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] CreateWaybillAsync exception");
+            return ErpWaybillResult.Failed(ex.Message);
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <inheritdoc />
+    public async Task<ErpWaybillResult?> GetWaybillAsync(string waybillNumber, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(waybillNumber);
+        _logger.LogInformation("[NebimERPAdapter] GetWaybillAsync — Number:{Number}", waybillNumber);
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return null on error
+        try
+        {
+            SetApiKeyHeader();
+            var response = await _httpClient.GetAsync(
+                $"{BaseUrl}/api/dispatches/{Uri.EscapeDataString(waybillNumber)}", ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("[NebimERPAdapter] GetWaybill — HTTP {Status}", (int)response.StatusCode);
+                return null;
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            var json = JsonDocument.Parse(body).RootElement;
+
+            var number = json.TryGetProperty("dispatchNumber", out var dn)
+                ? dn.GetString() ?? waybillNumber : waybillNumber;
+            var date = json.TryGetProperty("dispatchDate", out var dd) && DateTime.TryParse(dd.GetString(), out var dt)
+                ? dt : DateTime.Today;
+
+            return ErpWaybillResult.Ok(number, date);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
+            return null;
         }
 #pragma warning restore CA1031
     }

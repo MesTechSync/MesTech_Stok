@@ -28,6 +28,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.RateLimiting" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
