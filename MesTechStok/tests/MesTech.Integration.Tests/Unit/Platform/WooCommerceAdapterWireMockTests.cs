@@ -57,7 +57,7 @@ public class WooCommerceAdapterWireMockTests : IClassFixture<WireMockFixture>
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
-                .WithBody($$"""{"environment":{"site_url":"{{_fixture.ServerUrl}}"}}"""));
+                .WithBody($$$"""{"environment":{"site_url":"{{{_fixture.ServerUrl}}}"}}"""));
 
         // products (for count via X-WP-Total header)
         _fixture.Server
@@ -298,7 +298,7 @@ public class WooCommerceAdapterWireMockTests : IClassFixture<WireMockFixture>
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
-                .WithBody($$"""{"environment":{"site_url":"{{_fixture.ServerUrl}}"}}"""));
+                .WithBody($$$"""{"environment":{"site_url":"{{{_fixture.ServerUrl}}}"}}"""));
 
         _fixture.Server
             .Given(Request.Create()
