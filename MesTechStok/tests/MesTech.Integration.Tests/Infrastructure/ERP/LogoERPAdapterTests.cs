@@ -275,7 +275,7 @@ public class LogoERPAdapterTests : IDisposable
 
         // Assert — may or may not succeed depending on token service parsing,
         // but should not throw
-        result.Should().BeOneOf(true, false);
+        (result == true || result == false).Should().BeTrue();
     }
 
     // ═══════════════════════════════════════════════════════════════════
