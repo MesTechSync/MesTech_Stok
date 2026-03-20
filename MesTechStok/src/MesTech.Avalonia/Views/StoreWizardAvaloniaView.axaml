@@ -52,6 +52,7 @@
 
         <!-- Step Content -->
         <ScrollViewer Grid.Row="2" Padding="24">
+          <Panel>
 
             <!-- STEP 1: Platform Select -->
             <StackPanel IsVisible="{Binding IsStep1Visible}">
@@ -71,11 +72,13 @@
                                     CommandParameter="{Binding}">
                                 <StackPanel Width="160">
                                     <Border Height="6" CornerRadius="8,8,0,0" Background="{Binding Color}" />
-                                    <StackPanel Padding="16,12" Spacing="6">
-                                        <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
-                                                   Foreground="#1E293B" />
-                                        <TextBlock Text="Seç" FontSize="12" Foreground="#0078D4" />
-                                    </StackPanel>
+                                    <Border Padding="16,12">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
+                                                       Foreground="#1E293B" />
+                                            <TextBlock Text="Seç" FontSize="12" Foreground="#0078D4" />
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -166,6 +169,7 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+          </Panel>
         </ScrollViewer>
 
         <!-- Loading Overlay -->

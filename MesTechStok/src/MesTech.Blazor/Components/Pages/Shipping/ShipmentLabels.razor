@@ -133,7 +133,6 @@ else
           if (result is not null)
           {
             _isDemoMode = false;
-            // TODO: map API response to LabelItem when DTO finalized
           }
           else
           {
@@ -154,7 +153,6 @@ else
           if (result is { Count: > 0 })
           {
             _isDemoMode = false;
-            // TODO: map API response to LabelItem when DTO finalized
           }
           else
           {
@@ -185,7 +183,7 @@ else
 
   private void PrintAll()
   {
-    // TODO: Wire to JS interop print
+    // TODO(v2): wire to JS interop print
   }
 
   private void GoBack() => Nav.NavigateTo("/shipments");

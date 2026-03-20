@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.UpdateDocumentMetadata;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -15,6 +17,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
     private readonly IPersonalExpenseRepository _expenseRepository;
     private readonly IMesaEventMonitor _monitor;
@@ -23,6 +26,7 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
     private readonly ILogger<AiDocumentExtractedConsumer> _logger;
 
     public AiDocumentExtractedConsumer(
+        IMediator mediator,
         IAccountingDocumentRepository documentRepository,
         IPersonalExpenseRepository expenseRepository,
         IMesaEventMonitor monitor,
@@ -30,6 +34,7 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
         IUnitOfWork unitOfWork,
         ILogger<AiDocumentExtractedConsumer> logger)
     {
+        _mediator = mediator;
         _documentRepository = documentRepository;
         _expenseRepository = expenseRepository;
         _monitor = monitor;
@@ -47,6 +52,29 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiDocumentExtractedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateDocumentMetadataCommand
+            {
+                DocumentId = msg.DocumentId,
+                ProcessedJson = msg.ProcessedJson,
+                Confidence = msg.Confidence,
+                ExtractedAmount = msg.ExtractedAmount,
+                ExtractedVKN = msg.ExtractedVKN,
+                ExtractedCategory = msg.ExtractedCategory,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiDocumentExtractedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

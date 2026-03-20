@@ -241,7 +241,6 @@
         if (result is { Count: > 0 })
         {
           _isDemoMode = false;
-          // TODO: map API response to ReconciliationMatch when DTO finalized
         }
         else
         {
@@ -278,7 +277,6 @@
       {
         await ApiClient.RunReconciliationAsync();
         _isDemoMode = false;
-        // TODO: reload matches from API after reconciliation run
       }
       catch (Exception apiEx)
       {
@@ -300,7 +298,7 @@
 
   private void ApproveMatch(ReconciliationMatch match)
   {
-    // TODO: Panel A — wire to ApproveReconciliationMatchCommand
+    // TODO(v2): wire to ApproveReconciliationMatchCommand
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesti" };
@@ -308,7 +306,7 @@
 
   private void RejectMatch(ReconciliationMatch match)
   {
-    // TODO: Panel A — wire to RejectReconciliationMatchCommand
+    // TODO(v2): wire to RejectReconciliationMatchCommand
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesmedi" };

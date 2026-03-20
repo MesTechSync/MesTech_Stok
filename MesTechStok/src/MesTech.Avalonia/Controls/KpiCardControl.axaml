@@ -61,8 +61,7 @@
         <Polyline Points="{Binding SparkLinePoints}"
                   Stroke="{Binding TrendColor}"
                   StrokeThickness="1.5"
-                  StrokeLineCap="Round"
-                  StrokeLineJoin="Round"/>
+                  StrokeLineCap="Round"/>
       </Canvas>
 
     </Grid>

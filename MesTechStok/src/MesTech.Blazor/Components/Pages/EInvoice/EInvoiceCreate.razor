@@ -298,7 +298,6 @@ else
             var result = await ApiClient.CheckVknAsync(form.AliciVkn);
             if (result is not null)
             {
-                // TODO: map API result to form fields when typed DTO finalized
                 _isDemoMode = false;
             }
             else

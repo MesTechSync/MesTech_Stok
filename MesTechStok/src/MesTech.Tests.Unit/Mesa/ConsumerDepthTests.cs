@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MassTransit;
+using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
@@ -74,6 +75,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiContentConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             productRepo.Object,
@@ -111,6 +113,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiContentConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             productRepo.Object,
@@ -151,6 +154,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiPriceConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             priceRepo.Object,
@@ -190,6 +194,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiPriceConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             priceRepo.Object,
@@ -232,6 +237,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotStatusConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             notifRepo.Object,
@@ -268,6 +274,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotStatusConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             notifRepo.Object,
@@ -307,6 +314,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiPriceOptimizedConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             priceRepo.Object,
@@ -348,6 +356,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiPriceOptimizedConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             priceRepo.Object,
@@ -392,6 +401,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiStockPredictedConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             stockPredRepo.Object,
@@ -434,6 +444,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaAiStockPredictedConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             stockPredRepo.Object,
@@ -480,6 +491,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotInvoiceRequestConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             orderRepo.Object,
@@ -515,6 +527,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotInvoiceRequestConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             orderRepo.Object,
@@ -554,6 +567,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotReturnRequestConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             orderRepo.Object,
@@ -592,6 +606,7 @@ public class ConsumerDepthTests
         var uow = CreateUnitOfWorkMock();
 
         var consumer = new MesaBotReturnRequestConsumer(
+            new Mock<IMediator>().Object,
             monitor.Object,
             tenantProvider.Object,
             orderRepo.Object,

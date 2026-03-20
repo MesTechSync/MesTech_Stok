@@ -13,6 +13,7 @@ public partial class KomisyonAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
+    [ObservableProperty] private int totalCount;
 
     // KPI — Platform averages
     [ObservableProperty] private string trendyolAvgRate = "%0.0";

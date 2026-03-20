@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -60,7 +61,7 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
 
     // ── AI Insight ────────────────────────────────────────────────────────
     [ObservableProperty] private bool _hasAIInsight;
-    [ObservableProperty] private string _aiInsightText = "";
+    [ObservableProperty] private string _aiInsightText = string.Empty;
 
     // ── Critical stock badge count (int for badge binding) ────────────────
     [ObservableProperty] private int _criticalStockBadgeCount;
@@ -248,4 +249,7 @@ public class CriticalStockDto
     public int CurrentStock { get; set; }
     public int MinimumStock { get; set; }
     public int Deficit { get; set; }
+    public string SeverityColor { get; set; } = "#E53935";
+    public string StockText { get; set; } = string.Empty;
+    public ICommand? OrderCommand { get; set; }
 }

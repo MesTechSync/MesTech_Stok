@@ -1,5 +1,6 @@
 @page "/warehouses"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
@@ -114,45 +115,51 @@ else
             </h6>
           </div>
           <div class="card-body">
-            <div class="row g-3">
-              <div class="col-12 col-md-3">
-                <label class="form-label small text-muted">Kaynak Konum</label>
-                <select class="form-select" @bind="transferForm.KaynakKonum">
-                  <option value="">Konum Secin</option>
-                  @foreach (var loc in GetAllLocations(selectedWarehouse))
-                  {
-                    <option value="@loc">@loc</option>
-                  }
-                </select>
+            <EditForm Model="@transferForm" OnValidSubmit="ExecuteTransfer">
+              <DataAnnotationsValidator />
+              <div class="row g-3">
+                <div class="col-12 col-md-3">
+                  <label class="form-label small text-muted">Kaynak Konum</label>
+                  <InputSelect class="form-select" @bind-Value="transferForm.KaynakKonum">
+                    <option value="">Konum Secin</option>
+                    @foreach (var loc in GetAllLocations(selectedWarehouse))
+                    {
+                      <option value="@loc">@loc</option>
+                    }
+                  </InputSelect>
+                  <ValidationMessage For="@(() => transferForm.KaynakKonum)" />
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="form-label small text-muted">Hedef Konum</label>
+                  <InputSelect class="form-select" @bind-Value="transferForm.HedefKonum">
+                    <option value="">Konum Secin</option>
+                    @foreach (var loc in GetAllLocations(selectedWarehouse))
+                    {
+                      <option value="@loc">@loc</option>
+                    }
+                  </InputSelect>
+                  <ValidationMessage For="@(() => transferForm.HedefKonum)" />
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="form-label small text-muted">Urun</label>
+                  <InputText class="form-control" @bind-Value="transferForm.Urun" placeholder="Urun adi veya SKU" />
+                  <ValidationMessage For="@(() => transferForm.Urun)" />
+                </div>
+                <div class="col-6 col-md-1">
+                  <label class="form-label small text-muted">Miktar</label>
+                  <InputNumber class="form-control" @bind-Value="transferForm.Miktar" />
+                </div>
+                <div class="col-6 col-md-2 d-flex align-items-end">
+                  <button type="submit" class="btn w-100" style="background-color: #2855AC; color: white;" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="fas fa-exchange-alt me-1"></i>Transfer Et
+                  </button>
+                </div>
               </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small text-muted">Hedef Konum</label>
-                <select class="form-select" @bind="transferForm.HedefKonum">
-                  <option value="">Konum Secin</option>
-                  @foreach (var loc in GetAllLocations(selectedWarehouse))
-                  {
-                    <option value="@loc">@loc</option>
-                  }
-                </select>
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small text-muted">Urun</label>
-                <input type="text" class="form-control" @bind="transferForm.Urun" placeholder="Urun adi veya SKU" />
-              </div>
-              <div class="col-6 col-md-1">
-                <label class="form-label small text-muted">Miktar</label>
-                <input type="number" class="form-control" @bind="transferForm.Miktar" min="1" />
-              </div>
-              <div class="col-6 col-md-2 d-flex align-items-end">
-                <button class="btn w-100" style="background-color: #2855AC; color: white;" @onclick="ExecuteTransfer" disabled="@isSubmitting">
-                  @if (isSubmitting)
-                  {
-                    <span class="spinner-border spinner-border-sm me-1"></span>
-                  }
-                  <i class="fas fa-exchange-alt me-1"></i>Transfer Et
-                </button>
-              </div>
-            </div>
+            </EditForm>
 
             @if (!string.IsNullOrEmpty(transferMessage))
             {
@@ -206,7 +213,6 @@ else
         if (result is { Count: > 0 })
         {
           _isDemoMode = false;
-          // TODO: map API response to WarehouseNode when DTO finalized
         }
         else
         {
@@ -324,7 +330,7 @@ else
         return;
       }
 
-      // TODO: Panel A — add TransferStockCommand
+      // TODO(v2): wire to TransferStockCommand
       await Task.Delay(200); // simulate
 
       transferMessage = $"{transferForm.Miktar} adet '{transferForm.Urun}' basariyla {transferForm.KaynakKonum} -> {transferForm.HedefKonum} konumuna transfer edildi.";
@@ -395,9 +401,13 @@ else
 
   private class TransferFormModel
   {
+    [Required(ErrorMessage = "Kaynak konum zorunludur")]
     public string KaynakKonum { get; set; } = "";
+    [Required(ErrorMessage = "Hedef konum zorunludur")]
     public string HedefKonum { get; set; } = "";
+    [Required(ErrorMessage = "Urun zorunludur")]
     public string Urun { get; set; } = "";
+    [Range(1, 99999, ErrorMessage = "Miktar en az 1 olmalidir")]
     public int Miktar { get; set; } = 1;
   }
 }

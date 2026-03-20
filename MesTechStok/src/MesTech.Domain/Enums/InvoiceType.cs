@@ -8,6 +8,9 @@ public enum InvoiceType
     EIrsaliye = 3,
     EMusFatura = 4,
     ESerbest = 5,
-    ESMM = 6,       // e-Serbest Meslek Makbuzu
-    EIhracat = 7    // e-İhracat Faturası
+    ESMM = 6,               // e-Serbest Meslek Makbuzu
+    EIhracat = 7,           // e-İhracat Faturası
+    EWaybill = 10,          // e-İrsaliye
+    ESelfEmployment = 11,   // e-SMM
+    EExport = 12            // e-İhracat (301-11/1-a istisna)
 }

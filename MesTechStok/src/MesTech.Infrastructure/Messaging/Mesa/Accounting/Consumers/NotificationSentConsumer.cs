@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.MarkNotificationDelivered;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -14,17 +16,20 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
 {
+    private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<NotificationSentConsumer> _logger;
 
     public NotificationSentConsumer(
+        IMediator mediator,
         INotificationLogRepository notificationLogRepository,
         IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ILogger<NotificationSentConsumer> logger)
     {
+        _mediator = mediator;
         _notificationLogRepository = notificationLogRepository;
         _unitOfWork = unitOfWork;
         _monitor = monitor;
@@ -35,6 +40,29 @@ public class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
     {
         var msg = context.Message;
         var ct = context.CancellationToken;
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(BotNotificationSentEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new MarkNotificationDeliveredCommand
+            {
+                TenantId = msg.TenantId,
+                Channel = msg.Channel,
+                Recipient = msg.Recipient,
+                TemplateName = msg.TemplateName,
+                Content = msg.Content,
+                Success = msg.Success,
+                ErrorMessage = msg.ErrorMessage
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(BotNotificationSentEvent));
+            throw; // Let MassTransit retry policy handle
+        }
 
         _logger.LogInformation(
             "[MESA Consumer] Bildirim sonucu alindi: Channel={Channel}, Recipient={Recipient}, Success={Success}",

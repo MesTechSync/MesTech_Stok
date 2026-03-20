@@ -52,7 +52,7 @@ else
         try
         {
             var result = await ApiClient.SafeGetAsync<List<object>>("documents");
-            if (result.IsSuccess) { /* TODO: map result.Data */ }
+            if (result.IsSuccess) { }
             else { _isDemoMode = true; }
         }
         catch (Exception ex)

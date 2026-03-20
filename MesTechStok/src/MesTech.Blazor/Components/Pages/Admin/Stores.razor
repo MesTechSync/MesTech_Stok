@@ -1,5 +1,6 @@
 @page "/admin/stores"
 @attribute [Authorize(Roles = "Admin")]
+@using System.ComponentModel.DataAnnotations
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
@@ -57,65 +58,72 @@ else
         </button>
       </div>
       <div class="card-body">
-        <div class="row g-3">
-          <div class="col-12 col-md-4">
-            <label class="form-label small text-muted">Magaza Adi</label>
-            <input type="text" class="form-control" @bind="newStore.MagazaAdi" placeholder="Magaza adini girin" />
+        <EditForm Model="@newStore" OnValidSubmit="SaveNewStore">
+          <DataAnnotationsValidator />
+          <ValidationSummary class="text-danger mb-3" />
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Magaza Adi</label>
+              <InputText class="form-control" @bind-Value="newStore.MagazaAdi" placeholder="Magaza adini girin" />
+              <ValidationMessage For="@(() => newStore.MagazaAdi)" />
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small text-muted">Platform</label>
+              <InputSelect class="form-select" @bind-Value="newStore.Platform">
+                <option value="">Platform Secin</option>
+                @foreach (var p in platformOptions)
+                {
+                  <option value="@p">@p</option>
+                }
+              </InputSelect>
+              <ValidationMessage For="@(() => newStore.Platform)" />
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label small text-muted">API Key</label>
+              <InputText class="form-control" @bind-Value="newStore.ApiKey" placeholder="API anahtarinizi girin" />
+              <ValidationMessage For="@(() => newStore.ApiKey)" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">API Secret</label>
+              <InputText type="password" class="form-control" @bind-Value="newStore.ApiSecret" placeholder="API secret" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Seller ID</label>
+              <InputText class="form-control" @bind-Value="newStore.SellerId" placeholder="Magaza / Satici ID" />
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-end gap-2">
+              <button type="button" class="btn btn-outline-info flex-fill" @onclick="TestConnection" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-plug me-1"></i>Baglanti Test
+              </button>
+              <button type="submit" class="btn flex-fill" style="background-color: #2855AC; color: white;" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fas fa-save me-1"></i>Kaydet
+              </button>
+            </div>
           </div>
-          <div class="col-12 col-md-3">
-            <label class="form-label small text-muted">Platform</label>
-            <select class="form-select" @bind="newStore.Platform">
-              <option value="">Platform Secin</option>
-              @foreach (var p in platformOptions)
-              {
-                <option value="@p">@p</option>
-              }
-            </select>
-          </div>
-          <div class="col-12 col-md-5">
-            <label class="form-label small text-muted">API Key</label>
-            <input type="text" class="form-control" @bind="newStore.ApiKey" placeholder="API anahtarinizi girin" />
-          </div>
-          <div class="col-12 col-md-4">
-            <label class="form-label small text-muted">API Secret</label>
-            <input type="password" class="form-control" @bind="newStore.ApiSecret" placeholder="API secret" />
-          </div>
-          <div class="col-12 col-md-4">
-            <label class="form-label small text-muted">Seller ID</label>
-            <input type="text" class="form-control" @bind="newStore.SellerId" placeholder="Magaza / Satici ID" />
-          </div>
-          <div class="col-12 col-md-4 d-flex align-items-end gap-2">
-            <button class="btn btn-outline-info flex-fill" @onclick="TestConnection" disabled="@isSubmitting">
-              @if (isSubmitting)
-              {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="fas fa-plug me-1"></i>Baglanti Test
-            </button>
-            <button class="btn flex-fill" style="background-color: #2855AC; color: white;" @onclick="SaveNewStore" disabled="@isSubmitting">
-              @if (isSubmitting)
-              {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="fas fa-save me-1"></i>Kaydet
-            </button>
-          </div>
-        </div>
 
-        @if (!string.IsNullOrEmpty(successMessage))
-        {
-          <div class="alert alert-success mt-3 mb-0" role="alert">
-            <i class="fas fa-check-circle me-2"></i>@successMessage
-          </div>
-        }
+          @if (!string.IsNullOrEmpty(successMessage))
+          {
+            <div class="alert alert-success mt-3 mb-0" role="alert">
+              <i class="fas fa-check-circle me-2"></i>@successMessage
+            </div>
+          }
 
-        @if (connectionTestResult is not null)
-        {
-          <div class="alert @(connectionTestSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-            <i class="fas @(connectionTestSuccess ? "fa-check-circle" : "fa-times-circle") me-2"></i>
-            @connectionTestResult
-          </div>
-        }
+          @if (connectionTestResult is not null)
+          {
+            <div class="alert @(connectionTestSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+              <i class="fas @(connectionTestSuccess ? "fa-check-circle" : "fa-times-circle") me-2"></i>
+              @connectionTestResult
+            </div>
+          }
+        </EditForm>
       </div>
     </div>
   }
@@ -240,7 +248,7 @@ else
         _isDemoMode = false;
         // Keep demo data for now — typed DTOs not yet available
         // When API returns real data, it will be List<object>
-        stores = GetDemoStores(); // TODO: map apiData when DTOs exist
+        stores = GetDemoStores();
       }
       else
       {
@@ -304,7 +312,7 @@ else
         return;
       }
 
-      // TODO: Panel A — add TestStoreConnectionCommand
+      // TODO(v2): wire to TestStoreConnectionCommand
       await Task.Delay(300); // simulate API call
 
       // Mock: success for most platforms, fail for Amazon
@@ -338,10 +346,7 @@ else
 
     try
     {
-      if (string.IsNullOrWhiteSpace(newStore.MagazaAdi) || string.IsNullOrWhiteSpace(newStore.Platform))
-        return;
-
-      // TODO: Panel A — add CreateStoreCommand
+      // TODO(v2): wire to CreateStoreCommand
       stores.Add(new StoreRow(
         newStore.MagazaAdi,
         newStore.Platform,
@@ -368,7 +373,7 @@ else
 
   private async Task SyncStore(StoreRow store)
   {
-    // TODO: Panel A — add SyncStoreCommand
+    // TODO(v2): wire to SyncStoreCommand
     await Task.CompletedTask;
   }
 
@@ -392,8 +397,11 @@ else
 
   private class NewStoreForm
   {
+    [Required(ErrorMessage = "Magaza adi zorunludur")]
     public string MagazaAdi { get; set; } = "";
+    [Required(ErrorMessage = "Platform secimi zorunludur")]
     public string Platform { get; set; } = "";
+    [Required(ErrorMessage = "API Key zorunludur")]
     public string ApiKey { get; set; } = "";
     public string ApiSecret { get; set; } = "";
     public string SellerId { get; set; } = "";

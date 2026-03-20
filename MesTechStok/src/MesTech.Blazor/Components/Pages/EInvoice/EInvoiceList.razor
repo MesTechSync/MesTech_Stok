@@ -174,7 +174,6 @@ else
             var apiData = await ApiClient.GetInvoicesAsync();
             if (apiData?.Count > 0)
             {
-                // TODO: map API data to InvoiceRow when typed DTO finalized
                 _isDemoMode = false;
                 invoices = GetDemoData();
             }
@@ -209,7 +208,7 @@ else
 
         try
         {
-            // TODO: Panel A — wire to SendEInvoiceCommand
+            // TODO(v2): wire to SendEInvoiceCommand
             var inv = invoices.FirstOrDefault(i => i.Id == id);
             if (inv is not null)
             {
@@ -239,7 +238,7 @@ else
 
         try
         {
-            // TODO: Panel A — wire to CancelEInvoiceCommand
+            // TODO(v2): wire to CancelEInvoiceCommand
             invoices = invoices.Select(i => i.Id == id
                 ? i with { Durum = "Iptal" }
                 : i).ToList();

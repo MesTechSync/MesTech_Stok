@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.UpdateDocumentCategory;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
@@ -13,17 +15,20 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DocumentClassifiedConsumer> _logger;
 
     public DocumentClassifiedConsumer(
+        IMediator mediator,
         IAccountingDocumentRepository documentRepository,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<DocumentClassifiedConsumer> logger)
     {
+        _mediator = mediator;
         _documentRepository = documentRepository;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
@@ -39,6 +44,28 @@ public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiDocumentClassifiedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateDocumentCategoryCommand
+            {
+                DocumentId = msg.DocumentId,
+                DocumentType = msg.DocumentType,
+                Confidence = msg.Confidence,
+                ExtractedAmount = msg.ExtractedAmount,
+                ExtractedVKN = msg.ExtractedVKN,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiDocumentClassifiedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

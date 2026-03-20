@@ -514,6 +514,17 @@
                                 </StackPanel>
                             </Button>
 
+                            <!-- MARKETPLACE -->
+                            <TextBlock Classes="sidebar-section" Text="MARKETPLACE"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Buybox">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Buybox Analizi"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- 11. RAPORLAR -->
                             <TextBlock Classes="sidebar-section" Text="RAPORLAR"/>
                             <Button Classes="sidebar-btn"
@@ -771,6 +782,10 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:CargoProvidersAvaloniaViewModel">
                             <views:CargoProvidersAvaloniaView />
+                        </DataTemplate>
+                        <!-- FIX-18 Gorev #13: Buybox Analizi -->
+                        <DataTemplate DataType="vm:BuyboxAvaloniaViewModel">
+                            <views:BuyboxAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

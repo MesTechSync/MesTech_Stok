@@ -1,4 +1,12 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.ApplyOptimizedPrice;
+using MesTech.Application.Commands.ProcessBotInvoiceRequest;
+using MesTech.Application.Commands.ProcessBotReturnRequest;
+using MesTech.Application.Commands.UpdateBotNotificationStatus;
+using MesTech.Application.Commands.UpdateProductContent;
+using MesTech.Application.Commands.UpdateProductPrice;
+using MesTech.Application.Commands.UpdateStockForecast;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.AI;
@@ -16,6 +24,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// </summary>
 public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IProductRepository _productRepository;
@@ -23,12 +32,14 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
     private readonly ILogger<MesaAiContentConsumer> _logger;
 
     public MesaAiContentConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
         ILogger<MesaAiContentConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _productRepository = productRepository;
@@ -45,6 +56,27 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaAiContentGeneratedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateProductContentCommand
+            {
+                ProductId = msg.ProductId,
+                SKU = msg.SKU,
+                GeneratedContent = msg.GeneratedContent,
+                AiProvider = msg.AiProvider,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiContentGeneratedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -94,6 +126,7 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 
 public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IPriceRecommendationRepository _priceRecommendationRepository;
@@ -102,6 +135,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
     private readonly ILogger<MesaAiPriceConsumer> _logger;
 
     public MesaAiPriceConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IPriceRecommendationRepository priceRecommendationRepository,
@@ -109,6 +143,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
         IUnitOfWork unitOfWork,
         ILogger<MesaAiPriceConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _priceRecommendationRepository = priceRecommendationRepository;
@@ -126,6 +161,29 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaAiPriceRecommendedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateProductPriceCommand
+            {
+                ProductId = msg.ProductId,
+                SKU = msg.SKU,
+                RecommendedPrice = msg.RecommendedPrice,
+                MinPrice = msg.MinPrice,
+                MaxPrice = msg.MaxPrice,
+                Reasoning = msg.Reasoning,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceRecommendedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -177,6 +235,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 
 public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly INotificationLogRepository _notificationLogRepository;
@@ -184,12 +243,14 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
     private readonly ILogger<MesaBotStatusConsumer> _logger;
 
     public MesaBotStatusConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         INotificationLogRepository notificationLogRepository,
         IUnitOfWork unitOfWork,
         ILogger<MesaBotStatusConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _notificationLogRepository = notificationLogRepository;
@@ -206,6 +267,27 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaBotNotificationSentEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateBotNotificationStatusCommand
+            {
+                Channel = msg.Channel,
+                Recipient = msg.Recipient,
+                Success = msg.Success,
+                ErrorMessage = msg.ErrorMessage,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotNotificationSentEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         if (msg.Success)
@@ -246,6 +328,7 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 
 public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IPriceRecommendationRepository _priceRecommendationRepository;
@@ -254,6 +337,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
     private readonly ILogger<MesaAiPriceOptimizedConsumer> _logger;
 
     public MesaAiPriceOptimizedConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IPriceRecommendationRepository priceRecommendationRepository,
@@ -261,6 +345,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
         IUnitOfWork unitOfWork,
         ILogger<MesaAiPriceOptimizedConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _priceRecommendationRepository = priceRecommendationRepository;
@@ -278,6 +363,31 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaAiPriceOptimizedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new ApplyOptimizedPriceCommand
+            {
+                ProductId = msg.ProductId,
+                SKU = msg.SKU,
+                RecommendedPrice = msg.RecommendedPrice,
+                MinPrice = msg.MinPrice,
+                MaxPrice = msg.MaxPrice,
+                CompetitorMinPrice = msg.CompetitorMinPrice,
+                Confidence = msg.Confidence,
+                Reasoning = msg.Reasoning,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceOptimizedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -333,6 +443,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 
 public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IStockPredictionRepository _stockPredictionRepository;
@@ -341,6 +452,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
     private readonly ILogger<MesaAiStockPredictedConsumer> _logger;
 
     public MesaAiStockPredictedConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IStockPredictionRepository stockPredictionRepository,
@@ -348,6 +460,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
         IUnitOfWork unitOfWork,
         ILogger<MesaAiStockPredictedConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _stockPredictionRepository = stockPredictionRepository;
@@ -365,6 +478,32 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaAiStockPredictedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new UpdateStockForecastCommand
+            {
+                ProductId = msg.ProductId,
+                SKU = msg.SKU,
+                PredictedDemand7d = msg.PredictedDemand7d,
+                PredictedDemand14d = msg.PredictedDemand14d,
+                PredictedDemand30d = msg.PredictedDemand30d,
+                DaysUntilStockout = msg.DaysUntilStockout,
+                ReorderSuggestion = msg.ReorderSuggestion,
+                Confidence = msg.Confidence,
+                Reasoning = msg.Reasoning,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiStockPredictedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -415,6 +554,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 
 public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IOrderRepository _orderRepository;
@@ -423,6 +563,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
     private readonly ILogger<MesaBotInvoiceRequestConsumer> _logger;
 
     public MesaBotInvoiceRequestConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IOrderRepository orderRepository,
@@ -430,6 +571,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         IUnitOfWork unitOfWork,
         ILogger<MesaBotInvoiceRequestConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _orderRepository = orderRepository;
@@ -447,6 +589,26 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaBotInvoiceRequestedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new ProcessBotInvoiceRequestCommand
+            {
+                CustomerPhone = msg.CustomerPhone,
+                OrderNumber = msg.OrderNumber,
+                RequestChannel = msg.RequestChannel,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotInvoiceRequestedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -493,6 +655,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
 
 public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly IOrderRepository _orderRepository;
@@ -501,6 +664,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
     private readonly ILogger<MesaBotReturnRequestConsumer> _logger;
 
     public MesaBotReturnRequestConsumer(
+        IMediator mediator,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IOrderRepository orderRepository,
@@ -508,6 +672,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         IUnitOfWork unitOfWork,
         ILogger<MesaBotReturnRequestConsumer> logger)
     {
+        _mediator = mediator;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _orderRepository = orderRepository;
@@ -525,6 +690,27 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(MesaBotReturnRequestedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new ProcessBotReturnRequestCommand
+            {
+                CustomerPhone = msg.CustomerPhone,
+                OrderNumber = msg.OrderNumber,
+                ReturnReason = msg.ReturnReason,
+                RequestChannel = msg.RequestChannel,
+                TenantId = tenantId
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotReturnRequestedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
@@ -551,7 +737,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
             {
                 TenantId = tenantId,
                 OrderId = order.Id,
-                Platform = default, // TODO: Add PlatformType.Bot or PlatformType.Manual enum value
+                Platform = default, // TODO(v2): Add PlatformType.Bot or PlatformType.Manual enum value
                 Status = MesTech.Domain.Enums.ReturnStatus.Pending,
                 CustomerPhone = msg.CustomerPhone,
                 ReasonDetail = msg.ReturnReason,

@@ -1,5 +1,6 @@
 @page "/categories"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
@@ -157,38 +158,43 @@ else
                     </h5>
                     <button type="button" class="btn-close" @onclick="CloseModal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Kategori Adi</label>
-                        <input type="text" class="form-control form-control-sm" @bind="modalForm.Name"
-                               placeholder="Kategori adi girin" />
+                <EditForm Model="@modalForm" OnValidSubmit="SaveCategory">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body">
+                        <ValidationSummary class="text-danger mb-3" />
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Kategori Adi</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="modalForm.Name"
+                                       placeholder="Kategori adi girin" />
+                            <ValidationMessage For="@(() => modalForm.Name)" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ust Kategori</label>
+                            <InputSelect class="form-select form-select-sm" @bind-Value="modalForm.ParentId">
+                                <option value="">Ana Kategori (Kok)</option>
+                                @foreach (var cat in allCategoriesFlat.Where(c => c.Id != modalForm.Id))
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Aciklama</label>
+                            <InputTextArea class="form-control form-control-sm" rows="3" @bind-Value="modalForm.Description"
+                                           placeholder="Kategori aciklamasi" />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Ust Kategori</label>
-                        <select class="form-select form-select-sm" @bind="modalForm.ParentId">
-                            <option value="">Ana Kategori (Kok)</option>
-                            @foreach (var cat in allCategoriesFlat.Where(c => c.Id != modalForm.Id))
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="CloseModal">Iptal</button>
+                        <button type="submit" class="btn btn-primary btn-sm" disabled="@isSubmitting">
+                            @if (isSubmitting)
                             {
-                                <option value="@cat.Id">@cat.Name</option>
+                                <span class="spinner-border spinner-border-sm me-1"></span>
                             }
-                        </select>
+                            <i class="fas fa-check me-1"></i>@(isEditing ? "Guncelle" : "Olustur")
+                        </button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Aciklama</label>
-                        <textarea class="form-control form-control-sm" rows="3" @bind="modalForm.Description"
-                                  placeholder="Kategori aciklamasi"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary btn-sm" @onclick="CloseModal">Iptal</button>
-                    <button class="btn btn-primary btn-sm" @onclick="SaveCategory" disabled="@isSubmitting">
-                        @if (isSubmitting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-1"></span>
-                        }
-                        <i class="fas fa-check me-1"></i>@(isEditing ? "Guncelle" : "Olustur")
-                    </button>
-                </div>
+                </EditForm>
             </div>
         </div>
     </div>
@@ -216,6 +222,8 @@ else
     private class CategoryFormModel
     {
         public Guid? Id { get; set; }
+        [Required(ErrorMessage = "Kategori adi zorunludur")]
+        [MinLength(2, ErrorMessage = "Kategori adi en az 2 karakter olmalidir")]
         public string Name { get; set; } = string.Empty;
         public string ParentId { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -360,9 +368,7 @@ else
 
         try
         {
-            if (string.IsNullOrWhiteSpace(modalForm.Name)) return;
-
-            // TODO: Panel A — wire to CreateCategoryCommand / UpdateCategoryCommand
+            // TODO(v2): wire to CreateCategoryCommand / UpdateCategoryCommand
             if (isEditing && modalForm.Id.HasValue)
             {
                 var existing = allCategoriesFlat.FirstOrDefault(c => c.Id == modalForm.Id.Value);
@@ -407,7 +413,7 @@ else
     {
         if (deleteCategoryId.HasValue)
         {
-            // TODO: Panel A — wire to DeleteCategoryCommand
+            // TODO(v2): wire to DeleteCategoryCommand
             rootCategories.RemoveAll(c => c.Id == deleteCategoryId.Value);
             allCategoriesFlat.RemoveAll(c => c.Id == deleteCategoryId.Value);
 

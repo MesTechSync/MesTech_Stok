@@ -252,7 +252,7 @@ else
         _isDemoMode = false;
         // Keep demo data for now — typed DTOs not yet available
         // When API returns real data, map apiData to tenant/stores/users/credentials
-        tenant = GetDemoTenant(); // TODO: map apiData when DTOs exist
+        tenant = GetDemoTenant();
       }
       else
       {
@@ -260,7 +260,7 @@ else
         tenant = GetDemoTenant();
       }
 
-      // TODO: Panel A — wire to GetStoresByTenantQuery
+      // TODO(v2): wire to GetStoresByTenantQuery
       stores = GetDemoStores();
       users = GetDemoUsers();
       credentials = GetDemoCredentials();

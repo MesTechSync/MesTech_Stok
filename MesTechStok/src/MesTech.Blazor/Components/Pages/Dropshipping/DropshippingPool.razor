@@ -262,7 +262,7 @@
 
   private void SaveMarkup(PoolProduct product)
   {
-    // TODO: Panel A — wire to UpdatePoolItemMarkupCommand
+    // TODO(v2): wire to UpdatePoolItemMarkupCommand
     var idx = products.FindIndex(p => p.Id == product.Id);
     if (idx >= 0)
     {
@@ -278,14 +278,14 @@
 
   private void RemoveProduct(int id)
   {
-    // TODO: Panel A — wire to RemoveFromPoolCommand
+    // TODO(v2): wire to RemoveFromPoolCommand
     products.RemoveAll(p => p.Id == id);
     selectedIds.Remove(id);
   }
 
   private void RemoveSelected()
   {
-    // TODO: Panel A — wire to BatchRemoveFromPoolCommand
+    // TODO(v2): wire to BatchRemoveFromPoolCommand
     products.RemoveAll(p => selectedIds.Contains(p.Id));
     selectedIds.Clear();
   }
@@ -299,7 +299,7 @@
 
     try
     {
-      // TODO: Panel A — wire to SendToMarketplaceCommand
+      // TODO(v2): wire to SendToMarketplaceCommand
       successMessage = "Secilen urunler platforma gonderildi";
     }
     catch (Exception ex)
@@ -320,7 +320,7 @@
 
     try
     {
-      // TODO: Panel A — wire to ExportPoolCsvCommand
+      // TODO(v2): wire to ExportPoolCsvCommand
       successMessage = "CSV dosyasi basariyla olusturuldu";
     }
     catch (Exception ex)
@@ -341,7 +341,7 @@
 
     try
     {
-      // TODO: Panel A — wire to ExportPoolXmlCommand
+      // TODO(v2): wire to ExportPoolXmlCommand
       successMessage = "XML dosyasi basariyla olusturuldu";
     }
     catch (Exception ex)

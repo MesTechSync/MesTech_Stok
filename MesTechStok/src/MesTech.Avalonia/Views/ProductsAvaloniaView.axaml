@@ -24,7 +24,7 @@
                 <!-- GOREV 5: Grid/List Toggle Buttons -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="0,0,12,0">
                     <Button Command="{Binding SetListViewCommand}"
-                            Background="{Binding IsListView, Converter={x:Static BoolConverters.True}}"
+                            Background="#FFFFFF88"
                             Padding="8,6" CornerRadius="4,0,0,4"
                             ToolTip.Tip="Liste Gorunumu">
                         <Button.Styles>
@@ -202,20 +202,22 @@
                             <Grid RowDefinitions="140,*">
                                 <!-- Product Image Placeholder -->
                                 <Border Grid.Row="0" Background="#F1F5F9" CornerRadius="10,10,0,0">
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <TextBlock Text="&#x1F4E6;" FontSize="36"
-                                                   HorizontalAlignment="Center" Opacity="0.4" />
-                                        <TextBlock Text="{Binding SKU}" FontSize="10"
-                                                   Foreground="#94A3B8" HorizontalAlignment="Center"
-                                                   Margin="0,4,0,0" />
-                                    </StackPanel>
-                                    <!-- Discount badge -->
-                                    <Border IsVisible="{Binding HasDiscount}"
-                                            Background="#E74C3C" CornerRadius="0,0,0,8"
-                                            Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top">
-                                        <TextBlock Text="INDIRIM" FontSize="10"
-                                                   Foreground="White" FontWeight="Bold" />
-                                    </Border>
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="&#x1F4E6;" FontSize="36"
+                                                       HorizontalAlignment="Center" Opacity="0.4" />
+                                            <TextBlock Text="{Binding SKU}" FontSize="10"
+                                                       Foreground="#94A3B8" HorizontalAlignment="Center"
+                                                       Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <!-- Discount badge -->
+                                        <Border IsVisible="{Binding HasDiscount}"
+                                                Background="#E74C3C" CornerRadius="0,0,0,8"
+                                                Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                            <TextBlock Text="INDIRIM" FontSize="10"
+                                                       Foreground="White" FontWeight="Bold" />
+                                        </Border>
+                                    </Grid>
                                 </Border>
 
                                 <!-- Product Info -->

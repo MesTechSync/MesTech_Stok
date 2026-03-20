@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.RejectAccountingEntry;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
@@ -13,17 +15,20 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<AccountingRejectionConsumer> _logger;
 
     public AccountingRejectionConsumer(
+        IMediator mediator,
         IAccountingDocumentRepository documentRepository,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<AccountingRejectionConsumer> logger)
     {
+        _mediator = mediator;
         _documentRepository = documentRepository;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
@@ -39,6 +44,27 @@ public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Rejection event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(BotAccountingRejectedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new RejectAccountingEntryCommand
+            {
+                DocumentId = msg.DocumentId,
+                RejectedBy = msg.RejectedBy,
+                RejectionSource = msg.RejectionSource,
+                Reason = msg.Reason,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(BotAccountingRejectedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

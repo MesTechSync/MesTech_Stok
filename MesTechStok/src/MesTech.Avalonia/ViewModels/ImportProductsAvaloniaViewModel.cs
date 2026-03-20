@@ -57,7 +57,7 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string errorCountBackground = "#FEE2E2";
     [ObservableProperty] private string previewErrorSummary = string.Empty;
 
-    public ObservableCollection<ImportPreviewRowDto> PreviewRows { get; } = [];
+    public ObservableCollection<ImportWizardPreviewRowDto> PreviewRows { get; } = [];
 
     // Step 3: Column Mapping
     public ObservableCollection<ImportColumnMappingDto> ColumnMappings { get; } = [];
@@ -216,16 +216,16 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
     private void LoadPreviewData()
     {
         PreviewRows.Clear();
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 1, Status = "OK", ColumnA = "Samsung Galaxy S24", ColumnB = "TRY-ELK-001", ColumnC = "64999.00", ColumnD = "45", ColumnE = "Elektronik" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 2, Status = "OK", ColumnA = "Apple MacBook Air M3", ColumnB = "HB-BLG-002", ColumnC = "54999.00", ColumnD = "12", ColumnE = "Bilgisayar" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 3, Status = "OK", ColumnA = "Sony WH-1000XM5", ColumnB = "N11-AKS-003", ColumnC = "11499.00", ColumnD = "78", ColumnE = "Aksesuar" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 4, Status = "OK", ColumnA = "Logitech MX Master 3S", ColumnB = "TRY-AKS-004", ColumnC = "3299.00", ColumnD = "156", ColumnE = "Aksesuar" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 5, Status = "OK", ColumnA = "Dell U2723QE Monitor", ColumnB = "CS-MNT-005", ColumnC = "18799.00", ColumnD = "8", ColumnE = "Monitor" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 6, Status = "OK", ColumnA = "Dyson V15 Detect", ColumnB = "AMZ-GYM-006", ColumnC = "28990.00", ColumnD = "23", ColumnE = "Ev Aletleri" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 7, Status = "HATA", ColumnA = "Philips Airfryer XXL", ColumnB = "OC-EV-007", ColumnC = "", ColumnD = "0", ColumnE = "Ev Aletleri" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 8, Status = "OK", ColumnA = "Karaca Hatir Kahve", ColumnB = "TRY-GYM-008", ColumnC = "2199.00", ColumnD = "340", ColumnE = "Mutfak" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 9, Status = "HATA", ColumnA = "Vestel 55 Smart TV", ColumnB = "HB-KSA-009", ColumnC = "12.5abc", ColumnD = "5", ColumnE = "TV" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 10, Status = "OK", ColumnA = "Nike Air Max 270", ColumnB = "N11-SPR-010", ColumnC = "4599.00", ColumnD = "67", ColumnE = "Spor" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 1, Status = "OK", ColumnA = "Samsung Galaxy S24", ColumnB = "TRY-ELK-001", ColumnC = "64999.00", ColumnD = "45", ColumnE = "Elektronik" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 2, Status = "OK", ColumnA = "Apple MacBook Air M3", ColumnB = "HB-BLG-002", ColumnC = "54999.00", ColumnD = "12", ColumnE = "Bilgisayar" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 3, Status = "OK", ColumnA = "Sony WH-1000XM5", ColumnB = "N11-AKS-003", ColumnC = "11499.00", ColumnD = "78", ColumnE = "Aksesuar" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 4, Status = "OK", ColumnA = "Logitech MX Master 3S", ColumnB = "TRY-AKS-004", ColumnC = "3299.00", ColumnD = "156", ColumnE = "Aksesuar" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 5, Status = "OK", ColumnA = "Dell U2723QE Monitor", ColumnB = "CS-MNT-005", ColumnC = "18799.00", ColumnD = "8", ColumnE = "Monitor" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 6, Status = "OK", ColumnA = "Dyson V15 Detect", ColumnB = "AMZ-GYM-006", ColumnC = "28990.00", ColumnD = "23", ColumnE = "Ev Aletleri" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 7, Status = "HATA", ColumnA = "Philips Airfryer XXL", ColumnB = "OC-EV-007", ColumnC = "", ColumnD = "0", ColumnE = "Ev Aletleri" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 8, Status = "OK", ColumnA = "Karaca Hatir Kahve", ColumnB = "TRY-GYM-008", ColumnC = "2199.00", ColumnD = "340", ColumnE = "Mutfak" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 9, Status = "HATA", ColumnA = "Vestel 55 Smart TV", ColumnB = "HB-KSA-009", ColumnC = "12.5abc", ColumnD = "5", ColumnE = "TV" });
+        PreviewRows.Add(new ImportWizardPreviewRowDto { RowNumber = 10, Status = "OK", ColumnA = "Nike Air Max 270", ColumnB = "N11-SPR-010", ColumnC = "4599.00", ColumnD = "67", ColumnE = "Spor" });
 
         TotalRowCount = 10;
         ErrorRowCount = 2;
@@ -295,7 +295,7 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
     }
 }
 
-public class ImportPreviewRowDto
+public class ImportWizardPreviewRowDto
 {
     public int RowNumber { get; set; }
     public string Status { get; set; } = string.Empty;

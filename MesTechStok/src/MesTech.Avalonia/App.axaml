@@ -7,7 +7,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://MesTech.Avalonia/Styles/MesTechTheme.axaml"/>
                 <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDesignTokens.axaml"/>
-                <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechComponentStyles.axaml"/>
+                <!-- MesTechComponentStyles is a Styles resource, included via Application.Styles -->
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
@@ -20,6 +20,7 @@
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/InputStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/SidebarStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/DialogStyles.axaml"/>
+        <StyleInclude Source="avares://MesTech.Avalonia/Themes/MesTechComponentStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/TypographyStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/AccessibilityStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/MesTechIcons.axaml"/>

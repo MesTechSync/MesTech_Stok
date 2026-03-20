@@ -1,5 +1,6 @@
 @page "/cari-hesaplar"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
@@ -146,41 +147,46 @@
               <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Cari Hesap</h5>
               <button type="button" class="btn-close" @onclick="CloseNewCariModal"></button>
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Unvan</label>
-                <input type="text" class="form-control" @bind="newCari.Unvan" placeholder="Firma veya kisi adi" />
+            <EditForm Model="@newCari" OnValidSubmit="SaveNewCari">
+              <DataAnnotationsValidator />
+              <div class="modal-body">
+                <ValidationSummary class="text-danger mb-3" />
+                <div class="mb-3">
+                  <label class="form-label">Unvan</label>
+                  <InputText class="form-control" @bind-Value="newCari.Unvan" placeholder="Firma veya kisi adi" />
+                  <ValidationMessage For="@(() => newCari.Unvan)" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Tip</label>
+                  <InputSelect class="form-select" @bind-Value="newCari.Tip">
+                    <option value="Musteri">Musteri</option>
+                    <option value="Tedarikci">Tedarikci</option>
+                  </InputSelect>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Vergi No</label>
+                  <InputText class="form-control" @bind-Value="newCari.VergiNo" placeholder="10 haneli vergi no" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Telefon</label>
+                  <InputText class="form-control" @bind-Value="newCari.Telefon" placeholder="0 5XX XXX XX XX" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Adres</label>
+                  <InputTextArea class="form-control" rows="2" @bind-Value="newCari.Adres" placeholder="Adres bilgisi" />
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Tip</label>
-                <select class="form-select" @bind="newCari.Tip">
-                  <option value="Musteri">Musteri</option>
-                  <option value="Tedarikci">Tedarikci</option>
-                </select>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseNewCariModal">Iptal</button>
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                  @if (isSubmitting)
+                  {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  <i class="fas fa-save me-1"></i>Kaydet
+                </button>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Vergi No</label>
-                <input type="text" class="form-control" @bind="newCari.VergiNo" placeholder="10 haneli vergi no" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Telefon</label>
-                <input type="tel" class="form-control" @bind="newCari.Telefon" placeholder="0 5XX XXX XX XX" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Adres</label>
-                <textarea class="form-control" rows="2" @bind="newCari.Adres" placeholder="Adres bilgisi"></textarea>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @onclick="CloseNewCariModal">Iptal</button>
-              <button type="button" class="btn btn-primary" @onclick="SaveNewCari" disabled="@isSubmitting">
-                @if (isSubmitting)
-                {
-                  <span class="spinner-border spinner-border-sm me-1"></span>
-                }
-                <i class="fas fa-save me-1"></i>Kaydet
-              </button>
-            </div>
+            </EditForm>
           </div>
         </div>
       </div>
@@ -417,7 +423,7 @@
 
   private List<CariHareket> GetHareketler(int cariId)
   {
-    // TODO: Panel A — wire to GetCariHareketlerQuery
+    // TODO(v2): wire to GetCariHareketlerQuery
     return hareketler.TryGetValue(cariId, out var list) ? list : [];
   }
 
@@ -438,9 +444,7 @@
 
     try
     {
-      // TODO: Panel A — wire to CreateCariHesapCommand
-      if (string.IsNullOrWhiteSpace(newCari.Unvan)) return;
-
+      // TODO(v2): wire to CreateCariHesapCommand
       cariHesaplar.Add(new CariHesap
       {
         Id = cariHesaplar.Count + 1,
@@ -484,7 +488,7 @@
 
     try
     {
-      // TODO: Panel A — wire to CreateCariHareketCommand
+      // TODO(v2): wire to CreateCariHareketCommand
       if (selectedCari is null || newHareket.Tutar <= 0) return;
 
       if (!hareketler.ContainsKey(selectedCari.Id))
@@ -576,7 +580,10 @@
 
   private class NewCariForm
   {
+    [Required(ErrorMessage = "Unvan zorunludur")]
+    [MinLength(2, ErrorMessage = "Unvan en az 2 karakter olmalidir")]
     public string Unvan { get; set; } = "";
+    [Required(ErrorMessage = "Tip zorunludur")]
     public string Tip { get; set; } = "Musteri";
     public string VergiNo { get; set; } = "";
     public string Telefon { get; set; } = "";

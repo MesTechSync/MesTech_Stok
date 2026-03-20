@@ -1,5 +1,5 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ═══ MesTech Component Styles — İ-16 ═══ -->
     <!-- macOS-inspired button, card, input, sidebar styles -->
@@ -156,4 +156,4 @@
         <Setter Property="Background" Value="{DynamicResource MesError}" />
     </Style>
 
-</ResourceDictionary>
+</Styles>

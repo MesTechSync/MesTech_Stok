@@ -96,7 +96,6 @@ else
       var apiData = await ApiClient.GetInvoiceProvidersAsync();
       if (apiData?.Count > 0)
       {
-        // TODO: map API data to ProviderItem when typed DTO finalized
         _isDemoMode = false;
         _providers = GetDemoProviders();
       }

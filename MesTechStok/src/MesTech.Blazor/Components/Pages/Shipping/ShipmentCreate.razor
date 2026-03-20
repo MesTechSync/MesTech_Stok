@@ -1,5 +1,6 @@
 @page "/shipments/create"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inject MesTechApiClient ApiClient
 @inject NavigationManager Nav
 
@@ -44,35 +45,41 @@ else
     </div>
   }
 
-  <!-- Siparis Bilgileri -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-shopping-cart me-2" style="color: #2855AC;"></i>Siparis Bilgileri</h6>
-    </div>
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-12 col-md-4">
-          <label class="form-label fw-semibold">Siparis No</label>
-          <input type="text" class="form-control" @bind="_form.SiparisNo" placeholder="TY-2026-0001" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label fw-semibold">Musteri Adi</label>
-          <input type="text" class="form-control" @bind="_form.MusteriAdi" placeholder="Musteri adi" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label fw-semibold">Platform</label>
-          <select class="form-select" @bind="_form.Platform">
-            <option value="Trendyol">Trendyol</option>
-            <option value="Hepsiburada">Hepsiburada</option>
-            <option value="N11">N11</option>
-            <option value="Amazon TR">Amazon TR</option>
-            <option value="Shopify">Shopify</option>
-            <option value="WooCommerce">WooCommerce</option>
-          </select>
+  <EditForm Model="@_form" OnValidSubmit="SubmitShipment">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger mb-3" />
+
+    <!-- Siparis Bilgileri -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="fas fa-shopping-cart me-2" style="color: #2855AC;"></i>Siparis Bilgileri</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Siparis No</label>
+            <InputText class="form-control" @bind-Value="_form.SiparisNo" placeholder="TY-2026-0001" />
+            <ValidationMessage For="@(() => _form.SiparisNo)" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Musteri Adi</label>
+            <InputText class="form-control" @bind-Value="_form.MusteriAdi" placeholder="Musteri adi" />
+            <ValidationMessage For="@(() => _form.MusteriAdi)" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Platform</label>
+            <InputSelect class="form-select" @bind-Value="_form.Platform">
+              <option value="Trendyol">Trendyol</option>
+              <option value="Hepsiburada">Hepsiburada</option>
+              <option value="N11">N11</option>
+              <option value="Amazon TR">Amazon TR</option>
+              <option value="Shopify">Shopify</option>
+              <option value="WooCommerce">WooCommerce</option>
+            </InputSelect>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
   <!-- Kargo Bilgileri -->
   <div class="card shadow-sm mb-4">
@@ -154,10 +161,10 @@ else
 
   <!-- Submit -->
   <div class="d-flex gap-2 justify-content-end mb-5">
-    <button class="btn btn-outline-secondary" @onclick="GoBack">
+    <button type="button" class="btn btn-outline-secondary" @onclick="GoBack">
       <i class="fas fa-times me-1"></i>Vazgec
     </button>
-    <button class="btn btn-primary" @onclick="SubmitShipment" disabled="@_isSubmitting">
+    <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
       @if (_isSubmitting)
       {
         <span class="spinner-border spinner-border-sm me-1" role="status"></span>
@@ -165,6 +172,7 @@ else
       <i class="fas fa-paper-plane me-1"></i>Gonderi Olustur
     </button>
   </div>
+  </EditForm>
 }
 
 @code {
@@ -187,7 +195,6 @@ else
         if (result is { Count: > 0 })
         {
           _isDemoMode = false;
-          // TODO: map API response to cargo provider options when DTO finalized
         }
         else
         {
@@ -222,12 +229,6 @@ else
   {
     _errorMessage = null;
     _successMessage = null;
-
-    if (string.IsNullOrWhiteSpace(_form.SiparisNo))
-    {
-      _errorMessage = "Siparis numarasi zorunludur.";
-      return;
-    }
 
     _isSubmitting = true;
     try
@@ -272,12 +273,19 @@ else
 
   private class ShipmentForm
   {
+    [Required(ErrorMessage = "Siparis numarasi zorunludur")]
     public string SiparisNo { get; set; } = "";
+    [Required(ErrorMessage = "Musteri adi zorunludur")]
     public string MusteriAdi { get; set; } = "";
+    [Required]
     public string Platform { get; set; } = "Trendyol";
+    [Required]
     public string KargoFirma { get; set; } = "Yurtici";
+    [Range(0.1, 999, ErrorMessage = "Agirlik 0.1 - 999 kg arasinda olmalidir")]
     public decimal Agirlik { get; set; } = 1.0m;
+    [Range(1, 999, ErrorMessage = "Desi 1 - 999 arasinda olmalidir")]
     public int Desi { get; set; } = 1;
+    [Required(ErrorMessage = "Teslimat adresi zorunludur")]
     public string Adres { get; set; } = "";
   }
 

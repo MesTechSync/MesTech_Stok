@@ -35,7 +35,9 @@
     <BoxShadow x:Key="MesElevation4">0 16 48 0 #0000003D</BoxShadow>
 
     <!-- ═══ TYPOGRAPHY (macOS SF Pro esinlenmesi) ═══ -->
+    <!-- FIX-18 #14: Inter font primary — fallback to Segoe UI until .ttf embedded in Assets/Fonts/ -->
     <FontFamily x:Key="MesFontFamily">Inter, Segoe UI, SF Pro Display, system-ui</FontFamily>
+    <FontFamily x:Key="InterFont">Inter, Segoe UI, sans-serif</FontFamily>
 
     <x:Double x:Key="MesFontLargeTitle">28</x:Double>
     <x:Double x:Key="MesFontTitle1">22</x:Double>

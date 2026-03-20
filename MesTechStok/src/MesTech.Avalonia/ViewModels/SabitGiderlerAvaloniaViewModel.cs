@@ -13,6 +13,7 @@ public partial class SabitGiderlerAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
+    [ObservableProperty] private int totalCount;
 
     // KPI
     [ObservableProperty] private string monthlyTotal = "0,00 TL";

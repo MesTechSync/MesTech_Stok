@@ -77,7 +77,7 @@
 
                         <ItemsControl ItemsSource="{Binding ColumnMappings}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:ColumnMappingDto">
+                                <DataTemplate x:DataType="vm:FeedColumnMappingDto">
                                     <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,4">
                                         <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak kolon"
                                                  Padding="8,6" Margin="0,0,8,0" />

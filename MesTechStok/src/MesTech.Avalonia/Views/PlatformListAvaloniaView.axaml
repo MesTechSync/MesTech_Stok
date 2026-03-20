@@ -43,14 +43,16 @@
                                 <!-- Color band -->
                                 <Border Height="6" CornerRadius="8,8,0,0"
                                         Background="{Binding Color}" />
-                                <StackPanel Padding="16,12" Spacing="6">
-                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="#1E293B" />
-                                    <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
-                                               FontSize="12" Foreground="#64748B" />
-                                    <TextBlock Text="{Binding StatusText}" FontSize="12"
-                                               Foreground="#4CAF50" />
-                                </StackPanel>
+                                <Border Padding="16,12">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                                   Foreground="#1E293B" />
+                                        <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
+                                                   FontSize="12" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding StatusText}" FontSize="12"
+                                                   Foreground="#4CAF50" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

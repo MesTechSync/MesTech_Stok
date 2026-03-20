@@ -11,8 +11,8 @@ public static class SettingsEndpoints
         // GET /api/v1/settings/profile
         group.MapGet("/profile", () => Results.Ok(new
         {
-            username = "admin",
-            email = "admin@mestech.com",
+            username = "current_user",
+            email = "user@mestech.com",
             language = "tr",
             timezone = "Europe/Istanbul",
             dateFormat = "dd.MM.yyyy",

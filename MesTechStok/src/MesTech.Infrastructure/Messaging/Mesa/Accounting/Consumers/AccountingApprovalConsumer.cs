@@ -1,5 +1,7 @@
 using System.Text.Json;
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.ApproveAccountingEntry;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -18,6 +20,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IPersonalExpenseRepository _expenseRepository;
@@ -38,6 +41,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
     private const string DefaultCashAccountCode = "100";
 
     public AccountingApprovalConsumer(
+        IMediator mediator,
         IAccountingDocumentRepository documentRepository,
         IJournalEntryRepository journalEntryRepository,
         IPersonalExpenseRepository expenseRepository,
@@ -47,6 +51,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
         ITenantProvider tenantProvider,
         ILogger<AccountingApprovalConsumer> logger)
     {
+        _mediator = mediator;
         _documentRepository = documentRepository;
         _journalEntryRepository = journalEntryRepository;
         _expenseRepository = expenseRepository;
@@ -66,6 +71,27 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(BotAccountingApprovedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new ApproveAccountingEntryCommand
+            {
+                DocumentId = msg.DocumentId,
+                ApprovedBy = msg.ApprovedBy,
+                ApprovalSource = msg.ApprovalSource,
+                JournalEntryId = msg.JournalEntryId,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(BotAccountingApprovedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

@@ -151,6 +151,8 @@ public sealed class ViewModelFactory : IViewModelFactory
             "ReportDashboard" => _provider.GetService<ReportDashboardAvaloniaViewModel>(),
             "AuditLog" => _provider.GetService<AuditLogAvaloniaViewModel>(),
             "Backup" => _provider.GetService<BackupAvaloniaViewModel>(),
+            // FIX-18 Gorev #13: Buybox Analizi
+            "Buybox" => _provider.GetService<BuyboxAvaloniaViewModel>(),
             _ => null
         };
     }

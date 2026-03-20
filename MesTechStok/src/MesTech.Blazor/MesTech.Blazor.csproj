@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MesTech.Blazor</RootNamespace>
+    <!-- I-11 GOREV 6: Suppress Blazor razor code-behind warnings (editorconfig cannot target razor) -->
+    <NoWarn>$(NoWarn);CS0649;CS0414;CS0219;CS8618;CS8604;CS8602;CS8625;CS0067</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

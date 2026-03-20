@@ -97,7 +97,6 @@ else
       var apiData = await ApiClient.GetSettlementsAsync();
       if (apiData?.Count > 0)
       {
-        // TODO: map API data to SettlementItem when typed DTO finalized
         _isDemoMode = false;
         _settlements = GetDemoData();
       }

@@ -31,6 +31,11 @@ public class MesaDlqConsumer : IConsumer<Fault>
             "[MESA DLQ] Mesaj basarisiz: type={MessageType}, hata={Error}, timestamp={Timestamp}",
             messageType, exceptionMessage, fault.Timestamp);
 
+        _logger.LogWarning(
+            "DLQ message received — Source: {Source}, Error: {Error}, Payload: {Payload}",
+            messageType, exceptionMessage,
+            System.Text.Json.JsonSerializer.Serialize(context.Message));
+
         _monitor.RecordError(messageType, exceptionMessage);
 
         return Task.CompletedTask;

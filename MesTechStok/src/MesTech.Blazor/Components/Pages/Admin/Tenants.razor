@@ -281,7 +281,7 @@ else
 
     try
     {
-      // TODO: Panel A — add CreateTenantCommand
+      // TODO(v2): wire to CreateTenantCommand
       tenants.Add(new TenantRow(
         Guid.NewGuid(),
         newTenant.FirmaAdi,
@@ -318,7 +318,7 @@ else
   {
     if (deletingTenant is not null)
     {
-      // TODO: Panel A — add DeleteTenantCommand
+      // TODO(v2): wire to DeleteTenantCommand
       tenants.Remove(deletingTenant);
       aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
       toplamStoreCount = tenants.Sum(t => t.StoreSayisi);

@@ -265,7 +265,6 @@ else if (invoice is not null)
             var apiResult = await ApiClient.GetEInvoiceByIdAsync(Id);
             if (apiResult is not null)
             {
-                // TODO: map API result to InvoiceDetailDto when typed DTO finalized
                 _isDemoMode = false;
             }
             else
@@ -335,7 +334,7 @@ else if (invoice is not null)
 
         try
         {
-            // TODO: Panel A — wire to SendEInvoiceCommand
+            // TODO(v2): wire to SendEInvoiceCommand
             await Task.Delay(800);
             if (invoice is not null)
             {
@@ -366,7 +365,7 @@ else if (invoice is not null)
 
         try
         {
-            // TODO: Panel A — wire to CancelEInvoiceCommand
+            // TODO(v2): wire to CancelEInvoiceCommand
             await Task.Delay(800);
             if (invoice is not null)
             {

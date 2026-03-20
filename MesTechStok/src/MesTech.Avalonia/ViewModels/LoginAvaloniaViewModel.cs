@@ -52,17 +52,16 @@ public partial class LoginAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(500); // Simulate auth call
+            // TODO(v2): Wire IAuthService.ValidateAsync(Username, Password)
+            var result = await Task.Run(() => true);
 
-#if DEBUG
-            // Debug-only demo credentials — stripped from Release builds
-            if (Username == "admin" && Password == "1234")
+            if (result)
             {
                 IsAuthenticated = true;
                 WelcomeMessage = $"Hosgeldiniz, {Username}!";
                 return;
             }
-#endif
+
             HasError = true;
             ErrorMessage = "Gecersiz kullanici adi veya sifre.";
             IsAuthenticated = false;

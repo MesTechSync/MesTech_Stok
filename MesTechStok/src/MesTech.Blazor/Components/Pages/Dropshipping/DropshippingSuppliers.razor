@@ -1,5 +1,6 @@
 @page "/dropshipping/suppliers"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
@@ -113,42 +114,48 @@
               <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Tedarikci</h5>
               <button type="button" class="btn-close" @onclick="CloseAddForm"></button>
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Tedarikci Adi</label>
-                <input type="text" class="form-control" @bind="newSupplier.TedarikciAdi" placeholder="Ornek: AliExpress Tekstil" />
+            <EditForm Model="@newSupplier" OnValidSubmit="AddSupplier">
+              <DataAnnotationsValidator />
+              <div class="modal-body">
+                <ValidationSummary class="text-danger mb-3" />
+                <div class="mb-3">
+                  <label class="form-label">Tedarikci Adi</label>
+                  <InputText class="form-control" @bind-Value="newSupplier.TedarikciAdi" placeholder="Ornek: AliExpress Tekstil" />
+                  <ValidationMessage For="@(() => newSupplier.TedarikciAdi)" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Feed URL</label>
+                  <InputText class="form-control" @bind-Value="newSupplier.FeedUrl" placeholder="https://example.com/feed.xml" />
+                  <ValidationMessage For="@(() => newSupplier.FeedUrl)" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Format</label>
+                  <InputSelect class="form-select" @bind-Value="newSupplier.Format">
+                    <option value="XML">XML</option>
+                    <option value="CSV">CSV</option>
+                    <option value="JSON">JSON</option>
+                  </InputSelect>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Sync Sikligi</label>
+                  <InputSelect class="form-select" @bind-Value="newSupplier.SyncSikligi">
+                    <option value="Saatlik">Saatlik</option>
+                    <option value="Gunluk">Gunluk</option>
+                    <option value="Haftalik">Haftalik</option>
+                  </InputSelect>
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Feed URL</label>
-                <input type="url" class="form-control" @bind="newSupplier.FeedUrl" placeholder="https://example.com/feed.xml" />
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseAddForm">Iptal</button>
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                  @if (isSubmitting)
+                  {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  <i class="fas fa-save me-1"></i>Kaydet
+                </button>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Format</label>
-                <select class="form-select" @bind="newSupplier.Format">
-                  <option value="XML">XML</option>
-                  <option value="CSV">CSV</option>
-                  <option value="JSON">JSON</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Sync Sikligi</label>
-                <select class="form-select" @bind="newSupplier.SyncSikligi">
-                  <option value="Saatlik">Saatlik</option>
-                  <option value="Gunluk">Gunluk</option>
-                  <option value="Haftalik">Haftalik</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @onclick="CloseAddForm">Iptal</button>
-              <button type="button" class="btn btn-primary" @onclick="AddSupplier" disabled="@isSubmitting">
-                @if (isSubmitting)
-                {
-                  <span class="spinner-border spinner-border-sm me-1"></span>
-                }
-                <i class="fas fa-save me-1"></i>Kaydet
-              </button>
-            </div>
+            </EditForm>
           </div>
         </div>
       </div>
@@ -323,9 +330,7 @@
 
     try
     {
-      // TODO: Panel A — wire to CreateSupplierCommand
-      if (string.IsNullOrWhiteSpace(newSupplier.TedarikciAdi)) return;
-
+      // TODO(v2): wire to CreateSupplierCommand
       suppliers.Add(new SupplierRow
       {
         Id = suppliers.Count + 1,
@@ -354,7 +359,7 @@
 
   private void ConfirmDelete()
   {
-    // TODO: Panel A — wire to DeleteSupplierCommand
+    // TODO(v2): wire to DeleteSupplierCommand
     if (deleteTarget is not null)
     {
       suppliers.RemoveAll(s => s.Id == deleteTarget.Id);
@@ -371,7 +376,7 @@
 
     try
     {
-      // TODO: Panel A — wire to SyncSupplierFeedCommand
+      // TODO(v2): wire to SyncSupplierFeedCommand
       var idx = suppliers.FindIndex(s => s.Id == supplier.Id);
       if (idx >= 0)
       {
@@ -426,9 +431,14 @@
 
   private class NewSupplierForm
   {
+    [Required(ErrorMessage = "Tedarikci adi zorunludur")]
     public string TedarikciAdi { get; set; } = "";
+    [Required(ErrorMessage = "Feed URL zorunludur")]
+    [Url(ErrorMessage = "Gecerli bir URL giriniz")]
     public string FeedUrl { get; set; } = "";
+    [Required]
     public string Format { get; set; } = "XML";
+    [Required]
     public string SyncSikligi { get; set; } = "Gunluk";
   }
 }

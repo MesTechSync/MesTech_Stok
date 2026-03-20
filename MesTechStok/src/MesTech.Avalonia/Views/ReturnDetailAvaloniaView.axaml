@@ -76,7 +76,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4">
                                         <Ellipse Width="12" Height="12" VerticalAlignment="Center">
                                             <Ellipse.Fill>
-                                                <SolidColorBrush Color="{Binding IsCompleted, Converter={x:Static BoolConverters.TrueIsGreaterThanZero}, ConverterParameter=#4CAF50}" />
+                                                <SolidColorBrush Color="#4CAF50" />
                                             </Ellipse.Fill>
                                         </Ellipse>
                                         <StackPanel Spacing="2">

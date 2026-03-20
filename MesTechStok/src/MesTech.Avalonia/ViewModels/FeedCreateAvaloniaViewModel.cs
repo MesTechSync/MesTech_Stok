@@ -27,7 +27,7 @@ public partial class FeedCreateAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool saveCompleted;
 
     public ObservableCollection<string> FormatOptions { get; } = ["XML", "CSV", "API", "Excel"];
-    public ObservableCollection<ColumnMappingDto> ColumnMappings { get; } = [];
+    public ObservableCollection<FeedColumnMappingDto> ColumnMappings { get; } = [];
 
     public FeedCreateAvaloniaViewModel(IMediator mediator)
     {
@@ -37,11 +37,11 @@ public partial class FeedCreateAvaloniaViewModel : ObservableObject
 
     private void InitDefaultMappings()
     {
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "urun_adi", TargetField = "Name" });
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "fiyat", TargetField = "Price" });
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "stok", TargetField = "Stock" });
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "barkod", TargetField = "Barcode" });
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "kategori", TargetField = "Category" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "urun_adi", TargetField = "Name" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "fiyat", TargetField = "Price" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "stok", TargetField = "Stock" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "barkod", TargetField = "Barcode" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "kategori", TargetField = "Category" });
     }
 
     [RelayCommand]
@@ -76,11 +76,11 @@ public partial class FeedCreateAvaloniaViewModel : ObservableObject
     [RelayCommand]
     private void AddMapping()
     {
-        ColumnMappings.Add(new ColumnMappingDto { SourceColumn = "", TargetField = "" });
+        ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "", TargetField = "" });
     }
 
     [RelayCommand]
-    private void RemoveMapping(ColumnMappingDto? mapping)
+    private void RemoveMapping(FeedColumnMappingDto? mapping)
     {
         if (mapping is not null)
             ColumnMappings.Remove(mapping);
@@ -101,7 +101,7 @@ public partial class FeedCreateAvaloniaViewModel : ObservableObject
     }
 }
 
-public class ColumnMappingDto
+public class FeedColumnMappingDto
 {
     public string SourceColumn { get; set; } = string.Empty;
     public string TargetField { get; set; } = string.Empty;

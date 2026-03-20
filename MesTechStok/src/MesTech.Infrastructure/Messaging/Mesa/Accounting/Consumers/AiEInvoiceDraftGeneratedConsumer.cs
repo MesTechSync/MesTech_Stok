@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.CreateEInvoiceFromDraft;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -14,6 +16,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGeneratedIntegrationEvent>
 {
+    private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
@@ -21,12 +24,14 @@ public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGenerat
     private readonly ILogger<AiEInvoiceDraftGeneratedConsumer> _logger;
 
     public AiEInvoiceDraftGeneratedConsumer(
+        IMediator mediator,
         INotificationLogRepository notificationLogRepository,
         IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<AiEInvoiceDraftGeneratedConsumer> logger)
     {
+        _mediator = mediator;
         _notificationLogRepository = notificationLogRepository;
         _unitOfWork = unitOfWork;
         _monitor = monitor;
@@ -43,6 +48,26 @@ public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGenerat
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiEInvoiceDraftGeneratedIntegrationEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new CreateEInvoiceFromDraftCommand
+            {
+                OrderId = msg.OrderId,
+                SuggestedEttnNo = msg.SuggestedEttnNo,
+                SuggestedTotal = msg.SuggestedTotal,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiEInvoiceDraftGeneratedIntegrationEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

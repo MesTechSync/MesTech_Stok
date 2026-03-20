@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MassTransit;
+using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -69,6 +70,7 @@ public class MesaConsumerTests
 
     private static IInvoiceRepository StubInvoiceRepo() => new Mock<IInvoiceRepository>().Object;
     private static IReturnRequestRepository StubReturnRepo() => new Mock<IReturnRequestRepository>().Object;
+    private static IMediator StubMediator() => new Mock<IMediator>().Object;
 
     // ══════════════════════════════════════════════
     //  MesaAiContentConsumer (4 tests)
@@ -79,7 +81,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaAiContentConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiContentConsumer>());
 
@@ -97,7 +99,7 @@ public class MesaConsumerTests
     public async Task AiContent_Consume_WithMetadata_DoesNotThrow()
     {
         var consumer = new MesaAiContentConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiContentConsumer>());
 
@@ -115,7 +117,7 @@ public class MesaConsumerTests
     public async Task AiContent_Consume_NullMetadata_DoesNotThrow()
     {
         var consumer = new MesaAiContentConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiContentConsumer>());
 
@@ -133,7 +135,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaAiContentConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiContentConsumer>());
 
@@ -158,7 +160,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaAiPriceConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             StubPriceRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiPriceConsumer>());
 
@@ -176,7 +178,7 @@ public class MesaConsumerTests
     public async Task AiPrice_Consume_WithReasoning_DoesNotThrow()
     {
         var consumer = new MesaAiPriceConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             StubPriceRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiPriceConsumer>());
 
@@ -193,7 +195,7 @@ public class MesaConsumerTests
     public async Task AiPrice_Consume_NullReasoning_DoesNotThrow()
     {
         var consumer = new MesaAiPriceConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             StubPriceRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiPriceConsumer>());
 
@@ -211,7 +213,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaAiPriceConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             StubPriceRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiPriceConsumer>());
 
@@ -241,7 +243,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaBotStatusConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             StubNotifRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotStatusConsumer>());
 
@@ -259,7 +261,7 @@ public class MesaConsumerTests
     {
         var monitorMock = CreateMonitor();
         var consumer = new MesaBotStatusConsumer(
-            monitorMock.Object, CreateTenantProvider(),
+            StubMediator(), monitorMock.Object, CreateTenantProvider(),
             StubNotifRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotStatusConsumer>());
 
@@ -276,7 +278,7 @@ public class MesaConsumerTests
     public async Task BotStatus_Success_DoesNotThrow()
     {
         var consumer = new MesaBotStatusConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             StubNotifRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotStatusConsumer>());
 
@@ -292,7 +294,7 @@ public class MesaConsumerTests
     public async Task BotStatus_Failure_WithErrorMessage_DoesNotThrow()
     {
         var consumer = new MesaBotStatusConsumer(
-            CreateMonitor().Object, CreateTenantProvider(),
+            StubMediator(), CreateMonitor().Object, CreateTenantProvider(),
             StubNotifRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotStatusConsumer>());
 
@@ -313,7 +315,7 @@ public class MesaConsumerTests
     {
         var monitor = CreateMonitor();
         var consumer = new MesaAiPriceOptimizedConsumer(
-            monitor.Object, CreateTenantProvider(),
+            StubMediator(), monitor.Object, CreateTenantProvider(),
             StubPriceRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiPriceOptimizedConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaAiPriceOptimizedEvent>>();
@@ -334,7 +336,7 @@ public class MesaConsumerTests
     {
         var monitor = CreateMonitor();
         var consumer = new MesaAiStockPredictedConsumer(
-            monitor.Object, CreateTenantProvider(),
+            StubMediator(), monitor.Object, CreateTenantProvider(),
             StubStockPredRepo(), NullProductRepo(), StubUnitOfWork(),
             CreateLogger<MesaAiStockPredictedConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaAiStockPredictedEvent>>();
@@ -355,7 +357,7 @@ public class MesaConsumerTests
     {
         var monitor = CreateMonitor();
         var consumer = new MesaBotInvoiceRequestConsumer(
-            monitor.Object, CreateTenantProvider(),
+            StubMediator(), monitor.Object, CreateTenantProvider(),
             NullOrderRepo(), StubInvoiceRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotInvoiceRequestConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaBotInvoiceRequestedEvent>>();
@@ -376,7 +378,7 @@ public class MesaConsumerTests
     {
         var monitor = CreateMonitor();
         var consumer = new MesaBotReturnRequestConsumer(
-            monitor.Object, CreateTenantProvider(),
+            StubMediator(), monitor.Object, CreateTenantProvider(),
             NullOrderRepo(), StubReturnRepo(), StubUnitOfWork(),
             CreateLogger<MesaBotReturnRequestConsumer>());
         var mockContext = new Mock<ConsumeContext<MesaBotReturnRequestedEvent>>();

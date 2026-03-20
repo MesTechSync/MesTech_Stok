@@ -26,6 +26,9 @@ public partial class App : global::Avalonia.Application
 {
     private IHost? _host;
 
+    /// <summary>DI service provider — views use App.ServiceProvider to resolve services.</summary>
+    public static IServiceProvider? ServiceProvider { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -212,8 +215,12 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ReportDashboardAvaloniaViewModel>();
                 services.AddTransient<AuditLogAvaloniaViewModel>();
                 services.AddTransient<BackupAvaloniaViewModel>();
+                // FIX-18 Gorev #13: Buybox Analizi
+                services.AddTransient<BuyboxAvaloniaViewModel>();
             })
             .Build();
+
+        ServiceProvider = _host.Services;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

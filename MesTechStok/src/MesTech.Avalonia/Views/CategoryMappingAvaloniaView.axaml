@@ -84,7 +84,7 @@
                 <Button Content="Esle >" Command="{Binding MapCategoryCommand}"
                         Background="#0078D4" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
-                <Button Content="< Kaldir" Command="{Binding UnmapCategoryCommand}"
+                <Button Content="&lt; Kaldir" Command="{Binding UnmapCategoryCommand}"
                         Background="#E53935" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
             </StackPanel>

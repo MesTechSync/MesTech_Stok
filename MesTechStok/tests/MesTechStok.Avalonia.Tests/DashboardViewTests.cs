@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.VisualTree;
 using FluentAssertions;
@@ -31,7 +31,7 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel(mockMediator.Object);
+        var vm = new DashboardAvaloniaViewModel();
         var view = new DashboardAvaloniaView
         {
             DataContext = vm
@@ -54,7 +54,7 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel(mockMediator.Object);
+        var vm = new DashboardAvaloniaViewModel();
         var view = new DashboardAvaloniaView
         {
             DataContext = vm
@@ -78,7 +78,7 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel(mockMediator.Object);
+        var vm = new DashboardAvaloniaViewModel();
 
         // Assert initial state
         vm.TotalProducts.Should().Be("0");

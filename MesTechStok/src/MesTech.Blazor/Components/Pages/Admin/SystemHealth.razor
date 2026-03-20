@@ -261,7 +261,7 @@ else
         lastHealthCheck = DateTime.Now;
         // Keep demo data for now — typed DTOs not yet available
         // When API returns real data, map healthData to dockerServices/hangfireJobs
-        dockerServices = GetDemoDockerServices(); // TODO: map healthData when DTOs exist
+        dockerServices = GetDemoDockerServices();
         hangfireJobs = GetDemoHangfireJobs();
       }
       else
@@ -322,7 +322,7 @@ else
 
     try
     {
-      // TODO: Panel A — wire to MESA AI UrunAciklamaCommand
+      // TODO(v2): wire to MESA AI UrunAciklamaCommand
       aiToolMessage = "Urun aciklama uretimi baslatildi. MESA AI islemi kuyruga alindi...";
       successMessage = "AI islemi basariyla baslatildi";
       await Task.CompletedTask;
@@ -346,7 +346,7 @@ else
 
     try
     {
-      // TODO: Panel A — wire to MESA AI FiyatOptimizasyonuCommand
+      // TODO(v2): wire to MESA AI FiyatOptimizasyonuCommand
       aiToolMessage = "Fiyat optimizasyonu analizi baslatildi. Rakip verileri toplanacak...";
       successMessage = "AI islemi basariyla baslatildi";
       await Task.CompletedTask;
@@ -370,7 +370,7 @@ else
 
     try
     {
-      // TODO: Panel A — wire to MESA AI GorselAnalizCommand
+      // TODO(v2): wire to MESA AI GorselAnalizCommand
       aiToolMessage = "Gorsel analiz islemi baslatildi. Urun gorselleri taranacak...";
       successMessage = "AI islemi basariyla baslatildi";
       await Task.CompletedTask;

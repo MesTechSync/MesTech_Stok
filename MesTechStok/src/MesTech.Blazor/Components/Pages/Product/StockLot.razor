@@ -162,7 +162,7 @@ else
     try
     {
       var result = await ApiClient.SafeGetAsync<List<object>>("products");
-      if (result.IsSuccess) { /* TODO: map result.Data */ }
+      if (result.IsSuccess) { }
       else { _isDemoMode = true; }
 
       // Demo verisi

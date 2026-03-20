@@ -1,5 +1,6 @@
 @page "/login"
 @layout MesTech.Blazor.Components.Layout.LoginLayout
+@using System.ComponentModel.DataAnnotations
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
 @inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
@@ -27,6 +28,7 @@
 
       <!-- Login Form -->
       <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+        <DataAnnotationsValidator />
         <div class="mb-3">
           <label class="form-label fw-semibold text-muted small text-uppercase">Kullanici Adi</label>
           <div class="input-group">
@@ -162,7 +164,9 @@
 
   private class LoginFormModel
   {
+    [Required(ErrorMessage = "Kullanici adi zorunludur")]
     public string? Username { get; set; }
+    [Required(ErrorMessage = "Sifre zorunludur")]
     public string? Password { get; set; }
     public bool RememberMe { get; set; }
   }

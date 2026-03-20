@@ -395,7 +395,8 @@ public class AppDbContext : DbContext
         {
             Username = "admin",
             Email = "admin@mestech.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(
+                Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026"),
             FirstName = "System",
             LastName = "Administrator",
             IsActive = true,

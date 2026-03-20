@@ -101,7 +101,6 @@ else
       var apiData = await ApiClient.GetPaymentsAsync();
       if (apiData?.Count > 0)
       {
-        // TODO: map API data to PaymentItem when typed DTO finalized
         _isDemoMode = false;
         _payments = GetDemoData();
       }

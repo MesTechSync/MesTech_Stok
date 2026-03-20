@@ -22,8 +22,13 @@ public class AuthService : IAuthService
     private const int MaxAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(1);
 
-    // DB erişilemezse fallback hash (Admin123! ile BCrypt workFactor=12)
-    private static readonly string _fallbackAdminHash = BCrypt.Net.BCrypt.HashPassword("Admin123!", workFactor: 12);
+    // DB erişilemezse fallback hash — generated at startup, no hardcoded password
+    // NOTE: In production, this fallback should be removed or sourced from env var
+    private static readonly string _fallbackAdminHash =
+        Environment.GetEnvironmentVariable("MESTECH_ADMIN_HASH")
+        ?? BCrypt.Net.BCrypt.HashPassword(
+            Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? Guid.NewGuid().ToString(),
+            workFactor: 12);
 
     public AuthService(AppDbContext context, ILogger<AuthService> logger)
     {
@@ -110,7 +115,9 @@ public class AuthService : IAuthService
             {
                 Username = "admin",
                 Email = "admin@mestech.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!", workFactor: 12),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(
+                    Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026",
+                    workFactor: 12),
                 FirstName = "Admin",
                 LastName = "MesTech",
                 FullName = "Admin MesTech",

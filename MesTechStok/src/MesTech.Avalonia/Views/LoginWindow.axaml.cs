@@ -81,7 +81,8 @@ public partial class LoginWindow : Window
             bool isValid = await Task.Run(() =>
             {
                 // TODO(v2): Wire IAuthService.ValidateAsync(username, password)
-                return username == "admin" && password == "admin";
+                // Hardcoded credentials removed (FIX-18). Auth service integration pending.
+                return false;
             });
 
             // Minimum 300ms bekleme (psikolojik: "sistem kontrol ediyor")

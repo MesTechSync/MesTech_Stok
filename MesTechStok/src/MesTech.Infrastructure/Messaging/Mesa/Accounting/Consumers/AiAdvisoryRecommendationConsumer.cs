@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.ProcessAiRecommendation;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -14,6 +16,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendationEvent>
 {
+    private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
@@ -21,12 +24,14 @@ public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendati
     private readonly ILogger<AiAdvisoryRecommendationConsumer> _logger;
 
     public AiAdvisoryRecommendationConsumer(
+        IMediator mediator,
         INotificationLogRepository notificationLogRepository,
         IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<AiAdvisoryRecommendationConsumer> logger)
     {
+        _mediator = mediator;
         _notificationLogRepository = notificationLogRepository;
         _unitOfWork = unitOfWork;
         _monitor = monitor;
@@ -43,6 +48,28 @@ public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendati
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiAdvisoryRecommendationEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new ProcessAiRecommendationCommand
+            {
+                RecommendationType = msg.RecommendationType,
+                Title = msg.Title,
+                Description = msg.Description,
+                ActionUrl = msg.ActionUrl,
+                Priority = msg.Priority,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiAdvisoryRecommendationEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

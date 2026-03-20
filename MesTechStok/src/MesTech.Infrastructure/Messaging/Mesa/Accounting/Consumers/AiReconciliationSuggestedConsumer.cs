@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.CreateReconciliationTask;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -15,6 +17,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSuggestedEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IReconciliationMatchRepository _matchRepository;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
@@ -22,12 +25,14 @@ public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSugge
     private readonly ILogger<AiReconciliationSuggestedConsumer> _logger;
 
     public AiReconciliationSuggestedConsumer(
+        IMediator mediator,
         IReconciliationMatchRepository matchRepository,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         IUnitOfWork unitOfWork,
         ILogger<AiReconciliationSuggestedConsumer> logger)
     {
+        _mediator = mediator;
         _matchRepository = matchRepository;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
@@ -44,6 +49,27 @@ public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSugge
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiReconciliationSuggestedEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new CreateReconciliationTaskCommand
+            {
+                SettlementBatchId = msg.SettlementBatchId,
+                BankTransactionId = msg.BankTransactionId,
+                Confidence = msg.Confidence,
+                Rationale = msg.Rationale,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiReconciliationSuggestedEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(

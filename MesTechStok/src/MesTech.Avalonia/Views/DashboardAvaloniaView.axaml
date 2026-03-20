@@ -291,7 +291,7 @@
                             Spacing="4">
                     <TextBlock Text="AI Onerisi" FontSize="14" FontWeight="Bold"
                                Foreground="#7C3AED" />
-                    <TextBlock Text="{Binding AIInsightText}"
+                    <TextBlock Text="{Binding AiInsightText}"
                                FontSize="13" Foreground="#4C1D95"
                                TextWrapping="Wrap"
                                MaxWidth="600" />

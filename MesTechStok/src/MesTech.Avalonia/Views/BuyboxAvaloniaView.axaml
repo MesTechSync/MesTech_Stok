@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.BuyboxAvaloniaView"
+             x:DataType="vm:BuyboxAvaloniaViewModel">
+
+    <!-- FIX-18 Gorev #13: Buybox Analizi View -->
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesBrandPrimary}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="{Binding PageTitle}" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                        <TextBlock Text="{Binding Items.Count, StringFormat='{}{0} ürün'}"
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile"
+                        Command="{Binding LoadDataCommand}"
+                        Background="White" Foreground="{DynamicResource MesBrandPrimary}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="6" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="24,16">
+
+            <!-- Summary Cards -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+                <Border Background="#F0FFF4" CornerRadius="8" Padding="16,12" MinWidth="160">
+                    <StackPanel>
+                        <TextBlock Text="Kazanılan" FontSize="12" Foreground="#22C55E" FontWeight="SemiBold" />
+                        <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="#16A34A" />
+                    </StackPanel>
+                </Border>
+                <Border Background="#FFF1F2" CornerRadius="8" Padding="16,12" MinWidth="160">
+                    <StackPanel>
+                        <TextBlock Text="Kaybedilen" FontSize="12" Foreground="#EF4444" FontWeight="SemiBold" />
+                        <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="#DC2626" />
+                    </StackPanel>
+                </Border>
+                <Border Background="#F0F9FF" CornerRadius="8" Padding="16,12" MinWidth="160">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="#3B82F6" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="#2563EB" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- DataGrid -->
+            <Border Grid.Row="1" Background="White" CornerRadius="8"
+                    BorderBrush="#E5E7EB" BorderThickness="1" Padding="0">
+                <DataGrid ItemsSource="{Binding Items}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserReorderColumns="True"
+                          CanUserSortColumns="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ürün Adı" Binding="{Binding ProductName}" Width="*" />
+                        <DataGridTextColumn Header="Bizim Fiyat (₺)" Binding="{Binding OurPrice, StringFormat='{}{0:N2}'}" Width="140" />
+                        <DataGridTextColumn Header="Rakip Fiyat (₺)" Binding="{Binding CompetitorPrice, StringFormat='{}{0:N2}'}" Width="140" />
+                        <DataGridTemplateColumn Header="Durum" Width="140">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:BuyboxItemViewModel">
+                                    <Border CornerRadius="4" Padding="8,4"
+                                            HorizontalAlignment="Left"
+                                            Background="{Binding StatusColor}">
+                                        <TextBlock Text="{Binding Status}" Foreground="White"
+                                                   FontSize="12" FontWeight="SemiBold" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+
+        <!-- Loading overlay -->
+        <Border Grid.RowSpan="2" Background="#80FFFFFF"
+                IsVisible="{Binding IsLoading}">
+            <TextBlock Text="Yükleniyor..." FontSize="16" Foreground="#64748B"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>

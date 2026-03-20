@@ -13,6 +13,7 @@ public partial class VergiTakvimiAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
+    [ObservableProperty] private int totalCount;
 
     // KPI
     [ObservableProperty] private int overdueCount;
@@ -23,6 +24,7 @@ public partial class VergiTakvimiAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string selectedMonth = "Mart";
     [ObservableProperty] private string selectedYear = "2026";
     [ObservableProperty] private string selectedStatus = "Tumu";
+    [ObservableProperty] private string selectedStatusFilter = "Tümü";
 
     public ObservableCollection<TaxCalendarItemDto> Items { get; } = [];
     private List<TaxCalendarItemDto> _allItems = [];

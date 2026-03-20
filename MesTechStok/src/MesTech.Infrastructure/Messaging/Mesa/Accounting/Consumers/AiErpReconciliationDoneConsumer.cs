@@ -1,4 +1,6 @@
 using MassTransit;
+using MediatR;
+using MesTech.Application.Commands.FinalizeErpReconciliation;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -15,6 +17,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// </summary>
 public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDoneIntegrationEvent>
 {
+    private readonly IMediator _mediator;
     private readonly IReconciliationMatchRepository _matchRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
@@ -22,12 +25,14 @@ public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDone
     private readonly ILogger<AiErpReconciliationDoneConsumer> _logger;
 
     public AiErpReconciliationDoneConsumer(
+        IMediator mediator,
         IReconciliationMatchRepository matchRepository,
         IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<AiErpReconciliationDoneConsumer> logger)
     {
+        _mediator = mediator;
         _matchRepository = matchRepository;
         _unitOfWork = unitOfWork;
         _monitor = monitor;
@@ -44,6 +49,26 @@ public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDone
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        _logger.LogInformation(
+            "Processing {Event} — {Id}",
+            nameof(AiErpReconciliationDoneIntegrationEvent), context.MessageId);
+
+        try
+        {
+            await _mediator.Send(new FinalizeErpReconciliationCommand
+            {
+                ErpProvider = msg.ErpProvider,
+                ReconciledCount = msg.ReconciledCount,
+                MismatchCount = msg.MismatchCount,
+                TenantId = tenantId
+            }, context.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {Event}", nameof(AiErpReconciliationDoneIntegrationEvent));
+            throw; // Let MassTransit retry policy handle
         }
 
         _logger.LogInformation(
