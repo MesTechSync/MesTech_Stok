@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!--
+  MesTech MesAkademi - Ders 01: Urun Yonetimi Temelleri
+  Version: 2.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-01 | DOM-SAFE
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesAkademi - Ders 01: Urun Yonetimi Temelleri</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/mestech-i18n.js"></script>
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-info: #3b82f6;
+      --mestech-warning: #f59e0b;
+      --mestech-danger: #ef4444;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --sidebar-dark: #1a1a2e;
+      --header-dark: #16213e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0; padding: 0;
+    }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .lesson-main {
+      flex: 1; padding: 24px; max-width: 900px;
+      margin: 0 auto; width: 100%;
+    }
+    .lesson-header {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff; padding: 24px; margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .lesson-header .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .lesson-header .breadcrumb-item.active { color: #fff; }
+    .objectives-card {
+      background: var(--mestech-card-bg); border-left: 4px solid var(--mestech-purple);
+      border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm);
+      padding: 20px 24px; margin-bottom: 24px;
+    }
+    .objectives-card h6 { font-weight: 600; color: var(--mestech-purple); margin-bottom: 12px; }
+    .objectives-card ul { margin: 0; padding-left: 20px; }
+    .objectives-card li { color: var(--mestech-text-secondary); margin-bottom: 6px; line-height: 1.6; }
+    .step-card {
+      background: var(--mestech-card-bg); border: none;
+      border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm);
+      margin-bottom: 16px; padding: 24px;
+    }
+    .step-card h5 { font-weight: 600; margin-bottom: 12px; }
+    .step-card p { color: var(--mestech-text-secondary); line-height: 1.7; }
+    .step-card ol, .step-card ul { color: var(--mestech-text-secondary); line-height: 1.8; padding-left: 20px; }
+    .tip-box {
+      background: #eff6ff; border-left: 4px solid var(--mestech-info);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px;
+    }
+    .tip-box i { color: var(--mestech-info); }
+    .warning-box {
+      background: #fffbeb; border-left: 4px solid var(--mestech-warning);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px;
+    }
+    .warning-box i { color: var(--mestech-warning); }
+    .danger-box {
+      background: #fef2f2; border-left: 4px solid var(--mestech-danger);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px;
+    }
+    .danger-box i { color: var(--mestech-danger); }
+    .lesson-nav { margin-top: 32px; }
+    @media (max-width: 575px) {
+      .lesson-main { padding: 12px; }
+      .lesson-header { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+
+    <main class="lesson-main">
+      <div class="academy-lesson">
+
+        <!-- Lesson Header -->
+        <div class="lesson-header">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+              <li class="breadcrumb-item"><a href="../dashboard.html" data-i18n="nav.panel">Panel</a></li>
+              <li class="breadcrumb-item"><a href="index.html" data-i18n="academy.breadcrumb">Akademi</a></li>
+              <li class="breadcrumb-item active" data-i18n="lesson01.breadcrumb">Ders 01</li>
+            </ol>
+          </nav>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-white text-primary fs-6">01</span>
+            <div>
+              <h1 class="mb-0 fs-4 fw-bold" data-i18n="lesson01.title">Urun Yonetimi Temelleri</h1>
+              <span class="opacity-75"><i class="fas fa-clock me-1"></i> <span data-i18n="lesson01.duration">~12 dakika</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Objectives -->
+        <div class="objectives-card">
+          <h6><i class="fas fa-bullseye me-2"></i><span data-i18n="lesson.objectives">Ders Hedefleri</span></h6>
+          <ul>
+            <li data-i18n="lesson01.obj1">MesTech urun ekleme formunu kullanabileceksiniz</li>
+            <li data-i18n="lesson01.obj2">Urunleri duzenleme ve silme islemlerini yapabileceksiniz</li>
+            <li data-i18n="lesson01.obj3">Urun arama ve filtreleme ozelliklerini ogreneceksiniz</li>
+            <li data-i18n="lesson01.obj4">SKU, barkod ve varyant kavramlarini anlayacaksiniz</li>
+          </ul>
+        </div>
+
+        <!-- Lesson Content -->
+        <div class="lesson-content">
+
+          <div class="step-card">
+            <h5 data-i18n="lesson01.step1.title"><i class="fas fa-plus-circle me-2 text-primary"></i>Adim 1: Yeni Urun Ekleme</h5>
+            <p data-i18n="lesson01.step1.desc">Sol menuden "Urunler" bolumune gidin ve "Yeni Urun Ekle" butonuna tiklayin. Urun ekleme formu acilacaktir.</p>
+            <ol>
+              <li data-i18n="lesson01.step1.s1">Urun adini girin (en az 5 karakter, aciklayici bir baslik secin)</li>
+              <li data-i18n="lesson01.step1.s2">SKU (Stok Tutma Birimi) numarasini belirleyin — her urun icin benzersiz olmalidir</li>
+              <li data-i18n="lesson01.step1.s3">Barkod bilgisini girin (opsiyonel ama kargo icin onerilir)</li>
+              <li data-i18n="lesson01.step1.s4">Urun kategorisini secin ve fiyat bilgilerini doldurun</li>
+            </ol>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong data-i18n="lesson.tip">Ipucu:</strong> <span data-i18n="lesson01.step1.tip">SKU formatinda marka-kategori-numara yapisi kullanin. Ornegin: NK-TST-001 (Nike, T-Shirt, 001).</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson01.step2.title"><i class="fas fa-images me-2 text-primary"></i>Adim 2: Gorsel Yukleme</h5>
+            <p data-i18n="lesson01.step2.desc">Urun formunda "Gorseller" bolumune gelin. Surukle-birak veya dosya secici ile gorsel yukleyin.</p>
+            <ul>
+              <li data-i18n="lesson01.step2.s1">Minimum 1, maksimum 8 gorsel yukleyebilirsiniz</li>
+              <li data-i18n="lesson01.step2.s2">Onerilir cozunurluk: 1000x1000 piksel (kare format)</li>
+              <li data-i18n="lesson01.step2.s3">Desteklenen formatlar: JPG, PNG, WebP</li>
+              <li data-i18n="lesson01.step2.s4">Ilk gorsel ana gorsel olarak kullanilir — siralamaya dikkat edin</li>
+            </ul>
+            <div class="warning-box">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong data-i18n="lesson.warning">Uyari:</strong> <span data-i18n="lesson01.step2.warn">Pazaryerleri dusuk cozunurlukteki gorselleri reddedebilir. En az 800x800 piksel kullanin.</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson01.step3.title"><i class="fas fa-edit me-2 text-primary"></i>Adim 3: Urun Duzenleme</h5>
+            <p data-i18n="lesson01.step3.desc">Urun listesinden duzenmek istediginiz urune tiklayin veya satir uzerindeki kalem ikonunu secin.</p>
+            <ol>
+              <li data-i18n="lesson01.step3.s1">Urun basligini, aciklamasini veya fiyatini guncelleyin</li>
+              <li data-i18n="lesson01.step3.s2">Degisiklikler "Kaydet" butonuna bastiginizda etkinlesir</li>
+              <li data-i18n="lesson01.step3.s3">Pazaryerlerine yansitmak icin "Platformlara Gonder" secenegini kullanin</li>
+            </ol>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong data-i18n="lesson.tip">Ipucu:</strong> <span data-i18n="lesson01.step3.tip">Toplu fiyat degisikligi icin "Toplu Islem" sayfasini kullanmaniz daha verimli olacaktir.</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson01.step4.title"><i class="fas fa-trash-alt me-2 text-danger"></i>Adim 4: Urun Silme</h5>
+            <p data-i18n="lesson01.step4.desc">Urun listesinde silmek istediginiz urunu secin ve cop kutusu ikonuna tiklayin. Onay penceresi cikacaktir.</p>
+            <div class="danger-box">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <strong data-i18n="lesson.danger">Dikkat:</strong> <span data-i18n="lesson01.step4.warn">Silinen urunler geri alinamaz. Aktif pazaryeri ilanlarini olan urunleri silmeden once ilanlari kapatmayi unutmayin.</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson01.step5.title"><i class="fas fa-search me-2 text-primary"></i>Adim 5: Arama ve Filtreleme</h5>
+            <p data-i18n="lesson01.step5.desc">Urun listesi sayfasinin ust kismindaki arama cubugunu kullanarak urunlerinizi hizlica bulabilirsiniz.</p>
+            <ul>
+              <li data-i18n="lesson01.step5.s1">Urun adi, SKU veya barkod ile arama yapabilirsiniz</li>
+              <li data-i18n="lesson01.step5.s2">Kategori filtreleri ile sonuclari daraltabilirsiniz</li>
+              <li data-i18n="lesson01.step5.s3">Stok durumu, fiyat araligi gibi gelismis filtreler mevcuttur</li>
+              <li data-i18n="lesson01.step5.s4">Sonuclari fiyat, tarih veya stok miktarina gore siralayabilirsiniz</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-nav d-flex justify-content-between align-items-center">
+          <a href="index.html" class="btn btn-outline-secondary" data-i18n="lesson.backToAcademy">
+            <i class="fas fa-arrow-left me-1"></i> Akademi
+          </a>
+          <button class="btn btn-success" id="btn-complete" type="button">
+            <i class="fas fa-check me-1"></i> <span data-i18n="lesson.markComplete">Tamamlandi</span>
+          </button>
+          <a href="lesson-02.html" class="btn btn-primary" data-i18n="lesson.next">
+            Sonraki Ders <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+        <div class="progress mt-3" style="height:8px">
+          <div class="progress-bar bg-success" role="progressbar" style="width:8.3%" aria-valuenow="8" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+      </div>
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    var LESSON_ID = 1;
+    var STORAGE_KEY = 'mestech_academy_completed';
+
+    function getCompleted() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch(e) { return []; }
+    }
+
+    function markComplete(id) {
+      var completed = getCompleted();
+      if (completed.indexOf(id) === -1) {
+        completed.push(id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+      }
+      updateBtn();
+    }
+
+    function updateBtn() {
+      var btn = document.getElementById('btn-complete');
+      if (!btn) return;
+      var completed = getCompleted();
+      if (completed.indexOf(LESSON_ID) !== -1) {
+        btn.className = 'btn btn-outline-success';
+        while (btn.firstChild) btn.removeChild(btn.firstChild);
+        var icon = document.createElement('i');
+        icon.className = 'fas fa-check-circle me-1';
+        btn.appendChild(icon);
+        btn.appendChild(document.createTextNode('Tamamlandi'));
+        btn.disabled = true;
+      }
+    }
+
+    function init() {
+      var btn = document.getElementById('btn-complete');
+      if (btn) {
+        btn.addEventListener('click', function() { markComplete(LESSON_ID); });
+      }
+      updateBtn();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+  })();
+  </script>
+</body>
+</html>

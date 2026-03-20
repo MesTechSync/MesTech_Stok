@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - MesAkademi Egitim Merkezi
+  Version: 2.0.0
+  Date: 2026-03-20
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: I-17 GOREV E-01 — MesAkademi 12 Lessons (v2)
+  Status: ACTIVE
+
+  FEATURES:
+  - 12 lesson cards in 3x4 grid (new curriculum)
+  - Progress tracking (localStorage)
+  - Search/filter by topic
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - data-i18n attributes for i18n readiness
+  - MesTechI18n.js reference
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech - MesAkademi</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/mestech-i18n.js"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-primary-hover: #d96a10;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --sidebar-dark: #1a1a2e;
+      --header-dark: #16213e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .academy-main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-purple), #5b21b6);
+      color: #fff;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* Progress Section */
+    .progress-overview {
+      background: var(--mestech-card-bg);
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .progress-overview .progress {
+      flex: 1;
+      min-width: 200px;
+      height: 10px;
+      border-radius: 5px;
+      background: #e2e8f0;
+    }
+    .progress-overview .progress-bar {
+      background: linear-gradient(90deg, var(--mestech-success), #059669);
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    .progress-stat {
+      font-size: 0.9rem;
+      color: var(--mestech-text-secondary);
+    }
+    .progress-stat strong {
+      color: var(--mestech-text);
+      font-size: 1.1rem;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      margin-bottom: 24px;
+    }
+    .search-bar .form-control {
+      border-radius: var(--mestech-radius);
+      border: 1px solid var(--mestech-border);
+      padding: 12px 16px 12px 44px;
+      font-size: 0.95rem;
+    }
+    .search-bar .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--mestech-text-muted);
+    }
+
+    /* Lesson Cards */
+    .lesson-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 24px;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .lesson-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--mestech-shadow-md);
+    }
+    .lesson-card.completed {
+      border-left: 4px solid var(--mestech-success);
+    }
+    .lesson-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+    .lesson-card .lesson-number {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .lesson-card h5 {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .lesson-card .lesson-desc {
+      font-size: 0.85rem;
+      color: var(--mestech-text-secondary);
+      flex: 1;
+      margin-bottom: 16px;
+    }
+    .lesson-card .lesson-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+    .lesson-card .lesson-duration {
+      font-size: 0.8rem;
+      color: var(--mestech-text-muted);
+    }
+    .lesson-card .btn-start {
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      border-radius: 8px;
+    }
+    .lesson-card .completed-badge {
+      font-size: 0.8rem;
+      color: var(--mestech-success);
+      font-weight: 600;
+    }
+
+    /* Hidden class for search filter */
+    .lesson-col.hidden {
+      display: none;
+    }
+
+    @media (max-width: 575px) {
+      .academy-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+      .progress-overview { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- Header placeholder -->
+    <div id="header-component"></div>
+    <!-- Sidebar placeholder -->
+    <div id="sidebar-component"></div>
+
+    <main class="academy-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold" data-i18n="academy.title">MesAkademi &mdash; Egitim Merkezi</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="../dashboard.html" data-i18n="nav.mestech">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="../dashboard.html" data-i18n="nav.panel">Panel</a></li>
+                <li class="breadcrumb-item active" data-i18n="academy.breadcrumb">Akademi</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="text-end">
+            <small class="d-block opacity-75" data-i18n="academy.subtitle">12 ders ile MesTech uzmani olun</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Overview -->
+      <div class="progress-overview" id="progress-overview">
+        <div class="progress-stat">
+          <i class="fas fa-graduation-cap me-1" style="color: var(--mestech-purple);"></i>
+          <span data-i18n="academy.progress">Ilerleme:</span>
+          <strong id="progress-count">0</strong> / <strong>12</strong>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" id="progress-bar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="progress-stat">
+          <span id="progress-percent">%0</span>
+          <span data-i18n="academy.completed"> tamamlandi</span>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <div class="position-relative">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="form-control" id="lesson-search" placeholder="Ders ara... (ornek: stok, siparis, fatura)" data-i18n-placeholder="academy.searchPlaceholder">
+        </div>
+      </div>
+
+      <!-- Lesson Cards Grid -->
+      <div class="row g-4" id="lessons-grid">
+        <!-- Rendered by JS (DOM-safe) -->
+      </div>
+
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesAkademi - Egitim Merkezi v2
+  // DEV 2 — I-17 GOREV E-01
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var STORAGE_KEY = 'mestech_academy_completed';
+
+    // ========================================
+    // Lesson Definitions (v2 Curriculum)
+    // ========================================
+    var lessons = [
+      {
+        id: 1,
+        slug: 'lesson-01',
+        icon: 'fas fa-box',
+        iconBg: 'rgba(59, 130, 246, 0.12)',
+        iconColor: '#3b82f6',
+        title: 'Urun Yonetimi Temelleri',
+        duration: '~12dk',
+        description: 'Urun ekleme, duzenleme, silme ve arama islemlerinin temel adimlari.',
+        keywords: 'urun ekleme duzenleme silme arama yonetim temel'
+      },
+      {
+        id: 2,
+        slug: 'lesson-02',
+        icon: 'fas fa-warehouse',
+        iconBg: 'rgba(16, 185, 129, 0.12)',
+        iconColor: '#10b981',
+        title: 'Stok Takibi ve Uyarilar',
+        duration: '~10dk',
+        description: 'Minimum stok uyarilari, stok hareketleri ve otomatik bildirimler.',
+        keywords: 'stok takip minimum uyari hareket bildirim envanter'
+      },
+      {
+        id: 3,
+        slug: 'lesson-03',
+        icon: 'fas fa-shopping-cart',
+        iconBg: 'rgba(139, 92, 246, 0.12)',
+        iconColor: '#8b5cf6',
+        title: 'Siparis Islemleri',
+        duration: '~12dk',
+        description: 'Yeni siparis olusturma, durum takibi ve karsilama surecleri.',
+        keywords: 'siparis olusturma durum takip karsilama fulfillment'
+      },
+      {
+        id: 4,
+        slug: 'lesson-04',
+        icon: 'fas fa-store',
+        iconBg: 'rgba(245, 158, 11, 0.12)',
+        iconColor: '#f59e0b',
+        title: 'Pazaryeri Entegrasyonu',
+        duration: '~15dk',
+        description: 'Trendyol, N11, Hepsiburada ve Amazon entegrasyon adimlari.',
+        keywords: 'pazaryeri entegrasyon trendyol n11 hepsiburada amazon marketplace'
+      },
+      {
+        id: 5,
+        slug: 'lesson-05',
+        icon: 'fas fa-file-excel',
+        iconBg: 'rgba(236, 72, 153, 0.12)',
+        iconColor: '#ec4899',
+        title: 'Toplu Urun Islemleri',
+        duration: '~10dk',
+        description: 'Excel import/export, toplu guncelleme ve veri aktarimi.',
+        keywords: 'toplu urun excel import export guncelleme bulk'
+      },
+      {
+        id: 6,
+        slug: 'lesson-06',
+        icon: 'fas fa-sitemap',
+        iconBg: 'rgba(14, 165, 233, 0.12)',
+        iconColor: '#0ea5e9',
+        title: 'Kategori Yonetimi',
+        duration: '~10dk',
+        description: 'Agac yapisi, platform kategori eslestirme ve hiyerarsi yonetimi.',
+        keywords: 'kategori agac eslestirme hiyerarsi platform mapping'
+      },
+      {
+        id: 7,
+        slug: 'lesson-07',
+        icon: 'fas fa-parachute-box',
+        iconBg: 'rgba(168, 85, 247, 0.12)',
+        iconColor: '#a855f7',
+        title: 'Dropshipping Yonetimi',
+        duration: '~12dk',
+        description: 'Tedarikci kurulumu, otomatik siparis ve fiyat senkronizasyonu.',
+        keywords: 'dropshipping tedarikci siparis fiyat senkronizasyon'
+      },
+      {
+        id: 8,
+        slug: 'lesson-08',
+        icon: 'fas fa-file-invoice-dollar',
+        iconBg: 'rgba(34, 197, 94, 0.12)',
+        iconColor: '#22c55e',
+        title: 'Fatura ve Muhasebe',
+        duration: '~15dk',
+        description: 'E-fatura, FIFO maliyet hesaplama ve trial balance raporlari.',
+        keywords: 'fatura e-fatura muhasebe fifo maliyet trial balance'
+      },
+      {
+        id: 9,
+        slug: 'lesson-09',
+        icon: 'fas fa-truck',
+        iconBg: 'rgba(99, 102, 241, 0.12)',
+        iconColor: '#6366f1',
+        title: 'Kargo Entegrasyonu',
+        duration: '~10dk',
+        description: 'Yurtici, Aras, Surat kargo entegrasyonu ve gonderi takibi.',
+        keywords: 'kargo entegrasyon yurtici aras surat takip gonderi'
+      },
+      {
+        id: 10,
+        slug: 'lesson-10',
+        icon: 'fas fa-chart-bar',
+        iconBg: 'rgba(124, 58, 237, 0.12)',
+        iconColor: '#7c3aed',
+        title: 'Dashboard ve Raporlar',
+        duration: '~12dk',
+        description: 'KPI kartlari, grafik olusturma ve rapor export islemleri.',
+        keywords: 'dashboard rapor kpi grafik chart export analiz'
+      },
+      {
+        id: 11,
+        slug: 'lesson-11',
+        icon: 'fas fa-users-cog',
+        iconBg: 'rgba(251, 146, 60, 0.12)',
+        iconColor: '#fb923c',
+        title: 'Kullanici Yonetimi',
+        duration: '~10dk',
+        description: 'Roller, yetkiler, audit log ve kullanici islemleri.',
+        keywords: 'kullanici rol yetki audit log yonetim'
+      },
+      {
+        id: 12,
+        slug: 'lesson-12',
+        icon: 'fas fa-cogs',
+        iconBg: 'rgba(234, 179, 8, 0.12)',
+        iconColor: '#eab308',
+        title: 'Sistem Ayarlari',
+        duration: '~10dk',
+        description: 'API anahtarlari, bildirim ayarlari ve yedekleme yapilandirmasi.',
+        keywords: 'sistem ayar api anahtar bildirim yedekleme backup'
+      }
+    ];
+
+    // ========================================
+    // DOM Helper
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') {
+            node.className = attrs[key];
+          } else if (key === 'textContent') {
+            node.textContent = attrs[key];
+          } else {
+            node.setAttribute(key, attrs[key]);
+          }
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') {
+            node.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            node.appendChild(child);
+          }
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+
+    // ========================================
+    // LocalStorage Progress
+    // ========================================
+    function getCompleted() {
+      try {
+        var data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function isCompleted(lessonId) {
+      return getCompleted().indexOf(lessonId) !== -1;
+    }
+
+    function updateProgressUI() {
+      var completed = getCompleted();
+      var count = completed.length;
+      var percent = Math.round((count / 12) * 100);
+
+      var countEl = document.getElementById('progress-count');
+      var barEl = document.getElementById('progress-bar');
+      var percentEl = document.getElementById('progress-percent');
+
+      if (countEl) countEl.textContent = count.toString();
+      if (barEl) {
+        barEl.style.width = percent + '%';
+        barEl.setAttribute('aria-valuenow', percent.toString());
+      }
+      if (percentEl) percentEl.textContent = '%' + percent;
+
+      // Update card completed states
+      lessons.forEach(function(lesson) {
+        var card = document.getElementById('lesson-card-' + lesson.id);
+        if (card) {
+          if (completed.indexOf(lesson.id) !== -1) {
+            card.classList.add('completed');
+          } else {
+            card.classList.remove('completed');
+          }
+        }
+      });
+    }
+
+    // ========================================
+    // Render Lesson Cards (DOM-SAFE)
+    // ========================================
+    function renderLessons() {
+      var grid = document.getElementById('lessons-grid');
+      clearChildren(grid);
+
+      lessons.forEach(function(lesson) {
+        var col = el('div', {
+          className: 'col-md-4 col-sm-6 lesson-col',
+          'data-search': (lesson.title + ' ' + lesson.description + ' ' + lesson.keywords).toLowerCase()
+        });
+
+        var card = el('div', {
+          className: 'lesson-card',
+          id: 'lesson-card-' + lesson.id
+        });
+
+        // Icon badge
+        var iconBadge = el('div', { className: 'lesson-icon-badge' });
+        iconBadge.style.background = lesson.iconBg;
+        iconBadge.style.color = lesson.iconColor;
+        iconBadge.appendChild(el('i', { className: lesson.icon }));
+        card.appendChild(iconBadge);
+
+        // Lesson number
+        var numBadge = el('span', {
+          className: 'lesson-number badge bg-primary mb-2',
+          textContent: 'Ders ' + (lesson.id < 10 ? '0' + lesson.id : lesson.id)
+        });
+        card.appendChild(numBadge);
+
+        // Title
+        card.appendChild(el('h5', {
+          textContent: lesson.title,
+          'data-i18n': 'academy.lesson' + lesson.id + '.title'
+        }));
+
+        // Description
+        card.appendChild(el('p', {
+          className: 'lesson-desc',
+          textContent: lesson.description,
+          'data-i18n': 'academy.lesson' + lesson.id + '.desc'
+        }));
+
+        // Meta row
+        var meta = el('div', { className: 'lesson-meta' });
+
+        // Duration
+        var duration = el('span', { className: 'lesson-duration' });
+        duration.appendChild(el('i', { className: 'fas fa-clock me-1' }));
+        duration.appendChild(document.createTextNode(lesson.duration));
+        meta.appendChild(duration);
+
+        // Button or completed badge
+        if (isCompleted(lesson.id)) {
+          var completedBadge = el('span', { className: 'completed-badge' });
+          completedBadge.appendChild(el('i', { className: 'fas fa-check-circle me-1' }));
+          completedBadge.appendChild(document.createTextNode('Tamamlandi'));
+          meta.appendChild(completedBadge);
+
+          var repeatBtn = el('a', {
+            href: lesson.slug + '.html',
+            className: 'btn btn-outline-success btn-start ms-2',
+            textContent: 'Tekrar',
+            'data-i18n': 'academy.repeat'
+          });
+          meta.appendChild(repeatBtn);
+        } else {
+          var startBtn = el('a', {
+            href: lesson.slug + '.html',
+            className: 'btn btn-primary btn-start',
+            'data-i18n': 'academy.start'
+          });
+          startBtn.appendChild(el('i', { className: 'fas fa-play me-1' }));
+          startBtn.appendChild(document.createTextNode('Basla'));
+          meta.appendChild(startBtn);
+        }
+
+        card.appendChild(meta);
+        col.appendChild(card);
+        grid.appendChild(col);
+      });
+    }
+
+    // ========================================
+    // Search / Filter
+    // ========================================
+    function initSearch() {
+      var searchInput = document.getElementById('lesson-search');
+      if (!searchInput) return;
+
+      searchInput.addEventListener('input', function() {
+        var query = searchInput.value.toLowerCase().trim();
+        var cols = document.querySelectorAll('.lesson-col');
+
+        cols.forEach(function(col) {
+          var searchData = col.getAttribute('data-search') || '';
+          if (!query || searchData.indexOf(query) !== -1) {
+            col.classList.remove('hidden');
+          } else {
+            col.classList.add('hidden');
+          }
+        });
+      });
+    }
+
+    // ========================================
+    // Initialization
+    // ========================================
+    function init() {
+      renderLessons();
+      updateProgressUI();
+      initSearch();
+    }
+
+    // Make updateProgress available globally for lesson pages
+    window.mesAcademyUpdateProgress = updateProgressUI;
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Sikca Sorulan Sorular (FAQ)
+  Version: 2.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-03 — FAQ Page v2 (10 categories, 50 Q&A)
+  Status: ACTIVE
+
+  FEATURES:
+  - 50 FAQ items in 10 categories (5 per category)
+  - Bootstrap accordion component
+  - Category tabs (pill navigation)
+  - Searchable with text filtering (DOM-safe, no innerHTML)
+  - data-i18n attributes for i18n readiness
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech - Sikca Sorulan Sorular</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/mestech-i18n.js"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-primary-hover: #d96a10;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-info: #3b82f6;
+      --mestech-warning: #f59e0b;
+      --mestech-danger: #ef4444;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --sidebar-dark: #1a1a2e;
+      --header-dark: #16213e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0; padding: 0;
+    }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .faq-main {
+      flex: 1; padding: 24px; max-width: 1000px;
+      margin: 0 auto; width: 100%;
+    }
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-info), #2563eb);
+      color: #fff; padding: 20px 24px; margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* Search */
+    .faq-search { margin-bottom: 16px; }
+    .faq-search .form-control {
+      border-radius: var(--mestech-radius);
+      border: 1px solid var(--mestech-border);
+      padding: 14px 16px 14px 48px;
+      font-size: 1rem;
+      box-shadow: var(--mestech-shadow-sm);
+    }
+    .faq-search .search-icon {
+      position: absolute; left: 18px; top: 50%;
+      transform: translateY(-50%); color: var(--mestech-text-muted);
+      font-size: 1.1rem;
+    }
+    .faq-search .result-count {
+      font-size: 0.85rem; color: var(--mestech-text-muted);
+      margin-top: 8px;
+    }
+
+    /* Category Tabs */
+    .category-tabs {
+      margin-bottom: 24px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    .category-tabs .nav-pills .nav-link {
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 20px;
+      padding: 6px 16px;
+      margin-right: 8px;
+      color: var(--mestech-text-secondary);
+      background: var(--mestech-card-bg);
+      border: 1px solid var(--mestech-border);
+      white-space: nowrap;
+    }
+    .category-tabs .nav-pills .nav-link.active {
+      background: var(--mestech-info);
+      color: #fff;
+      border-color: var(--mestech-info);
+    }
+
+    /* Category section */
+    .faq-category { margin-bottom: 32px; }
+    .faq-category-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 2px solid var(--mestech-border);
+    }
+    .faq-category-header .cat-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+    }
+    .faq-category-header h5 { font-weight: 600; margin: 0; }
+    .faq-category-header .cat-count {
+      font-size: 0.8rem; color: var(--mestech-text-muted);
+      margin-left: auto;
+    }
+
+    /* Accordion styling */
+    .accordion-item {
+      border: 1px solid var(--mestech-border);
+      border-radius: 8px !important;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .accordion-button {
+      font-weight: 500; font-size: 0.95rem;
+      color: var(--mestech-text);
+      background: var(--mestech-card-bg);
+      padding: 16px 20px;
+    }
+    .accordion-button:not(.collapsed) {
+      color: var(--mestech-info);
+      background: #f0f7ff;
+      box-shadow: none;
+    }
+    .accordion-button:focus { box-shadow: none; }
+    .accordion-body {
+      padding: 16px 20px;
+      color: var(--mestech-text-secondary);
+      line-height: 1.7;
+      font-size: 0.9rem;
+    }
+
+    /* Hidden items */
+    .faq-item.hidden { display: none; }
+    .faq-category.hidden { display: none; }
+
+    /* No results */
+    .no-results {
+      text-align: center; padding: 48px 16px;
+      color: var(--mestech-text-muted); display: none;
+    }
+    .no-results i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+    @media (max-width: 575px) {
+      .faq-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+
+    <main class="faq-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold" data-i18n="faq.title">Sikca Sorulan Sorular</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="dashboard.html" data-i18n="nav.mestech">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="dashboard.html" data-i18n="nav.panel">Panel</a></li>
+                <li class="breadcrumb-item active" data-i18n="faq.breadcrumb">SSS</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="text-end">
+            <small class="d-block opacity-75" data-i18n="faq.subtitle">50 soru, 10 kategori</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="faq-search">
+        <div class="position-relative">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="form-control" id="faq-search-input" placeholder="Soru ara... (ornek: stok, fatura, kargo)" data-i18n-placeholder="faq.searchPlaceholder">
+        </div>
+        <div class="result-count" id="result-count"></div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="category-tabs" id="category-tabs">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- FAQ Content -->
+      <div id="faq-content">
+        <!-- Rendered by JS (DOM-safe) -->
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results" id="no-results">
+        <i class="fas fa-search"></i>
+        <h5 data-i18n="faq.noResults">Sonuc bulunamadi</h5>
+        <p data-i18n="faq.noResultsDesc">Aramanizla eslesen soru bulunamadi. Farkli kelimeler deneyin.</p>
+      </div>
+
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech SSS (FAQ) Page v2
+  // DEV 2 — I-17 GOREV E-03
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // 10 categories, 50 Q&A (5 per category)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    // ========================================
+    // Category Definitions — 10 categories
+    // ========================================
+    var categories = [
+      { id: 'genel', title: 'Genel', icon: 'fas fa-globe', bg: 'rgba(59,130,246,0.12)', color: '#3b82f6' },
+      { id: 'urun', title: 'Urun Yonetimi', icon: 'fas fa-box', bg: 'rgba(139,92,246,0.12)', color: '#8b5cf6' },
+      { id: 'stok', title: 'Stok', icon: 'fas fa-warehouse', bg: 'rgba(16,185,129,0.12)', color: '#10b981' },
+      { id: 'siparis', title: 'Siparisler', icon: 'fas fa-shopping-cart', bg: 'rgba(236,72,153,0.12)', color: '#ec4899' },
+      { id: 'pazaryeri', title: 'Pazaryeri', icon: 'fas fa-store', bg: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+      { id: 'fatura', title: 'Fatura', icon: 'fas fa-file-invoice', bg: 'rgba(168,85,247,0.12)', color: '#a855f7' },
+      { id: 'kargo', title: 'Kargo', icon: 'fas fa-truck', bg: 'rgba(14,165,233,0.12)', color: '#0ea5e9' },
+      { id: 'rapor', title: 'Raporlar', icon: 'fas fa-chart-bar', bg: 'rgba(99,102,241,0.12)', color: '#6366f1' },
+      { id: 'teknik', title: 'Teknik', icon: 'fas fa-cog', bg: 'rgba(100,116,139,0.12)', color: '#64748b' },
+      { id: 'guvenlik', title: 'Guvenlik', icon: 'fas fa-shield-alt', bg: 'rgba(239,68,68,0.12)', color: '#ef4444' }
+    ];
+
+    // ========================================
+    // FAQ Data — 50 items, 5 per category
+    // ========================================
+    var faqData = [
+      // GENEL (5)
+      { cat: 'genel', q: 'MesTech nedir?', a: 'MesTech, coklu pazaryeri stok ve siparis yonetimi platformudur. Trendyol, Hepsiburada, N11, Amazon ve diger pazaryerlerini tek bir panelden yonetmenizi saglar.' },
+      { cat: 'genel', q: 'Hangi platformlarda kullanabilirim?', a: 'MesTech 4 farkli arayuz sunar: WPF (Windows masaustu), Avalonia (cross-platform masaustu), Blazor (web/PWA) ve HTML Panel (tarayici). Ihtiyaciniza uygun olani secebilirsiniz.' },
+      { cat: 'genel', q: 'Ucretsiz deneme sureci var mi?', a: 'Evet. 14 gunluk ucretsiz deneme surecinde tum ozelliklere erisebilirsiniz. Kredi karti bilgisi gerekmez.' },
+      { cat: 'genel', q: 'Destek ekibine nasil ulasabilirim?', a: 'destek@mestech.tr adresine e-posta gonderebilir, canli destek butonunu kullanabilir veya SSS sayfamizi inceleyebilirsiniz. Yanit suresi genellikle 2 saat icerisindedir.' },
+      { cat: 'genel', q: 'MesTech guncellemeleri nasil yapilir?', a: 'Web paneli otomatik guncellenir. Masaustu uygulamalari icin guncelleme bildirimi alirsiniz. Degisiklik Gunlugu sayfasindan yenilikleri takip edebilirsiniz.' },
+
+      // URUN YONETIMI (5)
+      { cat: 'urun', q: 'Toplu urun yukleme nasil yapilir?', a: 'Urunler > Toplu Islem sayfasindan Excel sablonunu indirin, urunlerinizi doldurun ve sisteme yukleyin. Sistem hatalari otomatik tespit eder ve rapor sunar.' },
+      { cat: 'urun', q: 'Urun varyantlari nasil tanimlaniyor?', a: 'Urun duzenleme sayfasinda "Varyant Ekle" bolumunden beden, renk veya model gibi varyantlar tanimlayabilirsiniz. Her varyant icin ayri stok, fiyat ve barkod belirlenebilir.' },
+      { cat: 'urun', q: 'Urun gorsel siniri ne kadar?', a: 'Her urun icin en az 1, en fazla 8 gorsel yukleyebilirsiniz. Gorseller otomatik optimize edilir. Minimum 1000x1000 piksel cozunurluk onerilir.' },
+      { cat: 'urun', q: 'SKU ve barkod zorunlu mu?', a: 'SKU zorunludur ve her urun icin benzersiz olmalidir. Barkod zorunlu degildir ancak kargo ve depo yonetimi icin onerilir.' },
+      { cat: 'urun', q: 'Urun aciklamasini AI ile olusturabilir miyim?', a: 'Evet. Urun duzenleme sayfasinda "AI ile Olustur" butonuyla SEO uyumlu baslik ve aciklama otomatik uretebilirsiniz.' },
+
+      // STOK (5)
+      { cat: 'stok', q: 'Minimum stok seviyesi nasil belirlenir?', a: 'Urun detay sayfasinda "Stok Ayarlari" bolumunden minimum stok degerini girebilirsiniz. Bu seviye altina dustugunde otomatik uyari alinir.' },
+      { cat: 'stok', q: 'Stok hareketleri nasil takip ediliyor?', a: 'Her stok degisikligi (giris, cikis, duzeltme) otomatik loglanir. Urun detayinda "Stok Hareketleri" sekmesinden tum gecmisi gorebilirsiniz.' },
+      { cat: 'stok', q: 'Coklu depo yonetimi yapabilir miyim?', a: 'Evet. Birden fazla depo tanimlayarak her depodaki stogunuzu ayri takip edebilirsiniz. Depo arasi transfer islemi de desteklenir.' },
+      { cat: 'stok', q: 'Stok senkronizasyonu nasil calisir?', a: 'Tum pazaryerlerindeki stok miktarlari MesTech uzerinden merkezi olarak yonetilir. Bir satista stok otomatik tum platformlarda guncellenir.' },
+      { cat: 'stok', q: 'Stok sayimi nasil yapilir?', a: 'Stok > Sayim sayfasindan yeni sayim baslatin. Fiziksel saydigi miktarlari girin, sistem otomatik farklari hesaplar ve duzeltme kaydini olusturur.' },
+
+      // SIPARISLER (5)
+      { cat: 'siparis', q: 'Siparisler ne siklikla guncellenir?', a: 'Siparisler varsayilan olarak her 5 dakikada bir pazaryerlerinden cekilir. Webhook destekleyen platformlarda anlik guncelleme yapilir.' },
+      { cat: 'siparis', q: 'Toplu siparis onaylama yapabilir miyim?', a: 'Evet. Siparis listesinde birden fazla siparis secip toplu onaylama, toplu kargo etiketi basimi ve toplu fatura olusturma yapabilirsiniz.' },
+      { cat: 'siparis', q: 'Siparis iptali nasil yapilir?', a: 'Siparis detay sayfasinda "Iptal Et" butonuna tiklayin. Iptal nedeni secin ve onaylayin. Stok otomatik olarak geri eklenir.' },
+      { cat: 'siparis', q: 'Iade sureci nasil isleniyor?', a: 'Iade talepleri pazaryerinden otomatik cekilir. Iade nedenini inceleyin, onaylayin veya reddedin. Onaylanan iadelerde stok otomatik geri eklenir.' },
+      { cat: 'siparis', q: 'Siparis raporu indirebilir miyim?', a: 'Evet. Siparisler sayfasindan sectiginiz tarih araligina ait raporu Excel, CSV veya PDF olarak indirebilirsiniz.' },
+
+      // PAZARYERI (5)
+      { cat: 'pazaryeri', q: 'Hangi pazaryerlerini destekliyorsunuz?', a: '12 pazaryeri desteklenmektedir: Trendyol, Hepsiburada, N11, Ciceksepeti, Pazarama, Amazon, eBay, Shopify, WooCommerce, Ozon, PttAVM ve OpenCart.' },
+      { cat: 'pazaryeri', q: 'API baglantisi nasil kurulur?', a: 'Ayarlar > Pazaryerleri sayfasindan platformu secin, API bilgilerini girin ve "Baglanti Testi" butonuyla dogrulayin.' },
+      { cat: 'pazaryeri', q: 'Platform bazli fiyat belirleyebilir miyim?', a: 'Evet. Urun detayinda "Platform Fiyatlari" sekmesinden her platform icin ayri satis fiyati belirleyebilirsiniz.' },
+      { cat: 'pazaryeri', q: 'Kategori eslestirme nasil calisir?', a: 'MesTech akilli kategori eslestirme onerisi sunar. Urunler > Kategori Eslestirme sayfasindan her platform icin uygun kategoriyi secin.' },
+      { cat: 'pazaryeri', q: 'Yeni pazaryeri eklenecek mi?', a: 'Evet. Yol haritamizda Etsy, Zalando ve ek uluslararasi pazaryerleri bulunmaktadir. Yenilikler icin changelog sayfasini takip edin.' },
+
+      // FATURA (5)
+      { cat: 'fatura', q: 'E-fatura entegrasyonu nasil yapilir?', a: 'Ayarlar > Fatura sayfasindan Sovos veya GIB Portal saglayicisini secin, API bilgilerini girin ve baglanti testini yapin. UBL-TR 1.2 formati desteklenir.' },
+      { cat: 'fatura', q: 'Otomatik fatura kesimi nedir?', a: 'Siparis belirli bir asamaya geldiginde (ornegin kargoya verildi) otomatik e-fatura kesilir. Bireysel icin e-arsiv, kurumsal icin e-fatura secilir.' },
+      { cat: 'fatura', q: 'KDV orani nasil belirleniyor?', a: 'Urun kategorisine gore varsayilan KDV orani otomatik uygulanir (%1, %10, %20). Ihtiyac halinde urun veya fatura bazinda manuel degistirilebilir.' },
+      { cat: 'fatura', q: 'Fatura PDF olarak indirilebilir mi?', a: 'Evet. Fatura arsivinden herhangi bir faturayi PDF olarak indirebilir veya e-posta ile gonderebilirsiniz.' },
+      { cat: 'fatura', q: 'E-fatura mukellefiyetim yoksa ne yapmaliyim?', a: 'E-fatura mukellefiyetiniz yoksa e-arsiv fatura kesebilirsiniz. Ayni entegrasyon adimlarini izleyebilirsiniz. Durumunuzu GIB Portal\'dan kontrol edin.' },
+
+      // KARGO (5)
+      { cat: 'kargo', q: 'Hangi kargo firmalari destekleniyor?', a: 'Yurtici Kargo, Aras Kargo ve Surat Kargo entegrasyonlari aktiftir. Pazaryerlerinin anlasmali kargo firmalari da otomatik desteklenir.' },
+      { cat: 'kargo', q: 'Kargo etiketi nasil basilir?', a: 'Siparis detayindan veya toplu secim ile PDF formatinda kargo etiketi olusturulur. Termal yazici (100x150mm) veya A4 kagit formati desteklenir.' },
+      { cat: 'kargo', q: 'Kargo takip numarasi otomatik olusturulur mu?', a: 'Evet. Kargo firmasi entegrasyonu aktifken gonderi olusturulduğunda takip numarasi otomatik alinir ve pazaryerine bildirilir.' },
+      { cat: 'kargo', q: 'Desi hesaplama nasil yapilir?', a: 'Urun boyutlarini (en x boy x yukseklik) girdiginizde desi otomatik hesaplanir. Kargo ucreti agirlik ve desi degerinden buyuk olana gore belirlenir.' },
+      { cat: 'kargo', q: 'Birden fazla kargo firmasiyla calısabilir miyim?', a: 'Evet. Birden fazla kargo firmasi ekleyebilirsiniz. Siparis bazinda en uygun kargoyu secebilir veya varsayilan firmayı belirleyebilirsiniz.' },
+
+      // RAPORLAR (5)
+      { cat: 'rapor', q: 'Hangi rapor turleri mevcut?', a: 'Satis raporu, stok raporu, kar-zarar raporu, platform analizi, kategori performansi, kargo analizi ve muhasebe raporlari mevcuttur.' },
+      { cat: 'rapor', q: 'Rapor hangi formatlarda indirilebilir?', a: '6 farkli format desteklenir: Excel (.xlsx), CSV, PDF, JSON, XML ve HTML. Her rapor sayfasinda indirme butonlari mevcuttur.' },
+      { cat: 'rapor', q: 'Zamanli rapor gonderimi yapabilir miyim?', a: 'Evet. Rapor sablonu olusturup gunluk, haftalik veya aylik olarak e-posta ile otomatik gonderim tanimlayabilirsiniz.' },
+      { cat: 'rapor', q: 'Dashboard KPI kartlari ne gosterir?', a: 'Toplam urun, bekleyen siparis, gunluk satis, stok uyarilari, aylik gelir ve aktif platform sayisi gibi temel metrikleri gosterir.' },
+      { cat: 'rapor', q: 'Gecmis verileri ne kadar geriye gorebilirim?', a: 'Tum gecmis veriler sinursiz olarak saklanir. Tarih araligi filtresi ile istediginiz doneme ait verileri goruntuleyebilirsiniz.' },
+
+      // TEKNIK (5)
+      { cat: 'teknik', q: 'Sistem gereksinimleri nelerdir?', a: 'Web paneli icin modern tarayici (Chrome, Firefox, Edge) yeterlidir. Masaustu uygulamasi icin Windows 10+ ve .NET 9.0 Runtime gereklidir.' },
+      { cat: 'teknik', q: 'API dokumantasyonu nerede?', a: 'Swagger dokumantasyonuna /api/swagger adresinden ulasabilirsiniz. JWT token ile kimlik dogrulama yapilir.' },
+      { cat: 'teknik', q: 'Veritabani yedekleme nasil yapilir?', a: 'Otomatik gunluk yedekleme aktiftir. Manuel yedekleme icin Ayarlar > Yedekleme sayfasini kullanin. Yedekler MinIO nesne depolamada saklanir.' },
+      { cat: 'teknik', q: 'Hata loglarina nasil ulasabilirim?', a: 'Seq log yonetim aracina port 8080\'den ulasabilirsiniz. Tum uygulama loglari yapilandirilmis formatta goruntulenir.' },
+      { cat: 'teknik', q: 'Webhook desteginiz var mi?', a: 'Evet. Siparis, stok ve fatura olaylari icin webhook endpoint\'leri tanimlanabilir. Ayarlar > Webhook sayfasindan URL ve olaylari yapilandirin.' },
+
+      // GUVENLIK (5)
+      { cat: 'guvenlik', q: 'Verilerim guvenli mi?', a: 'Evet. Tum veriler SSL/TLS ile sifrelenir, PostgreSQL veritabaninda saklanir ve gunluk yedekleme alinir. API anahtarlari BCrypt ile hashlenir.' },
+      { cat: 'guvenlik', q: 'Iki faktorlu dogrulama (2FA) var mi?', a: 'Evet. Ayarlar > Guvenlik sayfasindan 2FA\'yi aktif edebilirsiniz. TOTP uyumlu uygulamalar (Google Authenticator, Authy) desteklenir.' },
+      { cat: 'guvenlik', q: 'Sifre politikasi nasil yapilandirilir?', a: 'Ayarlar > Guvenlik sayfasindan minimum sifre uzunlugu, buyuk harf, sayi ve ozel karakter gereksinimleri ayarlanabilir.' },
+      { cat: 'guvenlik', q: 'KVKK uyumlulugu sagliyor musunuz?', a: 'Evet. Denetim kayitlari silinemez, kullanici verileri sifrelenir, veri isleme ve silme politikalari KVKK gereksinimlerine uygun tasarlanmistir.' },
+      { cat: 'guvenlik', q: 'IP kisitlama yapabilir miyim?', a: 'Evet. Ayarlar > Guvenlik > IP Kisitlama bolumunden belirli IP adresleri veya IP araliklari ile erisimi sinirlandirabilirsiniz.' }
+    ];
+
+    // ========================================
+    // DOM Helper
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') node.className = attrs[key];
+          else if (key === 'textContent') node.textContent = attrs[key];
+          else node.setAttribute(key, attrs[key]);
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') node.appendChild(document.createTextNode(child));
+          else if (child instanceof Node) node.appendChild(child);
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) parent.removeChild(parent.firstChild);
+    }
+
+    // ========================================
+    // Active category filter
+    // ========================================
+    var activeCategory = 'all';
+
+    // ========================================
+    // Render Category Tabs (DOM-SAFE)
+    // ========================================
+    function renderTabs() {
+      var container = document.getElementById('category-tabs');
+      clearChildren(container);
+
+      var nav = el('ul', { className: 'nav nav-pills flex-nowrap' });
+
+      // "All" tab
+      var allLi = el('li', { className: 'nav-item' });
+      var allLink = el('button', {
+        className: 'nav-link active',
+        type: 'button',
+        'data-category': 'all',
+        textContent: 'Tumu (50)',
+        'data-i18n': 'faq.tab.all'
+      });
+      allLink.addEventListener('click', function() { filterByCategory('all'); });
+      allLi.appendChild(allLink);
+      nav.appendChild(allLi);
+
+      categories.forEach(function(cat) {
+        var count = faqData.filter(function(f) { return f.cat === cat.id; }).length;
+        var li = el('li', { className: 'nav-item' });
+        var link = el('button', {
+          className: 'nav-link',
+          type: 'button',
+          'data-category': cat.id,
+          textContent: cat.title + ' (' + count + ')',
+          'data-i18n': 'faq.tab.' + cat.id
+        });
+        link.addEventListener('click', function() { filterByCategory(cat.id); });
+        li.appendChild(link);
+        nav.appendChild(li);
+      });
+
+      container.appendChild(nav);
+    }
+
+    function filterByCategory(catId) {
+      activeCategory = catId;
+
+      // Update tab active state
+      var tabs = document.querySelectorAll('.category-tabs .nav-link');
+      tabs.forEach(function(tab) {
+        if (tab.getAttribute('data-category') === catId) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      // Show/hide categories
+      var sections = document.querySelectorAll('.faq-category');
+      sections.forEach(function(section) {
+        if (catId === 'all' || section.getAttribute('data-category') === catId) {
+          section.classList.remove('hidden');
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+
+      // Clear search when switching tabs
+      var input = document.getElementById('faq-search-input');
+      if (input) input.value = '';
+      var resultCount = document.getElementById('result-count');
+      if (resultCount) resultCount.textContent = '';
+      var noResults = document.getElementById('no-results');
+      if (noResults) noResults.style.display = 'none';
+
+      // Show all items within visible categories
+      var items = document.querySelectorAll('.faq-item');
+      items.forEach(function(item) { item.classList.remove('hidden'); });
+    }
+
+    // ========================================
+    // Render FAQ (DOM-SAFE)
+    // ========================================
+    function renderFaq() {
+      var container = document.getElementById('faq-content');
+      clearChildren(container);
+
+      var globalIndex = 0;
+
+      categories.forEach(function(cat) {
+        var items = faqData.filter(function(f) { return f.cat === cat.id; });
+        if (items.length === 0) return;
+
+        var section = el('div', { className: 'faq-category', 'data-category': cat.id });
+
+        // Category header
+        var header = el('div', { className: 'faq-category-header' });
+        var iconEl = el('div', { className: 'cat-icon' });
+        iconEl.style.background = cat.bg;
+        iconEl.style.color = cat.color;
+        iconEl.appendChild(el('i', { className: cat.icon }));
+        header.appendChild(iconEl);
+        header.appendChild(el('h5', { textContent: cat.title, 'data-i18n': 'faq.cat.' + cat.id }));
+        header.appendChild(el('span', { className: 'cat-count', textContent: items.length + ' soru' }));
+        section.appendChild(header);
+
+        // Accordion
+        var accordion = el('div', { className: 'accordion', id: 'accordion-' + cat.id });
+
+        items.forEach(function(item) {
+          globalIndex++;
+          var itemId = 'faq-item-' + globalIndex;
+
+          var accItem = el('div', {
+            className: 'accordion-item faq-item',
+            'data-search': (item.q + ' ' + item.a).toLowerCase()
+          });
+
+          var accHeader = el('h2', { className: 'accordion-header' });
+          var accButton = el('button', {
+            className: 'accordion-button collapsed',
+            type: 'button',
+            'data-bs-toggle': 'collapse',
+            'data-bs-target': '#' + itemId,
+            'aria-expanded': 'false',
+            'aria-controls': itemId
+          });
+          accButton.appendChild(document.createTextNode(item.q));
+          accHeader.appendChild(accButton);
+          accItem.appendChild(accHeader);
+
+          var accCollapse = el('div', {
+            className: 'accordion-collapse collapse',
+            id: itemId,
+            'data-bs-parent': '#accordion-' + cat.id
+          });
+          var accBody = el('div', { className: 'accordion-body', textContent: item.a });
+          accCollapse.appendChild(accBody);
+          accItem.appendChild(accCollapse);
+
+          accordion.appendChild(accItem);
+        });
+
+        section.appendChild(accordion);
+        container.appendChild(section);
+      });
+    }
+
+    // ========================================
+    // Search / Filter
+    // ========================================
+    function initSearch() {
+      var input = document.getElementById('faq-search-input');
+      var resultCount = document.getElementById('result-count');
+      var noResults = document.getElementById('no-results');
+      if (!input) return;
+
+      input.addEventListener('input', function() {
+        var query = input.value.toLowerCase().trim();
+        var faqItems = document.querySelectorAll('.faq-item');
+        var visible = 0;
+
+        faqItems.forEach(function(item) {
+          var searchData = item.getAttribute('data-search') || '';
+          // Also check if parent category is visible (tab filter)
+          var parentCat = item.closest('.faq-category');
+          var catVisible = !parentCat.classList.contains('hidden') || activeCategory === 'all';
+
+          if (activeCategory !== 'all') {
+            var catId = parentCat.getAttribute('data-category');
+            catVisible = catId === activeCategory;
+          }
+
+          if (catVisible && (!query || searchData.indexOf(query) !== -1)) {
+            item.classList.remove('hidden');
+            visible++;
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+
+        // Show/hide category headers if all items hidden
+        var cats = document.querySelectorAll('.faq-category');
+        cats.forEach(function(cat) {
+          var catId = cat.getAttribute('data-category');
+          if (activeCategory !== 'all' && catId !== activeCategory) {
+            cat.classList.add('hidden');
+            return;
+          }
+          var visibleItems = cat.querySelectorAll('.faq-item:not(.hidden)');
+          if (visibleItems.length === 0) {
+            cat.classList.add('hidden');
+          } else {
+            cat.classList.remove('hidden');
+          }
+        });
+
+        if (query) {
+          resultCount.textContent = visible + ' sonuc bulundu';
+        } else {
+          resultCount.textContent = '';
+        }
+
+        if (query && visible === 0) {
+          noResults.style.display = 'block';
+        } else {
+          noResults.style.display = 'none';
+        }
+      });
+    }
+
+    // ========================================
+    // Init
+    // ========================================
+    function init() {
+      renderTabs();
+      renderFaq();
+      initSearch();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+
+  })();
+  </script>
+</body>
+</html>

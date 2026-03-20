@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--
+  MesTech MesAkademi - Ders 09: Kargo Entegrasyonu
+  Version: 2.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-01 | DOM-SAFE
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesAkademi - Ders 09: Kargo Entegrasyonu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/mestech-i18n.js"></script>
+  <style>
+    :root { --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff; --mestech-text: #1e293b; --mestech-text-secondary: #64748b; --mestech-border: #e2e8f0; --mestech-success: #10b981; --mestech-info: #3b82f6; --mestech-warning: #f59e0b; --mestech-danger: #ef4444; --mestech-purple: #7c3aed; --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --sidebar-dark: #1a1a2e; --header-dark: #16213e; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .lesson-main { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .lesson-header { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; padding: 24px; margin-bottom: 24px; border-radius: var(--mestech-radius); }
+    .lesson-header .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .lesson-header .breadcrumb-item.active { color: #fff; }
+    .objectives-card { background: var(--mestech-card-bg); border-left: 4px solid var(--mestech-purple); border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); padding: 20px 24px; margin-bottom: 24px; }
+    .objectives-card h6 { font-weight: 600; color: var(--mestech-purple); margin-bottom: 12px; }
+    .objectives-card ul { margin: 0; padding-left: 20px; }
+    .objectives-card li { color: var(--mestech-text-secondary); margin-bottom: 6px; line-height: 1.6; }
+    .step-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); margin-bottom: 16px; padding: 24px; }
+    .step-card h5 { font-weight: 600; margin-bottom: 12px; }
+    .step-card p { color: var(--mestech-text-secondary); line-height: 1.7; }
+    .step-card ol, .step-card ul { color: var(--mestech-text-secondary); line-height: 1.8; padding-left: 20px; }
+    .tip-box { background: #eff6ff; border-left: 4px solid var(--mestech-info); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .tip-box i { color: var(--mestech-info); }
+    .warning-box { background: #fffbeb; border-left: 4px solid var(--mestech-warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .warning-box i { color: var(--mestech-warning); }
+    .lesson-nav { margin-top: 32px; }
+    @media (max-width: 575px) { .lesson-main { padding: 12px; } .lesson-header { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+    <main class="lesson-main">
+      <div class="academy-lesson">
+
+        <div class="lesson-header">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+              <li class="breadcrumb-item"><a href="../dashboard.html" data-i18n="nav.panel">Panel</a></li>
+              <li class="breadcrumb-item"><a href="index.html" data-i18n="academy.breadcrumb">Akademi</a></li>
+              <li class="breadcrumb-item active" data-i18n="lesson09.breadcrumb">Ders 09</li>
+            </ol>
+          </nav>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-white fs-6" style="color: #4f46e5;">09</span>
+            <div>
+              <h1 class="mb-0 fs-4 fw-bold" data-i18n="lesson09.title">Kargo Entegrasyonu</h1>
+              <span class="opacity-75"><i class="fas fa-clock me-1"></i> <span data-i18n="lesson09.duration">~10 dakika</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="objectives-card">
+          <h6><i class="fas fa-bullseye me-2"></i><span data-i18n="lesson.objectives">Ders Hedefleri</span></h6>
+          <ul>
+            <li data-i18n="lesson09.obj1">Kargo firmasi entegrasyonunu kurabileceksiniz</li>
+            <li data-i18n="lesson09.obj2">Kargo etiketi olusturma ve basmayi ogreneceksiniz</li>
+            <li data-i18n="lesson09.obj3">Gonderi takip surecini kavrayacaksiniz</li>
+          </ul>
+        </div>
+
+        <div class="lesson-content">
+
+          <div class="step-card">
+            <h5 data-i18n="lesson09.step1.title"><i class="fas fa-plug me-2" style="color: #4f46e5;"></i>Adim 1: Kargo Firmasi Ekleme</h5>
+            <p data-i18n="lesson09.step1.desc">Ayarlar &gt; Kargo sayfasindan kargo firmasi entegrasyonunu yapilandirin. MesTech su anda 3 kargo firmasini destekler.</p>
+            <ul>
+              <li data-i18n="lesson09.step1.s1">Yurtici Kargo — Turkiye geneli en yaygin kargo firmasi</li>
+              <li data-i18n="lesson09.step1.s2">Aras Kargo — hizli teslimat secenekleri ile one cikar</li>
+              <li data-i18n="lesson09.step1.s3">Surat Kargo — uygun fiyatli cozumler sunar</li>
+            </ul>
+            <ol>
+              <li data-i18n="lesson09.step1.s4">Kargo firmasini secin ve musteri numaranizi girin</li>
+              <li data-i18n="lesson09.step1.s5">API kullanici adi ve sifrenizi girin</li>
+              <li data-i18n="lesson09.step1.s6">"Baglanti Testi" ile dogrulamayi yapin</li>
+              <li data-i18n="lesson09.step1.s7">Varsayilan kargo firmasini belirleyin</li>
+            </ol>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson09.step2.title"><i class="fas fa-print me-2" style="color: #4f46e5;"></i>Adim 2: Kargo Etiketi Olusturma</h5>
+            <p data-i18n="lesson09.step2.desc">Siparis detayindan veya toplu secim ile kargo etiketi olusturabilirsiniz.</p>
+            <ol>
+              <li data-i18n="lesson09.step2.s1">Siparisi secin ve "Kargo Etiketi" butonuna tiklayin</li>
+              <li data-i18n="lesson09.step2.s2">Etiket formati secin: termal (100x150mm) veya A4</li>
+              <li data-i18n="lesson09.step2.s3">PDF olarak indirin veya dogrudan yazicidan basin</li>
+            </ol>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong data-i18n="lesson.tip">Ipucu:</strong> <span data-i18n="lesson09.step2.tip">Termal yazici kullaniyorsaniz 100x150mm ZPL formati en verimli secenektir. Ayarlar sayfasindan yazici tercihini kaydedin.</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson09.step3.title"><i class="fas fa-map-marker-alt me-2" style="color: #4f46e5;"></i>Adim 3: Gonderi Takibi</h5>
+            <p data-i18n="lesson09.step3.desc">Kargo etiketi olusturulduğunda takip numarasi otomatik alinir. Bu numara pazaryerine otomatik bildirilir.</p>
+            <ul>
+              <li data-i18n="lesson09.step3.s1">Siparisler &gt; Kargoda sekmesinden tum gonderileri takip edin</li>
+              <li data-i18n="lesson09.step3.s2">Kargo durumu periyodik olarak guncellenir (saatlik)</li>
+              <li data-i18n="lesson09.step3.s3">Teslim edilen gonderiler otomatik olarak "Teslim Edildi" durumuna gecer</li>
+            </ul>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson09.step4.title"><i class="fas fa-ruler me-2" style="color: #4f46e5;"></i>Adim 4: Desi ve Maliyet Hesaplama</h5>
+            <p data-i18n="lesson09.step4.desc">Kargo maliyeti agirlik ve desi degerinden buyuk olana gore hesaplanir. Urun boyutlarini girerseniz desi otomatik hesaplanir.</p>
+            <ul>
+              <li data-i18n="lesson09.step4.s1">Desi = (En x Boy x Yukseklik) / 3000</li>
+              <li data-i18n="lesson09.step4.s2">Kargo ucreti = max(agirlik, desi) x birim fiyat</li>
+              <li data-i18n="lesson09.step4.s3">Raporlar &gt; Kargo Analizi ile firma bazli maliyetleri karsilastirin</li>
+            </ul>
+            <div class="warning-box">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong data-i18n="lesson.warning">Uyari:</strong> <span data-i18n="lesson09.step4.warn">Yanlis boyut bilgisi girilmesi ek ucretlendirmeye neden olabilir. Urun boyutlarini olcum yaparak dogru girin.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="lesson-nav d-flex justify-content-between align-items-center">
+          <a href="lesson-08.html" class="btn btn-outline-secondary" data-i18n="lesson.prev">
+            <i class="fas fa-arrow-left me-1"></i> Onceki Ders
+          </a>
+          <button class="btn btn-success" id="btn-complete" type="button">
+            <i class="fas fa-check me-1"></i> <span data-i18n="lesson.markComplete">Tamamlandi</span>
+          </button>
+          <a href="lesson-10.html" class="btn btn-primary" data-i18n="lesson.next">
+            Sonraki Ders <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+        <div class="progress mt-3" style="height:8px">
+          <div class="progress-bar bg-success" role="progressbar" style="width:75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+      </div>
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    var LESSON_ID = 9;
+    var STORAGE_KEY = 'mestech_academy_completed';
+    function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
+    function markComplete(id) { var c = getCompleted(); if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } updateBtn(); }
+    function updateBtn() {
+      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      if (getCompleted().indexOf(LESSON_ID) !== -1) {
+        btn.className = 'btn btn-outline-success';
+        while (btn.firstChild) btn.removeChild(btn.firstChild);
+        var i = document.createElement('i'); i.className = 'fas fa-check-circle me-1'; btn.appendChild(i);
+        btn.appendChild(document.createTextNode('Tamamlandi')); btn.disabled = true;
+      }
+    }
+    function init() { var btn = document.getElementById('btn-complete'); if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); }); updateBtn(); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
+  </script>
+</body>
+</html>

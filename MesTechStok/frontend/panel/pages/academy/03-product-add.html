@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--
+  MesTech MesAkademi - Ders 03: Urun Ekleme
+  Version: 1.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-01 | DOM-SAFE
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesAkademi - Ders 03: Urun Ekleme</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root { --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff; --mestech-text: #1e293b; --mestech-text-secondary: #64748b; --mestech-border: #e2e8f0; --mestech-success: #10b981; --mestech-info: #3b82f6; --mestech-warning: #f59e0b; --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06); }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .lesson-main { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .lesson-header { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; padding: 24px; margin-bottom: 24px; border-radius: var(--mestech-radius); }
+    .lesson-header .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .lesson-header .breadcrumb-item.active { color: #fff; }
+    .step-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); margin-bottom: 16px; padding: 24px; }
+    .step-card h5 { font-weight: 600; margin-bottom: 12px; }
+    .step-card p { color: var(--mestech-text-secondary); line-height: 1.7; }
+    .tip-box { background: #eff6ff; border-left: 4px solid var(--mestech-info); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .tip-box i { color: var(--mestech-info); }
+    .warning-box { background: #fffbeb; border-left: 4px solid var(--mestech-warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .warning-box i { color: var(--mestech-warning); }
+    .lesson-nav { margin-top: 32px; }
+    @media (max-width: 575px) { .lesson-main { padding: 12px; } .lesson-header { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+    <main class="lesson-main">
+      <div class="academy-lesson">
+
+        <div class="lesson-header">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+              <li class="breadcrumb-item"><a href="../dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="index.html">Akademi</a></li>
+              <li class="breadcrumb-item active">Ders 03</li>
+            </ol>
+          </nav>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-white text-primary fs-6" style="color:#8b5cf6!important">03</span>
+            <div>
+              <h1 class="mb-0 fs-4 fw-bold" data-i18n="lesson03.title">Urun Ekleme</h1>
+              <span class="opacity-75"><i class="fas fa-clock me-1"></i> ~10 dakika</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lesson-content">
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step1.title"><i class="fas fa-plus me-2" style="color:#8b5cf6"></i>Adim 1: Tekli Urun Ekleme</h5>
+            <p data-i18n="lesson03.step1.desc">Sol menuden Urunler &gt; Yeni Urun sayfasina gidin. Urun adi, SKU kodu, barkod, fiyat ve aciklama gibi temel bilgileri doldurun. Her alan yaninda aciklayici metin bulunur.</p>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step2.title"><i class="fas fa-images me-2" style="color:#8b5cf6"></i>Adim 2: Gorsel Yukleme</h5>
+            <p data-i18n="lesson03.step2.desc">Urun gorsellerini surukle-birak veya dosya secici ile yukleyin. En az 1, en fazla 8 gorsel ekleyebilirsiniz. Gorseller otomatik olarak optimize edilir. Ilk gorsel ana gorsel olarak kullanilir.</p>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong>Ipucu:</strong> Minimum 1000x1000 piksel cozunurluklu gorseller pazaryerlerinde daha iyi goruntulenir. Beyaz arka plan tercih edin.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step3.title"><i class="fas fa-layer-group me-2" style="color:#8b5cf6"></i>Adim 3: Varyant Tanimlama</h5>
+            <p data-i18n="lesson03.step3.desc">Urun farkli beden, renk veya model seceneklerine sahipse "Varyant Ekle" bolumunden tanimlayabilirsiniz. Her varyant icin ayri stok miktari, fiyat ve barkod belirleyebilirsiniz.</p>
+            <div class="warning-box">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Uyari:</strong> Varyant ekledikten sonra ana urun stoku varyantlarin toplamiyla degistirilir. Varyant basina stok girisi yapmaniz gerekir.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step4.title"><i class="fas fa-sitemap me-2" style="color:#8b5cf6"></i>Adim 4: Kategori Eslestirme</h5>
+            <p data-i18n="lesson03.step4.desc">Urunun hangi pazaryeri kategorisine ait oldugunu secin. MesTech akilli kategori eslestirme onerisi sunar. Dogru kategori secimi urunun kesfedilebilirligini arttirir.</p>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step5.title"><i class="fas fa-file-excel me-2" style="color:#8b5cf6"></i>Adim 5: Toplu Urun Ekleme</h5>
+            <p data-i18n="lesson03.step5.desc">Cok sayida urun eklemek icin Urunler &gt; Toplu Urun Ekle sayfasini kullanin. Excel sablonunu indirin, urunlerinizi doldurun ve sisteme yukleyin. Sistem hatalari otomatik tespit eder.</p>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong>Ipucu:</strong> Toplu yukleme sirasinda hata alan satirlar rapor olarak goruntulenir. Sadece hatalari duzeltip tekrar yukleyebilirsiniz.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson03.step6.title"><i class="fas fa-paper-plane me-2" style="color:#8b5cf6"></i>Adim 6: Pazaryerlerine Gonderme</h5>
+            <p data-i18n="lesson03.step6.desc">Urunu kaydettikten sonra "Pazaryerlerine Gonder" butonu ile sectiginiz platformlara yayinlayin. Her pazaryeri icin ayri fiyat ve aciklama belirleyebilirsiniz. Urunun durumunu "Yayinda" veya "Taslak" olarak ayarlayabilirsiniz.</p>
+          </div>
+
+        </div>
+
+        <div class="lesson-nav d-flex justify-content-between align-items-center">
+          <a href="02-store-setup.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> Geri</a>
+          <button class="btn btn-success" id="btn-complete" type="button"><i class="fas fa-check me-1"></i> Tamamlandi</button>
+          <a href="04-stock-sync.html" class="btn btn-primary">Ileri <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <div class="progress mt-3" style="height:8px">
+          <div class="progress-bar bg-success" role="progressbar" style="width:25%"></div>
+        </div>
+
+      </div>
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    var LESSON_ID = 3;
+    var STORAGE_KEY = 'mestech_academy_completed';
+    function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
+    function markComplete(id) { var c = getCompleted(); if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } updateBtn(); }
+    function updateBtn() {
+      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      if (getCompleted().indexOf(LESSON_ID) !== -1) {
+        btn.className = 'btn btn-outline-success';
+        while (btn.firstChild) btn.removeChild(btn.firstChild);
+        btn.appendChild(document.createElement('i')).className = 'fas fa-check-circle me-1';
+        btn.appendChild(document.createTextNode('Tamamlandi')); btn.disabled = true;
+      }
+    }
+    function init() { var btn = document.getElementById('btn-complete'); if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); }); updateBtn(); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
+  </script>
+</body>
+</html>

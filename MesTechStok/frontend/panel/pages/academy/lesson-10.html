@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  MesTech MesAkademi - Ders 10: Dashboard ve Raporlar
+  Version: 2.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-01 | DOM-SAFE
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesAkademi - Ders 10: Dashboard ve Raporlar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/mestech-i18n.js"></script>
+  <style>
+    :root { --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff; --mestech-text: #1e293b; --mestech-text-secondary: #64748b; --mestech-border: #e2e8f0; --mestech-success: #10b981; --mestech-info: #3b82f6; --mestech-warning: #f59e0b; --mestech-danger: #ef4444; --mestech-purple: #7c3aed; --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --sidebar-dark: #1a1a2e; --header-dark: #16213e; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .lesson-main { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .lesson-header { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; padding: 24px; margin-bottom: 24px; border-radius: var(--mestech-radius); }
+    .lesson-header .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .lesson-header .breadcrumb-item.active { color: #fff; }
+    .objectives-card { background: var(--mestech-card-bg); border-left: 4px solid var(--mestech-purple); border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); padding: 20px 24px; margin-bottom: 24px; }
+    .objectives-card h6 { font-weight: 600; color: var(--mestech-purple); margin-bottom: 12px; }
+    .objectives-card ul { margin: 0; padding-left: 20px; }
+    .objectives-card li { color: var(--mestech-text-secondary); margin-bottom: 6px; line-height: 1.6; }
+    .step-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); margin-bottom: 16px; padding: 24px; }
+    .step-card h5 { font-weight: 600; margin-bottom: 12px; }
+    .step-card p { color: var(--mestech-text-secondary); line-height: 1.7; }
+    .step-card ol, .step-card ul { color: var(--mestech-text-secondary); line-height: 1.8; padding-left: 20px; }
+    .tip-box { background: #eff6ff; border-left: 4px solid var(--mestech-info); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .tip-box i { color: var(--mestech-info); }
+    .warning-box { background: #fffbeb; border-left: 4px solid var(--mestech-warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .warning-box i { color: var(--mestech-warning); }
+    .lesson-nav { margin-top: 32px; }
+    @media (max-width: 575px) { .lesson-main { padding: 12px; } .lesson-header { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+    <main class="lesson-main">
+      <div class="academy-lesson">
+
+        <div class="lesson-header">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+              <li class="breadcrumb-item"><a href="../dashboard.html" data-i18n="nav.panel">Panel</a></li>
+              <li class="breadcrumb-item"><a href="index.html" data-i18n="academy.breadcrumb">Akademi</a></li>
+              <li class="breadcrumb-item active" data-i18n="lesson10.breadcrumb">Ders 10</li>
+            </ol>
+          </nav>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-white fs-6" style="color: #6d28d9;">10</span>
+            <div>
+              <h1 class="mb-0 fs-4 fw-bold" data-i18n="lesson10.title">Dashboard ve Raporlar</h1>
+              <span class="opacity-75"><i class="fas fa-clock me-1"></i> <span data-i18n="lesson10.duration">~12 dakika</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="objectives-card">
+          <h6><i class="fas fa-bullseye me-2"></i><span data-i18n="lesson.objectives">Ders Hedefleri</span></h6>
+          <ul>
+            <li data-i18n="lesson10.obj1">Dashboard KPI kartlarini okuyup yorumlayabileceksiniz</li>
+            <li data-i18n="lesson10.obj2">Grafik ve chart ozelliklerini etkin kullanacaksiniz</li>
+            <li data-i18n="lesson10.obj3">Rapor olusturma ve export islemlerini ogreneceksiniz</li>
+            <li data-i18n="lesson10.obj4">Zamanlanmis rapor gonderimini yapilandiracaksiniz</li>
+          </ul>
+        </div>
+
+        <div class="lesson-content">
+
+          <div class="step-card">
+            <h5 data-i18n="lesson10.step1.title"><i class="fas fa-tachometer-alt me-2" style="color: #6d28d9;"></i>Adim 1: KPI Kartlarini Anlama</h5>
+            <p data-i18n="lesson10.step1.desc">Dashboard sayfasinda 6 adet KPI karti vardir. Her kart guncel degeri, trend yonunu ve onceki donemlere gore degisim oranini gosterir.</p>
+            <ul>
+              <li data-i18n="lesson10.step1.s1">Toplam Urun — aktif urun sayisi ve degisim</li>
+              <li data-i18n="lesson10.step1.s2">Bekleyen Siparis — karsilanmamis siparisler</li>
+              <li data-i18n="lesson10.step1.s3">Gunluk Satis — bugunun satis tutari (TL)</li>
+              <li data-i18n="lesson10.step1.s4">Stok Uyarilari — minimum seviye altindaki urunler</li>
+              <li data-i18n="lesson10.step1.s5">Aylik Gelir — bu ayin toplam cirosu</li>
+              <li data-i18n="lesson10.step1.s6">Aktif Platform — bagli ve calisan pazaryeri sayisi</li>
+            </ul>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong data-i18n="lesson.tip">Ipucu:</strong> <span data-i18n="lesson10.step1.tip">KPI kartlari her 30 saniyede otomatik yenilenir. Kart uzerine tiklayarak detay sayfasina gidebilirsiniz.</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson10.step2.title"><i class="fas fa-chart-line me-2" style="color: #6d28d9;"></i>Adim 2: Grafikler</h5>
+            <p data-i18n="lesson10.step2.desc">Dashboard'un alt bolumunde satis trendi, platform dagilimi ve kategori bazli performans grafikleri yer alir.</p>
+            <ul>
+              <li data-i18n="lesson10.step2.s1">Cizgi grafigi: Gunluk/haftalik/aylik satis trendi</li>
+              <li data-i18n="lesson10.step2.s2">Pasta grafigi: Platform bazli satis dagilimi</li>
+              <li data-i18n="lesson10.step2.s3">Cubuk grafigi: En cok satan urunler TOP 10</li>
+            </ul>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson10.step3.title"><i class="fas fa-file-alt me-2" style="color: #6d28d9;"></i>Adim 3: Rapor Olusturma</h5>
+            <p data-i18n="lesson10.step3.desc">Raporlar sayfasindan ozel raporlar olusturabilirsiniz. Tarih araligi, platform ve kategori filtreleri ile detayli analizler yapin.</p>
+            <ol>
+              <li data-i18n="lesson10.step3.s1">Raporlar sayfasina gidin ve rapor turunu secin</li>
+              <li data-i18n="lesson10.step3.s2">Tarih araligi, platform ve diger filtreleri uygulayin</li>
+              <li data-i18n="lesson10.step3.s3">"Rapor Olustur" butonuna tiklayin</li>
+              <li data-i18n="lesson10.step3.s4">Sonuclari ekranda goruntuleyinveya disari aktarin</li>
+            </ol>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson10.step4.title"><i class="fas fa-file-export me-2" style="color: #6d28d9;"></i>Adim 4: Export ve Zamanli Raporlar</h5>
+            <p data-i18n="lesson10.step4.desc">Raporlari 6 farkli formatta disari aktarabilirsiniz. Ayrica zamanlanmis rapor gonderimleri tanimlayabilirsiniz.</p>
+            <ul>
+              <li data-i18n="lesson10.step4.s1">Desteklenen formatlar: Excel, CSV, PDF, JSON, XML, HTML</li>
+              <li data-i18n="lesson10.step4.s2">Zamanli raporlar: Gunluk, haftalik veya aylik e-posta ile gonderim</li>
+              <li data-i18n="lesson10.step4.s3">Rapor sablonu kaydedin ve tekrar kullanin</li>
+            </ul>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong data-i18n="lesson.tip">Ipucu:</strong> <span data-i18n="lesson10.step4.tip">Haftalik satis ozet raporu olusturup her pazartesi sabah e-posta ile gonderim zamanlayabilirsiniz.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="lesson-nav d-flex justify-content-between align-items-center">
+          <a href="lesson-09.html" class="btn btn-outline-secondary" data-i18n="lesson.prev">
+            <i class="fas fa-arrow-left me-1"></i> Onceki Ders
+          </a>
+          <button class="btn btn-success" id="btn-complete" type="button">
+            <i class="fas fa-check me-1"></i> <span data-i18n="lesson.markComplete">Tamamlandi</span>
+          </button>
+          <a href="lesson-11.html" class="btn btn-primary" data-i18n="lesson.next">
+            Sonraki Ders <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+        <div class="progress mt-3" style="height:8px">
+          <div class="progress-bar bg-success" role="progressbar" style="width:83.3%" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+      </div>
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    var LESSON_ID = 10;
+    var STORAGE_KEY = 'mestech_academy_completed';
+    function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
+    function markComplete(id) { var c = getCompleted(); if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } updateBtn(); }
+    function updateBtn() {
+      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      if (getCompleted().indexOf(LESSON_ID) !== -1) {
+        btn.className = 'btn btn-outline-success';
+        while (btn.firstChild) btn.removeChild(btn.firstChild);
+        var i = document.createElement('i'); i.className = 'fas fa-check-circle me-1'; btn.appendChild(i);
+        btn.appendChild(document.createTextNode('Tamamlandi')); btn.disabled = true;
+      }
+    }
+    function init() { var btn = document.getElementById('btn-complete'); if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); }); updateBtn(); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
+  </script>
+</body>
+</html>

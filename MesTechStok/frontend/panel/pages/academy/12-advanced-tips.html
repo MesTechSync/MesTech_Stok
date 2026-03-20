@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  MesTech MesAkademi - Ders 12: Ileri Duzey Ipuclari
+  Version: 1.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-01 | DOM-SAFE
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesAkademi - Ders 12: Ileri Duzey Ipuclari</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root { --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff; --mestech-text: #1e293b; --mestech-text-secondary: #64748b; --mestech-border: #e2e8f0; --mestech-success: #10b981; --mestech-info: #3b82f6; --mestech-warning: #f59e0b; --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06); }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .lesson-main { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .lesson-header { background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; padding: 24px; margin-bottom: 24px; border-radius: var(--mestech-radius); }
+    .lesson-header .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .lesson-header .breadcrumb-item.active { color: #fff; }
+    .step-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); margin-bottom: 16px; padding: 24px; }
+    .step-card h5 { font-weight: 600; margin-bottom: 12px; }
+    .step-card p { color: var(--mestech-text-secondary); line-height: 1.7; }
+    .tip-box { background: #eff6ff; border-left: 4px solid var(--mestech-info); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .tip-box i { color: var(--mestech-info); }
+    .warning-box { background: #fffbeb; border-left: 4px solid var(--mestech-warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px; }
+    .warning-box i { color: var(--mestech-warning); }
+    .lesson-nav { margin-top: 32px; }
+    .congrats-card {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff; border-radius: var(--mestech-radius);
+      padding: 32px; text-align: center; margin-top: 24px;
+    }
+    .congrats-card h3 { font-weight: 700; }
+    @media (max-width: 575px) { .lesson-main { padding: 12px; } .lesson-header { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+    <main class="lesson-main">
+      <div class="academy-lesson">
+
+        <div class="lesson-header">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+              <li class="breadcrumb-item"><a href="../dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="index.html">Akademi</a></li>
+              <li class="breadcrumb-item active">Ders 12</li>
+            </ol>
+          </nav>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-white fs-6" style="color:#eab308">12</span>
+            <div>
+              <h1 class="mb-0 fs-4 fw-bold" data-i18n="lesson12.title">Ileri Duzey Ipuclari</h1>
+              <span class="opacity-75"><i class="fas fa-clock me-1"></i> ~15 dakika</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lesson-content">
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step1.title"><i class="fas fa-keyboard me-2" style="color:#eab308"></i>Adim 1: Klavye Kisayollari</h5>
+            <p data-i18n="lesson12.step1.desc">MesTech'te hiz kazanmaniz icin klavye kisayollari kullanabilirsiniz. Ctrl+K ile hizli arama acin, Ctrl+N ile yeni urun ekleyin, Ctrl+S ile degisiklikleri kaydedin. Tam kisayol listesine Ayarlar &gt; Kisayollar sayfasindan ulasabilirsiniz.</p>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong>Ipucu:</strong> Ctrl+K ile acilan hizli arama tum sayfalarda calisir. Urun, siparis veya musteri arayabilirsiniz.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step2.title"><i class="fas fa-bolt me-2" style="color:#eab308"></i>Adim 2: Toplu Islem Stratejileri</h5>
+            <p data-i18n="lesson12.step2.desc">Toplu fiyat guncelleme ile sectiginiz urunlerin fiyatini yuzde veya sabit tutar olarak degistirin. Toplu stok guncelleme ile Excel dosyasindan stok miktarlarini aktarin. Toplu kategori degistirme ile urunleri farkli kategorilere tasiyin.</p>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step3.title"><i class="fas fa-code me-2" style="color:#eab308"></i>Adim 3: API Kullanimi</h5>
+            <p data-i18n="lesson12.step3.desc">MesTech REST API ile kendi otomasyon senaryolarinizi olusturabilirsiniz. Ayarlar &gt; API sayfasindan API anahtarinizi olusturun. Swagger dokumantasyonundan tum endpoint'leri inceleyebilirsiniz. JWT token ile guvenli erisim saglanir.</p>
+            <div class="warning-box">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Uyari:</strong> API anahtarinizi guvenli saklayin. Yetkisiz erisim tespit edildiginde anahtar otomatik iptal edilir.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step4.title"><i class="fas fa-tachometer-alt me-2" style="color:#eab308"></i>Adim 4: Performans Ipuclari</h5>
+            <p data-i18n="lesson12.step4.desc">Buyuk urun kataloglarina sahipseniz sayfa yukleme surelerini optimize edin: sayfalama kullanin (sayfa basina 50-100 urun), gereksiz sutunlari gizleyin ve filtre sonuclarini kaydedin. Tarayici onbellegini periyodik olarak temizleyin.</p>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step5.title"><i class="fas fa-clock me-2" style="color:#eab308"></i>Adim 5: Zamanlanmis Gorevler</h5>
+            <p data-i18n="lesson12.step5.desc">Hangfire tabanli gorev zamanlayici ile otomatik islemler tanimlayin: her gece stok senkronizasyonu, haftalik rapor gonderimi, gunluk yedekleme. Ayarlar &gt; Zamanlanmis Gorevler sayfasindan yonetebilirsiniz.</p>
+            <div class="tip-box">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong>Ipucu:</strong> Yogun saatlerde zamanlanmis gorev calistirmaktan kacinin. Gece 02:00-05:00 arasi ideal zamanlama dilimidir.
+            </div>
+          </div>
+
+          <div class="step-card">
+            <h5 data-i18n="lesson12.step6.title"><i class="fas fa-headset me-2" style="color:#eab308"></i>Adim 6: Destek ve Kaynak</h5>
+            <p data-i18n="lesson12.step6.desc">Sorulariniz icin SSS sayfasini inceleyin, destek@mestech.tr adresine e-posta gnderin veya canli destek ile iletisime gecin. MesAkademi'deki dersleri tekrar izleyerek bilginizi tazeleyebilirsiniz. Yeni ozellikler icin Degisiklik Gunlugu sayfasini takip edin.</p>
+          </div>
+
+        </div>
+
+        <!-- Congratulations Card -->
+        <div class="congrats-card" id="congrats-card" style="display:none;">
+          <h3 data-i18n="lesson12.congrats.title">Tebrikler!</h3>
+          <p data-i18n="lesson12.congrats.desc">Tum 12 dersi tamamladiniz. Artik MesTech'i profesyonelce kullanabilirsiniz.</p>
+          <a href="index.html" class="btn btn-light btn-lg mt-2">
+            <i class="fas fa-graduation-cap me-2"></i> Akademi'ye Don
+          </a>
+        </div>
+
+        <div class="lesson-nav d-flex justify-content-between align-items-center">
+          <a href="11-team-management.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> Geri</a>
+          <button class="btn btn-success" id="btn-complete" type="button"><i class="fas fa-check me-1"></i> Tamamlandi</button>
+          <a href="index.html" class="btn btn-primary"><i class="fas fa-graduation-cap me-1"></i> Akademi</a>
+        </div>
+
+        <div class="progress mt-3" style="height:8px">
+          <div class="progress-bar bg-success" role="progressbar" style="width:100%"></div>
+        </div>
+
+      </div>
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    var LESSON_ID = 12;
+    var STORAGE_KEY = 'mestech_academy_completed';
+    function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
+    function markComplete(id) {
+      var c = getCompleted();
+      if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
+      updateBtn();
+      checkAllComplete();
+    }
+    function updateBtn() {
+      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      if (getCompleted().indexOf(LESSON_ID) !== -1) {
+        btn.className = 'btn btn-outline-success';
+        while (btn.firstChild) btn.removeChild(btn.firstChild);
+        btn.appendChild(document.createElement('i')).className = 'fas fa-check-circle me-1';
+        btn.appendChild(document.createTextNode('Tamamlandi')); btn.disabled = true;
+      }
+    }
+    function checkAllComplete() {
+      var completed = getCompleted();
+      if (completed.length >= 12) {
+        var card = document.getElementById('congrats-card');
+        if (card) card.style.display = 'block';
+      }
+    }
+    function init() {
+      var btn = document.getElementById('btn-complete');
+      if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); });
+      updateBtn();
+      checkAllComplete();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
+  </script>
+</body>
+</html>

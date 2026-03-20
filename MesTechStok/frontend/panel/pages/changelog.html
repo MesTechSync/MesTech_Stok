@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Degisiklik Gunlugu (Changelog)
+  Version: 2.0.0 | Date: 2026-03-20 | Author: DEV 2
+  Task: I-17 GOREV E-03 — Changelog Page v2
+  Status: ACTIVE
+
+  FEATURES:
+  - Timeline visual with vertical line and dots
+  - Categories: Yeni Ozellik, Iyilestirme, Hata Duzeltme, Guvenlik
+  - Badge-based category labels
+  - Rendered from structured data
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - data-i18n attributes for i18n readiness
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech - Degisiklik Gunlugu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/mestech-i18n.js"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-info: #3b82f6;
+      --mestech-warning: #f59e0b;
+      --mestech-danger: #ef4444;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --sidebar-dark: #1a1a2e;
+      --header-dark: #16213e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0; padding: 0;
+    }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .changelog-main {
+      flex: 1; padding: 24px; max-width: 900px;
+      margin: 0 auto; width: 100%;
+    }
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-primary), #d96a10);
+      color: #fff; padding: 20px 24px; margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--mestech-border);
+    }
+
+    .timeline-entry {
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -33px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 3px solid var(--mestech-primary);
+      background: var(--mestech-card-bg);
+      z-index: 1;
+    }
+    .timeline-entry:first-child .timeline-dot {
+      background: var(--mestech-primary);
+      border-color: var(--mestech-primary);
+    }
+
+    .version-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .version-tag {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--mestech-text);
+    }
+    .version-date {
+      font-size: 0.85rem;
+      color: var(--mestech-text-muted);
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .version-badge-latest {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--mestech-success);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .change-category {
+      background: var(--mestech-card-bg);
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .change-category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .cat-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .cat-badge.feature { background: rgba(16,185,129,0.12); color: #059669; }
+    .cat-badge.improvement { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .cat-badge.bugfix { background: rgba(245,158,11,0.12); color: #d97706; }
+    .cat-badge.security { background: rgba(239,68,68,0.12); color: #dc2626; }
+
+    .change-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .change-list li {
+      padding: 6px 0;
+      color: var(--mestech-text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .change-list li .change-dot {
+      width: 6px;
+      height: 6px;
+      min-width: 6px;
+      border-radius: 50%;
+      margin-top: 8px;
+    }
+    .change-dot.feature { background: #10b981; }
+    .change-dot.improvement { background: #3b82f6; }
+    .change-dot.bugfix { background: #f59e0b; }
+    .change-dot.security { background: #ef4444; }
+
+    @media (max-width: 575px) {
+      .changelog-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+      .timeline { padding-left: 32px; }
+      .timeline-dot { left: -25px; width: 12px; height: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+
+    <main class="changelog-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold" data-i18n="changelog.title">Degisiklik Gunlugu</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="dashboard.html" data-i18n="nav.mestech">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="dashboard.html" data-i18n="nav.panel">Panel</a></li>
+                <li class="breadcrumb-item active" data-i18n="changelog.breadcrumb">Changelog</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline" id="changelog-timeline">
+        <!-- Rendered by JS (DOM-safe) -->
+      </div>
+
+    </main>
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech Changelog Page v2
+  // DEV 2 — I-17 GOREV E-03
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // Categories: feature, improvement, bugfix, security
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var CATEGORY_LABELS = {
+      feature: 'Yeni Ozellik',
+      improvement: 'Iyilestirme',
+      bugfix: 'Hata Duzeltme',
+      security: 'Guvenlik'
+    };
+
+    // ========================================
+    // Changelog Data
+    // ========================================
+    var changelog = [
+      {
+        version: 'v1.0.0',
+        date: '20 Mart 2026',
+        latest: true,
+        changes: [
+          {
+            type: 'feature',
+            label: CATEGORY_LABELS.feature,
+            items: [
+              '12 pazaryeri entegrasyonu (Trendyol, Hepsiburada, Ciceksepeti, N11, Pazarama, Amazon, eBay, Shopify, WooCommerce, Ozon, PttAVM, OpenCart)',
+              '3 kargo firmasi entegrasyonu (Yurtici, Aras, Surat)',
+              'E-fatura entegrasyonu (Sovos + GIB Portal) — UBL-TR 1.2 formati',
+              'MESA OS AI entegrasyonu — fiyat optimizasyonu, talep tahmini, anomali algilama',
+              '4 UI katmani: WPF masaustu, Avalonia cross-platform, Blazor SaaS/PWA, HTML Panel',
+              'Coklu dil destegi (TR + EN) — data-i18n altyapisi',
+              'MesAkademi egitim modulu — 12 interaktif ders',
+              'SSS sayfasi — 50 soru, 10 kategori, aranabilir',
+              'Dropshipping modulu — 14 CQRS Command + 9 Query',
+              'Coklu depo yonetimi — depo arasi transfer, otomatik dagitim',
+              'Muhasebe modulu — FIFO COGS, Trial Balance, bilanco, KDV hesaplama',
+              'Onboarding sihirbazi — adim adim kurulum rehberi'
+            ]
+          },
+          {
+            type: 'improvement',
+            label: CATEGORY_LABELS.improvement,
+            items: [
+              '5000+ test ile kalite guvencesi (birim, entegrasyon, UI)',
+              'Docker + Coolify deploy altyapisi — 3 asamali Dockerfile',
+              'Prometheus + Grafana monitoring — canli metrik izleme',
+              'Nginx reverse proxy — SSL/TLS hazirlik (port 80 + 443)',
+              'Hangfire ile 21 zamanlanmis gorev',
+              'MassTransit ile 13 event consumer',
+              'CI/CD pipeline — 14 asamali kalite kapisi',
+              '6 farkli export formati (Excel, CSV, PDF, JSON, XML, HTML)',
+              '4 sosyal feed parser (Google Merchant, Facebook Shop, Instagram, Pinterest)',
+              'Seq yapilandirilmis loglama — merkezi hata takibi'
+            ]
+          },
+          {
+            type: 'security',
+            label: CATEGORY_LABELS.security,
+            items: [
+              'XSS sertlestirme — tum JS dosyalarinda innerHTML yerine createElement + textContent',
+              'API anahtarlari BCrypt ile hashleme',
+              'JWT token bazli kimlik dogrulama',
+              'KVKK uyumlu denetim kayitlari (silinemez audit log)',
+              'CSP (Content Security Policy) header\'lari yapilandirildi'
+            ]
+          },
+          {
+            type: 'bugfix',
+            label: CATEGORY_LABELS.bugfix,
+            items: [
+              'Stok senkronizasyonunda race condition duzeltmesi',
+              'Toplu urun yuklemede karakter kodlama hatasi giderildi',
+              'Dashboard KPI kartlarinda yuvarlanma hatasi duzeltildi',
+              'Kargo etiketi PDF olusturmada Turkce karakter sorunu giderildi',
+              'Siparis listesinde sayfalama performans iyilestirmesi'
+            ]
+          }
+        ]
+      },
+      {
+        version: 'v0.9.0-beta',
+        date: '15 Mart 2026',
+        latest: false,
+        changes: [
+          {
+            type: 'feature',
+            label: CATEGORY_LABELS.feature,
+            items: [
+              'E-fatura altyapisi (EInvoiceDocument entity, UBL-TR 1.2)',
+              'eBay pazaryeri entegrasyonu — 7 HTML sayfa',
+              'Parasut ERP entegrasyonu — event-driven aktarim',
+              'MesTech.Api projesi — JWT kimlik dogrulama + Swagger'
+            ]
+          },
+          {
+            type: 'improvement',
+            label: CATEGORY_LABELS.improvement,
+            items: [
+              'MESA OS AI servisi production-ready hale getirildi',
+              'Feature flag altyapisi ile AI ozellik yonetimi',
+              'CI pipeline Dalga 9 kalite kapisi eklendi'
+            ]
+          },
+          {
+            type: 'security',
+            label: CATEGORY_LABELS.security,
+            items: [
+              'Hardcoded credential temizligi (25+ dosya)',
+              'Environment variable tabanli konfigurasyona gecis'
+            ]
+          }
+        ]
+      },
+      {
+        version: 'v0.8.0-beta',
+        date: '14 Mart 2026',
+        latest: false,
+        changes: [
+          {
+            type: 'feature',
+            label: CATEGORY_LABELS.feature,
+            items: [
+              '3320+ test basarisi',
+              '114 CQRS Command + 108 Query tanimlamasi',
+              '11 aktif platform adapter (TR/OC/CS/HB/PZ/N11/Amazon/eBay/Shopify/WooCommerce/B24)',
+              '6 export formatter + 4 feed parser',
+              '3 kargo firmasi entegrasyonu (Yurtici, Aras, Surat)'
+            ]
+          },
+          {
+            type: 'improvement',
+            label: CATEGORY_LABELS.improvement,
+            items: [
+              'Domain entity sayisi 60+ a yukseldi',
+              'Docker servis sayisi 6 ya cikti (PG+Redis+RMQ+MySQL+Seq+MinIO)',
+              'Denetci skoru A- (8.6/10)'
+            ]
+          }
+        ]
+      },
+      {
+        version: 'v0.5.0-alpha',
+        date: '01 Mart 2026',
+        latest: false,
+        changes: [
+          {
+            type: 'feature',
+            label: CATEGORY_LABELS.feature,
+            items: [
+              'Temel urun ve stok yonetimi (CRUD islemleri)',
+              'Trendyol ve OpenCart adapter\'lari (ilk 2 entegrasyon)',
+              'WPF masaustu uygulamasi — 88 gorunum',
+              'SQLite + EF Core veritabani altyapisi',
+              'Temel siparis yonetimi modulu'
+            ]
+          },
+          {
+            type: 'improvement',
+            label: CATEGORY_LABELS.improvement,
+            items: [
+              '253 test ile ilk kalite temeli',
+              'MaterialDesign tema entegrasyonu',
+              'CommunityToolkit.Mvvm MVVM altyapisi',
+              'Docker ile PostgreSQL, Redis, RabbitMQ servisleri'
+            ]
+          },
+          {
+            type: 'bugfix',
+            label: CATEGORY_LABELS.bugfix,
+            items: [
+              '120+ build hatasi giderildi (sifir hata hedefine ulasildi)',
+              '192 domain + application katmani uyarisi temizlendi'
+            ]
+          },
+          {
+            type: 'security',
+            label: CATEGORY_LABELS.security,
+            items: [
+              'BCrypt.Net ile sifre hashleme eklendi',
+              'CI/CD pipeline\'a secret-scan adimi eklendi'
+            ]
+          }
+        ]
+      }
+    ];
+
+    // ========================================
+    // DOM Helper
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') node.className = attrs[key];
+          else if (key === 'textContent') node.textContent = attrs[key];
+          else node.setAttribute(key, attrs[key]);
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') node.appendChild(document.createTextNode(child));
+          else if (child instanceof Node) node.appendChild(child);
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) parent.removeChild(parent.firstChild);
+    }
+
+    // ========================================
+    // Render Timeline (DOM-SAFE)
+    // ========================================
+    function renderChangelog() {
+      var container = document.getElementById('changelog-timeline');
+      clearChildren(container);
+
+      changelog.forEach(function(release) {
+        var entry = el('div', { className: 'timeline-entry' });
+
+        entry.appendChild(el('div', { className: 'timeline-dot' }));
+
+        // Version header
+        var header = el('div', { className: 'version-header' });
+        header.appendChild(el('span', { className: 'version-tag', textContent: release.version }));
+        header.appendChild(el('span', { className: 'version-date', textContent: release.date }));
+        if (release.latest) {
+          header.appendChild(el('span', {
+            className: 'version-badge-latest',
+            textContent: 'Guncel',
+            'data-i18n': 'changelog.latest'
+          }));
+        }
+        entry.appendChild(header);
+
+        // Change categories
+        release.changes.forEach(function(change) {
+          var catCard = el('div', { className: 'change-category' });
+
+          var catHeader = el('div', { className: 'change-category-header' });
+          catHeader.appendChild(el('span', { className: 'cat-badge ' + change.type, textContent: change.label }));
+          catHeader.appendChild(el('span', {
+            className: 'text-muted',
+            textContent: change.items.length + ' madde',
+            style: 'font-size:0.8rem'
+          }));
+          catCard.appendChild(catHeader);
+
+          var list = el('ul', { className: 'change-list' });
+          change.items.forEach(function(item) {
+            var li = el('li');
+            li.appendChild(el('span', { className: 'change-dot ' + change.type }));
+            li.appendChild(document.createTextNode(item));
+            list.appendChild(li);
+          });
+          catCard.appendChild(list);
+
+          entry.appendChild(catCard);
+        });
+
+        container.appendChild(entry);
+      });
+    }
+
+    // ========================================
+    // Init
+    // ========================================
+    function init() {
+      renderChangelog();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+
+  })();
+  </script>
+</body>
+</html>
