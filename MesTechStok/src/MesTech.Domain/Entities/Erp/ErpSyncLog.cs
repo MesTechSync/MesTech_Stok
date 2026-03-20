@@ -45,6 +45,30 @@ public class ErpSyncLog : BaseEntity, ITenantEntity
     /// <summary>Sonraki retry zamani (null ise retry yok).</summary>
     public DateTime? NextRetryAt { get; private set; }
 
+    /// <summary>Toplam islenen kayit sayisi.</summary>
+    public int TotalRecords { get; private set; }
+
+    /// <summary>Basarili kayit sayisi.</summary>
+    public int SuccessCount { get; private set; }
+
+    /// <summary>Basarisiz kayit sayisi.</summary>
+    public int FailCount { get; private set; }
+
+    /// <summary>Atlanan kayit sayisi (duplicate vb.).</summary>
+    public int SkipCount { get; private set; }
+
+    /// <summary>Sync suresi milisaniye cinsinden.</summary>
+    public long DurationMs { get; private set; }
+
+    /// <summary>Detayli hata listesi (JSON format).</summary>
+    public string? ErrorDetails { get; private set; }
+
+    /// <summary>Sync tetikleyicisi: "Hangfire" | "Manual" | "Event".</summary>
+    public string TriggeredBy { get; private set; } = "Manual";
+
+    /// <summary>Izleme icin korelasyon ID'si.</summary>
+    public Guid? CorrelationId { get; private set; }
+
     // EF Core parametresiz ctor
     private ErpSyncLog() { }
 
@@ -119,6 +143,22 @@ public class ErpSyncLog : BaseEntity, ITenantEntity
     {
         RetryCount = 0;
         NextRetryAt = null;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>Sets sync detail metrics after a batch operation completes.</summary>
+    public void SetDetails(int totalRecords, int successCount, int failCount, int skipCount,
+        long durationMs, string? errorDetails = null, string triggeredBy = "Manual",
+        Guid? correlationId = null)
+    {
+        TotalRecords = totalRecords;
+        SuccessCount = successCount;
+        FailCount = failCount;
+        SkipCount = skipCount;
+        DurationMs = durationMs;
+        ErrorDetails = errorDetails;
+        TriggeredBy = triggeredBy;
+        CorrelationId = correlationId;
         UpdatedAt = DateTime.UtcNow;
     }
 
