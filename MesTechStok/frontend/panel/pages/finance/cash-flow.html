@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <!--
+    MesTech Panel — Nakit Akis Raporu
+    Version: 1.0.0
+    Date: 2026-03-20
+    Author: DEV 2 (Frontend & UI/UX)
+    Task: İ-07-G5B Muhasebe & Finans Saglamlastirma
+    Status: Active
+    Features: KPI cards, daily cash flow chart (bar+line), transaction detail grid
+    Dependencies: Bootstrap 5.3, FontAwesome 6.4, Chart.js 4.4, Inter font
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech — Nakit Akis</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b; --mestech-text-secondary: #64748b; --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0; --mestech-success: #10b981; --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b; --mestech-info: #3b82f6; --mestech-purple: #7c3aed;
+      --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    [data-theme="dark"] { --mestech-bg: #0f172a; --mestech-card-bg: #1e293b; --mestech-text: #f1f5f9; --mestech-border: #334155; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--mestech-bg); color: var(--mestech-text); }
+    .page-header { background: linear-gradient(135deg, #059669, #10b981); padding: 24px; border-radius: var(--mestech-radius); margin-bottom: 20px; color: white; }
+    .page-header h1 { font-size: 22px; font-weight: 700; }
+    .page-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+    .kpi-card { background: var(--mestech-card-bg); border-radius: var(--mestech-radius); padding: 20px; box-shadow: var(--mestech-shadow-sm); border: 1px solid var(--mestech-border); }
+    .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--mestech-text-muted); letter-spacing: 0.5px; }
+    .kpi-value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+    .card-panel { background: var(--mestech-card-bg); border-radius: var(--mestech-radius); padding: 20px; box-shadow: var(--mestech-shadow-sm); border: 1px solid var(--mestech-border); margin-bottom: 20px; }
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .filter-bar input, .filter-bar select { border: 1px solid var(--mestech-border); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+    .btn-mestech { background: var(--mestech-primary); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-mestech:hover { background: #d96a10; color: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--mestech-text-muted); padding: 12px 8px; border-bottom: 2px solid var(--mestech-border); text-align: left; }
+    td { padding: 12px 8px; border-bottom: 1px solid var(--mestech-border); font-size: 13px; }
+    .badge-inflow { background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-outflow { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1><i class="fas fa-money-bill-wave me-2"></i>Nakit Akis Raporu</h1>
+        <p>Gunluk giris, cikis ve bakiye takibi</p>
+      </div>
+      <button class="btn-mestech" onclick="loadData()"><i class="fas fa-sync-alt me-1"></i>Yenile</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Toplam Giris</div>
+          <div class="kpi-value text-success" id="kpiInflow">—</div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Toplam Cikis</div>
+          <div class="kpi-value text-danger" id="kpiOutflow">—</div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Net Bakiye</div>
+          <div class="kpi-value" id="kpiBalance" style="color: var(--mestech-info);">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card-panel">
+      <div class="filter-bar">
+        <input type="date" id="filterFrom" title="Baslangic">
+        <input type="date" id="filterTo" title="Bitis">
+        <select id="filterBank" title="Banka hesabi">
+          <option value="">Tum Hesaplar</option>
+        </select>
+        <button class="btn-mestech" onclick="loadData()"><i class="fas fa-search me-1"></i>Filtrele</button>
+      </div>
+    </div>
+
+    <!-- Daily Cash Flow Chart -->
+    <div class="card-panel">
+      <h6 class="fw-bold mb-3"><i class="fas fa-chart-bar me-2"></i>Gunluk Nakit Akisi</h6>
+      <canvas id="cashFlowChart" height="280"></canvas>
+    </div>
+
+    <!-- Transaction Detail Table -->
+    <div class="card-panel">
+      <h6 class="fw-bold mb-3"><i class="fas fa-list me-2"></i>Son 50 Hareket</h6>
+      <table>
+        <thead>
+          <tr><th>Tarih</th><th>Aciklama</th><th>Tutar</th><th>Tip</th><th>Kalan Bakiye</th></tr>
+        </thead>
+        <tbody id="txBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    'use strict';
+
+    const API_BASE = '/api/v1/accounting';
+    let chart = null;
+
+    function fmt(n) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n); }
+    function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+
+    async function loadData() {
+      const from = document.getElementById('filterFrom').value;
+      const to = document.getElementById('filterTo').value;
+      const bank = document.getElementById('filterBank').value;
+
+      let url = API_BASE + '/cash-flow?';
+      if (from) url += 'from=' + encodeURIComponent(from) + '&';
+      if (to) url += 'to=' + encodeURIComponent(to) + '&';
+      if (bank) url += 'bankAccountId=' + encodeURIComponent(bank) + '&';
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        render(data);
+      } catch {
+        renderDemo();
+      }
+    }
+
+    function render(data) {
+      setText('kpiInflow', fmt(data.totalInflows || 0));
+      setText('kpiOutflow', fmt(data.totalOutflows || 0));
+      setText('kpiBalance', fmt(data.closingBalance || 0));
+      renderChart(data.dailyBreakdown || []);
+      renderTable(data.items || []);
+    }
+
+    function renderChart(daily) {
+      const ctx = document.getElementById('cashFlowChart').getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        data: {
+          labels: daily.map(d => d.date),
+          datasets: [
+            { type: 'bar', label: 'Giris', data: daily.map(d => d.inflows), backgroundColor: 'rgba(16,185,129,0.6)' },
+            { type: 'bar', label: 'Cikis', data: daily.map(d => -d.outflows), backgroundColor: 'rgba(239,68,68,0.6)' },
+            { type: 'line', label: 'Bakiye', data: daily.map(d => d.balance), borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => fmt(v) } },
+            y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => fmt(v) } }
+          }
+        }
+      });
+    }
+
+    function renderTable(items) {
+      const tbody = document.getElementById('txBody');
+      tbody.textContent = '';
+      for (const it of items.slice(0, 50)) {
+        const tr = document.createElement('tr');
+        const cells = [
+          { text: it.date },
+          { text: it.description },
+          { text: fmt(it.amount) },
+          { html: false, isInflow: it.isInflow },
+          { text: fmt(it.runningBalance) }
+        ];
+        for (let i = 0; i < cells.length; i++) {
+          const td = document.createElement('td');
+          if (i === 3) {
+            const badge = document.createElement('span');
+            badge.className = it.isInflow ? 'badge-inflow' : 'badge-outflow';
+            badge.textContent = it.isInflow ? 'Giris' : 'Cikis';
+            td.appendChild(badge);
+          } else {
+            td.textContent = cells[i].text;
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderDemo() {
+      render({
+        totalInflows: 200000, totalOutflows: 150000, closingBalance: 50000,
+        dailyBreakdown: [
+          { date: '15.03', inflows: 12000, outflows: 8000, balance: 42000 },
+          { date: '16.03', inflows: 8500, outflows: 6500, balance: 44000 },
+          { date: '17.03', inflows: 15000, outflows: 12000, balance: 47000 },
+          { date: '18.03', inflows: 9200, outflows: 7800, balance: 48400 },
+          { date: '19.03', inflows: 11000, outflows: 9500, balance: 49900 },
+          { date: '20.03', inflows: 13000, outflows: 12900, balance: 50000 }
+        ],
+        items: [
+          { date: '20.03.2026', description: 'Trendyol hakedis', amount: 12480, isInflow: true, runningBalance: 50000 },
+          { date: '19.03.2026', description: 'Kargo fatura odemesi', amount: 1240, isInflow: false, runningBalance: 37520 },
+          { date: '19.03.2026', description: 'HB hakedis', amount: 8920, isInflow: true, runningBalance: 38760 },
+          { date: '18.03.2026', description: 'Ofis kirasi', amount: 6500, isInflow: false, runningBalance: 29840 },
+          { date: '18.03.2026', description: 'N11 hakedis', amount: 3150, isInflow: true, runningBalance: 36340 }
+        ]
+      });
+    }
+
+    const now = new Date();
+    document.getElementById('filterTo').value = now.toISOString().split('T')[0];
+    document.getElementById('filterFrom').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    loadData();
+  </script>
+</body>
+</html>

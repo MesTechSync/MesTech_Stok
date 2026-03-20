@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <!--
+    MesTech Panel — Vergi Takvimi
+    Version: 1.0.0
+    Date: 2026-03-20
+    Author: DEV 2 (Frontend & UI/UX)
+    Task: İ-07-G5D Muhasebe & Finans Saglamlastirma
+    Status: Active
+    Features: Upcoming deadlines, monthly calendar grid, reminder settings
+    Dependencies: Bootstrap 5.3, FontAwesome 6.4, Inter font
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech — Vergi Takvimi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b; --mestech-text-muted: #94a3b8; --mestech-border: #e2e8f0;
+      --mestech-success: #10b981; --mestech-danger: #ef4444; --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6; --mestech-purple: #7c3aed;
+      --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    [data-theme="dark"] { --mestech-bg: #0f172a; --mestech-card-bg: #1e293b; --mestech-text: #f1f5f9; --mestech-border: #334155; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--mestech-bg); color: var(--mestech-text); }
+    .page-header { background: linear-gradient(135deg, var(--mestech-purple), #a855f7); padding: 24px; border-radius: var(--mestech-radius); margin-bottom: 20px; color: white; }
+    .page-header h1 { font-size: 22px; font-weight: 700; }
+    .page-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+    .card-panel { background: var(--mestech-card-bg); border-radius: var(--mestech-radius); padding: 20px; box-shadow: var(--mestech-shadow-sm); border: 1px solid var(--mestech-border); margin-bottom: 20px; }
+    .kpi-card { background: var(--mestech-card-bg); border-radius: var(--mestech-radius); padding: 20px; box-shadow: var(--mestech-shadow-sm); border: 1px solid var(--mestech-border); }
+    .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--mestech-text-muted); }
+    .kpi-value { font-size: 32px; font-weight: 800; margin-top: 4px; }
+    .btn-mestech { background: var(--mestech-primary); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-mestech:hover { background: #d96a10; color: white; }
+    .deadline-card { border-radius: 10px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .deadline-urgent { background: #fef2f2; border-left: 4px solid var(--mestech-danger); }
+    .deadline-warning { background: #fffbeb; border-left: 4px solid var(--mestech-warning); }
+    .deadline-safe { background: #f0fdf4; border-left: 4px solid var(--mestech-success); }
+    .deadline-name { font-weight: 600; font-size: 14px; }
+    .deadline-date { font-size: 12px; color: var(--mestech-text-muted); margin-top: 2px; }
+    .deadline-days { font-size: 12px; font-weight: 700; }
+    .deadline-amount { font-size: 14px; font-weight: 600; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-header { text-align: center; font-size: 11px; font-weight: 700; color: var(--mestech-text-muted); padding: 8px 0; }
+    .cal-day { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: 13px; min-height: 44px; cursor: default; }
+    .cal-day:hover { background: #f1f5f9; }
+    .cal-day.today { background: var(--mestech-info); color: white; font-weight: 700; border-radius: 50%; }
+    .cal-day.has-deadline { position: relative; font-weight: 700; }
+    .cal-day.has-deadline::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; }
+    .cal-day.deadline-red::after { background: var(--mestech-danger); }
+    .cal-day.deadline-yellow::after { background: var(--mestech-warning); }
+    .cal-day.deadline-green::after { background: var(--mestech-success); }
+    .cal-day.empty { color: transparent; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1><i class="fas fa-calendar-alt me-2"></i>Vergi Takvimi</h1>
+        <p>Yaklasan vergi ve beyanname deadline takibi</p>
+      </div>
+      <button class="btn-mestech" onclick="loadData()"><i class="fas fa-sync-alt me-1"></i>Yenile</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Gecikmis</div>
+          <div class="kpi-value" id="kpiOverdue" style="color: var(--mestech-danger);">0</div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Yaklasan (7 gun)</div>
+          <div class="kpi-value" id="kpiUpcoming" style="color: var(--mestech-warning);">0</div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Tamamlanan</div>
+          <div class="kpi-value" id="kpiCompleted" style="color: var(--mestech-success);">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Deadlines List -->
+      <div class="col-xl-7">
+        <div class="card-panel">
+          <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Yaklasan Deadlinelar</h6>
+          <div id="deadlinesList"></div>
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="col-xl-5">
+        <div class="card-panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0" id="calTitle">Mart 2026</h6>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    'use strict';
+
+    const API_BASE = '/api/v1/accounting/tax-calendar';
+    let currentDate = new Date(2026, 2, 20); // March 2026
+    let deadlines = [];
+
+    function fmt(n) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n); }
+    function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+
+    const monthNames = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylul','Ekim','Kasim','Aralik'];
+
+    async function loadData() {
+      try {
+        const res = await fetch(API_BASE + '/upcoming?days=90');
+        if (!res.ok) throw new Error(res.status);
+        deadlines = await res.json();
+      } catch {
+        deadlines = getDemoDeadlines();
+      }
+      renderDeadlines();
+      renderCalendar();
+      updateKPIs();
+    }
+
+    function updateKPIs() {
+      const now = new Date();
+      let overdue = 0, upcoming = 0, completed = 0;
+      for (const d of deadlines) {
+        const due = new Date(d.dueDate);
+        if (d.isFiled) { completed++; }
+        else if (due < now) { overdue++; }
+        else { upcoming++; }
+      }
+      setText('kpiOverdue', overdue);
+      setText('kpiUpcoming', upcoming);
+      setText('kpiCompleted', completed);
+    }
+
+    function renderDeadlines() {
+      const container = document.getElementById('deadlinesList');
+      container.textContent = '';
+      const now = new Date();
+
+      for (const d of deadlines) {
+        const due = new Date(d.dueDate);
+        const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+
+        const card = document.createElement('div');
+        card.className = 'deadline-card ' + (diffDays <= 7 ? 'deadline-urgent' : diffDays <= 14 ? 'deadline-warning' : 'deadline-safe');
+
+        const left = document.createElement('div');
+        const name = document.createElement('div');
+        name.className = 'deadline-name';
+        name.textContent = d.taxName;
+        const dateEl = document.createElement('div');
+        dateEl.className = 'deadline-date';
+        dateEl.textContent = d.dueDateFormatted;
+        left.appendChild(name);
+        left.appendChild(dateEl);
+
+        const right = document.createElement('div');
+        right.className = 'text-end';
+        const days = document.createElement('div');
+        days.className = 'deadline-days';
+        days.style.color = diffDays <= 7 ? 'var(--mestech-danger)' : diffDays <= 14 ? 'var(--mestech-warning)' : 'var(--mestech-success)';
+        days.textContent = diffDays > 0 ? diffDays + ' gun kaldi' : 'GECIKMIS';
+        const amount = document.createElement('div');
+        amount.className = 'deadline-amount';
+        amount.textContent = d.amount ? fmt(d.amount) : '—';
+        right.appendChild(days);
+        right.appendChild(amount);
+
+        card.appendChild(left);
+        card.appendChild(right);
+        container.appendChild(card);
+      }
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calGrid');
+      grid.textContent = '';
+      setText('calTitle', monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear());
+
+      const dayNames = ['Pz', 'Pt', 'Sa', 'Ca', 'Pe', 'Cu', 'Ct'];
+      for (const dn of dayNames) {
+        const h = document.createElement('div');
+        h.className = 'cal-header';
+        h.textContent = dn;
+        grid.appendChild(h);
+      }
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      // Deadline days for this month
+      const deadlineDays = {};
+      for (const d of deadlines) {
+        const due = new Date(d.dueDate);
+        if (due.getFullYear() === year && due.getMonth() === month) {
+          const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+          deadlineDays[due.getDate()] = diffDays <= 7 ? 'deadline-red' : diffDays <= 14 ? 'deadline-yellow' : 'deadline-green';
+        }
+      }
+
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day empty';
+        empty.textContent = '.';
+        grid.appendChild(empty);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day';
+        cell.textContent = d;
+        if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          cell.classList.add('today');
+        }
+        if (deadlineDays[d]) {
+          cell.classList.add('has-deadline', deadlineDays[d]);
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    function changeMonth(delta) {
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1);
+      renderCalendar();
+    }
+
+    function getDemoDeadlines() {
+      return [
+        { taxName: 'KDV Beyannamesi', dueDate: '2026-03-26', dueDateFormatted: '26 Mart 2026', amount: 8450, isFiled: false },
+        { taxName: 'Muhtasar Beyanname', dueDate: '2026-03-26', dueDateFormatted: '26 Mart 2026', amount: 3200, isFiled: false },
+        { taxName: 'SGK Prim Bildirge', dueDate: '2026-03-31', dueDateFormatted: '31 Mart 2026', amount: 12680, isFiled: false },
+        { taxName: 'Gecici Vergi (1. Donem)', dueDate: '2026-05-17', dueDateFormatted: '17 Mayis 2026', amount: null, isFiled: false },
+        { taxName: 'Kurumlar Vergisi', dueDate: '2026-04-30', dueDateFormatted: '30 Nisan 2026', amount: null, isFiled: false }
+      ];
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

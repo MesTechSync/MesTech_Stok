@@ -45,6 +45,43 @@ public class Invoice : BaseEntity, ITenantEntity
     public string? GLAccountCode { get; set; }
     public Guid? SettlementBatchId { get; set; }
 
+    // ── e-İrsaliye (İ-08) ──
+    public string? WaybillNumber { get; set; }
+    public DateTime? ShipmentDate { get; set; }
+    public string? DriverName { get; set; }
+    public string? DriverSurname { get; set; }
+    public string? VehiclePlate { get; set; }
+    public string? ShipmentAddress { get; set; }
+    public Guid? CargoShipmentId { get; set; }
+
+    // ── e-SMM (İ-08) ──
+    public string? ProfessionalTitle { get; set; }
+    public string? ActivityCode { get; set; }
+    public decimal? WithholdingRate { get; set; }
+    public decimal? WithholdingAmount { get; set; }
+
+    // ── e-İhracat (İ-08) ──
+    public string? GtipCode { get; set; }
+    public string? CustomsDeclarationNo { get; set; }
+    public string? ExportCurrency { get; set; }
+    public decimal? ExportExchangeRate { get; set; }
+    public string? ExemptionCode { get; set; }
+
+    // ── Dijital İmza (İ-08) ──
+    public SignatureStatus SignatureStatus { get; set; } = SignatureStatus.Unsigned;
+    public DateTime? SignedAt { get; set; }
+    public string? SignedBy { get; set; }
+    public SignatureType? SignatureType { get; set; }
+    public string? GibStatus { get; set; }
+    public DateTime? GibStatusDate { get; set; }
+
+    // ── Paraşüt Sync (İ-08) ──
+    public string? ParasutSalesInvoiceId { get; set; }
+    public string? ParasutEInvoiceId { get; set; }
+    public SyncStatus? ParasutSyncStatus { get; set; }
+    public DateTime? ParasutSyncedAt { get; set; }
+    public string? ParasutSyncError { get; set; }
+
     private readonly List<InvoiceLine> _lines = new();
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
     public Order? Order { get; set; }

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Dropship Yonetim Paneli
+  Version: 1.0.0
+  Date: 2026-03-20
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: I-10 GOREV 6 — HTML Panel Pages for Platform & Dropship
+  Status: ACTIVE
+
+  FEATURES:
+  - 4 KPI cards: Tedarikci, Aktif Urun, Karlilik, Ort Sure
+  - Supplier performance table with rating stars
+  - Top 10 profitable products table
+  - Auto-order settings section
+  - Chart.js: Supplier order distribution (pie), Monthly profit trend (line)
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Responsive breakpoints
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+  - Chart.js 4.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech Stok - Dropship Yonetim Paneli</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-primary-hover: #d96a10;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .dashboard-main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-primary), var(--mestech-primary-hover));
+      color: #fff;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* KPI Cards */
+    .kpi-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 20px;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mestech-shadow-md);
+    }
+    .kpi-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    /* Data Cards */
+    .data-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      margin-bottom: 24px;
+    }
+    .data-card .card-header-custom {
+      background: var(--mestech-card-bg);
+      border-bottom: 1px solid var(--mestech-border);
+      padding: 16px 20px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: var(--mestech-radius) var(--mestech-radius) 0 0;
+    }
+    .data-card .card-body-custom {
+      padding: 20px;
+    }
+
+    /* Chart container */
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+
+    /* Rating stars */
+    .rating-stars {
+      color: var(--mestech-warning);
+      font-size: 0.85rem;
+    }
+    .rating-stars .empty {
+      color: var(--mestech-border);
+    }
+
+    /* Auto-order settings */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--mestech-border);
+    }
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Fallback state */
+    .fallback-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--mestech-text-muted);
+    }
+    .fallback-state i {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (max-width: 767px) {
+      .dashboard-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- Header placeholder -->
+    <div id="header-component"></div>
+    <!-- Sidebar placeholder -->
+    <div id="sidebar-component"></div>
+
+    <main class="dashboard-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold">Dropship Yonetim Paneli</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="#">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="#">Dropship</a></li>
+                <li class="breadcrumb-item active">Dashboard</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="text-end">
+            <small class="d-block opacity-75">Son guncelleme</small>
+            <strong id="last-update-time">--:--:--</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="row g-3 mb-4" id="kpi-row">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row g-4 mb-4">
+
+        <!-- Supplier Order Distribution (Pie) -->
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-chart-pie me-2 text-info"></i>Tedarikci Siparis Dagilimi</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-wrapper">
+                <canvas id="supplierPieChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Profit Trend (Line) -->
+        <div class="col-lg-7">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-chart-line me-2 text-success"></i>Aylik Kar Trendi</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-wrapper">
+                <canvas id="profitTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tables Row -->
+      <div class="row g-4">
+
+        <!-- Supplier Performance Table -->
+        <div class="col-lg-8">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-truck me-2 text-primary"></i>Tedarikci Performansi</span>
+              <span class="badge bg-primary" id="supplier-count-badge">0</span>
+            </div>
+            <div class="card-body-custom" id="supplier-table-body">
+              <div style="display:flex;align-items:center;justify-content:center;padding:40px;">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Yukleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 10 Profitable Products -->
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-trophy me-2 text-warning"></i>En Karli 10 Urun</span>
+            </div>
+            <div class="card-body-custom" id="top-products-body">
+              <div style="display:flex;align-items:center;justify-content:center;padding:40px;">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Yukleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Auto-Order Settings -->
+        <div class="col-lg-4">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-cog me-2 text-secondary"></i>Otomatik Siparis Ayarlari</span>
+            </div>
+            <div class="card-body-custom" id="auto-order-settings">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech Stok Panel - Dropship Yonetim Paneli
+  // DEV 2 — I-10 GOREV 6
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var API_BASE = '/api/v1/dropshipping';
+    var supplierPieChart = null;
+    var profitTrendChart = null;
+
+    // ========================================
+    // DOM Helper Utilities (XSS-safe)
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') {
+            node.className = attrs[key];
+          } else if (key === 'style' && typeof attrs[key] === 'object') {
+            Object.keys(attrs[key]).forEach(function(prop) {
+              node.style[prop] = attrs[key][prop];
+            });
+          } else if (key === 'textContent') {
+            node.textContent = attrs[key];
+          } else if (key.indexOf('data-') === 0) {
+            node.setAttribute(key, attrs[key]);
+          } else {
+            node.setAttribute(key, attrs[key]);
+          }
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') {
+            node.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            node.appendChild(child);
+          }
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+
+    function formatCurrency(value) {
+      if (typeof value !== 'number') return '0';
+      return value.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    // ========================================
+    // KPI Cards (DOM-SAFE)
+    // ========================================
+    var kpiDefs = [
+      {
+        id: 'supplier-count',
+        title: 'Tedarikci',
+        icon: 'fas fa-handshake',
+        iconBg: 'rgba(59, 130, 246, 0.12)',
+        iconColor: '#3b82f6',
+        dataKey: 'supplierCount',
+        format: function(v) { return String(v); }
+      },
+      {
+        id: 'active-products',
+        title: 'Aktif Urun',
+        icon: 'fas fa-boxes-stacked',
+        iconBg: 'rgba(16, 185, 129, 0.12)',
+        iconColor: '#10b981',
+        dataKey: 'activeProductCount',
+        format: function(v) { return formatCurrency(v); }
+      },
+      {
+        id: 'profitability',
+        title: 'Karlilik',
+        icon: 'fas fa-percent',
+        iconBg: 'rgba(139, 92, 246, 0.12)',
+        iconColor: '#8b5cf6',
+        dataKey: 'profitabilityRate',
+        format: function(v) { return '%' + (typeof v === 'number' ? v.toFixed(1) : '0'); }
+      },
+      {
+        id: 'avg-delivery',
+        title: 'Ort. Teslimat Suresi',
+        icon: 'fas fa-clock',
+        iconBg: 'rgba(245, 158, 11, 0.12)',
+        iconColor: '#f59e0b',
+        dataKey: 'avgDeliveryDays',
+        format: function(v) { return (typeof v === 'number' ? v.toFixed(1) : '0') + ' gun'; }
+      }
+    ];
+
+    function renderKpiCards(data) {
+      var container = document.getElementById('kpi-row');
+      clearChildren(container);
+
+      kpiDefs.forEach(function(kpi) {
+        var value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
+
+        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        var card = el('div', { className: 'kpi-card' });
+
+        var topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-3' });
+        var titleSpan = el('span', {
+          className: 'text-muted small text-uppercase',
+          textContent: kpi.title
+        });
+
+        var iconBadge = el('span', { className: 'kpi-icon-badge' });
+        iconBadge.style.background = kpi.iconBg;
+        iconBadge.style.color = kpi.iconColor;
+        iconBadge.appendChild(el('i', { className: kpi.icon }));
+
+        topRow.appendChild(titleSpan);
+        topRow.appendChild(iconBadge);
+
+        var valueEl = el('h3', {
+          className: 'mb-0 fw-bold',
+          textContent: kpi.format(value)
+        });
+        valueEl.style.fontSize = '1.6rem';
+
+        card.appendChild(topRow);
+        card.appendChild(valueEl);
+        col.appendChild(card);
+        container.appendChild(col);
+      });
+    }
+
+    function renderKpiSkeletons() {
+      var container = document.getElementById('kpi-row');
+      clearChildren(container);
+      for (var i = 0; i < 4; i++) {
+        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        var card = el('div', { className: 'kpi-card' });
+        var s1 = el('div', { className: 'skeleton' });
+        s1.style.height = '16px'; s1.style.width = '50%'; s1.style.marginBottom = '16px';
+        var s2 = el('div', { className: 'skeleton' });
+        s2.style.height = '32px'; s2.style.width = '70%';
+        card.appendChild(s1);
+        card.appendChild(s2);
+        col.appendChild(card);
+        container.appendChild(col);
+      }
+    }
+
+    // ========================================
+    // Supplier Performance Table (DOM-SAFE)
+    // ========================================
+    function renderSupplierTable(suppliers) {
+      var container = document.getElementById('supplier-table-body');
+      var badge = document.getElementById('supplier-count-badge');
+      clearChildren(container);
+
+      if (!suppliers || suppliers.length === 0) {
+        var fallback = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-truck text-muted' }),
+          el('p', { textContent: 'Tedarikci verisi bulunamadi' })
+        ]);
+        container.appendChild(fallback);
+        badge.textContent = '0';
+        return;
+      }
+
+      badge.textContent = String(suppliers.length);
+
+      var table = el('table', { className: 'table table-hover mb-0' });
+
+      // Head
+      var thead = el('thead');
+      var headRow = el('tr');
+      ['Tedarikci', 'Siparis', 'Tamamlanan', 'Hata', 'Sure (gun)', 'Rating'].forEach(function(h) {
+        headRow.appendChild(el('th', {
+          className: 'small text-muted text-uppercase',
+          textContent: h
+        }));
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      // Body
+      var tbody = el('tbody');
+
+      suppliers.forEach(function(supplier) {
+        var tr = el('tr');
+
+        // Supplier name
+        var nameCell = el('td');
+        nameCell.appendChild(el('strong', { className: 'small', textContent: supplier.name || '--' }));
+        if (supplier.code) {
+          nameCell.appendChild(el('br'));
+          var codeSpan = el('span', {
+            className: 'text-muted',
+            textContent: supplier.code
+          });
+          codeSpan.style.fontSize = '0.75rem';
+          nameCell.appendChild(codeSpan);
+        }
+        tr.appendChild(nameCell);
+
+        // Orders
+        tr.appendChild(el('td', { className: 'small', textContent: String(supplier.totalOrders || 0) }));
+
+        // Completed
+        var completedCell = el('td');
+        completedCell.appendChild(el('span', {
+          className: 'badge bg-success-subtle text-success',
+          textContent: String(supplier.completedOrders || 0)
+        }));
+        tr.appendChild(completedCell);
+
+        // Errors
+        var errorCell = el('td');
+        var errorCount = supplier.errorOrders || 0;
+        errorCell.appendChild(el('span', {
+          className: 'badge ' + (errorCount > 0 ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'),
+          textContent: String(errorCount)
+        }));
+        tr.appendChild(errorCell);
+
+        // Avg delivery days
+        tr.appendChild(el('td', {
+          className: 'small',
+          textContent: supplier.avgDeliveryDays != null ? supplier.avgDeliveryDays.toFixed(1) : '--'
+        }));
+
+        // Rating (stars)
+        var ratingCell = el('td');
+        var starsDiv = el('div', { className: 'rating-stars' });
+        var rating = supplier.rating || 0;
+        for (var s = 1; s <= 5; s++) {
+          var star = el('i', {
+            className: s <= Math.round(rating) ? 'fas fa-star' : 'fas fa-star empty'
+          });
+          starsDiv.appendChild(star);
+        }
+        var ratingText = el('span', {
+          className: 'ms-1 small text-muted',
+          textContent: rating.toFixed(1)
+        });
+        starsDiv.appendChild(ratingText);
+        ratingCell.appendChild(starsDiv);
+        tr.appendChild(ratingCell);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    // ========================================
+    // Top 10 Profitable Products (DOM-SAFE)
+    // ========================================
+    function renderTopProducts(products) {
+      var container = document.getElementById('top-products-body');
+      clearChildren(container);
+
+      if (!products || products.length === 0) {
+        var fallback = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-trophy text-muted' }),
+          el('p', { textContent: 'Urun verisi bulunamadi' })
+        ]);
+        container.appendChild(fallback);
+        return;
+      }
+
+      var table = el('table', { className: 'table table-hover mb-0' });
+
+      var thead = el('thead');
+      var headRow = el('tr');
+      ['#', 'Urun', 'Maliyet', 'Satis Fiyati', 'Kar', 'Kar %'].forEach(function(h) {
+        headRow.appendChild(el('th', {
+          className: 'small text-muted text-uppercase',
+          textContent: h
+        }));
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      var tbody = el('tbody');
+
+      products.forEach(function(product, index) {
+        var tr = el('tr');
+
+        // Rank
+        var rankCell = el('td');
+        var rankBadge = el('span', {
+          className: 'badge ' + (index < 3 ? 'bg-warning text-dark' : 'bg-light text-dark'),
+          textContent: String(index + 1)
+        });
+        rankCell.appendChild(rankBadge);
+        tr.appendChild(rankCell);
+
+        // Product name
+        var nameCell = el('td');
+        nameCell.appendChild(el('span', {
+          className: 'small fw-medium',
+          textContent: product.name || '--'
+        }));
+        if (product.sku) {
+          nameCell.appendChild(el('br'));
+          var skuSpan = el('span', {
+            className: 'text-muted',
+            textContent: product.sku
+          });
+          skuSpan.style.fontSize = '0.7rem';
+          nameCell.appendChild(skuSpan);
+        }
+        tr.appendChild(nameCell);
+
+        // Cost
+        tr.appendChild(el('td', {
+          className: 'small',
+          textContent: '\u20BA' + formatCurrency(product.cost || 0)
+        }));
+
+        // Sale price
+        tr.appendChild(el('td', {
+          className: 'small',
+          textContent: '\u20BA' + formatCurrency(product.salePrice || 0)
+        }));
+
+        // Profit
+        var profitVal = (product.salePrice || 0) - (product.cost || 0);
+        var profitCell = el('td');
+        profitCell.appendChild(el('strong', {
+          className: 'small ' + (profitVal >= 0 ? 'text-success' : 'text-danger'),
+          textContent: '\u20BA' + formatCurrency(profitVal)
+        }));
+        tr.appendChild(profitCell);
+
+        // Profit %
+        var profitPct = product.cost > 0 ? ((profitVal / product.cost) * 100) : 0;
+        var pctCell = el('td');
+        pctCell.appendChild(el('span', {
+          className: 'badge ' + (profitPct >= 20 ? 'bg-success-subtle text-success' :
+                     profitPct >= 0 ? 'bg-warning-subtle text-warning' :
+                     'bg-danger-subtle text-danger'),
+          textContent: '%' + profitPct.toFixed(1)
+        }));
+        tr.appendChild(pctCell);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    // ========================================
+    // Auto-Order Settings (DOM-SAFE)
+    // ========================================
+    function renderAutoOrderSettings(settings) {
+      var container = document.getElementById('auto-order-settings');
+      clearChildren(container);
+
+      var settingDefs = [
+        {
+          key: 'autoOrderEnabled',
+          label: 'Otomatik Siparis',
+          description: 'Stok dustu otomatik tedarikci siparisi',
+          type: 'toggle'
+        },
+        {
+          key: 'minStockThreshold',
+          label: 'Min. Stok Esigi',
+          description: 'Bu deger altinda otomatik siparis',
+          type: 'number',
+          suffix: 'adet'
+        },
+        {
+          key: 'autoOrderQuantity',
+          label: 'Siparis Miktari',
+          description: 'Otomatik siparis edilen miktar',
+          type: 'number',
+          suffix: 'adet'
+        },
+        {
+          key: 'maxDailyOrders',
+          label: 'Gunluk Maks. Siparis',
+          description: 'Gunluk otomatik siparis limiti',
+          type: 'number',
+          suffix: 'siparis'
+        },
+        {
+          key: 'prioritySupplier',
+          label: 'Oncelikli Tedarikci',
+          description: 'Ilk tercih edilen tedarikci',
+          type: 'text'
+        }
+      ];
+
+      settingDefs.forEach(function(def) {
+        var row = el('div', { className: 'setting-row' });
+
+        // Left: label + description
+        var leftDiv = el('div');
+        leftDiv.appendChild(el('div', {
+          className: 'fw-medium small',
+          textContent: def.label
+        }));
+        leftDiv.appendChild(el('div', {
+          className: 'text-muted',
+          textContent: def.description,
+          style: { fontSize: '0.75rem' }
+        }));
+        row.appendChild(leftDiv);
+
+        // Right: control
+        var rightDiv = el('div', { className: 'd-flex align-items-center gap-2' });
+
+        var currentValue = settings && settings[def.key] != null ? settings[def.key] : null;
+
+        if (def.type === 'toggle') {
+          var toggleDiv = el('div', { className: 'form-check form-switch' });
+          var toggleInput = el('input', {
+            className: 'form-check-input',
+            type: 'checkbox',
+            id: 'setting-' + def.key,
+            'data-key': def.key
+          });
+          if (currentValue) toggleInput.checked = true;
+          toggleInput.addEventListener('change', function() {
+            saveSetting(def.key, toggleInput.checked);
+          });
+          toggleDiv.appendChild(toggleInput);
+          rightDiv.appendChild(toggleDiv);
+        } else if (def.type === 'number') {
+          var numInput = el('input', {
+            className: 'form-control form-control-sm',
+            type: 'number',
+            id: 'setting-' + def.key,
+            'data-key': def.key,
+            style: { width: '80px' }
+          });
+          numInput.value = currentValue != null ? String(currentValue) : '';
+          numInput.addEventListener('change', function() {
+            saveSetting(def.key, parseInt(numInput.value, 10) || 0);
+          });
+          rightDiv.appendChild(numInput);
+          if (def.suffix) {
+            rightDiv.appendChild(el('span', {
+              className: 'text-muted small',
+              textContent: def.suffix
+            }));
+          }
+        } else {
+          var textInput = el('input', {
+            className: 'form-control form-control-sm',
+            type: 'text',
+            id: 'setting-' + def.key,
+            'data-key': def.key,
+            style: { width: '120px' }
+          });
+          textInput.value = currentValue != null ? String(currentValue) : '';
+          textInput.addEventListener('change', function() {
+            saveSetting(def.key, textInput.value);
+          });
+          rightDiv.appendChild(textInput);
+        }
+
+        row.appendChild(rightDiv);
+        container.appendChild(row);
+      });
+
+      // Save all button
+      var saveBtn = el('button', {
+        className: 'btn btn-primary btn-sm mt-3 w-100',
+        id: 'btn-save-settings'
+      }, [
+        el('i', { className: 'fas fa-save me-2' }),
+        document.createTextNode('Ayarlari Kaydet')
+      ]);
+      saveBtn.addEventListener('click', saveAllSettings);
+      container.appendChild(saveBtn);
+    }
+
+    async function saveSetting(key, value) {
+      try {
+        await fetch(API_BASE + '/settings', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [key]: value })
+        });
+      } catch (error) {
+        console.error('Ayar kaydetme hatasi:', error);
+      }
+    }
+
+    async function saveAllSettings() {
+      var btn = document.getElementById('btn-save-settings');
+      btn.disabled = true;
+      clearChildren(btn);
+      btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
+      btn.appendChild(document.createTextNode('Kaydediliyor...'));
+
+      var settings = {};
+      var inputs = document.querySelectorAll('[data-key]');
+      inputs.forEach(function(input) {
+        var key = input.getAttribute('data-key');
+        if (input.type === 'checkbox') {
+          settings[key] = input.checked;
+        } else if (input.type === 'number') {
+          settings[key] = parseInt(input.value, 10) || 0;
+        } else {
+          settings[key] = input.value;
+        }
+      });
+
+      try {
+        var response = await fetch(API_BASE + '/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings)
+        });
+
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        showAlert('Ayarlar basariyla kaydedildi.', 'success');
+
+      } catch (error) {
+        console.error('Ayar kaydetme hatasi:', error);
+        showAlert('Ayarlar kaydedilemedi. Lutfen tekrar deneyin.', 'danger');
+      } finally {
+        clearChildren(btn);
+        btn.appendChild(el('i', { className: 'fas fa-save me-2' }));
+        btn.appendChild(document.createTextNode('Ayarlari Kaydet'));
+        btn.disabled = false;
+      }
+    }
+
+    // ========================================
+    // Charts (Chart.js)
+    // ========================================
+    function renderSupplierPieChart(data) {
+      var canvas = document.getElementById('supplierPieChart');
+      if (!canvas) return;
+
+      if (supplierPieChart) {
+        supplierPieChart.destroy();
+        supplierPieChart = null;
+      }
+
+      if (!data || !data.labels || data.labels.length === 0) {
+        var wrapper = canvas.parentElement;
+        clearChildren(wrapper);
+        wrapper.appendChild(el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-chart-pie text-muted' }),
+          el('p', { textContent: 'Grafik verisi yuklenemedi' })
+        ]));
+        return;
+      }
+
+      var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'];
+
+      supplierPieChart = new Chart(canvas, {
+        type: 'pie',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            data: data.values,
+            backgroundColor: colors.slice(0, data.labels.length),
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, padding: 12, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderProfitTrendChart(data) {
+      var canvas = document.getElementById('profitTrendChart');
+      if (!canvas) return;
+
+      if (profitTrendChart) {
+        profitTrendChart.destroy();
+        profitTrendChart = null;
+      }
+
+      if (!data || !data.labels || data.labels.length === 0) {
+        var wrapper = canvas.parentElement;
+        clearChildren(wrapper);
+        wrapper.appendChild(el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-chart-line text-muted' }),
+          el('p', { textContent: 'Grafik verisi yuklenemedi' })
+        ]));
+        return;
+      }
+
+      profitTrendChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'Kar',
+              data: data.profit || [],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            },
+            {
+              label: 'Ciro',
+              data: data.revenue || [],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, padding: 15 }
+            },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(v) {
+                  return v.toLocaleString('tr-TR') + ' \u20BA';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ========================================
+    // Alert Helper
+    // ========================================
+    function showAlert(message, type) {
+      var existing = document.getElementById('page-alert');
+      if (existing) existing.remove();
+
+      var alertDiv = el('div', {
+        className: 'alert alert-' + type + ' alert-dismissible fade show',
+        id: 'page-alert',
+        role: 'alert'
+      });
+      alertDiv.appendChild(document.createTextNode(message));
+
+      var closeBtn = el('button', {
+        className: 'btn-close',
+        'data-bs-dismiss': 'alert',
+        'aria-label': 'Kapat'
+      });
+      alertDiv.appendChild(closeBtn);
+
+      var main = document.querySelector('.dashboard-main');
+      var header = main.querySelector('.page-header-bar');
+      if (header && header.nextSibling) {
+        main.insertBefore(alertDiv, header.nextSibling);
+      } else {
+        main.appendChild(alertDiv);
+      }
+
+      setTimeout(function() {
+        var a = document.getElementById('page-alert');
+        if (a) a.remove();
+      }, 5000);
+    }
+
+    // ========================================
+    // Fallback State
+    // ========================================
+    function showFallbackState() {
+      renderKpiCards({});
+
+      var supplierBody = document.getElementById('supplier-table-body');
+      clearChildren(supplierBody);
+      supplierBody.appendChild(el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
+        el('p', { textContent: 'Veri yuklenemedi. API baglantisi kontrol edin.' })
+      ]));
+
+      var productsBody = document.getElementById('top-products-body');
+      clearChildren(productsBody);
+      productsBody.appendChild(el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
+        el('p', { textContent: 'Veri yuklenemedi.' })
+      ]));
+    }
+
+    // ========================================
+    // API Data Loading
+    // ========================================
+    async function loadDashboardData() {
+      renderKpiSkeletons();
+
+      try {
+        // Load supplier performance
+        var perfResponse = await fetch(API_BASE + '/supplier-performance');
+        if (!perfResponse.ok) throw new Error('HTTP ' + perfResponse.status);
+        var perfData = await perfResponse.json();
+
+        // Render KPI from aggregated data
+        var kpiData = {
+          supplierCount: perfData.suppliers ? perfData.suppliers.length : 0,
+          activeProductCount: perfData.activeProductCount || 0,
+          profitabilityRate: perfData.profitabilityRate || 0,
+          avgDeliveryDays: perfData.avgDeliveryDays || 0
+        };
+        renderKpiCards(kpiData);
+
+        // Supplier table
+        renderSupplierTable(perfData.suppliers || []);
+
+        // Top products
+        renderTopProducts(perfData.topProducts || []);
+
+        // Charts
+        renderSupplierPieChart(perfData.supplierDistribution || null);
+        renderProfitTrendChart(perfData.profitTrend || null);
+
+        // Auto-order settings
+        renderAutoOrderSettings(perfData.autoOrderSettings || {});
+
+        // Update timestamp
+        document.getElementById('last-update-time').textContent =
+          new Date().toLocaleTimeString('tr-TR');
+
+      } catch (error) {
+        console.error('Dropship dashboard veri yukleme hatasi:', error);
+        showFallbackState();
+        renderAutoOrderSettings({});
+        document.getElementById('last-update-time').textContent =
+          'Hata: ' + new Date().toLocaleTimeString('tr-TR');
+      }
+    }
+
+    // ========================================
+    // Initialization
+    // ========================================
+    function initDropshipDashboard() {
+      loadDashboardData();
+    }
+
+    // Wait for DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDropshipDashboard);
+    } else {
+      initDropshipDashboard();
+    }
+
+  })();
+  </script>
+</body>
+</html>

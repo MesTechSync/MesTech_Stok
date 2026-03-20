@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Premium Dashboard
+  Version: 1.0.0
+  Date: 2026-03-20
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: I-03 GOREV 7 — HTML Panel Dashboard Premium UX
+  Status: ACTIVE
+
+  FEATURES:
+  - 6 KPI cards with trend indicators
+  - fetch() API integration (no mock data)
+  - 30-second auto-refresh
+  - Platform health dots (15 platforms)
+  - Stock alert section with 4-level color coding
+  - AI insight card (purple theme)
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Responsive breakpoints (xl:6, md:3, sm:2, xs:1)
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+  - Chart.js 4.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech Stok - Dashboard</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-primary-hover: #d96a10;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .dashboard-main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-primary), var(--mestech-primary-hover));
+      color: #fff;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* KPI Cards */
+    .kpi-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 16px;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mestech-shadow-md);
+    }
+    .kpi-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    /* Data Cards */
+    .data-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      margin-bottom: 24px;
+    }
+    .data-card .card-header-custom {
+      background: var(--mestech-card-bg);
+      border-bottom: 1px solid var(--mestech-border);
+      padding: 16px 20px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: var(--mestech-radius) var(--mestech-radius) 0 0;
+    }
+    .data-card .card-body-custom {
+      padding: 20px;
+    }
+
+    /* Stock Alert Levels */
+    .stock-alert-item {
+      padding: 12px 16px;
+      border-left: 4px solid;
+      margin-bottom: 8px;
+      border-radius: 0 8px 8px 0;
+      background: var(--mestech-card-bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stock-alert-item.level-ok { border-left-color: var(--mestech-success); }
+    .stock-alert-item.level-low { border-left-color: var(--mestech-warning); }
+    .stock-alert-item.level-critical { border-left-color: var(--mestech-danger); }
+    .stock-alert-item.level-out { border-left-color: #1e293b; }
+
+    /* Platform Health */
+    .platform-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #f8fafc;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .platform-dot-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .platform-dot-indicator.online { background: var(--mestech-success); }
+    .platform-dot-indicator.offline { background: var(--mestech-danger); }
+    .platform-dot-indicator.degraded { background: var(--mestech-warning); }
+
+    /* Auto-refresh toggle */
+    .auto-refresh-toggle {
+      cursor: pointer;
+      user-select: none;
+    }
+    .auto-refresh-toggle .toggle-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .auto-refresh-toggle .toggle-dot.active {
+      background: var(--mestech-success);
+      animation: pulse-dot 2s infinite;
+    }
+    .auto-refresh-toggle .toggle-dot.inactive {
+      background: var(--mestech-text-muted);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Chart container */
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+
+    /* Fallback state */
+    .fallback-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--mestech-text-muted);
+    }
+    .fallback-state i {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Responsive KPI grid */
+    @media (min-width: 1200px) {
+      .kpi-grid .kpi-col { flex: 0 0 16.666%; max-width: 16.666%; }
+    }
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .kpi-grid .kpi-col { flex: 0 0 33.333%; max-width: 33.333%; }
+    }
+    @media (max-width: 767px) and (min-width: 576px) {
+      .kpi-grid .kpi-col { flex: 0 0 50%; max-width: 50%; }
+    }
+    @media (max-width: 575px) {
+      .kpi-grid .kpi-col { flex: 0 0 100%; max-width: 100%; }
+      .dashboard-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- Header placeholder -->
+    <div id="header-component"></div>
+    <!-- Sidebar placeholder -->
+    <div id="sidebar-component"></div>
+
+    <main class="dashboard-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold">Stok Dashboard</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="#">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="#">Panel</a></li>
+                <li class="breadcrumb-item active">Dashboard</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <div class="auto-refresh-toggle d-flex align-items-center gap-2" id="auto-refresh-toggle">
+              <span class="toggle-dot active" id="refresh-dot"></span>
+              <small>Otomatik yenileme</small>
+            </div>
+            <div class="text-end">
+              <small class="d-block opacity-75">Son guncelleme</small>
+              <strong id="last-update-time">--:--:--</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards Row -->
+      <div class="row g-3 mb-4 kpi-grid" id="kpi-cards-row">
+        <!-- 6 KPI cards rendered by JS (DOM-safe) -->
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="row g-4">
+
+        <!-- Left Column: Charts -->
+        <div class="col-lg-8">
+
+          <!-- Sales Trend Chart -->
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-chart-line me-2 text-primary"></i>Satis Trendi</span>
+              <div class="btn-group btn-group-sm" id="trend-period-buttons">
+                <button class="btn btn-outline-primary active" data-days="7">7 Gun</button>
+                <button class="btn btn-outline-primary" data-days="30">30 Gun</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-wrapper">
+                <canvas id="salesTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Orders Table -->
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-shopping-cart me-2 text-info"></i>Son Siparisler</span>
+              <span class="badge bg-primary" id="orders-count-badge">0</span>
+            </div>
+            <div class="card-body-custom" id="recent-orders-body">
+              <!-- Rendered by JS (DOM-safe) -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Alerts & Status -->
+        <div class="col-lg-4">
+
+          <!-- Platform Health Dots -->
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-signal me-2 text-success"></i>Platform Durumu</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap gap-2" id="platform-health">
+                <!-- Rendered by JS (DOM-safe) -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Alerts -->
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Stok Uyarilari</span>
+              <span class="badge bg-danger" id="stock-alerts-count">0</span>
+            </div>
+            <div class="card-body-custom" id="stock-alerts-body">
+              <!-- Rendered by JS (DOM-safe) -->
+            </div>
+          </div>
+
+          <!-- AI Insight Card -->
+          <div class="data-card" id="ai-insight-card" style="background: #EDE9FE;">
+            <div class="card-body-custom">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fas fa-robot" style="color: #7C3AED; font-size: 1.2rem;"></i>
+                <strong style="color: #7C3AED;">AI Onerisi</strong>
+              </div>
+              <p class="mb-2 small" id="ai-insight-text" style="color: #5b21b6;">Yukleniyor...</p>
+              <a href="#" class="btn btn-sm btn-outline-secondary">Detaylar</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech Stok Panel Dashboard - Premium UX
+  // DEV 2 — I-03 GOREV 7
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var API_BASE = '/api/v1/dashboard';
+    var autoRefreshInterval = null;
+    var isAutoRefreshEnabled = true;
+    var salesTrendChart = null;
+
+    // ========================================
+    // DOM Helper Utilities (XSS-safe)
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') {
+            node.className = attrs[key];
+          } else if (key === 'style' && typeof attrs[key] === 'object') {
+            Object.keys(attrs[key]).forEach(function(prop) {
+              node.style[prop] = attrs[key][prop];
+            });
+          } else if (key === 'textContent') {
+            node.textContent = attrs[key];
+          } else if (key.indexOf('data-') === 0) {
+            node.setAttribute(key, attrs[key]);
+          } else {
+            node.setAttribute(key, attrs[key]);
+          }
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') {
+            node.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            node.appendChild(child);
+          }
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+
+    function formatCurrency(value) {
+      if (typeof value !== 'number') return '0';
+      return value.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    // ========================================
+    // KPI Card Definitions
+    // ========================================
+    var kpiDefs = [
+      {
+        id: 'today-sales',
+        title: 'Bugun Satis',
+        icon: 'fas fa-shopping-cart',
+        iconBg: 'rgba(59, 130, 246, 0.12)',
+        iconColor: '#3b82f6',
+        format: function(v) { return '\u20BA' + formatCurrency(v); },
+        dataKey: 'todaySales',
+        trendKey: 'todaySalesTrend'
+      },
+      {
+        id: 'weekly-revenue',
+        title: 'Haftalik Ciro',
+        icon: 'fas fa-lira-sign',
+        iconBg: 'rgba(16, 185, 129, 0.12)',
+        iconColor: '#10b981',
+        format: function(v) { return '\u20BA' + formatCurrency(v); },
+        dataKey: 'weeklyRevenue',
+        trendKey: 'weeklyRevenueTrend'
+      },
+      {
+        id: 'total-products',
+        title: 'Toplam Urun',
+        icon: 'fas fa-box-open',
+        iconBg: 'rgba(139, 92, 246, 0.12)',
+        iconColor: '#8b5cf6',
+        format: function(v) { return formatCurrency(v); },
+        dataKey: 'totalProducts',
+        trendKey: 'totalProductsTrend'
+      },
+      {
+        id: 'low-stock',
+        title: 'Dusuk Stok',
+        icon: 'fas fa-exclamation-circle',
+        iconBg: 'rgba(239, 68, 68, 0.12)',
+        iconColor: '#ef4444',
+        format: function(v) { return formatCurrency(v); },
+        dataKey: 'lowStock',
+        trendKey: 'lowStockTrend'
+      },
+      {
+        id: 'pending-orders',
+        title: 'Bekleyen Siparis',
+        icon: 'fas fa-clock',
+        iconBg: 'rgba(245, 158, 11, 0.12)',
+        iconColor: '#f59e0b',
+        format: function(v) { return formatCurrency(v); },
+        dataKey: 'pendingOrders',
+        trendKey: 'pendingOrdersTrend'
+      },
+      {
+        id: 'returns',
+        title: 'Iade',
+        icon: 'fas fa-undo-alt',
+        iconBg: 'rgba(236, 72, 153, 0.12)',
+        iconColor: '#ec4899',
+        format: function(v) { return formatCurrency(v); },
+        dataKey: 'returns',
+        trendKey: 'returnsTrend'
+      }
+    ];
+
+    // ========================================
+    // Render KPI Cards (DOM-SAFE)
+    // ========================================
+    function renderKpiCards(data) {
+      var container = document.getElementById('kpi-cards-row');
+      clearChildren(container);
+
+      kpiDefs.forEach(function(kpi) {
+        var value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
+        var trend = data && data[kpi.trendKey] != null ? data[kpi.trendKey] : 0;
+        var trendPositive = trend >= 0;
+
+        // Column wrapper
+        var col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
+
+        // Card
+        var card = el('div', { className: 'kpi-card' });
+
+        // Top row: title + icon
+        var topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-2' });
+
+        var titleSpan = el('span', {
+          className: 'text-muted small text-uppercase',
+          textContent: kpi.title
+        });
+
+        var iconBadge = el('span', {
+          className: 'kpi-icon-badge'
+        });
+        iconBadge.style.background = kpi.iconBg;
+        iconBadge.style.color = kpi.iconColor;
+        var iconEl = el('i', { className: kpi.icon });
+        iconBadge.appendChild(iconEl);
+
+        topRow.appendChild(titleSpan);
+        topRow.appendChild(iconBadge);
+
+        // Main value
+        var valueEl = el('h3', {
+          className: 'mb-1 fw-bold',
+          id: 'kpi-' + kpi.id,
+          textContent: kpi.format(value)
+        });
+        valueEl.style.fontSize = '1.4rem';
+
+        // Trend row
+        var trendRow = el('div', { className: 'd-flex align-items-center gap-1' });
+
+        var trendBadge = el('span', {
+          className: 'badge small ' + (trendPositive
+            ? 'bg-success bg-opacity-10 text-success'
+            : 'bg-danger bg-opacity-10 text-danger'),
+          id: 'kpi-' + kpi.id + '-trend'
+        });
+        var trendIcon = el('i', {
+          className: trendPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
+        });
+        trendBadge.appendChild(trendIcon);
+        trendBadge.appendChild(document.createTextNode(
+          ' ' + (trendPositive ? '+' : '') + trend.toFixed(1) + '%'
+        ));
+
+        var vsText = el('span', {
+          className: 'text-muted',
+          textContent: 'vs dun'
+        });
+        vsText.style.fontSize = '0.7rem';
+
+        trendRow.appendChild(trendBadge);
+        trendRow.appendChild(vsText);
+
+        card.appendChild(topRow);
+        card.appendChild(valueEl);
+        card.appendChild(trendRow);
+        col.appendChild(card);
+        container.appendChild(col);
+      });
+    }
+
+    // ========================================
+    // Render KPI Loading Skeletons
+    // ========================================
+    function renderKpiSkeletons() {
+      var container = document.getElementById('kpi-cards-row');
+      clearChildren(container);
+
+      for (var i = 0; i < 6; i++) {
+        var col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
+        var card = el('div', { className: 'kpi-card' });
+
+        var skel1 = el('div', { className: 'skeleton' });
+        skel1.style.height = '16px';
+        skel1.style.width = '60%';
+        skel1.style.marginBottom = '12px';
+
+        var skel2 = el('div', { className: 'skeleton' });
+        skel2.style.height = '28px';
+        skel2.style.width = '80%';
+        skel2.style.marginBottom = '8px';
+
+        var skel3 = el('div', { className: 'skeleton' });
+        skel3.style.height = '14px';
+        skel3.style.width = '50%';
+
+        card.appendChild(skel1);
+        card.appendChild(skel2);
+        card.appendChild(skel3);
+        col.appendChild(card);
+        container.appendChild(col);
+      }
+    }
+
+    // ========================================
+    // Render Recent Orders (DOM-SAFE)
+    // ========================================
+    function renderRecentOrders(orders) {
+      var container = document.getElementById('recent-orders-body');
+      var badge = document.getElementById('orders-count-badge');
+      clearChildren(container);
+
+      if (!orders || orders.length === 0) {
+        var fallback = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-inbox text-muted' }),
+          el('p', { textContent: 'Siparis bulunamadi' })
+        ]);
+        container.appendChild(fallback);
+        badge.textContent = '0';
+        return;
+      }
+
+      badge.textContent = orders.length.toString();
+
+      // Table
+      var table = el('table', { className: 'table table-hover mb-0' });
+
+      // Head
+      var thead = el('thead');
+      var headRow = el('tr');
+      ['Siparis', 'Platform', 'Musteri', 'Tutar', 'Durum'].forEach(function(h) {
+        headRow.appendChild(el('th', {
+          className: 'small text-muted text-uppercase',
+          textContent: h
+        }));
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      // Body
+      var tbody = el('tbody');
+
+      var statusStyles = {
+        'Hazirlaniyor': { bg: 'bg-warning-subtle', text: 'text-warning' },
+        'Kargoda': { bg: 'bg-info-subtle', text: 'text-info' },
+        'Teslim Edildi': { bg: 'bg-success-subtle', text: 'text-success' },
+        'Iptal': { bg: 'bg-danger-subtle', text: 'text-danger' }
+      };
+
+      orders.forEach(function(order) {
+        var row = el('tr');
+
+        // Order ID cell
+        var idCell = el('td');
+        idCell.appendChild(el('strong', { textContent: order.id || '--' }));
+        idCell.appendChild(el('br'));
+        var timeSpan = el('span', {
+          className: 'text-muted',
+          textContent: order.time || ''
+        });
+        timeSpan.style.fontSize = '0.75rem';
+        idCell.appendChild(timeSpan);
+        row.appendChild(idCell);
+
+        // Platform cell
+        var platCell = el('td');
+        var platDot = el('span', { className: 'platform-dot-indicator online' });
+        platDot.style.marginRight = '6px';
+        platCell.appendChild(platDot);
+        platCell.appendChild(document.createTextNode(order.platform || '--'));
+        row.appendChild(platCell);
+
+        // Customer cell
+        row.appendChild(el('td', { textContent: order.customer || '--' }));
+
+        // Amount cell
+        var amountCell = el('td');
+        amountCell.appendChild(el('strong', {
+          textContent: '\u20BA' + formatCurrency(order.amount || 0)
+        }));
+        row.appendChild(amountCell);
+
+        // Status cell
+        var statusCell = el('td');
+        var sStyle = statusStyles[order.status] || { bg: 'bg-secondary-subtle', text: 'text-secondary' };
+        var statusBadge = el('span', {
+          className: 'badge ' + sStyle.bg + ' ' + sStyle.text,
+          textContent: order.status || 'Bilinmiyor'
+        });
+        statusBadge.style.fontSize = '0.75rem';
+        statusCell.appendChild(statusBadge);
+        row.appendChild(statusCell);
+
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    // ========================================
+    // Render Platform Health (DOM-SAFE)
+    // ========================================
+    function renderPlatformHealth(platforms) {
+      var container = document.getElementById('platform-health');
+      clearChildren(container);
+
+      if (!platforms || platforms.length === 0) {
+        container.appendChild(el('span', {
+          className: 'text-muted small',
+          textContent: 'Platform verisi yok'
+        }));
+        return;
+      }
+
+      platforms.forEach(function(p) {
+        var dot = el('div', { className: 'platform-dot' });
+
+        var statusClass = 'offline';
+        if (p.status === 'online') statusClass = 'online';
+        else if (p.status === 'degraded') statusClass = 'degraded';
+
+        var indicator = el('span', {
+          className: 'platform-dot-indicator ' + statusClass
+        });
+        dot.appendChild(indicator);
+        dot.appendChild(document.createTextNode(p.name || p.code || '--'));
+        container.appendChild(dot);
+      });
+    }
+
+    // ========================================
+    // Render Stock Alerts (DOM-SAFE)
+    // ========================================
+    function renderStockAlerts(items) {
+      var container = document.getElementById('stock-alerts-body');
+      var badge = document.getElementById('stock-alerts-count');
+      clearChildren(container);
+
+      if (!items || items.length === 0) {
+        var okState = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-check-circle text-success' }),
+          el('p', { textContent: 'Kritik stok uyarisi yok' })
+        ]);
+        container.appendChild(okState);
+        badge.textContent = '0';
+        return;
+      }
+
+      badge.textContent = items.length.toString();
+
+      items.forEach(function(item) {
+        // Determine alert level
+        var levelClass = 'level-ok';
+        if (item.currentStock === 0) levelClass = 'level-out';
+        else if (item.currentStock <= item.minStock * 0.3) levelClass = 'level-critical';
+        else if (item.currentStock <= item.minStock) levelClass = 'level-low';
+
+        var alertRow = el('div', { className: 'stock-alert-item ' + levelClass });
+
+        // Left: product info
+        var infoDiv = el('div');
+        infoDiv.appendChild(el('strong', {
+          className: 'small',
+          textContent: item.sku || '--'
+        }));
+        infoDiv.appendChild(el('br'));
+        var nameSpan = el('span', {
+          className: 'text-muted',
+          textContent: item.name || ''
+        });
+        nameSpan.style.fontSize = '0.75rem';
+        infoDiv.appendChild(nameSpan);
+        infoDiv.appendChild(el('br'));
+
+        var stockInfo = el('span', { className: 'small' });
+        stockInfo.appendChild(document.createTextNode(
+          'Stok: ' + (item.currentStock || 0) + ' / Min: ' + (item.minStock || 0)
+        ));
+        infoDiv.appendChild(stockInfo);
+
+        // Right: action button
+        var actionBtn = el('a', {
+          href: '#',
+          className: 'btn btn-sm btn-outline-primary',
+          textContent: 'Siparis'
+        });
+        var arrowSpan = el('span');
+        arrowSpan.appendChild(document.createTextNode(' \u2192'));
+        actionBtn.appendChild(arrowSpan);
+
+        alertRow.appendChild(infoDiv);
+        alertRow.appendChild(actionBtn);
+        container.appendChild(alertRow);
+      });
+    }
+
+    // ========================================
+    // Render AI Insight (DOM-SAFE)
+    // ========================================
+    function renderAiInsight(insight) {
+      var textEl = document.getElementById('ai-insight-text');
+      if (insight && insight.text) {
+        textEl.textContent = insight.text;
+      } else {
+        textEl.textContent = 'AI onerisi yuklenemedi. Lutfen daha sonra tekrar deneyin.';
+      }
+    }
+
+    // ========================================
+    // Sales Trend Chart (Chart.js)
+    // ========================================
+    function renderSalesTrendChart(trendData) {
+      var canvas = document.getElementById('salesTrendChart');
+      if (!canvas) return;
+
+      if (salesTrendChart) {
+        salesTrendChart.destroy();
+        salesTrendChart = null;
+      }
+
+      if (!trendData || !trendData.labels) {
+        var wrapper = canvas.parentElement;
+        clearChildren(wrapper);
+        var fallback = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-chart-line text-muted' }),
+          el('p', { textContent: 'Grafik verisi yuklenemedi' })
+        ]);
+        wrapper.appendChild(fallback);
+        return;
+      }
+
+      var datasets = [];
+      if (trendData.datasets && trendData.datasets.length > 0) {
+        datasets = trendData.datasets.map(function(ds) {
+          return {
+            label: ds.platform || ds.label || '',
+            data: ds.data || [],
+            borderColor: ds.color || '#3b82f6',
+            backgroundColor: (ds.color || '#3b82f6') + '20',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          };
+        });
+      }
+
+      salesTrendChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: trendData.labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, padding: 15 }
+            },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(v) {
+                  return v.toLocaleString('tr-TR') + ' \u20BA';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ========================================
+    // Trend Period Switcher
+    // ========================================
+    function initTrendButtons() {
+      var btnGroup = document.getElementById('trend-period-buttons');
+      if (!btnGroup) return;
+
+      btnGroup.addEventListener('click', function(e) {
+        var btn = e.target.closest('button[data-days]');
+        if (!btn) return;
+
+        var days = parseInt(btn.getAttribute('data-days'), 10);
+
+        // Update active state
+        var buttons = btnGroup.querySelectorAll('button');
+        buttons.forEach(function(b) {
+          b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        // Reload trend data
+        loadSalesTrend(days);
+      });
+    }
+
+    // ========================================
+    // Fallback State
+    // ========================================
+    function showFallbackState() {
+      // KPI fallback
+      renderKpiCards({
+        todaySales: 0, todaySalesTrend: 0,
+        weeklyRevenue: 0, weeklyRevenueTrend: 0,
+        totalProducts: 0, totalProductsTrend: 0,
+        lowStock: 0, lowStockTrend: 0,
+        pendingOrders: 0, pendingOrdersTrend: 0,
+        returns: 0, returnsTrend: 0
+      });
+
+      // Orders fallback
+      var ordersBody = document.getElementById('recent-orders-body');
+      clearChildren(ordersBody);
+      var fallback = el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-cloud-slash text-muted' }),
+        el('p', { textContent: 'Veri yuklenemedi. API baglantisi kontrol edin.' })
+      ]);
+      ordersBody.appendChild(fallback);
+
+      // Platform fallback
+      var platformContainer = document.getElementById('platform-health');
+      clearChildren(platformContainer);
+      platformContainer.appendChild(el('span', {
+        className: 'text-muted small',
+        textContent: 'Platform durumu alinamadi'
+      }));
+
+      // Stock alerts fallback
+      var stockBody = document.getElementById('stock-alerts-body');
+      clearChildren(stockBody);
+      var stockFallback = el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-cloud-slash text-muted' }),
+        el('p', { textContent: 'Stok uyarilari yuklenemedi' })
+      ]);
+      stockBody.appendChild(stockFallback);
+
+      // AI fallback
+      renderAiInsight({ text: 'AI servisi su anda kullanilamiyor.' });
+    }
+
+    // ========================================
+    // API Data Loading
+    // ========================================
+    async function loadDashboardData() {
+      try {
+        var response = await fetch(API_BASE + '/summary');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        var data = await response.json();
+
+        updateKpiCards(data);
+        renderRecentOrders(data.recentOrders || []);
+        renderStockAlerts(data.criticalStockItems || []);
+        renderPlatformHealth(data.platformDistribution || []);
+        renderAiInsight(data.aiInsight || null);
+
+        // Update timestamp
+        document.getElementById('last-update-time').textContent =
+          new Date().toLocaleTimeString('tr-TR');
+
+      } catch (error) {
+        console.error('Dashboard veri yukleme hatasi:', error);
+        showFallbackState();
+        document.getElementById('last-update-time').textContent =
+          'Hata: ' + new Date().toLocaleTimeString('tr-TR');
+      }
+    }
+
+    function updateKpiCards(data) {
+      if (!data || !data.kpi) {
+        showFallbackState();
+        return;
+      }
+      renderKpiCards(data.kpi);
+    }
+
+    async function loadSalesTrend(days) {
+      try {
+        var response = await fetch(API_BASE + '/sales-trend?days=' + days);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        var data = await response.json();
+        renderSalesTrendChart(data);
+      } catch (error) {
+        console.error('Satis trendi yukleme hatasi:', error);
+        renderSalesTrendChart(null);
+      }
+    }
+
+    // ========================================
+    // Auto-Refresh (30 seconds)
+    // ========================================
+    function startAutoRefresh() {
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = setInterval(function() {
+        loadDashboardData();
+      }, 30000);
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+    }
+
+    function toggleAutoRefresh() {
+      isAutoRefreshEnabled = !isAutoRefreshEnabled;
+      var dot = document.getElementById('refresh-dot');
+
+      if (isAutoRefreshEnabled) {
+        startAutoRefresh();
+        dot.className = 'toggle-dot active';
+      } else {
+        stopAutoRefresh();
+        dot.className = 'toggle-dot inactive';
+      }
+    }
+
+    // ========================================
+    // Initialization
+    // ========================================
+    function initDashboard() {
+      // Show loading skeletons
+      renderKpiSkeletons();
+
+      // Initialize trend buttons
+      initTrendButtons();
+
+      // Set up auto-refresh toggle
+      var toggleEl = document.getElementById('auto-refresh-toggle');
+      if (toggleEl) {
+        toggleEl.addEventListener('click', toggleAutoRefresh);
+      }
+
+      // Load data
+      loadDashboardData();
+      loadSalesTrend(7);
+
+      // Start auto-refresh
+      startAutoRefresh();
+    }
+
+    // Wait for DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDashboard);
+    } else {
+      initDashboard();
+    }
+
+  })();
+  </script>
+</body>
+</html>

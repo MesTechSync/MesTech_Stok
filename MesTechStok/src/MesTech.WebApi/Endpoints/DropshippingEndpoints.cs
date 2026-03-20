@@ -1,11 +1,14 @@
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Commands.CreateAutoOrder;
 using MesTech.Application.Features.Dropshipping.Commands.CreateDropshipSupplier;
 using MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct;
 using MesTech.Application.Features.Dropshipping.Commands.PlaceDropshipOrder;
 using MesTech.Application.Features.Dropshipping.Commands.SyncDropshipProducts;
+using MesTech.Application.Features.Dropshipping.Commands.SyncSupplierPrices;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProducts;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
+using MesTech.Application.Features.Dropshipping.Queries.GetSupplierPerformance;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -108,6 +111,45 @@ public static class DropshippingEndpoints
         })
         .WithName("PlaceDropshipOrder")
         .WithSummary("Dropship sipariş kaydı oluştur");
+
+        // ---- Lifecycle endpoints under /api/v1/dropshipping ----
+        var lifecycleGroup = app.MapGroup("/api/v1/dropshipping")
+            .WithTags("Dropshipping")
+            .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/dropshipping/supplier-performance — tedarikçi performans raporu
+        lifecycleGroup.MapGet("/supplier-performance", async (
+            DateTime? from, DateTime? to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSupplierPerformanceQuery(from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSupplierPerformance")
+        .WithSummary("Tedarikçi performans raporu (fulfillment, hız, rating)");
+
+        // POST /api/v1/dropshipping/auto-order — düşük stoklu ürünler için otomatik sipariş
+        lifecycleGroup.MapPost("/auto-order", async (
+            CreateAutoOrderCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("CreateAutoOrder")
+        .WithSummary("Minimum stok altındaki ürünler için otomatik dropship sipariş oluştur");
+
+        // POST /api/v1/dropshipping/price-sync — tedarikçi fiyat senkronizasyonu
+        lifecycleGroup.MapPost("/price-sync", async (
+            SyncSupplierPricesCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncSupplierPrices")
+        .WithSummary("Tedarikçi feed'inden fiyat senkronizasyonu başlat");
     }
 
     /// <summary>

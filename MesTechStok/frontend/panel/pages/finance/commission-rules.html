@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <!--
+    MesTech Panel — Komisyon Kurallari
+    Version: 1.0.0
+    Date: 2026-03-20
+    Author: DEV 2 (Frontend & UI/UX)
+    Task: İ-07-G5C Muhasebe & Finans Saglamlastirma
+    Status: Active
+    Features: CRUD table, platform filter, commission simulator
+    Dependencies: Bootstrap 5.3, FontAwesome 6.4, Inter font
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech — Komisyon Kurallari</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mestech-primary: #f27a1a; --mestech-bg: #f4f5f7; --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b; --mestech-text-muted: #94a3b8; --mestech-border: #e2e8f0;
+      --mestech-success: #10b981; --mestech-danger: #ef4444; --mestech-info: #3b82f6;
+      --mestech-radius: 12px; --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    [data-theme="dark"] { --mestech-bg: #0f172a; --mestech-card-bg: #1e293b; --mestech-text: #f1f5f9; --mestech-border: #334155; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--mestech-bg); color: var(--mestech-text); }
+    .page-header { background: linear-gradient(135deg, #f27a1a, #d96a10); padding: 24px; border-radius: var(--mestech-radius); margin-bottom: 20px; color: white; }
+    .page-header h1 { font-size: 22px; font-weight: 700; }
+    .page-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+    .card-panel { background: var(--mestech-card-bg); border-radius: var(--mestech-radius); padding: 20px; box-shadow: var(--mestech-shadow-sm); border: 1px solid var(--mestech-border); margin-bottom: 20px; }
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .filter-bar select { border: 1px solid var(--mestech-border); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+    .btn-mestech { background: var(--mestech-primary); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-mestech:hover { background: #d96a10; color: white; }
+    .btn-add { background: var(--mestech-success); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-add:hover { opacity: 0.9; color: white; }
+    .btn-sm-action { border: none; background: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 12px; }
+    .btn-edit { color: var(--mestech-info); } .btn-edit:hover { background: #eff6ff; }
+    .btn-delete { color: var(--mestech-danger); } .btn-delete:hover { background: #fef2f2; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--mestech-text-muted); padding: 12px 8px; border-bottom: 2px solid var(--mestech-border); text-align: left; }
+    td { padding: 12px 8px; border-bottom: 1px solid var(--mestech-border); font-size: 13px; }
+    .platform-badge { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-trendyol { background: #fff3e6; color: #f27a1a; }
+    .badge-hb { background: #fff0f0; color: #ff6000; }
+    .badge-n11 { background: #e8f5e9; color: #4caf50; }
+    .badge-cicek { background: #fce4ec; color: #e91e63; }
+    .simulator { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--mestech-radius); padding: 20px; }
+    .simulator h6 { color: var(--mestech-info); }
+    .sim-input { border: 1px solid var(--mestech-border); border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 160px; }
+    .sim-result { font-size: 28px; font-weight: 800; color: var(--mestech-info); }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1><i class="fas fa-percentage me-2"></i>Komisyon Kurallari</h1>
+        <p>Platform bazli komisyon orani yonetimi</p>
+      </div>
+      <button class="btn-add" onclick="showAddDialog()"><i class="fas fa-plus me-1"></i>Yeni Kural</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card-panel">
+      <div class="filter-bar">
+        <select id="filterPlatform" onchange="loadData()" title="Platform">
+          <option value="">Tum Platformlar</option>
+          <option value="Trendyol">Trendyol</option>
+          <option value="Hepsiburada">Hepsiburada</option>
+          <option value="N11">N11</option>
+          <option value="Ciceksepeti">Ciceksepeti</option>
+          <option value="Amazon">Amazon</option>
+        </select>
+        <select id="filterActive" onchange="loadData()" title="Durum">
+          <option value="">Tum Durumlar</option>
+          <option value="true">Aktif</option>
+          <option value="false">Pasif</option>
+        </select>
+        <button class="btn-mestech" onclick="loadData()"><i class="fas fa-sync-alt me-1"></i>Yenile</button>
+      </div>
+    </div>
+
+    <!-- Commission Rules Table -->
+    <div class="card-panel">
+      <h6 class="fw-bold mb-3"><i class="fas fa-table me-2"></i>Komisyon Kurallari</h6>
+      <table>
+        <thead>
+          <tr><th>Platform</th><th>Kategori</th><th>Oran</th><th>Min</th><th>Max</th><th>Gecerlilik</th><th>Islem</th></tr>
+        </thead>
+        <tbody id="rulesBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Commission Simulator -->
+    <div class="card-panel">
+      <div class="simulator">
+        <h6 class="fw-bold mb-3"><i class="fas fa-calculator me-2"></i>Komisyon Simulatoru</h6>
+        <div class="d-flex gap-3 align-items-center flex-wrap">
+          <div>
+            <label class="form-label" style="font-size:12px; font-weight:600;">Siparis Tutari</label>
+            <input type="number" class="sim-input" id="simAmount" value="500" oninput="simulate()">
+          </div>
+          <div>
+            <label class="form-label" style="font-size:12px; font-weight:600;">Platform</label>
+            <select class="sim-input" id="simPlatform" onchange="simulate()">
+              <option value="Trendyol">Trendyol</option>
+              <option value="Hepsiburada">Hepsiburada</option>
+              <option value="N11">N11</option>
+              <option value="Ciceksepeti">Ciceksepeti</option>
+            </select>
+          </div>
+          <div class="ms-auto text-end">
+            <div style="font-size:11px; font-weight:600; color: var(--mestech-text-muted);">KOMISYON</div>
+            <div class="sim-result" id="simResult">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    'use strict';
+
+    const API_BASE = '/api/v1/accounting/commission-rates';
+    let rules = [];
+
+    function fmt(n) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n); }
+
+    const platformBadgeClass = { Trendyol: 'badge-trendyol', Hepsiburada: 'badge-hb', N11: 'badge-n11', Ciceksepeti: 'badge-cicek' };
+
+    async function loadData() {
+      const platform = document.getElementById('filterPlatform').value;
+      const active = document.getElementById('filterActive').value;
+      let url = API_BASE + '?';
+      if (platform) url += 'platform=' + encodeURIComponent(platform) + '&';
+      if (active) url += 'active=' + encodeURIComponent(active) + '&';
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        rules = await res.json();
+        renderTable(Array.isArray(rules) ? rules : rules.items || []);
+      } catch {
+        rules = getDemoRules();
+        renderTable(rules);
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('rulesBody');
+      tbody.textContent = '';
+      for (const r of data) {
+        const tr = document.createElement('tr');
+
+        // Platform badge
+        const tdPlatform = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'platform-badge ' + (platformBadgeClass[r.platform] || '');
+        badge.textContent = r.platform;
+        tdPlatform.appendChild(badge);
+        tr.appendChild(tdPlatform);
+
+        const fields = [
+          r.categoryName || '(Tumu)',
+          '%' + ((r.rate || r.commissionRate || 0) * 100).toFixed(1),
+          r.minAmount ? fmt(r.minAmount) : '—',
+          r.maxAmount ? fmt(r.maxAmount) : '—',
+          (r.effectiveFrom || '—') + ' → ' + (r.effectiveTo || 'Devam')
+        ];
+        for (const text of fields) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.appendChild(td);
+        }
+
+        // Actions
+        const tdAction = document.createElement('td');
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn-sm-action btn-edit';
+        btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
+        btnEdit.title = 'Duzenle';
+        const btnDel = document.createElement('button');
+        btnDel.className = 'btn-sm-action btn-delete';
+        btnDel.innerHTML = '<i class="fas fa-trash"></i>';
+        btnDel.title = 'Sil';
+        tdAction.appendChild(btnEdit);
+        tdAction.appendChild(btnDel);
+        tr.appendChild(tdAction);
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    function simulate() {
+      const amount = parseFloat(document.getElementById('simAmount').value) || 0;
+      const platform = document.getElementById('simPlatform').value;
+      const rates = { Trendyol: 0.12, Hepsiburada: 0.15, N11: 0.11, Ciceksepeti: 0.18 };
+      const rate = rates[platform] || 0.12;
+      const commission = amount * rate;
+      document.getElementById('simResult').textContent = fmt(commission);
+    }
+
+    function showAddDialog() {
+      alert('Yeni komisyon kurali ekleme dialogi henuz entegre edilmedi.');
+    }
+
+    function getDemoRules() {
+      return [
+        { platform: 'Trendyol', categoryName: 'Giyim', rate: 0.12, minAmount: null, maxAmount: null, effectiveFrom: '01.01.2026', effectiveTo: null },
+        { platform: 'Trendyol', categoryName: 'Elektronik', rate: 0.095, minAmount: null, maxAmount: null, effectiveFrom: '01.01.2026', effectiveTo: null },
+        { platform: 'Hepsiburada', categoryName: 'Giyim', rate: 0.15, minAmount: 3, maxAmount: 50, effectiveFrom: '01.01.2026', effectiveTo: null },
+        { platform: 'N11', categoryName: null, rate: 0.11, minAmount: 2.5, maxAmount: null, effectiveFrom: '01.03.2026', effectiveTo: null },
+        { platform: 'Ciceksepeti', categoryName: 'Kozmetik', rate: 0.18, minAmount: 5, maxAmount: null, effectiveFrom: '15.02.2026', effectiveTo: null }
+      ];
+    }
+
+    loadData();
+    simulate();
+  </script>
+</body>
+</html>

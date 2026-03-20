@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Kategori Eslestirme
+  Version: 1.0.0
+  Date: 2026-03-20
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: I-10 GOREV 6 — HTML Panel Pages for Platform & Dropship
+  Status: ACTIVE
+
+  FEATURES:
+  - Dual panel category tree (MesTech + Platform)
+  - Expand/collapse nested categories
+  - Mapping status indicators (green/orange/red)
+  - AI auto-mapping integration
+  - Platform selector dropdown
+  - Stats bar with mapping progress
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Responsive breakpoints
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MesTech Stok - Kategori Eslestirme</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #f27a1a;
+      --mestech-primary-hover: #d96a10;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .dashboard-main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-primary), var(--mestech-primary-hover));
+      color: #fff;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* Data Cards */
+    .data-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      margin-bottom: 24px;
+    }
+    .data-card .card-header-custom {
+      background: var(--mestech-card-bg);
+      border-bottom: 1px solid var(--mestech-border);
+      padding: 16px 20px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: var(--mestech-radius) var(--mestech-radius) 0 0;
+    }
+    .data-card .card-body-custom {
+      padding: 20px;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      background: var(--mestech-card-bg);
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .stats-bar .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .stats-bar .stat-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--mestech-border);
+    }
+
+    /* Category Tree */
+    .category-tree {
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .category-tree::-webkit-scrollbar {
+      width: 6px;
+    }
+    .category-tree::-webkit-scrollbar-thumb {
+      background: var(--mestech-border);
+      border-radius: 3px;
+    }
+
+    .tree-item {
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .tree-item:hover {
+      background: #f8fafc;
+    }
+    .tree-item.selected {
+      background: rgba(242, 122, 26, 0.08);
+      border: 1px solid rgba(242, 122, 26, 0.3);
+    }
+    .tree-item .toggle-icon {
+      width: 20px;
+      text-align: center;
+      color: var(--mestech-text-muted);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+    .tree-item .cat-name {
+      flex: 1;
+      font-size: 0.875rem;
+    }
+    .tree-item .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .tree-item .status-dot.mapped { background: var(--mestech-success); }
+    .tree-item .status-dot.ai-suggested { background: var(--mestech-warning); }
+    .tree-item .status-dot.unmapped { background: var(--mestech-danger); }
+
+    .tree-children {
+      padding-left: 24px;
+    }
+    .tree-children.collapsed {
+      display: none;
+    }
+
+    /* Action buttons */
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Mapping arrow */
+    .mapping-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--mestech-primary);
+    }
+
+    /* Fallback state */
+    .fallback-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--mestech-text-muted);
+    }
+    .fallback-state i {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    /* Progress bar */
+    .mapping-progress {
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      flex: 1;
+      max-width: 200px;
+    }
+    .mapping-progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--mestech-success);
+      transition: width 0.3s;
+    }
+
+    @media (max-width: 767px) {
+      .dashboard-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+      .stats-bar { padding: 12px 16px; gap: 12px; }
+      .mapping-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- Header placeholder -->
+    <div id="header-component"></div>
+    <!-- Sidebar placeholder -->
+    <div id="sidebar-component"></div>
+
+    <main class="dashboard-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold">Kategori Eslestirme</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="#">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="#">Platform</a></li>
+                <li class="breadcrumb-item active">Kategori Eslestirme</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <select class="form-select form-select-sm" id="platform-selector" style="min-width: 160px;">
+              <option value="">Platform Secin</option>
+              <option value="trendyol">Trendyol</option>
+              <option value="hepsiburada">Hepsiburada</option>
+              <option value="n11">N11</option>
+              <option value="amazon">Amazon</option>
+              <option value="opencart">OpenCart</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat-item">
+          <div class="mapping-progress" id="mapping-progress">
+            <div class="mapping-progress-fill" id="mapping-progress-fill" style="width: 0%;"></div>
+          </div>
+          <span id="stats-mapped-pct">0%</span>
+          <span class="text-muted">eslesmis</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="status-dot unmapped" style="width:10px;height:10px;border-radius:50%;background:var(--mestech-danger);display:inline-block;"></span>
+          <span id="stats-unmapped-count">0</span>
+          <span class="text-muted">eslesmemis</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="status-dot ai-suggested" style="width:10px;height:10px;border-radius:50%;background:var(--mestech-warning);display:inline-block;"></span>
+          <span id="stats-ai-count">0</span>
+          <span class="text-muted">AI onerisi</span>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="action-bar mb-4">
+        <button class="btn btn-primary" id="btn-map" disabled>
+          <i class="fas fa-link me-2"></i>Eslestir
+        </button>
+        <button class="btn btn-outline-primary" id="btn-auto-map">
+          <i class="fas fa-robot me-2"></i>AI Otomatik Eslestir
+        </button>
+        <button class="btn btn-outline-secondary" id="btn-sync">
+          <i class="fas fa-sync-alt me-2"></i>Sync
+        </button>
+      </div>
+
+      <!-- Dual Panel -->
+      <div class="row g-4">
+
+        <!-- Left: MesTech Categories -->
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-folder-tree me-2" style="color: var(--mestech-primary);"></i>MesTech Kategorileri</span>
+              <span class="badge bg-primary" id="mestech-cat-count">0</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="mb-3">
+                <input type="text" class="form-control form-control-sm" id="mestech-search" placeholder="Kategori ara...">
+              </div>
+              <div class="category-tree" id="mestech-tree">
+                <div class="loading-spinner">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Yukleniyor...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Mapping Arrow -->
+        <div class="col-lg-2 d-flex align-items-center justify-content-center">
+          <div class="mapping-arrow">
+            <i class="fas fa-arrows-left-right"></i>
+          </div>
+        </div>
+
+        <!-- Right: Platform Categories -->
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-store me-2" style="color: var(--mestech-info);"></i>Platform Kategorileri</span>
+              <span class="badge bg-info" id="platform-cat-count">0</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="mb-3">
+                <input type="text" class="form-control form-control-sm" id="platform-search" placeholder="Kategori ara...">
+              </div>
+              <div class="category-tree" id="platform-tree">
+                <div class="loading-spinner">
+                  <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Yukleniyor...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech Stok Panel - Kategori Eslestirme
+  // DEV 2 — I-10 GOREV 6
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var API_BASE = '/api/v1/platform/category-mappings';
+    var selectedMestechId = null;
+    var selectedPlatformId = null;
+    var mestechCategories = [];
+    var platformCategories = [];
+
+    // ========================================
+    // DOM Helper Utilities (XSS-safe)
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') {
+            node.className = attrs[key];
+          } else if (key === 'style' && typeof attrs[key] === 'object') {
+            Object.keys(attrs[key]).forEach(function(prop) {
+              node.style[prop] = attrs[key][prop];
+            });
+          } else if (key === 'textContent') {
+            node.textContent = attrs[key];
+          } else if (key.indexOf('data-') === 0) {
+            node.setAttribute(key, attrs[key]);
+          } else {
+            node.setAttribute(key, attrs[key]);
+          }
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') {
+            node.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            node.appendChild(child);
+          }
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+
+    // ========================================
+    // Build Category Tree (DOM-SAFE, recursive)
+    // ========================================
+    function buildTree(container, categories, side, searchTerm) {
+      clearChildren(container);
+
+      if (!categories || categories.length === 0) {
+        var fallback = el('div', { className: 'fallback-state' }, [
+          el('i', { className: 'fas fa-folder-open text-muted' }),
+          el('p', { textContent: 'Kategori bulunamadi' })
+        ]);
+        container.appendChild(fallback);
+        return;
+      }
+
+      var filtered = filterCategories(categories, searchTerm);
+      renderTreeLevel(container, filtered, side, 0);
+    }
+
+    function filterCategories(categories, searchTerm) {
+      if (!searchTerm) return categories;
+      var term = searchTerm.toLowerCase();
+      return categories.filter(function(cat) {
+        var nameMatch = (cat.name || '').toLowerCase().indexOf(term) >= 0;
+        var childMatch = cat.children && cat.children.length > 0 &&
+          filterCategories(cat.children, searchTerm).length > 0;
+        return nameMatch || childMatch;
+      });
+    }
+
+    function renderTreeLevel(container, categories, side, depth) {
+      categories.forEach(function(cat) {
+        var hasChildren = cat.children && cat.children.length > 0;
+
+        // Tree item row
+        var item = el('div', {
+          className: 'tree-item',
+          'data-id': String(cat.id || ''),
+          'data-side': side
+        });
+
+        // Toggle icon
+        var toggle = el('span', { className: 'toggle-icon' });
+        if (hasChildren) {
+          toggle.appendChild(el('i', { className: 'fas fa-chevron-right' }));
+        }
+        item.appendChild(toggle);
+
+        // Category name
+        item.appendChild(el('span', { className: 'cat-name', textContent: cat.name || '--' }));
+
+        // Status dot
+        var statusClass = 'unmapped';
+        if (cat.mappingStatus === 'mapped') statusClass = 'mapped';
+        else if (cat.mappingStatus === 'ai-suggested') statusClass = 'ai-suggested';
+
+        var dot = el('span', { className: 'status-dot ' + statusClass });
+        item.appendChild(dot);
+
+        // Click handler: select
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+
+          // Toggle children
+          if (hasChildren && e.target.closest('.toggle-icon')) {
+            var childrenDiv = item.nextElementSibling;
+            if (childrenDiv && childrenDiv.classList.contains('tree-children')) {
+              childrenDiv.classList.toggle('collapsed');
+              var icon = toggle.querySelector('i');
+              if (icon) {
+                icon.className = childrenDiv.classList.contains('collapsed')
+                  ? 'fas fa-chevron-right'
+                  : 'fas fa-chevron-down';
+              }
+            }
+            return;
+          }
+
+          // Select category
+          selectCategory(side, cat.id, item);
+        });
+
+        container.appendChild(item);
+
+        // Children container
+        if (hasChildren) {
+          var childrenDiv = el('div', { className: 'tree-children collapsed' });
+          renderTreeLevel(childrenDiv, cat.children, side, depth + 1);
+          container.appendChild(childrenDiv);
+        }
+      });
+    }
+
+    function selectCategory(side, catId, itemEl) {
+      // Deselect previous
+      var treeId = side === 'mestech' ? 'mestech-tree' : 'platform-tree';
+      var tree = document.getElementById(treeId);
+      var prev = tree.querySelector('.tree-item.selected');
+      if (prev) prev.classList.remove('selected');
+
+      // Select new
+      itemEl.classList.add('selected');
+
+      if (side === 'mestech') {
+        selectedMestechId = catId;
+      } else {
+        selectedPlatformId = catId;
+      }
+
+      updateMapButton();
+    }
+
+    function updateMapButton() {
+      var btn = document.getElementById('btn-map');
+      btn.disabled = !(selectedMestechId && selectedPlatformId);
+    }
+
+    // ========================================
+    // Update Stats Bar (DOM-SAFE)
+    // ========================================
+    function updateStats(data) {
+      var mappedPct = data.mappedPercentage || 0;
+      var unmapped = data.unmappedCount || 0;
+      var aiCount = data.aiSuggestionCount || 0;
+
+      document.getElementById('stats-mapped-pct').textContent = mappedPct + '%';
+      document.getElementById('stats-unmapped-count').textContent = String(unmapped);
+      document.getElementById('stats-ai-count').textContent = String(aiCount);
+
+      var fill = document.getElementById('mapping-progress-fill');
+      fill.style.width = mappedPct + '%';
+    }
+
+    // ========================================
+    // API: Load Mappings
+    // ========================================
+    async function loadMappings() {
+      var platform = document.getElementById('platform-selector').value;
+      if (!platform) {
+        showEmptyPlatformState();
+        return;
+      }
+
+      showLoadingState('mestech-tree');
+      showLoadingState('platform-tree');
+
+      try {
+        var response = await fetch(API_BASE + '?platform=' + encodeURIComponent(platform));
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        var data = await response.json();
+
+        mestechCategories = data.mestechCategories || [];
+        platformCategories = data.platformCategories || [];
+
+        buildTree(
+          document.getElementById('mestech-tree'),
+          mestechCategories,
+          'mestech',
+          document.getElementById('mestech-search').value
+        );
+        buildTree(
+          document.getElementById('platform-tree'),
+          platformCategories,
+          'platform',
+          document.getElementById('platform-search').value
+        );
+
+        document.getElementById('mestech-cat-count').textContent =
+          String(countCategories(mestechCategories));
+        document.getElementById('platform-cat-count').textContent =
+          String(countCategories(platformCategories));
+
+        updateStats(data.stats || {});
+
+      } catch (error) {
+        console.error('Kategori yukleme hatasi:', error);
+        showErrorState('mestech-tree');
+        showErrorState('platform-tree');
+      }
+    }
+
+    function countCategories(cats) {
+      var count = 0;
+      if (!cats) return 0;
+      cats.forEach(function(cat) {
+        count++;
+        if (cat.children) count += countCategories(cat.children);
+      });
+      return count;
+    }
+
+    // ========================================
+    // API: Create Mapping
+    // ========================================
+    async function createMapping() {
+      if (!selectedMestechId || !selectedPlatformId) return;
+
+      var platform = document.getElementById('platform-selector').value;
+      var btn = document.getElementById('btn-map');
+      btn.disabled = true;
+      btn.textContent = 'Eslestiriliyor...';
+
+      try {
+        var response = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            platform: platform,
+            mestechCategoryId: selectedMestechId,
+            platformCategoryId: selectedPlatformId
+          })
+        });
+
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+
+        selectedMestechId = null;
+        selectedPlatformId = null;
+
+        // Reload
+        await loadMappings();
+
+      } catch (error) {
+        console.error('Eslestirme hatasi:', error);
+        showAlert('Eslestirme basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
+      } finally {
+        var mapBtn = document.getElementById('btn-map');
+        clearChildren(mapBtn);
+        mapBtn.appendChild(el('i', { className: 'fas fa-link me-2' }));
+        mapBtn.appendChild(document.createTextNode('Eslestir'));
+        mapBtn.disabled = true;
+      }
+    }
+
+    // ========================================
+    // API: AI Auto-Map
+    // ========================================
+    async function autoMap() {
+      var platform = document.getElementById('platform-selector').value;
+      if (!platform) {
+        showAlert('Lutfen once bir platform secin.', 'warning');
+        return;
+      }
+
+      var btn = document.getElementById('btn-auto-map');
+      btn.disabled = true;
+      clearChildren(btn);
+      btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
+      btn.appendChild(document.createTextNode('AI calisiyor...'));
+
+      try {
+        var response = await fetch(API_BASE + '/auto-map', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platform: platform })
+        });
+
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        var result = await response.json();
+
+        var msg = (result.mappedCount || 0) + ' kategori otomatik eslestirildi.';
+        showAlert(msg, 'success');
+
+        await loadMappings();
+
+      } catch (error) {
+        console.error('AI auto-map hatasi:', error);
+        showAlert('AI otomatik eslestirme basarisiz. Lutfen tekrar deneyin.', 'danger');
+      } finally {
+        btn.disabled = false;
+        clearChildren(btn);
+        btn.appendChild(el('i', { className: 'fas fa-robot me-2' }));
+        btn.appendChild(document.createTextNode('AI Otomatik Eslestir'));
+      }
+    }
+
+    // ========================================
+    // API: Sync Categories
+    // ========================================
+    async function syncCategories() {
+      var platform = document.getElementById('platform-selector').value;
+      if (!platform) {
+        showAlert('Lutfen once bir platform secin.', 'warning');
+        return;
+      }
+
+      var btn = document.getElementById('btn-sync');
+      btn.disabled = true;
+      clearChildren(btn);
+      btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
+      btn.appendChild(document.createTextNode('Senkronize ediliyor...'));
+
+      try {
+        var response = await fetch(API_BASE + '/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platform: platform })
+        });
+
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        showAlert('Kategoriler basariyla senkronize edildi.', 'success');
+
+        await loadMappings();
+
+      } catch (error) {
+        console.error('Sync hatasi:', error);
+        showAlert('Senkronizasyon basarisiz. Lutfen tekrar deneyin.', 'danger');
+      } finally {
+        btn.disabled = false;
+        clearChildren(btn);
+        btn.appendChild(el('i', { className: 'fas fa-sync-alt me-2' }));
+        btn.appendChild(document.createTextNode('Sync'));
+      }
+    }
+
+    // ========================================
+    // UI State Helpers
+    // ========================================
+    function showLoadingState(containerId) {
+      var container = document.getElementById(containerId);
+      clearChildren(container);
+      var spinner = el('div', { className: 'loading-spinner' }, [
+        el('div', { className: 'spinner-border text-primary', role: 'status' }, [
+          el('span', { className: 'visually-hidden', textContent: 'Yukleniyor...' })
+        ])
+      ]);
+      container.appendChild(spinner);
+    }
+
+    function showErrorState(containerId) {
+      var container = document.getElementById(containerId);
+      clearChildren(container);
+      var fallback = el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
+        el('p', { textContent: 'Veri yuklenemedi. Lutfen tekrar deneyin.' })
+      ]);
+      container.appendChild(fallback);
+    }
+
+    function showEmptyPlatformState() {
+      var platformTree = document.getElementById('platform-tree');
+      clearChildren(platformTree);
+      var fallback = el('div', { className: 'fallback-state' }, [
+        el('i', { className: 'fas fa-hand-pointer text-muted' }),
+        el('p', { textContent: 'Lutfen bir platform secin' })
+      ]);
+      platformTree.appendChild(fallback);
+    }
+
+    function showAlert(message, type) {
+      var existing = document.getElementById('page-alert');
+      if (existing) existing.remove();
+
+      var alertDiv = el('div', {
+        className: 'alert alert-' + type + ' alert-dismissible fade show',
+        id: 'page-alert',
+        role: 'alert'
+      });
+      alertDiv.appendChild(document.createTextNode(message));
+
+      var closeBtn = el('button', {
+        className: 'btn-close',
+        'data-bs-dismiss': 'alert',
+        'aria-label': 'Kapat'
+      });
+      alertDiv.appendChild(closeBtn);
+
+      var main = document.querySelector('.dashboard-main');
+      var statsBar = document.getElementById('stats-bar');
+      main.insertBefore(alertDiv, statsBar);
+
+      setTimeout(function() {
+        var alert = document.getElementById('page-alert');
+        if (alert) alert.remove();
+      }, 5000);
+    }
+
+    // ========================================
+    // Search Filtering
+    // ========================================
+    function initSearch() {
+      var mestechSearch = document.getElementById('mestech-search');
+      var platformSearch = document.getElementById('platform-search');
+      var debounceTimer = null;
+
+      mestechSearch.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+          buildTree(
+            document.getElementById('mestech-tree'),
+            mestechCategories,
+            'mestech',
+            mestechSearch.value
+          );
+        }, 300);
+      });
+
+      platformSearch.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+          buildTree(
+            document.getElementById('platform-tree'),
+            platformCategories,
+            'platform',
+            platformSearch.value
+          );
+        }, 300);
+      });
+    }
+
+    // ========================================
+    // Initialization
+    // ========================================
+    function initCategoryMapping() {
+      // Platform selector change
+      document.getElementById('platform-selector').addEventListener('change', function() {
+        selectedMestechId = null;
+        selectedPlatformId = null;
+        updateMapButton();
+        loadMappings();
+      });
+
+      // Action buttons
+      document.getElementById('btn-map').addEventListener('click', createMapping);
+      document.getElementById('btn-auto-map').addEventListener('click', autoMap);
+      document.getElementById('btn-sync').addEventListener('click', syncCategories);
+
+      // Search
+      initSearch();
+
+      // Initial load
+      loadMappings();
+    }
+
+    // Wait for DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCategoryMapping);
+    } else {
+      initCategoryMapping();
+    }
+
+  })();
+  </script>
+</body>
+</html>
