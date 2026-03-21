@@ -42,7 +42,7 @@
         <Style Selector="TextBlock.sidebar-section">
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="Foreground" Value="{DynamicResource MesSlateGray}" />
             <Setter Property="Margin" Value="16,14,0,6" />
         </Style>
         <!-- Disabled sidebar item -->

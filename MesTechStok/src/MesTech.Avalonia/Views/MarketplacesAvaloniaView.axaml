@@ -8,7 +8,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#EA580C" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Pazaryerleri" Foreground="White"
@@ -30,7 +30,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Platform ara..." AutomationProperties.Name="Platform ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Platform Ekle" Background="#EA580C" Foreground="White"
+                <Button Grid.Column="2" Content="+ Platform Ekle" Background="{DynamicResource MesBrandAccent}" Foreground="White"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

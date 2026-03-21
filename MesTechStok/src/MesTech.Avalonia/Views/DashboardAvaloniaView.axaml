@@ -15,13 +15,13 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Background="White" Padding="20,12"
                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1"
-                BoxShadow="0 1 3 0 #0D000000">
+                BoxShadow="{DynamicResource MesElevation1}">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconDashboard}"
                               Width="24" Height="24" Foreground="{DynamicResource MesPrimaryBlue}" />
                     <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold"
-                               Foreground="#0F172A" VerticalAlignment="Center" />
+                               Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBgSurface}" CornerRadius="12" Padding="10,4"
                             VerticalAlignment="Center">
                         <TextBlock Text="Canli" FontSize="11" FontWeight="SemiBold"
@@ -177,8 +177,8 @@
                                 <DataTemplate>
                                     <Border Margin="8,2" Padding="0"
                                             CornerRadius="6"
-                                            Background="#FAFAFA"
-                                            BorderBrush="#F0F0F0"
+                                            Background="{DynamicResource MesBgSurface}"
+                                            BorderBrush="{DynamicResource MesBorderSoft}"
                                             BorderThickness="1">
                                         <Grid ColumnDefinitions="4,*,Auto,Auto"
                                               MinHeight="48">
@@ -276,9 +276,9 @@
         <!-- Row 4: AI Onerisi (MESA OS — Mor/Purple)                    -->
         <!-- ════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="4" Margin="20,0,20,20"
-                Background="#EDE9FE" CornerRadius="12"
+                Background="{DynamicResource MesBgPurpleLight}" CornerRadius="12"
                 Padding="20,16"
-                BorderBrush="#DDD6FE" BorderThickness="1"
+                BorderBrush="{DynamicResource MesBorderPurple}" BorderThickness="1"
                 IsVisible="{Binding HasAIInsight}">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <!-- AI Icon + Title -->
@@ -303,7 +303,7 @@
                     <TextBlock Text="AI Onerisi" FontSize="14" FontWeight="Bold"
                                Foreground="{DynamicResource MesPurple}" />
                     <TextBlock Text="{Binding AiInsightText}"
-                               FontSize="13" Foreground="#4C1D95"
+                               FontSize="13" Foreground="{DynamicResource MesPurpleDark}"
                                TextWrapping="Wrap"
                                MaxWidth="600" />
                 </StackPanel>
@@ -323,7 +323,7 @@
         <!-- Loading Overlay                                             -->
         <!-- ════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Grid.RowSpan="5"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -344,7 +344,7 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <PathIcon Data="{StaticResource IconDashboard}"
-                          Width="48" Height="48" Foreground="#CBD5E1" />
+                          Width="48" Height="48" Foreground="{DynamicResource MesMutedGray}" />
                 <TextBlock Text="Veri yok" FontSize="20"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MesMutedGray}" Margin="0,12,0,4" />
@@ -368,7 +368,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="12" Padding="32"
                         HorizontalAlignment="Center"
-                        BoxShadow="0 2 8 0 #1A000000">
+                        BoxShadow="{DynamicResource MesElevation2}">
                     <StackPanel Spacing="8" HorizontalAlignment="Center">
                         <PathIcon Data="{StaticResource IconError}"
                                   Width="32" Height="32" Foreground="{DynamicResource MesRedClassic}"
@@ -377,7 +377,7 @@
                                    Foreground="{DynamicResource MesRedClassic}" FontSize="16"
                                    HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="14" Foreground="#666"
+                                   FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                                    TextWrapping="Wrap" MaxWidth="400"
                                    HorizontalAlignment="Center" />
                         <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

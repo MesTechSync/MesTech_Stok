@@ -40,5 +40,22 @@
     <Color x:Key="MesRedBright">#FF6961</Color>
     <Color x:Key="MesPurple">#BF5AF2</Color>
     <Color x:Key="MesRedClassic">#FF453A</Color>
+    <Color x:Key="MesRedDark">#FF6961</Color>
+
+    <!-- ═══ PURPLE / VIOLET (Dark) ═══ -->
+    <Color x:Key="MesPurpleDark">#C4B5FD</Color>
+    <Color x:Key="MesBgPurpleLight">#2D2042</Color>
+    <Color x:Key="MesBorderPurple">#4C3575</Color>
+
+    <!-- ═══ AMBER / WARNING EXTENDED (Dark) ═══ -->
+    <Color x:Key="MesAmberDark">#FCD34D</Color>
+    <Color x:Key="MesAmberMuted">#FBBF24</Color>
+    <Color x:Key="MesAmberText">#FDE68A</Color>
+    <Color x:Key="MesBgAmberLight">#3A2E1A</Color>
+    <Color x:Key="MesBorderAmber">#92400E</Color>
+
+    <!-- ═══ OVERLAY (Dark) ═══ -->
+    <Color x:Key="MesOverlayLight">#99000000</Color>
+    <Color x:Key="MesOverlayMedium">#80000000</Color>
 
 </ResourceDictionary>

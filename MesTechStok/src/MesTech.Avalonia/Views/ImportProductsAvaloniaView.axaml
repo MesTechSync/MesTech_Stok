@@ -147,10 +147,10 @@
                     </DataGrid.Columns>
                 </DataGrid>
 <!-- Empty State -->        <TextBlock Grid.Row="1" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !PreviewRows.Count}" />
-                <Border Grid.Row="2" Background="#FFFBEB" CornerRadius="0,0,8,8" Padding="16,10"
-                        BorderBrush="#FDE68A" BorderThickness="1,0,1,1"
+                <Border Grid.Row="2" Background="{DynamicResource MesBgAmberLight}" CornerRadius="0,0,8,8" Padding="16,10"
+                        BorderBrush="{DynamicResource MesBorderAmber}" BorderThickness="1,0,1,1"
                         IsVisible="{Binding HasPreviewErrors}">
-                    <TextBlock Text="{Binding PreviewErrorSummary}" FontSize="12" Foreground="#92400E" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding PreviewErrorSummary}" FontSize="12" Foreground="{DynamicResource MesAmberDark}" TextWrapping="Wrap" />
                 </Border>
             </Grid>
 
@@ -175,7 +175,7 @@
                                 <DataTemplate x:DataType="vm:ImportColumnMappingDto">
                                     <Grid ColumnDefinitions="*,40,*" Margin="0,4">
                                         <Border Grid.Column="0" Background="{DynamicResource MesBgMist}" CornerRadius="6" Padding="12,8">
-                                            <TextBlock Text="{Binding SourceColumn}" Foreground="#334155" />
+                                            <TextBlock Text="{Binding SourceColumn}" Foreground="{DynamicResource MesTextSlate}" />
                                         </Border>
                                         <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center"
                                                    HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" FontSize="16" />
@@ -220,14 +220,14 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding SkippedCount}" FontSize="24" FontWeight="Bold"
-                                               Foreground="#CA8A04" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Atlanan" FontSize="12" Foreground="#A16207"
+                                               Foreground="{DynamicResource MesAmberMuted}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Atlanan" FontSize="12" Foreground="{DynamicResource MesAmberText}"
                                                HorizontalAlignment="Center" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding FailedCount}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Hatali" FontSize="12" Foreground="#B91C1C"
+                                    <TextBlock Text="Hatali" FontSize="12" Foreground="{DynamicResource MesRedDark}"
                                                HorizontalAlignment="Center" />
                                 </StackPanel>
                             </Grid>
@@ -240,7 +240,7 @@
                     <Border IsVisible="{Binding HasImportErrors}" Background="{DynamicResource MesBgDangerLight}"
                             CornerRadius="8" Padding="16">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Hatali Satirlar" FontWeight="SemiBold" Foreground="#991B1B" />
+                            <TextBlock Text="Hatali Satirlar" FontWeight="SemiBold" Foreground="{DynamicResource MesRedDark}" />
                             <ItemsControl ItemsSource="{Binding ImportErrors}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ImportErrorDto">
@@ -272,7 +272,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+                Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Dosya isleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"

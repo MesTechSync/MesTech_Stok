@@ -8,7 +8,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0D9488" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Izin Talepleri" Foreground="White"
@@ -30,7 +30,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Talep ara..." AutomationProperties.Name="Talep ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Yeni Talep" Background="#0D9488" Foreground="White"
+                <Button Grid.Column="2" Content="+ Yeni Talep" Background="{DynamicResource MesTeal}" Foreground="White"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

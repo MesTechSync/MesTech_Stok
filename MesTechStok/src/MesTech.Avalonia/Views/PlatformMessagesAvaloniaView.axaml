@@ -65,7 +65,7 @@
                              Background="White">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:PlatformMessageItemVm">
-                                <Border Padding="12,10" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1">
+                                <Border Padding="12,10" BorderBrush="{DynamicResource MesBgMist}" BorderThickness="0,0,0,1">
                                     <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
                                         <!-- Platform Badge -->
                                         <Border Grid.Column="0" Grid.RowSpan="2"

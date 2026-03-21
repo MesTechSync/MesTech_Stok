@@ -68,7 +68,7 @@
                         <ItemsControl Grid.Row="1" ItemsSource="{Binding RecentActivities}" Margin="0,0,0,8">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="16,10" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1">
+                                    <Border Padding="16,10" BorderBrush="{DynamicResource MesBgMist}" BorderThickness="0,0,0,1">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0" Text="{Binding Description}"
                                                        FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
