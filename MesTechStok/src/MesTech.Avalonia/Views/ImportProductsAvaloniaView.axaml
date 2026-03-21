@@ -79,7 +79,7 @@
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
                     <!-- Drag-Drop Area -->
                     <Border Background="{DynamicResource MesBgMist}" CornerRadius="12" Padding="48,32"
-                            BorderBrush="#CBD5E1" BorderThickness="2"
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="2"
                             HorizontalAlignment="Stretch">
                         <StackPanel Spacing="12" HorizontalAlignment="Center">
                             <TextBlock Text="Dosya Surukle-Birak" FontSize="20" FontWeight="Bold"
@@ -102,7 +102,7 @@
                             IsVisible="{Binding HasFile}" HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <TextBlock Text="Dosya:" FontWeight="SemiBold" Foreground="#166534" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding SelectedFileName}" Foreground="#15803D" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SelectedFileName}" Foreground="{DynamicResource MesGreen}" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding FileSizeText}" Foreground="#22C55E" VerticalAlignment="Center" FontSize="12" />
                         </StackPanel>
                     </Border>
@@ -215,7 +215,7 @@
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding SuccessCount}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource MesGreen}" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Basarili" FontSize="12" Foreground="#15803D"
+                                    <TextBlock Text="Basarili" FontSize="12" Foreground="{DynamicResource MesGreen}"
                                                HorizontalAlignment="Center" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center" Margin="16,0">

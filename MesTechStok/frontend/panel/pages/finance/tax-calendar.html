@@ -56,6 +56,17 @@
     .cal-day.deadline-yellow::after { background: var(--mestech-warning); }
     .cal-day.deadline-green::after { background: var(--mestech-success); }
     .cal-day.empty { color: transparent; }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .card-grid { grid-template-columns: 1fr !important; }
+      .filter-bar { flex-direction: column; gap: 8px; }
+      table { font-size: 13px; }
+      .btn { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .page-header h2 { font-size: 18px; }
+      .summary-cards { flex-direction: column; }
+    }
   </style>
 </head>
 <body>

@@ -27,7 +27,7 @@
             <StackPanel Spacing="24" MaxWidth="900">
 
                 <!-- Generating Overlay -->
-                <Border Background="#FFF7ED" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
                         BorderBrush="#FDBA74" BorderThickness="1"
                         IsVisible="{Binding IsGenerating}">
                     <StackPanel Spacing="8">

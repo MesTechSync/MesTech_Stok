@@ -68,7 +68,7 @@
                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 <Border Grid.Column="1" Background="#DBEAFE" CornerRadius="8" Padding="14,8" Margin="8,0">
                     <StackPanel>
-                        <TextBlock Text="Toplam Borc" FontSize="11" Foreground="#3B82F6" />
+                        <TextBlock Text="Toplam Borc" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="#1E40AF" />
                     </StackPanel>
@@ -77,10 +77,10 @@
                     <StackPanel>
                         <TextBlock Text="Toplam Alacak" FontSize="11" Foreground="{DynamicResource MesGreen}" />
                         <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N2} TL'}"
-                                   FontSize="15" FontWeight="Bold" Foreground="#15803D" />
+                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="3" Background="#FEF3C7" CornerRadius="8" Padding="14,8" Margin="8,0">
+                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Net Bakiye" FontSize="11" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"

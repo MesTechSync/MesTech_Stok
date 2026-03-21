@@ -45,7 +45,7 @@
                 </Border>
                 <Border Background="#F0F9FF" CornerRadius="8" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="#3B82F6" FontWeight="SemiBold" />
+                        <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>

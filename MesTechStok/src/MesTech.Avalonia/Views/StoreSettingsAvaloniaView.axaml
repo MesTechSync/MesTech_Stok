@@ -86,9 +86,9 @@
                                  VerticalAlignment="Center" />
                 </StackPanel>
 
-                <Border Background="#E8F5E9" CornerRadius="8" Padding="12"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12"
                         IsVisible="{Binding SaveSuccess}">
-                    <TextBlock Text="Ayarlar başarıyla kaydedildi!" Foreground="#2E7D32" FontWeight="SemiBold" />
+                    <TextBlock Text="Ayarlar başarıyla kaydedildi!" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                 </Border>
 
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12"

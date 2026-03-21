@@ -52,6 +52,17 @@
     .simulator h6 { color: var(--mestech-info); }
     .sim-input { border: 1px solid var(--mestech-border); border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 160px; }
     .sim-result { font-size: 28px; font-weight: 800; color: var(--mestech-info); }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .card-grid { grid-template-columns: 1fr !important; }
+      .filter-bar { flex-direction: column; gap: 8px; }
+      table { font-size: 13px; }
+      .btn { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .page-header h2 { font-size: 18px; }
+      .summary-cards { flex-direction: column; }
+    }
   </style>
 </head>
 <body>

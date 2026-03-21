@@ -37,7 +37,7 @@
         <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgMist}" HorizontalScrollBarVisibility="Disabled">
             <Border Background="White" CornerRadius="8" Margin="40,24" Padding="0"
                     MaxWidth="500" HorizontalAlignment="Center"
-                    BorderBrush="#CBD5E1" BorderThickness="2">
+                    BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="2">
 
                 <StackPanel>
                     <!-- Label Header -->

@@ -106,8 +106,8 @@
                             Background="{DynamicResource MesMutedGray}" Foreground="White" Padding="16,10" CornerRadius="6" />
                 </StackPanel>
 
-                <Border Background="#E8F5E9" CornerRadius="8" Padding="12" IsVisible="{Binding SaveCompleted}">
-                    <TextBlock Text="Feed başarıyla kaydedildi!" Foreground="#2E7D32" FontWeight="SemiBold" />
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12" IsVisible="{Binding SaveCompleted}">
+                    <TextBlock Text="Feed başarıyla kaydedildi!" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                 </Border>
 
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12" IsVisible="{Binding HasError}">

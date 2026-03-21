@@ -79,7 +79,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Acik Firsatlar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding OpenDeals}" FontSize="28" FontWeight="Bold" Foreground="#3B82F6" />
+                            <TextBlock Text="{Binding OpenDeals}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
                     <!-- Unread Messages -->
@@ -87,7 +87,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Okunmamis Mesaj" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding UnreadMessages}" FontSize="28" FontWeight="Bold" Foreground="#D32F2F" />
+                            <TextBlock Text="{Binding UnreadMessages}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                         </StackPanel>
                     </Border>
                     <!-- Pending Replies -->

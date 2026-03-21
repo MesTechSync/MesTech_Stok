@@ -138,9 +138,9 @@
 
                         <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsTesting}" Height="4" />
 
-                        <Border Background="#E8F5E9" CornerRadius="6" Padding="12"
+                        <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12"
                                 IsVisible="{Binding TestPassed}">
-                            <TextBlock Text="{Binding TestResultMessage}" Foreground="#2E7D32" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding TestResultMessage}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                         </Border>
 
                         <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="6" Padding="12"
@@ -159,11 +159,11 @@
                             IsEnabled="{Binding TestPassed}" />
                 </StackPanel>
 
-                <Border Background="#E8F5E9" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
                         IsVisible="{Binding SaveCompleted}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#2E7D32" />
+                                   Foreground="{DynamicResource MesGreen}" />
                         <Button Content="Yeni Mağaza Ekle" Command="{Binding ResetCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="White" Padding="16,8" CornerRadius="6" />
                     </StackPanel>

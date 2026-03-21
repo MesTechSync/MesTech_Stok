@@ -21,7 +21,7 @@
                               Width="24" Height="24" Foreground="{DynamicResource MesPrimaryBlue}" />
                     <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold"
                                Foreground="#0F172A" VerticalAlignment="Center" />
-                    <Border Background="#EFF6FF" CornerRadius="12" Padding="10,4"
+                    <Border Background="{DynamicResource MesBgSurface}" CornerRadius="12" Padding="10,4"
                             VerticalAlignment="Center">
                         <TextBlock Text="Canli" FontSize="11" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesPrimaryBlue}" />
@@ -160,7 +160,7 @@
                                        FontSize="15" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
-                            <Border Grid.Column="2" Background="#FEF3C7"
+                            <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}"
                                     CornerRadius="10" Padding="8,2">
                                 <TextBlock Text="{Binding CriticalStockCount}"
                                            FontSize="11" FontWeight="Bold"

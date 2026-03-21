@@ -31,7 +31,7 @@
             <StackPanel Spacing="24" MaxWidth="900">
 
                 <!-- Backup Progress -->
-                <Border Background="#FFF7ED" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
                         BorderBrush="#FDBA74" BorderThickness="1"
                         IsVisible="{Binding IsBackingUp}">
                     <StackPanel Spacing="8">
@@ -117,7 +117,7 @@
                                            TextWrapping="Wrap" />
                             </Grid>
 
-                            <Border Background="#F0FDF4" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
+                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
                                 <TextBlock Text="Otomatik dogrulama her gece 04:00'te calisir"
                                            FontSize="12" Foreground="#166534" />
                             </Border>

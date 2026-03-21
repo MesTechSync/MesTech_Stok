@@ -75,9 +75,9 @@
                 </Border>
 
                 <!-- Save Success -->
-                <Border Background="#E8F5E9" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
                         IsVisible="{Binding SaveCompleted}">
-                    <TextBlock Text="Ürün başarıyla kaydedildi!" FontSize="15" FontWeight="SemiBold" Foreground="#2E7D32" />
+                    <TextBlock Text="Ürün başarıyla kaydedildi!" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesGreen}" />
                 </Border>
 
                 <!-- Error -->

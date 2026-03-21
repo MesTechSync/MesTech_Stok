@@ -126,7 +126,7 @@
         </Border>
 
         <!-- Row 2: Summary Bar -->
-        <Border Grid.Row="2" Background="#EFF6FF" Padding="16,10"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" Padding="16,10"
                 BorderBrush="#BFDBFE" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">

@@ -37,9 +37,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- Toplam Urun -->
-                <Border Background="#EFF6FF" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Toplam Urun" FontSize="11" Foreground="#3B82F6" />
+                        <TextBlock Text="Toplam Urun" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="#1E40AF" />
                     </StackPanel>
                 </Border>
@@ -51,15 +51,15 @@
                     </StackPanel>
                 </Border>
                 <!-- Stok Degeri -->
-                <Border Background="#F0FDF4" CornerRadius="8" Padding="16,10" MinWidth="160">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="160">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Stok Degeri" FontSize="11" Foreground="#22C55E" />
                         <TextBlock Text="{Binding KpiStockValue, StringFormat='{}{0:N0} TL'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#15803D" />
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
                 <!-- Tukenen -->
-                <Border Background="#FFF7ED" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Tukenen" FontSize="11" Foreground="#F97316" />
                         <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />

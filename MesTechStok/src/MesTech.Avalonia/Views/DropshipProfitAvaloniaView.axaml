@@ -68,7 +68,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Spacing="2">
                     <TextBlock Text="Toplam Komisyon" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalCommission, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#FF6F00" />
+                    <TextBlock Text="{Binding TotalCommission, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                 </StackPanel>
                 <StackPanel Grid.Column="3" Spacing="2">
                     <TextBlock Text="Net Kâr" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />

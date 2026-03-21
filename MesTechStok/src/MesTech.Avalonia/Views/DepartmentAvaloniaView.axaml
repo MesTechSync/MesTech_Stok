@@ -64,7 +64,7 @@
                                         <TextBlock Text="Calisan:" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBlock Text="{Binding EmployeeCount}" FontSize="12" FontWeight="SemiBold" />
                                     </StackPanel>
-                                    <Border Background="#F0FDF4" CornerRadius="4" Padding="8,2"
+                                    <Border Background="{DynamicResource MesBgSurface}" CornerRadius="4" Padding="8,2"
                                             HorizontalAlignment="Left">
                                         <TextBlock Text="{Binding Status}" FontSize="11" Foreground="{DynamicResource MesGreen}" />
                                     </Border>
