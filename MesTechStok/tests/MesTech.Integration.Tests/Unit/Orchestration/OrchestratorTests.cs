@@ -6,6 +6,7 @@ using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Integration.Tests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Orchestration;
@@ -52,10 +53,10 @@ public class OrchestratorTests
         var result = await orchestrator.SyncPlatformAsync("Trendyol");
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Trendyol", result.PlatformCode);
-        Assert.Equal(2, result.ItemsProcessed);
-        Assert.Null(result.ErrorMessage);
+        result.IsSuccess.Should().BeTrue();
+        result.PlatformCode.Should().Be("Trendyol");
+        result.ItemsProcessed.Should().Be(2);
+        result.ErrorMessage.Should().BeNull();
     }
 
     [Fact]
@@ -74,8 +75,8 @@ public class OrchestratorTests
         var result = await orchestrator.SyncPlatformAsync("UnknownPlatform");
 
         // Assert
-        Assert.False(result.IsSuccess);
-        Assert.Contains("bulunamadi", result.ErrorMessage!);
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("bulunamadi");
     }
 
     [Fact]
@@ -108,8 +109,8 @@ public class OrchestratorTests
         var result = await orchestrator.SyncAllPlatformsAsync();
 
         // Assert
-        Assert.Equal("ALL", result.PlatformCode);
-        Assert.Equal(3, result.ItemsProcessed); // 2 + 1
+        result.PlatformCode.Should().Be("ALL");
+        result.ItemsProcessed.Should().Be(3); // 2 + 1
     }
 
     [Fact]
@@ -134,8 +135,8 @@ public class OrchestratorTests
         var result = await orchestrator.SyncPlatformAsync("SlowPlatform");
 
         // Assert
-        Assert.False(result.IsSuccess);
-        Assert.Contains("timeout", result.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().ContainEquivalentOf("timeout");
     }
 
     [Fact]
@@ -217,7 +218,7 @@ public class OrchestratorTests
         await orchestrator.RegisterAdapterAsync(newAdapter);
 
         // Assert
-        Assert.Contains(orchestrator.RegisteredAdapters,
+        orchestrator.RegisteredAdapters.Should().Contain(
             a => a.PlatformCode == "NewPlatform");
     }
 
@@ -230,14 +231,14 @@ public class OrchestratorTests
             .BuildObject();
 
         var orchestrator = CreateOrchestrator(adapter);
-        Assert.Contains(orchestrator.RegisteredAdapters,
+        orchestrator.RegisteredAdapters.Should().Contain(
             a => a.PlatformCode == "Trendyol");
 
         // Act
         await orchestrator.RemoveAdapterAsync("Trendyol");
 
         // Assert
-        Assert.DoesNotContain(orchestrator.RegisteredAdapters,
+        orchestrator.RegisteredAdapters.Should().NotContain(
             a => a.PlatformCode == "Trendyol");
     }
 }

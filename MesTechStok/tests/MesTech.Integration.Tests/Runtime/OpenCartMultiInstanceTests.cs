@@ -4,6 +4,7 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Integration.Tests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Runtime;
@@ -50,7 +51,7 @@ public class OpenCartMultiInstanceTests
             """{"data": [{"name": "Test"}], "total": 5}""");
 
         var result = await adapter.TestConnectionAsync(MakeCredentials(baseUrl));
-        Assert.True(result.IsSuccess);
+        result.IsSuccess.Should().BeTrue();
     }
 
     // ── Test 1: Three instances parallel sync ────────────────────────────
@@ -91,19 +92,19 @@ public class OpenCartMultiInstanceTests
         var results = await Task.WhenAll(tasks);
 
         // Assert — all 3 return products, no exceptions
-        Assert.Equal(3, results.Length);
+        results.Length.Should().Be(3);
 
-        Assert.NotEmpty(results[0]);
-        Assert.Equal("Product-Shop1", results[0][0].Name);
-        Assert.Equal("SKU-SHOP1-001", results[0][0].SKU);
+        results[0].Should().NotBeEmpty();
+        results[0][0].Name.Should().Be("Product-Shop1");
+        results[0][0].SKU.Should().Be("SKU-SHOP1-001");
 
-        Assert.NotEmpty(results[1]);
-        Assert.Equal("Product-Shop2", results[1][0].Name);
-        Assert.Equal("SKU-SHOP2-001", results[1][0].SKU);
+        results[1].Should().NotBeEmpty();
+        results[1][0].Name.Should().Be("Product-Shop2");
+        results[1][0].SKU.Should().Be("SKU-SHOP2-001");
 
-        Assert.NotEmpty(results[2]);
-        Assert.Equal("Product-Shop3", results[2][0].Name);
-        Assert.Equal("SKU-SHOP3-001", results[2][0].SKU);
+        results[2].Should().NotBeEmpty();
+        results[2][0].Name.Should().Be("Product-Shop3");
+        results[2][0].SKU.Should().Be("SKU-SHOP3-001");
     }
 
     // ── Test 2: Batch stock update with SemaphoreSlim(5) ─────────────────
@@ -134,15 +135,15 @@ public class OpenCartMultiInstanceTests
         var successCount = await adapter.PushBatchStockUpdateAsync(updates);
 
         // Assert — all 20 should succeed
-        Assert.Equal(20, successCount);
+        successCount.Should().Be(20);
 
         // Verify total requests: 1 (TestConnection) + 20 (stock updates)
-        Assert.Equal(21, handler.CapturedRequests.Count);
+        handler.CapturedRequests.Count.Should().Be(21);
 
         // Verify all stock update requests are PUT requests
         var stockUpdateRequests = handler.CapturedRequests.Skip(1).ToList();
-        Assert.All(stockUpdateRequests, req =>
-            Assert.Equal(HttpMethod.Put, req.Method));
+        stockUpdateRequests.Should().AllSatisfy(req =>
+            req.Method.Should().Be(HttpMethod.Put));
     }
 
     // ── Test 3: Delta sync with orders since date ────────────────────────
@@ -191,23 +192,23 @@ public class OpenCartMultiInstanceTests
 
         // Cast to IOrderCapableAdapter
         var orderAdapter = adapter as IOrderCapableAdapter;
-        Assert.NotNull(orderAdapter);
+        orderAdapter.Should().NotBeNull();
 
         // Act — pull orders since 1 day ago (should filter out the 5-day-old order)
         var sinceDate = DateTime.UtcNow.AddDays(-1);
         var orders = await orderAdapter.PullOrdersAsync(since: sinceDate);
 
         // Assert — only the recent order should be returned
-        Assert.NotNull(orders);
-        Assert.Single(orders);
-        Assert.Equal("1001", orders[0].PlatformOrderId);
-        Assert.Equal("OpenCart", orders[0].PlatformCode);
-        Assert.Equal("Processing", orders[0].Status);
-        Assert.Equal("Ali Veli", orders[0].CustomerName);
+        orders.Should().NotBeNull();
+        orders.Should().ContainSingle();
+        orders[0].PlatformOrderId.Should().Be("1001");
+        orders[0].PlatformCode.Should().Be("OpenCart");
+        orders[0].Status.Should().Be("Processing");
+        orders[0].CustomerName.Should().Be("Ali Veli");
 
         // Verify the request was made to the orders endpoint
         var orderRequest = handler.CapturedRequests.Last();
-        Assert.Contains("/api/rest/orders", orderRequest.RequestUri!.ToString());
+        orderRequest.RequestUri!.ToString().Should().Contain("/api/rest/orders");
     }
 
     // ── Test 4: Three instances concurrent connections ────────────────────
@@ -244,16 +245,16 @@ public class OpenCartMultiInstanceTests
         var results = await Task.WhenAll(tasks);
 
         // Assert — all 3 succeed, no deadlock (completed within 10 seconds)
-        Assert.Equal(3, results.Length);
-        Assert.All(results, r => Assert.True(r.IsSuccess));
+        results.Length.Should().Be(3);
+        results.Should().AllSatisfy(r => r.IsSuccess.Should().BeTrue());
 
-        Assert.Equal(10, results[0].ProductCount);
-        Assert.Equal(20, results[1].ProductCount);
-        Assert.Equal(30, results[2].ProductCount);
+        results[0].ProductCount.Should().Be(10);
+        results[1].ProductCount.Should().Be(20);
+        results[2].ProductCount.Should().Be(30);
 
         // Each handler captured exactly 1 request
-        Assert.Single(handler1.CapturedRequests);
-        Assert.Single(handler2.CapturedRequests);
-        Assert.Single(handler3.CapturedRequests);
+        handler1.CapturedRequests.Should().ContainSingle();
+        handler2.CapturedRequests.Should().ContainSingle();
+        handler3.CapturedRequests.Should().ContainSingle();
     }
 }

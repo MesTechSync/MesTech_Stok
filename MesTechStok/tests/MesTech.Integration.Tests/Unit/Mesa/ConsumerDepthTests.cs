@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MassTransit;
+using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -23,6 +24,7 @@ namespace MesTech.Integration.Tests.Unit.Mesa;
 public class ConsumerDepthTests
 {
     private readonly Guid _tenantId = Guid.NewGuid();
+    private readonly Mock<IMediator> _mediator = new();
 
     // ═══════════════════════════════════════════════════════════════
     // AiAdvisoryRecommendationConsumer (3 tests)
@@ -44,7 +46,7 @@ public class ConsumerDepthTests
             .Returns(Task.CompletedTask);
 
         var consumer = new AiAdvisoryRecommendationConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiAdvisoryRecommendationEvent(
             "CashFlowWarning", "Nakit akis uyarisi", "30 gun icinde nakit sikintisi",
@@ -78,7 +80,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiAdvisoryRecommendationConsumer>>();
 
         var consumer = new AiAdvisoryRecommendationConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiAdvisoryRecommendationEvent(
             "TaxDeadline", "KDV bildirimi", "KDV son gun yaklasıyor",
@@ -107,7 +109,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiAdvisoryRecommendationConsumer>>();
 
         var consumer = new AiAdvisoryRecommendationConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiAdvisoryRecommendationEvent(
             "Alert", "Test", "Test", null, "Low", _tenantId, DateTime.UtcNow);
@@ -138,7 +140,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiEInvoiceDraftGeneratedConsumer>>();
 
         var consumer = new AiEInvoiceDraftGeneratedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var orderId = Guid.NewGuid();
         var evt = new AiEInvoiceDraftGeneratedIntegrationEvent(
@@ -172,7 +174,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiEInvoiceDraftGeneratedConsumer>>();
 
         var consumer = new AiEInvoiceDraftGeneratedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiEInvoiceDraftGeneratedIntegrationEvent(
             Guid.NewGuid(), "ETTN-X", 100m, Guid.Empty, DateTime.UtcNow);
@@ -201,7 +203,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiEInvoiceDraftGeneratedConsumer>>();
 
         var consumer = new AiEInvoiceDraftGeneratedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiEInvoiceDraftGeneratedIntegrationEvent(
             Guid.NewGuid(), "ETTN-Y", 200m, _tenantId, DateTime.UtcNow);
@@ -231,7 +233,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiErpReconciliationDoneConsumer>>();
 
         var consumer = new AiErpReconciliationDoneConsumer(
-            matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiErpReconciliationDoneIntegrationEvent(
             "Parasut", 50, 3, _tenantId, DateTime.UtcNow);
@@ -260,7 +262,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiErpReconciliationDoneConsumer>>();
 
         var consumer = new AiErpReconciliationDoneConsumer(
-            matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiErpReconciliationDoneIntegrationEvent(
             "Parasut", 100, 0, _tenantId, DateTime.UtcNow);
@@ -289,7 +291,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<AiErpReconciliationDoneConsumer>>();
 
         var consumer = new AiErpReconciliationDoneConsumer(
-            matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, matchRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new AiErpReconciliationDoneIntegrationEvent(
             "Logo", 10, 2, _tenantId, DateTime.UtcNow);
@@ -320,7 +322,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<BotEFaturaRequestedConsumer>>();
 
         var consumer = new BotEFaturaRequestedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var orderId = Guid.NewGuid();
         var evt = new BotEFaturaRequestedIntegrationEvent(
@@ -353,7 +355,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<BotEFaturaRequestedConsumer>>();
 
         var consumer = new BotEFaturaRequestedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         // OrderId=null, BuyerVkn=null
         var evt = new BotEFaturaRequestedIntegrationEvent(
@@ -384,7 +386,7 @@ public class ConsumerDepthTests
         var logger = new Mock<ILogger<BotEFaturaRequestedConsumer>>();
 
         var consumer = new BotEFaturaRequestedConsumer(
-            notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
+            _mediator.Object, notifRepo.Object, uow.Object, monitor.Object, tenantProvider.Object, logger.Object);
 
         var evt = new BotEFaturaRequestedIntegrationEvent(
             "bot-user-789", Guid.NewGuid(), "9876543210", _tenantId, DateTime.UtcNow);

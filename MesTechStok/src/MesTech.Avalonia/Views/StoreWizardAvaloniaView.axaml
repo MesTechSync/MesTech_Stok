@@ -153,7 +153,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
                             Background="#94A3B8" Foreground="White" Padding="16,8" CornerRadius="6" />
-                    <Button Content="Kaydet" Command="{Binding SaveStoreCommand}"
+                    <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveStoreCommand}"
                             Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6"
                             IsEnabled="{Binding TestPassed}" />

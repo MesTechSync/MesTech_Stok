@@ -23,7 +23,7 @@
                         Command="{Binding CreateTemplateCommand}"
                         Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
-                <Button Grid.Column="2" Content="Yenile"
+                <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -107,7 +107,7 @@
                     </Border>
 
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Button Content="Kaydet" Command="{Binding SaveTemplateCommand}"
+                        <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveTemplateCommand}"
                                 Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                                 Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
                         <Button Content="İptal" Command="{Binding CancelEditCommand}"

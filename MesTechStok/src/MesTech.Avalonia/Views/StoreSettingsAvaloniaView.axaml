@@ -13,7 +13,7 @@
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Mağaza Ayarları" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -78,7 +78,7 @@
                 </Border>
 
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button Content="Kaydet" Command="{Binding SaveCommand}"
+                    <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveCommand}"
                             Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                             Padding="20,10" CornerRadius="6"
                             IsEnabled="{Binding !IsSaving}" />

@@ -24,7 +24,7 @@
                             Background="#FFFFFF33" Foreground="White" Padding="10,6" CornerRadius="6" />
                     <Button Content="Son 30 Gun" Command="{Binding FilterMonthCommand}"
                             Background="#FFFFFF33" Foreground="White" Padding="10,6" CornerRadius="6" />
-                    <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                             Background="White" Foreground="#0284C7" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                 </StackPanel>

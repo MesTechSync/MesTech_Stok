@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Integration.Tests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Adapters;
@@ -62,7 +63,7 @@ public class WooCommerceAdapterTests
         var adapter = CreateAdapter();
 
         // Assert
-        Assert.Equal("WooCommerce", adapter.PlatformCode);
+        adapter.PlatformCode.Should().Be("WooCommerce");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -88,11 +89,11 @@ public class WooCommerceAdapterTests
         var result = await adapter.TestConnectionAsync(ValidCredentials());
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("WooCommerce", result.PlatformCode);
-        Assert.Equal("https://mystore.example.com", result.StoreName);
-        Assert.Equal(42, result.ProductCount);
-        Assert.Equal(200, result.HttpStatusCode);
+        result.IsSuccess.Should().BeTrue();
+        result.PlatformCode.Should().Be("WooCommerce");
+        result.StoreName.Should().Be("https://mystore.example.com");
+        result.ProductCount.Should().Be(42);
+        result.HttpStatusCode.Should().Be(200);
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -111,10 +112,10 @@ public class WooCommerceAdapterTests
         var result = await adapter.TestConnectionAsync(ValidCredentials());
 
         // Assert
-        Assert.False(result.IsSuccess);
-        Assert.Equal(401, result.HttpStatusCode);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Contains("Unauthorized", result.ErrorMessage);
+        result.IsSuccess.Should().BeFalse();
+        result.HttpStatusCode.Should().Be(401);
+        result.ErrorMessage.Should().NotBeNull();
+        result.ErrorMessage.Should().Contain("Unauthorized");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -144,13 +145,13 @@ public class WooCommerceAdapterTests
         var products = await adapter.PullProductsAsync();
 
         // Assert
-        Assert.Equal(2, products.Count);
-        Assert.Equal("Widget A", products[0].Name);
-        Assert.Equal("WID-001", products[0].SKU);
-        Assert.Equal(29.99m, products[0].SalePrice);
-        Assert.Equal(50, products[0].Stock);
-        Assert.Equal("Widget B", products[1].Name);
-        Assert.Equal("WID-002", products[1].SKU);
+        products.Count.Should().Be(2);
+        products[0].Name.Should().Be("Widget A");
+        products[0].SKU.Should().Be("WID-001");
+        products[0].SalePrice.Should().Be(29.99m);
+        products[0].Stock.Should().Be(50);
+        products[1].Name.Should().Be("Widget B");
+        products[1].SKU.Should().Be("WID-002");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -174,7 +175,7 @@ public class WooCommerceAdapterTests
         var products = await adapter.PullProductsAsync();
 
         // Assert
-        Assert.Empty(products);
+        products.Should().BeEmpty();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -218,10 +219,10 @@ public class WooCommerceAdapterTests
         var products = await adapter.PullProductsAsync();
 
         // Assert
-        Assert.Equal(3, products.Count);
-        Assert.Equal("Product 1", products[0].Name);
-        Assert.Equal("Product 2", products[1].Name);
-        Assert.Equal("Product 3", products[2].Name);
+        products.Count.Should().Be(3);
+        products[0].Name.Should().Be("Product 1");
+        products[1].Name.Should().Be("Product 2");
+        products[2].Name.Should().Be("Product 3");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -248,12 +249,12 @@ public class WooCommerceAdapterTests
         var result = await adapter.PushStockUpdateAsync(productId, 99);
 
         // Assert
-        Assert.True(result);
+        result.Should().BeTrue();
 
         // Verify the PUT request was made (search + put = requests after config)
         var putRequest = _handler.CapturedRequests.Last();
-        Assert.Equal(HttpMethod.Put, putRequest.Method);
-        Assert.Contains("/products/42", putRequest.RequestUri!.ToString());
+        putRequest.Method.Should().Be(HttpMethod.Put);
+        putRequest.RequestUri!.ToString().Should().Contain("/products/42");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -275,7 +276,7 @@ public class WooCommerceAdapterTests
         var result = await adapter.PushStockUpdateAsync(productId, 10);
 
         // Assert
-        Assert.False(result);
+        result.Should().BeFalse();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -302,16 +303,16 @@ public class WooCommerceAdapterTests
         var result = await adapter.PushPriceUpdateAsync(productId, 149.99m);
 
         // Assert
-        Assert.True(result);
+        result.Should().BeTrue();
 
         // Verify the PUT request body contains regular_price
         var putRequest = _handler.CapturedRequests.Last();
-        Assert.Equal(HttpMethod.Put, putRequest.Method);
-        Assert.Contains("/products/77", putRequest.RequestUri!.ToString());
+        putRequest.Method.Should().Be(HttpMethod.Put);
+        putRequest.RequestUri!.ToString().Should().Contain("/products/77");
 
         var body = await putRequest.Content!.ReadAsStringAsync();
-        Assert.Contains("regular_price", body);
-        Assert.Contains("149.99", body);
+        body.Should().Contain("regular_price");
+        body.Should().Contain("149.99");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -333,7 +334,7 @@ public class WooCommerceAdapterTests
         var result = await adapter.PushPriceUpdateAsync(productId, 50.00m);
 
         // Assert
-        Assert.False(result);
+        result.Should().BeFalse();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -389,24 +390,24 @@ public class WooCommerceAdapterTests
         var orders = await adapter.PullOrdersAsync();
 
         // Assert
-        Assert.Single(orders);
+        orders.Should().ContainSingle();
         var order = orders[0];
-        Assert.Equal("501", order.PlatformOrderId);
-        Assert.Equal("WooCommerce", order.PlatformCode);
-        Assert.Equal("processing", order.Status);
-        Assert.Equal(120.50m, order.TotalAmount);
-        Assert.Equal(10.00m, order.DiscountAmount);
-        Assert.Equal("USD", order.Currency);
-        Assert.Equal("John Doe", order.CustomerName);
-        Assert.Equal("john@example.com", order.CustomerEmail);
-        Assert.Equal("+1-555-1234", order.CustomerPhone);
-        Assert.Equal("123 Main St", order.CustomerAddress);
-        Assert.Equal("New York", order.CustomerCity);
-        Assert.Single(order.Lines);
-        Assert.Equal("WID-001", order.Lines[0].SKU);
-        Assert.Equal(2, order.Lines[0].Quantity);
-        Assert.Equal(55.25m, order.Lines[0].UnitPrice);
-        Assert.Equal(110.50m, order.Lines[0].LineTotal);
+        order.PlatformOrderId.Should().Be("501");
+        order.PlatformCode.Should().Be("WooCommerce");
+        order.Status.Should().Be("processing");
+        order.TotalAmount.Should().Be(120.50m);
+        order.DiscountAmount.Should().Be(10.00m);
+        order.Currency.Should().Be("USD");
+        order.CustomerName.Should().Be("John Doe");
+        order.CustomerEmail.Should().Be("john@example.com");
+        order.CustomerPhone.Should().Be("+1-555-1234");
+        order.CustomerAddress.Should().Be("123 Main St");
+        order.CustomerCity.Should().Be("New York");
+        order.Lines.Should().ContainSingle();
+        order.Lines[0].SKU.Should().Be("WID-001");
+        order.Lines[0].Quantity.Should().Be(2);
+        order.Lines[0].UnitPrice.Should().Be(55.25m);
+        order.Lines[0].LineTotal.Should().Be(110.50m);
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -430,7 +431,7 @@ public class WooCommerceAdapterTests
         var orders = await adapter.PullOrdersAsync();
 
         // Assert
-        Assert.Empty(orders);
+        orders.Should().BeEmpty();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -497,20 +498,20 @@ public class WooCommerceAdapterTests
         var orders = await adapter.PullOrdersAsync();
 
         // Assert
-        Assert.Equal(3, orders.Count);
+        orders.Count.Should().Be(3);
 
-        Assert.Equal("601", orders[0].PlatformOrderId);
-        Assert.Equal("EUR", orders[0].Currency);
-        Assert.Equal("Alice Smith", orders[0].CustomerName);
+        orders[0].PlatformOrderId.Should().Be("601");
+        orders[0].Currency.Should().Be("EUR");
+        orders[0].CustomerName.Should().Be("Alice Smith");
 
-        Assert.Equal("602", orders[1].PlatformOrderId);
-        Assert.Equal("TRY", orders[1].Currency);
-        Assert.Equal(750.00m, orders[1].TotalAmount);
-        Assert.Equal(50.00m, orders[1].DiscountAmount);
+        orders[1].PlatformOrderId.Should().Be("602");
+        orders[1].Currency.Should().Be("TRY");
+        orders[1].TotalAmount.Should().Be(750.00m);
+        orders[1].DiscountAmount.Should().Be(50.00m);
 
-        Assert.Equal("603", orders[2].PlatformOrderId);
-        Assert.Equal("USD", orders[2].Currency);
-        Assert.Equal("Charlie Brown", orders[2].CustomerName);
+        orders[2].PlatformOrderId.Should().Be("603");
+        orders[2].Currency.Should().Be("USD");
+        orders[2].CustomerName.Should().Be("Charlie Brown");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -523,9 +524,9 @@ public class WooCommerceAdapterTests
         var adapter = CreateAdapter();
 
         // Assert
-        Assert.True(adapter.SupportsPriceUpdate);
-        Assert.True(adapter.SupportsStockUpdate);
-        Assert.False(adapter.SupportsShipment);
+        adapter.SupportsPriceUpdate.Should().BeTrue();
+        adapter.SupportsStockUpdate.Should().BeTrue();
+        adapter.SupportsShipment.Should().BeFalse();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -546,9 +547,9 @@ public class WooCommerceAdapterTests
         var result = await adapter.TestConnectionAsync(ValidCredentials());
 
         // Assert
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Equal("WooCommerce", result.PlatformCode);
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNull();
+        result.PlatformCode.Should().Be("WooCommerce");
     }
 
     /// <summary>

@@ -39,7 +39,7 @@
                 BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Tumunu Sec" IsChecked="{Binding SelectAll}" VerticalAlignment="Center" />
-                <Button Content="Yenile" Command="{Binding RefreshCommand}" Padding="12,6" />
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}" Padding="12,6" />
             </StackPanel>
         </Border>
 
@@ -132,7 +132,7 @@
                            FontSize="14" Foreground="#E53935"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                         Command="{Binding RefreshCommand}"
                         Padding="16,6" />
             </StackPanel>

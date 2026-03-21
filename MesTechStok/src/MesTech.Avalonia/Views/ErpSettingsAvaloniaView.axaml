@@ -22,7 +22,7 @@
                         Background="White" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         Margin="0,0,8,0"/>
-                <Button Grid.Column="2" Content="Kaydet"
+                <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveSettingsCommand}"
                         Background="#16A34A" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
@@ -341,7 +341,7 @@
                            Foreground="{StaticResource ErrorRedBrush}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400"/>
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6"/>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6"/>
             </StackPanel>
         </Border>
     </Grid>

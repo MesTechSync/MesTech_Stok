@@ -22,7 +22,7 @@
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -98,7 +98,7 @@
                            FontSize="14" Foreground="#E53935"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                         Command="{Binding RefreshCommand}"
                         Padding="16,6" />
             </StackPanel>

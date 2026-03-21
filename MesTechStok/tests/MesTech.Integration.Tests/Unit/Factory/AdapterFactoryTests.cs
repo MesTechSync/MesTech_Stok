@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Integration.Factory;
 using MesTech.Integration.Tests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Factory;
@@ -30,8 +31,8 @@ public class AdapterFactoryTests
         var result = factory.Resolve(PlatformType.Trendyol);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Trendyol", result!.PlatformCode);
+        result.Should().NotBeNull();
+        result!.PlatformCode.Should().Be("Trendyol");
     }
 
     [Theory]
@@ -51,8 +52,8 @@ public class AdapterFactoryTests
         var result = factory.Resolve(code);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Trendyol", result!.PlatformCode);
+        result.Should().NotBeNull();
+        result!.PlatformCode.Should().Be("Trendyol");
     }
 
     [Fact]
@@ -65,7 +66,7 @@ public class AdapterFactoryTests
         var result = factory.Resolve("NonExistent");
 
         // Assert
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -88,10 +89,10 @@ public class AdapterFactoryTests
         var all = factory.GetAll();
 
         // Assert
-        Assert.Equal(3, all.Count);
-        Assert.Contains(all, a => a.PlatformCode == "Trendyol");
-        Assert.Contains(all, a => a.PlatformCode == "OpenCart");
-        Assert.Contains(all, a => a.PlatformCode == "N11");
+        all.Count.Should().Be(3);
+        all.Should().Contain(a => a.PlatformCode == "Trendyol");
+        all.Should().Contain(a => a.PlatformCode == "OpenCart");
+        all.Should().Contain(a => a.PlatformCode == "N11");
     }
 
     [Fact]
@@ -114,8 +115,8 @@ public class AdapterFactoryTests
         var result = factory.ResolveCapability<IOrderCapableAdapter>("Trendyol");
 
         // Assert
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<IOrderCapableAdapter>(result);
+        result.Should().NotBeNull();
+        result.Should().BeAssignableTo<IOrderCapableAdapter>();
     }
 
     [Fact]
@@ -132,6 +133,6 @@ public class AdapterFactoryTests
         var result = factory.ResolveCapability<ISettlementCapableAdapter>("OpenCart");
 
         // Assert
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 }

@@ -19,7 +19,7 @@
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding LoadDataCommand}"
                         Background="White" Foreground="{DynamicResource MesBrandPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />

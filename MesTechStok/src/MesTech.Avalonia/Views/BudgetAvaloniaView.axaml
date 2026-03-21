@@ -14,7 +14,7 @@
           <TextBlock Text="Aylik butce takibi ve gerceklesme karsilastirmasi" FontSize="12" Foreground="#E0E0E0"/>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-          <Button Content="Yenile" Command="{Binding RefreshCommand}" Classes="accent"/>
+          <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}" Classes="accent"/>
         </StackPanel>
       </Grid>
     </Border>

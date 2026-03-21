@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Integration;
@@ -33,7 +34,7 @@ public class DiRegistrationTests
     {
         using var provider = BuildProvider();
         var factory = provider.GetService<IAdapterFactory>();
-        Assert.NotNull(factory);
+        factory.Should().NotBeNull();
     }
 
     [Fact]
@@ -41,7 +42,7 @@ public class DiRegistrationTests
     {
         using var provider = BuildProvider();
         var orchestrator = provider.GetService<IIntegratorOrchestrator>();
-        Assert.NotNull(orchestrator);
+        orchestrator.Should().NotBeNull();
     }
 
     [Fact]
@@ -50,8 +51,8 @@ public class DiRegistrationTests
         using var provider = BuildProvider();
         var factory = provider.GetRequiredService<IAdapterFactory>();
         var adapter = factory.Resolve("Trendyol");
-        Assert.NotNull(adapter);
-        Assert.IsType<TrendyolAdapter>(adapter);
+        adapter.Should().NotBeNull();
+        adapter.Should().BeOfType<TrendyolAdapter>();
     }
 
     [Fact]
@@ -59,8 +60,8 @@ public class DiRegistrationTests
     {
         using var provider = BuildProvider();
         var orchestrator = provider.GetRequiredService<IIntegratorOrchestrator>();
-        Assert.NotEmpty(orchestrator.RegisteredAdapters);
-        Assert.Contains(orchestrator.RegisteredAdapters, a => a.PlatformCode == "Trendyol");
-        Assert.Contains(orchestrator.RegisteredAdapters, a => a.PlatformCode == "OpenCart");
+        orchestrator.RegisteredAdapters.Should().NotBeEmpty();
+        orchestrator.RegisteredAdapters.Should().Contain(a => a.PlatformCode == "Trendyol");
+        orchestrator.RegisteredAdapters.Should().Contain(a => a.PlatformCode == "OpenCart");
     }
 }

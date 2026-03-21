@@ -12,7 +12,7 @@
                 <TextBlock Text="CRM Dashboard" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
-                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>

@@ -17,7 +17,7 @@
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#DC2626" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -57,7 +57,7 @@
                 <TextBlock Text="Gider kaydi | Kategori takibi | Fatura eslestirme | Onay sureci"
                            FontSize="11" Foreground="#94A3B8" HorizontalAlignment="Center"
                            Margin="0,4,0,0" />
-                <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"
                         Margin="0,8,0,0" />
             </StackPanel>

@@ -99,7 +99,7 @@
 
                 <!-- Actions -->
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button Content="Kaydet" Command="{Binding SaveFeedCommand}"
+                    <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveFeedCommand}"
                             Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                             Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
                     <Button Content="Temizle" Command="{Binding ResetCommand}"

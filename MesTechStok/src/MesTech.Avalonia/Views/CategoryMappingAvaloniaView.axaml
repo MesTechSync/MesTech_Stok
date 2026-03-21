@@ -29,7 +29,7 @@
                         Command="{Binding AiAutoMapCommand}"
                         Background="#FF6F00" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
-                <Button Grid.Column="4" Content="Yenile"
+                <Button Grid.Column="4" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />

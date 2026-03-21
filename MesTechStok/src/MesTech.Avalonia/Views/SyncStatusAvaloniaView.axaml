@@ -47,7 +47,7 @@
                 <DataGridTemplateColumn Header="Islem" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:SyncStatusItemDto">
-                            <Button Content="Senkronize Et"
+                            <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et"
                                     Command="{Binding $parent[DataGrid].((vm:SyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
                                     CommandParameter="{Binding}"
                                     Background="#0078D4" Foreground="White"
@@ -99,7 +99,7 @@
                            FontSize="14" Foreground="#E53935"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene"
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                         Command="{Binding RefreshCommand}"
                         Padding="16,6" />
             </StackPanel>

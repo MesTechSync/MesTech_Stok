@@ -1,4 +1,5 @@
 using System.Net;
+using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Integration.Tests.Helpers;
 using Microsoft.Extensions.Logging;
@@ -47,8 +48,8 @@ public class OpenCartAdapterTests
         var result = await adapter.TestConnectionAsync(ValidCredentials());
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("OpenCart", result.PlatformCode);
+        result.IsSuccess.Should().BeTrue();
+        result.PlatformCode.Should().Be("OpenCart");
     }
 
     [Fact]
@@ -72,9 +73,9 @@ public class OpenCartAdapterTests
         var successCount = await adapter.PushBatchStockUpdateAsync(updates);
 
         // Assert
-        Assert.Equal(10, successCount);
+        successCount.Should().Be(10);
         // 1 TestConnection request + 10 stock update requests = 11
-        Assert.Equal(11, _handler.CapturedRequests.Count);
+        _handler.CapturedRequests.Count.Should().Be(11);
     }
 
     [Fact]
@@ -99,8 +100,8 @@ public class OpenCartAdapterTests
         var products = await adapter.PullProductsAsync();
 
         // Assert
-        Assert.NotEmpty(products);
-        Assert.Equal(100, products.Count);
+        products.Should().NotBeEmpty();
+        products.Count.Should().Be(100);
     }
 
     [Fact]
@@ -110,9 +111,9 @@ public class OpenCartAdapterTests
         var adapter = CreateAdapter();
 
         // Assert
-        Assert.Equal("OpenCart", adapter.PlatformCode);
-        Assert.True(adapter.SupportsStockUpdate);
-        Assert.True(adapter.SupportsPriceUpdate);
-        Assert.False(adapter.SupportsShipment);
+        adapter.PlatformCode.Should().Be("OpenCart");
+        adapter.SupportsStockUpdate.Should().BeTrue();
+        adapter.SupportsPriceUpdate.Should().BeTrue();
+        adapter.SupportsShipment.Should().BeFalse();
     }
 }

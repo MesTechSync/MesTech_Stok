@@ -21,7 +21,7 @@
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>

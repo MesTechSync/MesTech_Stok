@@ -20,7 +20,7 @@
                     <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
                             Background="Transparent" Foreground="White"
                             BorderThickness="0" FontSize="16" Padding="8,4" />
-                    <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                             Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                             Padding="12,6" CornerRadius="6" Margin="12,0,0,0" />
                 </StackPanel>
@@ -132,7 +132,7 @@
                 <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
             </StackPanel>
         </Border>
     </Grid>

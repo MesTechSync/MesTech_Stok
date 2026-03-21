@@ -49,12 +49,12 @@ public class TrendyolAdapterTests
         var result = await adapter.TestConnectionAsync(ValidCredentials());
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Trendyol", result.PlatformCode);
-        Assert.Equal(42, result.ProductCount);
+        result.IsSuccess.Should().BeTrue();
+        result.PlatformCode.Should().Be("Trendyol");
+        result.ProductCount.Should().Be(42);
 
         var requestUrl = _handler.CapturedRequests[0].RequestUri!.ToString();
-        Assert.Contains("/integration/product/sellers/12345/products", requestUrl);
+        requestUrl.Should().Contain("/integration/product/sellers/12345/products");
     }
 
     [Fact]
@@ -73,8 +73,8 @@ public class TrendyolAdapterTests
         var result = await adapter.TestConnectionAsync(creds);
 
         // Assert
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.ErrorMessage);
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNull();
     }
 
     [Fact]
@@ -97,12 +97,12 @@ public class TrendyolAdapterTests
         var products = await adapter.PullProductsAsync();
 
         // Assert
-        Assert.NotEmpty(products);
-        Assert.Equal("Test Product", products[0].Name);
-        Assert.Equal("SKU-001", products[0].SKU);
-        Assert.Equal(99.90m, products[0].SalePrice);
-        Assert.Equal(10, products[0].Stock);
-        Assert.Equal("Desc", products[0].Description);
+        products.Should().NotBeEmpty();
+        products[0].Name.Should().Be("Test Product");
+        products[0].SKU.Should().Be("SKU-001");
+        products[0].SalePrice.Should().Be(99.90m);
+        products[0].Stock.Should().Be(10);
+        products[0].Description.Should().Be("Desc");
     }
 
     [Fact]
@@ -124,8 +124,8 @@ public class TrendyolAdapterTests
         var result = await adapter.PushStockUpdateAsync(productId, 25);
 
         // Assert
-        Assert.True(result);
-        Assert.Equal(2, _handler.CapturedRequests.Count);
+        result.Should().BeTrue();
+        _handler.CapturedRequests.Count.Should().Be(2);
     }
 
     [Fact]
@@ -135,10 +135,10 @@ public class TrendyolAdapterTests
         var adapter = CreateAdapter();
 
         // Assert
-        Assert.Equal("Trendyol", adapter.PlatformCode);
-        Assert.True(adapter.SupportsStockUpdate);
-        Assert.True(adapter.SupportsPriceUpdate);
-        Assert.True(adapter.SupportsShipment);
+        adapter.PlatformCode.Should().Be("Trendyol");
+        adapter.SupportsStockUpdate.Should().BeTrue();
+        adapter.SupportsPriceUpdate.Should().BeTrue();
+        adapter.SupportsShipment.Should().BeTrue();
     }
 
     // ─────────────────────────────────────────────────────────────────────

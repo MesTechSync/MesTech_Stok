@@ -350,7 +350,7 @@
                 <TextBlock Text="Henuz veri bulunamadi"
                            FontSize="14" Foreground="#64748B"
                            HorizontalAlignment="Center" Opacity="0.7" />
-                <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Margin="0,16,0,0" Padding="20,8" CornerRadius="6"
                         Background="#0078D4" Foreground="White"
                         HorizontalAlignment="Center" />
@@ -379,7 +379,7 @@
                                    FontSize="14" Foreground="#666"
                                    TextWrapping="Wrap" MaxWidth="400"
                                    HorizontalAlignment="Center" />
-                        <Button Content="Tekrar Dene"
+                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                                 Command="{Binding RefreshCommand}"
                                 Padding="20,8" Margin="0,8,0,0"
                                 CornerRadius="6"

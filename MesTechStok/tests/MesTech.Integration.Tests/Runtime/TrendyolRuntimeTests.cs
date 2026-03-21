@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Runtime;
@@ -51,20 +52,20 @@ public class TrendyolRuntimeTests
         var orchestrator = provider.GetRequiredService<IIntegratorOrchestrator>();
 
         // Verify RegisteredAdapters contains "Trendyol"
-        Assert.Contains(orchestrator.RegisteredAdapters,
+        orchestrator.RegisteredAdapters.Should().Contain(
             a => a.PlatformCode.Equals("Trendyol", StringComparison.OrdinalIgnoreCase));
 
         // Act — call SyncPlatformAsync (will fail HTTP since no real credentials, that's OK)
         var result = await orchestrator.SyncPlatformAsync("Trendyol");
 
         // Assert — result is NOT null, PlatformCode matches, CompletedAt is set
-        Assert.NotNull(result);
-        Assert.Equal("Trendyol", result.PlatformCode);
-        Assert.NotNull(result.CompletedAt);
+        result.Should().NotBeNull();
+        result.PlatformCode.Should().Be("Trendyol");
+        result.CompletedAt.Should().NotBeNull();
         // The adapter is not configured, so it should fail with InvalidOperationException
         // but the orchestrator catches it and sets ErrorMessage
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.ErrorMessage);
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().NotBeNull();
     }
 
     // ── Test 2: Factory resolves Trendyol with all capabilities ──────────
@@ -80,24 +81,24 @@ public class TrendyolRuntimeTests
         var adapter = factory.Resolve("Trendyol");
 
         // Assert — adapter exists and is TrendyolAdapter
-        Assert.NotNull(adapter);
-        Assert.IsType<TrendyolAdapter>(adapter);
+        adapter.Should().NotBeNull();
+        adapter.Should().BeOfType<TrendyolAdapter>();
 
         // Verify all capability interfaces via ResolveCapability<T>
         var orderCapable = factory.ResolveCapability<IOrderCapableAdapter>("Trendyol");
-        Assert.NotNull(orderCapable);
+        orderCapable.Should().NotBeNull();
 
         var webhookCapable = factory.ResolveCapability<IWebhookCapableAdapter>("Trendyol");
-        Assert.NotNull(webhookCapable);
+        webhookCapable.Should().NotBeNull();
 
         var invoiceCapable = factory.ResolveCapability<IInvoiceCapableAdapter>("Trendyol");
-        Assert.NotNull(invoiceCapable);
+        invoiceCapable.Should().NotBeNull();
 
         var claimCapable = factory.ResolveCapability<IClaimCapableAdapter>("Trendyol");
-        Assert.NotNull(claimCapable);
+        claimCapable.Should().NotBeNull();
 
         var settlementCapable = factory.ResolveCapability<ISettlementCapableAdapter>("Trendyol");
-        Assert.NotNull(settlementCapable);
+        settlementCapable.Should().NotBeNull();
     }
 
     // ── Test 3: Orchestrator HandleStockChanged does NOT throw ───────────
@@ -121,7 +122,7 @@ public class TrendyolRuntimeTests
         var exception = await Record.ExceptionAsync(
             () => orchestrator.HandleStockChangedAsync(stockEvent));
 
-        Assert.Null(exception);
+        exception.Should().BeNull();
     }
 
     // ── Test 4: MediatR → StockChangedIntegrationHandler chain ──────────
@@ -187,16 +188,16 @@ public class TrendyolRuntimeTests
         var result = await adapter.TestConnectionAsync(credentials);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Trendyol", result.PlatformCode);
-        Assert.Equal(150, result.ProductCount);
-        Assert.Equal("Trendyol - Supplier 99999", result.StoreName);
+        result.IsSuccess.Should().BeTrue();
+        result.PlatformCode.Should().Be("Trendyol");
+        result.ProductCount.Should().Be(150);
+        result.StoreName.Should().Be("Trendyol - Supplier 99999");
 
         // Verify exactly 1 request captured
-        Assert.Single(handler.CapturedRequests);
+        handler.CapturedRequests.Should().ContainSingle();
 
         // Verify it hit the supplier products endpoint
         var requestUrl = handler.CapturedRequests[0].RequestUri!.ToString();
-        Assert.Contains("/integration/product/sellers/99999/products", requestUrl);
+        requestUrl.Should().Contain("/integration/product/sellers/99999/products");
     }
 }

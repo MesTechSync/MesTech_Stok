@@ -19,7 +19,7 @@
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile"
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
@@ -58,7 +58,7 @@
                                 <TextBox Text="{Binding Description}" Watermark="Yapilan is aciklamasi" Padding="10,8" />
                             </StackPanel>
                         </Grid>
-                        <Button Content="Kaydet" Command="{Binding SaveEntryCommand}"
+                        <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveEntryCommand}"
                                 Background="#0078D4" Foreground="White" FontWeight="SemiBold"
                                 Padding="16,8" CornerRadius="6" HorizontalAlignment="Left" />
                     </StackPanel>

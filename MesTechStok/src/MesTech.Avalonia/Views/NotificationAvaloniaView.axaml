@@ -24,7 +24,7 @@
                             Command="{Binding MarkAllReadCommand}"
                             Background="Transparent" Foreground="White" FontWeight="SemiBold"
                             Padding="12,8" CornerRadius="6" BorderBrush="#FFFFFF55" BorderThickness="1" />
-                    <Button Content="Yenile"
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
                             Command="{Binding RefreshCommand}"
                             Background="White" Foreground="#0078D4" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />

@@ -102,7 +102,7 @@
                 <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"
                         Padding="16,6" />
             </StackPanel>
         </Border>

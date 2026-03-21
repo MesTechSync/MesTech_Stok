@@ -4,6 +4,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Webhooks;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Webhooks;
@@ -33,9 +34,9 @@ public class WebhookReceiverTests
         var result = await service.ProcessOrderWebhookAsync("Trendyol", payload);
 
         // Assert
-        Assert.True(result.Success);
-        Assert.Equal("OrderCreated", result.EventType);
-        Assert.Equal("ORD-123", result.PlatformOrderId);
+        result.Success.Should().BeTrue();
+        result.EventType.Should().Be("OrderCreated");
+        result.PlatformOrderId.Should().Be("ORD-123");
 
         webhookCapable.Verify(
             w => w.ProcessWebhookPayloadAsync(payload, It.IsAny<CancellationToken>()),
@@ -63,10 +64,10 @@ public class WebhookReceiverTests
         var result = await service.ProcessGenericWebhookAsync("Trendyol", "SomeUnknownEvent", payload);
 
         // Assert
-        Assert.True(result.Success);
-        Assert.Equal("SomeUnknownEvent", result.EventType);
-        Assert.NotNull(result.Message);
-        Assert.Contains("Bilinmeyen", result.Message);
+        result.Success.Should().BeTrue();
+        result.EventType.Should().Be("SomeUnknownEvent");
+        result.Message.Should().NotBeNull();
+        result.Message.Should().Contain("Bilinmeyen");
     }
 
     [Fact]
@@ -82,15 +83,15 @@ public class WebhookReceiverTests
         var validSignature = Convert.ToBase64String(hash);
 
         // Act & Assert — valid signature returns true
-        Assert.True(WebhookEndpoints.ValidateHmacSignature(payload, validSignature, secret));
+        WebhookEndpoints.ValidateHmacSignature(payload, validSignature, secret).Should().BeTrue();
 
         // Invalid signature returns false
-        Assert.False(WebhookEndpoints.ValidateHmacSignature(payload, "invalid-sig", secret));
+        WebhookEndpoints.ValidateHmacSignature(payload, "invalid-sig", secret).Should().BeFalse();
 
         // Empty signature returns false
-        Assert.False(WebhookEndpoints.ValidateHmacSignature(payload, "", secret));
+        WebhookEndpoints.ValidateHmacSignature(payload, "", secret).Should().BeFalse();
 
         // Empty secret returns false
-        Assert.False(WebhookEndpoints.ValidateHmacSignature(payload, validSignature, ""));
+        WebhookEndpoints.ValidateHmacSignature(payload, validSignature, "").Should().BeFalse();
     }
 }
