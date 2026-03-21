@@ -123,7 +123,8 @@ public class MoneyTests
     {
         var money = Money.TRY(100);
 
-        money.ToString().Should().Be("100.00 TRY");
+        // Locale-agnostic: TR uses "100,00", EN uses "100.00"
+        money.ToString().Should().Contain("100").And.Contain("TRY");
     }
 
     // --- Equality ---

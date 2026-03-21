@@ -155,6 +155,13 @@ public static class MassTransitConfig
                 cfg.Message<BotEFaturaRequestedIntegrationEvent>(x =>
                     x.SetEntityName("mesa.bot.efatura.requested.v1"));
 
+                // Exponential backoff retry policy — tüm consumer'lara uygulanır
+                cfg.UseMessageRetry(r => r.Exponential(
+                    retryLimit: 3,
+                    minInterval: TimeSpan.FromSeconds(1),
+                    maxInterval: TimeSpan.FromSeconds(30),
+                    intervalDelta: TimeSpan.FromSeconds(2)));
+
                 // İ-13: Idempotency filter — tüm consumer'lara otomatik uygulanır
                 cfg.UseConsumeFilter(typeof(IdempotencyFilter<>), context);
 
