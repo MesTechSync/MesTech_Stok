@@ -34,18 +34,18 @@ public abstract class E2ETestBase : IAsyncLifetime
         services.AddLogging();
 
         // DbContext — gercek PostgreSQL (Testcontainers)
-        // TODO: AppDbContext mevcut olunca aktiflestirilecek:
+        // FUTURE: AppDbContext mevcut olunca aktiflestirilecek:
         // services.AddDbContext<AppDbContext>(opts =>
         //     opts.UseNpgsql(_pgContainer.GetConnectionString()));
 
         // MediatR — Application CQRS handlers
-        // TODO: Assembly marker mevcut olunca aktiflestirilecek:
+        // FUTURE: Assembly marker mevcut olunca aktiflestirilecek:
         // services.AddMediatR(cfg =>
         //     cfg.RegisterServicesFromAssembly(typeof(MesTech.Application.AssemblyMarker).Assembly));
 
         ServiceProvider = services.BuildServiceProvider();
 
-        // TODO: Migration uygula (AppDbContext hazir olunca)
+        // FUTURE: Migration uygula (AppDbContext hazir olunca)
         // var db = ServiceProvider.GetRequiredService<AppDbContext>();
         // await db.Database.MigrateAsync();
 
