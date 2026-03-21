@@ -8,7 +8,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesTechPrimary}" Padding="20,14">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -17,7 +17,7 @@
                 <TextBlock Text="Projeler" Foreground="White" FontSize="18"
                            FontWeight="SemiBold" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" Content="+ Yeni Proje" Command="{Binding CreateProjectCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesTechPrimary}" FontWeight="SemiBold"
                         Padding="16,8" BorderThickness="0"
                         Style="{StaticResource MaterialDesignRaisedButton}"/>
             </Grid>
@@ -46,7 +46,7 @@
                             <StackPanel>
                                 <!-- Renk şerit -->
                                 <Border Height="4" CornerRadius="2" Margin="0,0,0,14"
-                                        Background="{Binding Color, FallbackValue='#2855AC'}"/>
+                                        Background="{Binding Color, FallbackValue='{DynamicResource MesTechPrimary}'}"/>
                                 <TextBlock Text="{Binding Name}" FontSize="16"
                                            FontWeight="SemiBold" TextWrapping="Wrap"/>
                                 <TextBlock Text="{Binding Status}" FontSize="12"
@@ -61,7 +61,7 @@
                                     <ProgressBar Grid.Column="0" Height="6"
                                                  Value="{Binding CompletionPercent}"
                                                  Maximum="100" VerticalAlignment="Center"
-                                                 Foreground="#2855AC" Background="#E2E8F0"/>
+                                                 Foreground="{DynamicResource MesTechPrimary}" Background="#E2E8F0"/>
                                     <TextBlock Grid.Column="1" Margin="8,0,0,0"
                                                Text="{Binding CompletionPercent, StringFormat='{}{0:F0}%'}"
                                                FontSize="12" Foreground="#64748B"/>
@@ -78,7 +78,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Grid.RowSpan="2" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -97,7 +97,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
-                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
             </StackPanel>
         </Border>
     </Grid>
