@@ -8,7 +8,9 @@ using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Entities.Calendar;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Entities.Documents;
+using MesTech.Domain.Entities.Billing;
 using MesTech.Domain.Entities.Finance;
+using MesTech.Domain.Entities.Onboarding;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Entities.Hr;
 using MesTech.Domain.Entities.Tasks;
@@ -160,6 +162,15 @@ public class AppDbContext : DbContext
     public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
     public DbSet<GLTransaction> GLTransactions => Set<GLTransaction>();
     public DbSet<FinanceExpense> FinanceExpenses => Set<FinanceExpense>();
+    public DbSet<CashRegister> CashRegisters => Set<CashRegister>();
+    public DbSet<CashTransaction> CashTransactions => Set<CashTransaction>();
+
+    // ═══════════════════════════════════════
+    // BILLING & ONBOARDING
+    // ═══════════════════════════════════════
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
+    public DbSet<OnboardingProgress> OnboardingProgress => Set<OnboardingProgress>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — GÖREVLER & PROJELER
