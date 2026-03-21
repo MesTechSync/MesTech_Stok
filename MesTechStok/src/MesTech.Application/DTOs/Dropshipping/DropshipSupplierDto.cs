@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Dropshipping;
 
+/// <summary>
+/// Dropship Supplier data transfer object.
+/// </summary>
 public class DropshipSupplierDto
 {
     public Guid Id { get; set; }

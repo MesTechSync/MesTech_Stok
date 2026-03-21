@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Inventory Item data transfer object.
+/// </summary>
 public class InventoryItemDto
 {
     public Guid Id { get; set; }

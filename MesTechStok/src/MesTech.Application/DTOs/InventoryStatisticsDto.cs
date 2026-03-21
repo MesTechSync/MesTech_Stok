@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Inventory Statistics data transfer object.
+/// </summary>
 public class InventoryStatisticsDto
 {
     public decimal TotalInventoryValue { get; set; }

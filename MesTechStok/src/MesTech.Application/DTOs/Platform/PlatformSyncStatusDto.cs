@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Platform Sync Status data transfer object.
+/// </summary>
 public class PlatformSyncStatusDto
 {
     public PlatformType Platform { get; set; }

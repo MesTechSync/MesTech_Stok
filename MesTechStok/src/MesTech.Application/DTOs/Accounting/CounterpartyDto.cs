@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Counterparty data transfer object.
+/// </summary>
 public class CounterpartyDto
 {
     public Guid Id { get; set; }

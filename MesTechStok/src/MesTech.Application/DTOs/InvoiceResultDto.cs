@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Invoice Result data transfer object.
+/// </summary>
 public class InvoiceResult
 {
     public bool Success { get; set; }

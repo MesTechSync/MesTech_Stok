@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Tax Summary data transfer object.
+/// </summary>
 public class TaxSummaryDto
 {
     public decimal TotalTaxable { get; set; }

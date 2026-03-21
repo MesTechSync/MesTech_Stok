@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Dropship Dashboard data transfer object.
+/// </summary>
 public class DropshipDashboardDto
 {
     public int ActiveSuppliers { get; set; }

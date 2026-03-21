@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Chart Of Accounts data transfer object.
+/// </summary>
 public class ChartOfAccountsDto
 {
     public Guid Id { get; set; }

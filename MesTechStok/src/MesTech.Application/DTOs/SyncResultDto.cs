@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Sync Result data transfer object.
+/// </summary>
 public class SyncResultDto
 {
     public bool IsSuccess { get; set; }

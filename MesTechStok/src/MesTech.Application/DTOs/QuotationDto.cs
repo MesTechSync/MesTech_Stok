@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Quotation data transfer object.
+/// </summary>
 public class QuotationDto
 {
     public Guid Id { get; set; }

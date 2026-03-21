@@ -3,6 +3,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Penalty Record data transfer object.
+/// </summary>
 public class PenaltyRecordDto
 {
     public Guid Id { get; set; }

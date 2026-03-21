@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Finance;
 
+/// <summary>
+/// Cash Flow data transfer object.
+/// </summary>
 public class CashFlowDto
 {
     public int Year { get; set; }

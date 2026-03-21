@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Crm;
 
+/// <summary>
+/// Platform Message data transfer object.
+/// </summary>
 public class PlatformMessageDto
 {
     public Guid Id { get; set; }

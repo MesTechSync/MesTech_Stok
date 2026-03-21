@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Barcode Scan Log data transfer object.
+/// </summary>
 public class BarcodeScanLogDto
 {
     public Guid Id { get; set; }

@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Xml Import Result data transfer object.
+/// </summary>
 public class XmlImportResult
 {
     public int TotalRows { get; set; }

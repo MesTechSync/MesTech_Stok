@@ -1,4 +1,7 @@
 namespace MesTech.Application.DTOs.Crm;
+/// <summary>
+/// Kanban Board data transfer object.
+/// </summary>
 public class KanbanBoardDto
 {
     public Guid PipelineId { get; set; }

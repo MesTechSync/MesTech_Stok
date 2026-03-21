@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Tasks;
 
+/// <summary>
+/// Project data transfer object.
+/// </summary>
 public class ProjectDto
 {
     public Guid Id { get; set; }

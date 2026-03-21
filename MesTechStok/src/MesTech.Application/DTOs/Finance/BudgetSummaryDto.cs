@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Finance;
 
+/// <summary>
+/// Budget Summary data transfer object.
+/// </summary>
 public class BudgetSummaryDto
 {
     public int Year { get; set; }

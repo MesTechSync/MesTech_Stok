@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Platform Commission Rate data transfer object.
+/// </summary>
 public class PlatformCommissionRateDto
 {
     public Guid Id { get; set; }

@@ -1,4 +1,7 @@
 namespace MesTech.Application.DTOs.Crm;
+/// <summary>
+/// Deal data transfer object.
+/// </summary>
 public class DealDto
 {
     public Guid Id { get; set; }

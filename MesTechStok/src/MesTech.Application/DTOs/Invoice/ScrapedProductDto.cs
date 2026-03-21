@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Invoice;
 
+/// <summary>
+/// Scraped Product data transfer object.
+/// </summary>
 public record ScrapedProductDto(
     string Title,
     decimal Price,

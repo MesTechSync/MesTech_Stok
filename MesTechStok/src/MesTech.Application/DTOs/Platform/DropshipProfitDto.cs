@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Dropship Profit data transfer object.
+/// </summary>
 public class DropshipProfitDto
 {
     public Guid ProductId { get; set; }

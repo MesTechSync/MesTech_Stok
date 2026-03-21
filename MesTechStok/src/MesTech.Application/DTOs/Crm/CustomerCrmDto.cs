@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Crm;
 
+/// <summary>
+/// Customer Crm data transfer object.
+/// </summary>
 public class CustomerCrmDto
 {
     public Guid Id { get; set; }

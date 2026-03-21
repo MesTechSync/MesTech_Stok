@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Settlement Batch data transfer object.
+/// </summary>
 public class SettlementBatchDto
 {
     public Guid Id { get; set; }

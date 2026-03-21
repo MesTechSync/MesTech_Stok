@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Bitrix24 Deal Status data transfer object.
+/// </summary>
 public class Bitrix24DealStatusDto
 {
     public Guid Bitrix24DealId { get; set; }

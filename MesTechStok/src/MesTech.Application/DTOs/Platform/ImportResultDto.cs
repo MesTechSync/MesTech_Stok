@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Import Result data transfer object.
+/// </summary>
 public class ImportResultDto
 {
     public int TotalProcessed { get; set; }

@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Cari Hareket data transfer object.
+/// </summary>
 public class CariHareketDto
 {
     public Guid Id { get; set; }

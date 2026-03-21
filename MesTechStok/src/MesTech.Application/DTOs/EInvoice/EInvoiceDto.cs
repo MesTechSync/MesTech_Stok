@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.EInvoice;
 
+/// <summary>
+/// E Invoice data transfer object.
+/// </summary>
 public record EInvoiceDto(
     Guid Id,
     string GibUuid,

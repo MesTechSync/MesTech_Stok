@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Fetched Product data transfer object.
+/// </summary>
 public class FetchedProductDto
 {
     public string Name { get; set; } = string.Empty;

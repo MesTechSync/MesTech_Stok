@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Invoice;
 
+/// <summary>
+/// Invoice Create Request data transfer object.
+/// </summary>
 public record InvoiceCreateRequest
 {
     public Guid OrderId { get; init; }

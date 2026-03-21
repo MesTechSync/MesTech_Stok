@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Feed Preview data transfer object.
+/// </summary>
 public class FeedPreviewDto
 {
     public int TotalProductCount { get; set; }

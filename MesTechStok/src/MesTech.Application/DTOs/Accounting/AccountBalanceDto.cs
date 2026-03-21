@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Account Balance data transfer object.
+/// </summary>
 public class AccountBalanceDto
 {
     public Guid AccountId { get; set; }

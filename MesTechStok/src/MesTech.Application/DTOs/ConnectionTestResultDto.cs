@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Connection Test Result data transfer object.
+/// </summary>
 public class ConnectionTestResultDto
 {
     public bool IsSuccess { get; set; }

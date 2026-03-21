@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Bulk Update Result data transfer object.
+/// </summary>
 public class BulkUpdateResult
 {
     public int SuccessCount { get; init; }

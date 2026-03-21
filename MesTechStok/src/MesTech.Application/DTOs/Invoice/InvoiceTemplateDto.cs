@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Invoice;
 
+/// <summary>
+/// Invoice Template data transfer object.
+/// </summary>
 public record InvoiceTemplateDto(
     IReadOnlyList<byte>? LogoImage,
     IReadOnlyList<byte>? SignatureImage,

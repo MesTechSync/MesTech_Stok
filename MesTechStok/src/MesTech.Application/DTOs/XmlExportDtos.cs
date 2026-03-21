@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Product Export data transfer object.
+/// </summary>
 public sealed record ProductExportDto(
     string Sku,
     string Name,

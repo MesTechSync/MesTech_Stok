@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Journal Entry data transfer object.
+/// </summary>
 public class JournalEntryDto
 {
     public Guid Id { get; set; }

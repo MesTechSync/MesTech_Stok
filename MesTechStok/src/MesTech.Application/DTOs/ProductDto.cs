@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Product data transfer object.
+/// </summary>
 public class ProductDto
 {
     public Guid Id { get; set; }

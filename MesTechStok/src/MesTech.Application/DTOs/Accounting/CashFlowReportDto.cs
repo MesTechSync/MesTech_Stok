@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Cash Flow Report data transfer object.
+/// </summary>
 public class CashFlowReportDto
 {
     public decimal TotalInflow { get; set; }

@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Feed Product Preview data transfer object.
+/// </summary>
 public class FeedProductPreviewDto
 {
     public string Name { get; set; } = string.Empty;

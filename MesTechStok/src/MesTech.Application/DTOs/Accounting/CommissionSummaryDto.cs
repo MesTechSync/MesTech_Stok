@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Commission Summary data transfer object.
+/// </summary>
 public class CommissionSummaryDto
 {
     public decimal TotalCommission { get; set; }

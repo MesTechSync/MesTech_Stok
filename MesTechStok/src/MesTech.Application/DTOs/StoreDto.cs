@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Store data transfer object.
+/// </summary>
 public class StoreDto
 {
     public Guid Id { get; set; }

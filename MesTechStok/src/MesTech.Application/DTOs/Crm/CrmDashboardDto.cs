@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Crm;
 
+/// <summary>
+/// Crm Dashboard data transfer object.
+/// </summary>
 public class CrmDashboardDto
 {
     public int TotalCustomers { get; set; }

@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Tasks;
 
+/// <summary>
+/// Work Task data transfer object.
+/// </summary>
 public class WorkTaskDto
 {
     public Guid Id { get; set; }

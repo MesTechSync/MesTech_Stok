@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs;
 
+/// <summary>
+/// Tenant data transfer object.
+/// </summary>
 public class TenantDto
 {
     public Guid Id { get; set; }

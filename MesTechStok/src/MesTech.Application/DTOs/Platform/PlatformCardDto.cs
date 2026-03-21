@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Platform;
 
+/// <summary>
+/// Platform Card data transfer object.
+/// </summary>
 public class PlatformCardDto
 {
     public PlatformType Platform { get; set; }

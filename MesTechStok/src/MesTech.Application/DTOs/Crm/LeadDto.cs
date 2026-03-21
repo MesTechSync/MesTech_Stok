@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Crm;
 
+/// <summary>
+/// Lead data transfer object.
+/// </summary>
 public class LeadDto
 {
     public Guid Id { get; set; }

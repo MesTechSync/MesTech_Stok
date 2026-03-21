@@ -1,5 +1,8 @@
 namespace MesTech.Application.DTOs.Invoice;
 
+/// <summary>
+/// Bulk Invoice Result data transfer object.
+/// </summary>
 public record BulkInvoiceResult(
     int TotalRequested,
     int SuccessCount,

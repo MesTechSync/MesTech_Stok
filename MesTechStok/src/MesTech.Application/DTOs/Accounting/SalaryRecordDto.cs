@@ -2,6 +2,9 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Accounting;
 
+/// <summary>
+/// Salary Record data transfer object.
+/// </summary>
 public class SalaryRecordDto
 {
     public Guid Id { get; set; }
