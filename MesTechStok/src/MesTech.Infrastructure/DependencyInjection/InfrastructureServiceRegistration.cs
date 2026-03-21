@@ -125,6 +125,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IDocumentFolderRepository, Docs.DocumentFolderRepository>();
         services.AddScoped<IDocumentRepository, Docs.DocumentRepository>();
         services.AddScoped<IPipelineRepository, Crm.PipelineRepository>();
+        services.AddScoped<ILoyaltyRepository, Crm.LoyaltyRepository>();
+        services.AddScoped<ICampaignRepository, Crm.CampaignRepository>();
 
         // Task / Calendar Repositories (Dalga 8 H27)
         services.AddScoped<IProjectRepository, Tasks.ProjectRepository>();
