@@ -78,7 +78,7 @@ public static class BulkProductEndpoints
             await file.CopyToAsync(memoryStream, ct);
             var fileBytes = memoryStream.ToArray();
 
-            // TODO(v2): Dosya parser (CSV/Excel) ile CreateBulkProductsCommand entegrasyonu
+            // [Phase-2] Dosya parser (CSV/Excel) ile CreateBulkProductsCommand entegrasyonu
             return Results.Ok(new
             {
                 fileName = file.FileName,
