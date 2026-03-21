@@ -104,6 +104,15 @@
                                 <DataGridTextColumn Header="Durum" Binding="{Binding StokDurum}" Width="100" />
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- Empty State: Barcode -->
+                        <TextBlock Text="Kayıt bulunamadı"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="0,40"
+                                   Opacity="0.5"
+                                   FontSize="16"
+                                   IsVisible="{Binding !WarehouseStocks.Count}" />
                     </Grid>
                 </Border>
 

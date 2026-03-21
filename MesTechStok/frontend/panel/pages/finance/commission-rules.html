@@ -183,11 +183,11 @@
         const tdAction = document.createElement('td');
         const btnEdit = document.createElement('button');
         btnEdit.className = 'btn-sm-action btn-edit';
-        btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
+        btnEdit.innerHTML = '<i class="fas fa-edit"></i>'; // SAFE: static HTML icon
         btnEdit.title = 'Duzenle';
         const btnDel = document.createElement('button');
         btnDel.className = 'btn-sm-action btn-delete';
-        btnDel.innerHTML = '<i class="fas fa-trash"></i>';
+        btnDel.innerHTML = '<i class="fas fa-trash"></i>'; // SAFE: static HTML icon
         btnDel.title = 'Sil';
         tdAction.appendChild(btnEdit);
         tdAction.appendChild(btnDel);

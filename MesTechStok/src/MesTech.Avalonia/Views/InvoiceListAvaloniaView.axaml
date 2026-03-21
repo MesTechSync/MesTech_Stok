@@ -97,6 +97,16 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <!-- Empty State: Invoices -->
+        <TextBlock Grid.Row="2"
+                   Text="Kayıt bulunamadı"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0,40"
+                   Opacity="0.5"
+                   FontSize="16"
+                   IsVisible="{Binding !Invoices.Count}" />
+
         <!-- Row 3: Footer — pagination -->
         <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" Padding="16,10"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">

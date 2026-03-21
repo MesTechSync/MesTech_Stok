@@ -70,23 +70,34 @@
         <!-- DataGrid -->
         <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-            <DataGrid ItemsSource="{Binding Items}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      GridLinesVisibility="Horizontal"
-                      BorderThickness="0"
-                      CanUserSortColumns="True"
-                      CanUserResizeColumns="True">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Personel" Binding="{Binding EmployeeName}" Width="*" />
-                    <DataGridTextColumn Header="Brut" Binding="{Binding GrossFormatted}" Width="110" />
-                    <DataGridTextColumn Header="SGK Isci" Binding="{Binding SgkEmployeeFormatted}" Width="100" />
-                    <DataGridTextColumn Header="SGK Isveren" Binding="{Binding SgkEmployerFormatted}" Width="110" />
-                    <DataGridTextColumn Header="Gelir Vergisi" Binding="{Binding IncomeTaxFormatted}" Width="110" />
-                    <DataGridTextColumn Header="Damga" Binding="{Binding StampTaxFormatted}" Width="90" />
-                    <DataGridTextColumn Header="Net" Binding="{Binding NetFormatted}" Width="110" />
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                <DataGrid ItemsSource="{Binding Items}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          CanUserSortColumns="True"
+                          CanUserResizeColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Personel" Binding="{Binding EmployeeName}" Width="*" />
+                        <DataGridTextColumn Header="Brut" Binding="{Binding GrossFormatted}" Width="110" />
+                        <DataGridTextColumn Header="SGK Isci" Binding="{Binding SgkEmployeeFormatted}" Width="100" />
+                        <DataGridTextColumn Header="SGK Isveren" Binding="{Binding SgkEmployerFormatted}" Width="110" />
+                        <DataGridTextColumn Header="Gelir Vergisi" Binding="{Binding IncomeTaxFormatted}" Width="110" />
+                        <DataGridTextColumn Header="Damga" Binding="{Binding StampTaxFormatted}" Width="90" />
+                        <DataGridTextColumn Header="Net" Binding="{Binding NetFormatted}" Width="110" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State: Bordro -->
+                <TextBlock Text="Kayıt bulunamadı"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,40"
+                           Opacity="0.5"
+                           FontSize="16"
+                           IsVisible="{Binding !Items.Count}" />
+            </Grid>
         </Border>
 
         <!-- Loading Overlay -->

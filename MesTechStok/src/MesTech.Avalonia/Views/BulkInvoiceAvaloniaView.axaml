@@ -64,6 +64,16 @@
                 </DataGrid.Columns>
             </DataGrid>
 
+            <!-- Empty State: BulkInvoice -->
+            <TextBlock Grid.Row="2"
+                       Text="Kayıt bulunamadı"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Margin="0,40"
+                       Opacity="0.5"
+                       FontSize="16"
+                       IsVisible="{Binding !Orders.Count}" />
+
             <!-- Processing Progress -->
             <Border IsVisible="{Binding IsProcessing}"
                     Background="{StaticResource SurfaceBrush}"

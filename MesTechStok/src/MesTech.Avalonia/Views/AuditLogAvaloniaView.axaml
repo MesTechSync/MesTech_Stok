@@ -89,6 +89,16 @@
                 </DataGrid.Columns>
             </DataGrid>
 
+            <!-- Empty State: AuditLog -->
+            <TextBlock Grid.Row="2"
+                       Text="Kayıt bulunamadı"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Margin="0,40"
+                       Opacity="0.5"
+                       FontSize="16"
+                       IsVisible="{Binding !LogEntries.Count}" />
+
             <!-- Detail Panel -->
             <Border Grid.Column="1" Width="320" Background="White"
                     BorderBrush="#E0E6ED" BorderThickness="1,0,0,0"

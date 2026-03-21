@@ -181,6 +181,16 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <!-- Empty State: Products -->
+        <TextBlock Grid.Row="3"
+                   Text="Kayıt bulunamadı"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0,40"
+                   Opacity="0.5"
+                   FontSize="16"
+                   IsVisible="{Binding !Products.Count}" />
+
         <!-- Row 3: Products - Grid View (GOREV 5) -->
         <ScrollViewer Grid.Row="3"
                       IsVisible="{Binding IsGridView}"
