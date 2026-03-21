@@ -18,12 +18,10 @@ public class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
 
     public async Task<EInvoiceDocument?> GetByEttnNoAsync(string ettnNo, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(d => d.EttnNo == ettnNo, ct);
 
     public async Task<EInvoiceDocument?> GetByGibUuidAsync(string gibUuid, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(d => d.GibUuid == gibUuid, ct);
 
     public async Task<(IReadOnlyList<EInvoiceDocument> Items, int Total)> GetPagedAsync(

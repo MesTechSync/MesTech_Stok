@@ -22,7 +22,6 @@ public class CalendarEventRepository : ICalendarEventRepository
                      && e.StartAt >= from
                      && e.StartAt <= to)
             .OrderBy(e => e.StartAt)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

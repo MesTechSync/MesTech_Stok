@@ -19,7 +19,6 @@ public class SyncLogRepository : ISyncLogRepository
             .Where(s => s.TenantId == tenantId)
             .GroupBy(s => s.PlatformCode)
             .Select(g => g.OrderByDescending(s => s.StartedAt).First())
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -32,7 +31,6 @@ public class SyncLogRepository : ISyncLogRepository
             .Where(s => s.TenantId == tenantId
                      && !s.IsSuccess
                      && s.StartedAt >= since)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 }

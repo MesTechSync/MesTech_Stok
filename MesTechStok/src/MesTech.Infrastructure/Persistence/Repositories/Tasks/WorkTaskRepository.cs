@@ -26,7 +26,6 @@ public class WorkTaskRepository : IWorkTaskRepository
             q = q.Where(t => t.AssignedToUserId == assignedToUserId.Value);
         return await q
             .OrderBy(t => t.Position)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -40,7 +39,6 @@ public class WorkTaskRepository : IWorkTaskRepository
             q = q.Where(t => t.Status == status.Value);
         return await q
             .OrderBy(t => t.DueDate)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -51,7 +49,6 @@ public class WorkTaskRepository : IWorkTaskRepository
                      && t.DueDate < DateTime.UtcNow
                      && t.Status != WorkTaskStatus.Done
                      && t.Status != WorkTaskStatus.Cancelled)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

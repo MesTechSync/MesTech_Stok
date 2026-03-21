@@ -35,7 +35,6 @@ public class CrmLeadRepository : ICrmLeadRepository
             .OrderByDescending(l => l.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

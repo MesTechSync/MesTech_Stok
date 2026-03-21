@@ -39,7 +39,6 @@ public class OrderRepository : IOrderRepository
                      && o.OrderDate >= from
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeWithItemsAsync(
@@ -50,7 +49,6 @@ public class OrderRepository : IOrderRepository
                      && o.OrderDate >= from
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Order order)

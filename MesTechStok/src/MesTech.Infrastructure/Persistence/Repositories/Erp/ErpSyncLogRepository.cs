@@ -35,7 +35,6 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
                 && e.EntityType == entityType
                 && e.EntityId == entityId)
             .OrderByDescending(e => e.CreatedAt)
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(ct);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetPendingRetriesAsync(
@@ -46,7 +45,6 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
             .Where(e => e.TenantId == tenantId
                 && e.NextRetryAt != null
                 && e.NextRetryAt <= asOf)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetFailedByProviderAsync(
@@ -58,6 +56,5 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
             .Where(e => e.TenantId == tenantId && e.Provider == provider && !e.Success)
             .OrderByDescending(e => e.CreatedAt)
             .Take(limit)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct);
 }

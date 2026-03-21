@@ -34,7 +34,6 @@ public class CrmDealRepository : ICrmDealRepository
 
         return await query
             .OrderByDescending(d => d.CreatedAt)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -44,7 +43,6 @@ public class CrmDealRepository : ICrmDealRepository
             .Include(d => d.Stage)
             .Where(d => d.CrmContactId == contactId)
             .OrderByDescending(d => d.CreatedAt)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
@@ -67,7 +65,6 @@ public class CrmDealRepository : ICrmDealRepository
             .OrderByDescending(d => d.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }

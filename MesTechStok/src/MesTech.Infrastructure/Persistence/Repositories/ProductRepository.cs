@@ -65,7 +65,6 @@ public class ProductRepository : IProductRepository
             .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
         return PagedResult<Product>.Create(items, totalCount, page, pageSize);
@@ -99,7 +98,7 @@ public class ProductRepository : IProductRepository
             var ids = batch.Select(b => b.ProductId).ToList();
             var products = await _context.Products
                 .Where(p => ids.Contains(p.Id))
-                .AsNoTracking().ToListAsync(ct)
+                .ToListAsync(ct)
                 .ConfigureAwait(false);
 
             foreach (var (productId, newStock) in batch)
@@ -127,7 +126,7 @@ public class ProductRepository : IProductRepository
             var ids = batch.Select(b => b.ProductId).ToList();
             var products = await _context.Products
                 .Where(p => ids.Contains(p.Id))
-                .AsNoTracking().ToListAsync(ct)
+                .ToListAsync(ct)
                 .ConfigureAwait(false);
 
             foreach (var (productId, newPrice) in batch)

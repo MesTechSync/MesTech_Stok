@@ -19,7 +19,6 @@ public class ProjectRepository : IProjectRepository
         => await _context.Projects
             .Where(p => p.TenantId == tenantId)
             .OrderByDescending(p => p.CreatedAt)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

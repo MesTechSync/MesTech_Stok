@@ -12,13 +12,11 @@ public class NotificationLogRepository : INotificationLogRepository
 
     public async Task<NotificationLog?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.NotificationLogs
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(n => n.Id == id, ct);
 
     public async Task<IReadOnlyList<NotificationLog>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.NotificationLogs
             .Where(n => n.TenantId == tenantId)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<(IReadOnlyList<NotificationLog> Items, int TotalCount)> GetPagedAsync(
@@ -39,7 +37,6 @@ public class NotificationLogRepository : INotificationLogRepository
             .OrderByDescending(n => n.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct);
 
         return (items, total);

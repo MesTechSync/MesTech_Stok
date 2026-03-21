@@ -31,7 +31,6 @@ public class CrmContactRepository : ICrmContactRepository
             .OrderByDescending(c => c.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
@@ -43,7 +42,6 @@ public class CrmContactRepository : ICrmContactRepository
         => await _context.CrmContacts
             .Where(c => c.TenantId == tenantId)
             .OrderBy(c => c.FullName)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

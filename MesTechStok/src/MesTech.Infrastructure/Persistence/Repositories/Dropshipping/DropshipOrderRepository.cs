@@ -12,7 +12,6 @@ public class DropshipOrderRepository : IDropshipOrderRepository
 
     public async Task<DropshipOrder?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.DropshipOrders
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id, ct);
 
     public async Task<IReadOnlyList<DropshipOrder>> GetByTenantAsync(
@@ -20,12 +19,10 @@ public class DropshipOrderRepository : IDropshipOrderRepository
         CancellationToken ct = default)
         => await _context.DropshipOrders
             .Where(o => o.TenantId == tenantId)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<DropshipOrder?> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
         => await _context.DropshipOrders
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(o => o.OrderId == orderId, ct);
 
     public async Task AddAsync(DropshipOrder order, CancellationToken ct = default)

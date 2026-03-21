@@ -13,7 +13,6 @@ public class PlatformCommissionRepository : IPlatformCommissionRepository
 
     public async Task<PlatformCommission?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.PlatformCommissions
-            .AsNoTracking()
             .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<IReadOnlyList<PlatformCommission>> GetByPlatformAsync(

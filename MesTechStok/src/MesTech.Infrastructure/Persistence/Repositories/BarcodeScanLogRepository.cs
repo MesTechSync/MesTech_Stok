@@ -24,7 +24,6 @@ public class BarcodeScanLogRepository : IBarcodeScanLogRepository
             .OrderByDescending(l => l.TimestampUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking()
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
     }
