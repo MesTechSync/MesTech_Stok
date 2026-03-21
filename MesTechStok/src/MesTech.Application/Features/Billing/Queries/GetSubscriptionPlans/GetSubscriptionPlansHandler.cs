@@ -12,6 +12,7 @@ public class GetSubscriptionPlansHandler : IRequestHandler<GetSubscriptionPlansQ
 
     public async Task<IReadOnlyList<SubscriptionPlanDto>> Handle(GetSubscriptionPlansQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var plans = await _repository.GetActiveAsync(cancellationToken);
         return plans.Select(p => new SubscriptionPlanDto
         {
