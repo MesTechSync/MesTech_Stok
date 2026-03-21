@@ -98,6 +98,14 @@
       </div>
     </div>
 
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@successMessage
+        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+      </div>
+    }
+
     <!-- Action Bar -->
     <div class="card shadow-sm mb-4">
       <div class="card-body py-2">
@@ -216,6 +224,7 @@
   private bool _isDemoMode;
   private bool isRunning;
   private string? errorMessage;
+  private string? successMessage;
   private string selectedStatus = string.Empty;
   private List<ReconciliationMatch> matches = [];
 
@@ -298,20 +307,26 @@
 
   private async Task ApproveMatch(ReconciliationMatch match)
   {
+    successMessage = null;
+    errorMessage = null;
     var approveResult = await ApiClient.SafePostAsync<object>("reconciliation/approve", new { SettlementAciklama = match.SettlementAciklama });
-    if (!approveResult.IsSuccess) { errorMessage = approveResult.ErrorMessage; }
+    if (!approveResult.IsSuccess) { errorMessage = approveResult.ErrorMessage; return; }
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesti" };
+    successMessage = $"'{match.SettlementAciklama}' eslesmesi onaylandi.";
   }
 
   private async Task RejectMatch(ReconciliationMatch match)
   {
+    successMessage = null;
+    errorMessage = null;
     var rejectResult = await ApiClient.SafePostAsync<object>("reconciliation/reject", new { SettlementAciklama = match.SettlementAciklama });
-    if (!rejectResult.IsSuccess) { errorMessage = rejectResult.ErrorMessage; }
+    if (!rejectResult.IsSuccess) { errorMessage = rejectResult.ErrorMessage; return; }
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesmedi" };
+    successMessage = $"'{match.SettlementAciklama}' eslesmesi reddedildi.";
   }
 
   private static string GetConfidenceBarClass(decimal score) => score switch
