@@ -104,8 +104,8 @@ else
               <tr>
                 <td class="text-muted">@(idx + 1)</td>
                 <td>
-                  <input type="text" class="form-control form-control-sm"
-                         @bind="v.Name" placeholder="Varyant adi" />
+                  <InputText class="form-control form-control-sm"
+                         @bind-Value="v.Name" placeholder="Varyant adi" />
                 </td>
                 <td>
                   <select class="form-select form-select-sm" @bind="v.Color">
@@ -130,16 +130,16 @@ else
                   </select>
                 </td>
                 <td>
-                  <input type="number" class="form-control form-control-sm text-end"
-                         @bind="v.Stock" min="0" />
+                  <InputNumber class="form-control form-control-sm text-end" TValue="int"
+                         @bind-Value="v.Stock" />
                 </td>
                 <td>
-                  <input type="number" class="form-control form-control-sm text-end"
-                         @bind="v.Price" min="0" step="0.01" />
+                  <InputNumber class="form-control form-control-sm text-end" TValue="decimal"
+                         @bind-Value="v.Price" />
                 </td>
                 <td>
-                  <input type="text" class="form-control form-control-sm"
-                         @bind="v.Barcode" placeholder="8680..." />
+                  <InputText class="form-control form-control-sm"
+                         @bind-Value="v.Barcode" placeholder="8680..." />
                 </td>
                 <td class="text-center">
                   @if (_variants.Count > 1)
