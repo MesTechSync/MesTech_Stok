@@ -8,7 +8,7 @@ namespace MesTech.Tests.Unit.Infrastructure.Adapters;
 
 /// <summary>
 /// B.5 — Foundation-level property and behaviour tests for eBay, Ozon and PttAvm adapters.
-/// 15 tests (5 per adapter). Full API tests deferred to TODO H28.
+/// 15 tests (5 per adapter). Full API tests deferred to FUTURE H28.
 /// </summary>
 [Trait("Category", "Unit")]
 public class StubAdapterTests

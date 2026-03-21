@@ -25,6 +25,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory? _httpClientFactory;
     private readonly ILogger<Bitrix24Adapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
@@ -36,9 +37,10 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
     private string _portalDomain = string.Empty;
     private bool _isConfigured;
 
-    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger)
+    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger, IHttpClientFactory? httpClientFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
@@ -142,8 +144,9 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
     private Bitrix24AuthProvider CreateAuthProvider()
     {
         var loggerFactory = LoggerFactory.Create(builder => { });
+        var authHttpClient = _httpClientFactory?.CreateClient("Bitrix24Auth") ?? new HttpClient();
         return new Bitrix24AuthProvider(
-            new HttpClient(),
+            authHttpClient,
             new InMemoryTokenCacheProvider(),
             loggerFactory.CreateLogger<Bitrix24AuthProvider>());
     }

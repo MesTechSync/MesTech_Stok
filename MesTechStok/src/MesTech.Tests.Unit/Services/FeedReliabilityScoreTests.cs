@@ -16,7 +16,7 @@ public class FeedReliabilityScoreTests
 {
     private const string SkipReason = "DEV 1 FeedReliabilityScoreService implementasyonu bekleniyor (Görev 1.03)";
 
-    // TODO: Replace with real service once DEV 1 implements
+    // FUTURE: Replace with real service once DEV 1 implements
     // private FeedReliabilityScoreService CreateService() => new(...);
 
     [Fact(Skip = SkipReason)]

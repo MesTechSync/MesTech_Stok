@@ -55,7 +55,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Act
         foreach (var p in products)
         {
-            // TODO: MediatR — var cmd = new CreateProductCommand { Name = p.Name, SKU = p.Sku, ... };
+            // FUTURE: MediatR — var cmd = new CreateProductCommand { Name = p.Name, SKU = p.Sku, ... };
             // var result = await Mediator.Send(cmd);
             // _productIds.Add(result.Id);
             _productIds.Add(Guid.NewGuid()); // Placeholder
@@ -77,7 +77,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Arrange & Act — her urune 100 adet stok ekle
         foreach (var productId in _productIds)
         {
-            // TODO: MediatR — var cmd = new UpdateStockCommand { ProductId = productId, Quantity = 100, Type = StockMovementType.In };
+            // FUTURE: MediatR — var cmd = new UpdateStockCommand { ProductId = productId, Quantity = 100, Type = StockMovementType.In };
             // await Mediator.Send(cmd);
         }
 
@@ -85,7 +85,7 @@ public class FullMonthE2ETests : E2ETestBase
         var expectedTotal = _productIds.Count * 100;
         expectedTotal.Should().Be(500);
 
-        // TODO: DB dogrulama
+        // FUTURE: DB dogrulama (AppDbContext wiring gerekli)
         // var totalStock = await DbContext.StockMovements.SumAsync(s => s.Quantity);
         // totalStock.Should().Be(500);
 
@@ -119,7 +119,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Act
         foreach (var o in orders)
         {
-            // TODO: MediatR — CreateOrderCommand
+            // FUTURE: MediatR — CreateOrderCommand
             // var result = await Mediator.Send(new CreateOrderCommand { ... });
             // _orderIds.Add(result.Id);
             _orderIds.Add(Guid.NewGuid()); // Placeholder
@@ -132,7 +132,7 @@ public class FullMonthE2ETests : E2ETestBase
         var totalSold = orders.Sum(o => o.Qty);
         totalSold.Should().Be(18);
 
-        // TODO: Stok dusmeli — 500 - 18 = 482 kalan
+        // FUTURE: Stok dogrulama (AppDbContext wiring gerekli) — 500 - 18 = 482 kalan
         // var remainingStock = await DbContext.StockMovements.SumAsync(s => s.Quantity);
         // remainingStock.Should().Be(482);
 
@@ -151,7 +151,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Arrange & Act — her siparis icin fatura kes
         foreach (var orderId in _orderIds)
         {
-            // TODO: MediatR — GenerateInvoiceCommand
+            // FUTURE: MediatR — GenerateInvoiceCommand
             // Fatura = siparis tutari + KDV (%20)
             // var result = await Mediator.Send(new GenerateInvoiceCommand { OrderId = orderId });
             // _invoiceIds.Add(result.Id);
@@ -161,7 +161,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Assert
         _invoiceIds.Should().HaveCount(10, "10 fatura kesilmeli");
 
-        // TODO: KDV kontrolu — her faturada KDV hesaplanmis olmali
+        // FUTURE: KDV kontrolu (AppDbContext wiring gerekli) — her faturada KDV hesaplanmis olmali
         // foreach (var invoiceId in _invoiceIds)
         // {
         //     var invoice = await DbContext.Invoices.FindAsync(invoiceId);
@@ -189,7 +189,7 @@ public class FullMonthE2ETests : E2ETestBase
         for (int i = 0; i < _orderIds.Count; i++)
         {
             var provider = cargoProviders[i % cargoProviders.Length];
-            // TODO: MediatR — CreateShipmentCommand
+            // FUTURE: MediatR — CreateShipmentCommand
             // var result = await Mediator.Send(new CreateShipmentCommand
             //     { OrderId = _orderIds[i], CargoProvider = provider });
             // _shipmentIds.Add(result.Id);
@@ -199,7 +199,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Assert
         _shipmentIds.Should().HaveCount(10, "10 kargo gonderilmeli");
 
-        // TODO: Her kargonun takip numarasi olmali
+        // FUTURE: Her kargonun takip numarasi olmali (AppDbContext wiring gerekli)
         // foreach (var shipmentId in _shipmentIds)
         // {
         //     var shipment = await DbContext.Shipments.FindAsync(shipmentId);
@@ -220,10 +220,10 @@ public class FullMonthE2ETests : E2ETestBase
         DockerHelper.SkipIfNoDocker();
 
         // Arrange — platform odeme bildirimleri simulasyonu
-        // TODO: Her siparis icin platform'dan odeme geldi varsayalim
+        // FUTURE: Her siparis icin platform'dan odeme geldi varsayalim
 
         // Act — mutabakat calistir
-        // TODO: MediatR — RunReconciliationCommand
+        // FUTURE: MediatR — RunReconciliationCommand
         // var result = await Mediator.Send(new RunReconciliationCommand { Month = DateTime.Now.Month });
 
         // Assert
@@ -247,24 +247,24 @@ public class FullMonthE2ETests : E2ETestBase
         DockerHelper.SkipIfNoDocker();
 
         // ── MIZAN (Trial Balance) ──
-        // TODO: var mizan = await Mediator.Send(new GetTrialBalanceQuery { ... });
+        // FUTURE: var mizan = await Mediator.Send(new GetTrialBalanceQuery { ... });
         // Math.Abs(mizan.TotalDebit - mizan.TotalCredit).Should().BeLessThan(0.01m);
 
         // ── BILANCO (Balance Sheet) ──
-        // TODO: var bilanco = await Mediator.Send(new GetBalanceSheetQuery { ... });
+        // FUTURE: var bilanco = await Mediator.Send(new GetBalanceSheetQuery { ... });
         // Math.Abs(bilanco.TotalAssets - (bilanco.TotalLiabilities + bilanco.TotalEquity)).Should().BeLessThan(0.01m);
 
         // ── STOK DURUMU ──
         // Baslangic: 500 adet, Satilan: 18 adet, Kalan: 482 adet
-        // TODO: var stokRaporu = await Mediator.Send(new GetStockSummaryQuery { ... });
+        // FUTURE: var stokRaporu = await Mediator.Send(new GetStockSummaryQuery { ... });
         // stokRaporu.TotalQuantity.Should().Be(482);
 
         // ── FIFO MALIYET ──
-        // TODO: var cogs = await Mediator.Send(new GetCOGSQuery { ... });
+        // FUTURE: var cogs = await Mediator.Send(new GetCOGSQuery { ... });
         // cogs.TotalCost.Should().BeGreaterThan(0, "FIFO maliyet hesaplanmali");
 
         // ── KDV RAPORU ──
-        // TODO: var kdv = await Mediator.Send(new GetVatReportQuery { ... });
+        // FUTURE: var kdv = await Mediator.Send(new GetVatReportQuery { ... });
         // kdv.TotalVatCollected.Should().BeGreaterThan(0);
         // kdv.NetVatPayable.Should().Be(kdv.TotalVatCollected - kdv.TotalVatPaid);
 

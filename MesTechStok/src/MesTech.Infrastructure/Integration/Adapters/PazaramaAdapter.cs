@@ -27,6 +27,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory? _httpClientFactory;
     private readonly ILogger<PazaramaAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
@@ -36,9 +37,10 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private OAuth2AuthProvider? _authProvider;
     private bool _isConfigured;
 
-    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger)
+    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger, IHttpClientFactory? httpClientFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
@@ -108,7 +110,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             ? $"{baseUrl.TrimEnd('/')}/connect/token"
             : "https://isortagimgiris.pazarama.com/connect/token";
 
-        var tokenHttpClient = new HttpClient();
+        var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken") ?? new HttpClient();
 
         var loggerFactory = new LoggerFactory();
 

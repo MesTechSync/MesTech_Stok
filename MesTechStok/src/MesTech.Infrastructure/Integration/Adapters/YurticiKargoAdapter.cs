@@ -6,6 +6,9 @@ using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -19,6 +22,7 @@ public class YurticiKargoAdapter : ICargoAdapter
     private readonly ILogger<YurticiKargoAdapter> _logger;
     private readonly YurticiKargoOptions _options;
     private readonly SimpleSoapClient _soapClient;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private string _serviceUrl = string.Empty;
     private string _userName = string.Empty;
@@ -38,6 +42,42 @@ public class YurticiKargoAdapter : ICargoAdapter
 
         // Initialise service URL from options so sandbox toggle works before Configure() is called
         _serviceUrl = _options.ServiceUrl;
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "[YurticiKargoAdapter] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("[YurticiKargoAdapter] Circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     public CargoProvider Provider => CargoProvider.YurticiKargo;
