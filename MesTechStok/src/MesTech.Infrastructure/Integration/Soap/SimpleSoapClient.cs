@@ -1,17 +1,22 @@
+using System.Net;
 using System.Text;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Soap;
 
 /// <summary>
-/// Basit SOAP client — Yurtici Kargo XML/SOAP API icin.
+/// Basit SOAP client — Yurtici Kargo / N11 / PTT Kargo XML/SOAP API icin.
 /// Full WCF bagimliligini onlemek icin minimal HttpClient tabanli implementasyon.
+/// Polly retry + circuit breaker dahil.
 /// </summary>
 public class SimpleSoapClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
+    private readonly ResiliencePipeline<HttpResponseMessage> _resiliencePipeline;
 
     private static readonly XNamespace SoapEnv = "http://schemas.xmlsoap.org/soap/envelope/";
 
@@ -19,10 +24,33 @@ public class SimpleSoapClient
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _resiliencePipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 2,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .HandleResult(r => r.StatusCode == HttpStatusCode.TooManyRequests)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    logger.LogWarning(
+                        "SOAP retry {Attempt} after {Delay}ms (status: {Status})",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds,
+                        args.Outcome.Result?.StatusCode);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     /// <summary>
     /// SOAP request gonderir ve response body XElement doner.
+    /// Polly retry pipeline ile korunur.
     /// </summary>
     public async Task<XElement> SendAsync(
         string url,
@@ -37,13 +65,16 @@ public class SimpleSoapClient
 
         var xmlString = envelope.ToString(SaveOptions.DisableFormatting);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, url);
-        request.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
-        request.Headers.Add("SOAPAction", soapAction);
-
         _logger.LogDebug("SOAP request to {Url} action={Action}", url, soapAction);
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        var response = await _resiliencePipeline.ExecuteAsync(async token =>
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
+            request.Headers.Add("SOAPAction", soapAction);
+            return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+        }, ct).ConfigureAwait(false);
+
         var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
