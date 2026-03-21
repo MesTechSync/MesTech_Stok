@@ -202,47 +202,42 @@
               <h5 class="modal-title"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Yeni Hareket - @selectedCari?.Unvan</h5>
               <button type="button" class="btn-close" @onclick="CloseNewHareketForm"></button>
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Tarih</label>
-                <input type="date" class="form-control" @bind="newHareket.Tarih" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Aciklama</label>
-                <input type="text" class="form-control" @bind="newHareket.Aciklama" placeholder="Hareket aciklamasi" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Tutar</label>
-                <input type="number" class="form-control" @bind="newHareket.Tutar" step="0.01" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Tip</label>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" id="tipBorc" value="Borc"
-                           @onchange="() => newHareket.HareketTip = HareketTipi.Borc"
-                           checked="@(newHareket.HareketTip == HareketTipi.Borc)" />
-                    <label class="form-check-label text-danger" for="tipBorc">Borc</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" id="tipAlacak" value="Alacak"
-                           @onchange="() => newHareket.HareketTip = HareketTipi.Alacak"
-                           checked="@(newHareket.HareketTip == HareketTipi.Alacak)" />
-                    <label class="form-check-label text-success" for="tipAlacak">Alacak</label>
-                  </div>
+            <EditForm Model="@newHareket" OnValidSubmit="SaveNewHareket">
+              <DataAnnotationsValidator />
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">Tarih</label>
+                  <InputDate class="form-control" @bind-Value="newHareket.Tarih" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Aciklama</label>
+                  <InputText class="form-control" @bind-Value="newHareket.Aciklama" placeholder="Hareket aciklamasi" />
+                  <ValidationMessage For="@(() => newHareket.Aciklama)" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Tutar</label>
+                  <InputNumber class="form-control" @bind-Value="newHareket.Tutar" />
+                  <ValidationMessage For="@(() => newHareket.Tutar)" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Tip</label>
+                  <InputSelect class="form-select" @bind-Value="newHareket.HareketTip">
+                    <option value="@HareketTipi.Borc">Borc</option>
+                    <option value="@HareketTipi.Alacak">Alacak</option>
+                  </InputSelect>
                 </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @onclick="CloseNewHareketForm">Iptal</button>
-              <button type="button" class="btn btn-primary" @onclick="SaveNewHareket" disabled="@isSubmitting">
-                @if (isSubmitting)
-                {
-                  <span class="spinner-border spinner-border-sm me-1"></span>
-                }
-                <i class="fas fa-save me-1"></i>Kaydet
-              </button>
-            </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseNewHareketForm">Iptal</button>
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                  @if (isSubmitting)
+                  {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  <i class="fas fa-save me-1"></i>Kaydet
+                </button>
+              </div>
+            </EditForm>
           </div>
         </div>
       </div>
@@ -595,7 +590,9 @@
   private class NewHareketForm
   {
     public DateTime Tarih { get; set; } = DateTime.Today;
+    [Required(ErrorMessage = "Aciklama zorunludur")]
     public string Aciklama { get; set; } = "";
+    [Range(0.01, 99999999, ErrorMessage = "Tutar sifirdan buyuk olmalidir")]
     public decimal Tutar { get; set; }
     public HareketTipi HareketTip { get; set; } = HareketTipi.Borc;
   }
