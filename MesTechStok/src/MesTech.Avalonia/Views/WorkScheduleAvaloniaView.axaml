@@ -6,10 +6,10 @@
 
     <!-- EMR-12: Calisma Takvimi — haftalik plan + vardiya listesi -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Calisma Takvimi" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -33,50 +33,50 @@
                 <!-- Week Overview -->
                 <WrapPanel Orientation="Horizontal">
                     <Border Background="White" CornerRadius="8" Padding="16,14" Margin="0,0,8,8"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="120">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="120">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="Pazartesi" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
-                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Pazartesi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="16,14" Margin="0,0,8,8"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="120">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="120">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="Sali" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
-                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Sali" FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="16,14" Margin="0,0,8,8"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="120">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="120">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="Carsamba" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
-                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Carsamba" FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="16,14" Margin="0,0,8,8"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="120">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="120">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="Persembe" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
-                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Persembe" FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="16,14" Margin="0,0,8,8"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="120">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="120">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="Cuma" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
-                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" />
+                            <TextBlock Text="Cuma" FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="09:00-18:00" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                 </WrapPanel>
 
                 <!-- Schedule DataGrid -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Vardiya Plani" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                 <Grid>
                         <DataGrid Grid.Row="1"

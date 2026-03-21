@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Toplu Kargo Gonderim" Foreground="White"
@@ -29,14 +29,14 @@
                 <Button Grid.Column="2" Content="Gonder"
                         Command="{Binding SendBulkCommand}"
                         IsEnabled="{Binding !IsSending}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Tumunu Sec" IsChecked="{Binding SelectAll}" VerticalAlignment="Center" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}" Padding="12,6" />
@@ -69,14 +69,14 @@
 
         <!-- Progress + Summary Footer -->
         <Border Grid.Row="3" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <StackPanel Spacing="8">
                 <!-- Progress Bar -->
                 <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
                              Height="6" IsVisible="{Binding IsSending}" />
                 <TextBlock IsVisible="{Binding IsSending}"
                            Text="{Binding ProgressCurrent, StringFormat='Gonderiliyor: {0}'}"
-                           FontSize="12" Foreground="#64748B" />
+                           FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
 
                 <!-- Summary -->
                 <StackPanel Orientation="Horizontal" Spacing="20"
@@ -126,10 +126,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

@@ -275,7 +275,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ErpSyncHistoryItem">
                                     <Border Padding="12,8" Margin="0,2"
-                                            Background="#F8FAFC" CornerRadius="6">
+                                            Background="{DynamicResource MesBgPage}" CornerRadius="6">
                                         <Grid ColumnDefinitions="140,80,80,*,60">
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding SyncDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"

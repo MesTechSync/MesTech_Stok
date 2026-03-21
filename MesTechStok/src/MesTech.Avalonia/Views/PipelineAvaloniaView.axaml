@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.PipelineAvaloniaView"
              x:DataType="vm:PipelineAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Pipeline" Foreground="White"
@@ -22,7 +22,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -33,7 +33,7 @@
 
                 <!-- Loading -->
                 <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
-                           Foreground="#64748B" HorizontalAlignment="Center" Margin="0,20" />
+                           Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,20" />
 
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
@@ -43,7 +43,7 @@
 
                 <!-- Empty -->
                 <TextBlock Text="Pipeline verisi bulunmuyor."
-                           IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                           IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
 
                 <!-- Pipeline Stages as horizontal bars -->
@@ -63,11 +63,11 @@
                                     <StackPanel Grid.Column="1" Spacing="4">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" />
                                         <TextBlock Text="{Binding DealCount, StringFormat='{}{0} firsat'}"
-                                                   FontSize="12" Foreground="#64748B" />
+                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <!-- Amount -->
                                     <TextBlock Grid.Column="2" Text="{Binding Amount}"
-                                               FontWeight="Bold" FontSize="16" Foreground="#0078D4"
+                                               FontWeight="Bold" FontSize="16" Foreground="{DynamicResource MesPrimaryBlue}"
                                                VerticalAlignment="Center" Margin="0,0,20,0" />
                                     <!-- Percentage -->
                                     <Border Grid.Column="3" CornerRadius="4" Padding="10,4"

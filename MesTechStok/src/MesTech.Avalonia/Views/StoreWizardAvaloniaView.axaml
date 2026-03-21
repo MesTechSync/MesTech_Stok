@@ -6,10 +6,10 @@
 
     <!-- Magaza Ekleme Sihirbazi — 3 adim: Platform Sec → Kimlik → Test + Kaydet -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Yeni Mağaza Ekle" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -22,10 +22,10 @@
 
         <!-- Step Indicator -->
         <Border Grid.Row="1" Background="White" Padding="20,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="#0078D4">
+                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesPrimaryBlue}">
                         <TextBlock Text="1" Foreground="White" FontSize="13" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -33,7 +33,7 @@
                 </StackPanel>
                 <TextBlock Text="—" Foreground="#CBD5E1" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="#94A3B8">
+                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="2" Foreground="White" FontSize="13" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -41,7 +41,7 @@
                 </StackPanel>
                 <TextBlock Text="—" Foreground="#CBD5E1" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="#94A3B8">
+                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="3" Foreground="White" FontSize="13" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -57,7 +57,7 @@
             <!-- STEP 1: Platform Select -->
             <StackPanel IsVisible="{Binding IsStep1Visible}">
                 <TextBlock Text="Platform Seçin" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"
-                           Foreground="#1E293B" />
+                           Foreground="{DynamicResource MesDarkSlate}" />
                 <ItemsControl ItemsSource="{Binding AvailablePlatforms}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -67,7 +67,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:WizardPlatformDto">
                             <Button Margin="6" Padding="0" Background="White" CornerRadius="8"
-                                    BorderBrush="#E5E9F2" BorderThickness="1"
+                                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                     Command="{Binding $parent[ItemsControl].((vm:StoreWizardAvaloniaViewModel)DataContext).SelectPlatformCommand}"
                                     CommandParameter="{Binding}">
                                 <StackPanel Width="160">
@@ -75,8 +75,8 @@
                                     <Border Padding="16,12">
                                         <StackPanel Spacing="6">
                                             <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
-                                                       Foreground="#1E293B" />
-                                            <TextBlock Text="Seç" FontSize="12" Foreground="#0078D4" />
+                                                       Foreground="{DynamicResource MesDarkSlate}" />
+                                            <TextBlock Text="Seç" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -89,34 +89,34 @@
             <!-- STEP 2: Credential Form -->
             <StackPanel IsVisible="{Binding IsStep2Visible}" MaxWidth="500" Spacing="16">
                 <TextBlock Text="{Binding SelectedPlatform, StringFormat='{}{0} — Kimlik Bilgileri'}"
-                           FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                           FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding StoreName}" Watermark="Örn: Ana Mağaza" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding Field1Label}" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding Field1Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field1Value}" Watermark="{Binding Field1Label}" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding Field2Label}" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding Field2Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field2Value}" Watermark="{Binding Field2Label}"
                              PasswordChar="*" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4" IsVisible="{Binding Field3Visible}">
-                    <TextBlock Text="{Binding Field3Label}" FontSize="12" Foreground="#64748B" />
+                    <TextBlock Text="{Binding Field3Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field3Value}" Watermark="{Binding Field3Label}" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
-                            Background="#94A3B8" Foreground="White" Padding="16,8" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="White" Padding="16,8" CornerRadius="6" />
                     <Button Content="İleri" Command="{Binding GoNextCommand}"
-                            Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                 </StackPanel>
             </StackPanel>
@@ -124,15 +124,15 @@
             <!-- STEP 3: Test + Save -->
             <StackPanel IsVisible="{Binding IsStep3Visible}" MaxWidth="500" Spacing="16">
                 <TextBlock Text="Bağlantı Testi ve Kayıt" FontSize="16" FontWeight="SemiBold"
-                           Foreground="#1E293B" />
+                           Foreground="{DynamicResource MesDarkSlate}" />
 
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="{Binding SelectedPlatform, StringFormat='Platform: {0}'}" FontSize="14" />
                         <TextBlock Text="{Binding StoreName, StringFormat='Mağaza: {0}'}" FontSize="14" />
 
                         <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
-                                Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                 Padding="16,8" CornerRadius="6"
                                 IsEnabled="{Binding !IsTesting}" />
 
@@ -152,7 +152,7 @@
 
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
-                            Background="#94A3B8" Foreground="White" Padding="16,8" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="White" Padding="16,8" CornerRadius="6" />
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveStoreCommand}"
                             Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6"
@@ -165,7 +165,7 @@
                         <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="16" FontWeight="SemiBold"
                                    Foreground="#2E7D32" />
                         <Button Content="Yeni Mağaza Ekle" Command="{Binding ResetCommand}"
-                                Background="#0078D4" Foreground="White" Padding="16,8" CornerRadius="6" />
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White" Padding="16,8" CornerRadius="6" />
                     </StackPanel>
                 </Border>
             </StackPanel>

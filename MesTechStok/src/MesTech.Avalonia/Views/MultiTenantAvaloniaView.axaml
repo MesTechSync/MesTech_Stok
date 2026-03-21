@@ -6,16 +6,16 @@
 
     <!-- EMR-12: Multi-Tenant Yonetimi — tenant listesi + secim + ayarlar -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Multi-Tenant Yonetimi" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -26,14 +26,14 @@
 
                 <!-- Active Tenant Card -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
-                            <TextBlock Text="Aktif Tenant" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Aktif Tenant" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding ActiveTenantName}" FontSize="20" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="{Binding ActiveTenantId, StringFormat='ID: {0}'}"
-                                       FontSize="13" Foreground="#64748B" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
                         <Border Grid.Column="1" Background="#ECFDF5" CornerRadius="4" Padding="12,6"
                                 VerticalAlignment="Center">
@@ -44,12 +44,12 @@
 
                 <!-- Tenant List -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Tum Tenantlar" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                 <Grid>
                         <DataGrid Grid.Row="1"

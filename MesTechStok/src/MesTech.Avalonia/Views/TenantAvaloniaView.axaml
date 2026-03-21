@@ -6,16 +6,16 @@
 
     <!-- EMR-12: Tenant Yonetimi — tenant listesi + secim -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Tenant Yonetimi" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -26,47 +26,47 @@
 
                 <!-- Current Tenant Info -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="6">
-                        <TextBlock Text="Aktif Tenant" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Aktif Tenant" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding TenantName}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <TextBlock Text="{Binding TenantCode, StringFormat='Kod: {0}'}"
-                                       FontSize="13" Foreground="#64748B" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding TenantPlan, StringFormat='Plan: {0}'}"
-                                       FontSize="13" Foreground="#64748B" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- Tenant Config -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Tenant Ayarlari" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                         <StackPanel Grid.Row="1" Margin="16" Spacing="12">
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Veritabani:" FontSize="14"
                                            Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" FontSize="14"
-                                           Foreground="#1E293B" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Max Kullanici:" FontSize="14"
                                            Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding MaxUsers}" FontSize="14"
-                                           Foreground="#1E293B" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Depolama:" FontSize="14"
                                            Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding StorageUsed, StringFormat='{}{0} GB'}" FontSize="14"
-                                           Foreground="#1E293B" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
                     </Grid>

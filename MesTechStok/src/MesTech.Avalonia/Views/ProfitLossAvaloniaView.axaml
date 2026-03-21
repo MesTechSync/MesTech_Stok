@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.ProfitLossAvaloniaView"
              x:DataType="vm:ProfitLossAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header with period navigation -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu (EN)" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -21,14 +21,14 @@
                             Background="Transparent" Foreground="White"
                             BorderThickness="0" FontSize="16" Padding="8,4" />
                     <Button Content="Refresh" Command="{Binding RefreshCommand}"
-                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="12,6" CornerRadius="6" Margin="12,0,0,0" />
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- Summary Cards -->
-        <Border Grid.Row="1" Background="#F8FAFC" Padding="16">
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16">
             <Grid ColumnDefinitions="*,*,*,*">
                 <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="6"
                         BoxShadow="0 2 8 0 #14000000">
@@ -67,10 +67,10 @@
 
         <!-- Detail Table -->
         <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="12"
-                BorderBrush="#E0E6ED" BorderThickness="1">
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid RowDefinitions="Auto,*">
-                <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
-                    <TextBlock Text="Line Item Details" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                    <TextBlock Text="Line Item Details" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                 </Border>
                 <Grid>
                 <DataGrid Grid.Row="1" ItemsSource="{Binding LineItems}"
@@ -115,9 +115,9 @@
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="No data found" FontSize="22" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="No profit/loss data available for the selected period"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -128,8 +128,8 @@
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Retry" Command="{Binding RefreshCommand}" Padding="16,6" />

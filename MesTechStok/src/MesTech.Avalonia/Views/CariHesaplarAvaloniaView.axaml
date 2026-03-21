@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Cari Hesaplar" Foreground="White"
@@ -21,14 +21,14 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Tip:" FontSize="14" Foreground="#475569"
                            VerticalAlignment="Center" />
@@ -65,7 +65,7 @@
                 BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
-                           Foreground="#1E293B" VerticalAlignment="Center" />
+                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 <Border Grid.Column="1" Background="#DBEAFE" CornerRadius="8" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Toplam Borc" FontSize="11" Foreground="#3B82F6" />
@@ -109,7 +109,7 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Cari hesap bulunamadi" FontSize="16" Foreground="#64748B"
+                <TextBlock Text="Cari hesap bulunamadi" FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -121,10 +121,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

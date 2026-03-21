@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.DocumentFolderAvaloniaView"
              x:DataType="vm:DocumentFolderAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Belge Klasorleri" Foreground="White"
@@ -18,7 +18,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Klasor"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -27,21 +27,21 @@
         <Grid Grid.Row="1" ColumnDefinitions="280,*">
 
             <!-- Left: Folders -->
-            <Border Grid.Column="0" Background="White" BorderBrush="#E5E9F2" BorderThickness="0,0,1,0">
+            <Border Grid.Column="0" Background="White" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,1,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- Loading -->
                         <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
-                                   Foreground="#64748B" HorizontalAlignment="Center" Margin="0,20" />
+                                   Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,20" />
 
                         <!-- Folder List -->
                         <ItemsControl ItemsSource="{Binding Folders}" Margin="8" IsVisible="{Binding !IsLoading}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:DocFolderItemVm">
-                                    <Border Margin="0,0,0,4" Padding="12,10" Background="#F8FAFC"
+                                    <Border Margin="0,0,0,4" Padding="12,10" Background="{DynamicResource MesBgPage}"
                                             CornerRadius="6" Cursor="Hand">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
-                                            <Border Grid.Column="0" Background="#0078D4" CornerRadius="4"
+                                            <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="4"
                                                     Width="32" Height="32" Margin="0,0,10,0">
                                                 <TextBlock Text="{Binding Icon}" Foreground="White"
                                                            FontSize="14" FontWeight="Bold"
@@ -53,7 +53,7 @@
                                             <Border Grid.Column="2" Background="#E2E8F0" CornerRadius="10"
                                                     Padding="6,2">
                                                 <TextBlock Text="{Binding FileCount}" FontSize="11"
-                                                           Foreground="#64748B" />
+                                                           Foreground="{DynamicResource MesSlateGray}" />
                                             </Border>
                                         </Grid>
                                     </Border>
@@ -76,7 +76,7 @@
 
                     <!-- Empty -->
                     <TextBlock Text="Dosya bulunmuyor."
-                               IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                               IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
                                HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
 
                     <!-- File List -->
@@ -88,14 +88,14 @@
                                     <Grid ColumnDefinitions="*,Auto,Auto">
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
-                                            <TextBlock Text="{Binding ModifiedDisplay}" FontSize="11" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding ModifiedDisplay}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                         </StackPanel>
                                         <Border Grid.Column="1" Background="#F1F5F9" CornerRadius="4"
                                                 Padding="6,2" Margin="8,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="{DynamicResource MesSlateGray}" />
                                         </Border>
                                         <TextBlock Grid.Column="2" Text="{Binding Size}"
-                                                   FontSize="11" Foreground="#94A3B8"
+                                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}"
                                                    VerticalAlignment="Center" />
                                     </Grid>
                                 </Border>

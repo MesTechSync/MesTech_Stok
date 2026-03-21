@@ -21,6 +21,17 @@
     <Color x:Key="MesSeparator">#E5E5EA</Color>
     <Color x:Key="MesSeparatorOpaque">#C6C6C8</Color>
 
+    <!-- ═══ UI PALETTE (View'larda en sık kullanılan) ═══ -->
+    <Color x:Key="MesSlateGray">#64748B</Color>
+    <Color x:Key="MesPrimaryBlue">#0078D4</Color>
+    <Color x:Key="MesDarkSlate">#1E293B</Color>
+    <Color x:Key="MesBorderLight">#E0E6ED</Color>
+    <Color x:Key="MesMutedGray">#94A3B8</Color>
+    <Color x:Key="MesBgPage">#F8FAFC</Color>
+    <Color x:Key="MesBorderMedium">#E5E9F2</Color>
+    <Color x:Key="MesDanger">#E53935</Color>
+    <Color x:Key="MesGreen">#16A34A</Color>
+
     <!-- ═══ STATUS COLORS ═══ -->
     <Color x:Key="MesSuccess">#34C759</Color>
     <Color x:Key="MesWarning">#FF9500</Color>

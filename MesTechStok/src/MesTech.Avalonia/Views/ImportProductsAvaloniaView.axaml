@@ -9,10 +9,10 @@
 
     <!-- 4-Step Import Wizard: File Selection → Preview → Column Mapping → Import Progress -->
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Urun Iceri Aktarma" Foreground="White"
                            FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
@@ -25,7 +25,7 @@
 
         <!-- Row 1: Step Indicators -->
         <Border Grid.Row="1" Background="White" Padding="20,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,*,*,*" HorizontalAlignment="Stretch">
                 <!-- Step 1 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
@@ -75,7 +75,7 @@
 
             <!-- Step 1: File Selection -->
             <Border IsVisible="{Binding IsStep1}" Background="White" CornerRadius="8"
-                    Padding="32" BorderBrush="#E5E9F2" BorderThickness="1">
+                    Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
                     <!-- Drag-Drop Area -->
                     <Border Background="#F1F5F9" CornerRadius="12" Padding="48,32"
@@ -83,17 +83,17 @@
                             HorizontalAlignment="Stretch">
                         <StackPanel Spacing="12" HorizontalAlignment="Center">
                             <TextBlock Text="Dosya Surukle-Birak" FontSize="20" FontWeight="Bold"
-                                       Foreground="#1E293B" HorizontalAlignment="Center" />
+                                       Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                             <TextBlock Text="Excel (.xlsx, .xls) veya CSV dosyasi yukleyin"
-                                       FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                                       FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                             <TextBlock Text="Maksimum 50.000 satir"
-                                       FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
 
                     <!-- File Dialog Button -->
                     <Button Content="Dosya Sec" Command="{Binding SelectFileCommand}"
-                            Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                             Padding="24,12" CornerRadius="6" FontSize="14"
                             HorizontalAlignment="Center" />
 
@@ -112,10 +112,10 @@
             <!-- Step 2: Preview -->
             <Grid IsVisible="{Binding IsStep2}" RowDefinitions="Auto,*,Auto">
                 <Border Grid.Row="0" Background="White" CornerRadius="8,8,0,0" Padding="16,12"
-                        BorderBrush="#E5E9F2" BorderThickness="1,1,1,0">
+                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1,1,1,0">
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <TextBlock Text="On Izleme (ilk 10 satir)" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#1E293B" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                         <Border Background="#DBEAFE" CornerRadius="10" Padding="10,4">
                             <TextBlock Text="{Binding TotalRowCount, StringFormat='{}{0} satir'}"
                                        FontSize="12" Foreground="#1D4ED8" />
@@ -134,7 +134,7 @@
                           IsReadOnly="True"
                           GridLinesVisibility="All"
                           BorderThickness="1"
-                          BorderBrush="#E5E9F2"
+                          BorderBrush="{DynamicResource MesBorderMedium}"
                           Background="White">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Satir" Binding="{Binding RowNumber}" Width="60" />
@@ -156,12 +156,12 @@
 
             <!-- Step 3: Column Mapping -->
             <Border IsVisible="{Binding IsStep3}" Background="White" CornerRadius="8"
-                    Padding="24" BorderBrush="#E5E9F2" BorderThickness="1">
+                    Padding="24" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <ScrollViewer>
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Kolon Eslestirme" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="Kolon Eslestirme" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <TextBlock Text="Kaynak dosyadaki kolonlari hedef alanlara esleyin"
-                                   FontSize="13" Foreground="#64748B" />
+                                   FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
 
                         <!-- Mapping Header -->
                         <Grid ColumnDefinitions="*,40,*" Margin="0,8,0,0">
@@ -178,7 +178,7 @@
                                             <TextBlock Text="{Binding SourceColumn}" Foreground="#334155" />
                                         </Border>
                                         <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center" Foreground="#94A3B8" FontSize="16" />
+                                                   HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" FontSize="16" />
                                         <ComboBox Grid.Column="2"
                                                   ItemsSource="{Binding $parent[ItemsControl].((vm:ImportProductsAvaloniaViewModel)DataContext).TargetFields}"
                                                   SelectedItem="{Binding TargetField}"
@@ -193,16 +193,16 @@
 
             <!-- Step 4: Import Progress -->
             <Border IsVisible="{Binding IsStep4}" Background="White" CornerRadius="8"
-                    Padding="32" BorderBrush="#E5E9F2" BorderThickness="1">
+                    Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" MinWidth="400">
                     <!-- Progress -->
                     <StackPanel Spacing="8" IsVisible="{Binding IsImporting}">
                         <TextBlock Text="Urunler aktariliyor..." FontSize="18" FontWeight="SemiBold"
-                                   Foreground="#1E293B" HorizontalAlignment="Center" />
+                                   Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         <ProgressBar Value="{Binding ImportProgress}" Minimum="0" Maximum="100"
-                                     Height="8" Foreground="#0078D4" />
+                                     Height="8" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding ImportProgress, StringFormat='%{0:N0}'}"
-                                   FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                                   FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                     </StackPanel>
 
                     <!-- Result Summary -->
@@ -232,7 +232,7 @@
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="{Binding ImportDuration, StringFormat='Sure: {0}'}"
-                                       FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" />
+                                       FontSize="12" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
 
@@ -257,15 +257,15 @@
 
         <!-- Row 3: Navigation Buttons -->
         <Border Grid.Row="3" Background="White" Padding="20,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri" Command="{Binding GoBackCommand}"
                         IsVisible="{Binding CanGoBack}"
-                        Background="#94A3B8" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesMutedGray}" Foreground="White" FontWeight="SemiBold"
                         Padding="20,10" CornerRadius="6" />
                 <Button Grid.Column="2" Content="{Binding NextButtonText}" Command="{Binding GoNextCommand}"
                         IsVisible="{Binding CanGoNext}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="20,10" CornerRadius="6" />
             </Grid>
         </Border>

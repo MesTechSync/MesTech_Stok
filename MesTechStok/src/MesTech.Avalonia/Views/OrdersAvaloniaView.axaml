@@ -6,10 +6,10 @@
 
     <!-- Avalonia Orders — DataGrid with 15 demo orders + status filter -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Siparis Yonetimi" Foreground="White"
@@ -21,14 +21,14 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Row 1: Filters -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="280" Watermark="Siparis no veya musteri ara..."
                          Text="{Binding SearchText}" />
@@ -90,9 +90,9 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="20"
-                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
                 <TextBlock Text="Arama kriterlerine uygun siparis bulunamadi"
-                           FontSize="16" Foreground="#64748B"
+                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>

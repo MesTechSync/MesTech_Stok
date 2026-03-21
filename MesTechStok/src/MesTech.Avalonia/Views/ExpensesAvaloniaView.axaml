@@ -25,7 +25,7 @@
         </Border>
 
         <!-- Toolbar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Gider ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Kategori" Width="140" Margin="8,0" />
@@ -38,7 +38,7 @@
         <Grid Grid.Row="2" Margin="16">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="#64748B"
+                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
             </StackPanel>
 
@@ -50,12 +50,12 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="Gider Yonetimi" FontSize="20" FontWeight="SemiBold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="#64748B"
+                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
                            TextAlignment="Center" />
                 <TextBlock Text="Gider kaydi | Kategori takibi | Fatura eslestirme | Onay sureci"
-                           FontSize="11" Foreground="#94A3B8" HorizontalAlignment="Center"
+                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                            Margin="0,4,0,0" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"

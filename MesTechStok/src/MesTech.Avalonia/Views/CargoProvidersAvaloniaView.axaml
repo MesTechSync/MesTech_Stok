@@ -10,7 +10,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kargo Firmalari" Foreground="White"
@@ -26,7 +26,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -47,7 +47,7 @@
                                 <!-- Provider Name + Status -->
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="{Binding ProviderName}"
-                                               FontSize="16" FontWeight="Bold" Foreground="#1E293B" />
+                                               FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                                     <Ellipse Grid.Column="1" Width="10" Height="10"
                                              Fill="{Binding ConnectionStatusColor}"
                                              ToolTip.Tip="{Binding ConnectionStatusTooltip}" />
@@ -57,7 +57,7 @@
                                 <Border Background="#F1F5F9" CornerRadius="4" Padding="8,4"
                                         HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding ApiTypeText}" FontSize="11"
-                                               Foreground="#64748B" FontFamily="Consolas" />
+                                               Foreground="{DynamicResource MesSlateGray}" FontFamily="Consolas" />
                                 </Border>
 
                                 <!-- Stats -->
@@ -65,9 +65,9 @@
                                     <TextBlock Text="{Binding TodayStats, StringFormat='Bugun: {0}'}"
                                                FontSize="13" Foreground="#475569" />
                                     <TextBlock Text="{Binding LastShipmentText, StringFormat='Son gonderim: {0}'}"
-                                               FontSize="12" Foreground="#94A3B8" />
+                                               FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                                     <TextBlock Text="{Binding AvgDeliveryDays, StringFormat='Ort. teslim: {0:N1} gun'}"
-                                               FontSize="12" Foreground="#94A3B8" />
+                                               FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                                 </StackPanel>
 
                                 <!-- Actions -->
@@ -75,7 +75,7 @@
                                     <Button Content="Gonderim Olustur"
                                             Command="{Binding CreateShipmentCommand}"
                                             Padding="10,6" FontSize="12" CornerRadius="4"
-                                            Background="#0078D4" Foreground="White" />
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" />
                                     <Button Content="Takip"
                                             Command="{Binding TrackCommand}"
                                             Padding="10,6" FontSize="12" CornerRadius="4" />
@@ -107,10 +107,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

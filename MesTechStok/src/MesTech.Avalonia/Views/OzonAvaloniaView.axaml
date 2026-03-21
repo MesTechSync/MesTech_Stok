@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.OzonAvaloniaView"
              x:DataType="vm:OzonAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Ozon Entegrasyonu" Foreground="White"
@@ -25,7 +25,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et" Command="{Binding SyncCommand}"
-                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                             Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
@@ -37,7 +37,7 @@
         <!-- KPI Cards -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
             <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="#005BFF" />
                     <StackPanel Grid.Column="1" Margin="16">
@@ -46,12 +46,12 @@
                                    FontSize="28" FontWeight="Bold" Foreground="#005BFF"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Ozon'daki urun sayisi"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Grid>
             </Border>
             <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="#10B981" />
                     <StackPanel Grid.Column="1" Margin="16">
@@ -60,12 +60,12 @@
                                    FontSize="28" FontWeight="Bold" Foreground="#10B981"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Bekleyen siparis sayisi"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Grid>
             </Border>
             <Border Grid.Column="2" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="#F59E0B" />
                     <StackPanel Grid.Column="1" Margin="16">
@@ -74,21 +74,21 @@
                                    FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Bugunku toplam ciro (RUB)"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Grid>
             </Border>
             <Border Grid.Column="3" Background="White" CornerRadius="8" Margin="6"
-                    BorderBrush="#E0E6ED" BorderThickness="1" ClipToBounds="True">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#0078D4" />
+                    <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
                     <StackPanel Grid.Column="1" Margin="16">
                         <TextBlock Text="Stok Senkron" FontSize="12" Foreground="#6B7280" />
                         <TextBlock Text="{Binding SyncStatus}"
-                                   FontSize="18" FontWeight="Bold" Foreground="#0078D4"
+                                   FontSize="18" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="{Binding LastSyncTime, StringFormat='Son: {0}'}"
-                                   FontSize="11" Foreground="#94A3B8" Margin="0,4,0,0" />
+                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -96,16 +96,16 @@
 
         <!-- Recent Orders DataGrid -->
         <Border Grid.Row="2" Background="White" CornerRadius="8" Margin="22,0,22,22"
-                BorderBrush="#E0E6ED" BorderThickness="1">
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid RowDefinitions="Auto,*">
                 <Border Grid.Row="0" Padding="20,14"
-                        BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBlock Text="Son Siparisler" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <TextBlock Grid.Column="1"
                                    Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center" />
+                                   FontSize="12" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                     </Grid>
                 </Border>
                 <Grid>
@@ -154,14 +154,14 @@
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F8FAFC"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Veri bulunamadi" FontSize="20"
-                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
                 <TextBlock Text="Ozon entegrasyonundan henuz veri cekilemedi"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Margin="0,16,0,0" Padding="16,8" />
@@ -170,7 +170,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F8FAFC"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

@@ -6,10 +6,10 @@
 
     <!-- EMR-12: Sistem Sagligi — CPU, RAM, Disk, DB baglanti durumu -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Sistem Sagligi" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -33,24 +33,24 @@
                 <!-- KPI Cards Row -->
                 <WrapPanel Orientation="Horizontal">
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="CPU Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="CPU Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding CpuUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
-                                <Border CornerRadius="4" Height="6" Background="#0078D4"
+                                <Border CornerRadius="4" Height="6" Background="{DynamicResource MesPrimaryBlue}"
                                         HorizontalAlignment="Left" Width="120" />
                             </Border>
                         </StackPanel>
                     </Border>
 
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="RAM Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="RAM Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding RamUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
                                 <Border CornerRadius="4" Height="6" Background="#059669"
                                         HorizontalAlignment="Left" Width="140" />
@@ -59,11 +59,11 @@
                     </Border>
 
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="200">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Disk Kullanimi" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Disk Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding DiskUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
                                 <Border CornerRadius="4" Height="6" Background="#EA580C"
                                         HorizontalAlignment="Left" Width="100" />
@@ -74,12 +74,12 @@
 
                 <!-- Service Status Table -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Servis Durumu" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                 <Grid>
                         <DataGrid Grid.Row="1"
@@ -133,9 +133,9 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />

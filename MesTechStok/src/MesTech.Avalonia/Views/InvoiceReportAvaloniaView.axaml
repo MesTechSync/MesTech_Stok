@@ -92,7 +92,7 @@
                                    Foreground="{StaticResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding EFaturaCount}"
                                    FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
-                                   Foreground="#0078D4"/>
+                                   Foreground="{DynamicResource MesPrimaryBlue}"/>
                     </StackPanel>
                 </Border>
                 <!-- e-Arsiv Count -->

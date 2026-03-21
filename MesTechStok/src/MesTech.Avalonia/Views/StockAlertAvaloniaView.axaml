@@ -6,7 +6,7 @@
 
     <!-- I-06 Gorev 3: Kritik Stok Alarm Paneli — 3 seviye renk kodlu + aksiyon butonlari -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
@@ -28,7 +28,7 @@
 
         <!-- Filter Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
                         Background="#F1F5F9" Foreground="#475569" Padding="12,6" CornerRadius="6" />
@@ -64,20 +64,20 @@
                                         <TextBlock Text="{Binding LevelText}" FontSize="12" FontWeight="Bold"
                                                    Foreground="{Binding AlertColor}" />
                                         <TextBlock Text="{Binding Sku, StringFormat='SKU: {0}'}" FontSize="12"
-                                                   Foreground="#64748B" />
+                                                   Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <TextBlock Text="{Binding ProductName}" FontSize="15" FontWeight="SemiBold"
-                                               Foreground="#1E293B" />
+                                               Foreground="{DynamicResource MesDarkSlate}" />
                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <TextBlock Text="{Binding StockInfo}" FontSize="12" Foreground="#64748B" />
-                                        <TextBlock Text="{Binding WarehouseName}" FontSize="12" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding StockInfo}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding WarehouseName}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                 </StackPanel>
 
                                 <!-- Action Buttons -->
                                 <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
                                     <Button Content="Siparis Ver" Padding="10,4" CornerRadius="4"
-                                            Background="#0078D4" Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontSize="11" FontWeight="SemiBold" />
                                     <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="4"
                                             Background="#F1F5F9" Foreground="#475569" FontSize="11" />
                                 </StackPanel>
@@ -105,7 +105,7 @@
                 <TextBlock Text="Tum Stoklar Saglikli" FontSize="22" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="#16A34A" />
                 <TextBlock Text="Kritik seviyede urun bulunmuyor"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>

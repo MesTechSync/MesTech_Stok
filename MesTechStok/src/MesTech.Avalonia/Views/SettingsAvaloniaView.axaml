@@ -8,10 +8,10 @@
     <!-- Tab-like sections: API Ayarlari, Bildirimler, Tema -->
     <!-- Brand color #0078D4 -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Ayarlar" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
                            Foreground="#FFFFFF99" FontSize="12"
@@ -41,13 +41,13 @@
 
                 <!-- Section 1: API Ayarlari -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Ayarlari" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Platform API baglanti yapilandirmasi"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <StackPanel Spacing="6">
@@ -70,7 +70,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Test Baglanti"
                                     Command="{Binding TestConnectionCommand}"
-                                    Background="#0078D4" Foreground="White"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                                     FontWeight="SemiBold"
                                     Padding="16,8" CornerRadius="6" />
 
@@ -85,21 +85,21 @@
 
                 <!-- Section 2: Bildirimler -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Bildirimler" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Bildirim kanali tercihleri"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
                                 <TextBlock Text="E-posta Bildirimleri" FontSize="14"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Siparis ve stok uyarilari e-posta ile gonderilir"
-                                           FontSize="12" Foreground="#94A3B8" />
+                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
                                           OnContent="" OffContent="" />
@@ -110,9 +110,9 @@
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
                                 <TextBlock Text="SMS Bildirimleri" FontSize="14"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Kritik stok uyarilari SMS ile gonderilir"
-                                           FontSize="12" Foreground="#94A3B8" />
+                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSmsEnabled}"
                                           OnContent="" OffContent="" />
@@ -123,9 +123,9 @@
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
                                 <TextBlock Text="Push Bildirimleri" FontSize="14"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Anlık bildirimler masaustu uygulamasinda gosterilir"
-                                           FontSize="12" Foreground="#94A3B8" />
+                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsPushEnabled}"
                                           OnContent="" OffContent="" />
@@ -135,13 +135,13 @@
 
                 <!-- Section 3: Tema -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Tema" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Uygulama gorunum tercihi"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <StackPanel Spacing="12">
@@ -173,15 +173,15 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F8FAFC"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

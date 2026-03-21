@@ -6,10 +6,10 @@
 
     <!-- I-06 Gorev 4: Depo Arasi Transfer Wizard — barkod/SKU arama + coklu urun + validasyon -->
 
-    <Grid RowDefinitions="Auto,*,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Depo Arasi Transfer Wizard" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -26,21 +26,21 @@
 
                 <!-- Step 1: Warehouse Selection -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="1. Depo Secimi" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="1. Depo Secimi" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,40,*">
                             <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <ComboBox ItemsSource="{Binding Warehouses}"
                                           SelectedItem="{Binding SelectedSourceWarehouse}"
                                           PlaceholderText="Kaynak depo secin..."
                                           HorizontalAlignment="Stretch" />
                             </StackPanel>
-                            <TextBlock Grid.Column="1" Text="&#x2192;" FontSize="24" Foreground="#94A3B8"
+                            <TextBlock Grid.Column="1" Text="&#x2192;" FontSize="24" Foreground="{DynamicResource MesMutedGray}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <StackPanel Grid.Column="2" Spacing="4">
-                                <TextBlock Text="Hedef Depo" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Hedef Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <ComboBox ItemsSource="{Binding Warehouses}"
                                           SelectedItem="{Binding SelectedTargetWarehouse}"
                                           PlaceholderText="Hedef depo secin..."
@@ -56,14 +56,14 @@
 
                 <!-- Step 2: Product Search -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="2. Urun Ekle" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="2. Urun Ekle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBox Grid.Column="0" Watermark="Barkod / SKU / Urun adi..."
                                      Text="{Binding ProductSearchText}" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddProductCommand}"
-                                    Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                     Padding="16,8" CornerRadius="6" Margin="8,0,0,0" />
                         </Grid>
                     </StackPanel>
@@ -71,15 +71,15 @@
 
                 <!-- Step 3: Transfer List -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="3. Transfer Listesi" FontSize="16" FontWeight="SemiBold"
-                                           Foreground="#1E293B" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding TransferSummary}"
-                                           FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
                 <Grid>
@@ -133,7 +133,7 @@
 
         <!-- Footer: Action Buttons -->
         <Border Grid.Row="2" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding TransferStatus}"
                            FontSize="13" Foreground="#16A34A" FontWeight="SemiBold"
@@ -143,7 +143,7 @@
                         Padding="20,10" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="24,10" CornerRadius="6" />
             </Grid>
         </Border>

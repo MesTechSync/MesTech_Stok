@@ -6,7 +6,7 @@
 
     <!-- I-06 Gorev 6: Depo Ozet Kartlari — kapasite + kritik urun + doluluk cubugu -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#059669" Padding="20,14">
@@ -37,13 +37,13 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:WarehouseSummaryCardDto">
                         <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,12,12"
-                                BorderBrush="#E0E6ED" BorderThickness="1" Width="320">
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Width="320">
                             <StackPanel Spacing="12">
                                 <!-- Warehouse Name -->
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"
-                                               Foreground="#1E293B" />
-                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="#64748B" />
+                                               Foreground="{DynamicResource MesDarkSlate}" />
+                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Product Count -->
@@ -58,7 +58,7 @@
                                                 Width="{Binding CapacityBarWidth}"
                                                 HorizontalAlignment="Left" />
                                     </Grid>
-                                    <TextBlock Text="{Binding CapacityText}" FontSize="11" Foreground="#64748B" />
+                                    <TextBlock Text="{Binding CapacityText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Stock Health -->
@@ -78,7 +78,7 @@
                                         <Border Width="8" Height="8" CornerRadius="4" Background="#16A34A" VerticalAlignment="Center" />
                                         <TextBlock Text="Saglikli" FontSize="12" Foreground="#16A34A" />
                                     </StackPanel>
-                                    <TextBlock Text="{Binding NormalText}" FontSize="12" Foreground="#64748B" />
+                                    <TextBlock Text="{Binding NormalText}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Detail Button -->

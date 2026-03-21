@@ -6,10 +6,10 @@
 
     <!-- EMR-06 Gorev 4E: Barkod Islemleri — USB HID wedge + urun karti + stok breakdown + hizli guncelleme -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Barkod Islemleri" Foreground="White"
@@ -21,14 +21,14 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Barcode Scan Input (USB HID keyboard wedge) -->
         <Border Grid.Row="1" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Barkod:" VerticalAlignment="Center" FontSize="14"
                            Foreground="#475569" FontWeight="SemiBold" />
@@ -37,7 +37,7 @@
                          FontSize="15" Padding="10,8"
                          Name="BarcodeInput" />
                 <Button Content="Sorgula" Command="{Binding RefreshCommand}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </StackPanel>
         </Border>
@@ -48,20 +48,20 @@
 
                 <!-- Product Card -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
                             <TextBlock Text="{Binding ProductName}" FontSize="20" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="{Binding ProductSku, StringFormat='SKU: {0}'}"
-                                           FontSize="13" Foreground="#64748B" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBlock Text="{Binding ProductBarcode, StringFormat='Barkod: {0}'}"
-                                           FontSize="13" Foreground="#64748B" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding ProductPrice, StringFormat='Fiyat: {0:N2} TL'}"
-                                           FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                                           FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Border CornerRadius="4" Padding="8,2"
                                         Background="{Binding StokDurumRenk}">
                                     <TextBlock Text="{Binding StokDurum}" FontSize="11"
@@ -70,22 +70,22 @@
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                            <TextBlock Text="Toplam Stok" FontSize="11" Foreground="#64748B"
+                            <TextBlock Text="Toplam Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding TotalStock}" FontSize="32" FontWeight="Bold"
-                                       Foreground="#1E293B" HorizontalAlignment="Center" />
+                                       Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- Warehouse Breakdown -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Depo Bazli Stok Dagilimi" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding WarehouseStocks}"
@@ -118,10 +118,10 @@
 
                 <!-- Quick Stock Update Buttons -->
                 <Border Background="White" CornerRadius="8" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="10">
                         <TextBlock Text="Hizli Stok Guncelleme" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="-5" Command="{Binding QuickUpdateCommand}" CommandParameter="-5"
                                     Background="#EF4444" Foreground="White" FontWeight="Bold"
@@ -166,9 +166,9 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Barkod Okutun" FontSize="22" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="USB barkod okuyucu ile tarayin veya manuel girin"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -180,10 +180,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

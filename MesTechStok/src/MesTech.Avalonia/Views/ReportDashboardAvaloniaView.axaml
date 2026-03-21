@@ -7,17 +7,17 @@
     <!-- Rapor Paneli — İ-11 Görev 4B -->
     <!-- Quick reports, parameters, scheduled & recent reports -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Rapor Paneli"
                            Foreground="White" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -44,15 +44,15 @@
 
                 <!-- Quick Report Buttons -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Raporlar" FontSize="16" FontWeight="Bold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Stok Degerleme"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Stok Degerleme"
-                                    Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Platform Performans"
                                     Command="{Binding GenerateQuickReportCommand}"
@@ -80,13 +80,13 @@
 
                 <!-- Report Parameters -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Rapor Parametreleri" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Ozel rapor olusturmak icin parametreleri ayarlayin"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
@@ -140,7 +140,7 @@
                             <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
                                 <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                         Command="{Binding GenerateReportCommand}"
-                                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                         Padding="24,12" CornerRadius="6"
                                         HorizontalAlignment="Left" />
                             </StackPanel>
@@ -150,13 +150,13 @@
 
                 <!-- Scheduled Reports -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Zamanlanmis Raporlar" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Otomatik olarak olusturulan periyodik raporlar"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding ScheduledReports}"
@@ -181,13 +181,13 @@
 
                 <!-- Recent Reports -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Son Raporlar" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="En son olusturulan raporlar"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding RecentReports}"
@@ -226,15 +226,15 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F8FAFC"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

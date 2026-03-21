@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.InvoiceSettingsAvaloniaView"
              x:DataType="vm:InvoiceSettingsAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Fatura Ayarlari" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -24,12 +24,12 @@
 
                 <!-- E-Fatura Entegrasyonu -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
                     <StackPanel Spacing="16">
                         <TextBlock Text="E-Fatura Entegrasyonu" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
-                            <TextBlock Text="E-Fatura Saglayici" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="E-Fatura Saglayici" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding InvoiceProviders}"
                                       SelectedItem="{Binding SelectedProvider}" Width="300" />
                         </StackPanel>
@@ -50,26 +50,26 @@
 
                 <!-- Firma Bilgileri -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Firma Bilgileri" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Firma Unvani" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Firma Unvani" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding CompanyName}" Watermark="Orn: MesTech Yazilim A.S." />
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="Vergi Dairesi" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Vergi Dairesi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding TaxOffice}" Watermark="Orn: Mecidiyekoy" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
-                                <TextBlock Text="Vergi No" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Vergi No" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding TaxNumber}" Watermark="Orn: 1234567890" />
                             </StackPanel>
                         </Grid>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Adres" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Adres" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding CompanyAddress}" Watermark="Firma adresi"
                                      AcceptsReturn="True" Height="60" />
                         </StackPanel>
@@ -78,19 +78,19 @@
 
                 <!-- Fatura Numaralama -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Fatura Numaralama" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Seri Oneki:"
-                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Text="{Binding InvoicePrefix}"
                                      Watermark="Orn: MES" Width="160" HorizontalAlignment="Left" />
                         </Grid>
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Sonraki Numara:"
-                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding NextInvoiceNumber}"
                                           Minimum="1" FormatString="N0" Width="160"
                                           HorizontalAlignment="Left" />
@@ -100,13 +100,13 @@
 
                 <!-- KDV Ayarlari -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
                     <StackPanel Spacing="16">
                         <TextBlock Text="KDV Ayarlari" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Varsayilan KDV Orani (%):"
-                                       FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding DefaultVatRate}"
                                           Minimum="0" Maximum="100" FormatString="N0" Width="160"
                                           HorizontalAlignment="Left" />
@@ -140,8 +140,8 @@
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />

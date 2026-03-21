@@ -4,16 +4,16 @@
              x:Class="MesTech.Avalonia.Views.ReportAvaloniaView"
              x:DataType="vm:ReportAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Raporlar" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -23,10 +23,10 @@
 
             <!-- Left Panel: Report Types -->
             <Border Grid.Column="0" Background="White" CornerRadius="12"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0" Padding="0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0" Padding="0">
                 <Grid RowDefinitions="Auto,*">
-                    <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
-                        <TextBlock Text="Rapor Tipi" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Rapor Tipi" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                     </Border>
                     <ListBox Grid.Row="1" ItemsSource="{Binding ReportTypes}"
                              SelectedItem="{Binding SelectedReportType}"
@@ -36,9 +36,9 @@
                                 <Border Padding="12,10" CornerRadius="6" Margin="2">
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="#1E293B" />
+                                                   Foreground="{DynamicResource MesDarkSlate}" />
                                         <TextBlock Text="{Binding Description}" FontSize="12"
-                                                   Foreground="#64748B" TextWrapping="Wrap" />
+                                                   Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -49,26 +49,26 @@
 
             <!-- Right Panel: Report Config + Result -->
             <Border Grid.Column="1" Background="White" CornerRadius="12"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0" Padding="0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0" Padding="0">
                 <Grid RowDefinitions="Auto,Auto,*">
 
                     <!-- Config Bar -->
-                    <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
                         <StackPanel Spacing="12">
                             <TextBlock Text="{Binding SelectedReportType.Name, FallbackValue='Rapor Secin'}"
-                                       FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+                                       FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Baslangic" FontSize="11" Foreground="#64748B" />
+                                    <TextBlock Text="Baslangic" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                     <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Bitis" FontSize="11" Foreground="#64748B" />
+                                    <TextBlock Text="Bitis" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                     <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
                                 </StackPanel>
                                 <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                         Command="{Binding GenerateReportCommand}"
-                                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                         Padding="16,8" CornerRadius="6"
                                         VerticalAlignment="Bottom" />
                                 <Button Content="Excel'e Aktar"
@@ -81,16 +81,16 @@
                     </Border>
 
                     <!-- Summary -->
-                    <Border Grid.Row="1" Padding="16,10" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1"
+                    <Border Grid.Row="1" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1"
                             IsVisible="{Binding HasReportResult}">
                         <StackPanel Orientation="Horizontal" Spacing="24">
                             <StackPanel>
-                                <TextBlock Text="Toplam Satir" FontSize="11" Foreground="#94A3B8" />
+                                <TextBlock Text="Toplam Satir" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                                 <TextBlock Text="{Binding TotalCount}" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                             <StackPanel>
-                                <TextBlock Text="Toplam Tutar" FontSize="11" Foreground="#94A3B8" />
+                                <TextBlock Text="Toplam Tutar" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                                 <TextBlock Text="{Binding TotalAmount}" FontSize="16" FontWeight="Bold"
                                            Foreground="#2563EB" />
                             </StackPanel>
@@ -144,9 +144,9 @@
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Rapor sonucu bos" FontSize="22" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Secilen rapor tipi ve tarih araligi icin veri bulunamadi"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -157,8 +157,8 @@
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />

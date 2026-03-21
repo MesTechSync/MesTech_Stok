@@ -7,10 +7,10 @@
     <!-- Denetim Kayitlari — İ-11 Görev 4C -->
     <!-- Filter bar, DataGrid, CSV export, detail panel -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Denetim Kayitlari" Foreground="White"
@@ -22,33 +22,33 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Kullanici" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="Kullanici" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     <ComboBox Width="180"
                               ItemsSource="{Binding Users}"
                               SelectedItem="{Binding SelectedUser}" />
                 </StackPanel>
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Islem Tipi" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="Islem Tipi" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     <ComboBox Width="140"
                               ItemsSource="{Binding ActionTypes}"
                               SelectedItem="{Binding SelectedAction}" />
                 </StackPanel>
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Baslangic" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="Baslangic" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     <DatePicker SelectedDate="{Binding StartDate}" Width="150" />
                 </StackPanel>
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Bitis" FontSize="11" Foreground="#64748B" />
+                    <TextBlock Text="Bitis" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     <DatePicker SelectedDate="{Binding EndDate}" Width="150" />
                 </StackPanel>
             </StackPanel>
@@ -101,15 +101,15 @@
 
             <!-- Detail Panel -->
             <Border Grid.Column="1" Width="320" Background="White"
-                    BorderBrush="#E0E6ED" BorderThickness="1,0,0,0"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1,0,0,0"
                     Padding="20" IsVisible="{Binding IsDetailVisible}">
                 <StackPanel Spacing="16">
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBlock Grid.Column="0" Text="Detay" FontSize="16" FontWeight="Bold"
-                                   Foreground="#1E293B" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                         <Button Grid.Column="1" Content="X"
                                 Command="{Binding CloseDetailCommand}"
-                                Background="Transparent" Foreground="#94A3B8"
+                                Background="Transparent" Foreground="{DynamicResource MesMutedGray}"
                                 FontWeight="Bold" Padding="8,4" />
                     </Grid>
 
@@ -117,29 +117,29 @@
 
                     <StackPanel Spacing="8" DataContext="{Binding SelectedEntry}">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Zaman" FontSize="11" Foreground="#64748B" />
-                            <TextBlock Text="{Binding Timestamp}" FontSize="14" Foreground="#1E293B" />
+                            <TextBlock Text="Zaman" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding Timestamp}" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Kullanici" FontSize="11" Foreground="#64748B" />
-                            <TextBlock Text="{Binding User}" FontSize="14" Foreground="#1E293B" />
+                            <TextBlock Text="Kullanici" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding User}" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Islem" FontSize="11" Foreground="#64748B" />
-                            <TextBlock Text="{Binding Action}" FontSize="14" Foreground="#1E293B"
+                            <TextBlock Text="Islem" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding Action}" FontSize="14" Foreground="{DynamicResource MesDarkSlate}"
                                        FontWeight="SemiBold" />
                         </StackPanel>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Varlik" FontSize="11" Foreground="#64748B" />
-                            <TextBlock FontSize="14" Foreground="#1E293B">
+                            <TextBlock Text="Varlik" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock FontSize="14" Foreground="{DynamicResource MesDarkSlate}">
                                 <Run Text="{Binding EntityType}" />
                                 <Run Text=" / " />
                                 <Run Text="{Binding EntityId}" />
                             </TextBlock>
                         </StackPanel>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Ozet" FontSize="11" Foreground="#64748B" />
-                            <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="#1E293B"
+                            <TextBlock Text="Ozet" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="{DynamicResource MesDarkSlate}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
 
@@ -189,9 +189,9 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="20"
-                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
                 <TextBlock Text="Secili filtrelere uygun denetim kaydi bulunamadi"
-                           FontSize="16" Foreground="#64748B"
+                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -203,10 +203,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

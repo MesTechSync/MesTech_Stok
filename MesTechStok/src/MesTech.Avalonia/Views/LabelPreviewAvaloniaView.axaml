@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kargo Etiketi Onizleme" Foreground="White"
@@ -24,7 +24,7 @@
                           SelectedItem="{Binding SelectedFormat}" />
                 <Button Grid.Column="2" Content="Yazdir"
                         Command="{Binding PrintCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Indir"
                         Command="{Binding DownloadCommand}"
@@ -53,12 +53,12 @@
                     </Border>
 
                     <!-- Barcode Area -->
-                    <Border Background="#F8FAFC" Padding="20,16"
+                    <Border Background="{DynamicResource MesBgPage}" Padding="20,16"
                             BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                         <StackPanel HorizontalAlignment="Center" Spacing="4">
                             <Border Background="#1E293B" Height="60" Width="300" CornerRadius="2" />
                             <TextBlock Text="{Binding BarcodeText}" FontSize="12"
-                                       HorizontalAlignment="Center" Foreground="#64748B"
+                                       HorizontalAlignment="Center" Foreground="{DynamicResource MesSlateGray}"
                                        FontFamily="Consolas" />
                         </StackPanel>
                     </Border>
@@ -67,9 +67,9 @@
                     <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="GONDEREN" FontSize="10" FontWeight="Bold"
-                                       Foreground="#94A3B8" />
+                                       Foreground="{DynamicResource MesMutedGray}" />
                             <TextBlock Text="{Binding SenderName}" FontSize="14" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="{Binding SenderAddress}" FontSize="12" Foreground="#475569" />
                             <TextBlock Text="{Binding SenderPhone}" FontSize="12" Foreground="#475569" />
                         </StackPanel>
@@ -79,12 +79,12 @@
                     <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="ALICI" FontSize="10" FontWeight="Bold"
-                                       Foreground="#94A3B8" />
+                                       Foreground="{DynamicResource MesMutedGray}" />
                             <TextBlock Text="{Binding RecipientName}" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="{Binding RecipientAddress}" FontSize="13" Foreground="#475569" />
                             <TextBlock Text="{Binding RecipientCity}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="{Binding RecipientPhone}" FontSize="13" Foreground="#475569" />
                         </StackPanel>
                     </Border>
@@ -93,12 +93,12 @@
                     <Border Padding="16,12">
                         <Grid ColumnDefinitions="*,*">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="KOLI SAYISI" FontSize="10" FontWeight="Bold" Foreground="#94A3B8" />
-                                <TextBlock Text="{Binding ParcelCount}" FontSize="20" FontWeight="Bold" Foreground="#1E293B" />
+                                <TextBlock Text="KOLI SAYISI" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding ParcelCount}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="2">
-                                <TextBlock Text="AGIRLIK" FontSize="10" FontWeight="Bold" Foreground="#94A3B8" />
-                                <TextBlock Text="{Binding Weight, StringFormat='{}{0:N1} kg'}" FontSize="20" FontWeight="Bold" Foreground="#1E293B" />
+                                <TextBlock Text="AGIRLIK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding Weight, StringFormat='{}{0:N1} kg'}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -126,10 +126,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

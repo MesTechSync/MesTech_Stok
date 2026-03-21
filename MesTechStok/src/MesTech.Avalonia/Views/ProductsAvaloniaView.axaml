@@ -7,10 +7,10 @@
     <!-- Avalonia Products — DataGrid with SKU, Ad, Fiyat, Stok, Platform, Durum -->
     <!-- GOREV 4: Smart Search + GOREV 5: Grid/List Toggle -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Urun Yonetimi" Foreground="White"
@@ -50,14 +50,14 @@
 
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Row 1: Enhanced Search Bar (GOREV 4) -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <TextBox Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..."
@@ -66,7 +66,7 @@
                     <Button Command="{Binding BarcodeSearchCommand}"
                             ToolTip.Tip="Barkod ile Hizli Ara"
                             Padding="10,8" CornerRadius="6"
-                            Background="#F0F4FF" Foreground="#0078D4">
+                            Background="#F0F4FF" Foreground="{DynamicResource MesPrimaryBlue}">
                         <TextBlock Text="&#x2B1C;" FontSize="14" />
                     </Button>
                     <ComboBox Width="180"
@@ -75,7 +75,7 @@
                     <!-- Search match indicator -->
                     <TextBlock Text="{Binding SearchMatchInfo}"
                                VerticalAlignment="Center"
-                               FontSize="12" Foreground="#64748B"
+                               FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                IsVisible="{Binding SearchMatchInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 </StackPanel>
             </StackPanel>
@@ -83,9 +83,9 @@
 
         <!-- Row 2: Quick Filter Chips (GOREV 4) -->
         <Border Grid.Row="2" Background="#FAFBFC" Padding="16,8"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="Filtreler:" FontSize="12" Foreground="#94A3B8"
+                <TextBlock Text="Filtreler:" FontSize="12" Foreground="{DynamicResource MesMutedGray}"
                            VerticalAlignment="Center" Margin="0,0,4,0" />
                 <ToggleButton IsChecked="{Binding FilterOutOfStock}"
                               Padding="10,5" CornerRadius="12" FontSize="12">
@@ -134,7 +134,7 @@
                 <Border Margin="12,0,0,0" IsVisible="{Binding RecentSearches.Count}"
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="Son:" FontSize="11" Foreground="#94A3B8"
+                        <TextBlock Text="Son:" FontSize="11" Foreground="{DynamicResource MesMutedGray}"
                                    VerticalAlignment="Center" />
                         <ItemsControl ItemsSource="{Binding RecentSearches}">
                             <ItemsControl.ItemsPanel>
@@ -148,7 +148,7 @@
                                             Command="{Binding $parent[UserControl].((vm:ProductsAvaloniaViewModel)DataContext).ApplyRecentSearchCommand}"
                                             CommandParameter="{Binding}"
                                             FontSize="11" Padding="6,2" CornerRadius="8"
-                                            Background="#F1F5F9" Foreground="#64748B" />
+                                            Background="#F1F5F9" Foreground="{DynamicResource MesSlateGray}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -206,7 +206,7 @@
                     <DataTemplate x:DataType="vm:ProductItemDto">
                         <Border Width="220" Height="280" Margin="8"
                                 Background="White" CornerRadius="10"
-                                BorderBrush="#E5E9F2" BorderThickness="1"
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 BoxShadow="0 2 8 0 #14000000"
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
@@ -217,7 +217,7 @@
                                             <TextBlock Text="&#x1F4E6;" FontSize="36"
                                                        HorizontalAlignment="Center" Opacity="0.4" />
                                             <TextBlock Text="{Binding SKU}" FontSize="10"
-                                                       Foreground="#94A3B8" HorizontalAlignment="Center"
+                                                       Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                                                        Margin="0,4,0,0" />
                                         </StackPanel>
                                         <!-- Discount badge -->
@@ -235,7 +235,7 @@
                                     <!-- Product Name (2 lines max) -->
                                     <TextBlock Text="{Binding Name}"
                                                FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#1E293B"
+                                               Foreground="{DynamicResource MesDarkSlate}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxLines="2" TextWrapping="Wrap"
                                                Height="36" />
@@ -244,9 +244,9 @@
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <TextBlock Text="{Binding PriceDisplay}"
                                                    FontSize="16" FontWeight="Bold"
-                                                   Foreground="#0078D4" />
+                                                   Foreground="{DynamicResource MesPrimaryBlue}" />
                                         <TextBlock Text="{Binding OriginalPriceDisplay}"
-                                                   FontSize="12" Foreground="#94A3B8"
+                                                   FontSize="12" Foreground="{DynamicResource MesMutedGray}"
                                                    IsVisible="{Binding HasDiscount}"
                                                    TextDecorations="Strikethrough"
                                                    VerticalAlignment="Center" />
@@ -262,7 +262,7 @@
                                             Padding="6,2" HorizontalAlignment="Left"
                                             Margin="0,2,0,0">
                                         <TextBlock Text="{Binding PlatformBadge}"
-                                                   FontSize="10" Foreground="#0078D4"
+                                                   FontSize="10" Foreground="{DynamicResource MesPrimaryBlue}"
                                                    FontWeight="SemiBold" />
                                     </Border>
                                 </StackPanel>
@@ -293,9 +293,9 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="20"
-                           HorizontalAlignment="Center" Foreground="#94A3B8" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
                 <TextBlock Text="Arama kriterlerine uygun urun bulunamadi"
-                           FontSize="16" Foreground="#64748B"
+                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>

@@ -6,10 +6,10 @@
 
     <!-- Platform Listesi — 13 platform karti ile pazaryeri yonetimi -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Platformlar" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -38,7 +38,7 @@
                     <DataTemplate x:DataType="vm:PlatformCardDto">
                         <Border Background="White" CornerRadius="8" Margin="8"
                                 Width="200" Padding="0"
-                                BorderBrush="#E5E9F2" BorderThickness="1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel>
                                 <!-- Color band -->
                                 <Border Height="6" CornerRadius="8,8,0,0"
@@ -46,9 +46,9 @@
                                 <Border Padding="16,12">
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
-                                                   Foreground="#1E293B" />
+                                                   Foreground="{DynamicResource MesDarkSlate}" />
                                         <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
-                                                   FontSize="12" Foreground="#64748B" />
+                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBlock Text="{Binding StatusText}" FontSize="12"
                                                    Foreground="#4CAF50" />
                                     </StackPanel>
@@ -79,8 +79,8 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"
                         Padding="16,6" Margin="0,12,0,0" />

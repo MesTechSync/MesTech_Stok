@@ -18,7 +18,7 @@
         <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Height="3" Grid.Row="0" />
 
         <!-- Header Bar -->
-        <Border Grid.Row="1" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Potansiyel Musteriler" Foreground="White"
@@ -30,14 +30,14 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Lead"
                         Command="{Binding CreateLeadCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
         <Border Grid.Row="2" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="220" Watermark="Isim, e-posta veya telefon ara..."
                          Text="{Binding SearchText}" />

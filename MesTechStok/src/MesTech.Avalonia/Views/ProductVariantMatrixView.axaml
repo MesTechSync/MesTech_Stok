@@ -9,10 +9,10 @@
 
     <!-- Variant Matrix Editor: Attribute groups → Cartesian product → DataGrid -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Varyant Matrisi" Foreground="White"
@@ -43,16 +43,16 @@
 
         <!-- Row 1: Attribute Editor -->
         <Border Grid.Row="1" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <TextBlock Grid.Column="0" Text="Ozellik Gruplari" FontSize="16" FontWeight="SemiBold"
-                               Foreground="#1E293B" VerticalAlignment="Center" />
+                               Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                         <TextBox Width="160" Text="{Binding NewAttributeName}"
                                  Watermark="Ozellik adi (orn: Renk)" Padding="8,6" />
                         <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
-                                Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                 Padding="12,6" CornerRadius="4" FontSize="12" />
                     </StackPanel>
                 </Grid>
@@ -61,13 +61,13 @@
                 <ItemsControl ItemsSource="{Binding Attributes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:AttributeGroupDto">
-                            <Border Background="#F8FAFC" CornerRadius="8" Padding="12,8" Margin="0,4">
+                            <Border Background="{DynamicResource MesBgPage}" CornerRadius="8" Padding="12,8" Margin="0,4">
                                 <Grid ColumnDefinitions="120,*,Auto,Auto">
                                     <!-- Attribute Name -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
                                                    Foreground="#334155" VerticalAlignment="Center" />
-                                        <TextBlock Text=":" Foreground="#94A3B8" VerticalAlignment="Center" />
+                                        <TextBlock Text=":" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                                     </StackPanel>
 
                                     <!-- Value Chips -->
@@ -100,7 +100,7 @@
                                         <TextBox Width="100" Text="{Binding NewValue}"
                                                  Watermark="Deger ekle" Padding="6,4" FontSize="12" />
                                         <Button Content="+" Command="{Binding AddValueCommand}"
-                                                Background="#0078D4" Foreground="White"
+                                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                                                 Padding="8,4" CornerRadius="4" FontSize="12" />
                                     </StackPanel>
 
@@ -119,7 +119,7 @@
 
                 <!-- Generate Button -->
                 <Button Content="Varyantlari Olustur" Command="{Binding GenerateVariantsCommand}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Left"
                         IsEnabled="{Binding CanGenerate}" />
             </StackPanel>
@@ -144,7 +144,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="Aktif:" FontSize="13" Foreground="#475569" />
-                    <TextBlock Text="{Binding ActiveVariantCount}" FontSize="13" FontWeight="Bold" Foreground="#0078D4" />
+                    <TextBlock Text="{Binding ActiveVariantCount}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -179,18 +179,18 @@
                 IsVisible="{Binding !HasVariants}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Varyant Bulunamadi" FontSize="20" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Ozellik gruplari ekleyip 'Varyantlari Olustur' butonuna tiklayin"
-                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Row 4: Bulk Price Update Panel -->
         <Border Grid.Row="4" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0"
                 IsVisible="{Binding IsBulkPriceVisible}">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
-                <TextBlock Text="Toplu Fiyat:" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#1E293B" />
+                <TextBlock Text="Toplu Fiyat:" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
                 <ComboBox Width="160" ItemsSource="{Binding PriceUpdateModes}"
                           SelectedItem="{Binding SelectedPriceUpdateMode}" />
                 <TextBox Width="120" Text="{Binding PriceUpdateValue}"
@@ -199,7 +199,7 @@
                         Background="#F59E0B" Foreground="White" FontWeight="SemiBold"
                         Padding="16,6" CornerRadius="4" />
                 <Button Content="Iptal" Command="{Binding CancelBulkPriceCommand}"
-                        Background="#94A3B8" Foreground="White"
+                        Background="{DynamicResource MesMutedGray}" Foreground="White"
                         Padding="12,6" CornerRadius="4" />
             </StackPanel>
         </Border>

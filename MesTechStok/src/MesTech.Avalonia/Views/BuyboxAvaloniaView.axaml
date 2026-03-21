@@ -95,7 +95,7 @@
         <!-- Loading overlay -->
         <Border Grid.RowSpan="2" Background="#80FFFFFF"
                 IsVisible="{Binding IsLoading}">
-            <TextBlock Text="Yükleniyor..." FontSize="16" Foreground="#64748B"
+            <TextBlock Text="Yükleniyor..." FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
     </Grid>

@@ -8,13 +8,13 @@
     <!-- Centered card: logo area, username, password (masked), login button -->
     <!-- Brand color #0078D4, error message display for failed login -->
 
-    <Grid Background="#F8FAFC">
+    <Grid Background="{DynamicResource MesBgPage}">
 
         <!-- Login Form (visible when NOT authenticated) -->
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
                 Background="White" CornerRadius="16"
                 Padding="48,40" Width="420"
-                BorderBrush="#E0E6ED" BorderThickness="1"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="0 4 24 #1A000000"
                 IsVisible="{Binding !IsAuthenticated}">
             <StackPanel Spacing="20">
@@ -24,13 +24,13 @@
                     <Border Background="#EBF0FA" CornerRadius="50" Width="72" Height="72"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="32" FontWeight="Bold"
-                                   Foreground="#0078D4"
+                                   Foreground="{DynamicResource MesPrimaryBlue}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="MesTech Stok" FontSize="22" FontWeight="Bold"
-                               Foreground="#1E293B" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                     <TextBlock Text="Hesabiniza giris yapin" FontSize="13"
-                               Foreground="#64748B" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <!-- Username -->
@@ -66,13 +66,13 @@
                         Command="{Binding LoginCommand}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
-                        Background="#0078D4" Foreground="White"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                         FontSize="15" FontWeight="SemiBold"
                         Padding="16,12" CornerRadius="8" />
 
                 <!-- Version Info -->
                 <TextBlock Text="MesTech Stok v10.0 — Avalonia PoC"
-                           FontSize="11" Foreground="#94A3B8"
+                           FontSize="11" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" Margin="0,4,0,0" />
             </StackPanel>
         </Border>
@@ -81,7 +81,7 @@
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
                 Background="White" CornerRadius="16"
                 Padding="48,40" Width="420"
-                BorderBrush="#E0E6ED" BorderThickness="1"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="0 4 24 #1A000000"
                 IsVisible="{Binding IsAuthenticated}">
             <StackPanel Spacing="16" HorizontalAlignment="Center">
@@ -93,9 +93,9 @@
                 </Border>
                 <TextBlock Text="{Binding WelcomeMessage}"
                            FontSize="20" FontWeight="Bold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
+                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                 <TextBlock Text="Sisteme basariyla giris yaptiniz."
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

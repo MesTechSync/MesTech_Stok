@@ -6,16 +6,16 @@
 
     <!-- Dropshipping Dashboard — KPI + tedarikci performans + karli urunler + oto siparis -->
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Dropshipping Paneli" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -25,46 +25,46 @@
             <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,0,8">
                 <!-- Tedarikci Sayisi -->
                 <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="4"
-                        BorderBrush="#E5E9F2" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Tedarikci Sayisi" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Tedarikci Sayisi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding SupplierCount, StringFormat='{}{0:N0}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="#1E293B" />
+                                   FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                         <TextBlock Text="{Binding ActiveSupplierText}" FontSize="11" Foreground="#4CAF50" />
                     </StackPanel>
                 </Border>
                 <!-- Aktif Urun -->
                 <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4"
-                        BorderBrush="#E5E9F2" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Aktif Urun" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Aktif Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding ActiveProductCount, StringFormat='{}{0:N0}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="#0078D4" />
+                                   FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding ProductGrowthText}" FontSize="11" Foreground="#4CAF50" />
                     </StackPanel>
                 </Border>
                 <!-- Karlilik % -->
                 <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4"
-                        BorderBrush="#E5E9F2" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Karlilik" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Karlilik" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding ProfitabilityPercent, StringFormat='%{0:N1}'}"
                                    FontSize="24" FontWeight="Bold" Foreground="#4CAF50" />
-                        <TextBlock Text="{Binding ProfitTrendText}" FontSize="11" Foreground="#64748B" />
+                        <TextBlock Text="{Binding ProfitTrendText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     </StackPanel>
                 </Border>
                 <!-- Ort Teslim Suresi -->
                 <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="4"
-                        BorderBrush="#E5E9F2" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Ort. Teslim Suresi" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Ort. Teslim Suresi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="{Binding AverageDeliveryDays, StringFormat='{}{0:N1}'}"
                                        FontSize="24" FontWeight="Bold" Foreground="#FF6F00" />
                             <TextBlock Text="gun" FontSize="14" Foreground="#FF6F00" VerticalAlignment="Bottom"
                                        Margin="0,0,0,4" />
                         </StackPanel>
-                        <TextBlock Text="{Binding DeliveryTrendText}" FontSize="11" Foreground="#64748B" />
+                        <TextBlock Text="{Binding DeliveryTrendText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -75,10 +75,10 @@
 
             <!-- Supplier Performance Table -->
             <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="0,0,8,0"
-                    BorderBrush="#E5E9F2" BorderThickness="1">
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="15" FontWeight="SemiBold"
-                               Foreground="#1E293B" Padding="16,12" />
+                               Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding Suppliers}"
                               AutoGenerateColumns="False" IsReadOnly="True"
                               GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
@@ -97,10 +97,10 @@
 
             <!-- Top 10 Profitable Products -->
             <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="8,0,0,0"
-                    BorderBrush="#E5E9F2" BorderThickness="1">
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="15" FontWeight="SemiBold"
-                               Foreground="#1E293B" Padding="16,12" />
+                               Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding TopProfitableProducts}"
                               AutoGenerateColumns="False" IsReadOnly="True"
                               GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
@@ -117,23 +117,23 @@
 
         <!-- Auto-Order Settings -->
         <Border Grid.Row="3" Background="White" Margin="16,0,16,16" CornerRadius="8"
-                BorderBrush="#E5E9F2" BorderThickness="1" Padding="16,12">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" Padding="16,12">
             <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="Otomatik Siparis Ayarlari"
-                           FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"
+                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}"
                            VerticalAlignment="Center" Margin="0,0,16,0" />
                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoOrderEnabled}"
                               OnContent="Aktif" OffContent="Pasif"
                               VerticalAlignment="Center" Margin="0,0,16,0" />
                 <TextBlock Grid.Column="2" Text="Min. Stok Esigi:"
-                           FontSize="13" Foreground="#64748B"
+                           FontSize="13" Foreground="{DynamicResource MesSlateGray}"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <NumericUpDown Grid.Column="3" Value="{Binding AutoOrderThreshold}"
                                Minimum="1" Maximum="999" Width="120"
                                VerticalAlignment="Center" Margin="0,0,16,0" />
                 <Button Grid.Column="5" Content="Ayarlari Kaydet"
                         Command="{Binding SaveAutoOrderSettingsCommand}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>

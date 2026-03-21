@@ -6,10 +6,10 @@
 
     <!-- Feed Olusturma — URL, format, sync araligi, fiyat markup, kolon eslestirme -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <TextBlock Text="Yeni Feed Oluştur" Foreground="White"
                        FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
@@ -19,29 +19,29 @@
             <StackPanel MaxWidth="600" Spacing="16">
 
                 <!-- Basic Info -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Feed Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="Feed Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Feed Adı" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Feed Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding FeedName}" Watermark="Örn: ABC Elektronik XML" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Feed URL" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Feed URL" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding FeedUrl}" Watermark="https://tedarikci.com/feed.xml" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Format" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Format" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding FormatOptions}"
                                       SelectedItem="{Binding SelectedFormat}" Width="160" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="{Binding SyncIntervalMinutes, StringFormat='Senkronizasyon Aralığı: {0} dakika'}"
-                                       FontSize="12" Foreground="#64748B" />
+                                       FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <Slider Minimum="15" Maximum="1440" Value="{Binding SyncIntervalMinutes}"
                                     TickFrequency="15" IsSnapToTickEnabled="True" />
                         </StackPanel>
@@ -49,17 +49,17 @@
                 </Border>
 
                 <!-- Pricing -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Fiyatlandırma" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <TextBlock Text="Fiyatlandırma" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
                             <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
-                                <TextBlock Text="Fiyat Artış %" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Fiyat Artış %" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding PriceMarkupPercent}" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
-                                <TextBlock Text="Minimum Marj %" FontSize="12" Foreground="#64748B" />
+                                <TextBlock Text="Minimum Marj %" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding MinimumMarginPercent}" Padding="10,8" />
                             </StackPanel>
                         </Grid>
@@ -67,12 +67,12 @@
                 </Border>
 
                 <!-- Column Mapping -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E5E9F2" BorderThickness="1">
+                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Kolon Eşleştirme" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <TextBlock Text="Kolon Eşleştirme" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddMappingCommand}"
-                                    Background="#0078D4" Foreground="White" Padding="10,4" CornerRadius="4" FontSize="12" />
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" Padding="10,4" CornerRadius="4" FontSize="12" />
                         </Grid>
 
                         <ItemsControl ItemsSource="{Binding ColumnMappings}">
@@ -82,7 +82,7 @@
                                         <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak kolon"
                                                  Padding="8,6" Margin="0,0,8,0" />
                                         <TextBlock Grid.Column="1" Text="→" FontSize="16" VerticalAlignment="Center"
-                                                   Foreground="#94A3B8" Margin="4,0" />
+                                                   Foreground="{DynamicResource MesMutedGray}" Margin="4,0" />
                                         <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef alan"
                                                  Padding="8,6" Margin="0,0,8,0" />
                                         <Button Grid.Column="3" Content="X" FontSize="11"
@@ -103,7 +103,7 @@
                             Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
                             Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
                     <Button Content="Temizle" Command="{Binding ResetCommand}"
-                            Background="#94A3B8" Foreground="White" Padding="16,10" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="White" Padding="16,10" CornerRadius="6" />
                 </StackPanel>
 
                 <Border Background="#E8F5E9" CornerRadius="8" Padding="12" IsVisible="{Binding SaveCompleted}">

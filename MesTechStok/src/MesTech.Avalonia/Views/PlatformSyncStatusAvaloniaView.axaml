@@ -6,10 +6,10 @@
 
     <!-- Platform Senkronizasyon Durumu — platform bazli sync + saglik gostergesi -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Platform Senkronizasyon Durumu" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Tümü Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -68,7 +68,7 @@
                             <Button Content="Sync"
                                     Command="{Binding $parent[DataGrid].((vm:PlatformSyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
                                     CommandParameter="{Binding}"
-                                    Background="#0078D4" Foreground="White"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                                     FontSize="11" FontWeight="SemiBold"
                                     Padding="10,4" CornerRadius="4"
                                     HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -93,9 +93,9 @@
         <Border Grid.Row="1" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Platform Bulunamadı" FontSize="20" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henüz platform tanımlanmamış"
-                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" />
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
@@ -103,8 +103,8 @@
         <Border Grid.Row="0" Grid.RowSpan="2" Background="#F7F9FC" IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"
-                           Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"
                         Padding="16,6" Margin="0,12,0,0" />

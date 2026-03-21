@@ -6,16 +6,16 @@
 
     <!-- EMR-06 Gorev 4A: Lot Ekleme — urun lot kaydi formu + son lotlar tablosu -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Lot Ekleme" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -25,14 +25,14 @@
 
             <!-- Left: Lot Entry Form -->
             <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Yeni Lot Kaydi" FontSize="16" FontWeight="SemiBold"
-                               Foreground="#1E293B" Margin="0,0,0,4" />
+                               Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,4" />
 
                     <!-- Urun Arama -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Urun" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="SKU veya urun adi ile ara..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding ProductSuggestions}"
@@ -49,7 +49,7 @@
 
                     <!-- Lot Numarasi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Lot Numarasi" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Lot Numarasi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="LOT-2026-001"
                                  Text="{Binding LotNumber}" />
                     </StackPanel>
@@ -57,12 +57,12 @@
                     <!-- Miktar + Birim Maliyet -->
                     <Grid ColumnDefinitions="*,12,*">
                         <StackPanel Grid.Column="0" Spacing="4">
-                            <TextBlock Text="Miktar" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Miktar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding Quantity}" Minimum="0"
                                            FormatString="N0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="4">
-                            <TextBlock Text="Birim Maliyet (TL)" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="Birim Maliyet (TL)" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding UnitCost}" Minimum="0"
                                            FormatString="N2" Increment="0.01" />
                         </StackPanel>
@@ -70,7 +70,7 @@
 
                     <!-- Tedarikci -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Tedarikci" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Tedarikci" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Suppliers}"
                                   SelectedItem="{Binding SelectedSupplier}"
                                   PlaceholderText="Tedarikci secin..."
@@ -79,14 +79,14 @@
 
                     <!-- Son Kullanma Tarihi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <DatePicker SelectedDate="{Binding ExpiryDate}"
                                     HorizontalAlignment="Stretch" />
                     </StackPanel>
 
                     <!-- Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Depo" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedWarehouse}"
                                   PlaceholderText="Depo secin..."
@@ -109,12 +109,12 @@
 
             <!-- Right: Recent Lots Table -->
             <Border Grid.Column="1" Background="White" CornerRadius="8"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"
-                            BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                         <TextBlock Text="Son Lot Kayitlari" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                     </Border>
                 <Grid>
                     <DataGrid Grid.Row="1"
@@ -167,10 +167,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

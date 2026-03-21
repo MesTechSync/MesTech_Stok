@@ -4,19 +4,19 @@
              x:Class="MesTech.Avalonia.Views.CrmSettingsAvaloniaView"
              x:DataType="vm:CrmSettingsAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Loading State -->
         <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Height="3" Grid.Row="0" />
 
         <!-- Header -->
-        <Border Grid.Row="1" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="CRM Ayarlari" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveSettingsCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6"
                         IsEnabled="{Binding !IsSaving}" />
             </Grid>
@@ -28,7 +28,7 @@
 
                 <!-- MESA AI Settings -->
                 <Border Background="White" CornerRadius="10" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="15" />
 
@@ -36,7 +36,7 @@
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="MESA AI Otomatik Yanit" FontSize="13" FontWeight="SemiBold" />
                                 <TextBlock Text="Gelen mesajlar icin AI yanit onerisi olusturur"
-                                           FontSize="11" Foreground="#64748B" />
+                                           FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                             <CheckBox Grid.Column="1" IsChecked="{Binding IsMesaAiEnabled}"
                                       VerticalAlignment="Center" />
@@ -46,7 +46,7 @@
 
                 <!-- Message Check Interval -->
                 <Border Background="White" CornerRadius="10" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="15" />
                         <StackPanel Orientation="Horizontal" Spacing="10">
@@ -54,23 +54,23 @@
                                            Minimum="1" Maximum="60" Increment="1"
                                            Width="120" />
                             <TextBlock Text="dakika" VerticalAlignment="Center"
-                                       FontSize="13" Foreground="#64748B" />
+                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
                         <TextBlock Text="Platformlardan yeni mesaj kontrolu bu aralikta yapilir."
-                                   FontSize="11" Foreground="#94A3B8" />
+                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                     </StackPanel>
                 </Border>
 
                 <!-- Quick Reply Templates -->
                 <Border Background="White" CornerRadius="10" Padding="20"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="15" />
 
                         <ListBox ItemsSource="{Binding QuickReplyTemplates}"
                                  SelectedItem="{Binding SelectedTemplate}"
                                  MinHeight="120" MaxHeight="280"
-                                 Background="#F8FAFC"
+                                 Background="{DynamicResource MesBgPage}"
                                  CornerRadius="6">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>

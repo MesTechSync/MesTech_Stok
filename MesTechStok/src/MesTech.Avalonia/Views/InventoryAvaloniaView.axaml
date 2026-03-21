@@ -6,10 +6,10 @@
 
     <!-- EMR-06 Gorev 4E: Envanter — 4 seviye stok badge + depo filtre + KPI kartlari + sayfalama -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Envanter" Foreground="White"
@@ -27,14 +27,14 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- KPI Cards -->
         <Border Grid.Row="1" Background="White" Padding="16,12"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- Toplam Urun -->
                 <Border Background="#EFF6FF" CornerRadius="8" Padding="16,10" MinWidth="140">
@@ -70,7 +70,7 @@
 
         <!-- Search Bar + Warehouse Filter -->
         <Border Grid.Row="2" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..."
                          Text="{Binding SearchText}"
@@ -131,16 +131,16 @@
 
         <!-- Pagination -->
         <Border Grid.Row="4" Background="White" Padding="12,8"
-                BorderBrush="#E5E9F2" BorderThickness="0,1,0,0">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,*">
                 <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
-                           FontSize="12" Foreground="#64748B" VerticalAlignment="Center" />
+                           FontSize="12" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                     <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
                             IsEnabled="{Binding CanGoPrevious}"
                             Padding="12,6" CornerRadius="4" FontSize="12" />
                     <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
-                               FontSize="12" Foreground="#1E293B" FontWeight="SemiBold"
+                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="8,0" />
                     <Button Content="Sonraki" Command="{Binding NextPageCommand}"
                             IsEnabled="{Binding CanGoNext}"
@@ -171,7 +171,7 @@
                 <TextBlock Text="Envanter bos" FontSize="48"
                            HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz envanter verisi bulunamadi"
-                           FontSize="16" Foreground="#64748B"
+                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -183,10 +183,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

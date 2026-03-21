@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="CRM Kisiler" Foreground="White"
@@ -19,17 +19,17 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Toolbar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBox Grid.Column="0" Watermark="Kisi veya firma ara..." Width="280" HorizontalAlignment="Left" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="+ Yeni Kisi" Background="#0078D4" Foreground="White"
+                    <Button Content="+ Yeni Kisi" Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                             FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
                 </StackPanel>
             </Grid>
@@ -39,7 +39,7 @@
         <Grid Grid.Row="2" Margin="16">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="#64748B"
+                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
             </StackPanel>
 
@@ -51,12 +51,12 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="CRM Kisiler" FontSize="20" FontWeight="SemiBold"
-                           Foreground="#1E293B" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="#64748B"
+                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
                            TextAlignment="Center" />
                 <TextBlock Text="Kisi yonetimi | Firma eslestirme | Iletisim gecmisi | Notlar"
-                           FontSize="11" Foreground="#94A3B8" HorizontalAlignment="Center"
+                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                            Margin="0,4,0,0" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"

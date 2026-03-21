@@ -7,17 +7,17 @@
     <!-- Yedekleme Yonetimi — İ-11 Görev 4D -->
     <!-- Last backup info, manual backup, history, restore test -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Yedekleme Yonetimi"
                            Foreground="White" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Manuel Yedekle"
                         Command="{Binding ManualBackupCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -60,33 +60,33 @@
 
                     <!-- Last Backup Card -->
                     <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24"
-                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Son Yedekleme" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="En son basarili yedekleme bilgileri"
-                                           FontSize="12" Foreground="#94A3B8" />
+                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
 
                             <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Tarih:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,8" />
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LastBackupDate}"
-                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Boyut:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,8" />
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastBackupSize}"
-                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Tip:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,8" />
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LastBackupType}"
-                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Durum:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,0" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,0" />
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupStatus}"
                                            FontSize="13" FontWeight="Bold" Foreground="#16A34A" />
                             </Grid>
@@ -95,23 +95,23 @@
 
                     <!-- Restore Test Card -->
                     <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24"
-                            BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Geri Yukleme Testi" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Son geri yukleme dogrulama sonucu"
-                                           FontSize="12" Foreground="#94A3B8" />
+                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
 
                             <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,4">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Son Test:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,8" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,8" />
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LastRestoreTestDate}"
-                                           FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" />
+                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Sonuc:"
-                                           FontSize="13" Foreground="#64748B" Margin="0,0,12,0" />
+                                           FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,0" />
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastRestoreTestResult}"
                                            FontSize="13" FontWeight="SemiBold" Foreground="#16A34A"
                                            TextWrapping="Wrap" />
@@ -127,13 +127,13 @@
 
                 <!-- Backup History -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Yedekleme Gecmisi" FontSize="16" FontWeight="Bold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Son yedekleme islemlerinin listesi"
-                                       FontSize="12" Foreground="#94A3B8" />
+                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding BackupHistory}"
@@ -174,15 +174,15 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F8FAFC"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

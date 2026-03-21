@@ -4,10 +4,10 @@
              x:Class="MesTech.Avalonia.Views.PlatformMessagesAvaloniaView"
              x:DataType="vm:PlatformMessagesAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Platform Mesajlari" Foreground="White"
@@ -18,14 +18,14 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox Width="160" PlaceholderText="Durum"
                           ItemsSource="{Binding StatusFilters}"
@@ -40,7 +40,7 @@
         <Grid Grid.Row="2">
             <!-- Loading -->
             <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
-                       Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                       Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
             <!-- Error -->
             <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
@@ -51,14 +51,14 @@
 
             <!-- Empty -->
             <TextBlock Text="Mesaj bulunmuyor."
-                       IsVisible="{Binding IsEmpty}" Foreground="#94A3B8"
+                       IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
 
             <!-- Master-Detail Layout -->
             <Grid ColumnDefinitions="360,*" IsVisible="{Binding !IsLoading}">
 
                 <!-- Left: Message List -->
-                <Border Grid.Column="0" BorderBrush="#E5E9F2" BorderThickness="0,0,1,0">
+                <Border Grid.Column="0" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,1,0">
                     <ListBox ItemsSource="{Binding Messages}"
                              SelectedItem="{Binding SelectedMessage}"
                              Background="White">
@@ -82,12 +82,12 @@
                                                    FontWeight="SemiBold" FontSize="13" />
                                         <TextBlock Grid.Column="1" Grid.Row="1"
                                                    Text="{Binding Subject}"
-                                                   FontSize="11" Foreground="#64748B"
+                                                   FontSize="11" Foreground="{DynamicResource MesSlateGray}"
                                                    TextTrimming="CharacterEllipsis" />
                                         <!-- Time -->
                                         <TextBlock Grid.Column="2" Grid.Row="0"
                                                    Text="{Binding ReceivedAtDisplay}"
-                                                   FontSize="10" Foreground="#94A3B8"
+                                                   FontSize="10" Foreground="{DynamicResource MesMutedGray}"
                                                    VerticalAlignment="Top" />
                                         <!-- AI indicator -->
                                         <TextBlock Grid.Column="2" Grid.Row="1"
@@ -109,7 +109,7 @@
 
                         <!-- Message Header -->
                         <Border Background="White" CornerRadius="10" Padding="20"
-                                BorderBrush="#E0E6ED" BorderThickness="1">
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                             <StackPanel Spacing="8">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="{Binding SelectedMessage.Subject}"
@@ -123,19 +123,19 @@
                                     </Border>
                                 </Grid>
                                 <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <TextBlock FontSize="12" Foreground="#64748B">
+                                    <TextBlock FontSize="12" Foreground="{DynamicResource MesSlateGray}">
                                         <Run Text="Gonderen: " />
                                         <Run Text="{Binding SelectedMessage.SenderName}" FontWeight="SemiBold" />
                                     </TextBlock>
                                     <TextBlock Text="{Binding SelectedMessage.ReceivedAtDisplay}"
-                                               FontSize="12" Foreground="#94A3B8" />
+                                               FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
                         <!-- Message Body -->
                         <Border Background="White" CornerRadius="10" Padding="20"
-                                BorderBrush="#E0E6ED" BorderThickness="1">
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                             <TextBlock Text="{Binding SelectedMessage.BodyPreview}"
                                        TextWrapping="Wrap" FontSize="13" LineHeight="22" />
                         </Border>
@@ -163,7 +163,7 @@
 
                         <!-- Reply Box -->
                         <Border Background="White" CornerRadius="10" Padding="16"
-                                BorderBrush="#E0E6ED" BorderThickness="1">
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Yanit Yaz" FontWeight="SemiBold" FontSize="13" />
                                 <TextBox Text="{Binding ReplyText}"
@@ -172,7 +172,7 @@
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap" />
                                 <Button Content="Yanitla" Command="{Binding SendReplyCommand}"
-                                        Background="#0078D4" Foreground="White" Padding="16,8"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" Padding="16,8"
                                         CornerRadius="6" FontWeight="SemiBold"
                                         HorizontalAlignment="Right"
                                         IsEnabled="{Binding !IsSendingReply}" />

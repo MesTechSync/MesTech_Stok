@@ -6,7 +6,7 @@
 
     <!-- EMR-12: Karsilama Ekrani — logo + hosgeldin mesaji + son aktiviteler -->
 
-    <Grid Background="#F8FAFC">
+    <Grid Background="{DynamicResource MesBgPage}">
 
         <ScrollViewer Padding="40">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24" MaxWidth="600">
@@ -16,41 +16,41 @@
                     <Border Background="#EBF0FA" CornerRadius="50" Width="96" Height="96"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="44" FontWeight="Bold"
-                                   Foreground="#0078D4"
+                                   Foreground="{DynamicResource MesPrimaryBlue}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="MesTech Stok" FontSize="28" FontWeight="Bold"
-                               Foreground="#1E293B" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                     <TextBlock Text="{Binding WelcomeText}" FontSize="15"
-                               Foreground="#64748B" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <!-- Quick Stats -->
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalProducts}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#0078D4" HorizontalAlignment="Center" />
-                            <TextBlock Text="Urun" FontSize="12" Foreground="#64748B"
+                                       Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center" />
+                            <TextBlock Text="Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalOrders}" FontSize="28" FontWeight="Bold"
                                        Foreground="#059669" HorizontalAlignment="Center" />
-                            <TextBlock Text="Siparis" FontSize="12" Foreground="#64748B"
+                            <TextBlock Text="Siparis" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="8" Padding="20,16" Margin="6"
-                            BorderBrush="#E0E6ED" BorderThickness="1" MinWidth="150">
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding ActivePlatforms}" FontSize="28" FontWeight="Bold"
                                        Foreground="#EA580C" HorizontalAlignment="Center" />
-                            <TextBlock Text="Platform" FontSize="12" Foreground="#64748B"
+                            <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -58,12 +58,12 @@
 
                 <!-- Recent Activity -->
                 <Border Background="White" CornerRadius="8"
-                        BorderBrush="#E0E6ED" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
-                                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                             <TextBlock Text="Son Aktiviteler" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="#1E293B" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                         <ItemsControl Grid.Row="1" ItemsSource="{Binding RecentActivities}" Margin="0,0,0,8">
                             <ItemsControl.ItemTemplate>
@@ -71,9 +71,9 @@
                                     <Border Padding="16,10" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0" Text="{Binding Description}"
-                                                       FontSize="13" Foreground="#1E293B" />
+                                                       FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
                                             <TextBlock Grid.Column="1" Text="{Binding TimeAgo}"
-                                                       FontSize="12" Foreground="#94A3B8" />
+                                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -84,7 +84,7 @@
 
                 <!-- Version -->
                 <TextBlock Text="MesTech Stok v10.0 — Avalonia"
-                           FontSize="11" Foreground="#94A3B8"
+                           FontSize="11" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" />
 
             </StackPanel>

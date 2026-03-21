@@ -17,14 +17,14 @@
         <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Height="3" Grid.Row="0" />
 
         <!-- Header -->
-        <Border Grid.Row="1" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Firsatlar — Kanban" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
-                            Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                            Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="6" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
                             Background="Transparent" Foreground="White"
@@ -83,10 +83,10 @@
                                                                    FontWeight="SemiBold" FontSize="13"
                                                                    TextWrapping="Wrap" />
                                                         <TextBlock Text="{Binding ContactName}"
-                                                                   FontSize="11" Foreground="#64748B" />
+                                                                   FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                                         <TextBlock Text="{Binding Amount, StringFormat='TL {0:N0}'}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#0078D4" Margin="0,2,0,0" />
+                                                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,2,0,0" />
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>

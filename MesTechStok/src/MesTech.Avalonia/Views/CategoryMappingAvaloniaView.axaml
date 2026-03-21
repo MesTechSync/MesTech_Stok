@@ -6,10 +6,10 @@
 
     <!-- Kategori Eslestirme — dual-tree + AI eslestirme + ilerleme gostergesi -->
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kategori Eslestirme" Foreground="White"
@@ -31,7 +31,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="4" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -40,7 +40,7 @@
         <Border Grid.Row="1" Padding="16,12,16,4">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="Eslestirme Durumu:" FontSize="13"
-                           Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,12,0" />
+                           Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" Margin="0,0,12,0" />
                 <ProgressBar Grid.Column="1" Minimum="0" Maximum="100"
                              Value="{Binding MappingPercentage}" Height="10"
                              Foreground="#4CAF50" Background="#E0E0E0" CornerRadius="5" />
@@ -55,10 +55,10 @@
 
             <!-- Left: MesTech Categories (TreeView) -->
             <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="12"
-                    BorderBrush="#E5E9F2" BorderThickness="1">
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="MesTech Kategorileri" FontSize="14" FontWeight="SemiBold"
-                               Foreground="#1E293B" Margin="0,0,0,8" />
+                               Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                     <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..."
                              Text="{Binding LocalSearchText}" Margin="0,0,0,8"
                              Height="32" FontSize="13" CornerRadius="4" />
@@ -71,7 +71,7 @@
                                             Background="{Binding StatusColor}" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding StatusText}" FontSize="11"
-                                               Foreground="#94A3B8" VerticalAlignment="Center" />
+                                               Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
@@ -82,20 +82,20 @@
             <!-- Map Buttons -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12" Spacing="8">
                 <Button Content="Esle >" Command="{Binding MapCategoryCommand}"
-                        Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
                 <Button Content="&lt; Kaldir" Command="{Binding UnmapCategoryCommand}"
-                        Background="#E53935" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesDanger}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
             </StackPanel>
 
             <!-- Right: Platform Categories (TreeView) -->
             <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="12"
-                    BorderBrush="#E5E9F2" BorderThickness="1">
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top"
                                Text="{Binding SelectedPlatform, StringFormat='{}{0} Kategorileri'}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,8" />
+                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                     <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..."
                              Text="{Binding PlatformSearchText}" Margin="0,0,0,8"
                              Height="32" FontSize="13" CornerRadius="4" />
@@ -115,10 +115,10 @@
 
         <!-- Mappings Table -->
         <Border Grid.Row="3" Background="White" Margin="16,0,16,8" CornerRadius="8"
-                BorderBrush="#E5E9F2" BorderThickness="1" MaxHeight="220">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" MaxHeight="220">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Mevcut Eslestirmeler" FontSize="14" FontWeight="SemiBold"
-                           Foreground="#1E293B" Padding="12,8" />
+                           Foreground="{DynamicResource MesDarkSlate}" Padding="12,8" />
                 <DataGrid ItemsSource="{Binding Mappings}"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0">
@@ -140,20 +140,20 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" Margin="0,0,20,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="#4CAF50" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding MappedCount, StringFormat='Eslesmis: {0}'}"
-                               FontSize="12" Foreground="#1E293B" VerticalAlignment="Center" />
+                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,20,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="#FF6F00" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding AiSuggestionCount, StringFormat='AI Onerisi: {0}'}"
-                               FontSize="12" Foreground="#1E293B" VerticalAlignment="Center" />
+                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#E53935" VerticalAlignment="Center" />
+                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesDanger}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding UnmappedCount, StringFormat='Eslesmemis: {0}'}"
-                               FontSize="12" Foreground="#1E293B" VerticalAlignment="Center" />
+                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock Grid.Column="4" Text="{Binding LastSyncText}"
-                           FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center" />
+                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
             </Grid>
         </Border>
 

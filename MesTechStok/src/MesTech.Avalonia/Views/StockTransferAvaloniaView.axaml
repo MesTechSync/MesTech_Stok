@@ -6,16 +6,16 @@
 
     <!-- EMR-06 Gorev 4A: Depolar Arasi Transfer — kaynak/hedef depo urun transferi -->
 
-    <Grid RowDefinitions="Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Depolar Arasi Transfer" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#0078D4" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -25,14 +25,14 @@
 
             <!-- Left: Transfer Form -->
             <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="0,0,8,0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Yeni Transfer" FontSize="16" FontWeight="SemiBold"
-                               Foreground="#1E293B" Margin="0,0,0,4" />
+                               Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,4" />
 
                     <!-- Kaynak Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedSourceWarehouse}"
                                   PlaceholderText="Kaynak depo secin..."
@@ -41,7 +41,7 @@
 
                     <!-- Hedef Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Hedef Depo" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Hedef Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedTargetWarehouse}"
                                   PlaceholderText="Hedef depo secin..."
@@ -50,7 +50,7 @@
 
                     <!-- Urun Secimi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Urun Ara" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Urun Ara" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="SKU veya urun adi..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding SourceProducts}"
@@ -62,7 +62,7 @@
                                         <TextBlock Grid.Column="0" Text="{Binding Ad}" FontSize="13"
                                                    VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="{Binding Miktar, StringFormat='Stok: {0}'}"
-                                                   FontSize="12" Foreground="#64748B"
+                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                                    VerticalAlignment="Center" Margin="8,0" />
                                         <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
                                                 Background="{Binding StokDurumRenk}">
@@ -77,7 +77,7 @@
 
                     <!-- Transfer Miktari -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Transfer Miktari" FontSize="12" Foreground="#64748B" />
+                        <TextBlock Text="Transfer Miktari" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                         <NumericUpDown Value="{Binding TransferQuantity}" Minimum="0"
                                        FormatString="N0" />
                     </StackPanel>
@@ -86,21 +86,21 @@
                     <Border Background="#F1F5F9" CornerRadius="6" Padding="12,8">
                         <Grid ColumnDefinitions="*,*">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="#64748B" />
+                                <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBlock Text="{Binding SourceStock}" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="2">
-                                <TextBlock Text="Kalan Stok" FontSize="11" Foreground="#64748B" />
+                                <TextBlock Text="Kalan Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBlock Text="{Binding RemainingStock}" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1E293B" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                         </Grid>
                     </Border>
 
                     <!-- Transfer Butonu -->
                     <Button Content="Transfer Et" Command="{Binding TransferCommand}"
-                            Background="#0078D4" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                             Padding="16,10" CornerRadius="6"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,4,0,0" />
@@ -114,12 +114,12 @@
 
             <!-- Right: Transfer History -->
             <Border Grid.Column="1" Background="White" CornerRadius="8"
-                    BorderBrush="#E0E6ED" BorderThickness="1" Margin="8,0,0,0">
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"
-                            BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                            BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
                         <TextBlock Text="Transfer Gecmisi" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#1E293B" />
+                                   Foreground="{DynamicResource MesDarkSlate}" />
                     </Border>
                 <Grid>
                     <DataGrid Grid.Row="1"
@@ -172,10 +172,10 @@
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="#E53935"
+                           FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

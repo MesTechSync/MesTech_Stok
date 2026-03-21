@@ -4,7 +4,7 @@
              x:Class="MesTech.Avalonia.Views.BordroAvaloniaView"
              x:DataType="vm:BordroAvaloniaViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F8FAFC">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#1D4ED8" Padding="20,14">
@@ -25,7 +25,7 @@
         </Border>
 
         <!-- KPI Row -->
-        <Border Grid.Row="1" Background="#F8FAFC" Padding="16,12">
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
             <Grid ColumnDefinitions="*,*,*">
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
@@ -56,7 +56,7 @@
 
         <!-- Filter Bar -->
         <Border Grid.Row="2" Background="White" Padding="16,10"
-                BorderBrush="#E5E9F2" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}"
                           Width="140" />
@@ -69,7 +69,7 @@
 
         <!-- DataGrid -->
         <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
-                BorderBrush="#E0E6ED" BorderThickness="1">
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid>
                 <DataGrid ItemsSource="{Binding Items}"
                           AutoGenerateColumns="False"
@@ -117,9 +117,9 @@
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#1E293B" Margin="0,0,0,8" />
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Secilen donem icin bordro kaydi bulunamadi"
-                           FontSize="14" Foreground="#64748B"
+                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -130,8 +130,8 @@
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="#E53935" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="#E53935"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
