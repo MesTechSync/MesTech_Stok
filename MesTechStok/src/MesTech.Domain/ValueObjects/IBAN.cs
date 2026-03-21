@@ -56,7 +56,7 @@ public record IBAN
             char.IsLetter(c) ? (c - 'A' + 10).ToString() : c.ToString()));
 
         // Mod 97 hesapla
-        var number = BigInteger.Parse(numeric);
+        var number = BigInteger.Parse(numeric, System.Globalization.CultureInfo.InvariantCulture);
         return number % 97 == 1;
     }
 
