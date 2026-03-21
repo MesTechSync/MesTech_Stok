@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.CommandPaletteDialog"
+        Title="Komut Paleti"
+        Width="600" Height="420"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="BorderOnly"
+        Background="{StaticResource SurfaceBrush}">
+
+  <Border Padding="16" CornerRadius="{StaticResource CornerRadiusLarge}"
+          BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+    <Grid RowDefinitions="Auto,Auto,*">
+
+      <TextBox x:Name="QueryBox"
+               Grid.Row="0"
+               Classes="mestech"
+               Watermark="Komut veya sayfa ara... (Ctrl+K)"
+               FontSize="16"
+               Padding="12"
+               TextChanged="OnQueryChanged"
+               KeyDown="OnQueryKeyDown" />
+
+      <TextBlock x:Name="HintText"
+                 Grid.Row="1"
+                 FontSize="11"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Margin="4,6,0,4"
+                 Text="↑↓ gezin · Enter sec · Esc kapat" />
+
+      <ListBox x:Name="ResultsList"
+               Grid.Row="2"
+               BorderThickness="0"
+               SelectionChanged="OnSelectionChanged">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:CompileBindings="False">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,6">
+              <TextBlock Grid.Column="0"
+                         Text="{Binding Icon}"
+                         FontSize="16"
+                         VerticalAlignment="Center"
+                         Margin="0,0,10,0" />
+              <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock Text="{Binding Title}"
+                           FontSize="14"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <TextBlock Text="{Binding Category}"
+                           FontSize="11"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+              </StackPanel>
+              <TextBlock Grid.Column="2"
+                         Text="{Binding Shortcut}"
+                         FontSize="11"
+                         Foreground="{StaticResource TextTertiaryBrush}"
+                         VerticalAlignment="Center"
+                         Margin="8,0,0,0" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+    </Grid>
+  </Border>
+
+</Window>
