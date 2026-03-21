@@ -275,6 +275,8 @@
 
   private async Task SaveMarkup(PoolProduct product)
   {
+    successMessage = null;
+    errorMessage = null;
     var markupResult = await ApiClient.SafePutAsync<object>($"dropshipping/pool/{product.Id}/markup", new { MarkupYuzde = editingMarkupValue });
     if (!markupResult.IsSuccess) { errorMessage = markupResult.ErrorMessage; }
     var idx = products.FindIndex(p => p.Id == product.Id);
@@ -286,6 +288,7 @@
         SatisFiyati = product.AlisFiyati * (1 + editingMarkupValue / 100)
       };
       products[idx] = updated;
+      successMessage = $"'{product.UrunAdi}' markup %{editingMarkupValue:N1} olarak guncellendi.";
     }
     editingMarkupId = null;
   }
@@ -307,17 +310,24 @@
   {
     showDeleteConfirm = false;
 
+    successMessage = null;
+    errorMessage = null;
+
     if (_isBatchDelete)
     {
+      var count = selectedIds.Count;
       var batchResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/batch-remove", new { Ids = selectedIds.ToArray() });
       if (!batchResult.IsSuccess) { errorMessage = batchResult.ErrorMessage; }
+      else { successMessage = $"{count} urun havuzdan cikarildi."; }
       products.RemoveAll(p => selectedIds.Contains(p.Id));
       selectedIds.Clear();
     }
     else if (_deletingProductId.HasValue)
     {
+      var product = products.FirstOrDefault(p => p.Id == _deletingProductId.Value);
       var removeResult = await ApiClient.SafeDeleteAsync($"dropshipping/pool/{_deletingProductId.Value}");
       if (!removeResult.IsSuccess) { errorMessage = removeResult.ErrorMessage; }
+      else { successMessage = $"'{product?.UrunAdi}' havuzdan cikarildi."; }
       products.RemoveAll(p => p.Id == _deletingProductId.Value);
       selectedIds.Remove(_deletingProductId.Value);
     }
