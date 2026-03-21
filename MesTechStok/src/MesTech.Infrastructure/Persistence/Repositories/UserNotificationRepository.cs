@@ -28,7 +28,7 @@ public class UserNotificationRepository : IUserNotificationRepository
             .OrderByDescending(n => n.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(cancellationToken);
+            .AsNoTracking().ToListAsync(cancellationToken);
 
         return (items, total);
     }
@@ -43,7 +43,7 @@ public class UserNotificationRepository : IUserNotificationRepository
         => await _db.UserNotifications
             .Where(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead)
             .OrderByDescending(n => n.CreatedAt)
-            .ToListAsync(cancellationToken);
+            .AsNoTracking().ToListAsync(cancellationToken);
 
     public async Task AddAsync(UserNotification notification, CancellationToken cancellationToken = default)
     {

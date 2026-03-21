@@ -13,27 +13,27 @@ public class ExpenseRepository : IExpenseRepository
 
     public async Task<Expense?> GetByIdAsync(Guid id)
         => await _context.Expenses
-            .FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Expense>> GetAllAsync(Guid? tenantId = null)
         => await _context.Expenses
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Expense>> GetByDateRangeAsync(DateTime from, DateTime to, Guid? tenantId = null)
         => await _context.Expenses
             .Where(e => e.Date >= from && e.Date <= to)
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Expense>> GetByTypeAsync(ExpenseType type, Guid? tenantId = null)
         => await _context.Expenses
             .Where(e => e.ExpenseType == type)
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Expense expense)
         => await _context.Expenses.AddAsync(expense).ConfigureAwait(false);

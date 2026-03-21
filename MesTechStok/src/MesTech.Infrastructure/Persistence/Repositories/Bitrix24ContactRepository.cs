@@ -1,4 +1,4 @@
-﻿using MesTech.Domain.Entities;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,16 +16,16 @@ public class Bitrix24ContactRepository : IBitrix24ContactRepository
 
     public async Task<Bitrix24Contact?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
         => await _context.Bitrix24Contacts
-            .FirstOrDefaultAsync(c => c.CustomerId == customerId, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.CustomerId == customerId, ct).ConfigureAwait(false);
 
     public async Task<Bitrix24Contact?> GetByExternalContactIdAsync(string externalContactId, CancellationToken ct = default)
         => await _context.Bitrix24Contacts
-            .FirstOrDefaultAsync(c => c.ExternalContactId == externalContactId, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.ExternalContactId == externalContactId, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Bitrix24Contact>> GetUnsyncedAsync(CancellationToken ct = default)
         => await _context.Bitrix24Contacts
             .Where(c => c.SyncStatus == SyncStatus.NotSynced)
-            .ToListAsync(ct).ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Bitrix24Contact contact, CancellationToken ct = default)
         => await _context.Bitrix24Contacts.AddAsync(contact, ct).ConfigureAwait(false);

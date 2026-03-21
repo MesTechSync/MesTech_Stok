@@ -23,7 +23,7 @@ public class CategoryRepository : ICategoryRepository
         return await _context.Categories
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
     }
 
     public async Task<IReadOnlyList<Category>> GetActiveAsync()
@@ -32,7 +32,7 @@ public class CategoryRepository : ICategoryRepository
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
     }
 
     public async Task AddAsync(Category category)

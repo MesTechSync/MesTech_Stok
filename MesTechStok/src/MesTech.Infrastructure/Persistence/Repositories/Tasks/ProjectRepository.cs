@@ -12,7 +12,7 @@ public class ProjectRepository : IProjectRepository
 
     public async Task<Project?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Projects
-            .FirstOrDefaultAsync(p => p.Id == id, ct)
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Project>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
@@ -20,7 +20,7 @@ public class ProjectRepository : IProjectRepository
             .Where(p => p.TenantId == tenantId)
             .OrderByDescending(p => p.CreatedAt)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(Project project, CancellationToken ct = default)

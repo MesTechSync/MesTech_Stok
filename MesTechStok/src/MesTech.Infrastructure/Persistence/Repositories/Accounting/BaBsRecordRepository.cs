@@ -13,7 +13,7 @@ public class BaBsRecordRepository : IBaBsRecordRepository
 
     public async Task<BaBsRecord?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.BaBsRecords
-            .FirstOrDefaultAsync(r => r.Id == id, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<BaBsRecord>> GetAllAsync(Guid tenantId, int? year = null, int? month = null, CancellationToken ct = default)
         => await _context.BaBsRecords
@@ -22,7 +22,7 @@ public class BaBsRecordRepository : IBaBsRecordRepository
             .Where(r => month == null || r.Month == month.Value)
             .OrderByDescending(r => r.Year).ThenByDescending(r => r.Month)
             .ThenBy(r => r.CounterpartyName)
-            .ToListAsync(ct).ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(BaBsRecord record, CancellationToken ct = default)
         => await _context.BaBsRecords.AddAsync(record, ct).ConfigureAwait(false);

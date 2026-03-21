@@ -17,18 +17,18 @@ public class QuotationRepository : IQuotationRepository
     public async Task<Quotation?> GetByIdWithLinesAsync(Guid id)
         => await _context.Quotations
             .Include(q => q.Lines)
-            .FirstOrDefaultAsync(q => q.Id == id).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(q => q.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Quotation>> GetAllAsync()
         => await _context.Quotations
             .OrderByDescending(q => q.QuotationDate)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Quotation>> GetByStatusAsync(QuotationStatus status)
         => await _context.Quotations
             .Where(q => q.Status == status)
             .OrderByDescending(q => q.QuotationDate)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Quotation quotation)
         => await _context.Quotations.AddAsync(quotation).ConfigureAwait(false);

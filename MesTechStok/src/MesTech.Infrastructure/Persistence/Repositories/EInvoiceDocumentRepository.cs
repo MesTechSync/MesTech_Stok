@@ -14,17 +14,17 @@ public class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
         => await _context.EInvoiceDocuments
             .Include(d => d.Lines)
             .Include(d => d.SendLogs)
-            .FirstOrDefaultAsync(d => d.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct);
 
     public async Task<EInvoiceDocument?> GetByEttnNoAsync(string ettnNo, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.EttnNo == ettnNo, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.EttnNo == ettnNo, ct);
 
     public async Task<EInvoiceDocument?> GetByGibUuidAsync(string gibUuid, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.GibUuid == gibUuid, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.GibUuid == gibUuid, ct);
 
     public async Task<(IReadOnlyList<EInvoiceDocument> Items, int Total)> GetPagedAsync(
         EInvoiceStatus? status = null,
@@ -51,7 +51,7 @@ public class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
             .OrderByDescending(d => d.IssueDate)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return (items, total);
     }

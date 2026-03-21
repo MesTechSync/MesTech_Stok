@@ -20,14 +20,14 @@ public class StoreCredentialRepository : IStoreCredentialRepository
     public async Task<StoreCredential?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _context.Set<StoreCredential>()
-            .FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
     public async Task<IReadOnlyList<StoreCredential>> GetByStoreIdAsync(Guid storeId, CancellationToken ct = default)
     {
         return await _context.Set<StoreCredential>()
             .Where(c => c.StoreId == storeId && !c.IsDeleted)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
     }
 
     public async Task AddAsync(StoreCredential credential, CancellationToken ct = default)

@@ -18,7 +18,7 @@ public class CrmDealRepository : ICrmDealRepository
         => await _context.Deals
             .Include(d => d.Stage)
             .Include(d => d.Contact)
-            .FirstOrDefaultAsync(d => d.Id == id, ct)
+            .AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Deal>> GetByPipelineAsync(
@@ -35,7 +35,7 @@ public class CrmDealRepository : ICrmDealRepository
         return await query
             .OrderByDescending(d => d.CreatedAt)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
 
@@ -45,7 +45,7 @@ public class CrmDealRepository : ICrmDealRepository
             .Where(d => d.CrmContactId == contactId)
             .OrderByDescending(d => d.CreatedAt)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(Deal deal, CancellationToken ct = default)
@@ -68,7 +68,7 @@ public class CrmDealRepository : ICrmDealRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
 }

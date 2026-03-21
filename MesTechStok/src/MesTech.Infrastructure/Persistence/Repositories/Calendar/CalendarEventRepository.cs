@@ -12,7 +12,7 @@ public class CalendarEventRepository : ICalendarEventRepository
 
     public async Task<CalendarEvent?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.CalendarEvents
-            .FirstOrDefaultAsync(e => e.Id == id, ct)
+            .AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<CalendarEvent>> GetByDateRangeAsync(
@@ -23,7 +23,7 @@ public class CalendarEventRepository : ICalendarEventRepository
                      && e.StartAt <= to)
             .OrderBy(e => e.StartAt)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(CalendarEvent calendarEvent, CancellationToken ct = default)

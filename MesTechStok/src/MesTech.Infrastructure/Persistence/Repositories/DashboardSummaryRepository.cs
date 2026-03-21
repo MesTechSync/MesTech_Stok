@@ -75,7 +75,7 @@ public class DashboardSummaryRepository : IDashboardSummaryRepository
                 OrderCount = g.Count()
             })
             .OrderBy(d => d.Date)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         // ── Grafik: Platform dağılımı ────────────────────────────────────────
         var pGroups = await _db.Orders
@@ -83,7 +83,7 @@ public class DashboardSummaryRepository : IDashboardSummaryRepository
                      && !o.IsDeleted && o.SourcePlatform != null)
             .GroupBy(o => o.SourcePlatform)
             .Select(g => new { Platform = g.Key, Count = g.Count() })
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
         var pTotal = pGroups.Sum(g => g.Count);
         dto.PlatformDistribution = pGroups.Select(g => new PlatformOrderDistDto
         {
@@ -107,7 +107,7 @@ public class DashboardSummaryRepository : IDashboardSummaryRepository
                 PlatformName = o.SourcePlatform != null ? o.SourcePlatform.ToString() : null,
                 CreatedAt = o.OrderDate
             })
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         // ── Tablo: Kritik stok ───────────────────────────────────────────────
         // ⚠️ Product.Stock — "StockQuantity" değil
@@ -123,7 +123,7 @@ public class DashboardSummaryRepository : IDashboardSummaryRepository
                 CurrentStock = p.Stock,
                 MinimumStock = p.MinimumStock
             })
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return dto;
     }

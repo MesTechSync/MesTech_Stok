@@ -14,13 +14,13 @@ public class SubscriptionPlanRepository : ISubscriptionPlanRepository
     }
 
     public async Task<SubscriptionPlan?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.SubscriptionPlans.FirstOrDefaultAsync(p => p.Id == id, ct);
+        => await _context.SubscriptionPlans.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<SubscriptionPlan>> GetActiveAsync(CancellationToken ct = default)
         => await _context.SubscriptionPlans
             .Where(p => p.IsActive)
             .OrderBy(p => p.SortOrder)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(SubscriptionPlan plan, CancellationToken ct = default)
         => await _context.SubscriptionPlans.AddAsync(plan, ct);

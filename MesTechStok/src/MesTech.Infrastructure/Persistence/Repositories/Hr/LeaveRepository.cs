@@ -12,7 +12,7 @@ public class LeaveRepository : ILeaveRepository
     public LeaveRepository(AppDbContext context) => _context = context;
 
     public async Task<Leave?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Leaves.Include(l => l.Employee).FirstOrDefaultAsync(l => l.Id == id, ct);
+        => await _context.Leaves.Include(l => l.Employee).AsNoTracking().FirstOrDefaultAsync(l => l.Id == id, ct);
 
     public async Task<IReadOnlyList<Leave>> GetByTenantAsync(
         Guid tenantId, LeaveStatus? status = null, CancellationToken ct = default)

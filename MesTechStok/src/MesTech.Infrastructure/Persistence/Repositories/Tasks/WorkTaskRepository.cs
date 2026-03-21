@@ -13,7 +13,7 @@ public class WorkTaskRepository : IWorkTaskRepository
 
     public async Task<WorkTask?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.WorkTasks
-            .FirstOrDefaultAsync(t => t.Id == id, ct)
+            .AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<WorkTask>> GetByProjectAsync(
@@ -27,7 +27,7 @@ public class WorkTaskRepository : IWorkTaskRepository
         return await q
             .OrderBy(t => t.Position)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
 
@@ -41,7 +41,7 @@ public class WorkTaskRepository : IWorkTaskRepository
         return await q
             .OrderBy(t => t.DueDate)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
 
@@ -52,7 +52,7 @@ public class WorkTaskRepository : IWorkTaskRepository
                      && t.Status != WorkTaskStatus.Done
                      && t.Status != WorkTaskStatus.Cancelled)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(WorkTask task, CancellationToken ct = default)

@@ -32,7 +32,7 @@ public class CrmContactRepository : ICrmContactRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
         return (items, count);
@@ -44,7 +44,7 @@ public class CrmContactRepository : ICrmContactRepository
             .Where(c => c.TenantId == tenantId)
             .OrderBy(c => c.FullName)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(CrmContact contact, CancellationToken ct = default)

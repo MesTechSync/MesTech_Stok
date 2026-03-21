@@ -1,4 +1,4 @@
-﻿using MesTech.Application.Interfaces.Erp;
+using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +36,7 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
                 && e.EntityId == entityId)
             .OrderByDescending(e => e.CreatedAt)
             .AsNoTracking()
-            .FirstOrDefaultAsync(ct);
+            .AsNoTracking().FirstOrDefaultAsync(ct);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetPendingRetriesAsync(
         Guid tenantId,
@@ -47,7 +47,7 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
                 && e.NextRetryAt != null
                 && e.NextRetryAt <= asOf)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetFailedByProviderAsync(
         Guid tenantId,
@@ -59,5 +59,5 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
             .OrderByDescending(e => e.CreatedAt)
             .Take(limit)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 }

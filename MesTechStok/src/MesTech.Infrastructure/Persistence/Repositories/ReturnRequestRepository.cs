@@ -18,7 +18,7 @@ public class ReturnRequestRepository : IReturnRequestRepository
         => await _context.ReturnRequests
             .Where(r => r.OrderId == orderId)
             .OrderByDescending(r => r.RequestDate)
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
     public async Task AddAsync(ReturnRequest returnRequest)

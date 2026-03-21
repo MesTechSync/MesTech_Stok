@@ -14,14 +14,14 @@ public class ProductSetRepository : IProductSetRepository
     public async Task<ProductSet?> GetByIdAsync(Guid id)
         => await _context.ProductSets
             .Include(ps => ps.Items)
-            .FirstOrDefaultAsync(ps => ps.Id == id).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(ps => ps.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ProductSet>> GetAllAsync(Guid? tenantId = null)
         => await _context.ProductSets
             .Include(ps => ps.Items)
             .Where(ps => tenantId == null || ps.TenantId == tenantId.Value)
             .OrderBy(ps => ps.Name)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(ProductSet productSet)
         => await _context.ProductSets.AddAsync(productSet).ConfigureAwait(false);

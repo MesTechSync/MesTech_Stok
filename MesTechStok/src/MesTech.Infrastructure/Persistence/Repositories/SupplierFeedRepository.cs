@@ -13,7 +13,7 @@ public class SupplierFeedRepository(AppDbContext db) : ISupplierFeedRepository
 {
     public async Task<SupplierFeed?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.SupplierFeeds
-            .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted, ct);
+            .AsNoTracking().FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted, ct);
 
     public async Task<(IReadOnlyList<SupplierFeed> Items, int Total)> GetPagedAsync(
         Guid tenantId,
@@ -33,7 +33,7 @@ public class SupplierFeedRepository(AppDbContext db) : ISupplierFeedRepository
             .OrderByDescending(f => f.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return ((IReadOnlyList<SupplierFeed>)items, total);
     }

@@ -20,7 +20,7 @@ public class SyncLogRepository : ISyncLogRepository
             .GroupBy(s => s.PlatformCode)
             .Select(g => g.OrderByDescending(s => s.StartedAt).First())
             .AsNoTracking()
-            .ToListAsync(cancellationToken)
+            .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
         return latestLogs.AsReadOnly();
@@ -33,6 +33,6 @@ public class SyncLogRepository : ISyncLogRepository
                      && !s.IsSuccess
                      && s.StartedAt >= since)
             .AsNoTracking()
-            .ToListAsync(cancellationToken)
+            .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 }

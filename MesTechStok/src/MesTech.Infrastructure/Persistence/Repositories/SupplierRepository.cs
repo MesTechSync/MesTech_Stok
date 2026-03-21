@@ -22,7 +22,7 @@ public class SupplierRepository : ISupplierRepository
     {
         return await _context.Suppliers
             .OrderBy(s => s.Name)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
     }
 
     public async Task<IReadOnlyList<Supplier>> GetActiveAsync()
@@ -30,7 +30,7 @@ public class SupplierRepository : ISupplierRepository
         return await _context.Suppliers
             .Where(s => s.IsActive)
             .OrderBy(s => s.Name)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
     }
 
     public async Task AddAsync(Supplier supplier)

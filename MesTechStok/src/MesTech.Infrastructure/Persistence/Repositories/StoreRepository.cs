@@ -18,18 +18,18 @@ public class StoreRepository : IStoreRepository
         => await _context.Stores
             .Include(s => s.Credentials)
             .Include(s => s.ProductMappings)
-            .FirstOrDefaultAsync(s => s.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
 
     public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores
             .Include(s => s.ProductMappings)
             .Where(s => s.TenantId == tenantId && s.IsActive)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<Store>> GetByPlatformTypeAsync(PlatformType platformType, CancellationToken ct = default)
         => await _context.Stores
             .Where(s => s.PlatformType == platformType && s.IsActive)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(Store store, CancellationToken ct = default)
         => await _context.Stores.AddAsync(store, ct);

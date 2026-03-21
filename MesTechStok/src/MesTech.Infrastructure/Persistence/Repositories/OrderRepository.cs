@@ -13,24 +13,24 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid id)
         => await _context.Orders
             .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.Id == id).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id).ConfigureAwait(false);
 
     public async Task<Order?> GetByOrderNumberAsync(string orderNumber)
         => await _context.Orders
             .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(o => o.OrderNumber == orderNumber).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId)
         => await _context.Orders
             .Where(o => o.CustomerId == customerId)
             .OrderByDescending(o => o.OrderDate)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(DateTime from, DateTime to)
         => await _context.Orders
             .Where(o => o.OrderDate >= from && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(
         Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -40,7 +40,7 @@ public class OrderRepository : IOrderRepository
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
             .AsNoTracking()
-            .ToListAsync(ct).ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeWithItemsAsync(
         Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -51,7 +51,7 @@ public class OrderRepository : IOrderRepository
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
             .AsNoTracking()
-            .ToListAsync(ct).ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Order order)
         => await _context.Orders.AddAsync(order).ConfigureAwait(false);

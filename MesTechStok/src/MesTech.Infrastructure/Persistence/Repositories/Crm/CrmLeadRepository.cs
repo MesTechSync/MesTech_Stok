@@ -36,7 +36,7 @@ public class CrmLeadRepository : ICrmLeadRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct)
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
         return (items, count);

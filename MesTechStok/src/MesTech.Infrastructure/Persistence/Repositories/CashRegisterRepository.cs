@@ -16,18 +16,18 @@ public class CashRegisterRepository : ICashRegisterRepository
     public async Task<CashRegister?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.CashRegisters
             .Include(c => c.Transactions)
-            .FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<IReadOnlyList<CashRegister>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.CashRegisters
             .Where(c => c.TenantId == tenantId && c.IsActive)
             .OrderByDescending(c => c.IsDefault)
             .ThenBy(c => c.Name)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task<CashRegister?> GetDefaultAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.CashRegisters
-            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.IsDefault && c.IsActive, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId && c.IsDefault && c.IsActive, ct);
 
     public async Task AddAsync(CashRegister cashRegister, CancellationToken ct = default)
         => await _context.CashRegisters.AddAsync(cashRegister, ct);

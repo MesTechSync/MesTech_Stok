@@ -16,7 +16,7 @@ public class TenantSubscriptionRepository : ITenantSubscriptionRepository
     public async Task<TenantSubscription?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.TenantSubscriptions
             .Include(s => s.Plan)
-            .FirstOrDefaultAsync(s => s.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
 
     public async Task<TenantSubscription?> GetActiveByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.TenantSubscriptions
@@ -24,7 +24,7 @@ public class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.TenantId == tenantId &&
                         (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
             .OrderByDescending(s => s.CreatedAt)
-            .FirstOrDefaultAsync(ct);
+            .AsNoTracking().FirstOrDefaultAsync(ct);
 
     public async Task<IReadOnlyList<TenantSubscription>> GetExpiringAsync(int withinDays, CancellationToken ct = default)
     {
@@ -34,7 +34,7 @@ public class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.Status == SubscriptionStatus.Active &&
                         s.NextBillingDate.HasValue &&
                         s.NextBillingDate.Value <= cutoff)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
     }
 
     public async Task AddAsync(TenantSubscription subscription, CancellationToken ct = default)

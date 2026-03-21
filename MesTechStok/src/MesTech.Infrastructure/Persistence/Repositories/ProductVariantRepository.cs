@@ -13,19 +13,19 @@ public class ProductVariantRepository : IProductVariantRepository
 
     public async Task<ProductVariant?> GetByIdAsync(Guid id)
         => await _context.ProductVariants
-            .FirstOrDefaultAsync(v => v.Id == id)
+            .AsNoTracking().FirstOrDefaultAsync(v => v.Id == id)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ProductVariant>> GetByProductIdAsync(Guid productId)
         => await _context.ProductVariants
             .Where(v => v.ProductId == productId)
             .OrderBy(v => v.SKU)
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
     public async Task<ProductVariant?> GetBySkuAsync(string sku)
         => await _context.ProductVariants
-            .FirstOrDefaultAsync(v => v.SKU == sku)
+            .AsNoTracking().FirstOrDefaultAsync(v => v.SKU == sku)
             .ConfigureAwait(false);
 
     public async Task AddAsync(ProductVariant variant)

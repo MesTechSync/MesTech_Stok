@@ -13,14 +13,14 @@ public class FixedAssetRepository : IFixedAssetRepository
 
     public async Task<FixedAsset?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.FixedAssets
-            .FirstOrDefaultAsync(a => a.Id == id, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<FixedAsset>> GetAllAsync(Guid tenantId, bool? isActive = null, CancellationToken ct = default)
         => await _context.FixedAssets
             .Where(a => a.TenantId == tenantId)
             .Where(a => isActive == null || a.IsActive == isActive.Value)
             .OrderBy(a => a.Name)
-            .ToListAsync(ct).ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(FixedAsset asset, CancellationToken ct = default)
         => await _context.FixedAssets.AddAsync(asset, ct).ConfigureAwait(false);

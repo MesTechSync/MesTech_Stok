@@ -1,4 +1,4 @@
-﻿using MesTech.Application.Interfaces.Dropshipping;
+using MesTech.Application.Interfaces.Dropshipping;
 using MesTech.Domain.Dropshipping.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +13,7 @@ public class DropshipSupplierRepository : IDropshipSupplierRepository
     public async Task<DropshipSupplier?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.DropshipSuppliers
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
 
     public async Task<IReadOnlyList<DropshipSupplier>> GetByTenantAsync(
         Guid tenantId,
@@ -21,7 +21,7 @@ public class DropshipSupplierRepository : IDropshipSupplierRepository
         => await _context.DropshipSuppliers
             .Where(s => s.TenantId == tenantId)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(DropshipSupplier supplier, CancellationToken ct = default)
         => await _context.DropshipSuppliers.AddAsync(supplier, ct);

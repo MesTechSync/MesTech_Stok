@@ -14,10 +14,10 @@ public class WarehouseRepository : IWarehouseRepository
         => await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Warehouse>> GetAllAsync()
-        => await _context.Warehouses.ToListAsync().ConfigureAwait(false);
+        => await _context.Warehouses.AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<Warehouse?> GetDefaultAsync()
-        => await _context.Warehouses.FirstOrDefaultAsync(w => w.IsDefault).ConfigureAwait(false);
+        => await _context.Warehouses.AsNoTracking().FirstOrDefaultAsync(w => w.IsDefault).ConfigureAwait(false);
 
     public async Task AddAsync(Warehouse warehouse)
         => await _context.Warehouses.AddAsync(warehouse).ConfigureAwait(false);

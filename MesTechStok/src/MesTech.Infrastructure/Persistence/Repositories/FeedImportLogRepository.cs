@@ -25,7 +25,7 @@ public class FeedImportLogRepository(AppDbContext db) : IFeedImportLogRepository
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return ((IReadOnlyList<FeedImportLog>)items, total);
     }

@@ -15,7 +15,7 @@ public class OnboardingProgressRepository : IOnboardingProgressRepository
 
     public async Task<OnboardingProgress?> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.OnboardingProgress
-            .FirstOrDefaultAsync(o => o.TenantId == tenantId, ct);
+            .AsNoTracking().FirstOrDefaultAsync(o => o.TenantId == tenantId, ct);
 
     public async Task AddAsync(OnboardingProgress progress, CancellationToken ct = default)
         => await _context.OnboardingProgress.AddAsync(progress, ct);

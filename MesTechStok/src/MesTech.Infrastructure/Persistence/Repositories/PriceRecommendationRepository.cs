@@ -18,7 +18,7 @@ public class PriceRecommendationRepository : IPriceRecommendationRepository
         => await _context.PriceRecommendations
             .Where(p => p.ProductId == productId)
             .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
     public async Task AddAsync(PriceRecommendation recommendation)

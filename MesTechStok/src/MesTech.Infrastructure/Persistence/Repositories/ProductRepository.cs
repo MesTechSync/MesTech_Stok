@@ -15,19 +15,19 @@ public class ProductRepository : IProductRepository
         => await _context.Products.FindAsync(id).ConfigureAwait(false);
 
     public async Task<Product?> GetBySKUAsync(string sku)
-        => await _context.Products.FirstOrDefaultAsync(p => p.SKU == sku).ConfigureAwait(false);
+        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.SKU == sku).ConfigureAwait(false);
 
     public async Task<Product?> GetByBarcodeAsync(string barcode)
-        => await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode).ConfigureAwait(false);
+        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Barcode == barcode).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync()
-        => await _context.Products.Where(p => p.IsActive).ToListAsync().ConfigureAwait(false);
+        => await _context.Products.Where(p => p.IsActive).AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetLowStockAsync()
-        => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).ToListAsync().ConfigureAwait(false);
+        => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId)
-        => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).ToListAsync().ConfigureAwait(false);
+        => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> SearchAsync(string searchTerm)
         => await _context.Products
@@ -35,7 +35,7 @@ public class ProductRepository : IProductRepository
                 EF.Functions.ILike(p.Name, $"%{searchTerm}%") ||
                 EF.Functions.ILike(p.SKU, $"%{searchTerm}%") ||
                 (p.Barcode != null && EF.Functions.ILike(p.Barcode, $"%{searchTerm}%"))))
-            .ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Product product)
         => await _context.Products.AddAsync(product).ConfigureAwait(false);
@@ -66,7 +66,7 @@ public class ProductRepository : IProductRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
         return PagedResult<Product>.Create(items, totalCount, page, pageSize);
     }
@@ -76,7 +76,7 @@ public class ProductRepository : IProductRepository
         var skuList = skus.ToList();
         return await _context.Products
             .Where(p => skuList.Contains(p.SKU))
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
     }
 
@@ -99,7 +99,7 @@ public class ProductRepository : IProductRepository
             var ids = batch.Select(b => b.ProductId).ToList();
             var products = await _context.Products
                 .Where(p => ids.Contains(p.Id))
-                .ToListAsync(ct)
+                .AsNoTracking().ToListAsync(ct)
                 .ConfigureAwait(false);
 
             foreach (var (productId, newStock) in batch)
@@ -127,7 +127,7 @@ public class ProductRepository : IProductRepository
             var ids = batch.Select(b => b.ProductId).ToList();
             var products = await _context.Products
                 .Where(p => ids.Contains(p.Id))
-                .ToListAsync(ct)
+                .AsNoTracking().ToListAsync(ct)
                 .ConfigureAwait(false);
 
             foreach (var (productId, newPrice) in batch)

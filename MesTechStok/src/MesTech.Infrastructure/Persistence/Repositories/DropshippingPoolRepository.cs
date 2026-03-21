@@ -14,7 +14,7 @@ public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepo
     public async Task<DropshippingPool?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.DropshippingPools
             .Include(p => p.Products)
-            .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct);
 
     public async Task<(IReadOnlyList<DropshippingPool> Items, int Total)> GetPoolsPagedAsync(
         Guid tenantId, bool? isActive, int page, int pageSize, CancellationToken ct = default)
@@ -30,7 +30,7 @@ public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepo
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return ((IReadOnlyList<DropshippingPool>)items, total);
     }
@@ -62,7 +62,7 @@ public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepo
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return ((IReadOnlyList<DropshippingPoolProduct>)items, total);
     }
@@ -71,7 +71,7 @@ public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepo
         Guid poolProductId, CancellationToken ct = default)
         => await db.DropshippingPoolProducts
             .Include(p => p.Product)
-            .FirstOrDefaultAsync(p => p.Id == poolProductId && !p.IsDeleted, ct);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == poolProductId && !p.IsDeleted, ct);
 
     public async Task<IReadOnlyList<DropshippingPoolProduct>> GetPoolProductsByIdsAsync(
         Guid poolId, IEnumerable<Guid> productIds, CancellationToken ct = default)
@@ -80,7 +80,7 @@ public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepo
         return await db.DropshippingPoolProducts
             .Include(p => p.Product)
             .Where(p => p.PoolId == poolId && ids.Contains(p.Id) && !p.IsDeleted)
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
     }
 
     public async Task<PoolStats> GetStatsAsync(Guid tenantId, CancellationToken ct = default)

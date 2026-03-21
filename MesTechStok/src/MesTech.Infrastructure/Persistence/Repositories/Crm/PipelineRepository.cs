@@ -12,11 +12,11 @@ public class PipelineRepository : IPipelineRepository
 
     public async Task<Pipeline?> GetByIdWithStagesAsync(Guid id, CancellationToken ct = default)
         => await _context.Pipelines.Include(p => p.Stages.OrderBy(s => s.Position))
-                         .FirstOrDefaultAsync(p => p.Id == id, ct);
+                         .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<Pipeline?> GetDefaultAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Pipelines.Include(p => p.Stages.OrderBy(s => s.Position))
-                         .FirstOrDefaultAsync(p => p.TenantId == tenantId && p.IsDefault, ct);
+                         .AsNoTracking().FirstOrDefaultAsync(p => p.TenantId == tenantId && p.IsDefault, ct);
 
     public async Task<IReadOnlyList<Pipeline>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Pipelines.Where(p => p.TenantId == tenantId).AsNoTracking().ToListAsync(ct);

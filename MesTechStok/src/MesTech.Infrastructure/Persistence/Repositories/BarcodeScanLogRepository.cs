@@ -25,7 +25,7 @@ public class BarcodeScanLogRepository : IBarcodeScanLogRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
     }
 

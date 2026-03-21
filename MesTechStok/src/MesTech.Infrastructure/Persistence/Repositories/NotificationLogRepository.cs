@@ -1,4 +1,4 @@
-﻿using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,13 +13,13 @@ public class NotificationLogRepository : INotificationLogRepository
     public async Task<NotificationLog?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.NotificationLogs
             .AsNoTracking()
-            .FirstOrDefaultAsync(n => n.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(n => n.Id == id, ct);
 
     public async Task<IReadOnlyList<NotificationLog>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.NotificationLogs
             .Where(n => n.TenantId == tenantId)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task<(IReadOnlyList<NotificationLog> Items, int TotalCount)> GetPagedAsync(
         Guid tenantId,
@@ -40,7 +40,7 @@ public class NotificationLogRepository : INotificationLogRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return (items, total);
     }

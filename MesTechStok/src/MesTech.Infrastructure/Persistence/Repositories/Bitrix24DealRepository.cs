@@ -1,4 +1,4 @@
-﻿using MesTech.Domain.Entities;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +15,11 @@ public class Bitrix24DealRepository : IBitrix24DealRepository
 
     public async Task<Bitrix24Deal?> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
         => await _context.Bitrix24Deals
-            .FirstOrDefaultAsync(d => d.OrderId == orderId, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.OrderId == orderId, ct).ConfigureAwait(false);
 
     public async Task<Bitrix24Deal?> GetByExternalDealIdAsync(string externalDealId, CancellationToken ct = default)
         => await _context.Bitrix24Deals
-            .FirstOrDefaultAsync(d => d.ExternalDealId == externalDealId, ct).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.ExternalDealId == externalDealId, ct).ConfigureAwait(false);
 
     public async Task AddAsync(Bitrix24Deal deal, CancellationToken ct = default)
         => await _context.Bitrix24Deals.AddAsync(deal, ct).ConfigureAwait(false);

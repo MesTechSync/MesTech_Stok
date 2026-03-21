@@ -17,13 +17,13 @@ public class StockMovementRepository : IStockMovementRepository
         => await _context.StockMovements
             .Where(m => m.ProductId == productId)
             .OrderByDescending(m => m.Date)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
 
     public async Task<IReadOnlyList<StockMovement>> GetByDateRangeAsync(DateTime from, DateTime to)
         => await _context.StockMovements
             .Where(m => m.Date >= from && m.Date <= to)
             .OrderByDescending(m => m.Date)
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
 
     public async Task AddAsync(StockMovement movement)
         => await _context.StockMovements.AddAsync(movement);

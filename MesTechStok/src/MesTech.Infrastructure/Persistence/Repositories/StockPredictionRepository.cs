@@ -18,7 +18,7 @@ public class StockPredictionRepository : IStockPredictionRepository
         => await _context.StockPredictions
             .Where(p => p.ProductId == productId)
             .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync()
+            .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
     public async Task AddAsync(StockPrediction prediction)
