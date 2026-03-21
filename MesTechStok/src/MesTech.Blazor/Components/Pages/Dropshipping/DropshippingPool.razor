@@ -146,7 +146,7 @@
                       <span class="badge @GetDurumBadgeClass(product.Durum)">@product.Durum</span>
                     </td>
                     <td class="d-none d-md-table-cell">
-                      <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveProduct(product.Id)"
+                      <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmRemoveProduct(product.Id)"
                               title="Havuzdan Cikar">
                         <i class="fas fa-times"></i>
                       </button>
@@ -167,7 +167,7 @@
         <div class="card-body py-2 d-flex align-items-center justify-content-between">
           <span class="text-primary fw-bold">@selectedIds.Count urun secildi</span>
           <div>
-            <button class="btn btn-sm btn-outline-danger me-1" @onclick="RemoveSelected" disabled="@isSubmitting">
+            <button class="btn btn-sm btn-outline-danger me-1" @onclick="ConfirmRemoveSelected" disabled="@isSubmitting">
               <i class="fas fa-trash me-1"></i>Secilileri Cikar
             </button>
             <button class="btn btn-sm btn-primary" @onclick="SendToPlatform" disabled="@isSubmitting">
@@ -184,6 +184,14 @@
   }
 </div>
 
+<ConfirmDialog IsVisible="showDeleteConfirm"
+               Title="@(_isBatchDelete ? "Toplu Cikarma" : "Havuzdan Cikar")"
+               Message="@(_isBatchDelete ? $"{selectedIds.Count} urunu havuzdan cikarmak istediginize emin misiniz?" : "Bu urunu havuzdan cikarmak istediginize emin misiniz?")"
+               ConfirmText="Cikar"
+               ButtonVariant="danger"
+               OnConfirmed="ExecuteRemove"
+               OnCancelled="CancelRemove" />
+
 @code {
   private bool isLoading = true;
   private bool _isDemoMode;
@@ -196,6 +204,11 @@
   private HashSet<int> selectedIds = [];
   private int? editingMarkupId;
   private decimal editingMarkupValue;
+
+  // Delete confirmation
+  private bool showDeleteConfirm;
+  private int? _deletingProductId;
+  private bool _isBatchDelete;
 
   private List<PoolProduct> filteredProducts => products
     .Where(p => string.IsNullOrWhiteSpace(searchText) ||
@@ -277,20 +290,47 @@
     editingMarkupId = null;
   }
 
-  private async Task RemoveProduct(int id)
+  private void ConfirmRemoveProduct(int id)
   {
-    var removeResult = await ApiClient.SafeDeleteAsync($"dropshipping/pool/{id}");
-    if (!removeResult.IsSuccess) { errorMessage = removeResult.ErrorMessage; }
-    products.RemoveAll(p => p.Id == id);
-    selectedIds.Remove(id);
+    _deletingProductId = id;
+    _isBatchDelete = false;
+    showDeleteConfirm = true;
   }
 
-  private async Task RemoveSelected()
+  private void ConfirmRemoveSelected()
   {
-    var batchResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/batch-remove", new { Ids = selectedIds.ToArray() });
-    if (!batchResult.IsSuccess) { errorMessage = batchResult.ErrorMessage; }
-    products.RemoveAll(p => selectedIds.Contains(p.Id));
-    selectedIds.Clear();
+    _isBatchDelete = true;
+    showDeleteConfirm = true;
+  }
+
+  private async Task ExecuteRemove()
+  {
+    showDeleteConfirm = false;
+
+    if (_isBatchDelete)
+    {
+      var batchResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/batch-remove", new { Ids = selectedIds.ToArray() });
+      if (!batchResult.IsSuccess) { errorMessage = batchResult.ErrorMessage; }
+      products.RemoveAll(p => selectedIds.Contains(p.Id));
+      selectedIds.Clear();
+    }
+    else if (_deletingProductId.HasValue)
+    {
+      var removeResult = await ApiClient.SafeDeleteAsync($"dropshipping/pool/{_deletingProductId.Value}");
+      if (!removeResult.IsSuccess) { errorMessage = removeResult.ErrorMessage; }
+      products.RemoveAll(p => p.Id == _deletingProductId.Value);
+      selectedIds.Remove(_deletingProductId.Value);
+    }
+
+    _deletingProductId = null;
+    _isBatchDelete = false;
+  }
+
+  private void CancelRemove()
+  {
+    showDeleteConfirm = false;
+    _deletingProductId = null;
+    _isBatchDelete = false;
   }
 
   private async Task SendToPlatform()
