@@ -32,6 +32,7 @@ public class ValidateBalanceSheetHandler
         ValidateBalanceSheetQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var accounts = await _accountRepo.GetAllAsync(
             request.TenantId,
             isActive: true,

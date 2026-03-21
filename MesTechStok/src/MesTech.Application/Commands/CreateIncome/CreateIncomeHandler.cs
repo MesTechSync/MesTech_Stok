@@ -17,6 +17,7 @@ public class CreateIncomeHandler : IRequestHandler<CreateIncomeCommand, Guid>
 
     public async Task<Guid> Handle(CreateIncomeCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var income = new Income
         {
             TenantId = request.TenantId,

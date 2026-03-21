@@ -14,6 +14,7 @@ public class GetSyncStatusHandler : IRequestHandler<GetSyncStatusQuery, SyncStat
 
     public Task<SyncStatusResult> Handle(GetSyncStatusQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var result = new SyncStatusResult();
 
         foreach (var adapter in _orchestrator.RegisteredAdapters)

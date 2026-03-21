@@ -13,6 +13,7 @@ public class GetDropshipSuppliersHandler : IRequestHandler<GetDropshipSuppliersQ
 
     public async Task<IReadOnlyList<DropshipSupplierDto>> Handle(GetDropshipSuppliersQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var items = await _repository.GetByTenantAsync(request.TenantId, cancellationToken);
         return items.Select(s => new DropshipSupplierDto
         {

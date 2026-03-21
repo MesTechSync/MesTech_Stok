@@ -16,6 +16,7 @@ public class GetBudgetSummaryHandler : IRequestHandler<GetBudgetSummaryQuery, Bu
 
     public async Task<BudgetSummaryDto> Handle(GetBudgetSummaryQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var start = new DateTime(request.Year, request.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var end = start.AddMonths(1).AddTicks(-1);
 

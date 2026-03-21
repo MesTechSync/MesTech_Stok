@@ -18,6 +18,7 @@ public class GetPlatformHealthHandler : IRequestHandler<GetPlatformHealthQuery, 
     public async Task<IReadOnlyList<PlatformHealthDto>> Handle(
         GetPlatformHealthQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var latestLogs = await _syncLogRepository.GetLatestByPlatformAsync(
             request.TenantId, cancellationToken);
 

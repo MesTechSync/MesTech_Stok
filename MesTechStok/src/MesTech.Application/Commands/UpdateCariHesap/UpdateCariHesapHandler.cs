@@ -16,6 +16,7 @@ public class UpdateCariHesapHandler : IRequestHandler<UpdateCariHesapCommand, bo
 
     public async Task<bool> Handle(UpdateCariHesapCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var cariHesap = await _cariHesapRepository.GetByIdAsync(request.Id);
         if (cariHesap is null)
             return false;

@@ -14,6 +14,7 @@ public class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
 
     public async Task<Guid> Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expense = FinanceExpense.Create(request.TenantId, request.Title, request.Amount, request.Category,
             request.ExpenseDate, request.SubmittedByUserId, request.Notes, request.StoreId);
         await _repository.AddAsync(expense, cancellationToken);

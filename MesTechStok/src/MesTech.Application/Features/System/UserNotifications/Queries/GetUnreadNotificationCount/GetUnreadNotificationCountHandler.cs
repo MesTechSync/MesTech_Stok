@@ -17,6 +17,7 @@ public class GetUnreadNotificationCountHandler
     public async Task<int> Handle(
         GetUnreadNotificationCountQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         return await _repository.GetUnreadCountAsync(
             request.TenantId,
             request.UserId,

@@ -15,6 +15,7 @@ public class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceCommand, Guid
 
     public async Task<Guid> Handle(CreateEInvoiceCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var gibUuid = Guid.NewGuid().ToString();
         var ettnNo = $"GGB{request.IssueDate.Year}{Guid.NewGuid():N}"[..20];
 

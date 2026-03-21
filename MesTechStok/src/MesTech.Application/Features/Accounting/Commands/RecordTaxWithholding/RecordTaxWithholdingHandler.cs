@@ -15,6 +15,7 @@ public class RecordTaxWithholdingHandler : IRequestHandler<RecordTaxWithholdingC
 
     public async Task<Guid> Handle(RecordTaxWithholdingCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var withholding = TaxWithholding.Create(
             request.TenantId, request.TaxExclusiveAmount, request.Rate, request.TaxType, request.InvoiceId);
 

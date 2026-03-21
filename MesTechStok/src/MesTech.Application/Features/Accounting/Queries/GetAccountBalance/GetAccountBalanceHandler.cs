@@ -17,6 +17,7 @@ public class GetAccountBalanceHandler : IRequestHandler<GetAccountBalanceQuery, 
 
     public async Task<AccountBalanceDto?> Handle(GetAccountBalanceQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var account = await _accountRepo.GetByIdAsync(request.AccountId, cancellationToken);
         if (account == null) return null;
 

@@ -30,6 +30,7 @@ public class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCom
 
     public async Task<Guid> Handle(SaveStoreCredentialCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Verify store exists and belongs to the tenant
         var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
         if (store is null)

@@ -13,6 +13,7 @@ public class GetCommissionSummaryHandler : IRequestHandler<GetCommissionSummaryQ
 
     public async Task<CommissionSummaryDto> Handle(GetCommissionSummaryQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Get records for all platforms in the period
         var platforms = new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama" };
         var byPlatform = new List<PlatformCommissionDto>();

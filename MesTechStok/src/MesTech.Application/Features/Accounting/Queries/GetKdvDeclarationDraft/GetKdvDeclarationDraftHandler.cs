@@ -44,6 +44,7 @@ public class GetKdvDeclarationDraftHandler
         GetKdvDeclarationDraftQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var tenantId = request.TenantId;
         var period = request.Period;
 

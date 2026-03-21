@@ -19,5 +19,8 @@ public class GetDashboardSummaryQueryHandler
 
     public Task<DashboardSummaryDto> Handle(
         GetDashboardSummaryQuery request, CancellationToken cancellationToken)
-        => _repository.GetSummaryAsync(request.TenantId, cancellationToken);
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return _repository.GetSummaryAsync(request.TenantId, cancellationToken);
+    }
 }

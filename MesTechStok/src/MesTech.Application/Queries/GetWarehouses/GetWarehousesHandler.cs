@@ -14,6 +14,7 @@ public class GetWarehousesHandler : IRequestHandler<GetWarehousesQuery, IReadOnl
 
     public async Task<IReadOnlyList<WarehouseListDto>> Handle(GetWarehousesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var warehouses = await _warehouseRepository.GetAllAsync();
 
         if (request.ActiveOnly)

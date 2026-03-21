@@ -22,6 +22,7 @@ public class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Guid>
         MapCategoryCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Upsert: check if mapping already exists
         var existing = await _mappingRepository.GetByCategoryAndPlatformAsync(
             request.TenantId,

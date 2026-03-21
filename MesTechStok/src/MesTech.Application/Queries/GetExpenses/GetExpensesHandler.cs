@@ -16,6 +16,7 @@ public class GetExpensesHandler : IRequestHandler<GetExpensesQuery, IReadOnlyLis
 
     public async Task<IReadOnlyList<ExpenseDto>> Handle(GetExpensesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.Type.HasValue)
         {
             var byType = await _expenseRepository.GetByTypeAsync(request.Type.Value, request.TenantId);

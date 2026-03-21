@@ -15,6 +15,7 @@ public class CreateCounterpartyHandler : IRequestHandler<CreateCounterpartyComma
 
     public async Task<Guid> Handle(CreateCounterpartyCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var counterparty = Counterparty.Create(
             request.TenantId, request.Name, request.CounterpartyType,
             request.VKN, request.Phone, request.Email, request.Address, request.Platform);

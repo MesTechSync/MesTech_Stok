@@ -36,6 +36,7 @@ public class SendNotificationHandler : IRequestHandler<SendNotificationCommand, 
 
     public async Task<Guid> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var channel = ParseChannel(request.Channel);
 
         var log = NotificationLog.Create(

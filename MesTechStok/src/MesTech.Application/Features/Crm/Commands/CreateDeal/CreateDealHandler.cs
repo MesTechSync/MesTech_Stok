@@ -14,6 +14,7 @@ public class CreateDealHandler : IRequestHandler<CreateDealCommand, Guid>
 
     public async Task<Guid> Handle(CreateDealCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var deal = Deal.Create(
             request.TenantId,
             request.Title,

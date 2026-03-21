@@ -15,6 +15,7 @@ public class CreateAccountingExpenseHandler : IRequestHandler<CreateAccountingEx
 
     public async Task<Guid> Handle(CreateAccountingExpenseCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expense = PersonalExpense.Create(
             request.TenantId, request.Title, request.Amount, request.ExpenseDate, request.Source, request.Category);
 

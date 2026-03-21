@@ -25,6 +25,7 @@ public class StockTurnoverReportHandler
     public async Task<IReadOnlyList<StockTurnoverReportDto>> Handle(
         StockTurnoverReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var movements = await _movementRepository.GetByDateRangeAsync(request.StartDate, request.EndDate);
         var products = await _productRepository.GetAllAsync();
 

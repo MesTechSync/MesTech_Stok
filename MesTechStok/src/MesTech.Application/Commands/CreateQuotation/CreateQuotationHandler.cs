@@ -17,6 +17,7 @@ public class CreateQuotationHandler : IRequestHandler<CreateQuotationCommand, Cr
 
     public async Task<CreateQuotationResult> Handle(CreateQuotationCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var quotation = new Quotation
         {
             QuotationNumber = request.QuotationNumber,

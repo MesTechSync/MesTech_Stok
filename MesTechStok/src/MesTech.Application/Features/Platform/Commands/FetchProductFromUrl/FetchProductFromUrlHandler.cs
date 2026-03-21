@@ -38,6 +38,7 @@ public class FetchProductFromUrlHandler
         FetchProductFromUrlCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (string.IsNullOrWhiteSpace(request.ProductUrl))
         {
             _logger.LogWarning("FetchProductFromUrl: Empty URL provided.");

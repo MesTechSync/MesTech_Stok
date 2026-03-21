@@ -32,6 +32,7 @@ public class PlatformSalesReportHandler
     public async Task<IReadOnlyList<PlatformSalesReportDto>> Handle(
         PlatformSalesReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

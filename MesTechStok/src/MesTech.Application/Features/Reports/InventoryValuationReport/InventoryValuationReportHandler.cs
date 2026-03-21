@@ -19,6 +19,7 @@ public class InventoryValuationReportHandler
     public async Task<IReadOnlyList<InventoryValuationReportDto>> Handle(
         InventoryValuationReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var products = request.CategoryFilter.HasValue
             ? await _productRepository.GetByCategoryAsync(request.CategoryFilter.Value)
             : await _productRepository.GetAllAsync();

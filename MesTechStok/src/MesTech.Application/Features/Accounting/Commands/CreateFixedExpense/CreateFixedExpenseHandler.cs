@@ -15,6 +15,7 @@ public class CreateFixedExpenseHandler : IRequestHandler<CreateFixedExpenseComma
 
     public async Task<Guid> Handle(CreateFixedExpenseCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expense = FixedExpense.Create(
             request.TenantId,
             request.Name,

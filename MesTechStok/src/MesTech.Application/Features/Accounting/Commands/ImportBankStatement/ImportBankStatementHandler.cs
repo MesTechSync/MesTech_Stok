@@ -15,6 +15,7 @@ public class ImportBankStatementHandler : IRequestHandler<ImportBankStatementCom
 
     public async Task<int> Handle(ImportBankStatementCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var importedCount = 0;
         var transactions = new List<BankTransaction>();
 

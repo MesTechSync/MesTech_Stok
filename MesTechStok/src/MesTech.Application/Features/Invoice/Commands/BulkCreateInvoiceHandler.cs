@@ -18,6 +18,7 @@ public class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoiceCommand
 
     public async Task<BulkInvoiceResultDto> Handle(BulkCreateInvoiceCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var results = new List<BulkInvoiceItemResultDto>();
         int successCount = 0;
         int failCount = 0;

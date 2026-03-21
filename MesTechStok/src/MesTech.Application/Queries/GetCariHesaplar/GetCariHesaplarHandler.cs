@@ -16,6 +16,7 @@ public class GetCariHesaplarHandler : IRequestHandler<GetCariHesaplarQuery, IRea
 
     public async Task<IReadOnlyList<CariHesapDto>> Handle(GetCariHesaplarQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.Type.HasValue)
         {
             var byType = await _cariHesapRepository.GetByTypeAsync(request.Type.Value, request.TenantId);

@@ -29,6 +29,7 @@ public class CargoPerformanceReportHandler
     public async Task<IReadOnlyList<CargoPerformanceReportDto>> Handle(
         CargoPerformanceReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var cargoExpenses = await _cargoExpenseRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

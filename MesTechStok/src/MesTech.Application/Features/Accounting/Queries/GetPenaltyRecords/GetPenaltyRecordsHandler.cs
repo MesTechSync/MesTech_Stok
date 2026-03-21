@@ -14,6 +14,7 @@ public class GetPenaltyRecordsHandler : IRequestHandler<GetPenaltyRecordsQuery, 
 
     public async Task<IReadOnlyList<PenaltyRecordDto>> Handle(GetPenaltyRecordsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var records = await _repository.GetAllAsync(request.TenantId, request.Source, cancellationToken);
         return records.Adapt<List<PenaltyRecordDto>>().AsReadOnly();
     }

@@ -15,6 +15,7 @@ public class CreateFinancialGoalHandler : IRequestHandler<CreateFinancialGoalCom
 
     public async Task<Guid> Handle(CreateFinancialGoalCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var goal = FinancialGoal.Create(
             request.TenantId, request.Title, request.TargetAmount, request.StartDate, request.EndDate);
 

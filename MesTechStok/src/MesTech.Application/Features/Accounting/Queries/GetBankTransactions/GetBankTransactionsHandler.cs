@@ -13,6 +13,7 @@ public class GetBankTransactionsHandler : IRequestHandler<GetBankTransactionsQue
 
     public async Task<IReadOnlyList<BankTransactionDto>> Handle(GetBankTransactionsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var transactions = await _repository.GetByBankAccountAsync(
             request.TenantId, request.BankAccountId, request.From, request.To, cancellationToken);
 

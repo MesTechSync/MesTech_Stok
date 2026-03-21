@@ -14,6 +14,7 @@ public class CreateWorkTaskHandler : IRequestHandler<CreateWorkTaskCommand, Guid
 
     public async Task<Guid> Handle(CreateWorkTaskCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var task = WorkTask.Create(request.TenantId, request.Title, request.Priority,
             request.ProjectId, request.MilestoneId, request.AssignedToUserId, request.CreatedByUserId,
             request.DueDate, request.EstimatedMinutes, request.OrderId, request.CrmContactId, request.ProductId);

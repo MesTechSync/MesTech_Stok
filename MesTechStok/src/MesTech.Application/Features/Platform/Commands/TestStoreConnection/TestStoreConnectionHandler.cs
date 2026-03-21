@@ -34,6 +34,7 @@ public class TestStoreConnectionHandler
         TestStoreConnectionCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var sw = Stopwatch.StartNew();
 
         var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);

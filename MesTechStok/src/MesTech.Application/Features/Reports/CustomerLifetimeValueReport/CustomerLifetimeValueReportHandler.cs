@@ -20,6 +20,7 @@ public class CustomerLifetimeValueReportHandler
     public async Task<IReadOnlyList<CustomerLifetimeValueReportDto>> Handle(
         CustomerLifetimeValueReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

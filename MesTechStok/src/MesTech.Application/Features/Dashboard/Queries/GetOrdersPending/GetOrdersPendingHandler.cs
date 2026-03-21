@@ -19,6 +19,7 @@ public class GetOrdersPendingHandler : IRequestHandler<GetOrdersPendingQuery, Or
 
     public async Task<OrdersPendingDto> Handle(GetOrdersPendingQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Fetch orders from last 90 days to capture all pending orders
         var from = DateTime.UtcNow.AddDays(-90);
         var to = DateTime.UtcNow;

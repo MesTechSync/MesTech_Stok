@@ -28,6 +28,7 @@ public class ValidateTrialBalanceHandler
         ValidateTrialBalanceQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var entries = await _journalRepo.GetByDateRangeAsync(
             request.TenantId,
             request.StartDate,

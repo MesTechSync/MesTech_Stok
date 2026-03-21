@@ -26,6 +26,7 @@ public class ConvertQuotationToInvoiceHandler
         ConvertQuotationToInvoiceCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var quotation = await _quotationRepository.GetByIdWithLinesAsync(request.QuotationId);
         if (quotation is null)
             return new ConvertQuotationToInvoiceResult

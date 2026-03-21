@@ -14,6 +14,7 @@ public class UpdateChartOfAccountHandler : IRequestHandler<UpdateChartOfAccountC
 
     public async Task<bool> Handle(UpdateChartOfAccountCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var account = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (account == null) return false;
 

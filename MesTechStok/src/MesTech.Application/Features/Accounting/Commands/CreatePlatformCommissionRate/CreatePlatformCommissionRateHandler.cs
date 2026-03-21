@@ -15,6 +15,7 @@ public class CreatePlatformCommissionRateHandler : IRequestHandler<CreatePlatfor
 
     public async Task<Guid> Handle(CreatePlatformCommissionRateCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var commission = new PlatformCommission
         {
             TenantId = request.TenantId,

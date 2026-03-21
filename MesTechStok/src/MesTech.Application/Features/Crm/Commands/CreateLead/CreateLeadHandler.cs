@@ -14,6 +14,7 @@ public class CreateLeadHandler : IRequestHandler<CreateLeadCommand, Guid>
 
     public async Task<Guid> Handle(CreateLeadCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var lead = Lead.Create(
             request.TenantId,
             request.FullName,

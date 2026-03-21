@@ -17,6 +17,7 @@ public class CreateCariHesapHandler : IRequestHandler<CreateCariHesapCommand, Gu
 
     public async Task<Guid> Handle(CreateCariHesapCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var cariHesap = new CariHesap
         {
             TenantId = request.TenantId,

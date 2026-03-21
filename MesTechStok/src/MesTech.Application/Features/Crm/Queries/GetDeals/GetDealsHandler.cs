@@ -11,6 +11,7 @@ public class GetDealsHandler : IRequestHandler<GetDealsQuery, GetDealsResult>
 
     public async Task<GetDealsResult> Handle(GetDealsQuery req, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(req);
         var deals = req.PipelineId.HasValue
             ? await _repository.GetByPipelineAsync(req.TenantId, req.PipelineId.Value, req.Status, cancellationToken)
             : await _repository.GetByTenantPagedAsync(req.TenantId, req.Status, req.Page, req.PageSize, cancellationToken);

@@ -13,6 +13,7 @@ public class GetSettlementBatchesHandler : IRequestHandler<GetSettlementBatchesQ
 
     public async Task<IReadOnlyList<SettlementBatchDto>> Handle(GetSettlementBatchesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var from = request.From ?? DateTime.UtcNow.AddMonths(-3);
         var to = request.To ?? DateTime.UtcNow;
 

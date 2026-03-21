@@ -20,6 +20,7 @@ public class GetKdvReportHandler : IRequestHandler<GetKdvReportQuery, KdvReportD
         GetKdvReportQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var period = $"{request.Year:D4}-{request.Month:D2}";
         var draft = await _mediator.Send(
             new GetKdvDeclarationDraftQuery(request.TenantId, period),

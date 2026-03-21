@@ -41,6 +41,7 @@ public class GetPlatformSyncStatusHandler
         GetPlatformSyncStatusQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var allStores = await _storeRepository
             .GetByTenantIdAsync(request.TenantId, cancellationToken);
 

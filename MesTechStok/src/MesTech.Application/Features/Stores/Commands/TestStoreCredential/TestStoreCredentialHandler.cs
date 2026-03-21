@@ -36,6 +36,7 @@ public class TestStoreCredentialHandler : IRequestHandler<TestStoreCredentialCom
     public async Task<CredentialTestResult> Handle(
         TestStoreCredentialCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
         if (store is null)
         {

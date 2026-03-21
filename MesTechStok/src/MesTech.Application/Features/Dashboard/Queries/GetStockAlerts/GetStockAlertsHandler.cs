@@ -16,6 +16,7 @@ public class GetStockAlertsHandler : IRequestHandler<GetStockAlertsQuery, IReadO
 
     public async Task<IReadOnlyList<StockAlertDto>> Handle(GetStockAlertsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var lowStockProducts = await _productRepository.GetLowStockAsync();
 
         return lowStockProducts

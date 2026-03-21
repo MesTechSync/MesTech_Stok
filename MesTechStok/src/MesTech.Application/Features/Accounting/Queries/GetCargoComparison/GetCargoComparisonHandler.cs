@@ -28,6 +28,7 @@ public class GetCargoComparisonHandler
         GetCargoComparisonQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var allAdapters = _factory.GetAll();
         var items = new List<CargoComparisonItem>();
 

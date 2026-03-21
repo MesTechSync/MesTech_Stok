@@ -12,6 +12,7 @@ public class GetLeadsHandler : IRequestHandler<GetLeadsQuery, GetLeadsResult>
 
     public async Task<GetLeadsResult> Handle(GetLeadsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _repository.GetPagedAsync(
             request.TenantId, request.Status, request.AssignedToUserId,
             request.Page, request.PageSize, cancellationToken);

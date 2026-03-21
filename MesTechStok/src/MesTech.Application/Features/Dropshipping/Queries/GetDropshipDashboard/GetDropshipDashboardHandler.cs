@@ -30,6 +30,7 @@ public class GetDropshipDashboardHandler
         GetDropshipDashboardQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Active suppliers
         var suppliers = await _supplierRepository
             .GetByTenantAsync(request.TenantId, cancellationToken);

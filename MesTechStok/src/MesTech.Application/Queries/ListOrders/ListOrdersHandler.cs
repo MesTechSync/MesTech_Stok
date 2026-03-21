@@ -15,6 +15,7 @@ public class ListOrdersHandler : IRequestHandler<ListOrdersQuery, IReadOnlyList<
 
     public async Task<IReadOnlyList<OrderListDto>> Handle(ListOrdersQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var from = request.From ?? DateTime.UtcNow.AddDays(-30);
         var to = request.To ?? DateTime.UtcNow;
 

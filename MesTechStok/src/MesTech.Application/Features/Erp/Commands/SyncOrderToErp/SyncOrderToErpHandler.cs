@@ -30,6 +30,7 @@ public class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpCommand, ErpS
         SyncOrderToErpCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Sync log kaydi olustur
         var log = ErpSyncLog.Create(
             request.TenantId,

@@ -31,6 +31,7 @@ public class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCalendarCom
         GenerateTaxCalendarCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var year = request.Year;
         var tenantId = request.TenantId;
         var count = 0;

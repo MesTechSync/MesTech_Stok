@@ -23,6 +23,7 @@ public class MarkUserNotificationReadHandler
     public async Task<bool> Handle(
         MarkUserNotificationReadCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var notification = await _repository.GetByIdAsync(request.NotificationId, cancellationToken);
 
         if (notification == null || notification.TenantId != request.TenantId)

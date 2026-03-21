@@ -15,6 +15,7 @@ public class RecordCargoExpenseHandler : IRequestHandler<RecordCargoExpenseComma
 
     public async Task<Guid> Handle(RecordCargoExpenseCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expense = CargoExpense.Create(
             request.TenantId, request.CarrierName, request.Cost, request.OrderId, request.TrackingNumber);
 

@@ -28,6 +28,7 @@ public class GetPendingReviewsHandler : IRequestHandler<GetPendingReviewsQuery, 
         GetPendingReviewsQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (matches, totalCount) = await _matchRepo.GetPendingReviewsPagedAsync(
             request.TenantId, request.Page, request.PageSize, cancellationToken);
 

@@ -22,6 +22,7 @@ public class DeleteStoreCredentialHandler : IRequestHandler<DeleteStoreCredentia
 
     public async Task<bool> Handle(DeleteStoreCredentialCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
         if (credentials.Count == 0)
             return false;

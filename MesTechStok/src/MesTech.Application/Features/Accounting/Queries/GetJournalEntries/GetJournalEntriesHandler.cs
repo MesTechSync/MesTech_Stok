@@ -13,6 +13,7 @@ public class GetJournalEntriesHandler : IRequestHandler<GetJournalEntriesQuery, 
 
     public async Task<IReadOnlyList<JournalEntryDto>> Handle(GetJournalEntriesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var entries = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, cancellationToken);
         return entries.Select(e => new JournalEntryDto
         {

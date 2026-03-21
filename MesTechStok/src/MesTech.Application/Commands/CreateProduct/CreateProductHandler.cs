@@ -18,6 +18,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Create
 
     public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Duplicate SKU kontrolü
         var existing = await _productRepository.GetBySKUAsync(request.SKU);
         if (existing != null)

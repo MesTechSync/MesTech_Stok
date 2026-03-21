@@ -17,6 +17,7 @@ public class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, No
 
     public async Task<NotificationListResult> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _repository.GetPagedAsync(
             request.TenantId,
             request.Page,

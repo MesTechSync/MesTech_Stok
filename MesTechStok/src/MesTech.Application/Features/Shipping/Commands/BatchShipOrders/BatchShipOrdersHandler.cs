@@ -18,6 +18,7 @@ public class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersCommand, Ba
 
     public async Task<BatchShipResult> Handle(BatchShipOrdersCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var results = new List<AutoShipResult>();
 
         foreach (var orderId in request.OrderIds)

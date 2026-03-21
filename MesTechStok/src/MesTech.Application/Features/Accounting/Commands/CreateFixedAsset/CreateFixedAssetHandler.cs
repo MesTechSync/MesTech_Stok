@@ -19,6 +19,7 @@ public class CreateFixedAssetHandler : IRequestHandler<CreateFixedAssetCommand, 
 
     public async Task<Guid> Handle(CreateFixedAssetCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var asset = FixedAsset.Create(
             tenantId: request.TenantId,
             name: request.Name,

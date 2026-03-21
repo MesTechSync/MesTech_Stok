@@ -15,6 +15,7 @@ public class PlaceDropshipOrderHandler : IRequestHandler<PlaceDropshipOrderComma
 
     public async Task<Guid> Handle(PlaceDropshipOrderCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var order = DropshipOrder.Create(
             request.TenantId,
             request.OrderId,

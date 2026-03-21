@@ -35,6 +35,7 @@ public class ImportFromFeedHandler : IRequestHandler<ImportFromFeedCommand, Impo
         ImportFromFeedCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var result = new ImportResultDto();
 
         var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken);

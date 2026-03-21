@@ -13,6 +13,7 @@ public class GetPlatformMessagesHandler : IRequestHandler<GetPlatformMessagesQue
 
     public async Task<GetPlatformMessagesResult> Handle(GetPlatformMessagesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _repository.GetPagedAsync(
             request.TenantId, request.Platform, request.Status,
             request.Page, request.PageSize, cancellationToken);

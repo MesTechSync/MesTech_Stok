@@ -36,6 +36,7 @@ public class CreateStoreHandler : IRequestHandler<CreateStoreCommand, CreateStor
         CreateStoreCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (string.IsNullOrWhiteSpace(request.StoreName))
             return new CreateStoreResult { IsSuccess = false, ErrorMessage = "Store name is required." };
 

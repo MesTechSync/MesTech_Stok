@@ -15,6 +15,7 @@ public class CreatePenaltyRecordHandler : IRequestHandler<CreatePenaltyRecordCom
 
     public async Task<Guid> Handle(CreatePenaltyRecordCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = PenaltyRecord.Create(
             request.TenantId,
             request.Source,

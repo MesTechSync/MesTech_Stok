@@ -15,6 +15,7 @@ public class CreateChartOfAccountHandler : IRequestHandler<CreateChartOfAccountC
 
     public async Task<Guid> Handle(CreateChartOfAccountCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Check for duplicate code within tenant
         var existing = await _repository.GetByCodeAsync(request.TenantId, request.Code, cancellationToken);
         if (existing != null)

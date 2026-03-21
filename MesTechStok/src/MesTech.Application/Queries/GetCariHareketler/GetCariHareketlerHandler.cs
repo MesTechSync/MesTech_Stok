@@ -16,6 +16,7 @@ public class GetCariHareketlerHandler : IRequestHandler<GetCariHareketlerQuery, 
 
     public async Task<IReadOnlyList<CariHareketDto>> Handle(GetCariHareketlerQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.From.HasValue && request.To.HasValue)
         {
             var byRange = await _cariHareketRepository.GetByDateRangeAsync(request.CariHesapId, request.From.Value, request.To.Value);

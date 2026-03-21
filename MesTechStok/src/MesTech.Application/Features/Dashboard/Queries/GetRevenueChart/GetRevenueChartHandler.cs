@@ -18,6 +18,7 @@ public class GetRevenueChartHandler : IRequestHandler<GetRevenueChartQuery, IRea
     public async Task<IReadOnlyList<RevenueChartPointDto>> Handle(
         GetRevenueChartQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var days = Math.Clamp(request.Days, 1, 365);
         var from = DateTime.UtcNow.AddDays(-days).Date;
         var to = DateTime.UtcNow;

@@ -23,6 +23,7 @@ public class GenerateBaBsReportHandler
         GenerateBaBsReportQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         return await _babsService.GenerateBaBsReportAsync(
             request.TenantId,
             request.Year,

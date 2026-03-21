@@ -15,6 +15,7 @@ public class CreateAccountingBankAccountHandler : IRequestHandler<CreateAccounti
 
     public async Task<Guid> Handle(CreateAccountingBankAccountCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var bankAccount = BankAccount.Create(
             request.TenantId, request.AccountName, request.Currency,
             request.BankName, request.IBAN, request.AccountNumber, request.IsDefault, request.StoreId);

@@ -17,6 +17,7 @@ public class GetEInvoicesHandler : IRequestHandler<GetEInvoicesQuery, PagedResul
 
     public async Task<PagedResult<EInvoiceDto>> Handle(GetEInvoicesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, total) = await _repository.GetPagedAsync(
             status: request.Status,
             from: request.From,

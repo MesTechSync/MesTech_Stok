@@ -24,6 +24,7 @@ public class MarkAllUserNotificationsReadHandler
     public async Task<int> Handle(
         MarkAllUserNotificationsReadCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var unread = await _repository.GetUnreadByUserAsync(
             request.TenantId,
             request.UserId,

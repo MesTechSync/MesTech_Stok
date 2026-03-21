@@ -13,6 +13,7 @@ public class GetCustomersCrmHandler : IRequestHandler<GetCustomersCrmQuery, GetC
 
     public async Task<GetCustomersCrmResult> Handle(GetCustomersCrmQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _queryService.GetCustomersPagedAsync(
             request.TenantId, request.IsVip, request.IsActive, request.SearchTerm,
             request.Page, request.PageSize, cancellationToken);

@@ -14,6 +14,7 @@ public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, IReadOnl
 
     public async Task<IReadOnlyList<CategoryListDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var categories = request.ActiveOnly
             ? await _categoryRepository.GetActiveAsync()
             : await _categoryRepository.GetAllAsync();

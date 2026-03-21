@@ -15,6 +15,7 @@ public class CreateTaxRecordHandler : IRequestHandler<CreateTaxRecordCommand, Gu
 
     public async Task<Guid> Handle(CreateTaxRecordCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = TaxRecord.Create(
             request.TenantId,
             request.Period,

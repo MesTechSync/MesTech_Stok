@@ -16,6 +16,7 @@ public class GetIncomesHandler : IRequestHandler<GetIncomesQuery, IReadOnlyList<
 
     public async Task<IReadOnlyList<IncomeDto>> Handle(GetIncomesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.Type.HasValue)
         {
             var byType = await _incomeRepository.GetByTypeAsync(request.Type.Value, request.TenantId);

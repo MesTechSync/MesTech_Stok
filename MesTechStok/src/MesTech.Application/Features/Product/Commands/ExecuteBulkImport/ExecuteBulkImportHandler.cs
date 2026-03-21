@@ -21,6 +21,7 @@ public class ExecuteBulkImportHandler : IRequestHandler<ExecuteBulkImportCommand
         ExecuteBulkImportCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.FileStream is null || request.FileStream.Length == 0)
         {
             return new ImportResult(

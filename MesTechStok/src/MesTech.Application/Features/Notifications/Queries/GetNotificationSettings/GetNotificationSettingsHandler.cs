@@ -19,6 +19,7 @@ public class GetNotificationSettingsHandler
     public async Task<IReadOnlyList<NotificationSettingDto>> Handle(
         GetNotificationSettingsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var settings = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
 
         var dtos = settings.Select(s => new NotificationSettingDto

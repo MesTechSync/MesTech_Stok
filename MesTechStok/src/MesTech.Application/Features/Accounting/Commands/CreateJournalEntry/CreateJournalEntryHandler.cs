@@ -15,6 +15,7 @@ public class CreateJournalEntryHandler : IRequestHandler<CreateJournalEntryComma
 
     public async Task<Guid> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var entry = JournalEntry.Create(request.TenantId, request.EntryDate, request.Description, request.ReferenceNumber);
 
         foreach (var line in request.Lines)

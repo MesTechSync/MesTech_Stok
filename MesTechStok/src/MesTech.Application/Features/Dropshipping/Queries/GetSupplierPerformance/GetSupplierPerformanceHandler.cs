@@ -26,6 +26,7 @@ public class GetSupplierPerformanceHandler
         GetSupplierPerformanceQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Tüm aktif tedarikçileri al (tenant-agnostic performans görünümü)
         // Not: Production'da tenant filtresi eklenebilir
         var suppliers = await _supplierRepository.GetByTenantAsync(Guid.Empty, cancellationToken);

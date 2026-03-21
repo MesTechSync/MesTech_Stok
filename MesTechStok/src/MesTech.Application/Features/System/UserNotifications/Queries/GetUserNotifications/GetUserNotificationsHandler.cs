@@ -18,6 +18,7 @@ public class GetUserNotificationsHandler
     public async Task<UserNotificationListResult> Handle(
         GetUserNotificationsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _repository.GetPagedAsync(
             request.TenantId,
             request.UserId,

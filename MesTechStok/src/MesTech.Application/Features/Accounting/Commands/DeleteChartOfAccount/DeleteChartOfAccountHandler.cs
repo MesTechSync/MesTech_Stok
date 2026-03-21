@@ -14,6 +14,7 @@ public class DeleteChartOfAccountHandler : IRequestHandler<DeleteChartOfAccountC
 
     public async Task<bool> Handle(DeleteChartOfAccountCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var account = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (account == null) return false;
 

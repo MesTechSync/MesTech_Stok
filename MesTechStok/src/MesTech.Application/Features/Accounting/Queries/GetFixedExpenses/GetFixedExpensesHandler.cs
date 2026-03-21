@@ -14,6 +14,7 @@ public class GetFixedExpensesHandler : IRequestHandler<GetFixedExpensesQuery, IR
 
     public async Task<IReadOnlyList<FixedExpenseDto>> Handle(GetFixedExpensesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expenses = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken);
         return expenses.Adapt<List<FixedExpenseDto>>().AsReadOnly();
     }

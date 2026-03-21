@@ -18,6 +18,7 @@ public class GetTopProductsHandler : IRequestHandler<GetTopProductsQuery, IReadO
     public async Task<IReadOnlyList<TopProductDto>> Handle(
         GetTopProductsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var limit = Math.Clamp(request.Limit, 1, 100);
         var from = DateTime.UtcNow.AddDays(-30);
         var to = DateTime.UtcNow;

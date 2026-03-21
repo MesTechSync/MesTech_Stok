@@ -40,6 +40,7 @@ public class GetPlatformListHandler : IRequestHandler<GetPlatformListQuery, List
         GetPlatformListQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var allStores = await _storeRepository
             .GetByTenantIdAsync(request.TenantId, cancellationToken);
 

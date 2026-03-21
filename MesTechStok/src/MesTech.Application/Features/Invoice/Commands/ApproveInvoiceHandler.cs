@@ -17,6 +17,7 @@ public class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceCommand, bool
 
     public async Task<bool> Handle(ApproveInvoiceCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var invoice = await _repository.GetByIdAsync(request.InvoiceId);
         if (invoice is null)
         {

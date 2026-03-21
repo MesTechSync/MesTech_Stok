@@ -17,6 +17,7 @@ public class CreateCariHareketHandler : IRequestHandler<CreateCariHareketCommand
 
     public async Task<Guid> Handle(CreateCariHareketCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var hareket = new CariHareket
         {
             TenantId = request.TenantId,

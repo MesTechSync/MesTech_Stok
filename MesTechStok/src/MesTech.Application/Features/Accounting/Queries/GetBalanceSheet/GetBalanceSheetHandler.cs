@@ -28,6 +28,7 @@ public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, Bala
 
     public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var accounts = await _accountRepo.GetAllAsync(request.TenantId, isActive: true, cancellationToken);
 
         var entries = await _journalRepo.GetByDateRangeAsync(

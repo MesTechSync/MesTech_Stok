@@ -13,6 +13,7 @@ public class GetPlatformCommissionRatesHandler : IRequestHandler<GetPlatformComm
 
     public async Task<IReadOnlyList<PlatformCommissionRateDto>> Handle(GetPlatformCommissionRatesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var commissions = await _repository.GetByPlatformAsync(
             request.TenantId, request.Platform, request.IsActive, cancellationToken);
 

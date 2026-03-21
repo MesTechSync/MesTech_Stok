@@ -22,6 +22,7 @@ public class GetDropshipProfitabilityHandler
         GetDropshipProfitabilityQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository
             .GetByTenantAsync(request.TenantId, cancellationToken);
 

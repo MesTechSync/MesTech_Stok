@@ -14,6 +14,7 @@ public class GetCalendarEventsHandler : IRequestHandler<GetCalendarEventsQuery, 
 
     public async Task<IReadOnlyList<CalendarEventDto>> Handle(GetCalendarEventsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var from = request.From ?? DateTime.UtcNow.AddMonths(-1);
         var to = request.To ?? DateTime.UtcNow.AddMonths(3);
 

@@ -27,6 +27,7 @@ public class CustomerSegmentReportHandler
     public async Task<IReadOnlyList<CustomerSegmentReportDto>> Handle(
         CustomerSegmentReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

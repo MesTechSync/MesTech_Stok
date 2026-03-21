@@ -13,6 +13,7 @@ public class GetSuppliersCrmHandler : IRequestHandler<GetSuppliersCrmQuery, GetS
 
     public async Task<GetSuppliersCrmResult> Handle(GetSuppliersCrmQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var (items, totalCount) = await _queryService.GetSuppliersPagedAsync(
             request.TenantId, request.IsActive, request.IsPreferred, request.SearchTerm,
             request.Page, request.PageSize, cancellationToken);

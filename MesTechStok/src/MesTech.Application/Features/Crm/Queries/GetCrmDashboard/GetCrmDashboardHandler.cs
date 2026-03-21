@@ -13,6 +13,7 @@ public class GetCrmDashboardHandler : IRequestHandler<GetCrmDashboardQuery, CrmD
 
     public async Task<CrmDashboardDto> Handle(GetCrmDashboardQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         return await _queryService.GetDashboardAsync(request.TenantId, cancellationToken);
     }
 }

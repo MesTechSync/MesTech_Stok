@@ -15,6 +15,7 @@ public class CreateDropshipSupplierHandler : IRequestHandler<CreateDropshipSuppl
 
     public async Task<Guid> Handle(CreateDropshipSupplierCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var supplier = DropshipSupplier.Create(
             request.TenantId,
             request.Name,

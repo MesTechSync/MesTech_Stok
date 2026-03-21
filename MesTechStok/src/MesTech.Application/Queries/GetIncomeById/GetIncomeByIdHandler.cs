@@ -14,6 +14,7 @@ public class GetIncomeByIdHandler : IRequestHandler<GetIncomeByIdQuery, IncomeDt
 
     public async Task<IncomeDto?> Handle(GetIncomeByIdQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var income = await _repository.GetByIdAsync(request.Id);
         return income?.Adapt<IncomeDto>();
     }

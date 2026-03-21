@@ -18,6 +18,7 @@ public class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceCommand, bool
 
     public async Task<bool> Handle(CancelEInvoiceCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken);
         if (doc is null)
             return false;

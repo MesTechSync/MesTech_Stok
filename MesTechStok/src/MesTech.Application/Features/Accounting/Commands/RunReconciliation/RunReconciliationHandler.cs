@@ -40,6 +40,7 @@ public class RunReconciliationHandler : IRequestHandler<RunReconciliationCommand
         RunReconciliationCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(request.TenantId, cancellationToken);
         var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(request.TenantId, cancellationToken);
 

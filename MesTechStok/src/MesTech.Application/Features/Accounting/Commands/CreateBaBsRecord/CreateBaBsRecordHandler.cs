@@ -19,6 +19,7 @@ public class CreateBaBsRecordHandler : IRequestHandler<CreateBaBsRecordCommand, 
 
     public async Task<Guid> Handle(CreateBaBsRecordCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = BaBsRecord.Create(
             tenantId: request.TenantId,
             year: request.Year,

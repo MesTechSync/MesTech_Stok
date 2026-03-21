@@ -14,6 +14,7 @@ public class GetSuppliersHandler : IRequestHandler<GetSuppliersQuery, IReadOnlyL
 
     public async Task<IReadOnlyList<SupplierListDto>> Handle(GetSuppliersQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var suppliers = request.ActiveOnly
             ? await _supplierRepository.GetActiveAsync()
             : await _supplierRepository.GetAllAsync();

@@ -11,6 +11,7 @@ public class GetInvoiceProvidersHandler : IRequestHandler<GetInvoiceProvidersQue
 
     public Task<List<InvoiceProviderStatusDto>> Handle(GetInvoiceProvidersQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var providers = new List<InvoiceProviderStatusDto>
         {
             new(InvoiceProvider.Sovos, "Sovos (Foriba)", IsConfigured: true, IsActive: true, IsReal: true,

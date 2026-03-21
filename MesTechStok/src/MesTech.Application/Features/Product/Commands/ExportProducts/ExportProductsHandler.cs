@@ -19,6 +19,7 @@ public class ExportProductsHandler : IRequestHandler<ExportProductsCommand, byte
         ExportProductsCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var options = new BulkExportOptions(
             request.Platform,
             request.CategoryId,

@@ -13,6 +13,7 @@ public class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery
 
     public async Task<IReadOnlyList<ChartOfAccountsDto>> Handle(GetChartOfAccountsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var accounts = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken);
         return accounts.Select(a => new ChartOfAccountsDto
         {

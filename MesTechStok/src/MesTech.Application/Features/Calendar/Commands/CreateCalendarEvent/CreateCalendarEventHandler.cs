@@ -14,6 +14,7 @@ public class CreateCalendarEventHandler : IRequestHandler<CreateCalendarEventCom
 
     public async Task<Guid> Handle(CreateCalendarEventCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var ev = CalendarEvent.Create(request.TenantId, request.Title, request.StartAt, request.EndAt,
             request.Type, request.IsAllDay, request.CreatedByUserId, request.Description, request.Location,
             null, request.RelatedOrderId, request.RelatedDealId, request.RelatedWorkTaskId);

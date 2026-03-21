@@ -19,6 +19,7 @@ public class ValidateBulkImportHandler : IRequestHandler<ValidateBulkImportComma
         ValidateBulkImportCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.FileStream is null || request.FileStream.Length == 0)
         {
             return new ImportValidationResult(

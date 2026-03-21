@@ -15,6 +15,7 @@ public class ImportSettlementHandler : IRequestHandler<ImportSettlementCommand, 
 
     public async Task<Guid> Handle(ImportSettlementCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var batch = SettlementBatch.Create(
             request.TenantId, request.Platform, request.PeriodStart, request.PeriodEnd,
             request.TotalGross, request.TotalCommission, request.TotalNet);

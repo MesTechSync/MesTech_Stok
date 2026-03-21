@@ -14,6 +14,7 @@ public class GetCalendarEventByIdHandler : IRequestHandler<GetCalendarEventByIdQ
 
     public async Task<CalendarEventDto?> Handle(GetCalendarEventByIdQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var ev = await _repository.GetByIdAsync(request.Id, cancellationToken);
         return ev?.Adapt<CalendarEventDto>();
     }

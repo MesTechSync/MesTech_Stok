@@ -14,6 +14,7 @@ public class GetReconciliationMatchesHandler : IRequestHandler<GetReconciliation
 
     public async Task<IReadOnlyList<ReconciliationMatchDto>> Handle(GetReconciliationMatchesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var status = request.Status ?? ReconciliationStatus.NeedsReview;
         var matches = await _repository.GetByStatusAsync(request.TenantId, status, cancellationToken);
         return matches.Select(m => new ReconciliationMatchDto

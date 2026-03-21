@@ -15,6 +15,7 @@ public class GetStoresByTenantHandler : IRequestHandler<GetStoresByTenantQuery, 
 
     public async Task<IReadOnlyList<StoreDto>> Handle(GetStoresByTenantQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var stores = await _storeRepository.GetByTenantIdAsync(request.TenantId, cancellationToken);
 
         return stores.Select(s => new StoreDto

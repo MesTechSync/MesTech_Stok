@@ -27,6 +27,7 @@ public class GetReconciliationDashboardHandler
         GetReconciliationDashboardQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var autoMatched = await _matchRepo.GetByStatusAsync(
             request.TenantId, ReconciliationStatus.AutoMatched, cancellationToken);
         var manualMatched = await _matchRepo.GetByStatusAsync(

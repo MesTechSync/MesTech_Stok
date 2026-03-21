@@ -14,6 +14,7 @@ public class UpdateCounterpartyHandler : IRequestHandler<UpdateCounterpartyComma
 
     public async Task<bool> Handle(UpdateCounterpartyCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var counterparty = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (counterparty == null) return false;
 

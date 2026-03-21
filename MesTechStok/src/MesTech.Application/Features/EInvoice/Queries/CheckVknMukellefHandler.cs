@@ -14,6 +14,7 @@ public class CheckVknMukellefHandler : IRequestHandler<CheckVknMukellefQuery, Vk
 
     public Task<VknMukellefResult> Handle(CheckVknMukellefQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         return _eInvoiceProvider.CheckVknMukellefAsync(request.Vkn, cancellationToken);
     }
 }

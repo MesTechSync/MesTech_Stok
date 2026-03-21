@@ -15,6 +15,7 @@ public class UploadAccountingDocumentHandler : IRequestHandler<UploadAccountingD
 
     public async Task<Guid> Handle(UploadAccountingDocumentCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var document = AccountingDocument.Create(
             request.TenantId, request.FileName, request.MimeType, request.FileSize,
             request.StoragePath, request.DocumentType, request.DocumentSource,

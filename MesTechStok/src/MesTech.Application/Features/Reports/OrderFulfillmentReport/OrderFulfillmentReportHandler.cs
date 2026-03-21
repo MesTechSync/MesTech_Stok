@@ -20,6 +20,7 @@ public class OrderFulfillmentReportHandler
     public async Task<IReadOnlyList<OrderFulfillmentReportDto>> Handle(
         OrderFulfillmentReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

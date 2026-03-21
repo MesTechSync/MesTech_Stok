@@ -23,6 +23,7 @@ public class AddStockHandler : IRequestHandler<AddStockCommand, AddStockResult>
 
     public async Task<AddStockResult> Handle(AddStockCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var product = await _productRepository.GetByIdAsync(request.ProductId);
         if (product == null)
             return new AddStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };

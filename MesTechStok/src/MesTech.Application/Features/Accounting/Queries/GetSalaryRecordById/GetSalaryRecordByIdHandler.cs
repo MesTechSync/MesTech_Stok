@@ -14,6 +14,7 @@ public class GetSalaryRecordByIdHandler : IRequestHandler<GetSalaryRecordByIdQue
 
     public async Task<SalaryRecordDto?> Handle(GetSalaryRecordByIdQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = await _repository.GetByIdAsync(request.Id, cancellationToken);
         return record?.Adapt<SalaryRecordDto>();
     }

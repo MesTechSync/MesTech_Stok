@@ -16,6 +16,7 @@ public class GetInvoicesHandler : IRequestHandler<GetInvoicesQuery, PagedResult<
 
     public Task<PagedResult<InvoiceListDto>> Handle(GetInvoicesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Wire repository GetPaged with filters (Type, Status, Platform, From, To, Search)
         // var (items, total) = await _repository.GetPagedAsync(...);
         // var dtos = items.Select(MapToDto).ToList();

@@ -13,6 +13,7 @@ public class GetAccountingExpensesHandler : IRequestHandler<GetAccountingExpense
 
     public async Task<IReadOnlyList<AccountingExpenseDto>> Handle(GetAccountingExpensesQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expenses = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, request.Source, cancellationToken);
         return expenses.Select(e => new AccountingExpenseDto
         {

@@ -18,6 +18,7 @@ public class GetFifoCOGSHandler : IRequestHandler<GetFifoCOGSQuery, IReadOnlyLis
     public async Task<IReadOnlyList<FifoCostResultDto>> Handle(
         GetFifoCOGSQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.ProductId.HasValue)
         {
             var result = await _fifoService.CalculateCOGSAsync(

@@ -17,6 +17,7 @@ public class ListTaxWithholdingsHandler : IRequestHandler<ListTaxWithholdingsQue
 
     public async Task<IReadOnlyList<TaxWithholdingDto>> Handle(ListTaxWithholdingsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var withholdings = await _repository.GetAllAsync(request.TenantId, request.StartDate, request.EndDate, cancellationToken);
         return withholdings.Select(w => new TaxWithholdingDto
         {

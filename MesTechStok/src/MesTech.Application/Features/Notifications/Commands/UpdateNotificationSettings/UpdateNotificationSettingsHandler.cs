@@ -28,6 +28,7 @@ public class UpdateNotificationSettingsHandler : IRequestHandler<UpdateNotificat
 
     public async Task<Guid> Handle(UpdateNotificationSettingsCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var existing = await _repository.GetByUserAndChannelAsync(
             request.UserId, request.Channel, cancellationToken);
 

@@ -15,6 +15,7 @@ public class GetInvoiceReportHandler : IRequestHandler<GetInvoiceReportQuery, In
 
     public Task<InvoiceReportDto> Handle(GetInvoiceReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Wire real data: query invoices between From-To, filter by Platform, aggregate by type
         var report = new InvoiceReportDto(
             TotalCount: 0,

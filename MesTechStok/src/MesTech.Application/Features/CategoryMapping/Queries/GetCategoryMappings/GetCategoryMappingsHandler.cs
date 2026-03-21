@@ -23,6 +23,7 @@ public class GetCategoryMappingsHandler
         GetCategoryMappingsQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var categories = await _categoryRepository.GetAllAsync();
         var mappings = await _mappingRepository
             .GetByTenantAsync(request.TenantId, request.Platform, cancellationToken);

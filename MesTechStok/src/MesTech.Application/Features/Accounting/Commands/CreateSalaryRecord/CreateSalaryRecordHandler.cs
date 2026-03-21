@@ -15,6 +15,7 @@ public class CreateSalaryRecordHandler : IRequestHandler<CreateSalaryRecordComma
 
     public async Task<Guid> Handle(CreateSalaryRecordCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = SalaryRecord.Create(
             request.TenantId,
             request.EmployeeName,

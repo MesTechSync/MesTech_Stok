@@ -16,6 +16,7 @@ public class GetSalesTodayHandler : IRequestHandler<GetSalesTodayQuery, SalesTod
 
     public async Task<SalesTodayDto> Handle(GetSalesTodayQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var todayStart = DateTime.UtcNow.Date;
         var todayEnd = todayStart.AddDays(1);
         var yesterdayStart = todayStart.AddDays(-1);

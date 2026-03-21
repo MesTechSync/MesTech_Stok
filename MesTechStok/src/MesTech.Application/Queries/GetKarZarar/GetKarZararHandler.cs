@@ -17,6 +17,7 @@ public class GetKarZararHandler : IRequestHandler<GetKarZararQuery, KarZararDto>
 
     public async Task<KarZararDto> Handle(GetKarZararQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var incomes = await _incomeRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId);
         var expenses = await _expenseRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId);
 

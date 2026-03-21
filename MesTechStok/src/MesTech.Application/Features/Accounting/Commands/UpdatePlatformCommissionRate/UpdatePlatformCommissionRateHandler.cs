@@ -14,6 +14,7 @@ public class UpdatePlatformCommissionRateHandler : IRequestHandler<UpdatePlatfor
 
     public async Task<bool> Handle(UpdatePlatformCommissionRateCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var commission = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (commission == null) return false;
 

@@ -20,6 +20,7 @@ public class TaxSummaryReportHandler
     public async Task<IReadOnlyList<TaxSummaryReportDto>> Handle(
         TaxSummaryReportQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var orders = await _orderRepository.GetByDateRangeAsync(
             request.TenantId, request.StartDate, request.EndDate, cancellationToken);
 

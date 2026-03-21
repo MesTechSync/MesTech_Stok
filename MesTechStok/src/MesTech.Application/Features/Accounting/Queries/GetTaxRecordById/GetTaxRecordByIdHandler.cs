@@ -14,6 +14,7 @@ public class GetTaxRecordByIdHandler : IRequestHandler<GetTaxRecordByIdQuery, Ta
 
     public async Task<TaxRecordDto?> Handle(GetTaxRecordByIdQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = await _repository.GetByIdAsync(request.Id, cancellationToken);
         return record?.Adapt<TaxRecordDto>();
     }

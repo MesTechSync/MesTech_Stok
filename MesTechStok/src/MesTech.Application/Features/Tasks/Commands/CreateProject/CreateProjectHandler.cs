@@ -14,6 +14,7 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Guid>
 
     public async Task<Guid> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var project = Project.Create(request.TenantId, request.Name, request.OwnerUserId,
             request.Description, request.StartDate, request.DueDate, request.Color);
         await _repository.AddAsync(project, cancellationToken);

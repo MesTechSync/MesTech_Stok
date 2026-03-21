@@ -16,6 +16,7 @@ public class GetWithholdingRatesHandler
         GetWithholdingRatesQuery request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var rates = WithholdingRates.GetAll()
             .Select(r => new WithholdingRateDto
             {

@@ -31,6 +31,7 @@ public class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, FeedPrevie
         PreviewFeedCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken);
         if (feed is null)
             throw new InvalidOperationException($"SupplierFeed {request.FeedSourceId} not found.");

@@ -16,6 +16,7 @@ public class GetStockMovementsHandler : IRequestHandler<GetStockMovementsQuery, 
 
     public async Task<IReadOnlyList<StockMovementDto>> Handle(GetStockMovementsQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (request.ProductId.HasValue)
         {
             var movements = await _movementRepository.GetByProductIdAsync(request.ProductId.Value);

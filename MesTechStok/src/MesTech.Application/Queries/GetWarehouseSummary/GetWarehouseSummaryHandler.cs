@@ -7,6 +7,7 @@ public class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSummaryQue
     public Task<IReadOnlyList<WarehouseSummaryDto>> Handle(
         GetWarehouseSummaryQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         // Will be wired to repository when Infrastructure layer is ready
         // For now returns empty list — Avalonia ViewModel uses demo data
         IReadOnlyList<WarehouseSummaryDto> result = Array.Empty<WarehouseSummaryDto>();

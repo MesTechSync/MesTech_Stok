@@ -28,6 +28,7 @@ public class GetStoreCredentialHandler : IRequestHandler<GetStoreCredentialQuery
     public async Task<StoreCredentialDto?> Handle(
         GetStoreCredentialQuery request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
         if (store is null)
             return null;

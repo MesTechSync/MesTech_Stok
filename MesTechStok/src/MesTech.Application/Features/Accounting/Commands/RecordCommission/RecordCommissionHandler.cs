@@ -15,6 +15,7 @@ public class RecordCommissionHandler : IRequestHandler<RecordCommissionCommand, 
 
     public async Task<Guid> Handle(RecordCommissionCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var record = CommissionRecord.Create(
             request.TenantId, request.Platform, request.GrossAmount,
             request.CommissionRate, request.CommissionAmount, request.ServiceFee,

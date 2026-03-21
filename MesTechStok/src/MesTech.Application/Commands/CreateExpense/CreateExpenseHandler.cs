@@ -17,6 +17,7 @@ public class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
 
     public async Task<Guid> Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var expense = new Expense
         {
             TenantId = request.TenantId,

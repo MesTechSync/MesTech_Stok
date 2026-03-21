@@ -16,6 +16,7 @@ public class AcceptQuotationHandler : IRequestHandler<AcceptQuotationCommand, Ac
 
     public async Task<AcceptQuotationResult> Handle(AcceptQuotationCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var quotation = await _quotationRepository.GetByIdAsync(request.QuotationId);
         if (quotation is null)
             return new AcceptQuotationResult { IsSuccess = false, ErrorMessage = "Quotation not found." };
