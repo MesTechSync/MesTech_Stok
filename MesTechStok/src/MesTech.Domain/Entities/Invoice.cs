@@ -1,6 +1,7 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 
 namespace MesTech.Domain.Entities;
 
@@ -126,7 +127,7 @@ public class Invoice : BaseEntity, ITenantEntity
     public void Cancel(string? reason = null)
     {
         if (Status == InvoiceStatus.Accepted)
-            throw new InvalidOperationException("Kabul edilmis fatura iptal edilemez.");
+            throw new BusinessRuleException("InvoiceRule","Kabul edilmis fatura iptal edilemez.");
         Status = InvoiceStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
@@ -199,11 +200,11 @@ public class Invoice : BaseEntity, ITenantEntity
     public void Approve()
     {
         if (Status != InvoiceStatus.Draft)
-            throw new InvalidOperationException($"Sadece taslak fatura onaylanabilir. Mevcut durum: {Status}");
+            throw new BusinessRuleException("InvoiceRule",$"Sadece taslak fatura onaylanabilir. Mevcut durum: {Status}");
         if (_lines.Count == 0)
-            throw new InvalidOperationException("Fatura kalemsiz onaylanamaz.");
+            throw new BusinessRuleException("InvoiceRule","Fatura kalemsiz onaylanamaz.");
         if (GrandTotal <= 0)
-            throw new InvalidOperationException("Fatura tutari sifirdan buyuk olmali.");
+            throw new BusinessRuleException("InvoiceRule","Fatura tutari sifirdan buyuk olmali.");
 
         Status = InvoiceStatus.Queued;
         RaiseDomainEvent(new InvoiceApprovedEvent(Id, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));

@@ -1,6 +1,7 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 
 namespace MesTech.Domain.Entities;
 
@@ -89,7 +90,7 @@ public class Order : BaseEntity, ITenantEntity
     public void MarkAsShipped(string trackingNumber, CargoProvider provider)
     {
         if (Status != OrderStatus.Confirmed)
-            throw new InvalidOperationException(
+            throw new BusinessRuleException("OrderStatusTransition",
                 $"Cannot ship order in {Status} status. Only Confirmed orders can be shipped.");
 
         TrackingNumber = trackingNumber;
@@ -106,7 +107,7 @@ public class Order : BaseEntity, ITenantEntity
     public void Cancel(string? reason = null)
     {
         if (Status is not (OrderStatus.Pending or OrderStatus.Confirmed))
-            throw new InvalidOperationException(
+            throw new BusinessRuleException("OrderStatusTransition",
                 $"Cannot cancel order in {Status} status. Only Pending or Confirmed orders can be cancelled.");
 
         Status = OrderStatus.Cancelled;
@@ -125,7 +126,7 @@ public class Order : BaseEntity, ITenantEntity
     public void MarkAsDelivered()
     {
         if (Status != OrderStatus.Shipped)
-            throw new InvalidOperationException(
+            throw new BusinessRuleException("OrderStatusTransition",
                 $"Cannot mark as delivered in {Status} status. Only Shipped orders can be delivered.");
 
         DeliveredAt = DateTime.UtcNow;

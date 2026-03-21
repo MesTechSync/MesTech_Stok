@@ -1,6 +1,7 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 
 namespace MesTech.Domain.Entities;
 
@@ -168,8 +169,7 @@ public class Product : BaseEntity, ITenantEntity
         if (quantity <= 0)
             throw new ArgumentException("Stok miktarı pozitif olmalı.", nameof(quantity));
         if (Stock < quantity)
-            throw new InvalidOperationException(
-                $"Yetersiz stok. Mevcut: {Stock}, İstenen: {quantity}");
+            throw new InsufficientStockException(SKU, Stock, quantity);
         AdjustStock(-quantity, StockMovementType.StockOut, reference);
     }
 
