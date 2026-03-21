@@ -1,3 +1,4 @@
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -123,6 +124,7 @@ public class ArasKargoAdapter : ICargoAdapter
     // -- CreateShipmentAsync ---------------------------------
     public async Task<ShipmentResult> CreateShipmentAsync(ShipmentRequest request, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         EnsureConfigured();
         ArgumentNullException.ThrowIfNull(request);
 
@@ -186,6 +188,7 @@ public class ArasKargoAdapter : ICargoAdapter
     // -- TrackShipmentAsync ----------------------------------
     public async Task<TrackingResult> TrackShipmentAsync(string trackingNumber, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         EnsureConfigured();
         var trackingResult = new TrackingResult { TrackingNumber = trackingNumber };
 

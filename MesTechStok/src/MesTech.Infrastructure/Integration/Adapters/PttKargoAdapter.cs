@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
+using System.Diagnostics;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -133,6 +134,7 @@ public class PttKargoAdapter : ICargoAdapter
     // ── CreateShipmentAsync ─────────────────────────────
     public async Task<ShipmentResult> CreateShipmentAsync(ShipmentRequest request, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         EnsureConfigured();
         ArgumentNullException.ThrowIfNull(request);
 
@@ -183,6 +185,7 @@ public class PttKargoAdapter : ICargoAdapter
     // ── TrackShipmentAsync ──────────────────────────────
     public async Task<TrackingResult> TrackShipmentAsync(string trackingNumber, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         EnsureConfigured();
 
         var trackingResult = new TrackingResult { TrackingNumber = trackingNumber };
