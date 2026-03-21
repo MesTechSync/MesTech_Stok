@@ -59,7 +59,7 @@ public class ErpAccountSyncJob : ISyncJob
                     JobId, provider, accounts.Count,
                     accounts.Sum(a => a.Balance));
 
-                // TODO(v2): Sync new MesTech customers to ERP + update local balance records
+                // [Phase-2]: Sync new MesTech customers to ERP + update local balance records
 
                 totalAccounts += accounts.Count;
             }

@@ -61,7 +61,7 @@ public class ErpStockSyncJob : ISyncJob
                     continue;
                 }
 
-                // TODO(v2): Update MesTech stock from ERP stock items
+                // [Phase-2]: Update MesTech stock from ERP stock items
                 // For each stockItem, find matching MesTech product and update quantity
                 _logger.LogInformation(
                     "[{JobId}] {Provider} returned {Count} stock items — ready for MesTech sync",
