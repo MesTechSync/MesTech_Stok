@@ -54,7 +54,7 @@
             <!-- DataGrid -->
             <Border Grid.Row="1" Background="White" CornerRadius="8"
                     BorderBrush="#E5E7EB" BorderThickness="1" Padding="0">
-${INDENT}<Grid>
+                <Grid>
                 <DataGrid ItemsSource="{Binding Items}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
@@ -80,7 +80,15 @@ ${INDENT}<Grid>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-<!-- Empty State -->                    <TextBlock Text="Kayıt bulunamadı"                               HorizontalAlignment="Center"                               VerticalAlignment="Center"                               Margin="0,40"                               Opacity="0.5"                               FontSize="16"                               IsVisible="{Binding !Items.Count}" />                </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Items.Count}" />
+                </Grid>
             </Border>
         </Grid>
 

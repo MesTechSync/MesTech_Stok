@@ -72,7 +72,7 @@
                 <Border Grid.Row="0" Padding="16,12" BorderBrush="#E0E6ED" BorderThickness="0,0,0,1">
                     <TextBlock Text="Kalem Detayi" FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" />
                 </Border>
-${INDENT}<Grid>
+                <Grid>
                 <DataGrid Grid.Row="1" ItemsSource="{Binding LineItems}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
@@ -86,7 +86,15 @@ ${INDENT}<Grid>
                         <DataGridTextColumn Header="Oran (%)" Binding="{Binding PercentFormatted}" Width="100" />
                     </DataGrid.Columns>
                 </DataGrid>
-<!-- Empty State -->                    <TextBlock Text="Kayıt bulunamadı"                               HorizontalAlignment="Center"                               VerticalAlignment="Center"                               Margin="0,40"                               Opacity="0.5"                               FontSize="16"                               IsVisible="{Binding !LineItems.Count}" />                </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !LineItems.Count}" />
+                </Grid>
             </Grid>
         </Border>
 

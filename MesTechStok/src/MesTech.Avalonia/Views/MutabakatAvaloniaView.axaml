@@ -78,7 +78,7 @@
         <!-- DataGrid -->
         <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-${INDENT}<Grid>
+                <Grid>
             <DataGrid ItemsSource="{Binding Items}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
@@ -95,7 +95,15 @@ ${INDENT}<Grid>
                     <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
                 </DataGrid.Columns>
             </DataGrid>
-<!-- Empty State -->                <TextBlock Text="Kayıt bulunamadı"                           HorizontalAlignment="Center"                           VerticalAlignment="Center"                           Margin="0,40"                           Opacity="0.5"                           FontSize="16"                           IsVisible="{Binding !Items.Count}" />            </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Items.Count}" />
+                </Grid>
         </Border>
 
         <!-- Loading Overlay -->

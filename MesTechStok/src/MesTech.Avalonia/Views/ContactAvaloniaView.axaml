@@ -51,7 +51,7 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
 
             <!-- Data Grid -->
-${INDENT}<Grid>
+                <Grid>
             <DataGrid ItemsSource="{Binding Contacts}"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="True"
@@ -71,7 +71,15 @@ ${INDENT}<Grid>
                     <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="100" />
                 </DataGrid.Columns>
             </DataGrid>
-<!-- Empty State -->                <TextBlock Text="Kayıt bulunamadı"                           HorizontalAlignment="Center"                           VerticalAlignment="Center"                           Margin="0,40"                           Opacity="0.5"                           FontSize="16"                           IsVisible="{Binding !Contacts.Count}" />            </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Contacts.Count}" />
+                </Grid>
         </Grid>
     </Grid>
 </UserControl>

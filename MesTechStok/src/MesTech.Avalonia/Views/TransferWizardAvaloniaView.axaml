@@ -82,7 +82,7 @@
                                            FontSize="13" Foreground="#64748B" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
-${INDENT}<Grid>
+                <Grid>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding TransferItems}"
                                   AutoGenerateColumns="False"
@@ -101,7 +101,15 @@ ${INDENT}<Grid>
                                 <DataGridTextColumn Header="Transfer Adet" Binding="{Binding TransferQuantity}" Width="110" />
                             </DataGrid.Columns>
                         </DataGrid>
-<!-- Empty State -->                            <TextBlock Text="Kayıt bulunamadı"                                       HorizontalAlignment="Center"                                       VerticalAlignment="Center"                                       Margin="0,40"                                       Opacity="0.5"                                       FontSize="16"                                       IsVisible="{Binding !TransferItems.Count}" />                        </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !TransferItems.Count}" />
+                </Grid>
                     </Grid>
                 </Border>
 

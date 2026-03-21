@@ -44,7 +44,7 @@
         <!-- DataGrid -->
         <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-${INDENT}<Grid>
+                <Grid>
             <DataGrid ItemsSource="{Binding Transactions}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
@@ -62,7 +62,15 @@ ${INDENT}<Grid>
                     <DataGridTextColumn Header="Bakiye" Binding="{Binding BalanceFormatted}" Width="120" />
                 </DataGrid.Columns>
             </DataGrid>
-<!-- Empty State -->                <TextBlock Text="Kayıt bulunamadı"                           HorizontalAlignment="Center"                           VerticalAlignment="Center"                           Margin="0,40"                           Opacity="0.5"                           FontSize="16"                           IsVisible="{Binding !Transactions.Count}" />            </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Transactions.Count}" />
+                </Grid>
         </Border>
 
         <!-- Loading Overlay -->

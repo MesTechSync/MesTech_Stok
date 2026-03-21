@@ -98,7 +98,7 @@
                     </Border>
 
                     <!-- Report Result DataGrid -->
-${INDENT}<Grid>
+                <Grid>
                     <DataGrid Grid.Row="2" ItemsSource="{Binding ReportItems}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
@@ -114,7 +114,15 @@ ${INDENT}<Grid>
                             <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="130" />
                         </DataGrid.Columns>
                     </DataGrid>
-<!-- Empty State -->                        <TextBlock Text="Kayıt bulunamadı"                                   HorizontalAlignment="Center"                                   VerticalAlignment="Center"                                   Margin="0,40"                                   Opacity="0.5"                                   FontSize="16"                                   IsVisible="{Binding !ReportItems.Count}" />                    </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !ReportItems.Count}" />
+                </Grid>
                 </Grid>
             </Border>
         </Grid>

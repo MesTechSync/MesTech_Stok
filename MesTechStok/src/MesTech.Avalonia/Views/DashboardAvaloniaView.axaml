@@ -103,7 +103,7 @@
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Border>
-${INDENT}<Grid>
+                <Grid>
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding RecentOrders}"
                               AutoGenerateColumns="False"
@@ -133,7 +133,15 @@ ${INDENT}<Grid>
                                                 Width="100" />
                         </DataGrid.Columns>
                     </DataGrid>
-<!-- Empty State -->                        <TextBlock Text="Kayıt bulunamadı"                                   HorizontalAlignment="Center"                                   VerticalAlignment="Center"                                   Margin="0,40"                                   Opacity="0.5"                                   FontSize="16"                                   IsVisible="{Binding !RecentOrders.Count}" />                    </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !RecentOrders.Count}" />
+                </Grid>
                 </Grid>
             </Border>
 

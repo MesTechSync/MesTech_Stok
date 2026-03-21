@@ -76,7 +76,7 @@
                             <TextBlock Text="Siparis Kalemleri" FontSize="15" FontWeight="SemiBold"
                                        Foreground="#1E293B" />
                         </Border>
-${INDENT}<Grid>
+                <Grid>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding OrderItems}"
                                   AutoGenerateColumns="False"
@@ -94,7 +94,15 @@ ${INDENT}<Grid>
                                 <DataGridTextColumn Header="Toplam" Binding="{Binding LineTotal, StringFormat='{}{0:N2} TL'}" Width="120" />
                             </DataGrid.Columns>
                         </DataGrid>
-<!-- Empty State -->                            <TextBlock Text="Kayıt bulunamadı"                                       HorizontalAlignment="Center"                                       VerticalAlignment="Center"                                       Margin="0,40"                                       Opacity="0.5"                                       FontSize="16"                                       IsVisible="{Binding !OrderItems.Count}" />                        </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !OrderItems.Count}" />
+                </Grid>
                     </Grid>
                 </Border>
 

@@ -51,7 +51,7 @@
                             <TextBlock Text="Tum Tenantlar" FontSize="15" FontWeight="SemiBold"
                                        Foreground="#1E293B" />
                         </Border>
-${INDENT}<Grid>
+                <Grid>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Tenants}"
                                   AutoGenerateColumns="False"
@@ -68,7 +68,15 @@ ${INDENT}<Grid>
                                 <DataGridTextColumn Header="Olusturma Tarihi" Binding="{Binding CreatedAt}" Width="150" />
                             </DataGrid.Columns>
                         </DataGrid>
-<!-- Empty State -->                            <TextBlock Text="Kayıt bulunamadı"                                       HorizontalAlignment="Center"                                       VerticalAlignment="Center"                                       Margin="0,40"                                       Opacity="0.5"                                       FontSize="16"                                       IsVisible="{Binding !Tenants.Count}" />                        </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Tenants.Count}" />
+                </Grid>
                     </Grid>
                 </Border>
 

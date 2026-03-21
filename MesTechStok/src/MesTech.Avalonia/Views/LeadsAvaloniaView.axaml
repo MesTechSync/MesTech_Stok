@@ -50,7 +50,7 @@
         </Border>
 
         <!-- Lead List -->
-${INDENT}<Grid>
+                <Grid>
         <DataGrid Grid.Row="3"
                   ItemsSource="{Binding Leads}"
                   AutoGenerateColumns="False"
@@ -72,6 +72,14 @@ ${INDENT}<Grid>
                 <DataGridTextColumn Header="Tarih" Binding="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->            <TextBlock Text="Kayıt bulunamadı"                       HorizontalAlignment="Center"                       VerticalAlignment="Center"                       Margin="0,40"                       Opacity="0.5"                       FontSize="16"                       IsVisible="{Binding !Leads.Count}" />        </Grid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayıt bulunamadı"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="16"
+                               IsVisible="{Binding !Leads.Count}" />
+                </Grid>
     </Grid>
 </UserControl>
