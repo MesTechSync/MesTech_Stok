@@ -4,6 +4,7 @@ using Avalonia.VisualTree;
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Avalonia.Views;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -31,7 +32,8 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel();
+        var mockTenant = new Mock<ITenantProvider>();
+        var vm = new DashboardAvaloniaViewModel(mockMediator.Object, mockTenant.Object);
         var view = new DashboardAvaloniaView
         {
             DataContext = vm
@@ -54,7 +56,8 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel();
+        var mockTenant = new Mock<ITenantProvider>();
+        var vm = new DashboardAvaloniaViewModel(mockMediator.Object, mockTenant.Object);
         var view = new DashboardAvaloniaView
         {
             DataContext = vm
@@ -78,7 +81,8 @@ public class DashboardViewTests
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
-        var vm = new DashboardAvaloniaViewModel();
+        var mockTenant = new Mock<ITenantProvider>();
+        var vm = new DashboardAvaloniaViewModel(mockMediator.Object, mockTenant.Object);
 
         // Assert initial state
         vm.TotalProducts.Should().Be("0");
@@ -88,10 +92,10 @@ public class DashboardViewTests
         await vm.LoadAsync();
 
         // Assert
-        vm.TotalProducts.Should().Be("1,247");
-        vm.ActiveOrders.Should().Be("38");
-        vm.TodayRevenue.Should().Be("24,580 TL");
-        vm.StockAlerts.Should().Be("7");
+        vm.TotalProducts.Should().NotBe("0");
+        vm.TodayOrderCount.Should().NotBe("0");
+        vm.TodayRevenue.Should().NotBe("0 TL");
+        vm.CriticalStockCount.Should().NotBe("0");
         vm.IsLoading.Should().BeFalse();
         vm.LastUpdated.Should().NotBe("--:--");
     }
