@@ -37,6 +37,6 @@ public class TaxWithholdingRepository : ITaxWithholdingRepository
         return await query
             .OrderByDescending(w => w.CreatedAt)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
     }
 }

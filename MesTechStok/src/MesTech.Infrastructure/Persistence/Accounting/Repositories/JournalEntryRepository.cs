@@ -12,7 +12,7 @@ public class JournalEntryRepository : IJournalEntryRepository
     public async Task<JournalEntry?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.JournalEntries
             .Include(e => e.Lines).ThenInclude(l => l.Account)
-            .FirstOrDefaultAsync(e => e.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<JournalEntry>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.JournalEntries

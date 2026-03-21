@@ -38,7 +38,7 @@ public class ReconciliationMatchRepository : IReconciliationMatchRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct);
 
         return (items.AsReadOnly(), totalCount);
     }

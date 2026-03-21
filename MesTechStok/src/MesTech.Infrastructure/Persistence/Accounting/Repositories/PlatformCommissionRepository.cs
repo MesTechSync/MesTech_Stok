@@ -1,4 +1,4 @@
-﻿using MesTech.Application.Interfaces.Accounting;
+using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,7 @@ public class PlatformCommissionRepository : IPlatformCommissionRepository
     public async Task<PlatformCommission?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.PlatformCommissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<IReadOnlyList<PlatformCommission>> GetByPlatformAsync(
         Guid tenantId,

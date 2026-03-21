@@ -26,7 +26,7 @@ public class ProfitReportRepository : IProfitReportRepository
         var q = _context.ProfitReports.Where(r => r.TenantId == tenantId);
         if (!string.IsNullOrWhiteSpace(platform))
             q = q.Where(r => r.Platform == platform);
-        return await q.OrderByDescending(r => r.ReportDate).FirstOrDefaultAsync(ct);
+        return await q.OrderByDescending(r => r.ReportDate).AsNoTracking().FirstOrDefaultAsync(ct);
     }
 
     public async Task AddAsync(ProfitReport report, CancellationToken ct = default)

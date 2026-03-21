@@ -23,7 +23,7 @@ public class CounterpartyRepository : ICounterpartyRepository
 
     public async Task<Counterparty?> GetByVknAsync(Guid tenantId, string vkn, CancellationToken ct = default)
         => await _context.Counterparties
-            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.VKN == vkn, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId && c.VKN == vkn, ct);
 
     public async Task AddAsync(Counterparty counterparty, CancellationToken ct = default)
         => await _context.Counterparties.AddAsync(counterparty, ct);

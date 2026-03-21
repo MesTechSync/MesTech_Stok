@@ -14,7 +14,7 @@ public class ChartOfAccountsRepository : IChartOfAccountsRepository
 
     public async Task<ChartOfAccounts?> GetByCodeAsync(Guid tenantId, string code, CancellationToken ct = default)
         => await _context.ChartOfAccounts
-            .FirstOrDefaultAsync(a => a.TenantId == tenantId && a.Code == code, ct);
+            .AsNoTracking().FirstOrDefaultAsync(a => a.TenantId == tenantId && a.Code == code, ct);
 
     public async Task<IReadOnlyList<ChartOfAccounts>> GetAllAsync(Guid tenantId, bool? isActive = null, CancellationToken ct = default)
     {

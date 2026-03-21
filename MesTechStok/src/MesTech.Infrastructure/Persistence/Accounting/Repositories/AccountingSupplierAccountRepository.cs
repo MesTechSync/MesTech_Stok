@@ -14,7 +14,7 @@ public class AccountingSupplierAccountRepository : IAccountingSupplierAccountRep
 
     public async Task<AccountingSupplierAccount?> GetBySupplierIdAsync(Guid tenantId, Guid supplierId, CancellationToken ct = default)
         => await _context.AccountingSupplierAccounts
-            .FirstOrDefaultAsync(a => a.TenantId == tenantId && a.SupplierId == supplierId, ct);
+            .AsNoTracking().FirstOrDefaultAsync(a => a.TenantId == tenantId && a.SupplierId == supplierId, ct);
 
     public async Task<IReadOnlyList<AccountingSupplierAccount>> GetAllAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.AccountingSupplierAccounts

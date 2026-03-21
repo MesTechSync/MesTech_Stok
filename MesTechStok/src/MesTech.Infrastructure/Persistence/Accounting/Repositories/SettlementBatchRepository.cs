@@ -12,7 +12,7 @@ public class SettlementBatchRepository : ISettlementBatchRepository
     public async Task<SettlementBatch?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.SettlementBatches
             .Include(b => b.Lines)
-            .FirstOrDefaultAsync(b => b.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(b => b.Id == id, ct);
 
     public async Task<IReadOnlyList<SettlementBatch>> GetByPlatformAsync(Guid tenantId, string platform, CancellationToken ct = default)
         => await _context.SettlementBatches

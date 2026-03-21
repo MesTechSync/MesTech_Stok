@@ -14,7 +14,7 @@ public class BankTransactionRepository : IBankTransactionRepository
 
     public async Task<BankTransaction?> GetByIdempotencyKeyAsync(Guid tenantId, string idempotencyKey, CancellationToken ct = default)
         => await _context.AccountingBankTransactions
-            .FirstOrDefaultAsync(t => t.TenantId == tenantId && t.IdempotencyKey == idempotencyKey, ct);
+            .AsNoTracking().FirstOrDefaultAsync(t => t.TenantId == tenantId && t.IdempotencyKey == idempotencyKey, ct);
 
     public async Task<IReadOnlyList<BankTransaction>> GetByBankAccountAsync(Guid tenantId, Guid bankAccountId, DateTime? from = null, DateTime? to = null, CancellationToken ct = default)
     {
