@@ -88,7 +88,7 @@ DEV 2 — FRONTEND & UI:
   src/MesTech.Avalonia/Dialogs/**
   src/MesTech.Avalonia/ViewModels/**
   src/MesTechStok.Desktop/Views/**
-  frontend/html/**
+  frontend/panel/**
   Tema token, renk migrasyonu, placeholder temizliği, innerHTML→DOMPurify
 
 DEV 3 — ENTEGRASYON & MESA OS:
@@ -121,7 +121,8 @@ Her görev şu döngüyü takip eder:
 
 ## REFERANS DOSYALAR
 
-Emirname detayları bu dosyalarda:
-- `Docs/MEGA/MEGA_EMIRNAME_CEVRIMLI_MUKEMMEL_v1.md` — 18 bileşen keşif komutları + hedef metrikleri
-- `Docs/MEGA/MEGA_DELTA_RAPORU_v1.md` — doldurulmuş delta tabloları + 5 DEV haftalık plan
-- `Docs/MEGA/DETAY_ATLASI.md` — codebase kanıtlı mevcut durum (20 Mart 2026)
+- `Docs/MEGA/ENT-SONSUZ-001_EMIRNAME.md` — **AKTİF EMİRNAME** — 6 seviyeli sonsuz iyileştirme döngüsü
+- `Docs/MEGA/DETAY_ATLASI.md` — codebase kanıtlı mevcut durum (21 Mart 2026, derin tarama)
+- `Docs/MEGA/prompts/DEV{1-5}_PROMPT.md` — 5 DEV başlangıç prompt'ları
+- `Docs/MEGA/MEGA_DELTA_RAPORU_v1.md` — delta tabloları (referans)
+- `Docs/MEGA/MEGA_EMIRNAME_CEVRIMLI_MUKEMMEL_v1.md` — eski emirname (referans)
