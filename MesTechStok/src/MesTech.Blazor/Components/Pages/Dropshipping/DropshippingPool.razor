@@ -260,9 +260,10 @@
     editingMarkupValue = product.MarkupYuzde;
   }
 
-  private void SaveMarkup(PoolProduct product)
+  private async Task SaveMarkup(PoolProduct product)
   {
-    // TODO(v2): wire to UpdatePoolItemMarkupCommand
+    var markupResult = await ApiClient.SafePutAsync<object>($"dropshipping/pool/{product.Id}/markup", new { MarkupYuzde = editingMarkupValue });
+    if (!markupResult.IsSuccess) { errorMessage = markupResult.ErrorMessage; }
     var idx = products.FindIndex(p => p.Id == product.Id);
     if (idx >= 0)
     {
@@ -276,21 +277,23 @@
     editingMarkupId = null;
   }
 
-  private void RemoveProduct(int id)
+  private async Task RemoveProduct(int id)
   {
-    // TODO(v2): wire to RemoveFromPoolCommand
+    var removeResult = await ApiClient.SafeDeleteAsync($"dropshipping/pool/{id}");
+    if (!removeResult.IsSuccess) { errorMessage = removeResult.ErrorMessage; }
     products.RemoveAll(p => p.Id == id);
     selectedIds.Remove(id);
   }
 
-  private void RemoveSelected()
+  private async Task RemoveSelected()
   {
-    // TODO(v2): wire to BatchRemoveFromPoolCommand
+    var batchResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/batch-remove", new { Ids = selectedIds.ToArray() });
+    if (!batchResult.IsSuccess) { errorMessage = batchResult.ErrorMessage; }
     products.RemoveAll(p => selectedIds.Contains(p.Id));
     selectedIds.Clear();
   }
 
-  private void SendToPlatform()
+  private async Task SendToPlatform()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -299,7 +302,8 @@
 
     try
     {
-      // TODO(v2): wire to SendToMarketplaceCommand
+      var sendResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/send-to-marketplace", new { ProductIds = selectedIds.ToArray() });
+      if (!sendResult.IsSuccess) { errorMessage = sendResult.ErrorMessage; return; }
       successMessage = "Secilen urunler platforma gonderildi";
     }
     catch (Exception ex)
@@ -312,7 +316,7 @@
     }
   }
 
-  private void ExportCsv()
+  private async Task ExportCsv()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -320,7 +324,8 @@
 
     try
     {
-      // TODO(v2): wire to ExportPoolCsvCommand
+      var csvResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/export-csv", new { });
+      if (!csvResult.IsSuccess) { errorMessage = csvResult.ErrorMessage; return; }
       successMessage = "CSV dosyasi basariyla olusturuldu";
     }
     catch (Exception ex)
@@ -333,7 +338,7 @@
     }
   }
 
-  private void ExportXml()
+  private async Task ExportXml()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -341,7 +346,8 @@
 
     try
     {
-      // TODO(v2): wire to ExportPoolXmlCommand
+      var xmlResult = await ApiClient.SafePostAsync<object>("dropshipping/pool/export-xml", new { });
+      if (!xmlResult.IsSuccess) { errorMessage = xmlResult.ErrorMessage; return; }
       successMessage = "XML dosyasi basariyla olusturuldu";
     }
     catch (Exception ex)

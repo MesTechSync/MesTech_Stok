@@ -181,9 +181,11 @@ else
     }
   }
 
-  private void PrintAll()
+  [Inject] private IJSRuntime JS { get; set; } = default!;
+
+  private async Task PrintAll()
   {
-    // TODO(v2): wire to JS interop print
+    await JS.InvokeVoidAsync("window.print");
   }
 
   private void GoBack() => Nav.NavigateTo("/shipments");

@@ -23,20 +23,26 @@ public class MesaDlqConsumer : IConsumer<Fault>
 
     public Task Consume(ConsumeContext<Fault> context)
     {
-        var fault = context.Message;
-        var messageType = fault.FaultMessageTypes?.FirstOrDefault() ?? "unknown";
-        var exceptionMessage = fault.Exceptions?.FirstOrDefault()?.Message ?? "No exception details";
+        _logger.LogInformation("Processing {Consumer} MessageId={MessageId}",
+            nameof(MesaDlqConsumer), context.MessageId);
 
-        _logger.LogError(
-            "[MESA DLQ] Mesaj basarisiz: type={MessageType}, hata={Error}, timestamp={Timestamp}",
-            messageType, exceptionMessage, fault.Timestamp);
+        try
+        {
+            var fault = context.Message;
+            var messageType = fault.FaultMessageTypes?.FirstOrDefault() ?? "unknown";
+            var exceptionMessage = fault.Exceptions?.FirstOrDefault()?.Message ?? "No exception details";
 
-        _logger.LogWarning(
-            "DLQ message received — Source: {Source}, Error: {Error}, Payload: {Payload}",
-            messageType, exceptionMessage,
-            System.Text.Json.JsonSerializer.Serialize(context.Message));
+            _logger.LogError(
+                "[MESA DLQ] Mesaj basarisiz: type={MessageType}, hata={Error}, timestamp={Timestamp}, MessageId={MessageId}",
+                messageType, exceptionMessage, fault.Timestamp, context.MessageId);
 
-        _monitor.RecordError(messageType, exceptionMessage);
+            _monitor.RecordError(messageType, exceptionMessage);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "DLQ Consumer {Consumer} failed for MessageId={MessageId}",
+                nameof(MesaDlqConsumer), context.MessageId);
+        }
 
         return Task.CompletedTask;
     }

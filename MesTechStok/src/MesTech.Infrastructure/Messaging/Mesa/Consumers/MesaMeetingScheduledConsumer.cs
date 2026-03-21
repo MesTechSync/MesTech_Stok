@@ -25,20 +25,30 @@ public class MesaMeetingScheduledConsumer : IConsumer<MesaMeetingScheduledEvent>
     {
         var msg = context.Message;
         _logger.LogInformation(
-            "MESA→MesTech: Toplantı alındı '{Title}' — {StartAt}",
-            msg.Title, msg.StartAt);
+            "Processing {Consumer} MessageId={MessageId} — '{Title}' at {StartAt}",
+            nameof(MesaMeetingScheduledConsumer), context.MessageId, msg.Title, msg.StartAt);
 
-        var eventId = await _mediator.Send(new CreateCalendarEventCommand(
-            TenantId: msg.TenantId,
-            Title: $"[MESA Bot] {msg.Title}",
-            StartAt: msg.StartAt,
-            EndAt: msg.EndAt,
-            Type: EventType.Meeting,
-            Location: msg.Location,
-            AttendeeUserIds: msg.AttendeeUserIds,
-            RelatedDealId: msg.RelatedDealId
-        ));
+        try
+        {
+            var eventId = await _mediator.Send(new CreateCalendarEventCommand(
+                TenantId: msg.TenantId,
+                Title: $"[MESA Bot] {msg.Title}",
+                StartAt: msg.StartAt,
+                EndAt: msg.EndAt,
+                Type: EventType.Meeting,
+                Location: msg.Location,
+                AttendeeUserIds: msg.AttendeeUserIds,
+                RelatedDealId: msg.RelatedDealId
+            ));
 
-        _logger.LogInformation("CalendarEvent oluşturuldu: {EventId}", eventId);
+            _logger.LogInformation("CalendarEvent oluşturuldu: {EventId} for MessageId={MessageId}",
+                eventId, context.MessageId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Consumer {Consumer} failed for MessageId={MessageId}",
+                nameof(MesaMeetingScheduledConsumer), context.MessageId);
+            throw; // MassTransit retry'a bırak
+        }
     }
 }

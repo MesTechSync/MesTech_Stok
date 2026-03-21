@@ -41,62 +41,71 @@ else
       <h6 class="mb-0"><i class="fas fa-box-open me-2" style="color: #2855AC;"></i>Lot Bilgileri</h6>
     </div>
     <div class="card-body">
-      <div class="row g-3">
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Urun</label>
-          <select class="form-select" @bind="_form.ProductId">
-            <option value="">Urun secin...</option>
-            @foreach (var p in _products)
-            {
-              <option value="@p.Id">@p.Name (SKU: @p.SKU)</option>
-            }
-          </select>
+      <EditForm Model="@_form" OnValidSubmit="SaveLot">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger mb-3" />
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Urun</label>
+            <InputSelect class="form-select" @bind-Value="_form.ProductId">
+              <option value="">Urun secin...</option>
+              @foreach (var p in _products)
+              {
+                <option value="@p.Id">@p.Name (SKU: @p.SKU)</option>
+              }
+            </InputSelect>
+            <ValidationMessage For="@(() => _form.ProductId)" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Depo</label>
+            <InputSelect class="form-select" @bind-Value="_form.WarehouseId">
+              <option value="">Depo secin...</option>
+              @foreach (var w in _warehouses)
+              {
+                <option value="@w.Id">@w.Name</option>
+              }
+            </InputSelect>
+            <ValidationMessage For="@(() => _form.WarehouseId)" />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Lot Numarasi</label>
+            <InputText class="form-control" @bind-Value="_form.LotNumber" placeholder="LOT-2026-001" />
+            <ValidationMessage For="@(() => _form.LotNumber)" />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Miktar</label>
+            <InputNumber class="form-control" @bind-Value="_form.Quantity" />
+            <ValidationMessage For="@(() => _form.Quantity)" />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Birim Maliyet (TL)</label>
+            <InputNumber class="form-control" @bind-Value="_form.UnitCost" />
+            <ValidationMessage For="@(() => _form.UnitCost)" />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Son Kullanma Tarihi</label>
+            <InputDate class="form-control" @bind-Value="_form.ExpiryDate" />
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold text-muted small text-uppercase">Aciklama</label>
+            <InputText class="form-control" @bind-Value="_form.Notes" placeholder="Lot ile ilgili notlar..." />
+          </div>
         </div>
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Depo</label>
-          <select class="form-select" @bind="_form.WarehouseId">
-            <option value="">Depo secin...</option>
-            @foreach (var w in _warehouses)
-            {
-              <option value="@w.Id">@w.Name</option>
-            }
-          </select>
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Lot Numarasi</label>
-          <input type="text" class="form-control" @bind="_form.LotNumber" placeholder="LOT-2026-001" />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Miktar</label>
-          <input type="number" class="form-control" @bind="_form.Quantity" min="1" />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Birim Maliyet (TL)</label>
-          <input type="number" class="form-control" @bind="_form.UnitCost" min="0" step="0.01" />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Son Kullanma Tarihi</label>
-          <InputDate class="form-control" @bind-Value="_form.ExpiryDate" />
-        </div>
-        <div class="col-12">
-          <label class="form-label fw-semibold text-muted small text-uppercase">Aciklama</label>
-          <input type="text" class="form-control" @bind="_form.Notes" placeholder="Lot ile ilgili notlar..." />
-        </div>
-      </div>
 
-      <div class="mt-3 d-flex gap-2">
-        <button class="btn text-white px-4" style="background-color: #2855AC;"
-                @onclick="SaveLot" disabled="@_isSaving">
-          @if (_isSaving)
-          {
-            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-          }
-          <i class="fas fa-save me-1"></i>Lot Kaydet
-        </button>
-        <button class="btn btn-outline-secondary" @onclick="ClearForm" disabled="@_isSaving">
-          <i class="fas fa-eraser me-1"></i>Temizle
-        </button>
-      </div>
+        <div class="mt-3 d-flex gap-2">
+          <button type="submit" class="btn text-white px-4" style="background-color: #2855AC;"
+                  disabled="@_isSaving">
+            @if (_isSaving)
+            {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            <i class="fas fa-save me-1"></i>Lot Kaydet
+          </button>
+          <button type="button" class="btn btn-outline-secondary" @onclick="ClearForm" disabled="@_isSaving">
+            <i class="fas fa-eraser me-1"></i>Temizle
+          </button>
+        </div>
+      </EditForm>
     </div>
   </div>
 
@@ -200,12 +209,6 @@ else
 
   private async Task SaveLot()
   {
-    if (string.IsNullOrEmpty(_form.ProductId))
-    {
-      errorMessage = "Lutfen bir urun secin.";
-      return;
-    }
-
     _isSaving = true;
     _successMessage = null;
     errorMessage = null;
@@ -248,10 +251,15 @@ else
 
   private class LotForm
   {
+    [Required(ErrorMessage = "Urun secimi zorunludur")]
     public string ProductId { get; set; } = "";
+    [Required(ErrorMessage = "Depo secimi zorunludur")]
     public string WarehouseId { get; set; } = "";
+    [Required(ErrorMessage = "Lot numarasi zorunludur")]
     public string LotNumber { get; set; } = "";
+    [Range(1, int.MaxValue, ErrorMessage = "Miktar en az 1 olmalidir")]
     public int Quantity { get; set; } = 1;
+    [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Birim maliyet 0'dan buyuk olmalidir")]
     public decimal UnitCost { get; set; }
     public DateTime? ExpiryDate { get; set; }
     public string Notes { get; set; } = "";

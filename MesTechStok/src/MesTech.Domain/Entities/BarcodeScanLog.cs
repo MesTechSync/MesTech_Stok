@@ -1,9 +1,10 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class BarcodeScanLog : BaseEntity
+public class BarcodeScanLog : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Barcode { get; set; } = string.Empty;
     public string Format { get; set; } = string.Empty;
     public string Source { get; set; } = string.Empty;

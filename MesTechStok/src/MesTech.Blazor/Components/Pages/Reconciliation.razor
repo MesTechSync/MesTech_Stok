@@ -296,17 +296,19 @@
     }
   }
 
-  private void ApproveMatch(ReconciliationMatch match)
+  private async Task ApproveMatch(ReconciliationMatch match)
   {
-    // TODO(v2): wire to ApproveReconciliationMatchCommand
+    var approveResult = await ApiClient.SafePostAsync<object>("reconciliation/approve", new { SettlementAciklama = match.SettlementAciklama });
+    if (!approveResult.IsSuccess) { errorMessage = approveResult.ErrorMessage; }
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesti" };
   }
 
-  private void RejectMatch(ReconciliationMatch match)
+  private async Task RejectMatch(ReconciliationMatch match)
   {
-    // TODO(v2): wire to RejectReconciliationMatchCommand
+    var rejectResult = await ApiClient.SafePostAsync<object>("reconciliation/reject", new { SettlementAciklama = match.SettlementAciklama });
+    if (!rejectResult.IsSuccess) { errorMessage = rejectResult.ErrorMessage; }
     var idx = matches.IndexOf(match);
     if (idx >= 0)
       matches[idx] = match with { Durum = "Eslesmedi" };

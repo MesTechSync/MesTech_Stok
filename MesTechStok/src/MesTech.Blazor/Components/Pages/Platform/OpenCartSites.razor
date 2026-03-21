@@ -108,8 +108,17 @@ else
     }
   }
 
-  private void AddSite() { /* TODO(v2): open add site modal */ }
-  private void SyncSite(int siteId) { /* TODO(v2): trigger sync for site */ }
+  private async Task AddSite()
+  {
+    var result = await ApiClient.SafePostAsync<object>("platforms/opencart/sites", new { });
+    if (!result.IsSuccess) { errorMessage = result.ErrorMessage; }
+  }
+
+  private async Task SyncSite(int siteId)
+  {
+    var result = await ApiClient.SafePostAsync<object>($"platforms/opencart/sites/{siteId}/sync", new { });
+    if (!result.IsSuccess) { errorMessage = result.ErrorMessage; }
+  }
 
   private record OpenCartSite(int Id, string Name, string Url, string Status, DateTime LastSync, int ProductCount);
 }

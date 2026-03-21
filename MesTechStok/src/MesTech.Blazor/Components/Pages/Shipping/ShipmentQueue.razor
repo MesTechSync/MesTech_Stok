@@ -286,7 +286,7 @@ else
 
         try
         {
-            // TODO(v2): wire to SendShipmentCommand
+            await ApiClient.SendShipmentAsync(shipment.Id, shipment.KargoFirma);
             shipment.Durum = "Gonderildi";
             actionMessage = $"{shipment.SiparisNo} basariyla kargoya verildi ({shipment.KargoFirma}).";
             selectedIds.Remove(shipment.Id);
@@ -312,7 +312,8 @@ else
 
         try
         {
-            // TODO(v2): wire to BulkSendShipmentCommand
+            var bulkResult = await ApiClient.SafePostAsync<object>("shipping/bulk-send", new { ShipmentIds = selectedIds.ToArray() });
+            if (!bulkResult.IsSuccess) { errorMessage = bulkResult.ErrorMessage; return; }
             var count = 0;
             foreach (var id in selectedIds.ToList())
             {

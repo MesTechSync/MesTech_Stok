@@ -183,7 +183,15 @@ else
     }
   }
 
-  private void PlaceProduct() { /* TODO(v2): submit placement */ }
+  private async Task PlaceProduct()
+  {
+    var payload = new { ProductName = placementProduct, Zone = placementZone, Rack = placementRack, Shelf = placementShelf, Quantity = placementQty, WarehouseId = selectedWarehouse };
+    var result = await ApiClient.SafePostAsync<object>("warehouses/placement", payload);
+    if (!result.IsSuccess)
+    {
+      errorMessage = result.ErrorMessage;
+    }
+  }
 
   private record Warehouse(int Id, string Name, int ZoneCount, int RackCount, int Occupancy);
   private record Zone(int Id, int WarehouseId, string Name, int RackCount, int Occupancy);

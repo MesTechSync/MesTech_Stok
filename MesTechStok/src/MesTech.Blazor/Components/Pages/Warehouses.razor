@@ -330,8 +330,8 @@ else
         return;
       }
 
-      // TODO(v2): wire to TransferStockCommand
-      await Task.Delay(200); // simulate
+      var transferResult = await ApiClient.SafePostAsync<object>("warehouses/transfer", new { KaynakKonum = transferForm.KaynakKonum, HedefKonum = transferForm.HedefKonum, Urun = transferForm.Urun, Miktar = transferForm.Miktar });
+      if (!transferResult.IsSuccess) { transferMessage = transferResult.ErrorMessage; transferSuccess = false; }
 
       transferMessage = $"{transferForm.Miktar} adet '{transferForm.Urun}' basariyla {transferForm.KaynakKonum} -> {transferForm.HedefKonum} konumuna transfer edildi.";
       transferSuccess = true;

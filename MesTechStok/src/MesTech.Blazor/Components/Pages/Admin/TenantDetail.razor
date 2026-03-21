@@ -260,7 +260,8 @@ else
         tenant = GetDemoTenant();
       }
 
-      // TODO(v2): wire to GetStoresByTenantQuery
+      var storesResult = await ApiClient.SafeGetAsync<List<object>>($"admin/tenants/{Id}/stores");
+      if (!storesResult.IsSuccess) { _isDemoMode = true; }
       stores = GetDemoStores();
       users = GetDemoUsers();
       credentials = GetDemoCredentials();

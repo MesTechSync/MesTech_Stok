@@ -368,7 +368,17 @@ else
 
         try
         {
-            // TODO(v2): wire to CreateCategoryCommand / UpdateCategoryCommand
+            if (isEditing && modalForm.Id.HasValue)
+            {
+                var updateResult = await ApiClient.SafePutAsync<object>($"categories/{modalForm.Id.Value}", new { Name = modalForm.Name, ParentId = modalForm.ParentId, Description = modalForm.Description });
+                if (!updateResult.IsSuccess) { errorMessage = updateResult.ErrorMessage; return; }
+            }
+            else
+            {
+                var createResult = await ApiClient.SafePostAsync<object>("categories", new { Name = modalForm.Name, ParentId = modalForm.ParentId, Description = modalForm.Description });
+                if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
+            }
+
             if (isEditing && modalForm.Id.HasValue)
             {
                 var existing = allCategoriesFlat.FirstOrDefault(c => c.Id == modalForm.Id.Value);
@@ -413,7 +423,8 @@ else
     {
         if (deleteCategoryId.HasValue)
         {
-            // TODO(v2): wire to DeleteCategoryCommand
+            var deleteResult = await ApiClient.SafeDeleteAsync($"categories/{deleteCategoryId.Value}");
+            if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
             rootCategories.RemoveAll(c => c.Id == deleteCategoryId.Value);
             allCategoriesFlat.RemoveAll(c => c.Id == deleteCategoryId.Value);
 

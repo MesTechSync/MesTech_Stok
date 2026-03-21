@@ -281,7 +281,8 @@ else
 
     try
     {
-      // TODO(v2): wire to CreateTenantCommand
+      var createResult = await ApiClient.SafePostAsync<object>("admin/tenants", new { FirmaAdi = newTenant.FirmaAdi, VergiNo = newTenant.VergiNo, Adres = newTenant.Adres, Telefon = newTenant.Telefon, Email = newTenant.Email });
+      if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
       tenants.Add(new TenantRow(
         Guid.NewGuid(),
         newTenant.FirmaAdi,
@@ -318,7 +319,8 @@ else
   {
     if (deletingTenant is not null)
     {
-      // TODO(v2): wire to DeleteTenantCommand
+      var deleteResult = await ApiClient.SafeDeleteAsync($"admin/tenants/{deletingTenant.Id}");
+      if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
       tenants.Remove(deletingTenant);
       aktifTenantCount = tenants.Count(t => t.Durum == "Aktif");
       toplamStoreCount = tenants.Sum(t => t.StoreSayisi);

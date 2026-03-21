@@ -1,9 +1,10 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class ApiCallLog : BaseEntity
+public class ApiCallLog : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Endpoint { get; set; } = string.Empty;
     public string Method { get; set; } = string.Empty;
     public bool Success { get; set; }

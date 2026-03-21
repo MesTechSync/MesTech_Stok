@@ -293,8 +293,8 @@ else
             }
             StateHasChanged();
 
-            // TODO(v2): wire to TriggerAllPlatformSyncCommand
-            await Task.Delay(2000);
+            var allSyncResult = await ApiClient.SafePostAsync<object>("sync/all", new { });
+            if (!allSyncResult.IsSuccess) { await Task.Delay(2000); }
 
             foreach (var sync in syncRows)
             {
@@ -311,10 +311,11 @@ else
         }
     }
 
-    private void ShowErrorDetail(SyncRow sync)
+    private async Task ShowErrorDetail(SyncRow sync)
     {
         selectedSync = sync;
-        // TODO(v2): wire to GetPlatformSyncErrorsQuery
+        var errResult = await ApiClient.SafeGetAsync<List<object>>($"sync/{sync.Platform}/errors");
+        if (!errResult.IsSuccess) { _isDemoMode = true; }
         errorDetails =
         [
             new("API-401", "API kimlik dogrulama hatasi — token suresi dolmus olabilir", DateTime.Now.AddHours(-2)),

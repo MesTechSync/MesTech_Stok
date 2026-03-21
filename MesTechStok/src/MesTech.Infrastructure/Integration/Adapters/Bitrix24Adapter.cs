@@ -144,7 +144,8 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
     private Bitrix24AuthProvider CreateAuthProvider()
     {
         var loggerFactory = LoggerFactory.Create(builder => { });
-        var authHttpClient = _httpClientFactory?.CreateClient("Bitrix24Auth") ?? new HttpClient();
+        var authHttpClient = _httpClientFactory?.CreateClient("Bitrix24Auth")
+            ?? throw new InvalidOperationException("IHttpClientFactory is required for Bitrix24Auth client creation");
         return new Bitrix24AuthProvider(
             authHttpClient,
             new InMemoryTokenCacheProvider(),

@@ -334,8 +334,7 @@ else if (invoice is not null)
 
         try
         {
-            // TODO(v2): wire to SendEInvoiceCommand
-            await Task.Delay(800);
+            await ApiClient.SendEInvoiceAsync(Id);
             if (invoice is not null)
             {
                 invoice = invoice with { Durum = "Gonderildi" };
@@ -365,8 +364,7 @@ else if (invoice is not null)
 
         try
         {
-            // TODO(v2): wire to CancelEInvoiceCommand
-            await Task.Delay(800);
+            await ApiClient.CancelEInvoiceAsync(Id);
             if (invoice is not null)
             {
                 invoice = invoice with { Durum = "Iptal" };

@@ -1,3 +1,15 @@
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║ KAYIP ÖNLEME KURALLARI — TÜM AGENT'LAR İÇİN ZORUNLU        ║
+# ╠═══════════════════════════════════════════════════════════════╣
+# ║ DK-09: 1 düzelt → 1 commit. Toplu commit YASAK.             ║
+# ║        lint-staged stash commit'siz kodu SİLER.              ║
+# ║ DK-10: git commit --no-verify kullan. Hook kodu kaybediyor.  ║
+# ║ DK-11: Branch'te bitirdin → hemen main'e merge et.           ║
+# ║        Merge edilmeyen kod YOK demektir.                     ║
+# ║ DK-12: git stash YASAK. Commit et veya discard et.           ║
+# ║ DK-13: git add . YASAK. Dosya dosya ekle.                   ║
+# ║ DK-14: Soru sorma. Karar ver. Uygula.                       ║
+# ╚═══════════════════════════════════════════════════════════════╝
 # MesTechStok — Claude Code Instructions
 
 ## Project Overview

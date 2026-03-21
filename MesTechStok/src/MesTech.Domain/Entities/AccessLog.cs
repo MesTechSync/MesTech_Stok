@@ -1,9 +1,10 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class AccessLog : BaseEntity
+public class AccessLog : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid UserId { get; set; }
     public string Action { get; set; } = string.Empty;
     public string Resource { get; set; } = string.Empty;

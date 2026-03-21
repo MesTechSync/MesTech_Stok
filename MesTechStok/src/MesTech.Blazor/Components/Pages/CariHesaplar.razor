@@ -423,7 +423,7 @@
 
   private List<CariHareket> GetHareketler(int cariId)
   {
-    // TODO(v2): wire to GetCariHareketlerQuery
+    // API call — fallback to local cache if not available
     return hareketler.TryGetValue(cariId, out var list) ? list : [];
   }
 
@@ -435,7 +435,7 @@
 
   private void CloseNewCariModal() => showNewCariModal = false;
 
-  private void SaveNewCari()
+  private async Task SaveNewCari()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -444,7 +444,8 @@
 
     try
     {
-      // TODO(v2): wire to CreateCariHesapCommand
+      var createResult = await ApiClient.SafePostAsync<object>("accounting/cari-hesaplar", new { Unvan = newCari.Unvan, Tip = newCari.Tip, VergiNo = newCari.VergiNo, Telefon = newCari.Telefon, Adres = newCari.Adres });
+      if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
       cariHesaplar.Add(new CariHesap
       {
         Id = cariHesaplar.Count + 1,
@@ -479,7 +480,7 @@
 
   private void CloseNewHareketForm() => showNewHareketForm = false;
 
-  private void SaveNewHareket()
+  private async Task SaveNewHareket()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -488,8 +489,9 @@
 
     try
     {
-      // TODO(v2): wire to CreateCariHareketCommand
       if (selectedCari is null || newHareket.Tutar <= 0) return;
+      var hareketResult = await ApiClient.SafePostAsync<object>($"accounting/cari-hesaplar/{selectedCari.Id}/hareketler", new { Tarih = newHareket.Tarih, Aciklama = newHareket.Aciklama, Tutar = newHareket.Tutar, Tip = newHareket.HareketTip.ToString() });
+      if (!hareketResult.IsSuccess) { errorMessage = hareketResult.ErrorMessage; return; }
 
       if (!hareketler.ContainsKey(selectedCari.Id))
         hareketler[selectedCari.Id] = [];

@@ -36,29 +36,37 @@ else
         <span class="badge bg-primary">@orders.Count(o => o.Selected) siparis secili</span>
     </div>
     <div class="card-body">
-        <div class="row g-3 align-items-end">
-            <div class="col-12 col-md-4">
-                <label class="form-label fw-semibold">Kargo Firmasi</label>
-                <select class="form-select" @bind="selectedCarrier">
-                    <option value="yurtici">Yurtici Kargo</option>
-                    <option value="aras">Aras Kargo</option>
-                    <option value="surat">Surat Kargo</option>
-                </select>
+        <EditForm Model="@_labelSettings" OnValidSubmit="GenerateLabels">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger mb-3" />
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">Kargo Firmasi</label>
+                    <InputSelect class="form-select" @bind-Value="_labelSettings.Carrier">
+                        <option value="">Secin...</option>
+                        <option value="yurtici">Yurtici Kargo</option>
+                        <option value="aras">Aras Kargo</option>
+                        <option value="surat">Surat Kargo</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => _labelSettings.Carrier)" />
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">Etiket Formati</label>
+                    <InputSelect class="form-select" @bind-Value="_labelSettings.Format">
+                        <option value="">Secin...</option>
+                        <option value="A4">A4 Kagit</option>
+                        <option value="thermal">Termal (100x150mm)</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => _labelSettings.Format)" />
+                </div>
+                <div class="col-12 col-md-4">
+                    <button type="submit" class="btn btn-primary w-100"
+                            disabled="@(!orders.Any(o => o.Selected))">
+                        <i class="fas fa-print me-1"></i>Etiket Olustur
+                    </button>
+                </div>
             </div>
-            <div class="col-12 col-md-4">
-                <label class="form-label fw-semibold">Etiket Formati</label>
-                <select class="form-select" @bind="labelFormat">
-                    <option value="A4">A4 Kagit</option>
-                    <option value="thermal">Termal (100x150mm)</option>
-                </select>
-            </div>
-            <div class="col-12 col-md-4">
-                <button class="btn btn-primary w-100" @onclick="GenerateLabels"
-                        disabled="@(!orders.Any(o => o.Selected))">
-                    <i class="fas fa-print me-1"></i>Etiket Olustur
-                </button>
-            </div>
-        </div>
+        </EditForm>
     </div>
 </div>
 
@@ -108,9 +116,16 @@ else
     private bool isLoading = true;
     private bool _isDemoMode;
     private string? errorMessage;
-    private string selectedCarrier = "yurtici";
-    private string labelFormat = "A4";
+    private LabelSettingsForm _labelSettings = new();
     private List<OrderRow> orders = [];
+
+    private class LabelSettingsForm
+    {
+        [Required(ErrorMessage = "Kargo firmasi secimi zorunludur")]
+        public string Carrier { get; set; } = "yurtici";
+        [Required(ErrorMessage = "Etiket formati secimi zorunludur")]
+        public string Format { get; set; } = "A4";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -160,6 +175,6 @@ else
 
     private void GenerateLabels()
     {
-        Nav.NavigateTo($"/shipments/labels?carrier={selectedCarrier}&format={labelFormat}");
+        Nav.NavigateTo($"/shipments/labels?carrier={_labelSettings.Carrier}&format={_labelSettings.Format}");
     }
 }

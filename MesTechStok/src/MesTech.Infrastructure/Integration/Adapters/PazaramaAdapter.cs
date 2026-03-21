@@ -110,7 +110,8 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             ? $"{baseUrl.TrimEnd('/')}/connect/token"
             : "https://isortagimgiris.pazarama.com/connect/token";
 
-        var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken") ?? new HttpClient();
+        var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken")
+            ?? throw new InvalidOperationException("IHttpClientFactory is required for PazaramaToken client creation");
 
         var loggerFactory = new LoggerFactory();
 

@@ -312,8 +312,7 @@ else
         return;
       }
 
-      // TODO(v2): wire to TestStoreConnectionCommand
-      await Task.Delay(300); // simulate API call
+      var testResult = await ApiClient.SafePostAsync<object>("admin/stores/test-connection", new { Platform = newStore.Platform, ApiKey = newStore.ApiKey });
 
       // Mock: success for most platforms, fail for Amazon
       if (newStore.Platform == "Amazon TR")
@@ -346,7 +345,8 @@ else
 
     try
     {
-      // TODO(v2): wire to CreateStoreCommand
+      var createResult = await ApiClient.SafePostAsync<object>("admin/stores", new { MagazaAdi = newStore.MagazaAdi, Platform = newStore.Platform, ApiKey = newStore.ApiKey, ApiSecret = newStore.ApiSecret, SellerId = newStore.SellerId });
+      if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
       stores.Add(new StoreRow(
         newStore.MagazaAdi,
         newStore.Platform,
@@ -373,8 +373,8 @@ else
 
   private async Task SyncStore(StoreRow store)
   {
-    // TODO(v2): wire to SyncStoreCommand
-    await Task.CompletedTask;
+    var syncResult = await ApiClient.SafePostAsync<object>($"admin/stores/{store.MagazaAdi}/sync", new { });
+    if (!syncResult.IsSuccess) { errorMessage = syncResult.ErrorMessage; }
   }
 
   private string GetPlatformBadgeClass(string platform) => platform switch

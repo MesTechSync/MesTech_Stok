@@ -331,7 +331,7 @@
       newQuotation.Lines.Remove(line);
   }
 
-  private void SaveQuotation()
+  private async Task SaveQuotation()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -340,7 +340,8 @@
 
     try
     {
-      // TODO(v2): wire to CreateQuotationCommand
+      var createResult = await ApiClient.SafePostAsync<object>("quotations", new { Musteri = newQuotation.Musteri, VadeGun = newQuotation.VadeGun, Not = newQuotation.Not, Lines = newQuotation.Lines });
+      if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
 
       var nextNo = $"TKL-2026-{(quotations.Count + 1):D4}";
       quotations.Insert(0, new QuotationRow
@@ -366,7 +367,7 @@
     }
   }
 
-  private void AcceptQuotation(QuotationRow q)
+  private async Task AcceptQuotation(QuotationRow q)
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -374,7 +375,8 @@
 
     try
     {
-      // TODO(v2): wire to AcceptQuotationCommand
+      var acceptResult = await ApiClient.SafePostAsync<object>($"quotations/{q.TeklifNo}/accept", new { });
+      if (!acceptResult.IsSuccess) { errorMessage = acceptResult.ErrorMessage; return; }
       UpdateStatus(q, "Onaylandi");
       successMessage = "Teklif onaylandi";
     }
@@ -388,7 +390,7 @@
     }
   }
 
-  private void RejectQuotation(QuotationRow q)
+  private async Task RejectQuotation(QuotationRow q)
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -396,7 +398,8 @@
 
     try
     {
-      // TODO(v2): wire to RejectQuotationCommand
+      var rejectResult = await ApiClient.SafePostAsync<object>($"quotations/{q.TeklifNo}/reject", new { });
+      if (!rejectResult.IsSuccess) { errorMessage = rejectResult.ErrorMessage; return; }
       UpdateStatus(q, "Reddedildi");
       successMessage = "Teklif reddedildi";
     }
@@ -410,7 +413,7 @@
     }
   }
 
-  private void ConvertToInvoice(QuotationRow q)
+  private async Task ConvertToInvoice(QuotationRow q)
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -418,7 +421,8 @@
 
     try
     {
-      // TODO(v2): wire to ConvertToInvoiceCommand
+      var convertResult = await ApiClient.SafePostAsync<object>($"quotations/{q.TeklifNo}/convert-to-invoice", new { });
+      if (!convertResult.IsSuccess) { errorMessage = convertResult.ErrorMessage; return; }
       UpdateStatus(q, "Faturaya Cevrildi");
       successMessage = "Teklif faturaya cevrildi";
     }
@@ -432,9 +436,10 @@
     }
   }
 
-  private void DeleteQuotation(QuotationRow q)
+  private async Task DeleteQuotation(QuotationRow q)
   {
-    // TODO(v2): wire to DeleteQuotationCommand
+    var deleteResult = await ApiClient.SafeDeleteAsync($"quotations/{q.TeklifNo}");
+    if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
     quotations.Remove(q);
   }
 

@@ -321,7 +321,7 @@
 
   private void CloseAddForm() => showAddModal = false;
 
-  private void AddSupplier()
+  private async Task AddSupplier()
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -330,7 +330,8 @@
 
     try
     {
-      // TODO(v2): wire to CreateSupplierCommand
+      var createResult = await ApiClient.SafePostAsync<object>("dropshipping/suppliers", new { TedarikciAdi = newSupplier.TedarikciAdi, FeedUrl = newSupplier.FeedUrl, Format = newSupplier.Format, SyncSikligi = newSupplier.SyncSikligi });
+      if (!createResult.IsSuccess) { errorMessage = createResult.ErrorMessage; return; }
       suppliers.Add(new SupplierRow
       {
         Id = suppliers.Count + 1,
@@ -357,9 +358,13 @@
   private void RequestDelete(SupplierRow supplier) => deleteTarget = supplier;
   private void CancelDelete() => deleteTarget = null;
 
-  private void ConfirmDelete()
+  private async Task ConfirmDelete()
   {
-    // TODO(v2): wire to DeleteSupplierCommand
+    if (deleteTarget is not null)
+    {
+      var deleteResult = await ApiClient.SafeDeleteAsync($"dropshipping/suppliers/{deleteTarget.Id}");
+      if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
+    }
     if (deleteTarget is not null)
     {
       suppliers.RemoveAll(s => s.Id == deleteTarget.Id);
@@ -367,7 +372,7 @@
     }
   }
 
-  private void SyncSupplier(SupplierRow supplier)
+  private async Task SyncSupplier(SupplierRow supplier)
   {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -376,7 +381,8 @@
 
     try
     {
-      // TODO(v2): wire to SyncSupplierFeedCommand
+      var syncResult = await ApiClient.SafePostAsync<object>($"dropshipping/suppliers/{supplier.Id}/sync", new { });
+      if (!syncResult.IsSuccess) { errorMessage = syncResult.ErrorMessage; return; }
       var idx = suppliers.FindIndex(s => s.Id == supplier.Id);
       if (idx >= 0)
       {

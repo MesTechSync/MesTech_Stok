@@ -208,7 +208,7 @@ else
 
         try
         {
-            // TODO(v2): wire to SendEInvoiceCommand
+            await ApiClient.SendEInvoiceAsync(id);
             var inv = invoices.FirstOrDefault(i => i.Id == id);
             if (inv is not null)
             {
@@ -238,7 +238,7 @@ else
 
         try
         {
-            // TODO(v2): wire to CancelEInvoiceCommand
+            await ApiClient.CancelEInvoiceAsync(id);
             invoices = invoices.Select(i => i.Id == id
                 ? i with { Durum = "Iptal" }
                 : i).ToList();

@@ -1,8 +1,9 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Domain.Entities;
 
-public class CircuitStateLog : BaseEntity
+public class CircuitStateLog : BaseEntity, ITenantEntity
 {
     public string PreviousState { get; set; } = string.Empty;
     public string NewState { get; set; } = string.Empty;
@@ -12,4 +13,5 @@ public class CircuitStateLog : BaseEntity
     public DateTime TransitionTimeUtc { get; set; } = DateTime.UtcNow;
     public string? CorrelationId { get; set; }
     public string? AdditionalInfo { get; set; }
+    public Guid TenantId { get; set; }
 }
