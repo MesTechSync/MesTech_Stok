@@ -21,6 +21,10 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     private readonly AppDbContext _dbContext;
     private readonly ILogger<FacebookShopFeedAdapter> _logger;
 
+    // TODO(config): Move to FeedOptions when IConfiguration is injected
+    private const string SiteBaseUrl = "https://mestech.app";
+    private const string FeedBaseUrl = "https://feeds.mestech.app";
+
     private DateTime? _lastGenerated;
     private int _lastItemCount;
     private DateTime? _nextScheduled;
@@ -73,7 +77,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             var feedXml = BuildFeedDocument(items, request);
             _ = SerializeXml(feedXml);
 
-            var feedUrl = $"https://feeds.mestech.app/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
+            var feedUrl = $"{FeedBaseUrl}/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
@@ -159,7 +163,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             new XElement("availability", availability),
             new XElement("condition", condition),
             new XElement("price", $"{price.ToString("F2", CultureInfo.InvariantCulture)} {currency}"),
-            new XElement("link", $"https://mestech.app/products/{product.SKU}"),
+            new XElement("link", $"{SiteBaseUrl}/products/{product.SKU}"),
             new XElement("image_link", product.ImageUrl ?? string.Empty),
             new XElement("brand", product.Brand ?? "MesTech"));
     }
@@ -168,7 +172,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     {
         var channel = new XElement("channel",
             new XElement("title", "MesTech Facebook Shop Feed"),
-            new XElement("link", "https://mestech.app"),
+            new XElement("link", SiteBaseUrl),
             new XElement("description", $"Urun katalogu — {DateTime.UtcNow:yyyy-MM-dd}"),
             new XElement("language", request.Language ?? "tr"),
             items);

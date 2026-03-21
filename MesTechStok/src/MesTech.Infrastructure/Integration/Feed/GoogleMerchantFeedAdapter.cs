@@ -23,6 +23,10 @@ public class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     private static readonly XNamespace G = "http://base.google.com/ns/1.0";
     private static readonly XNamespace Atom = "http://www.w3.org/2005/Atom";
 
+    // TODO(config): Move to FeedOptions when IConfiguration is injected
+    private const string SiteBaseUrl = "https://mestech.app";
+    private const string FeedBaseUrl = "https://feeds.mestech.app";
+
     private DateTime? _lastGenerated;
     private int _lastItemCount;
     private DateTime? _nextScheduled;
@@ -77,7 +81,7 @@ public class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 
             // In a real deployment the feed would be written to object storage (MinIO/S3)
             // and the URL returned. Here we return a placeholder URL pattern.
-            var feedUrl = $"https://feeds.mestech.app/google-merchant/{request.StoreId:N}.xml";
+            var feedUrl = $"{FeedBaseUrl}/google-merchant/{request.StoreId:N}.xml";
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
@@ -190,7 +194,7 @@ public class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     {
         var channel = new XElement("channel",
             new XElement("title", "MesTech Google Merchant Feed"),
-            new XElement("link", "https://mestech.app"),
+            new XElement("link", SiteBaseUrl),
             new XElement("description", $"Urun katalogu — {DateTime.UtcNow:yyyy-MM-dd}"),
             new XElement("language", request.Language ?? "tr"),
             items);
@@ -212,7 +216,7 @@ public class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     }
 
     private static string BuildProductUrl(Product product)
-        => $"https://mestech.app/products/{product.SKU}";
+        => $"{SiteBaseUrl}/products/{product.SKU}";
 
     private static string Sanitize(string? value, int maxLength)
     {
