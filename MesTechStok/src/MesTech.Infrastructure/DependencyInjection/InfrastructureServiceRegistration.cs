@@ -163,6 +163,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<StockCalculationService>();
         services.AddSingleton<PricingService>();
         services.AddSingleton<BarcodeValidationService>();
+        services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
         services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
 
         // Notification + ERP Repositories

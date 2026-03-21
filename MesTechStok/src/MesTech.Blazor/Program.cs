@@ -39,7 +39,7 @@ builder.Services.AddMediatR(cfg =>
         typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
 // ── Infrastructure (DbContext, Repositories, Domain Services, Cache, Messaging, etc.) ──
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);
 
 // ── Override ICurrentUserService for Blazor PoC (scoped — per-circuit) ──
 builder.Services.AddScoped<ICurrentUserService, BlazorCurrentUserService>();
@@ -54,6 +54,7 @@ builder.Services.AddHttpClient<MesTechApiClient>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddAuthentication();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
