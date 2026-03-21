@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Domain.ValueObjects;
+using Xunit;
 
 namespace MesTech.Integration.Tests.Domain;
 
