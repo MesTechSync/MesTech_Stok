@@ -204,6 +204,15 @@ public class Product : BaseEntity, ITenantEntity
         RaiseDomainEvent(new ProductUpdatedEvent(Id, SKU, DateTime.UtcNow));
     }
 
+    /// <summary>
+    /// Buybox kaybedildiğinde fırlatılır — rakip fiyat daha düşük.
+    /// Platform sync job'ından çağrılır.
+    /// </summary>
+    public void ReportBuyboxLost(decimal competitorPrice, string competitorName)
+    {
+        RaiseDomainEvent(new BuyboxLostEvent(Id, SKU, SalePrice, competitorPrice, competitorName, DateTime.UtcNow));
+    }
+
     public decimal? Volume => Length.HasValue && Width.HasValue && Height.HasValue
         ? Length.Value * Width.Value * Height.Value
         : null;

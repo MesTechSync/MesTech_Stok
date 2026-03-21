@@ -1,5 +1,6 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -63,6 +64,7 @@ public class PlatformPayment : BaseEntity, ITenantEntity
     {
         Status = PaymentStatus.Failed;
         Notes = reason;
+        RaiseDomainEvent(new PaymentFailedEvent(TenantId, Id, reason, "PAYMENT_FAILED", 1, DateTime.UtcNow));
     }
 
     public bool IsOverdue => Status == PaymentStatus.Pending

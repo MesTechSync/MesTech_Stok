@@ -1,5 +1,6 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -27,4 +28,32 @@ public class SyncLog : BaseEntity
     public string? CorrelationId { get; set; }
 
     public TimeSpan? Duration => CompletedAt.HasValue ? CompletedAt.Value - StartedAt : null;
+
+    /// <summary>Sync başlatıldığında çağrılır.</summary>
+    public void MarkAsStarted()
+    {
+        SyncStatus = Enums.SyncStatus.NotSynced;
+        StartedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new SyncRequestedEvent(PlatformCode, Direction, EntityType, EntityId, DateTime.UtcNow));
+    }
+
+    /// <summary>Sync hata ile bittiğinde çağrılır.</summary>
+    public void MarkAsFailed(string errorMessage)
+    {
+        IsSuccess = false;
+        ErrorMessage = errorMessage;
+        SyncStatus = SyncStatus.Failed;
+        CompletedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new SyncErrorOccurredEvent(PlatformCode, "SyncFailure", errorMessage, DateTime.UtcNow));
+    }
+
+    /// <summary>Sync başarılı bittiğinde çağrılır.</summary>
+    public void MarkAsCompleted(int processed, int failed)
+    {
+        IsSuccess = failed == 0;
+        ItemsProcessed = processed;
+        ItemsFailed = failed;
+        SyncStatus = SyncStatus.Synced;
+        CompletedAt = DateTime.UtcNow;
+    }
 }
