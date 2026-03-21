@@ -30,10 +30,19 @@
 }
 else
 {
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@successMessage
+      <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+    </div>
+  }
+
   @if (!string.IsNullOrEmpty(errorMessage))
   {
-    <div class="alert alert-warning" role="alert">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+      <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
     </div>
   }
 
@@ -373,8 +382,17 @@ else
 
   private async Task SyncStore(StoreRow store)
   {
+    successMessage = null;
+    errorMessage = null;
     var syncResult = await ApiClient.SafePostAsync<object>($"admin/stores/{store.MagazaAdi}/sync", new { });
-    if (!syncResult.IsSuccess) { errorMessage = syncResult.ErrorMessage; }
+    if (!syncResult.IsSuccess)
+    {
+      errorMessage = syncResult.ErrorMessage ?? $"{store.MagazaAdi} sync basarisiz.";
+    }
+    else
+    {
+      successMessage = $"{store.MagazaAdi} ({store.Platform}) sync basariyla baslatildi.";
+    }
   }
 
   private string GetPlatformBadgeClass(string platform) => platform switch
