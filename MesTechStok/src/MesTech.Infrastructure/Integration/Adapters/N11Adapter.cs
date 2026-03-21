@@ -20,6 +20,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
     private string? _appSecret;

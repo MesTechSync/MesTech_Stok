@@ -37,6 +37,8 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
+
     // LWA Auth State
     private string _refreshToken = string.Empty;
     private string _clientId = string.Empty;

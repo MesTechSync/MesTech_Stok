@@ -29,6 +29,8 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+
     // Username/Password -> Bearer token exchange
     private string _username = string.Empty;
     private string _password = string.Empty;

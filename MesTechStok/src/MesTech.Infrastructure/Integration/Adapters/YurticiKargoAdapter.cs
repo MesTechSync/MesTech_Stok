@@ -25,6 +25,8 @@ public class YurticiKargoAdapter : ICargoAdapter
     private readonly SimpleSoapClient _soapClient;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
+
     private string _serviceUrl = string.Empty;
     private string _userName = string.Empty;
     private string _password = string.Empty;

@@ -32,6 +32,8 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
     private string _clientSecret = string.Empty;

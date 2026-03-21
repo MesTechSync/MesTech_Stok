@@ -34,6 +34,8 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+
     // Runtime credential state — set via TestConnectionAsync
     private string _siteUrl = string.Empty;
     private string _consumerKey = string.Empty;

@@ -37,6 +37,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(4, 4);
+
     // Runtime credential state — set via TestConnectionAsync
     private string _shopDomain = string.Empty;
     private string _accessToken = string.Empty;

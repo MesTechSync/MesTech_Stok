@@ -26,6 +26,8 @@ public class PttKargoAdapter : ICargoAdapter
     private readonly SimpleSoapClient _soapClient;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
+
     private string _shipmentServiceUrl = string.Empty;
     private string _trackingServiceUrl = string.Empty;
     private string _userName = string.Empty;

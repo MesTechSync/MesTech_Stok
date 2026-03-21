@@ -35,6 +35,8 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+
     // Runtime credential state — set via TestConnectionAsync
     private string _shopId = string.Empty;
     private string _accessToken = string.Empty;
@@ -154,25 +156,33 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     private async Task<HttpResponseMessage> SendWithResilienceAsync(
         HttpRequestMessage request, CancellationToken ct)
     {
-        return await _retryPipeline.ExecuteAsync(
-            async token =>
-            {
-                // Clone the request for retry (HttpRequestMessage can only be sent once)
-                using var clone = new HttpRequestMessage(request.Method, request.RequestUri);
-                clone.Version = request.Version;
-
-                if (request.Content != null)
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(
+                async token =>
                 {
-                    var content = await request.Content.ReadAsStringAsync(token).ConfigureAwait(false);
-                    clone.Content = new StringContent(content, Encoding.UTF8, "application/json");
-                }
+                    // Clone the request for retry (HttpRequestMessage can only be sent once)
+                    using var clone = new HttpRequestMessage(request.Method, request.RequestUri);
+                    clone.Version = request.Version;
 
-                foreach (var header in request.Headers)
-                    clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                    if (request.Content != null)
+                    {
+                        var content = await request.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+                        clone.Content = new StringContent(content, Encoding.UTF8, "application/json");
+                    }
 
-                return await _httpClient.SendAsync(clone, token).ConfigureAwait(false);
-            },
-            ct).ConfigureAwait(false);
+                    foreach (var header in request.Headers)
+                        clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+                    return await _httpClient.SendAsync(clone, token).ConfigureAwait(false);
+                },
+                ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ─────────────────────────────────────────────

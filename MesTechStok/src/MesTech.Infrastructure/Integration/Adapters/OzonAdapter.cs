@@ -27,6 +27,8 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
+
     // Ozon uses header-based auth — no token exchange
     private string _clientId = string.Empty;
     private string _apiKey = string.Empty;

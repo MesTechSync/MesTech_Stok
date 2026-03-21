@@ -29,6 +29,8 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
+
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
     private string _clientSecret = string.Empty;
