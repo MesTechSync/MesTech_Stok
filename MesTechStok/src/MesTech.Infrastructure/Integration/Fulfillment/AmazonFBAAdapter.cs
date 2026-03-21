@@ -114,7 +114,8 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        using var lwaClient = _httpClientFactory?.CreateClient("AmazonLWA") ?? new HttpClient();
+        using var lwaClient = _httpClientFactory?.CreateClient("AmazonLWA")
+            ?? throw new InvalidOperationException("IHttpClientFactory is required for AmazonLWA client creation");
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "refresh_token",
