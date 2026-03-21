@@ -244,15 +244,19 @@
     _accounts.Add(account);
     _showForm = false;
     _editingAccount = null;
+    errorMessage = null;
 
-    // Fire-and-forget API call — local state already updated
     try
     {
-      await ApiClient.SafePostAsync<object>("accounting/chart-of-accounts", account);
+      var saveResult = await ApiClient.SafePostAsync<object>("accounting/chart-of-accounts", account);
+      if (!saveResult.IsSuccess)
+      {
+        errorMessage = saveResult.ErrorMessage ?? "Hesap kaydedilirken hata olustu.";
+      }
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API save error (local state updated): {ex.Message}");
+      errorMessage = $"API hatasi: {ex.Message}";
     }
   }
 
@@ -267,13 +271,18 @@
     if (_deletingAccount is not null)
     {
       _accounts.Remove(_deletingAccount);
+      errorMessage = null;
       try
       {
-        await ApiClient.SafeDeleteAsync($"accounting/chart-of-accounts/{_deletingAccount.Kod}");
+        var deleteResult = await ApiClient.SafeDeleteAsync($"accounting/chart-of-accounts/{_deletingAccount.Kod}");
+        if (!deleteResult.IsSuccess)
+        {
+          errorMessage = deleteResult.ErrorMessage ?? "Hesap silinirken hata olustu.";
+        }
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"API delete error (local state updated): {ex.Message}");
+        errorMessage = $"API hatasi: {ex.Message}";
       }
     }
     showDeleteConfirm = false;
