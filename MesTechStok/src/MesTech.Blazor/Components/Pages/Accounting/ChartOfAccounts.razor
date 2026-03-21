@@ -122,7 +122,7 @@
                       <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditAccount(account)" title="Duzenle">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAccount(account)" title="Sil">
+                      <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDeleteAccount(account)" title="Sil">
                         <i class="fas fa-trash"></i>
                       </button>
                     </td>
@@ -137,11 +137,23 @@
   }
 </div>
 
+<ConfirmDialog IsVisible="showDeleteConfirm"
+               Title="Hesap Sil"
+               Message="@($"'{_deletingAccount?.Kod} - {_deletingAccount?.Ad}' hesabini silmek istediginize emin misiniz?")"
+               ConfirmText="Sil"
+               ButtonVariant="danger"
+               OnConfirmed="ExecuteDeleteAccount"
+               OnCancelled="CancelDeleteAccount" />
+
 @code {
   private bool isLoading = true;
   private bool _isDemoMode;
   private string? errorMessage;
   private List<AccountItem> _accounts = new();
+
+  // Delete confirmation state
+  private bool showDeleteConfirm;
+  private AccountItem? _deletingAccount;
 
   // Form state
   private bool _showForm;
@@ -244,18 +256,34 @@
     }
   }
 
-  private async Task DeleteAccount(AccountItem account)
+  private void ConfirmDeleteAccount(AccountItem account)
   {
-    _accounts.Remove(account);
+    _deletingAccount = account;
+    showDeleteConfirm = true;
+  }
 
-    try
+  private async Task ExecuteDeleteAccount()
+  {
+    if (_deletingAccount is not null)
     {
-      await ApiClient.SafeDeleteAsync($"accounting/chart-of-accounts/{account.Kod}");
+      _accounts.Remove(_deletingAccount);
+      try
+      {
+        await ApiClient.SafeDeleteAsync($"accounting/chart-of-accounts/{_deletingAccount.Kod}");
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"API delete error (local state updated): {ex.Message}");
+      }
     }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"API delete error (local state updated): {ex.Message}");
-    }
+    showDeleteConfirm = false;
+    _deletingAccount = null;
+  }
+
+  private void CancelDeleteAccount()
+  {
+    showDeleteConfirm = false;
+    _deletingAccount = null;
   }
 
   private string GetTypeBadgeClass(string tur) => tur switch
