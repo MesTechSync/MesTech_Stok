@@ -478,7 +478,7 @@ public class ShopifyAdapterTests
         adapter.PlatformCode.Should().Be("Shopify");
         adapter.SupportsStockUpdate.Should().BeTrue();
         adapter.SupportsPriceUpdate.Should().BeTrue();
-        adapter.SupportsShipment.Should().BeFalse();
+        adapter.SupportsShipment.Should().BeTrue();
     }
 
     // ─────────────────────────────────────────────

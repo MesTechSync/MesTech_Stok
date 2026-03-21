@@ -154,9 +154,10 @@ public sealed class SharedResourceTests
         var trKeys = ReadResxKeys(TrPath);
         var validKeyPattern = new Regex(@"^[A-Z][a-zA-Z0-9]*(\.[A-Z][a-zA-Z0-9]*)*$");
 
-        // Act
+        // Act — exclude known brand names that don't follow PascalCase (eBay, iPhone etc.)
+        var brandExceptions = new HashSet<string> { "Platform.eBay" };
         var invalidKeys = trKeys.Keys
-            .Where(k => !validKeyPattern.IsMatch(k))
+            .Where(k => !validKeyPattern.IsMatch(k) && !brandExceptions.Contains(k))
             .ToList();
 
         // Assert

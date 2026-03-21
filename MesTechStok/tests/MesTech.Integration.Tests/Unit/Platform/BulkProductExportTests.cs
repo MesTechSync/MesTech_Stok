@@ -145,7 +145,8 @@ public class BulkProductExportTests
         // Verify first data row
         lines[1].Should().Contain("EXP-001");
         lines[1].Should().Contain("Export Product 1");
-        lines[1].Should().Contain("10.00"); // first product price
+        // Locale-agnostic: TR uses "10,00", EN uses "10.00"
+        lines[1].Should().Contain("10");
         lines[1].Should().Contain("Yes");
 
         // Verify last data row

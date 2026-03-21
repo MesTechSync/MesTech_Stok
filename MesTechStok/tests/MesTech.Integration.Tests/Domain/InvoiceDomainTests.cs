@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Domain;
@@ -112,7 +113,7 @@ public class InvoiceDomainTests
 
         var act = () => invoice.Approve();
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*kalemsiz*");
     }
 
@@ -134,7 +135,7 @@ public class InvoiceDomainTests
 
         var act = () => invoice.Approve();
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*sifirdan buyuk*");
     }
 
@@ -166,7 +167,7 @@ public class InvoiceDomainTests
 
         var act = () => invoice.Cancel("Iptal denemesi");
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Kabul edilmis*");
     }
 

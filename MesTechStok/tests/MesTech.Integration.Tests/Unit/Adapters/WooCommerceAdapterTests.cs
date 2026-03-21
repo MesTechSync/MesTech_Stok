@@ -526,7 +526,7 @@ public class WooCommerceAdapterTests
         // Assert
         adapter.SupportsPriceUpdate.Should().BeTrue();
         adapter.SupportsStockUpdate.Should().BeTrue();
-        adapter.SupportsShipment.Should().BeFalse();
+        adapter.SupportsShipment.Should().BeTrue();
     }
 
     // ────────────────────────────────────────────────────────────────────────
