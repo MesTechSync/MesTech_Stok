@@ -147,7 +147,7 @@ else
                             title="Duzenle" disabled="@isSaving">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(rate)"
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(rate)"
                             title="Sil" disabled="@isSaving">
                       <i class="fas fa-trash-alt"></i>
                     </button>
@@ -162,6 +162,14 @@ else
   </div>
 }
 
+<ConfirmDialog IsVisible="showDeleteConfirm"
+               Title="Komisyon Sil"
+               Message="@($"'{_deletingRate?.Platform}' komisyon oranini silmek istediginize emin misiniz?")"
+               ConfirmText="Sil"
+               ButtonVariant="danger"
+               OnConfirmed="ExecuteDelete"
+               OnCancelled="CancelDelete" />
+
 @code {
   // --- State ---
   private List<CommissionRateItem> rates = [];
@@ -173,6 +181,10 @@ else
   private int? editingId;
   private string? errorMessage;
   private string? successMessage;
+
+  // Delete confirmation
+  private bool showDeleteConfirm;
+  private CommissionRateItem? _deletingRate;
 
   // 11 active platform adapters
   private static readonly string[] platformOptions =
@@ -304,8 +316,19 @@ else
     ResetForm();
   }
 
-  private async Task DeleteAsync(CommissionRateItem rate)
+  private void ConfirmDelete(CommissionRateItem rate)
   {
+    _deletingRate = rate;
+    showDeleteConfirm = true;
+  }
+
+  private async Task ExecuteDelete()
+  {
+    if (_deletingRate is null) return;
+    var rate = _deletingRate;
+    showDeleteConfirm = false;
+    _deletingRate = null;
+
     isSaving = true;
     errorMessage = null;
     successMessage = null;
@@ -321,7 +344,6 @@ else
         await LoadRatesAsync();
         return;
       }
-      // Fallback: remove locally
       rates.Remove(rate);
       successMessage = $"{rate.Platform} komisyon orani silindi (demo).";
     }
@@ -338,6 +360,12 @@ else
         ResetForm();
       }
     }
+  }
+
+  private void CancelDelete()
+  {
+    showDeleteConfirm = false;
+    _deletingRate = null;
   }
 
   // --- Inline Edit ---
