@@ -27,6 +27,8 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     private string? _soapBaseUrl;
     private bool _isConfigured;
 
+    private const int DefaultPageSize = 100;
+
     // SOAP service URL suffixes
     private const string ProductServicePath = "/ws/ProductService.wsdl";
     private const string ProductSellingServicePath = "/ws/ProductSellingService.wsdl";
@@ -870,7 +872,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var totalCount = int.Parse(
                 ElementByLocalName(productList, "totalCount")?.Value ?? "0", CultureInfo.InvariantCulture);
             var pageSize = int.Parse(
-                ElementByLocalName(productList, "pageSize")?.Value ?? "100", CultureInfo.InvariantCulture);
+                ElementByLocalName(productList, "pageSize")?.Value ?? DefaultPageSize.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
 
             return pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1;
         }

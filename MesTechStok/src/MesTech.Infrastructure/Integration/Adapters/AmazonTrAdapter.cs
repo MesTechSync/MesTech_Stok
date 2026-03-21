@@ -43,6 +43,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     // Constants
     private const string TurkeyMarketplaceId = "A33AVAJ2PDY3EV";
     private const string EuEndpoint = "https://sellingpartnerapi-eu.amazon.com";
+    private const string UnauthorizedStatusCode = "401";
 
     public AmazonTrAdapter(HttpClient httpClient, ILogger<AmazonTrAdapter> logger)
     {
@@ -228,7 +229,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 };
             }
         }
-        catch (HttpRequestException ex) when (ex.Message.Contains("401") || ex.InnerException?.Message.Contains("401") == true)
+        catch (HttpRequestException ex) when (ex.Message.Contains(UnauthorizedStatusCode) || ex.InnerException?.Message.Contains(UnauthorizedStatusCode) == true)
         {
             result.ErrorMessage = "Yetkisiz erisim — LWA token veya credential hatali.";
             result.ResponseTime = sw.Elapsed;
