@@ -20,6 +20,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
     private string? _appSecret;
@@ -146,6 +147,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildSaveProduct(
@@ -177,11 +179,16 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 SaveProduct hatasi — SKU={SKU}", product.SKU);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var products = await FetchAllPagesAsync<Product>(
@@ -209,11 +216,16 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 PullProducts hatasi");
             return Array.Empty<Product>();
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             // N11 uses numeric product ID; we pass Guid hash as long for mapping
@@ -241,11 +253,16 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 StockUpdate hatasi — ProductId={ProductId}", productId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var n11ProductId = Math.Abs(productId.GetHashCode());
@@ -271,6 +288,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             _logger.LogError(ex, "N11 PriceUpdate hatasi — ProductId={ProductId}", productId);
             return false;
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -332,6 +353,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildGetCategories(_appKey!, _appSecret!);
@@ -356,6 +378,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 GetCategories hatasi");
             return Array.Empty<CategoryDto>();
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── IOrderCapableAdapter ─────────────────────────────
@@ -364,6 +390,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var orders = await FetchAllPagesAsync<ExternalOrderDto>(
@@ -398,11 +425,16 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 PullOrders hatasi");
             return Array.Empty<ExternalOrderDto>();
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             if (!long.TryParse(packageId, CultureInfo.InvariantCulture, out var orderItemId))
@@ -434,6 +466,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 UpdateOrderStatus hatasi — OrderItemId={Id}", packageId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── IShipmentCapableAdapter ────────────────────────────
@@ -446,6 +482,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         CargoProvider provider, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             if (!long.TryParse(platformOrderId, CultureInfo.InvariantCulture, out var orderItemId))
@@ -489,6 +526,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 SendShipment hatasi — OrderItemId={OrderItemId}", platformOrderId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -515,6 +556,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public async Task<bool> ActivateProductSellingAsync(long productId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildActivateProductSelling(_appKey!, _appSecret!, productId);
@@ -539,6 +581,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 ActivateProductSelling hatasi — ProductId={ProductId}", productId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -547,6 +593,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public async Task<bool> DeactivateProductSellingAsync(long productId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildDeactivateProductSelling(_appKey!, _appSecret!, productId);
@@ -570,6 +617,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             _logger.LogError(ex, "N11 DeactivateProductSelling hatasi — ProductId={ProductId}", productId);
             return false;
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -603,6 +654,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildSendInvoice(_appKey!, _appSecret!, orderId, invoiceNo, invoiceDate);
@@ -628,6 +680,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 SendInvoice hatasi — OrderId={OrderId}", orderId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── IClaimCapableAdapter ────────────────────────────
@@ -639,6 +695,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var claims = await FetchAllPagesAsync<ExternalClaimDto>(
@@ -671,6 +728,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 PullClaims hatasi");
             return Array.Empty<ExternalClaimDto>();
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -679,6 +740,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             if (!long.TryParse(claimId, CultureInfo.InvariantCulture, out var claimIdLong))
@@ -709,6 +771,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -729,6 +795,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildGetSettlements(_appKey!, _appSecret!, startDate, endDate);
@@ -747,6 +814,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             _logger.LogError(ex, "N11 GetSettlement hatasi — {Start:d} ~ {End:d}", startDate, endDate);
             return null;
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -770,6 +841,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         long categoryId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildGetCategoryAttributes(_appKey!, _appSecret!, categoryId);
@@ -806,6 +878,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogError(ex, "N11 GetCategoryAttributes hatasi — CategoryId={CategoryId}", categoryId);
             return Array.Empty<CategoryAttributeDto>();
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── BrandService ────────────────────────────────────
@@ -817,6 +893,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         int page = 0, int pageSize = 100, CancellationToken ct = default)
     {
         EnsureConfigured();
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = N11SoapRequestBuilder.BuildGetBrands(_appKey!, _appSecret!, page, pageSize);
@@ -840,6 +917,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             _logger.LogError(ex, "N11 GetBrands hatasi");
             return Array.Empty<BrandDto>();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
         }
     }
 

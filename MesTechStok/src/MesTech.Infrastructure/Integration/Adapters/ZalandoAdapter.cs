@@ -40,6 +40,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
     private const string TokenUrl = "https://auth.zalando.com/oauth2/access_token";
     private const string ApiBase = "https://api.zalando.com";
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(15, 15);
 
     public ZalandoAdapter(HttpClient httpClient, ILogger<ZalandoAdapter> logger,
         IOptions<ZalandoOptions>? options = null)
@@ -201,13 +202,16 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ZalandoAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("ZalandoAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             const int pageSize = 50;
             var page = 0;
@@ -270,14 +274,19 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
                 hasMore = pageCount == pageSize && (page * pageSize) < totalElements;
             }
 
-            _logger.LogInformation("Zalando PullProducts: {Count} articles retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Zalando PullProducts failed");
-        }
+                _logger.LogInformation("Zalando PullProducts: {Count} articles retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Zalando PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
@@ -299,12 +308,15 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ZalandoAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
-            productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("ZalandoAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
+                productId, newStock);
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
@@ -324,13 +336,18 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
                 return false;
             }
 
-            _logger.LogInformation("Zalando StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
-            return true;
+                _logger.LogInformation("Zalando StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Zalando StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Zalando StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -343,12 +360,15 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ZalandoAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} EUR",
-            productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("ZalandoAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} EUR",
+                productId, newPrice);
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
@@ -372,14 +392,19 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
                 return false;
             }
 
-            _logger.LogInformation("Zalando PriceUpdate success: SKU={SKU} price={Price} EUR",
-                productId, newPrice);
-            return true;
+                _logger.LogInformation("Zalando PriceUpdate success: SKU={SKU} price={Price} EUR",
+                    productId, newPrice);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Zalando PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Zalando PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -405,13 +430,16 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ZalandoAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("ZalandoAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
             var sinceStr = sinceDate.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
@@ -584,14 +612,19 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
                 hasMore = pageCount == pageSize && (page * pageSize) < totalElements;
             }
 
-            _logger.LogInformation("Zalando PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Zalando PullOrders failed");
-        }
+                _logger.LogInformation("Zalando PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Zalando PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -611,9 +644,12 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var encodedId = Uri.EscapeDataString(packageId);
             var url = $"{ApiBase}/partner/orders/{encodedId}/status";
@@ -632,14 +668,19 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
                 return false;
             }
 
-            _logger.LogInformation("Zalando UpdateOrderStatus success: OrderId={OrderId} Status={Status}",
-                packageId, status);
-            return true;
+                _logger.LogInformation("Zalando UpdateOrderStatus success: OrderId={OrderId} Status={Status}",
+                    packageId, status);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Zalando UpdateOrderStatus exception: {OrderId}", packageId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Zalando UpdateOrderStatus exception: {OrderId}", packageId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 

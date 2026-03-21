@@ -36,6 +36,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
 
     // 5-minute safety buffer before actual expiry
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
     public PttAvmAdapter(HttpClient httpClient, ILogger<PttAvmAdapter> logger)
     {
@@ -178,13 +179,16 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("PttAvmAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("PttAvmAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             const int pageSize = 100;
             var page = 1;
@@ -244,14 +248,19 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
                 hasMore = pageCount == pageSize;
             }
 
-            _logger.LogInformation("PttAVM PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "PttAVM PullProducts failed");
-        }
+                _logger.LogInformation("PttAVM PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "PttAVM PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -262,12 +271,15 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("PttAvmAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
-            productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("PttAvmAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
+                productId, newStock);
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
@@ -287,14 +299,19 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
                 return false;
             }
 
-            _logger.LogInformation("PttAVM StockUpdate success: ProductId={ProductId} qty={Qty}",
-                productId, newStock);
-            return true;
+                _logger.LogInformation("PttAVM StockUpdate success: ProductId={ProductId} qty={Qty}",
+                    productId, newStock);
+                return true;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "PttAVM StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        finally
         {
-            _logger.LogError(ex, "PttAVM StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -306,12 +323,15 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("PttAvmAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
-            productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("PttAvmAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
+                productId, newPrice);
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
@@ -331,14 +351,19 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
                 return false;
             }
 
-            _logger.LogInformation("PttAVM PriceUpdate success: ProductId={ProductId} price={Price}",
-                productId, newPrice);
-            return true;
+                _logger.LogInformation("PttAVM PriceUpdate success: ProductId={ProductId} price={Price}",
+                    productId, newPrice);
+                return true;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "PttAVM PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        finally
         {
-            _logger.LogError(ex, "PttAVM PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -350,11 +375,14 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("PttAvmAdapter.GetCategoriesAsync called");
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("PttAvmAdapter.GetCategoriesAsync called");
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var url = $"{_baseUrl}/api/category/list";
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
@@ -378,13 +406,18 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
                 categories.Add(ParseCategory(item, parentId: null));
             }
 
-            _logger.LogInformation("PttAVM GetCategories: {Count} top-level categories", categories.Count);
-            return categories.AsReadOnly();
+                _logger.LogInformation("PttAVM GetCategories: {Count} top-level categories", categories.Count);
+                return categories.AsReadOnly();
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "PttAVM GetCategories failed");
+                return Array.Empty<CategoryDto>();
+            }
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        finally
         {
-            _logger.LogError(ex, "PttAVM GetCategories failed");
-            return Array.Empty<CategoryDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -432,13 +465,16 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("PttAvmAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("PttAvmAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
             var sinceStr = sinceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -557,14 +593,19 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
                 hasMore = pageCount == pageSize;
             }
 
-            _logger.LogInformation("PttAVM PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "PttAVM PullOrders failed");
-        }
+                _logger.LogInformation("PttAVM PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "PttAVM PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>

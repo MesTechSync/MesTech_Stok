@@ -34,6 +34,7 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     private readonly EtsyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
     // Runtime credential state — set via TestConnectionAsync
     private string _shopId = string.Empty;
@@ -252,12 +253,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.PullProductsAsync called for ShopId={ShopId}", _shopId);
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.PullProductsAsync called for ShopId={ShopId}", _shopId);
+
+            var products = new List<Product>();
+
+            try
+            {
             var offset = 0;
             const int limit = 100; // Etsy max per page
             var hasMore = true;
@@ -299,14 +303,19 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 }
             }
 
-            _logger.LogInformation("Etsy PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Etsy PullProducts failed");
-        }
+                _logger.LogInformation("Etsy PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -317,11 +326,14 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.PushProductAsync: SKU={SKU}, Name={Name}",
-            product.SKU, product.Name);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.PushProductAsync: SKU={SKU}, Name={Name}",
+                product.SKU, product.Name);
+
+            try
+            {
             var url = $"{BaseUrl}/application/shops/{_shopId}/listings";
 
             var payload = new Dictionary<string, object>
@@ -353,14 +365,19 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 return true;
             }
 
-            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            _logger.LogError("Etsy PushProduct failed: {Status} - {Error}", response.StatusCode, error);
-            return false;
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Etsy PushProduct failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy PushProduct failed: SKU={SKU}", product.SKU);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Etsy PushProduct failed: SKU={SKU}", product.SKU);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -372,11 +389,14 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.PushStockUpdateAsync: ProductId={ProductId}, Qty={Qty}",
-            productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.PushStockUpdateAsync: ProductId={ProductId}, Qty={Qty}",
+                productId, newStock);
+
+            try
+            {
             // Step 1: Find listing by searching shop listings for the product
             var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
 
@@ -423,10 +443,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 putResponse.StatusCode, putError);
             return false;
         }
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy PushStockUpdate failed: ProductId={ProductId}", productId);
+                return false;
+            }
+        }
+        finally
         {
-            _logger.LogError(ex, "Etsy PushStockUpdate failed: ProductId={ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -436,11 +461,14 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.PushPriceUpdateAsync: ProductId={ProductId}, Price={Price}",
-            productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.PushPriceUpdateAsync: ProductId={ProductId}, Price={Price}",
+                productId, newPrice);
+
+            try
+            {
             var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(listingId))
@@ -471,10 +499,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
             _logger.LogError("Etsy PushPriceUpdate failed: {Status} - {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy PushPriceUpdate failed: ProductId={ProductId}", productId);
+                return false;
+            }
+        }
+        finally
         {
-            _logger.LogError(ex, "Etsy PushPriceUpdate failed: ProductId={ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -488,12 +521,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     /// </summary>
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("EtsyAdapter.GetCategoriesAsync called");
-
-        var categories = new List<CategoryDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.GetCategoriesAsync called");
+
+            var categories = new List<CategoryDto>();
+
+            try
+            {
             var url = $"{BaseUrl}/application/seller-taxonomy/nodes";
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -543,14 +579,19 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 }
             }
 
-            _logger.LogInformation("Etsy GetCategories: {Count} top-level categories retrieved", categories.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Etsy GetCategories failed");
-        }
+                _logger.LogInformation("Etsy GetCategories: {Count} top-level categories retrieved", categories.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy GetCategories failed");
+            }
 
-        return categories.AsReadOnly();
+            return categories.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -565,12 +606,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.PullOrdersAsync called. Since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.PullOrdersAsync called. Since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
             var offset = 0;
             const int limit = 25; // Etsy max for receipts
             var hasMore = true;
@@ -618,14 +662,19 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 }
             }
 
-            _logger.LogInformation("Etsy PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Etsy PullOrders failed");
-        }
+                _logger.LogInformation("Etsy PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -635,11 +684,14 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
     public async Task<bool> UpdateOrderStatusAsync(string packageId, string status, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EtsyAdapter.UpdateOrderStatusAsync: ReceiptId={ReceiptId}, Status={Status}",
-            packageId, status);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("EtsyAdapter.UpdateOrderStatusAsync: ReceiptId={ReceiptId}, Status={Status}",
+                packageId, status);
+
+            try
+            {
             // Etsy doesn't have a generic status update — only shipment tracking
             // If status is a tracking number, post it as shipment tracking
             var url = $"{BaseUrl}/application/shops/{_shopId}/receipts/{packageId}/tracking";
@@ -669,10 +721,15 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etsy UpdateOrderStatus failed: ReceiptId={ReceiptId}", packageId);
+                return false;
+            }
+        }
+        finally
         {
-            _logger.LogError(ex, "Etsy UpdateOrderStatus failed: ReceiptId={ReceiptId}", packageId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 

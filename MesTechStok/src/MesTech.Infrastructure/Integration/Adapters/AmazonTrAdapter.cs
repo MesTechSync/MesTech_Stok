@@ -26,6 +26,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     private readonly ILogger<AmazonTrAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
 
     // LWA Auth State
     private string _refreshToken = string.Empty;
@@ -254,13 +255,16 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonTrAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var request = await CreateAuthenticatedRequestAsync(
+            _logger.LogInformation("AmazonTrAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
+                var request = await CreateAuthenticatedRequestAsync(
                 HttpMethod.Get,
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=summaries",
                 ct).ConfigureAwait(false);
@@ -332,24 +336,32 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 }
             }
 
-            _logger.LogInformation("Amazon PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Amazon PullProducts failed");
-        }
+                _logger.LogInformation("Amazon PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(product);
         EnsureConfigured();
-        _logger.LogInformation("AmazonTrAdapter.PushProductAsync SKU: {SKU}", product.SKU);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("AmazonTrAdapter.PushProductAsync SKU: {SKU}", product.SKU);
+
+            try
+            {
             var payload = new
             {
                 productType = "PRODUCT",
@@ -385,13 +397,18 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 return false;
             }
 
-            _logger.LogInformation("Amazon PushProduct success: {SKU}", product.SKU);
-            return true;
+                _logger.LogInformation("Amazon PushProduct success: {SKU}", product.SKU);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon PushProduct exception: {SKU}", product.SKU);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon PushProduct exception: {SKU}", product.SKU);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -409,12 +426,15 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonTrAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("AmazonTrAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
             var createdAfter = since?.ToString("o", CultureInfo.InvariantCulture) ??
                                DateTime.UtcNow.AddDays(-30).ToString("o", CultureInfo.InvariantCulture);
 
@@ -480,14 +500,19 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 }
             }
 
-            _logger.LogInformation("Amazon PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Amazon PullOrders failed");
-        }
+                _logger.LogInformation("Amazon PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     private async Task PopulateOrderItemsAsync(ExternalOrderDto order, string orderId, CancellationToken ct)
@@ -563,34 +588,50 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonTrAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var feed = BuildInventoryFeed(productId.ToString(), newStock);
-            return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
+            _logger.LogInformation("AmazonTrAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
+
+            try
+            {
+                var feed = BuildInventoryFeed(productId.ToString(), newStock);
+                return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonTrAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var feed = BuildPricingFeed(productId.ToString(), newPrice);
-            return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
+            _logger.LogInformation("AmazonTrAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
+
+            try
+            {
+                var feed = BuildPricingFeed(productId.ToString(), newPrice);
+                return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 

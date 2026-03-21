@@ -24,6 +24,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     private readonly ILogger<EbayAdapter> _logger;
     private readonly EbayOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
@@ -188,13 +189,16 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EbayAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("EbayAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             const int pageSize = 100;
             var offset = 0;
@@ -256,14 +260,19 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 hasMore = pageCount == pageSize && offset < total;
             }
 
-            _logger.LogInformation("eBay PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "eBay PullProducts failed");
-        }
+                _logger.LogInformation("eBay PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
@@ -288,13 +297,16 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EbayAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("EbayAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
 
-            var sku = Uri.EscapeDataString(productId.ToString());
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+                var sku = Uri.EscapeDataString(productId.ToString());
             var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}";
 
             // We need the current inventory_item first to do a proper PUT (partial update not supported)
@@ -338,13 +350,18 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 return false;
             }
 
-            _logger.LogInformation("eBay StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
-            return true;
+                _logger.LogInformation("eBay StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "eBay StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -355,11 +372,14 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EbayAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("EbayAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var sku = Uri.EscapeDataString(productId.ToString());
 
@@ -426,14 +446,19 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 return false;
             }
 
-            _logger.LogInformation("eBay PriceUpdate success: SKU={SKU} price={Price} {Currency}",
-                productId, newPrice, currency);
-            return true;
+                _logger.LogInformation("eBay PriceUpdate success: SKU={SKU} price={Price} {Currency}",
+                    productId, newPrice, currency);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "eBay PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -446,11 +471,14 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EbayAdapter.GetCategoriesAsync called");
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("EbayAdapter.GetCategoriesAsync called");
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             // category_tree_id=3 is Turkey; override via CategoryTreeId config if needed
             const int categoryTreeId = 3;
@@ -487,13 +515,18 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 }
             }
 
-            _logger.LogInformation("eBay GetCategories: {Count} top-level categories retrieved", categories.Count);
-            return categories.AsReadOnly();
+                _logger.LogInformation("eBay GetCategories: {Count} top-level categories retrieved", categories.Count);
+                return categories.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay GetCategories failed");
+                return Array.Empty<CategoryDto>();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "eBay GetCategories failed");
-            return Array.Empty<CategoryDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -551,13 +584,16 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("EbayAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _logger.LogInformation("EbayAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             // eBay date filter format: [2024-01-01T00:00:00.000Z..]
             var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
@@ -733,14 +769,19 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 hasMore = pageCount == pageSize && offset < total;
             }
 
-            _logger.LogInformation("eBay PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "eBay PullOrders failed");
-        }
+                _logger.LogInformation("eBay PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -785,9 +826,12 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            try
+            {
+                await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var carrierEnum = MapCargoProviderToEbayCarrier(provider);
             var encodedOrderId = Uri.EscapeDataString(platformOrderId);
@@ -812,14 +856,19 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
                 return false;
             }
 
-            _logger.LogInformation("eBay SendShipment success: OrderId={OrderId} Tracking={Tracking}",
-                platformOrderId, trackingNumber);
-            return true;
+                _logger.LogInformation("eBay SendShipment success: OrderId={OrderId} Tracking={Tracking}",
+                    platformOrderId, trackingNumber);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "eBay SendShipment exception: OrderId={OrderId}", platformOrderId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "eBay SendShipment exception: OrderId={OrderId}", platformOrderId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 

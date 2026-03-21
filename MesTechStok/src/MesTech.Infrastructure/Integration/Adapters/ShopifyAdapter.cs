@@ -41,6 +41,7 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     private bool _isConfigured;
 
     private const string ApiVersion = "2024-01";
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
     public ShopifyAdapter(HttpClient httpClient, ILogger<ShopifyAdapter> logger,
         IOptions<ShopifyOptions>? options = null)
@@ -192,12 +193,15 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
             // Initial request — 250 is Shopify's max page size
             var url = $"{BaseUrl}/products.json?limit=250";
 
@@ -243,14 +247,19 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 url = ExtractNextLinkUrl(response);
             }
 
-            _logger.LogInformation("Shopify PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Shopify PullProducts failed");
-        }
+                _logger.LogInformation("Shopify PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -313,8 +322,11 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             // Step 1: Find variant by productId (used as SKU in Shopify context)
             var sku = productId.ToString();
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku,inventory_item_id&limit=250";
@@ -378,13 +390,18 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 return false;
             }
 
-            _logger.LogInformation("Shopify StockUpdate success: SKU={SKU} qty={Qty}", sku, newStock);
-            return true;
+                _logger.LogInformation("Shopify StockUpdate success: SKU={SKU} qty={Qty}", sku, newStock);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -395,11 +412,14 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
-            productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
+                productId, newPrice);
+
+            try
+            {
             var sku = productId.ToString();
 
             // Step 1: Find variant id by SKU
@@ -466,13 +486,18 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 return false;
             }
 
-            _logger.LogInformation("Shopify PriceUpdate success: SKU={SKU} price={Price}", sku, newPrice);
-            return true;
+                _logger.LogInformation("Shopify PriceUpdate success: SKU={SKU} price={Price}", sku, newPrice);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -483,10 +508,13 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.GetCategoriesAsync called");
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.GetCategoriesAsync called");
+
+            try
+            {
             var url = $"{BaseUrl}/custom_collections.json?fields=id,title&limit=250";
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
@@ -520,13 +548,18 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 }
             }
 
-            _logger.LogInformation("Shopify GetCategories: {Count} collections retrieved", categories.Count);
-            return categories.AsReadOnly();
+                _logger.LogInformation("Shopify GetCategories: {Count} collections retrieved", categories.Count);
+                return categories.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify GetCategories failed");
+                return Array.Empty<CategoryDto>();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify GetCategories failed");
-            return Array.Empty<CategoryDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -543,12 +576,15 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
             var sinceStr = since.HasValue
                 ? since.Value.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture)
                 : DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
@@ -581,14 +617,19 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 url = ExtractNextLinkUrl(response);
             }
 
-            _logger.LogInformation("Shopify PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Shopify PullOrders failed");
-        }
+                _logger.LogInformation("Shopify PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     private ExternalOrderDto MapShopifyOrder(JsonElement orderEl)
@@ -791,10 +832,13 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            string url;
-            string payload;
+            try
+            {
+                string url;
+                string payload;
 
             if (string.Equals(status, "cancelled", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(status, "cancel", StringComparison.OrdinalIgnoreCase))
@@ -820,14 +864,19 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 return false;
             }
 
-            _logger.LogInformation("Shopify UpdateOrderStatus success: OrderId={OrderId} Status={Status}",
-                packageId, status);
-            return true;
+                _logger.LogInformation("Shopify UpdateOrderStatus success: OrderId={OrderId} Status={Status}",
+                    packageId, status);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify UpdateOrderStatus exception: {OrderId}", packageId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify UpdateOrderStatus exception: {OrderId}", packageId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -850,8 +899,11 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             var topics = new[] { "orders/create", "orders/updated", "orders/cancelled" };
             var allSuccess = true;
 
@@ -884,12 +936,17 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 }
             }
 
-            return allSuccess;
+                return allSuccess;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify RegisterWebhook exception");
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify RegisterWebhook exception");
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -900,10 +957,13 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.UnregisterWebhookAsync called");
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.UnregisterWebhookAsync called");
+
+            try
+            {
             var listUrl = $"{BaseUrl}/webhooks.json";
             var listResponse = await _httpClient.GetAsync(listUrl, ct).ConfigureAwait(false);
 
@@ -938,13 +998,18 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 }
             }
 
-            _logger.LogInformation("Shopify UnregisterWebhook complete");
-            return allDeleted;
+                _logger.LogInformation("Shopify UnregisterWebhook complete");
+                return allDeleted;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify UnregisterWebhook exception");
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify UnregisterWebhook exception");
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -1076,8 +1141,11 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             var payload = JsonSerializer.Serialize(new
             {
                 fulfillment = new
@@ -1101,15 +1169,20 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 return false;
             }
 
-            _logger.LogInformation(
-                "Shopify SendShipment success: OrderId={OrderId} Tracking={Tracking}",
-                platformOrderId, shipment.TrackingNumber);
-            return true;
+                _logger.LogInformation(
+                    "Shopify SendShipment success: OrderId={OrderId} Tracking={Tracking}",
+                    platformOrderId, shipment.TrackingNumber);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify SendShipment exception: OrderId={OrderId}", platformOrderId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify SendShipment exception: OrderId={OrderId}", platformOrderId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -1125,10 +1198,13 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
         CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("ShopifyAdapter.GetInventoryLocationsAsync called");
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("ShopifyAdapter.GetInventoryLocationsAsync called");
+
+            try
+            {
             var url = $"{BaseUrl}/locations.json";
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
@@ -1181,14 +1257,19 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 }
             }
 
-            _logger.LogInformation("Shopify GetInventoryLocations: {Count} locations retrieved",
-                locations.Count);
-            return locations.AsReadOnly();
+                _logger.LogInformation("Shopify GetInventoryLocations: {Count} locations retrieved",
+                    locations.Count);
+                return locations.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify GetInventoryLocations failed");
+                return Array.Empty<InventoryLocationDto>();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify GetInventoryLocations failed");
-            return Array.Empty<InventoryLocationDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -1208,8 +1289,11 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             return Array.Empty<ProductVariantDto>();
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
@@ -1253,14 +1337,19 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
                 }
             }
 
-            _logger.LogInformation("Shopify GetProductVariants: {Count} variants for product {ProductId}",
-                variants.Count, productId);
-            return variants.AsReadOnly();
+                _logger.LogInformation("Shopify GetProductVariants: {Count} variants for product {ProductId}",
+                    variants.Count, productId);
+                return variants.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Shopify GetProductVariants failed: ProductId={ProductId}", productId);
+                return Array.Empty<ProductVariantDto>();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Shopify GetProductVariants failed: ProductId={ProductId}", productId);
-            return Array.Empty<ProductVariantDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 

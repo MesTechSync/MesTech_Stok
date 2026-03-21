@@ -22,6 +22,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
     // Ozon uses header-based auth — no token exchange
     private string _clientId = string.Empty;
@@ -186,6 +187,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
         var products = new List<Product>();
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var lastId = string.Empty;
@@ -317,6 +319,10 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         {
             _logger.LogError(ex, "Ozon PullProducts failed");
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
 
         return products.AsReadOnly();
     }
@@ -331,6 +337,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         _logger.LogInformation("OzonAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var payload = new
@@ -392,6 +399,10 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             _logger.LogError(ex, "Ozon stock update exception for ProductId={ProductId}", productId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -404,6 +415,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         _logger.LogInformation("OzonAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var payload = new
@@ -459,6 +471,10 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             _logger.LogError(ex, "Ozon price update exception for ProductId={ProductId}", productId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ═══════════════════════════════════════════
@@ -477,6 +493,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
         var orders = new List<ExternalOrderDto>();
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
@@ -620,6 +637,10 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         {
             _logger.LogError(ex, "Ozon PullOrders failed");
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
 
         return orders.AsReadOnly();
     }
@@ -647,6 +668,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         EnsureConfigured();
         _logger.LogInformation("OzonAdapter.GetCategoriesAsync called");
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var payload = new { language = "DEFAULT" };
@@ -681,6 +703,10 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         {
             _logger.LogError(ex, "Ozon GetCategories failed");
             return Array.Empty<CategoryDto>();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
         }
     }
 

@@ -37,6 +37,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private bool _isConfigured;
 
     private const int PageSize = 100;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(15, 15);
 
     public WooCommerceAdapter(HttpClient httpClient, ILogger<WooCommerceAdapter> logger,
         IOptions<WooCommerceOptions>? options = null)
@@ -195,12 +196,15 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("WooCommerceAdapter.PullProductsAsync called");
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("WooCommerceAdapter.PullProductsAsync called");
+
+            var products = new List<Product>();
+
+            try
+            {
             var page = 1;
             int totalPages;
 
@@ -244,14 +248,19 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             }
             while (page <= totalPages);
 
-            _logger.LogInformation("WooCommerce PullProducts: {Count} products retrieved", products.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "WooCommerce PullProducts failed");
-        }
+                _logger.LogInformation("WooCommerce PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce PullProducts failed");
+            }
 
-        return products.AsReadOnly();
+            return products.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
@@ -269,11 +278,14 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("WooCommerceAdapter.PushStockUpdateAsync: ProductId={Id} qty={Qty}",
-            productId, newStock);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("WooCommerceAdapter.PushStockUpdateAsync: ProductId={Id} qty={Qty}",
+                productId, newStock);
+
+            try
+            {
             var sku = productId.ToString();
 
             // Search by SKU
@@ -316,13 +328,18 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 return false;
             }
 
-            _logger.LogInformation("WooCommerce PushStockUpdate: SKU={SKU} → {Qty} OK", sku, newStock);
-            return true;
+                _logger.LogInformation("WooCommerce PushStockUpdate: SKU={SKU} → {Qty} OK", sku, newStock);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce PushStockUpdate failed");
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "WooCommerce PushStockUpdate failed");
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -333,11 +350,14 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("WooCommerceAdapter.PushPriceUpdateAsync: ProductId={Id} price={Price}",
-            productId, newPrice);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("WooCommerceAdapter.PushPriceUpdateAsync: ProductId={Id} price={Price}",
+                productId, newPrice);
+
+            try
+            {
             var sku = productId.ToString();
 
             // 1. Find product by SKU
@@ -380,13 +400,18 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 return false;
             }
 
-            _logger.LogInformation("WooCommerce PushPriceUpdate: SKU={SKU} → {Price} OK", sku, newPrice);
-            return true;
+                _logger.LogInformation("WooCommerce PushPriceUpdate: SKU={SKU} → {Price} OK", sku, newPrice);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce PushPriceUpdate failed");
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "WooCommerce PushPriceUpdate failed");
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -405,12 +430,15 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("WooCommerceAdapter.PullOrdersAsync since={Since}", since);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("WooCommerceAdapter.PullOrdersAsync since={Since}", since);
+
+            var orders = new List<ExternalOrderDto>();
+
+            try
+            {
             var after = since.HasValue
                 ? $"&after={Uri.EscapeDataString(since.Value.ToString("o", CultureInfo.InvariantCulture))}"
                 : string.Empty;
@@ -502,25 +530,33 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             }
             while (page <= totalPages);
 
-            _logger.LogInformation("WooCommerce PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "WooCommerce PullOrders failed");
-        }
+                _logger.LogInformation("WooCommerce PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     public async Task<bool> UpdateOrderStatusAsync(string packageId, string status,
         CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("WooCommerceAdapter.UpdateOrderStatusAsync: OrderId={Id} Status={Status}",
-            packageId, status);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            _logger.LogInformation("WooCommerceAdapter.UpdateOrderStatusAsync: OrderId={Id} Status={Status}",
+                packageId, status);
+
+            try
+            {
             var payload = JsonSerializer.Serialize(new { status }, _jsonOptions);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(packageId)}";
@@ -534,12 +570,17 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 return false;
             }
 
-            return true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce UpdateOrderStatus failed");
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "WooCommerce UpdateOrderStatus failed");
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -584,8 +625,11 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             return false;
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             var metaData = new List<object>
             {
                 new { key = "_tracking_number", value = shipment.TrackingNumber },
@@ -613,15 +657,20 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 return false;
             }
 
-            _logger.LogInformation(
-                "WooCommerce SendShipment success: OrderId={OrderId} Tracking={Tracking}",
-                platformOrderId, shipment.TrackingNumber);
-            return true;
+                _logger.LogInformation(
+                    "WooCommerce SendShipment success: OrderId={OrderId} Tracking={Tracking}",
+                    platformOrderId, shipment.TrackingNumber);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce SendShipment exception: OrderId={OrderId}", platformOrderId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "WooCommerce SendShipment exception: OrderId={OrderId}", platformOrderId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -646,8 +695,11 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         if (updates.Count == 0)
             return result;
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             // WooCommerce batch API supports max 100 items per request
             const int batchSize = 100;
             var batches = new List<List<BatchProductUpdateDto>>();
@@ -700,17 +752,22 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                     result.Updated += updatedArr.GetArrayLength();
             }
 
-            _logger.LogInformation(
-                "WooCommerce BatchUpdate complete: {Updated} updated, {Errors} errors",
-                result.Updated, result.Errors.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "WooCommerce BatchUpdateProducts failed");
-            result.Errors.Add($"Exception: {ex.Message}");
-        }
+                _logger.LogInformation(
+                    "WooCommerce BatchUpdate complete: {Updated} updated, {Errors} errors",
+                    result.Updated, result.Errors.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce BatchUpdateProducts failed");
+                result.Errors.Add($"Exception: {ex.Message}");
+            }
 
-        return result;
+            return result;
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -729,8 +786,11 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             return Array.Empty<ProductVariantDto>();
         }
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
+            try
+            {
             var variations = new List<ProductVariantDto>();
             var page = 1;
             int totalPages;
@@ -784,14 +844,19 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             }
             while (page <= totalPages);
 
-            _logger.LogInformation("WooCommerce GetProductVariations: {Count} variations for product {ProductId}",
-                variations.Count, productId);
-            return variations.AsReadOnly();
+                _logger.LogInformation("WooCommerce GetProductVariations: {Count} variations for product {ProductId}",
+                    variations.Count, productId);
+                return variations.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
+                return Array.Empty<ProductVariantDto>();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
-            return Array.Empty<ProductVariantDto>();
+            _rateLimitSemaphore.Release();
         }
     }
 }

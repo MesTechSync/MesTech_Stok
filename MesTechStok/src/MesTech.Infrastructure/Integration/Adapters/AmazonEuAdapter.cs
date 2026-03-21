@@ -36,6 +36,7 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     private readonly ILogger<AmazonEuAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
 
     // LWA Auth State
     private string _refreshToken = string.Empty;
@@ -311,139 +312,155 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonEuAdapter.PullProductsAsync called — marketplace={Marketplace}", _activeMarketplaceId);
-
-        var products = new List<Product>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
-                async token =>
-                {
-                    var req = await CreateAuthenticatedRequestAsync(
-                        HttpMethod.Get,
-                        $"/catalog/2022-04-01/items?marketplaceIds={_activeMarketplaceId}&includedData=summaries",
-                        token).ConfigureAwait(false);
-                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
-                }, ct).ConfigureAwait(false);
+            _logger.LogInformation("AmazonEuAdapter.PullProductsAsync called — marketplace={Marketplace}", _activeMarketplaceId);
 
-            if (!response.IsSuccessStatusCode)
+            var products = new List<Product>();
+
+            try
             {
-                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogError("Amazon EU PullProducts failed: {Status} - {Error}", response.StatusCode, error);
-                return products.AsReadOnly();
-            }
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token =>
+                    {
+                        var req = await CreateAuthenticatedRequestAsync(
+                            HttpMethod.Get,
+                            $"/catalog/2022-04-01/items?marketplaceIds={_activeMarketplaceId}&includedData=summaries",
+                            token).ConfigureAwait(false);
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
-            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(content);
-
-            if (doc.RootElement.TryGetProperty("items", out var items))
-            {
-                foreach (var item in items.EnumerateArray())
+                if (!response.IsSuccessStatusCode)
                 {
-                    var asin = item.TryGetProperty("asin", out var a) ? a.GetString() ?? "" : "";
-                    var title = "";
-                    var sku = asin; // Default SKU to ASIN
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("Amazon EU PullProducts failed: {Status} - {Error}", response.StatusCode, error);
+                    return products.AsReadOnly();
+                }
 
-                    // Extract title from summaries
-                    if (item.TryGetProperty("summaries", out var summaries))
-                    {
-                        foreach (var summary in summaries.EnumerateArray())
-                        {
-                            if (summary.TryGetProperty("itemName", out var nameEl))
-                                title = nameEl.GetString() ?? "";
-                        }
-                    }
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
 
-                    // Extract SKU from identifiers
-                    if (item.TryGetProperty("identifiers", out var identifiers))
+                if (doc.RootElement.TryGetProperty("items", out var items))
+                {
+                    foreach (var item in items.EnumerateArray())
                     {
-                        foreach (var idGroup in identifiers.EnumerateArray())
+                        var asin = item.TryGetProperty("asin", out var a) ? a.GetString() ?? "" : "";
+                        var title = "";
+                        var sku = asin; // Default SKU to ASIN
+
+                        // Extract title from summaries
+                        if (item.TryGetProperty("summaries", out var summaries))
                         {
-                            if (idGroup.TryGetProperty("identifiers", out var ids))
+                            foreach (var summary in summaries.EnumerateArray())
                             {
-                                foreach (var id in ids.EnumerateArray())
+                                if (summary.TryGetProperty("itemName", out var nameEl))
+                                    title = nameEl.GetString() ?? "";
+                            }
+                        }
+
+                        // Extract SKU from identifiers
+                        if (item.TryGetProperty("identifiers", out var identifiers))
+                        {
+                            foreach (var idGroup in identifiers.EnumerateArray())
+                            {
+                                if (idGroup.TryGetProperty("identifiers", out var ids))
                                 {
-                                    if (id.TryGetProperty("identifierType", out var idType) &&
-                                        idType.GetString() == "SKU" &&
-                                        id.TryGetProperty("identifier", out var idVal))
+                                    foreach (var id in ids.EnumerateArray())
                                     {
-                                        sku = idVal.GetString() ?? asin;
+                                        if (id.TryGetProperty("identifierType", out var idType) &&
+                                            idType.GetString() == "SKU" &&
+                                            id.TryGetProperty("identifier", out var idVal))
+                                        {
+                                            sku = idVal.GetString() ?? asin;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    products.Add(new Product
-                    {
-                        Name = title,
-                        SKU = sku,
-                        Barcode = asin
-                    });
+                        products.Add(new Product
+                        {
+                            Name = title,
+                            SKU = sku,
+                            Barcode = asin
+                        });
+                    }
                 }
+
+                _logger.LogInformation("Amazon EU PullProducts: {Count} products retrieved", products.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon EU PullProducts failed");
             }
 
-            _logger.LogInformation("Amazon EU PullProducts: {Count} products retrieved", products.Count);
+            return products.AsReadOnly();
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon EU PullProducts failed");
+            _rateLimitSemaphore.Release();
         }
-
-        return products.AsReadOnly();
     }
 
     public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(product);
         EnsureConfigured();
-        _logger.LogInformation("AmazonEuAdapter.PushProductAsync SKU: {SKU}", product.SKU);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var payload = new
+            _logger.LogInformation("AmazonEuAdapter.PushProductAsync SKU: {SKU}", product.SKU);
+
+            try
             {
-                productType = "PRODUCT",
-                patches = new[]
+                var payload = new
                 {
-                    new
+                    productType = "PRODUCT",
+                    patches = new[]
                     {
-                        op = "replace",
-                        path = "/attributes/item_name",
-                        value = new[] { new { value = product.Name, marketplace_id = _activeMarketplaceId } }
+                        new
+                        {
+                            op = "replace",
+                            path = "/attributes/item_name",
+                            value = new[] { new { value = product.Name, marketplace_id = _activeMarketplaceId } }
+                        }
                     }
-                }
-            };
+                };
 
-            var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var sku = Uri.EscapeDataString(product.SKU);
+                var json = JsonSerializer.Serialize(payload, _jsonOptions);
+                var sku = Uri.EscapeDataString(product.SKU);
 
-            var response = await _retryPipeline.ExecuteAsync(
-                async token =>
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token =>
+                    {
+                        var request = await CreateAuthenticatedRequestAsync(
+                            HttpMethod.Put,
+                            $"/listings/2021-08-01/items/{_sellerId}/{sku}?marketplaceIds={_activeMarketplaceId}",
+                            token).ConfigureAwait(false);
+                        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var request = await CreateAuthenticatedRequestAsync(
-                        HttpMethod.Put,
-                        $"/listings/2021-08-01/items/{_sellerId}/{sku}?marketplaceIds={_activeMarketplaceId}",
-                        token).ConfigureAwait(false);
-                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
-                }, ct).ConfigureAwait(false);
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("Amazon EU PushProduct failed: {Status} - {Error}", response.StatusCode, error);
+                    return false;
+                }
 
-            if (!response.IsSuccessStatusCode)
+                _logger.LogInformation("Amazon EU PushProduct success: {SKU}", product.SKU);
+                return true;
+            }
+            catch (Exception ex)
             {
-                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogError("Amazon EU PushProduct failed: {Status} - {Error}", response.StatusCode, error);
+                _logger.LogError(ex, "Amazon EU PushProduct exception: {SKU}", product.SKU);
                 return false;
             }
-
-            _logger.LogInformation("Amazon EU PushProduct success: {SKU}", product.SKU);
-            return true;
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon EU PushProduct exception: {SKU}", product.SKU);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
@@ -460,18 +477,21 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<IReadOnlyList<ExternalOrderDto>> PullOrdersAsync(DateTime? since = null, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("AmazonEuAdapter.PullOrdersAsync since={Since} marketplace={Marketplace}", since, _activeMarketplaceId);
-
-        var orders = new List<ExternalOrderDto>();
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var createdAfter = since?.ToString("o", CultureInfo.InvariantCulture) ??
-                               DateTime.UtcNow.AddDays(-30).ToString("o", CultureInfo.InvariantCulture);
+            _logger.LogInformation("AmazonEuAdapter.PullOrdersAsync since={Since} marketplace={Marketplace}", since, _activeMarketplaceId);
 
-            var url = $"/orders/v0/orders?MarketplaceIds={_activeMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
+            var orders = new List<ExternalOrderDto>();
 
-            var response = await _retryPipeline.ExecuteAsync(
+            try
+            {
+                var createdAfter = since?.ToString("o", CultureInfo.InvariantCulture) ??
+                                   DateTime.UtcNow.AddDays(-30).ToString("o", CultureInfo.InvariantCulture);
+
+                var url = $"/orders/v0/orders?MarketplaceIds={_activeMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
+
+                var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -539,14 +559,19 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 }
             }
 
-            _logger.LogInformation("Amazon EU PullOrders: {Count} orders retrieved", orders.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Amazon EU PullOrders failed");
-        }
+                _logger.LogInformation("Amazon EU PullOrders: {Count} orders retrieved", orders.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon EU PullOrders failed");
+            }
 
-        return orders.AsReadOnly();
+            return orders.AsReadOnly();
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     private async Task PopulateOrderItemsAsync(ExternalOrderDto order, string orderId, CancellationToken ct)
@@ -622,38 +647,54 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation(
-            "AmazonEuAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty} marketplace={Marketplace}",
-            productId, newStock, _activeMarketplaceId);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var feed = BuildInventoryFeed(productId.ToString(), newStock);
-            return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
+            _logger.LogInformation(
+                "AmazonEuAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty} marketplace={Marketplace}",
+                productId, newStock, _activeMarketplaceId);
+
+            try
+            {
+                var feed = BuildInventoryFeed(productId.ToString(), newStock);
+                return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon EU StockUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon EU StockUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation(
-            "AmazonEuAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} marketplace={Marketplace}",
-            productId, newPrice, _activeMarketplaceId);
-
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
-            var feed = BuildPricingFeed(productId.ToString(), newPrice);
-            return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
+            _logger.LogInformation(
+                "AmazonEuAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} marketplace={Marketplace}",
+                productId, newPrice, _activeMarketplaceId);
+
+            try
+            {
+                var feed = BuildPricingFeed(productId.ToString(), newPrice);
+                return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Amazon EU PriceUpdate exception: {ProductId}", productId);
+                return false;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Amazon EU PriceUpdate exception: {ProductId}", productId);
-            return false;
+            _rateLimitSemaphore.Release();
         }
     }
 

@@ -27,6 +27,7 @@ public class YurticiKargoAdapter : ICargoAdapter
     private bool _isConfigured;
 
     private static readonly XNamespace YkNs = "http://yurticikargo.com/";
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
 
     public YurticiKargoAdapter(HttpClient httpClient, ILogger<YurticiKargoAdapter> logger,
         IOptions<YurticiKargoOptions>? options = null)
@@ -103,6 +104,7 @@ public class YurticiKargoAdapter : ICargoAdapter
         EnsureConfigured();
         ArgumentNullException.ThrowIfNull(request);
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = new XElement(YkNs + "createShipment",
@@ -143,6 +145,10 @@ public class YurticiKargoAdapter : ICargoAdapter
             _logger.LogError(ex, "Yurtici Kargo CreateShipment failed for order {OrderId}", request.OrderId);
             return ShipmentResult.Failed($"Yurtici Kargo hatasi: {ex.Message}");
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── TrackShipmentAsync ──────────────────────────────
@@ -152,6 +158,7 @@ public class YurticiKargoAdapter : ICargoAdapter
 
         var trackingResult = new TrackingResult { TrackingNumber = trackingNumber };
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = new XElement(YkNs + "queryShipment",
@@ -187,6 +194,10 @@ public class YurticiKargoAdapter : ICargoAdapter
             _logger.LogError(ex, "Yurtici Kargo tracking failed for {TrackingNumber}", trackingNumber);
             trackingResult.Status = CargoStatus.Created;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
 
         return trackingResult;
     }
@@ -203,7 +214,10 @@ public class YurticiKargoAdapter : ICargoAdapter
     {
         EnsureConfigured();
 
-        var body = new XElement(YkNs + "createShipmentLabel",
+        await _rateLimitSemaphore.WaitAsync(ct);
+        try
+        {
+            var body = new XElement(YkNs + "createShipmentLabel",
             AuthElement(),
             new XElement(YkNs + "keys", SecurityElement.Escape(shipmentId)));
 
@@ -222,6 +236,11 @@ public class YurticiKargoAdapter : ICargoAdapter
             Format = LabelFormat.Pdf,
             FileName = $"yk-label-{shipmentId}.pdf"
         };
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── Helpers ─────────────────────────────────────────

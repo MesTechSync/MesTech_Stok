@@ -29,6 +29,7 @@ public class PttKargoAdapter : ICargoAdapter
     private bool _isConfigured;
 
     private static readonly XNamespace PttNs = "http://ws.ptt.gov.tr/";
+    private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
 
     public PttKargoAdapter(HttpClient httpClient, ILogger<PttKargoAdapter> logger)
     {
@@ -96,6 +97,7 @@ public class PttKargoAdapter : ICargoAdapter
         EnsureConfigured();
         ArgumentNullException.ThrowIfNull(request);
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = new XElement(PttNs + "gonderiKaydet",
@@ -138,6 +140,10 @@ public class PttKargoAdapter : ICargoAdapter
             _logger.LogError(ex, "PTT Kargo CreateShipment failed for order {OrderId}", request.OrderId);
             return ShipmentResult.Failed($"PTT Kargo hatasi: {ex.Message}");
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── TrackShipmentAsync ──────────────────────────────
@@ -146,6 +152,7 @@ public class PttKargoAdapter : ICargoAdapter
         EnsureConfigured();
 
         var trackingResult = new TrackingResult { TrackingNumber = trackingNumber };
+        await _rateLimitSemaphore.WaitAsync(ct);
 
         try
         {
@@ -185,6 +192,10 @@ public class PttKargoAdapter : ICargoAdapter
             _logger.LogError(ex, "PTT Kargo tracking failed for {TrackingNumber}", trackingNumber);
             trackingResult.Status = CargoStatus.Created;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
 
         return trackingResult;
     }
@@ -194,6 +205,7 @@ public class PttKargoAdapter : ICargoAdapter
     {
         EnsureConfigured();
 
+        await _rateLimitSemaphore.WaitAsync(ct);
         try
         {
             var body = new XElement(PttNs + "gonderiIptal",
@@ -224,6 +236,10 @@ public class PttKargoAdapter : ICargoAdapter
             _logger.LogError(ex, "PTT Kargo CancelShipment failed for {ShipmentId}", shipmentId);
             return false;
         }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── GetShipmentLabelAsync ───────────────────────────
@@ -231,29 +247,37 @@ public class PttKargoAdapter : ICargoAdapter
     {
         EnsureConfigured();
 
-        var body = new XElement(PttNs + "etiketAl",
-            AuthElement(),
-            new XElement(PttNs + "gonderiNo", SecurityElement.Escape(shipmentId)));
-
-        var result = await _soapClient.SendAsync(
-            _shipmentServiceUrl,
-            "http://ws.ptt.gov.tr/etiketAl",
-            body, ct);
-
-        SimpleSoapClient.ThrowIfFault(result);
-
-        var base64Data = result.Descendants("etiketData").FirstOrDefault()?.Value
-                      ?? result.Descendants("pdfData").FirstOrDefault()?.Value;
-
-        if (string.IsNullOrEmpty(base64Data))
-            throw new InvalidOperationException("PTT Kargo etiket verisi bos");
-
-        return new LabelResult
+        await _rateLimitSemaphore.WaitAsync(ct);
+        try
         {
-            Data = Convert.FromBase64String(base64Data),
-            Format = LabelFormat.Pdf,
-            FileName = $"ptt-label-{shipmentId}.pdf"
-        };
+            var body = new XElement(PttNs + "etiketAl",
+                AuthElement(),
+                new XElement(PttNs + "gonderiNo", SecurityElement.Escape(shipmentId)));
+
+            var result = await _soapClient.SendAsync(
+                _shipmentServiceUrl,
+                "http://ws.ptt.gov.tr/etiketAl",
+                body, ct);
+
+            SimpleSoapClient.ThrowIfFault(result);
+
+            var base64Data = result.Descendants("etiketData").FirstOrDefault()?.Value
+                          ?? result.Descendants("pdfData").FirstOrDefault()?.Value;
+
+            if (string.IsNullOrEmpty(base64Data))
+                throw new InvalidOperationException("PTT Kargo etiket verisi bos");
+
+            return new LabelResult
+            {
+                Data = Convert.FromBase64String(base64Data),
+                Format = LabelFormat.Pdf,
+                FileName = $"ptt-label-{shipmentId}.pdf"
+            };
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
     }
 
     // ── Helpers ─────────────────────────────────────────
