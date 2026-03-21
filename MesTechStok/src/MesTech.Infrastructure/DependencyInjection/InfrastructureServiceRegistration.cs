@@ -132,6 +132,16 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ICalendarEventRepository, Cal.CalendarEventRepository>();
         services.AddScoped<IFinanceExpenseRepository, FinanceRepo.ExpenseRepository>();
 
+        // Finance — Kasa (DEV6)
+        services.AddScoped<ICashRegisterRepository, CashRegisterRepository>();
+
+        // Billing — Abonelik (DEV6)
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+        services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
+
+        // Onboarding (DEV6)
+        services.AddScoped<IOnboardingProgressRepository, OnboardingProgressRepository>();
+
         // Dropshipping Pool Repository (Sprint-B)
         services.AddScoped<IDropshippingPoolRepository, DropshippingPoolRepository>();
 
