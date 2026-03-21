@@ -1,17 +1,14 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MesTech.Application.Commands.SeedDemoData;
-#pragma warning disable CS0618 // Obsolete legacy AppDbContext — SeedDemoDataAsync() lives on Core context, requires extraction to ISeedService
-using MesTechStok.Core.Data;
-#pragma warning restore CS0618
+using MesTech.Infrastructure.Persistence;
 
 namespace MesTechStok.Desktop.Handlers;
 
 /// <summary>
-/// Debt: Extract SeedDemoDataAsync() from legacy AppDbContext into an ISeedService,
-///   then inject Infrastructure.Persistence.AppDbContext here.
-///   Blocked: SeedDemoDataAsync() is a 200+ line method on legacy AppDbContext with Core.Data.Models references.
+/// Seeds demo data using Infrastructure.DemoDataSeeder (Clean Architecture).
+/// Legacy Core.AppDbContext dependency eliminated.
 /// </summary>
 public class SeedDemoDataHandler : IRequestHandler<SeedDemoDataCommand, SeedDemoDataResult>
 {
@@ -27,24 +24,9 @@ public class SeedDemoDataHandler : IRequestHandler<SeedDemoDataCommand, SeedDemo
         try
         {
             using var scope = _serviceProvider.CreateScope();
-#pragma warning disable CS0618 // Legacy AppDbContext still needed for SeedDemoDataAsync()
-            var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-#pragma warning restore CS0618
+            var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
 
-            await ctx.Database.EnsureCreatedAsync(cancellationToken);
-
-            var hasActive = await ctx.Products.AnyAsync(p => p.IsActive, cancellationToken);
-            if (hasActive)
-            {
-                return new SeedDemoDataResult
-                {
-                    IsSuccess = true,
-                    WasSkipped = true,
-                    Message = "Aktif ürünler mevcut, demo yükleme atlandı.",
-                };
-            }
-
-            await ctx.SeedDemoDataAsync();
+            await seeder.SeedAsync(cancellationToken);
 
             return new SeedDemoDataResult
             {
