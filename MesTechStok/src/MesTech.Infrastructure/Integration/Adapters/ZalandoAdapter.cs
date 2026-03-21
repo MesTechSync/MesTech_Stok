@@ -9,9 +9,6 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -30,7 +27,6 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     private readonly ILogger<ZalandoAdapter> _logger;
     private readonly ZalandoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
@@ -67,42 +63,6 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             WriteIndented = false,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-
-        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = 3,
-                DelayGenerator = args => new ValueTask<TimeSpan?>(
-                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>()
-                    .Handle<TaskCanceledException>(),
-                OnRetry = args =>
-                {
-                    _logger.LogWarning(
-                        "[ZalandoAdapter] API retry {Attempt} after {Delay}ms",
-                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
-                    return default;
-                }
-            })
-            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = 0.5,
-                SamplingDuration = TimeSpan.FromSeconds(30),
-                MinimumThroughput = 5,
-                BreakDuration = TimeSpan.FromSeconds(30),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>(),
-                OnOpened = args =>
-                {
-                    _logger.LogWarning("[ZalandoAdapter] Circuit breaker OPENED for {Duration}s",
-                        args.BreakDuration.TotalSeconds);
-                    return default;
-                }
-            })
-            .Build();
     }
 
     // ─────────────────────────────────────────────
@@ -256,8 +216,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             while (hasMore)
             {
                 var url = $"{ApiBase}/partner/articles?page={page}&pageSize={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -355,9 +314,8 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PostAsync($"{ApiBase}/partner/inventory", content, token)
-                    .ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.PostAsync($"{ApiBase}/partner/inventory", content, ct)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -404,9 +362,8 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PostAsync($"{ApiBase}/partner/prices", content, token)
-                    .ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.PostAsync($"{ApiBase}/partner/prices", content, ct)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -467,8 +424,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             {
                 var url = $"{ApiBase}/partner/orders?createdAfter={Uri.EscapeDataString(sinceStr)}" +
                           $"&page={page}&pageSize={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -666,8 +622,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

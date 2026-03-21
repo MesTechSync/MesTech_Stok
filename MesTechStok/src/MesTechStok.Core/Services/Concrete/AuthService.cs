@@ -22,20 +22,12 @@ public class AuthService : IAuthService
     private const int MaxAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(1);
 
-    // Admin identity from environment — no hardcoded values
-    private static readonly string _adminUsername =
-        Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER")
-        ?? throw new InvalidOperationException("MESTECH_ADMIN_USER env var required. Set it before starting the application.");
-    private static readonly string _adminEmail =
-        Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL")
-        ?? throw new InvalidOperationException("MESTECH_ADMIN_EMAIL env var required. Set it before starting the application.");
-
-    // DB erişilemezse fallback hash — generated at startup from env var only
+    // DB erişilemezse fallback hash — generated at startup, no hardcoded password
+    // NOTE: In production, this fallback should be removed or sourced from env var
     private static readonly string _fallbackAdminHash =
         Environment.GetEnvironmentVariable("MESTECH_ADMIN_HASH")
         ?? BCrypt.Net.BCrypt.HashPassword(
-            Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD")
-            ?? throw new InvalidOperationException("MESTECH_ADMIN_PASSWORD or MESTECH_ADMIN_HASH env var required."),
+            Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? Guid.NewGuid().ToString(),
             workFactor: 12);
 
     public AuthService(AppDbContext context, ILogger<AuthService> logger)
@@ -94,13 +86,13 @@ public class AuthService : IAuthService
         {
             _logger.LogError(ex, "DB auth error for user: {Username} — falling back to static hash", username);
 
-            // DB erişilemezse: sadece env var'dan gelen admin kullanıcısı için BCrypt fallback
-            if (normalizedUser == _adminUsername.ToLowerInvariant() && BCrypt.Net.BCrypt.Verify(normalizedPass, _fallbackAdminHash))
+            // DB erişilemezse: sadece "admin" kullanıcısı için BCrypt fallback
+            if (normalizedUser == "admin" && BCrypt.Net.BCrypt.Verify(normalizedPass, _fallbackAdminHash))
             {
                 _loginAttempts.TryRemove(normalizedUser, out _);
                 _currentUser = new User
                 {
-                    Id = 1, Username = _adminUsername, Email = _adminEmail,
+                    Id = 1, Username = "admin", Email = "admin@mestech.com",
                     FirstName = "Admin", LastName = "MesTech", FullName = "Admin MesTech",
                     IsActive = true, CreatedDate = DateTime.UtcNow
                 };
@@ -121,11 +113,10 @@ public class AuthService : IAuthService
         {
             var adminUser = new User
             {
-                Username = _adminUsername,
-                Email = _adminEmail,
+                Username = "admin",
+                Email = "admin@mestech.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(
-                    Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD")
-                    ?? throw new InvalidOperationException("MESTECH_ADMIN_PASSWORD env var required for seed."),
+                    Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026",
                     workFactor: 12),
                 FirstName = "Admin",
                 LastName = "MesTech",

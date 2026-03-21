@@ -112,10 +112,6 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
         services.AddScoped<ISyncLogRepository, SyncLogRepository>();
         services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
-        services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
-        services.AddScoped<INotificationSettingRepository, NotificationSettingRepository>();
-        services.AddScoped<IPlatformMessageRepository, PlatformMessageRepository>();
-        services.AddScoped<ICategoryPlatformMappingRepository, CategoryPlatformMappingRepository>();
 
         // CRM Repositories (Dalga 8)
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
@@ -186,9 +182,6 @@ public static class InfrastructureServiceRegistration
 
         // JWT Token Service (Dalga 9 — Blazor SaaS authentication)
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-
-        // BruteForce Protection (WebApi auth endpoint)
-        services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
 
         // === FAZ 1: ALTYAPI AKTIFLESTIRME ===
 
@@ -298,12 +291,6 @@ public static class InfrastructureServiceRegistration
 
         // Generic Report Export (Excel + CSV) — G-03e
         services.AddScoped<IReportExportService, ReportExportService>();
-
-        // Bulk Product Import/Export
-        services.AddScoped<IBulkProductImportService, Services.BulkProductImportService>();
-
-        // CRM Dashboard Query Service
-        services.AddScoped<ICrmDashboardQueryService, Integration.Crm.CrmDashboardQueryService>();
 
         // CRM-Order Kopru Servisi (Dalga 8 H27)
         services.AddScoped<ICrmOrderBridgeService, CrmOrderBridgeService>();

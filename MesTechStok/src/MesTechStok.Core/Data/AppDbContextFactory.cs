@@ -30,8 +30,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            throw new InvalidOperationException(
-                "Set MESTECH_PG_CONNECTION env var or configure ConnectionStrings:DefaultConnection before running migrations.");
+            connectionString = "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=CONFIGURE_VIA_USER_SECRETS";
         }
 
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();

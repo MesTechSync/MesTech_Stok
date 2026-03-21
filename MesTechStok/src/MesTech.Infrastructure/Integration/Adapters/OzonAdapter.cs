@@ -8,9 +8,6 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -25,7 +22,6 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     // Ozon uses header-based auth — no token exchange
     private string _clientId = string.Empty;
@@ -47,42 +43,6 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             WriteIndented = false,
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
-
-        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = 3,
-                DelayGenerator = args => new ValueTask<TimeSpan?>(
-                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>()
-                    .Handle<TaskCanceledException>(),
-                OnRetry = args =>
-                {
-                    _logger.LogWarning(
-                        "[OzonAdapter] API retry {Attempt} after {Delay}ms",
-                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
-                    return default;
-                }
-            })
-            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = 0.5,
-                SamplingDuration = TimeSpan.FromSeconds(30),
-                MinimumThroughput = 5,
-                BreakDuration = TimeSpan.FromSeconds(30),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>(),
-                OnOpened = args =>
-                {
-                    _logger.LogWarning("[OzonAdapter] Circuit breaker OPENED for {Duration}s",
-                        args.BreakDuration.TotalSeconds);
-                    return default;
-                }
-            })
-            .Build();
     }
 
     public string PlatformCode => nameof(PlatformType.Ozon);
@@ -242,8 +202,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var listRequest = BuildPostRequest("/v2/product/list", listPayload);
-                var listResponse = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.SendAsync(listRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var listResponse = await _httpClient.SendAsync(listRequest, ct).ConfigureAwait(false);
 
                 if (!listResponse.IsSuccessStatusCode)
                 {
@@ -276,8 +235,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var infoRequest = BuildPostRequest("/v2/product/info/list", infoPayload);
-                var infoResponse = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.SendAsync(infoRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var infoResponse = await _httpClient.SendAsync(infoRequest, ct).ConfigureAwait(false);
 
                 if (!infoResponse.IsSuccessStatusCode)
                 {
@@ -389,8 +347,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             };
 
             using var request = BuildPostRequest("/v2/products/stocks", payload);
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -463,8 +420,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             };
 
             using var request = BuildPostRequest("/v1/product/import/prices", payload);
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -543,8 +499,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var request = BuildPostRequest("/v3/posting/fbs/list", payload);
-                var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -696,8 +651,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         {
             var payload = new { language = "DEFAULT" };
             using var request = BuildPostRequest("/v1/description-category/tree", payload);
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

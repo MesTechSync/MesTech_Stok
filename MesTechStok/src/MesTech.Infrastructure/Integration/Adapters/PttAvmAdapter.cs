@@ -8,9 +8,6 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -27,7 +24,6 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     // Username/Password -> Bearer token exchange
     private string _username = string.Empty;
@@ -52,42 +48,6 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             WriteIndented = false,
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
-
-        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = 3,
-                DelayGenerator = args => new ValueTask<TimeSpan?>(
-                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>()
-                    .Handle<TaskCanceledException>(),
-                OnRetry = args =>
-                {
-                    _logger.LogWarning(
-                        "[PttAvmAdapter] API retry {Attempt} after {Delay}ms",
-                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
-                    return default;
-                }
-            })
-            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = 0.5,
-                SamplingDuration = TimeSpan.FromSeconds(30),
-                MinimumThroughput = 5,
-                BreakDuration = TimeSpan.FromSeconds(30),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>(),
-                OnOpened = args =>
-                {
-                    _logger.LogWarning("[PttAvmAdapter] Circuit breaker OPENED for {Duration}s",
-                        args.BreakDuration.TotalSeconds);
-                    return default;
-                }
-            })
-            .Build();
     }
 
     public string PlatformCode => nameof(PlatformType.PttAVM);
@@ -233,8 +193,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/product/list?page={page}&size={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -319,8 +278,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/stock";
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -364,8 +322,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/price";
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -400,8 +357,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var url = $"{_baseUrl}/api/category/list";
-            var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -494,8 +450,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/orders?startDate={sinceStr}&page={page}&size={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {

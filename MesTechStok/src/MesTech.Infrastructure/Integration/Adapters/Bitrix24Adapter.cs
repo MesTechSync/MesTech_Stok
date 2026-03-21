@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
-using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -27,7 +26,6 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<Bitrix24Adapter> _logger;
-    private readonly IHttpClientFactory? _httpClientFactory;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -38,11 +36,10 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
     private string _portalDomain = string.Empty;
     private bool _isConfigured;
 
-    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger, IHttpClientFactory? httpClientFactory = null)
+    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _httpClientFactory = httpClientFactory;
 
         _jsonOptions = new JsonSerializerOptions
         {
@@ -146,7 +143,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
     {
         var loggerFactory = LoggerFactory.Create(builder => { });
         return new Bitrix24AuthProvider(
-            _httpClientFactory?.CreateClient("Bitrix24Auth") ?? new HttpClient(),
+            new HttpClient(),
             new InMemoryTokenCacheProvider(),
             loggerFactory.CreateLogger<Bitrix24AuthProvider>());
     }

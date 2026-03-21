@@ -390,16 +390,13 @@ public class AppDbContext : DbContext
         }
         await SaveChangesAsync();
 
-        // Create Admin User — credentials from environment only
+        // Create Admin User
         var adminUser = new User
         {
-            Username = Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER")
-                ?? throw new InvalidOperationException("MESTECH_ADMIN_USER env var required for seed."),
-            Email = Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL")
-                ?? throw new InvalidOperationException("MESTECH_ADMIN_EMAIL env var required for seed."),
+            Username = "admin",
+            Email = "admin@mestech.com",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(
-                Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD")
-                ?? throw new InvalidOperationException("MESTECH_ADMIN_PASSWORD env var required for seed.")),
+                Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026"),
             FirstName = "System",
             LastName = "Administrator",
             IsActive = true,

@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using MesTech.Avalonia.Dialogs;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -89,8 +88,8 @@ public partial class MainWindow : Window
         {
             switch (e.Key)
             {
-                case Key.K: // Command Palette
-                    OpenCommandPalette();
+                case Key.K: // Global arama
+                    FocusSearchBox();
                     e.Handled = true;
                     break;
 
@@ -139,41 +138,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void OpenCommandPalette()
-    {
-        var dialog = new CommandPaletteDialog();
-        await dialog.ShowDialog(this);
-
-        if (dialog.SelectedCommand != null)
-        {
-            System.Diagnostics.Debug.WriteLine(
-                $"[CommandPalette] Selected: {dialog.SelectedCommand.Title} ({dialog.SelectedCommand.Category})");
-            HandleCommandPaletteSelection(dialog.SelectedCommand);
-        }
-    }
-
-    private void HandleCommandPaletteSelection(CommandItem command)
-    {
-        switch (command.Category)
-        {
-            case "Sistem":
-                switch (command.Title)
-                {
-                    case "Tam Ekran": ToggleFullScreen(); break;
-                    case "Yenile": RefreshCurrentView(); break;
-                    case "Kilitle": LockScreen(); break;
-                    case "Sidebar Ac/Kapa": OnSidebarToggle(this, new RoutedEventArgs()); break;
-                }
-                break;
-            default:
-                System.Diagnostics.Debug.WriteLine(
-                    $"[CommandPalette] Navigate: {command.Title}");
-                break;
-        }
-    }
-
     private void FocusSearchBox()
     {
+        // Toolbar'daki arama kutusunu bul ve focus ver
         var searchBox = this.FindControl<TextBox>("SearchBox");
         searchBox?.Focus();
     }

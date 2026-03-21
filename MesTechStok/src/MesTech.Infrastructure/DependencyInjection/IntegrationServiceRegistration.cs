@@ -48,23 +48,18 @@ public static class IntegrationServiceRegistration
         this IServiceCollection services,
         IConfiguration? configuration = null)
     {
-        // Register all named HttpClients for Integration layer (IHttpClientFactory)
-        services.AddIntegrationHttpClients();
-
         // Dalga 14 S3: Trendyol options — sandbox toggle + environment-aware URLs
         if (configuration is not null)
             services.Configure<TrendyolOptions>(configuration.GetSection(TrendyolOptions.Section));
 
-        // Adapters — singleton with IHttpClientFactory named clients
+        // Adapters — singleton with manually created HttpClient
         services.AddSingleton<TrendyolAdapter>(sp =>
             new TrendyolAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Trendyol),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<TrendyolAdapter>>(),
                 sp.GetService<IOptions<TrendyolOptions>>()));
         services.AddSingleton<OpenCartAdapter>(sp =>
-            new OpenCartAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.OpenCart),
-                sp.GetRequiredService<ILogger<OpenCartAdapter>>()));
+            new OpenCartAdapter(new HttpClient(), sp.GetRequiredService<ILogger<OpenCartAdapter>>()));
 
         // Multi-registration: each adapter also registered as IIntegratorAdapter
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<TrendyolAdapter>());
@@ -72,14 +67,12 @@ public static class IntegrationServiceRegistration
 
         // Dalga 3: Ciceksepeti + Hepsiburada marketplace adapters
         services.AddSingleton<CiceksepetiAdapter>(sp =>
-            new CiceksepetiAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ciceksepeti),
-                sp.GetRequiredService<ILogger<CiceksepetiAdapter>>()));
+            new CiceksepetiAdapter(new HttpClient(), sp.GetRequiredService<ILogger<CiceksepetiAdapter>>()));
 
         // K1c-02: HepsiburadaTokenService — OAuth token management (55-min cache, auto-refresh)
         services.AddSingleton<HepsiburadaTokenService>(sp =>
             new HepsiburadaTokenService(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.HepsiburadaToken),
+                new HttpClient(),
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IConfiguration>(),
                 sp.GetRequiredService<ILogger<HepsiburadaTokenService>>()));
@@ -87,7 +80,7 @@ public static class IntegrationServiceRegistration
         // K1c-03: HepsiburadaAdapter now receives HepsiburadaTokenService for OAuth token auth
         services.AddSingleton<HepsiburadaAdapter>(sp =>
             new HepsiburadaAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Hepsiburada),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<HepsiburadaAdapter>>(),
                 sp.GetRequiredService<HepsiburadaTokenService>()));
 
@@ -96,32 +89,26 @@ public static class IntegrationServiceRegistration
 
         // Dalga 4: Pazarama marketplace adapter — OAuth2, async batch, 2-stage cargo
         services.AddSingleton<PazaramaAdapter>(sp =>
-            new PazaramaAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Pazarama),
-                sp.GetRequiredService<ILogger<PazaramaAdapter>>(),
-                sp.GetRequiredService<IHttpClientFactory>()));
+            new PazaramaAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PazaramaAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PazaramaAdapter>());
 
         // Dalga 6: Amazon TR (SP-API) — LWA OAuth2, catalog, orders, feeds
         services.AddSingleton<AmazonTrAdapter>(sp =>
             new AmazonTrAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.AmazonTr),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<AmazonTrAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonTrAdapter>());
 
         // Dalga 11: Amazon EU (SP-API) — 7 EU marketplaces (DE, FR, IT, ES, NL, SE, PL)
         services.AddSingleton<AmazonEuAdapter>(sp =>
             new AmazonEuAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.AmazonEu),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<AmazonEuAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonEuAdapter>());
 
         // Dalga 7: Bitrix24 CRM adapter — OAuth2, deal/contact sync, batch API
         services.AddSingleton<Bitrix24Adapter>(sp =>
-            new Bitrix24Adapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Bitrix24),
-                sp.GetRequiredService<ILogger<Bitrix24Adapter>>(),
-                sp.GetRequiredService<IHttpClientFactory>()));
+            new Bitrix24Adapter(new HttpClient(), sp.GetRequiredService<ILogger<Bitrix24Adapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
         services.AddSingleton<IBitrix24Adapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
 
@@ -134,23 +121,19 @@ public static class IntegrationServiceRegistration
             services.Configure<EbayOptions>(configuration.GetSection(EbayOptions.Section));
         services.AddSingleton<EbayAdapter>(sp =>
             new EbayAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ebay),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<EbayAdapter>>(),
                 sp.GetService<IOptions<EbayOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
 
         // Dalga 8: Ozon — Client-Id + Api-Key header auth
         services.AddSingleton<OzonAdapter>(sp =>
-            new OzonAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ozon),
-                sp.GetRequiredService<ILogger<OzonAdapter>>()));
+            new OzonAdapter(new HttpClient(), sp.GetRequiredService<ILogger<OzonAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OzonAdapter>());
 
         // Dalga 8: PTT AVM — username/password Bearer token
         services.AddSingleton<PttAvmAdapter>(sp =>
-            new PttAvmAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttAvm),
-                sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
+            new PttAvmAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
 
         // Dalga 14 S3: YurticiKargo options — sandbox toggle + environment-aware URLs
@@ -160,35 +143,23 @@ public static class IntegrationServiceRegistration
         // Dalga 3: Cargo adapters — SCOPED (multi-tenant credential isolation)
         services.AddScoped<ICargoAdapter>(sp =>
             new YurticiKargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.YurticiKargo),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<YurticiKargoAdapter>>(),
                 sp.GetService<IOptions<YurticiKargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
-            new ArasKargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ArasKargo),
-                sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
+            new ArasKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
-            new SuratKargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.SuratKargo),
-                sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
+            new SuratKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
 
         // Phase B: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo)
         services.AddScoped<ICargoAdapter>(sp =>
-            new MngKargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.MngKargo),
-                sp.GetRequiredService<ILogger<MngKargoAdapter>>()));
+            new MngKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<MngKargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
-            new PttKargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttKargo),
-                sp.GetRequiredService<ILogger<PttKargoAdapter>>()));
+            new PttKargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<PttKargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
-            new HepsiJetCargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.HepsiJet),
-                sp.GetRequiredService<ILogger<HepsiJetCargoAdapter>>()));
+            new HepsiJetCargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<HepsiJetCargoAdapter>>()));
         services.AddScoped<ICargoAdapter>(sp =>
-            new SendeoCargoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Sendeo),
-                sp.GetRequiredService<ILogger<SendeoCargoAdapter>>()));
+            new SendeoCargoAdapter(new HttpClient(), sp.GetRequiredService<ILogger<SendeoCargoAdapter>>()));
 
         // Factory — receives IEnumerable<IIntegratorAdapter>
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
@@ -216,61 +187,43 @@ public static class IntegrationServiceRegistration
 
         services.AddScoped<SovosInvoiceProvider>(sp =>
             new SovosInvoiceProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Sovos),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<SovosInvoiceProvider>>(),
                 sp.GetRequiredService<IUblTrXmlBuilder>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
         services.AddScoped<IEInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
         services.AddScoped<ParasutInvoiceProvider>(sp =>
-            new ParasutInvoiceProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ParasutInvoice),
-                sp.GetRequiredService<ILogger<ParasutInvoiceProvider>>()));
+            new ParasutInvoiceProvider(new HttpClient(), sp.GetRequiredService<ILogger<ParasutInvoiceProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ParasutInvoiceProvider>());
 
         // Dalga 5 DEV3 delivery: TrendyolEFaturam + ELogo providers
         services.AddScoped<TrendyolEFaturamProvider>(sp =>
-            new TrendyolEFaturamProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.TrendyolEFaturam),
-                sp.GetRequiredService<ILogger<TrendyolEFaturamProvider>>()));
+            new TrendyolEFaturamProvider(new HttpClient(), sp.GetRequiredService<ILogger<TrendyolEFaturamProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<TrendyolEFaturamProvider>());
 
         services.AddScoped<ELogoInvoiceProvider>(sp =>
         {
-            var factory = sp.GetRequiredService<IHttpClientFactory>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-            var soapClient = new SimpleSoapClient(
-                factory.CreateClient(IntegrationHttpClientRegistry.ClientNames.ELogoSoap),
-                loggerFactory.CreateLogger<SimpleSoapClient>());
-            return new ELogoInvoiceProvider(
-                factory.CreateClient(IntegrationHttpClientRegistry.ClientNames.ELogo),
-                soapClient,
-                sp.GetRequiredService<ILogger<ELogoInvoiceProvider>>());
+            var soapClient = new SimpleSoapClient(new HttpClient(), loggerFactory.CreateLogger<SimpleSoapClient>());
+            return new ELogoInvoiceProvider(new HttpClient(), soapClient, sp.GetRequiredService<ILogger<ELogoInvoiceProvider>>());
         });
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<ELogoInvoiceProvider>());
 
         // Dalga 5 DEV3 delivery: BirFatura, DijitalPlanet, GibPortal, HBFatura providers
         services.AddScoped<BirFaturaProvider>(sp =>
-            new BirFaturaProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.BirFatura),
-                sp.GetRequiredService<ILogger<BirFaturaProvider>>()));
+            new BirFaturaProvider(new HttpClient(), sp.GetRequiredService<ILogger<BirFaturaProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<BirFaturaProvider>());
 
         services.AddScoped<DijitalPlanetProvider>(sp =>
-            new DijitalPlanetProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.DijitalPlanet),
-                sp.GetRequiredService<ILogger<DijitalPlanetProvider>>()));
+            new DijitalPlanetProvider(new HttpClient(), sp.GetRequiredService<ILogger<DijitalPlanetProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<DijitalPlanetProvider>());
 
         services.AddScoped<GibPortalProvider>(sp =>
-            new GibPortalProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.GibPortal),
-                sp.GetRequiredService<ILogger<GibPortalProvider>>()));
+            new GibPortalProvider(new HttpClient(), sp.GetRequiredService<ILogger<GibPortalProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<GibPortalProvider>());
 
         services.AddScoped<HBFaturaProvider>(sp =>
-            new HBFaturaProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.HBFatura),
-                sp.GetRequiredService<ILogger<HBFaturaProvider>>()));
+            new HBFaturaProvider(new HttpClient(), sp.GetRequiredService<ILogger<HBFaturaProvider>>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<HBFaturaProvider>());
 
         services.AddScoped<IInvoiceProviderFactory, InvoiceProviderFactory>();
@@ -280,7 +233,7 @@ public static class IntegrationServiceRegistration
             services.Configure<GibPortalEInvoiceOptions>(configuration.GetSection(GibPortalEInvoiceOptions.Section));
         services.AddScoped<GibPortalEInvoiceProvider>(sp =>
             new GibPortalEInvoiceProvider(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.GibPortalEInvoice),
+                new HttpClient { Timeout = TimeSpan.FromSeconds(30) },
                 sp.GetRequiredService<ILogger<GibPortalEInvoiceProvider>>(),
                 sp.GetService<IOptions<GibPortalEInvoiceOptions>>()));
         if (configuration?.GetValue<bool>("Invoice:GibPortalEInvoice:Enabled") == true)
@@ -318,14 +271,12 @@ public static class IntegrationServiceRegistration
 
         // Product scraper service — URL-based product info via platform APIs
         services.AddScoped<IProductScraperService>(sp =>
-            new ProductScraperService(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ProductScraper),
-                sp.GetRequiredService<ILogger<ProductScraperService>>()));
+            new ProductScraperService(new HttpClient(), sp.GetRequiredService<ILogger<ProductScraperService>>()));
 
         // G10 A-08: Paraşüt accounting integration
         services.AddScoped<IParasutAccountingService>(sp =>
             new ParasutAccountingService(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ParasutAccounting),
+                new HttpClient { BaseAddress = new Uri("https://api.parasut.com/v4/") },
                 sp.GetRequiredService<IIncomeRepository>(),
                 sp.GetRequiredService<IExpenseRepository>(),
                 sp.GetRequiredService<ILogger<ParasutAccountingService>>()));
@@ -348,7 +299,7 @@ public static class IntegrationServiceRegistration
         // Dalga 7.5: Feed health check service
         services.AddScoped<FeedHealthCheckService>(sp =>
             new FeedHealthCheckService(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.FeedHealthCheck),
+                new HttpClient(),
                 sp.GetServices<IFeedParserService>(),
                 sp.GetRequiredService<ILogger<FeedHealthCheckService>>()));
 
@@ -531,14 +482,14 @@ public static class IntegrationServiceRegistration
         // PayTR payment adapters — Scoped (config may vary per tenant in future)
         services.AddScoped<PayTRDirectAdapter>(sp =>
             new PayTRDirectAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PayTRDirect),
+                new HttpClient(),
                 sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(),
                 sp.GetRequiredService<ILogger<PayTRDirectAdapter>>()));
         services.AddScoped<IPaymentProvider>(sp => sp.GetRequiredService<PayTRDirectAdapter>());
 
         services.AddScoped<PayTRiFrameAdapter>(sp =>
             new PayTRiFrameAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PayTRiFrame),
+                new HttpClient(),
                 sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(),
                 sp.GetRequiredService<ILogger<PayTRiFrameAdapter>>()));
         services.AddScoped<IPaymentProvider>(sp => sp.GetRequiredService<PayTRiFrameAdapter>());
@@ -548,7 +499,7 @@ public static class IntegrationServiceRegistration
             services.Configure<ShopifyOptions>(configuration.GetSection(ShopifyOptions.Section));
         services.AddSingleton<ShopifyAdapter>(sp =>
             new ShopifyAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Shopify),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<ShopifyAdapter>>(),
                 sp.GetService<IOptions<ShopifyOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<ShopifyAdapter>());
@@ -558,7 +509,7 @@ public static class IntegrationServiceRegistration
             services.Configure<WooCommerceOptions>(configuration.GetSection(WooCommerceOptions.Section));
         services.AddSingleton<WooCommerceAdapter>(sp =>
             new WooCommerceAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.WooCommerce),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<WooCommerceAdapter>>(),
                 sp.GetService<IOptions<WooCommerceOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<WooCommerceAdapter>());
@@ -568,7 +519,7 @@ public static class IntegrationServiceRegistration
             services.Configure<EtsyOptions>(configuration.GetSection(EtsyOptions.Section));
         services.AddSingleton<EtsyAdapter>(sp =>
             new EtsyAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Etsy),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<EtsyAdapter>>(),
                 sp.GetService<IOptions<EtsyOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EtsyAdapter>());
@@ -578,7 +529,7 @@ public static class IntegrationServiceRegistration
             services.Configure<ZalandoOptions>(configuration.GetSection(ZalandoOptions.Section));
         services.AddSingleton<ZalandoAdapter>(sp =>
             new ZalandoAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Zalando),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<ZalandoAdapter>>(),
                 sp.GetService<IOptions<ZalandoOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<ZalandoAdapter>());
@@ -601,13 +552,12 @@ public static class IntegrationServiceRegistration
             var clientSecret = cfg?["Amazon:FBA:ClientSecret"] ?? string.Empty;
             var sellerId = cfg?["Amazon:FBA:SellerId"] ?? string.Empty;
             return new AmazonFBAAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.AmazonFBA),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<AmazonFBAAdapter>>(),
                 refreshToken,
                 clientId,
                 clientSecret,
-                sellerId,
-                sp.GetRequiredService<IHttpClientFactory>());
+                sellerId);
         });
         services.AddScoped<IFulfillmentProvider>(sp => sp.GetRequiredService<AmazonFBAAdapter>());
 
@@ -618,7 +568,7 @@ public static class IntegrationServiceRegistration
             var merchantId = cfg?["Hepsilojistik:MerchantId"] ?? string.Empty;
             var apiKey = cfg?["Hepsilojistik:ApiKey"] ?? string.Empty;
             return new HepsilojistikAdapter(
-                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Hepsilojistik),
+                new HttpClient(),
                 sp.GetRequiredService<ILogger<HepsilojistikAdapter>>(),
                 merchantId,
                 apiKey);

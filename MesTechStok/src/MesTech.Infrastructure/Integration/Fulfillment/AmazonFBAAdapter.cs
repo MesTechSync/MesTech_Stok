@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
-using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace MesTech.Infrastructure.Integration.Fulfillment;
 
@@ -21,7 +20,6 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonFBAAdapter> _logger;
-    private readonly IHttpClientFactory? _httpClientFactory;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -43,8 +41,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         string refreshToken,
         string clientId,
         string clientSecret,
-        string sellerId,
-        IHttpClientFactory? httpClientFactory = null)
+        string sellerId)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -52,7 +49,6 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         _clientId = clientId ?? throw new ArgumentNullException(nameof(clientId));
         _clientSecret = clientSecret ?? throw new ArgumentNullException(nameof(clientSecret));
         _sellerId = sellerId ?? throw new ArgumentNullException(nameof(sellerId));
-        _httpClientFactory = httpClientFactory;
 
         if (_httpClient.BaseAddress == null)
             _httpClient.BaseAddress = new Uri(SpApiBaseUrl, UriKind.Absolute);
@@ -115,7 +111,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        using var lwaClient = _httpClientFactory?.CreateClient("AmazonLWA") ?? new HttpClient();
+        using var lwaClient = new HttpClient();
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "refresh_token",

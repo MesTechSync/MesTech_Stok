@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
-using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -29,22 +28,18 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PazaramaAdapter> _logger;
-    private readonly IHttpClientFactory? _httpClientFactory;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
-    private const string DefaultTokenEndpoint = "https://isortagimgiris.pazarama.com/connect/token";
-
     private OAuth2AuthProvider? _authProvider;
     private bool _isConfigured;
 
-    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger, IHttpClientFactory? httpClientFactory = null)
+    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _httpClientFactory = httpClientFactory;
 
         _jsonOptions = new JsonSerializerOptions
         {
@@ -111,9 +106,9 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         // Determine token endpoint — use WireMock URL when BaseUrl provided
         var tokenEndpoint = !string.IsNullOrEmpty(baseUrl)
             ? $"{baseUrl.TrimEnd('/')}/connect/token"
-            : DefaultTokenEndpoint;
+            : "https://isortagimgiris.pazarama.com/connect/token";
 
-        var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken") ?? new HttpClient();
+        var tokenHttpClient = new HttpClient();
 
         var loggerFactory = new LoggerFactory();
 

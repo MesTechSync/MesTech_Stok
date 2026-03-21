@@ -21,7 +21,7 @@
             </Setter>
         </Style>
         <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource MesTechPrimary}"/>
+            <Setter Property="Background" Value="#2855AC"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,8"/>
@@ -113,7 +113,7 @@
                 <Border Grid.Column="0" Style="{StaticResource StatCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="Toplam Brut" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="TotalGrossText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesTechPrimary}" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TotalGrossText" Text="0,00 TL" FontSize="16" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource StatCard}">
@@ -177,7 +177,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -196,7 +196,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#DC3545" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand"/>
             </StackPanel>
         </Border>
     </Grid>

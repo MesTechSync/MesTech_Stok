@@ -5,9 +5,6 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -23,7 +20,6 @@ public class PttKargoAdapter : ICargoAdapter
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttKargoAdapter> _logger;
     private readonly SimpleSoapClient _soapClient;
-    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private string _shipmentServiceUrl = string.Empty;
     private string _trackingServiceUrl = string.Empty;
@@ -34,57 +30,11 @@ public class PttKargoAdapter : ICargoAdapter
 
     private static readonly XNamespace PttNs = "http://ws.ptt.gov.tr/";
 
-    // SOAP action URIs
-    private const string SoapActionGonderiSorgula = "http://ws.ptt.gov.tr/gonderiSorgula";
-    private const string SoapActionGonderiKaydet = "http://ws.ptt.gov.tr/gonderiKaydet";
-    private const string SoapActionGonderiIptal = "http://ws.ptt.gov.tr/gonderiIptal";
-    private const string SoapActionEtiketAl = "http://ws.ptt.gov.tr/etiketAl";
-
-    // Default service URLs
-    private const string DefaultShipmentServiceUrl = "https://pttws.ptt.gov.tr/PttVeriYukleme/services/Sorgu";
-    private const string DefaultTrackingServiceUrl = "https://pttws.ptt.gov.tr/GonderiTakip/services/Sorgu";
-
     public PttKargoAdapter(HttpClient httpClient, ILogger<PttKargoAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _soapClient = new SimpleSoapClient(httpClient, logger);
-
-        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = 3,
-                DelayGenerator = args => new ValueTask<TimeSpan?>(
-                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>()
-                    .Handle<TaskCanceledException>(),
-                OnRetry = args =>
-                {
-                    _logger.LogWarning(
-                        "[PttKargoAdapter] API retry {Attempt} after {Delay}ms",
-                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
-                    return default;
-                }
-            })
-            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = 0.5,
-                SamplingDuration = TimeSpan.FromSeconds(30),
-                MinimumThroughput = 5,
-                BreakDuration = TimeSpan.FromSeconds(30),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .HandleResult(r => (int)r.StatusCode >= 500)
-                    .Handle<HttpRequestException>(),
-                OnOpened = args =>
-                {
-                    _logger.LogWarning("[PttKargoAdapter] Circuit breaker OPENED for {Duration}s",
-                        args.BreakDuration.TotalSeconds);
-                    return default;
-                }
-            })
-            .Build();
     }
 
     public CargoProvider Provider => CargoProvider.PttKargo;
@@ -102,9 +52,11 @@ public class PttKargoAdapter : ICargoAdapter
         _musteriId = credentials.GetValueOrDefault("MusteriId", "");
 
         _shipmentServiceUrl = credentials.GetValueOrDefault(
-            "ShipmentServiceUrl", DefaultShipmentServiceUrl);
+            "ShipmentServiceUrl",
+            "https://pttws.ptt.gov.tr/PttVeriYukleme/services/Sorgu");
         _trackingServiceUrl = credentials.GetValueOrDefault(
-            "TrackingServiceUrl", DefaultTrackingServiceUrl);
+            "TrackingServiceUrl",
+            "https://pttws.ptt.gov.tr/GonderiTakip/services/Sorgu");
 
         _isConfigured = true;
     }
@@ -128,7 +80,7 @@ public class PttKargoAdapter : ICargoAdapter
 
             await _soapClient.SendAsync(
                 _trackingServiceUrl,
-                SoapActionGonderiSorgula,
+                "http://ws.ptt.gov.tr/gonderiSorgula",
                 body, ct);
             return true;
         }
@@ -166,7 +118,7 @@ public class PttKargoAdapter : ICargoAdapter
 
             var result = await _soapClient.SendAsync(
                 _shipmentServiceUrl,
-                SoapActionGonderiKaydet,
+                "http://ws.ptt.gov.tr/gonderiKaydet",
                 body, ct);
 
             SimpleSoapClient.ThrowIfFault(result);
@@ -203,7 +155,7 @@ public class PttKargoAdapter : ICargoAdapter
 
             var result = await _soapClient.SendAsync(
                 _trackingServiceUrl,
-                SoapActionGonderiSorgula,
+                "http://ws.ptt.gov.tr/gonderiSorgula",
                 body, ct);
 
             SimpleSoapClient.ThrowIfFault(result);
@@ -250,7 +202,7 @@ public class PttKargoAdapter : ICargoAdapter
 
             var result = await _soapClient.SendAsync(
                 _shipmentServiceUrl,
-                SoapActionGonderiIptal,
+                "http://ws.ptt.gov.tr/gonderiIptal",
                 body, ct);
 
             SimpleSoapClient.ThrowIfFault(result);
@@ -285,7 +237,7 @@ public class PttKargoAdapter : ICargoAdapter
 
         var result = await _soapClient.SendAsync(
             _shipmentServiceUrl,
-            SoapActionEtiketAl,
+            "http://ws.ptt.gov.tr/etiketAl",
             body, ct);
 
         SimpleSoapClient.ThrowIfFault(result);

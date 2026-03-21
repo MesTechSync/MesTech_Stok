@@ -35,7 +35,7 @@
                     <TextBlock Text="Desteklenen: .xlsx, .csv, .xml" FontSize="11"
                                Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                     <Button x:Name="BtnSelectFile" Content="Dosya Sec" Click="BtnSelectFile_Click"
-                            Margin="0,12,0,0" Padding="20,8" Background="{DynamicResource MesTechPrimary}" Foreground="White"
+                            Margin="0,12,0,0" Padding="20,8" Background="#2855AC" Foreground="White"
                             BorderThickness="0" Cursor="Hand" FontSize="13"/>
                 </StackPanel>
             </Border>
@@ -68,16 +68,16 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="TxtProgressLabel" Text="Yukleniyor..." FontSize="12" Foreground="#6C757D"/>
-                    <TextBlock x:Name="TxtProgressPercent" Grid.Column="1" Text="0%" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MesTechPrimary}"/>
+                    <TextBlock x:Name="TxtProgressPercent" Grid.Column="1" Text="0%" FontSize="12" FontWeight="SemiBold" Foreground="#2855AC"/>
                 </Grid>
                 <ProgressBar x:Name="UploadProgress" Value="0" Maximum="100" Height="8"
-                             Foreground="{DynamicResource MesTechPrimary}" Background="#E5E7EB"/>
+                             Foreground="#2855AC" Background="#E5E7EB"/>
             </StackPanel>
 
             <!-- Action Buttons -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,16">
                 <Button x:Name="BtnUpload" Content="Yukle" Click="BtnUpload_Click"
-                        IsEnabled="False" Padding="24,8" Background="{DynamicResource MesTechPrimary}" Foreground="White"
+                        IsEnabled="False" Padding="24,8" Background="#2855AC" Foreground="White"
                         BorderThickness="0" Cursor="Hand" FontSize="13" FontWeight="SemiBold"/>
             </StackPanel>
 
@@ -100,7 +100,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -118,7 +118,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#DC3545" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="15" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Tekrar Dene" Click="RetryButton_Click" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand"/>
             </StackPanel>
         </Border>
     </Grid>

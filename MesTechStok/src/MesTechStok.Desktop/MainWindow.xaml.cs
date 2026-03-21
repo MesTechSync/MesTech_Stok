@@ -2481,8 +2481,7 @@ namespace MesTechStok.Desktop
                 if (authService != null)
                 {
                     // TODO(v2): Resolve current username from session instead of hardcoded value
-                    var currentUsername = Environment.GetEnvironmentVariable("MESTECH_DEFAULT_USER")
-                        ?? throw new InvalidOperationException("MESTECH_DEFAULT_USER env var required. Set it before starting the application.");
+                    var currentUsername = Environment.GetEnvironmentVariable("MESTECH_DEFAULT_USER") ?? "admin";
                     var result = await authService.LoginAsync(currentUsername, enteredPassword);
                     if (result.IsSuccess)
                     {

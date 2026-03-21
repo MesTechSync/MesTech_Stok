@@ -590,7 +590,7 @@
       <!-- Loading Overlay -->
       <Border x:Name="LoadingOverlay" Grid.RowSpan="5" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-          <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
+          <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
           <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
         </StackPanel>
       </Border>

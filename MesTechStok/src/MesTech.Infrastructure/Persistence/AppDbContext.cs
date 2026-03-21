@@ -245,6 +245,12 @@ public class AppDbContext : DbContext
     public DbSet<FixedAsset> FixedAssets => Set<FixedAsset>();
     public DbSet<BaBsRecord> BaBsRecords => Set<BaBsRecord>();
 
+    // CRM — LOYALTY & CAMPAIGN
+    public DbSet<MesTech.Domain.Entities.Crm.LoyaltyProgram> LoyaltyPrograms => Set<MesTech.Domain.Entities.Crm.LoyaltyProgram>();
+    public DbSet<MesTech.Domain.Entities.Crm.LoyaltyTransaction> LoyaltyTransactions => Set<MesTech.Domain.Entities.Crm.LoyaltyTransaction>();
+    public DbSet<MesTech.Domain.Entities.Crm.Campaign> Campaigns => Set<MesTech.Domain.Entities.Crm.Campaign>();
+    public DbSet<MesTech.Domain.Entities.Crm.CampaignProduct> CampaignProducts => Set<MesTech.Domain.Entities.Crm.CampaignProduct>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

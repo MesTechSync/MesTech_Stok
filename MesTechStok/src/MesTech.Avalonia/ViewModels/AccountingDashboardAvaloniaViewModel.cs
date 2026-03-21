@@ -1,22 +1,20 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class AccountingDashboardAvaloniaViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
-    private static readonly CultureInfo TrCulture = new("tr-TR");
 
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
 
+    // KPI metrics
     [ObservableProperty] private string totalRevenue = "0,00 TL";
     [ObservableProperty] private string totalExpense = "0,00 TL";
     [ObservableProperty] private string netProfit = "0,00 TL";
@@ -38,56 +36,26 @@ public partial class AccountingDashboardAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            var now = DateTime.Now;
-            var summary = await _mediator.Send(
-                new GetMonthlySummaryQuery(now.Year, now.Month, Guid.Empty));
+            await Task.Delay(200); // Will be replaced with MediatR query
 
-            var revenue = summary.TotalSales;
-            var expense = summary.TotalExpenses + summary.TotalCommissions + summary.TotalShippingCost;
-            var profit = revenue - expense;
-
-            TotalRevenue = revenue.ToString("N2", TrCulture) + " TL";
-            TotalExpense = expense.ToString("N2", TrCulture) + " TL";
-            NetProfit = profit.ToString("N2", TrCulture) + " TL";
-            Balance = (revenue - summary.TotalExpenses).ToString("N2", TrCulture) + " TL";
-            LastUpdated = now.ToString("HH:mm:ss");
+            // Sample data — will be replaced by real CQRS query
+            TotalRevenue = "125.480,00 TL";
+            TotalExpense = "87.320,00 TL";
+            NetProfit = "38.160,00 TL";
+            Balance = "52.740,00 TL";
+            LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
             RecentTransactions.Clear();
-            foreach (var p in summary.SalesByPlatform)
+            var items = new List<AccountingTransactionDto>
             {
-                RecentTransactions.Add(new AccountingTransactionDto
-                {
-                    Date = now.ToString("dd.MM.yyyy"),
-                    Description = $"{p.Platform} satis hasilati",
-                    Category = "Satis",
-                    Type = "Gelir",
-                    AmountFormatted = $"+{p.Sales.ToString("N2", TrCulture)} TL"
-                });
-            }
-
-            if (summary.TotalShippingCost > 0)
-            {
-                RecentTransactions.Add(new AccountingTransactionDto
-                {
-                    Date = now.ToString("dd.MM.yyyy"),
-                    Description = "Toplam kargo gideri",
-                    Category = "Kargo",
-                    Type = "Gider",
-                    AmountFormatted = $"-{summary.TotalShippingCost.ToString("N2", TrCulture)} TL"
-                });
-            }
-
-            if (summary.TotalCommissions > 0)
-            {
-                RecentTransactions.Add(new AccountingTransactionDto
-                {
-                    Date = now.ToString("dd.MM.yyyy"),
-                    Description = "Toplam platform komisyonu",
-                    Category = "Komisyon",
-                    Type = "Gider",
-                    AmountFormatted = $"-{summary.TotalCommissions.ToString("N2", TrCulture)} TL"
-                });
-            }
+                new() { Date = "19.03.2026", Description = "Trendyol satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+4.520,00 TL" },
+                new() { Date = "18.03.2026", Description = "Kargo gideri - Aras", Category = "Kargo", Type = "Gider", AmountFormatted = "-380,00 TL" },
+                new() { Date = "18.03.2026", Description = "Hepsiburada satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+2.180,00 TL" },
+                new() { Date = "17.03.2026", Description = "Ofis kirasi", Category = "Genel Gider", Type = "Gider", AmountFormatted = "-6.500,00 TL" },
+                new() { Date = "17.03.2026", Description = "N11 satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+1.240,00 TL" },
+            };
+            foreach (var item in items)
+                RecentTransactions.Add(item);
 
             IsEmpty = RecentTransactions.Count == 0;
         }

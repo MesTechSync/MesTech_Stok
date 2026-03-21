@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
 
         <!-- ── Başlık ── -->
-        <Border Grid.Row="0" Background="{DynamicResource MesTechPrimary}" Padding="16,10">
+        <Border Grid.Row="0" Background="#2855AC" Padding="16,10">
             <TextBlock Text="Dropshipping İhracat" Foreground="White"
                        FontSize="15" FontWeight="SemiBold"/>
         </Border>
@@ -41,13 +41,13 @@
                 <!-- Adım 1 -->
                 <Border x:Name="Step1Indicator" CornerRadius="14"
                         Width="28" Height="28"
-                        Background="{DynamicResource MesTechPrimary}">
+                        Background="#2855AC">
                     <TextBlock Text="1" Foreground="White" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock x:Name="Step1Label" Text=" Ürün Seçimi "
                            VerticalAlignment="Center" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesTechPrimary}"/>
+                           Foreground="#2855AC"/>
                 <Rectangle Width="60" Height="2" Fill="#e2e8f0" VerticalAlignment="Center" Margin="4,0"/>
 
                 <!-- Adım 2 -->
@@ -299,7 +299,7 @@
                         <Button x:Name="BtnSendToPlatform"
                                 Content="Platforma Gönder"
                                 Style="{StaticResource MaterialDesignRaisedButton}"
-                                Background="{DynamicResource MesTechPrimary}" Foreground="White"
+                                Background="#2855AC" Foreground="White"
                                 HorizontalAlignment="Left" Margin="0,0,0,8"
                                 Click="BtnSendToPlatform_Click"/>
 
@@ -332,16 +332,16 @@
                                 <DockPanel Margin="0,0,0,4">
                                     <TextBlock x:Name="TxtProgressMsg"
                                                FontWeight="SemiBold"
-                                               Foreground="{DynamicResource MesTechPrimary}"/>
+                                               Foreground="#2855AC"/>
                                     <TextBlock x:Name="TxtProgressPct"
                                                DockPanel.Dock="Right"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource MesTechPrimary}"/>
+                                               Foreground="#2855AC"/>
                                 </DockPanel>
                                 <ProgressBar x:Name="ExportProgress" Value="0" Maximum="100"
                                              Height="8"
                                              Style="{StaticResource MaterialDesignLinearProgressBar}"
-                                             Foreground="{DynamicResource MesTechPrimary}"/>
+                                             Foreground="#2855AC"/>
                                 <TextBlock x:Name="TxtProgressDetail"
                                            FontSize="11" Foreground="#64748b"
                                            Margin="0,4,0,0"/>
@@ -355,7 +355,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -374,7 +374,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
-                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
             </StackPanel>
         </Border>
 
@@ -389,7 +389,7 @@
                         Content="Devam &#x2192;"
                         DockPanel.Dock="Right"
                         Style="{StaticResource MaterialDesignRaisedButton}"
-                        Background="{DynamicResource MesTechPrimary}" Foreground="White"
+                        Background="#2855AC" Foreground="White"
                         Click="BtnNext_Click"/>
             </DockPanel>
         </Border>

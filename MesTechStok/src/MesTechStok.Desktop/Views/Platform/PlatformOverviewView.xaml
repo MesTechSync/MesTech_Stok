@@ -106,7 +106,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -125,7 +125,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
-                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
             </StackPanel>
         </Border>
     </Grid>
