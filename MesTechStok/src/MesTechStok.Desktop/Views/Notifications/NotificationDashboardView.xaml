@@ -18,7 +18,7 @@
             </Setter>
         </Style>
         <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Background" Value="#2855AC"/>
+            <Setter Property="Background" Value="{DynamicResource MesTechPrimary}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,8"/>
@@ -42,8 +42,8 @@
         </Style>
         <Style x:Key="SmallBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2855AC"/>
-            <Setter Property="BorderBrush" Value="#2855AC"/>
+            <Setter Property="Foreground" Value="{DynamicResource MesTechPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MesTechPrimary}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="FontSize" Value="11"/>
@@ -118,9 +118,9 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Style="{StaticResource StatCard}">
                         <StackPanel HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="BellOutline" Width="24" Height="24" Foreground="#2855AC" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                            <materialDesign:PackIcon Kind="BellOutline" Width="24" Height="24" Foreground="{DynamicResource MesTechPrimary}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                             <TextBlock Text="Toplam Bildirim" FontSize="11" Foreground="#6C757D" HorizontalAlignment="Center"/>
-                            <TextBlock x:Name="TotalCountText" Text="0" FontSize="18" FontWeight="Bold" Foreground="#2855AC" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TotalCountText" Text="0" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource MesTechPrimary}" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource StatCard}">
@@ -243,7 +243,7 @@
             <!-- Loading Overlay -->
             <Border x:Name="LoadingOverlay" Grid.RowSpan="4" Background="#80FFFFFF" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
                     <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                 </StackPanel>
             </Border>

@@ -391,12 +391,14 @@ public class AppDbContext : DbContext
         await SaveChangesAsync();
 
         // Create Admin User
+        var adminUsername = Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER") ?? "admin";
+        var adminEmail = Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL") ?? "admin@mestech.local";
         var adminUser = new User
         {
-            Username = "admin",
-            Email = "admin@mestech.com",
+            Username = adminUsername,
+            Email = adminEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(
-                Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026"),
+                Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? Guid.NewGuid().ToString()),
             FirstName = "System",
             LastName = "Administrator",
             IsActive = true,

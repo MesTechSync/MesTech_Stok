@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Başlık Bar -->
-        <Border Grid.Row="0" Background="#2855AC" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesTechPrimary}" Padding="20,14">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -29,7 +29,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Lead" Command="{Binding CreateLeadCommand}"
-                        Background="White" Foreground="#2855AC" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesTechPrimary}" FontWeight="SemiBold"
                         Padding="16,8" BorderThickness="0"
                         Style="{StaticResource MaterialDesignRaisedButton}"/>
             </Grid>
@@ -77,7 +77,7 @@
                 <DataGridTemplateColumn Header="Durum" Width="130">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="10" Padding="8,3" Background="#2855AC">
+                            <Border CornerRadius="10" Padding="8,3" Background="{DynamicResource MesTechPrimary}">
                                 <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold"
                                            Foreground="White" HorizontalAlignment="Center"/>
                             </Border>
@@ -105,7 +105,7 @@
         <!-- Loading Overlay -->
         <Border x:Name="LoadingOverlay" Grid.RowSpan="3" Background="#80FFFFFF" Visibility="Collapsed" Panel.ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#2855AC"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="{DynamicResource MesTechPrimary}"/>
                 <TextBlock Text="Yukleniyor..." FontSize="13" Foreground="#6C757D" HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
@@ -124,7 +124,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="#F44336" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ErrorMessage" Text="Bir hata olustu" FontSize="14" Foreground="#F44336" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="400"/>
-                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="#2855AC" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
+                <Button x:Name="RetryButton" Content="Tekrar Dene" Margin="0,12,0,0" Padding="16,8" Background="{DynamicResource MesTechPrimary}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="RetryButton_Click"/>
             </StackPanel>
         </Border>
     </Grid>
