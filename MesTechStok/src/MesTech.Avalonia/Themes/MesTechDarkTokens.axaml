@@ -15,4 +15,30 @@
     <Color x:Key="MesSeparator">#38383A</Color>
     <Color x:Key="MesSeparatorOpaque">#545456</Color>
 
+    <!-- ═══ UI PALETTE (Dark Override) ═══ -->
+    <Color x:Key="MesSlateGray">#98989D</Color>
+    <Color x:Key="MesPrimaryBlue">#0A84FF</Color>
+    <Color x:Key="MesDarkSlate">#E5E5EA</Color>
+    <Color x:Key="MesBorderLight">#38383A</Color>
+    <Color x:Key="MesMutedGray">#636366</Color>
+    <Color x:Key="MesBgPage">#1C1C1E</Color>
+    <Color x:Key="MesBorderMedium">#48484A</Color>
+    <Color x:Key="MesDanger">#FF453A</Color>
+    <Color x:Key="MesGreen">#30D158</Color>
+    <Color x:Key="MesTextMuted">#98989D</Color>
+    <Color x:Key="MesCoolGray">#8E8E93</Color>
+    <Color x:Key="MesBgSurface">#2C2C2E</Color>
+    <Color x:Key="MesTextSlate">#AEAEB2</Color>
+    <Color x:Key="MesRedAlert">#FF453A</Color>
+    <Color x:Key="MesEmerald">#30D158</Color>
+    <Color x:Key="MesBgMist">#2C2C2E</Color>
+    <Color x:Key="MesAmber">#FFD60A</Color>
+    <Color x:Key="MesBorderSoft">#48484A</Color>
+    <Color x:Key="MesGreenMaterial">#30D158</Color>
+    <Color x:Key="MesTeal">#64D2FF</Color>
+    <Color x:Key="MesBgDangerLight">#3A2020</Color>
+    <Color x:Key="MesRedBright">#FF6961</Color>
+    <Color x:Key="MesPurple">#BF5AF2</Color>
+    <Color x:Key="MesRedClassic">#FF453A</Color>
+
 </ResourceDictionary>

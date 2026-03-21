@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.AuditLogAvaloniaView"
              x:DataType="vm:AuditLogAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Denetim Kayitlari — İ-11 Görev 4C -->
     <!-- Filter bar, DataGrid, CSV export, detail panel -->
@@ -161,7 +162,7 @@
                                        Foreground="{DynamicResource MesGreen}" />
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12,8">
                                 <TextBlock Text="{Binding NewValues}" FontSize="13"
-                                           Foreground="#166534" TextWrapping="Wrap" />
+                                           Foreground="{DynamicResource MesGreen}" TextWrapping="Wrap" />
                             </Border>
                         </StackPanel>
                     </StackPanel>
@@ -184,7 +185,7 @@
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F5F7FA"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -198,7 +199,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F5F7FA"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

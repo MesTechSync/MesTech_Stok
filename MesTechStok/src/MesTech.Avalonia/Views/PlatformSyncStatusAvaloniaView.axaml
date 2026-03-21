@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.PlatformSyncStatusAvaloniaView"
              x:DataType="vm:PlatformSyncStatusAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Platform Senkronizasyon Durumu — platform bazli sync + saglik gostergesi -->
 

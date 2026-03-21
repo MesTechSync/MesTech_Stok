@@ -3,11 +3,12 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.KomisyonAvaloniaView"
              x:DataType="vm:KomisyonAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#f27a1a" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesAmber}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Komisyon Yonetimi" Foreground="White"
@@ -23,7 +24,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#f27a1a" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -34,9 +35,9 @@
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Trendyol" FontSize="12" Foreground="#f27a1a" FontWeight="SemiBold" />
+                        <TextBlock Text="Trendyol" FontSize="12" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding TrendyolAvgRate}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#f27a1a" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"

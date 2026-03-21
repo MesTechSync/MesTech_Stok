@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.DropshipProfitAvaloniaView"
              x:DataType="vm:DropshipProfitAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Dropshipping Karlilik — urun bazli kar analizi + tarih filtre + ozet -->
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.BackupAvaloniaView"
              x:DataType="vm:BackupAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Yedekleme Yonetimi — İ-11 Görev 4D -->
     <!-- Last backup info, manual backup, history, restore test -->
@@ -39,7 +40,7 @@
                             <ProgressBar IsIndeterminate="True" Width="120" Height="4"
                                          VerticalAlignment="Center" />
                             <TextBlock Text="{Binding BackupMessage}" FontSize="14"
-                                       Foreground="#9A3412" VerticalAlignment="Center" />
+                                       Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                         </StackPanel>
                         <ProgressBar Value="{Binding BackupProgress}" Maximum="100"
                                      Height="6" CornerRadius="3" />
@@ -119,7 +120,7 @@
 
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
                                 <TextBlock Text="Otomatik dogrulama her gece 04:00'te calisir"
-                                           FontSize="12" Foreground="#166534" />
+                                           FontSize="12" Foreground="{DynamicResource MesGreen}" />
                             </Border>
                         </StackPanel>
                     </Border>

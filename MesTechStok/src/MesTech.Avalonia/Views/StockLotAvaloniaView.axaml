@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockLotAvaloniaView"
              x:DataType="vm:StockLotAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- EMR-06 Gorev 4A: Lot Ekleme — urun lot kaydi formu + son lotlar tablosu -->
 

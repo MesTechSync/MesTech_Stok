@@ -3,6 +3,7 @@
              x:Class="MesTech.Avalonia.Views.BudgetAvaloniaView"
              x:DataType="vm:BudgetAvaloniaViewModel"
              xmlns:vm="clr-namespace:MesTech.Avalonia.ViewModels">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
   <Grid RowDefinitions="Auto,Auto,Auto,*">
 

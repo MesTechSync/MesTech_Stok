@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.InventoryAvaloniaView"
              x:DataType="vm:InventoryAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- EMR-06 Gorev 4E: Envanter — 4 seviye stok badge + depo filtre + KPI kartlari + sayfalama -->
 
@@ -53,7 +54,7 @@
                 <!-- Stok Degeri -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="160">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Stok Degeri" FontSize="11" Foreground="#22C55E" />
+                        <TextBlock Text="Stok Degeri" FontSize="11" Foreground="{DynamicResource MesEmerald}" />
                         <TextBlock Text="{Binding KpiStockValue, StringFormat='{}{0:N0} TL'}"
                                    FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>

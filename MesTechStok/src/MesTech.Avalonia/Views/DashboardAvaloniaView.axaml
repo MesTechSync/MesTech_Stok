@@ -4,6 +4,7 @@
              xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Premium Dashboard — 6 KPI + Tables + Platform Health + AI Insight -->
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.CargoAvaloniaView"
              x:DataType="vm:CargoAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- M1 Avalonia canlandirma — Kargo Takip -->
     <!-- DataGrid: Takip No, Firma, Tarih, Durum, Alici. 10 demo cargo. Cargo company filter. -->

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockUpdateAvaloniaView"
              x:DataType="vm:StockUpdateAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- M1 Avalonia canlandirma — Stok Guncelleme -->
     <!-- DataGrid: SKU, Ad, Mevcut Stok, Yeni Stok, Platform. 10 demo items. Bulk update button. -->

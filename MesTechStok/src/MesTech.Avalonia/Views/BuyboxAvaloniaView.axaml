@@ -31,9 +31,9 @@
 
             <!-- Summary Cards -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
-                <Border Background="#F0FFF4" CornerRadius="8" Padding="16,12" MinWidth="160">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Kazanılan" FontSize="12" Foreground="#22C55E" FontWeight="SemiBold" />
+                        <TextBlock Text="Kazanılan" FontSize="12" Foreground="{DynamicResource MesEmerald}" FontWeight="SemiBold" />
                         <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
@@ -53,7 +53,7 @@
 
             <!-- DataGrid -->
             <Border Grid.Row="1" Background="White" CornerRadius="8"
-                    BorderBrush="#E5E7EB" BorderThickness="1" Padding="0">
+                    BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1" Padding="0">
             <Grid>
                 <DataGrid ItemsSource="{Binding Items}"
                           AutoGenerateColumns="False"

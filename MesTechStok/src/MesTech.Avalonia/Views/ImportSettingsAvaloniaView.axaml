@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.ImportSettingsAvaloniaView"
              x:DataType="vm:ImportSettingsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Icerik Aktarma Ayarlari — kolon eslestirme sablon yonetimi -->
 

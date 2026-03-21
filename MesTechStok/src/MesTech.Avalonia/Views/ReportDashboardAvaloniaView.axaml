@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.ReportDashboardAvaloniaView"
              x:DataType="vm:ReportDashboardAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Rapor Paneli — İ-11 Görev 4B -->
     <!-- Quick reports, parameters, scheduled & recent reports -->
@@ -35,7 +36,7 @@
                             <ProgressBar IsIndeterminate="True" Width="120" Height="4"
                                          VerticalAlignment="Center" />
                             <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
-                                       Foreground="#9A3412" VerticalAlignment="Center" />
+                                       Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                         </StackPanel>
                         <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
                                      Height="6" CornerRadius="3" />

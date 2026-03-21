@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.BulkShipmentAvaloniaView"
              x:DataType="vm:BulkShipmentAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Toplu Kargo Gonderim — I-05 -->
 
@@ -88,7 +89,7 @@
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
-                    <TextBlock FontSize="13" Foreground="#F44336">
+                    <TextBlock FontSize="13" Foreground="{DynamicResource MesRedClassic}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Hata: {0}">
                                 <Binding Path="FailCount" />

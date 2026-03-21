@@ -89,7 +89,7 @@
                 </Border>
 
                 <!-- No PDF state -->
-                <Border Background="#FFF3E0"
+                <Border Background="{DynamicResource MesBgSurface}"
                         CornerRadius="{StaticResource CornerRadiusLarge}"
                         Padding="20" BorderBrush="{StaticResource WarningOrangeBrush}" BorderThickness="1"
                         IsVisible="{Binding !HasPdf}">

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.NotificationSettingsAvaloniaView"
              x:DataType="vm:NotificationSettingsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Bildirim Ayarlari — İ-11 Görev 4A -->
     <!-- Channels, category matrix, quiet hours, digest mode -->

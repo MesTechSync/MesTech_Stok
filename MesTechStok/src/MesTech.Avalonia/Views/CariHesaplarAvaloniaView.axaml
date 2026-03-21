@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.CariHesaplarAvaloniaView"
              x:DataType="vm:CariHesaplarAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Cari Hesaplar — customer/supplier accounts with balance summary -->
 
@@ -66,7 +67,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
-                <Border Grid.Column="1" Background="#DBEAFE" CornerRadius="8" Padding="14,8" Margin="8,0">
+                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Toplam Borc" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
@@ -84,7 +85,7 @@
                     <StackPanel>
                         <TextBlock Text="Net Bakiye" FontSize="11" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"
-                                   FontSize="15" FontWeight="Bold" Foreground="#B45309" />
+                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
                 </Border>
             </Grid>

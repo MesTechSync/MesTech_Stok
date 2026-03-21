@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StoreSettingsAvaloniaView"
              x:DataType="vm:StoreSettingsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Magaza Ayarlari — kimlik + sync araligi + webhook + oto-sync -->
 

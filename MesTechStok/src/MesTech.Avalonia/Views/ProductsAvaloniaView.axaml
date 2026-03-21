@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Avalonia Products — DataGrid with SKU, Ad, Fiyat, Stok, Platform, Durum -->
     <!-- GOREV 4: Smart Search + GOREV 5: Grid/List Toggle -->

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.DropshipOrdersAvaloniaView"
              x:DataType="vm:DropshipOrdersAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Dropshipping Siparisler — siparis DataGrid + durum filtre + tedarikci iletme -->
 

@@ -93,7 +93,7 @@
 
       <!-- Lockout panel (brute-force kilitleme) -->
       <Border x:Name="LockoutPanel"
-              Background="#FFF3E0"
+              Background="{DynamicResource MesBgSurface}"
               CornerRadius="{StaticResource CornerRadiusLarge}"
               Padding="12,8"
               IsVisible="False">

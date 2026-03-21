@@ -98,12 +98,12 @@
                             HorizontalAlignment="Center" />
 
                     <!-- Selected File Info -->
-                    <Border Background="#F0FFF4" CornerRadius="6" Padding="16,10"
+                    <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="16,10"
                             IsVisible="{Binding HasFile}" HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="12">
-                            <TextBlock Text="Dosya:" FontWeight="SemiBold" Foreground="#166534" VerticalAlignment="Center" />
+                            <TextBlock Text="Dosya:" FontWeight="SemiBold" Foreground="{DynamicResource MesGreen}" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding SelectedFileName}" Foreground="{DynamicResource MesGreen}" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding FileSizeText}" Foreground="#22C55E" VerticalAlignment="Center" FontSize="12" />
+                            <TextBlock Text="{Binding FileSizeText}" Foreground="{DynamicResource MesEmerald}" VerticalAlignment="Center" FontSize="12" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -116,7 +116,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <TextBlock Text="On Izleme (ilk 10 satir)" FontSize="16" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
-                        <Border Background="#DBEAFE" CornerRadius="10" Padding="10,4">
+                        <Border Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="10,4">
                             <TextBlock Text="{Binding TotalRowCount, StringFormat='{}{0} satir'}"
                                        FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </Border>
@@ -206,11 +206,11 @@
                     </StackPanel>
 
                     <!-- Result Summary -->
-                    <Border IsVisible="{Binding ImportCompleted}" Background="#F0FFF4"
+                    <Border IsVisible="{Binding ImportCompleted}" Background="{DynamicResource MesBgSurface}"
                             CornerRadius="8" Padding="24">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Aktarma Tamamlandi" FontSize="20" FontWeight="Bold"
-                                       Foreground="#166534" HorizontalAlignment="Center" />
+                                       Foreground="{DynamicResource MesGreen}" HorizontalAlignment="Center" />
                             <Grid ColumnDefinitions="*,*,*" HorizontalAlignment="Center">
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding SuccessCount}" FontSize="24" FontWeight="Bold"

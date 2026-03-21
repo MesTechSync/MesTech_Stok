@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockAlertAvaloniaView"
              x:DataType="vm:StockAlertAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- I-06 Gorev 3: Kritik Stok Alarm Paneli — 3 seviye renk kodlu + aksiyon butonlari -->
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockMovementAvaloniaView"
              x:DataType="vm:StockMovementAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Toplu Stok Guncelleme — bulk stock update with editable new-stock column -->
 
@@ -36,7 +37,7 @@
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="10,6">
                     <TextBlock Text="{Binding ChangedCount, StringFormat='{}{0} degisiklik'}"
-                               FontSize="13" Foreground="#B45309" FontWeight="SemiBold" />
+                               FontSize="13" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />
                 </Border>
                 <TextBlock Text="{Binding UpdateStatus}"
                            FontSize="13" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"

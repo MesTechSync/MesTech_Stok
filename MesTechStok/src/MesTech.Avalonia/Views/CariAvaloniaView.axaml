@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.CariAvaloniaView"
              x:DataType="vm:CariAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- M1 Avalonia canlandirma — Cari Hesaplar -->
     <!-- DataGrid: Ad, Tip (Musteri/Tedarikci), Borc, Alacak, Bakiye. 10 demo entries. Type filter. -->

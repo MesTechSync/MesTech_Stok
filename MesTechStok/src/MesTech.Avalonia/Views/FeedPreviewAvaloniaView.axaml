@@ -50,7 +50,7 @@
                     <Border Background="White" CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="2">
                             <TextBlock Text="Hata" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding ErrorCount}" FontSize="20" FontWeight="Bold" Foreground="#F44336" />
+                            <TextBlock Text="{Binding ErrorCount}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -83,7 +83,7 @@
             </Border>
 
             <!-- Validation Errors -->
-            <Border Grid.Row="2" Background="#FFF3E0" CornerRadius="8" Padding="12" Margin="0,12,0,0"
+            <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12" Margin="0,12,0,0"
                     IsVisible="{Binding ErrorCount}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Doğrulama Uyarıları" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" />

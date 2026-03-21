@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.CategoryAvaloniaView"
              x:DataType="vm:CategoryAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Avalonia port — Kategoriler (Categories) -->
     <!-- DataGrid: Kategori Adi, Ust Kategori, Platform, Urun Sayisi -->

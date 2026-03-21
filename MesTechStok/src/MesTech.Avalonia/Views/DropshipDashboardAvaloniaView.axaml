@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.DropshipDashboardAvaloniaView"
              x:DataType="vm:DropshipDashboardAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Dropshipping Dashboard — KPI + tedarikci performans + karli urunler + oto siparis -->
 

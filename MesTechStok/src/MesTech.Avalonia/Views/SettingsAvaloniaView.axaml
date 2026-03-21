@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.SettingsAvaloniaView"
              x:DataType="vm:SettingsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Avalonia port — Ayarlar (Settings) -->
     <!-- Tab-like sections: API Ayarlari, Bildirimler, Tema -->

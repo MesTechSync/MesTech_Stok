@@ -79,7 +79,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:AttributeValueDto">
-                                                <Border Background="#DBEAFE" CornerRadius="12" Padding="10,4" Margin="4,2">
+                                                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="12" Padding="10,4" Margin="4,2">
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                                         <TextBlock Text="{Binding Value}" FontSize="12"
                                                                    Foreground="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />

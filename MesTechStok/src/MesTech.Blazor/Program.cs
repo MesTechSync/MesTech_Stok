@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.ResponseCompression;
 using MesTech.Blazor.Components;
 using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
@@ -61,6 +62,14 @@ builder.Services.AddCascadingAuthenticationState();
 // ── Onboarding ──
 builder.Services.AddScoped<OnboardingService>();
 
+// ── Response Compression (Blazor Server JS bundles + SignalR) ──
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" }); // SignalR WebSocket frames
+});
+
 // ── Remove hosted services that conflict with Blazor (HealthCheckEndpoint, MesaStatusEndpoint, RealtimeDashboard) ──
 // Blazor has its own HTTP pipeline; standalone TCP listeners on 3100/3101/3102 are WPF-only.
 var hostedServicesToRemove = builder.Services
@@ -79,6 +88,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseResponseCompression();
 app.UseStaticFiles();
 app.UseRequestLocalization();
 app.UseAntiforgery();

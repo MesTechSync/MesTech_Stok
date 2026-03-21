@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockTimelineAvaloniaView"
              x:DataType="vm:StockTimelineAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- I-06 Gorev 5: Stok Hareket Gecmisi Timeline — 5 tip x renk kodu -->
 

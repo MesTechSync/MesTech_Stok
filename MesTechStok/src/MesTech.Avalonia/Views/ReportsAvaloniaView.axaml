@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.ReportsAvaloniaView"
              x:DataType="vm:ReportsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Raporlar — Dalga 14/15 -->
 
@@ -56,7 +57,7 @@
                         <ProgressBar IsIndeterminate="True" Width="120" Height="4"
                                      VerticalAlignment="Center" />
                         <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
-                                   Foreground="#9A3412" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.PlatformSyncAvaloniaView"
              x:DataType="vm:PlatformSyncAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- M1 Avalonia canlandirma — Platform Senkronizasyon -->
     <!-- DataGrid: Platform, Son Sync, Durum, Urun Sayisi, Siparis Sayisi. 10 platforms. Sync button per row. -->

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockTransferAvaloniaView"
              x:DataType="vm:StockTransferAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- EMR-06 Gorev 4A: Depolar Arasi Transfer — kaynak/hedef depo urun transferi -->
 

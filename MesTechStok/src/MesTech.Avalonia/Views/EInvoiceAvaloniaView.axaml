@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.EInvoiceAvaloniaView"
              x:DataType="vm:EInvoiceAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- M1 Avalonia canlandirma — E-Fatura -->
     <!-- DataGrid: No, Tarih, Alici, Tutar, Durum. 8 demo e-invoices. Create button. -->

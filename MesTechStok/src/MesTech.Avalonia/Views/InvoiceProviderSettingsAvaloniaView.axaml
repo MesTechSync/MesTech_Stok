@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.InvoiceProviderSettingsAvaloniaView"
              x:DataType="vm:InvoiceProviderSettingsAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- E-Fatura Provider Ayarlari — 9 kart -->
 
