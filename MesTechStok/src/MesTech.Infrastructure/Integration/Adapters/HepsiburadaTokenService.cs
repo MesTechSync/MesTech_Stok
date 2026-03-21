@@ -1,8 +1,11 @@
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -24,6 +27,7 @@ public sealed class HepsiburadaTokenService
     private const string CacheKey = "Hepsiburada:OAuthToken";
     private static readonly TimeSpan TokenTtl = TimeSpan.FromMinutes(55);
     private static readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     public HepsiburadaTokenService(
         HttpClient httpClient,
@@ -38,6 +42,29 @@ public sealed class HepsiburadaTokenService
         _username = configuration["Hepsiburada:Username"] ?? string.Empty;
         _password = configuration["Hepsiburada:Password"] ?? string.Empty;
         _authUrl = configuration["Hepsiburada:AuthUrl"] ?? "https://auth.hepsiburada.com/oauth/token";
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 2,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .HandleResult(r => r.StatusCode == HttpStatusCode.TooManyRequests)
+                    .HandleResult(r => r.StatusCode == HttpStatusCode.RequestTimeout)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "[HepsiburadaTokenService] Token retry {Attempt} after {Delay}ms (status: {Status})",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds,
+                        args.Outcome.Result?.StatusCode);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     /// <summary>
@@ -70,7 +97,11 @@ public sealed class HepsiburadaTokenService
             };
 
             var content = new FormUrlEncodedContent(formData);
-            var response = await _httpClient.PostAsync(_authUrl, content, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(async token =>
+            {
+                var reqContent = new FormUrlEncodedContent(formData);
+                return await _httpClient.PostAsync(_authUrl, reqContent, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

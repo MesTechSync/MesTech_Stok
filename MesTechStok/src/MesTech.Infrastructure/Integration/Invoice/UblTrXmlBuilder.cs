@@ -12,6 +12,11 @@ public class UblTrXmlBuilder : IUblTrXmlBuilder
     private static readonly XNamespace Inv = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2";
     private static readonly CultureInfo Inv2 = CultureInfo.InvariantCulture;
 
+    // GİB UBL-TR 1.2.1 vergi tipi kodları
+    private const string TaxTypeCodeKdv = "0015";
+    private const string TaxTypeCodeKdvTevkifat = "9015";
+    private const string TaxTypeCodeStopaj = "0003";
+
     public Task<byte[]> BuildAsync(EInvoiceDocument doc, CancellationToken ct)
     {
         var invoice = new XElement(Inv + "Invoice",
@@ -85,7 +90,7 @@ public class UblTrXmlBuilder : IUblTrXmlBuilder
             .ToList();
 
         var subtotalElements = taxGroups.Select(g =>
-            BuildTaxSubtotal(g.TaxableAmount, g.TaxAmount, g.TaxPercent, currency, "KDV", "0015"));
+            BuildTaxSubtotal(g.TaxableAmount, g.TaxAmount, g.TaxPercent, currency, "KDV", TaxTypeCodeKdv));
 
         return new XElement(Cac + "TaxTotal",
             new XElement(Cbc + "TaxAmount",
@@ -130,12 +135,12 @@ public class UblTrXmlBuilder : IUblTrXmlBuilder
         decimal withholdingAmount,
         int withholdingPercent,
         string currency,
-        string taxTypeCode = "9015")
+        string taxTypeCode = TaxTypeCodeKdvTevkifat)
     {
         var taxSchemeName = taxTypeCode switch
         {
-            "9015" => "KDVTevkifat",
-            "0003" => "Stopaj",
+            TaxTypeCodeKdvTevkifat => "KDVTevkifat",
+            TaxTypeCodeStopaj => "Stopaj",
             _ => "Tevkifat"
         };
 
@@ -167,7 +172,7 @@ public class UblTrXmlBuilder : IUblTrXmlBuilder
                     line.TaxPercent,
                     currency,
                     "KDV",
-                    "0015")),
+                    TaxTypeCodeKdv)),
             new XElement(Cac + "Item",
                 new XElement(Cbc + "Name", line.Description)),
             new XElement(Cac + "Price",

@@ -35,6 +35,8 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
     private const string TurkeyMarketplaceId = "A33AVAJ2PDY3EV";
     private const string SpApiBaseUrl = "https://sellingpartnerapi-eu.amazon.com";
     private const string LwaEndpoint = "https://api.amazon.com/auth/o2/token";
+    private const string DefaultPostalCode = "34000";
+    private const string DefaultCountryCode = "TR";
 
     public AmazonFBAAdapter(
         HttpClient httpClient,
@@ -171,8 +173,8 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                     addressLine1 = "TBD",
                     city = "Istanbul",
                     stateOrProvinceCode = "Istanbul",
-                    postalCode = "34000",
-                    countryCode = "TR"
+                    postalCode = DefaultPostalCode,
+                    countryCode = DefaultCountryCode
                 },
                 destinationMarketplaces = new[] { TurkeyMarketplaceId },
                 items = request.Items.Select(i => new
