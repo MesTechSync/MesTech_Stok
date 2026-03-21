@@ -78,6 +78,7 @@
                             <TextBlock Text="Vardiya Plani" FontSize="15" FontWeight="SemiBold"
                                        Foreground="#1E293B" />
                         </Border>
+${INDENT}<Grid>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Schedules}"
                                   AutoGenerateColumns="False"
@@ -95,6 +96,7 @@
                                 <DataGridTextColumn Header="Vardiya" Binding="{Binding ShiftType}" Width="120" />
                             </DataGrid.Columns>
                         </DataGrid>
+<!-- Empty State -->                            <TextBlock Text="Kayıt bulunamadı"                                       HorizontalAlignment="Center"                                       VerticalAlignment="Center"                                       Margin="0,40"                                       Opacity="0.5"                                       FontSize="16"                                       IsVisible="{Binding !Schedules.Count}" />                        </Grid>
                     </Grid>
                 </Border>
 

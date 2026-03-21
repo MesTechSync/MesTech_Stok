@@ -73,6 +73,7 @@
                             <TextBlock Text="Zaman Kayitlari" FontSize="15" FontWeight="SemiBold"
                                        Foreground="#1E293B" />
                         </Border>
+${INDENT}<Grid>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding TimeEntries}"
                                   AutoGenerateColumns="False"
@@ -91,6 +92,7 @@
                                 <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="250" />
                             </DataGrid.Columns>
                         </DataGrid>
+<!-- Empty State -->                            <TextBlock Text="Kayıt bulunamadı"                                       HorizontalAlignment="Center"                                       VerticalAlignment="Center"                                       Margin="0,40"                                       Opacity="0.5"                                       FontSize="16"                                       IsVisible="{Binding !TimeEntries.Count}" />                        </Grid>
                     </Grid>
                 </Border>
 

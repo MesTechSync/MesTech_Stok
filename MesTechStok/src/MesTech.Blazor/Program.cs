@@ -7,6 +7,16 @@ using MesTech.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Development: skip DI validation (some repos not yet implemented)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Host.UseDefaultServiceProvider(options =>
+    {
+        options.ValidateScopes = false;
+        options.ValidateOnBuild = false;
+    });
+}
+
 // ── Blazor Server ──
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

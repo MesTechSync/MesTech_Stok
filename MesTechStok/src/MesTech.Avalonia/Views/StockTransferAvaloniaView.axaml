@@ -121,6 +121,7 @@
                         <TextBlock Text="Transfer Gecmisi" FontSize="15" FontWeight="SemiBold"
                                    Foreground="#1E293B" />
                     </Border>
+${INDENT}<Grid>
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding TransferHistory}"
                               AutoGenerateColumns="False"
@@ -138,6 +139,7 @@
                             <DataGridTextColumn Header="Tarih" Binding="{Binding Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" Width="140" />
                         </DataGrid.Columns>
                     </DataGrid>
+<!-- Empty State -->                        <TextBlock Text="Kayıt bulunamadı"                                   HorizontalAlignment="Center"                                   VerticalAlignment="Center"                                   Margin="0,40"                                   Opacity="0.5"                                   FontSize="16"                                   IsVisible="{Binding !TransferHistory.Count}" />                    </Grid>
                 </Grid>
             </Border>
         </Grid>

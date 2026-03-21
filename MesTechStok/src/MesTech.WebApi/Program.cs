@@ -15,6 +15,16 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Development: skip DI validation (some repos not yet implemented)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Host.UseDefaultServiceProvider(options =>
+    {
+        options.ValidateScopes = false;
+        options.ValidateOnBuild = false;
+    });
+}
+
 // Serilog structured logging — Console + Seq (Sprint 3)
 builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration)

@@ -54,6 +54,7 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
 
             <!-- Data Grid -->
+${INDENT}<Grid>
             <DataGrid ItemsSource="{Binding Projects}"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="True"
@@ -72,6 +73,7 @@
                     <DataGridTextColumn Header="Ilerleme" Binding="{Binding ProgressDisplay}" Width="90" />
                 </DataGrid.Columns>
             </DataGrid>
+<!-- Empty State -->                <TextBlock Text="Kayıt bulunamadı"                           HorizontalAlignment="Center"                           VerticalAlignment="Center"                           Margin="0,40"                           Opacity="0.5"                           FontSize="16"                           IsVisible="{Binding !Projects.Count}" />            </Grid>
         </Grid>
     </Grid>
 </UserControl>
