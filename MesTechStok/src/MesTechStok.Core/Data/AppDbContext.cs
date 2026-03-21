@@ -391,8 +391,10 @@ public class AppDbContext : DbContext
         await SaveChangesAsync();
 
         // Create Admin User
-        var adminUsername = Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER") ?? "admin";
-        var adminEmail = Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL") ?? "admin@mestech.local";
+        var adminUsername = Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER")
+            ?? throw new InvalidOperationException("MESTECH_ADMIN_USER environment variable is required. Set it before first run.");
+        var adminEmail = Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL")
+            ?? throw new InvalidOperationException("MESTECH_ADMIN_EMAIL environment variable is required. Set it before first run.");
         var adminUser = new User
         {
             Username = adminUsername,

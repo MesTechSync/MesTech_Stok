@@ -24,9 +24,11 @@ public class AuthService : IAuthService
 
     // Admin credentials from environment — no hardcoded values
     private static readonly string _adminUsername =
-        Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER") ?? "admin";
+        Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER")
+        ?? throw new InvalidOperationException("MESTECH_ADMIN_USER environment variable is required.");
     private static readonly string _adminEmail =
-        Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL") ?? "admin@mestech.local";
+        Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL")
+        ?? throw new InvalidOperationException("MESTECH_ADMIN_EMAIL environment variable is required.");
 
     // DB erişilemezse fallback hash — generated at startup, no hardcoded password
     private static readonly string _fallbackAdminHash =
