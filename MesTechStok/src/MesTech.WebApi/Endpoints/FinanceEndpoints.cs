@@ -1,6 +1,8 @@
 using MediatR;
 using MesTech.Application.Features.Finance.Commands.ApproveExpense;
 using MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
+using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
+using MesTech.Application.Features.Finance.Queries.GetCashFlow;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 
 namespace MesTech.WebApi.Endpoints;
@@ -24,6 +26,30 @@ public static class FinanceEndpoints
         })
         .WithName("GetProfitLoss")
         .WithSummary("Aylık kâr/zarar raporu");
+
+        // GET /api/v1/finance/cash-flow — aylık nakit akışı raporu
+        group.MapGet("/cash-flow", async (
+            Guid tenantId, int year, int month,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCashFlowQuery(tenantId, year, month), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCashFlow")
+        .WithSummary("Aylık nakit akışı raporu");
+
+        // GET /api/v1/finance/budget-summary — bütçe özet raporu
+        group.MapGet("/budget-summary", async (
+            Guid tenantId, int year, int month,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetBudgetSummaryQuery(tenantId, year, month), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBudgetSummary")
+        .WithSummary("Bütçe özet raporu");
 
         // POST /api/v1/finance/expenses/{id}/approve
         group.MapPost("/expenses/{id:guid}/approve", async (
