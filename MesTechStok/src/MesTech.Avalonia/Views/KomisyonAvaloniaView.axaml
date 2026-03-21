@@ -11,7 +11,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Komisyon Yonetimi" Foreground="White"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
@@ -82,7 +82,7 @@
         <!-- DataGrid -->
         <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
                 BorderBrush="#E0E6ED" BorderThickness="1">
-                <Grid>
+            <Grid>
             <DataGrid ItemsSource="{Binding Items}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
@@ -98,15 +98,15 @@
                     <DataGridTextColumn Header="Gecerlilik" Binding="{Binding ValidFrom}" Width="120" />
                 </DataGrid.Columns>
             </DataGrid>
-                    <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,40"
-                               Opacity="0.5"
-                               FontSize="16"
-                               IsVisible="{Binding !Items.Count}" />
-                </Grid>
+                <!-- Empty State -->
+                <TextBlock Text="Kayıt bulunamadı"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,40"
+                           Opacity="0.5"
+                           FontSize="16"
+                           IsVisible="{Binding !Items.Count}" />
+            </Grid>
         </Border>
 
         <!-- Loading Overlay -->

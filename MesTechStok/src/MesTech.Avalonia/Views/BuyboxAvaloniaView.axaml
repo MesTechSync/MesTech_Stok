@@ -13,7 +13,7 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="{Binding PageTitle}" Foreground="White"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding Items.Count, StringFormat='{}{0} ürün'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
@@ -54,7 +54,7 @@
             <!-- DataGrid -->
             <Border Grid.Row="1" Background="White" CornerRadius="8"
                     BorderBrush="#E5E7EB" BorderThickness="1" Padding="0">
-                <Grid>
+            <Grid>
                 <DataGrid ItemsSource="{Binding Items}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
@@ -80,15 +80,15 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                    <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,40"
-                               Opacity="0.5"
-                               FontSize="16"
-                               IsVisible="{Binding !Items.Count}" />
-                </Grid>
+                <!-- Empty State -->
+                <TextBlock Text="Kayıt bulunamadı"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,40"
+                           Opacity="0.5"
+                           FontSize="16"
+                           IsVisible="{Binding !Items.Count}" />
+            </Grid>
             </Border>
         </Grid>
 
