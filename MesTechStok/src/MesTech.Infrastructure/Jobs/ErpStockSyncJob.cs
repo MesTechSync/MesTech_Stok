@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces.Erp;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -7,6 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ERP stok sync job — her 15 dakikada calisir.
 /// IErpStockCapable implement eden tum ERP adapter'lardan stok seviyelerini ceker.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ErpStockSyncJob : ISyncJob
 {
     public string JobId => "erp-stock-sync";

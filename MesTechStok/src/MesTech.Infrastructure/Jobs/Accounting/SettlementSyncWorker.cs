@@ -2,6 +2,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -10,6 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Yapilandirilan platformlardan ISettlementCapableAdapter uzerinden settlement verisini alir.
 /// Her gun 03:30'da calisir.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class SettlementSyncWorker : IAccountingJob
 {
     public string JobId => "accounting-settlement-sync";

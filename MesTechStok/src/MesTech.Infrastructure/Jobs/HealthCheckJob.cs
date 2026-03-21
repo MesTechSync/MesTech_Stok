@@ -3,12 +3,14 @@ using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Caching;
 using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 1 dakikada tum platform API'lerinin saglik durumunu kontrol eder.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class HealthCheckJob : ISyncJob
 {
     public string JobId => "health-check";

@@ -2,12 +2,14 @@ using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Caching;
 using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Gunde 1 kez Trendyol kategori agacini ceker ve cache'e yazar.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class CategorySyncJob : ISyncJob
 {
     public string JobId => "category-sync";

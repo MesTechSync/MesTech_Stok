@@ -6,6 +6,7 @@ using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -17,6 +18,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 ///   0.70-0.94 → NeedsReview (inceleme gerektiren, MESA event publish)
 ///   &lt; 0.70 → skip (eslestirilemez)
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ReconciliationWorker : IAccountingJob
 {
     public string JobId => "accounting-reconciliation";

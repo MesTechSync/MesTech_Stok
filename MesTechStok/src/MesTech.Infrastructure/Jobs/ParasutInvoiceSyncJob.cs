@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -13,6 +14,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Max 10 fatura/çalışma (rate limit koruması).
 /// Feature flag: Parasut.InvoiceSyncEnabled
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ParasutInvoiceSyncJob
 {
     private readonly AppDbContext _db;

@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces.Erp;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -8,6 +9,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ERP'den urun fiyatlarini ceker ve MesTech'e gunceller.
 /// Simdilk log-only placeholder — real structure.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ErpPriceSyncJob : ISyncJob
 {
     public string JobId => "erp-price-sync";

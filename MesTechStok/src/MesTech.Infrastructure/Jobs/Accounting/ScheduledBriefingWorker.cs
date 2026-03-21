@@ -5,6 +5,7 @@ using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.AI.Accounting;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -15,6 +16,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// ay sonu yaklasiyorsa TaxPrepAgent ile KDV tahmini ekler,
 /// FinanceReportDailyEvent publish eder — MESA Bot Gateway WhatsApp/Telegram iletir.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ScheduledBriefingWorker : IAccountingJob
 {
     public string JobId => "accounting-scheduled-briefing";

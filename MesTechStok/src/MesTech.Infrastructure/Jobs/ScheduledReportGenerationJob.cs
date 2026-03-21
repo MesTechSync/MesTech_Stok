@@ -3,6 +3,7 @@ using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Jobs.Accounting;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -11,6 +12,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Yapilandi irilan rapor zamanlamalarini kontrol eder, rapor uretimini tetikler
 /// ve kullaniciya InApp bildirim olusturur.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class ScheduledReportGenerationJob : IAccountingJob
 {
     public string JobId { get; }

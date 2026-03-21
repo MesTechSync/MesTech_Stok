@@ -2,6 +2,7 @@ using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -11,6 +12,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// ayni zamanda recurring job olarak dun gelen siparisleri tarar.
 /// Her 15 dakikada bir calisir.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class CommissionCalculatorWorker : IAccountingJob
 {
     public string JobId => "accounting-commission-calculator";

@@ -3,6 +3,7 @@ using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -10,6 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Gunluk kar/zarar hesaplama worker.
 /// Her gun 23:59'da calisir ve ProfitReport entity'si olusturur.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class DailyProfitWorker : IAccountingJob
 {
     public string JobId => "accounting-daily-profit";

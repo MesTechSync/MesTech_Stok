@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 30 dakikada OpenCart ile cift yonlu stok sync yapar.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class OpenCartStockSyncJob : ISyncJob
 {
     public string JobId => "opencart-stock-sync";

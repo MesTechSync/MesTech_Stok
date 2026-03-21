@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -8,6 +9,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Retry araliklari: 1m, 5m, 30m (max 3 retry).
 /// Hangfire recurring job olarak calisir.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class WebhookRetryJob : ISyncJob
 {
     public string JobId => "webhook-retry";

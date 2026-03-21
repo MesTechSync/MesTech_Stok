@@ -4,6 +4,7 @@ using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.AI.Accounting;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -12,6 +13,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Onceki ayin vergi taslagini TaxPrepAgent uzerinden hesaplar ve
 /// RabbitMQ uzerinden bot bildirim icin publish eder.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class TaxPrepWorker : IAccountingJob
 {
     public string JobId => "accounting-tax-prep";

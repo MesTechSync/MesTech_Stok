@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 6 saatte Trendyol ile fiyat esitlemesi yapar.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class TrendyolPriceSyncJob : ISyncJob
 {
     public string JobId => "trendyol-price-sync";

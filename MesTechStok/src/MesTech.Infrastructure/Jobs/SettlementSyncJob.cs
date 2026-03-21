@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Gunde 1 kez Trendyol cari hesap ekstresini ceker.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class SettlementSyncJob : ISyncJob
 {
     public string JobId => "settlement-sync";

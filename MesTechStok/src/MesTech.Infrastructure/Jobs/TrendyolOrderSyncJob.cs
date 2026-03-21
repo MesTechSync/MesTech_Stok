@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 5 dakikada Trendyol'dan yeni siparisleri ceker.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class TrendyolOrderSyncJob : ISyncJob
 {
     public string JobId => "trendyol-order-sync";

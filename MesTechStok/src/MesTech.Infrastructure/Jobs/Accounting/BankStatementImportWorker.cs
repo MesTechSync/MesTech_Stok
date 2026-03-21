@@ -1,6 +1,7 @@
 using MesTech.Infrastructure.Banking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -9,6 +10,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Yapilandirilan dizindeki dosyalari tarar ve BankStatementImportService ile isler.
 /// Her gun 04:00'da calisir.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class BankStatementImportWorker : IAccountingJob
 {
     public string JobId => "accounting-bank-statement-import";

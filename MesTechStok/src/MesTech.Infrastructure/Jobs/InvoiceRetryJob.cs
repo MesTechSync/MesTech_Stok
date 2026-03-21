@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 10 dakikada basarisiz faturalari tekrar dener.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class InvoiceRetryJob : ISyncJob
 {
     public string JobId => "invoice-retry";

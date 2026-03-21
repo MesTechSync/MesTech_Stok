@@ -1,5 +1,6 @@
 using MesTech.Infrastructure.Email;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs.Accounting;
 
@@ -8,6 +9,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// IMAP ile muhasebe e-postalarini tarar, ekleri siniflandirir.
 /// MUH-03 DEV 4.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class EmailScanWorker : IAccountingJob
 {
     public string JobId => "accounting-email-scan";

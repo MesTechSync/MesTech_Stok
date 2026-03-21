@@ -1,11 +1,13 @@
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her 15 dakikada Trendyol iade bildirimlerini ceker.
 /// </summary>
+[AutomaticRetry(Attempts = 3)]
 public class TrendyolClaimSyncJob : ISyncJob
 {
     public string JobId => "trendyol-claim-sync";
