@@ -92,7 +92,7 @@
 
                         <!-- Remove selected -->
                         <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
-                                Background="#EF4444" Foreground="White" Padding="14,8"
+                                Background="{DynamicResource MesRedBright}" Foreground="White" Padding="14,8"
                                 CornerRadius="6" FontSize="12"
                                 HorizontalAlignment="Left"
                                 IsEnabled="{Binding SelectedTemplate, Converter={x:Static ObjectConverters.IsNotNull}}" />

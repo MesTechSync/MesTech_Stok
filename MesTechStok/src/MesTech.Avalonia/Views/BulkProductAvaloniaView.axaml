@@ -120,7 +120,7 @@
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <ProgressBar Minimum="0" Maximum="100"
                                                      Value="{Binding ImportProgress}" Height="8"
-                                                     Foreground="#4CAF50" Background="#E0E0E0" CornerRadius="4"
+                                                     Foreground="{DynamicResource MesGreenMaterial}" Background="#E0E0E0" CornerRadius="4"
                                                      IsVisible="{Binding IsImporting}" />
                                         <TextBlock Text="{Binding ImportStatusText}" FontSize="12"
                                                    Foreground="{DynamicResource MesSlateGray}" />
@@ -134,7 +134,7 @@
                                     <Button Grid.Column="2" Content="Import Baslat"
                                             Command="{Binding ImportCommand}"
                                             IsEnabled="{Binding CanImport}"
-                                            Background="#4CAF50" Foreground="White"
+                                            Background="{DynamicResource MesGreenMaterial}" Foreground="White"
                                             FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
                                 </Grid>
                             </StackPanel>

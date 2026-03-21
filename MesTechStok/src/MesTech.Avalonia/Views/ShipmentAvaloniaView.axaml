@@ -31,17 +31,17 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#059669" VerticalAlignment="Center" />
+                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesTeal}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding DeliveredCount, StringFormat='Teslim Edildi: {0}'}"
                                FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#2563EB" VerticalAlignment="Center" />
+                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding InTransitCount, StringFormat='Yolda: {0}'}"
                                FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#F59E0B" VerticalAlignment="Center" />
+                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding PreparingCount, StringFormat='Hazirlaniyor: {0}'}"
                                FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>

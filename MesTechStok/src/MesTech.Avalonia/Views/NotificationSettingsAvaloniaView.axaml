@@ -31,11 +31,11 @@
             <StackPanel Spacing="24" MaxWidth="720">
 
                 <!-- Save Success -->
-                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="#A7F3D0" BorderThickness="1">
                     <TextBlock Text="Bildirim ayarlari basariyla kaydedildi."
-                               Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Test Result -->
@@ -43,7 +43,7 @@
                         IsVisible="{Binding IsTestSent}"
                         BorderBrush="#93C5FD" BorderThickness="1">
                     <TextBlock Text="{Binding TestResult}"
-                               Foreground="#1D4ED8" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesPrimaryBlue}" FontSize="13" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Section 1: Bildirim Kanallari -->
@@ -68,7 +68,7 @@
                                           OnContent="" OffContent="" IsEnabled="False" />
                         </Grid>
 
-                        <Border Height="1" Background="#F1F5F9" />
+                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
 
                         <!-- Email Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
@@ -84,13 +84,13 @@
                         <!-- Email Address (shown when email enabled) -->
                         <StackPanel Spacing="6" IsVisible="{Binding IsEmailEnabled}" Margin="16,0,0,0">
                             <TextBlock Text="E-posta Adresi" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#374151" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding EmailAddress}"
                                      Watermark="ornek@sirket.com" AutomationProperties.Name="ornek@sirket.com"
                                      Padding="12,10" CornerRadius="8" FontSize="14" />
                         </StackPanel>
 
-                        <Border Height="1" Background="#F1F5F9" />
+                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
 
                         <!-- Telegram Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
@@ -103,7 +103,7 @@
                                           OnContent="" OffContent="" />
                         </Grid>
 
-                        <Border Height="1" Background="#F1F5F9" />
+                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
 
                         <!-- WhatsApp Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
@@ -163,7 +163,7 @@
                                             <CheckBox Grid.Column="4" IsChecked="{Binding WhatsApp}"
                                                       HorizontalAlignment="Center" />
                                         </Grid>
-                                        <Border Height="1" Background="#F1F5F9" />
+                                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -227,7 +227,7 @@
 
                         <StackPanel Orientation="Horizontal" Spacing="12"
                                     IsVisible="{Binding IsDailyDigestMode}">
-                            <TextBlock Text="Ozet gonderim saati:" FontSize="13" Foreground="#374151"
+                            <TextBlock Text="Ozet gonderim saati:" FontSize="13" Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
                             <TimePicker SelectedTime="{Binding DigestTime}" Width="140" />
                         </StackPanel>

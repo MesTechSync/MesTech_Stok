@@ -55,12 +55,12 @@
         </Border>
 
         <!-- Export Success Message -->
-        <Border Grid.Row="1" Background="#ECFDF5" CornerRadius="0" Padding="12,8"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" CornerRadius="0" Padding="12,8"
                 IsVisible="{Binding IsExported}"
                 BorderBrush="#A7F3D0" BorderThickness="0,0,0,1"
                 Margin="0,52,0,0">
             <TextBlock Text="{Binding ExportMessage}"
-                       Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
+                       Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
         </Border>
 
         <!-- Main Content: DataGrid + Detail Panel -->
@@ -149,7 +149,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Eski Deger" FontSize="12" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesRedAlert}" />
-                            <Border Background="#FEF2F2" CornerRadius="6" Padding="12,8">
+                            <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="6" Padding="12,8">
                                 <TextBlock Text="{Binding OldValues}" FontSize="13"
                                            Foreground="#991B1B" TextWrapping="Wrap" />
                             </Border>

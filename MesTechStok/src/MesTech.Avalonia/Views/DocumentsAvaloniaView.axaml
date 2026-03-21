@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#7C3AED" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Belge Yonetimi" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#7C3AED" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPurple}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -29,7 +29,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Belge Tipi" Width="140" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Belge Yukle" Background="#7C3AED" Foreground="White"
+                <Button Grid.Column="2" Content="+ Belge Yukle" Background="{DynamicResource MesPurple}" Foreground="White"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

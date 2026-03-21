@@ -27,7 +27,7 @@
                            Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,20" />
 
                 <!-- Error -->
-                <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
+                <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                         CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
@@ -59,7 +59,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="VIP Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding VipCustomers}" FontSize="28" FontWeight="Bold" Foreground="#F59E0B" />
+                            <TextBlock Text="{Binding VipCustomers}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                         </StackPanel>
                     </Border>
                     <!-- Pipeline Value -->
@@ -67,7 +67,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Pipeline Degeri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding PipelineValue}" FontSize="20" FontWeight="Bold" Foreground="#8B5CF6" />
+                            <TextBlock Text="{Binding PipelineValue}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesPurple}" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -119,7 +119,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CrmPipelineSummaryVm">
                                         <Border Margin="0,0,0,8" Padding="12" Background="{DynamicResource MesBgPage}"
-                                                CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1">
+                                                CornerRadius="6" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                             <Grid ColumnDefinitions="Auto,*,Auto">
                                                 <Border Grid.Column="0" Width="4" CornerRadius="2" Margin="0,0,10,0">
                                                     <Border.Background>
@@ -151,7 +151,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CrmRecentActivityVm">
                                         <Border Margin="0,0,0,8" Padding="12" Background="{DynamicResource MesBgPage}"
-                                                CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1">
+                                                CornerRadius="6" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                             <Grid ColumnDefinitions="Auto,*">
                                                 <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="14"
                                                         Width="28" Height="28" Margin="0,0,10,0">

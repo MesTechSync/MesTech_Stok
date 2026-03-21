@@ -39,7 +39,7 @@
                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
             <!-- Error -->
-            <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
+            <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
                     CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
                     VerticalAlignment="Top">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />

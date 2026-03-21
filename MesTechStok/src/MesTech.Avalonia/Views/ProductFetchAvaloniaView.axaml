@@ -67,7 +67,7 @@
 
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
                             <Button Content="Ürün Olarak Kaydet" Command="{Binding SaveProductCommand}"
-                                    Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesGreenMaterial}" Foreground="White" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="6"
                                     IsEnabled="{Binding !IsSaving}" />
                         </StackPanel>
@@ -81,9 +81,9 @@
                 </Border>
 
                 <!-- Error -->
-                <Border Background="#FFEBEE" CornerRadius="8" Padding="12"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12"
                         IsVisible="{Binding HasError}">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#C62828" />
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
                 </Border>
 
                 <!-- Empty state before fetch -->

@@ -40,7 +40,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalOrders}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#059669" HorizontalAlignment="Center" />
+                                       Foreground="{DynamicResource MesTeal}" HorizontalAlignment="Center" />
                             <TextBlock Text="Siparis" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
@@ -49,7 +49,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding ActivePlatforms}" FontSize="28" FontWeight="Bold"
-                                       Foreground="#EA580C" HorizontalAlignment="Center" />
+                                       Foreground="{DynamicResource MesAmber}" HorizontalAlignment="Center" />
                             <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>

@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#7C3AED" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Vergi Takvimi" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#7C3AED" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPurple}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -32,7 +32,7 @@
                     <StackPanel>
                         <TextBlock Text="Gecikmi&#x15F;" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding OverdueCount}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#EF4444" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesRedBright}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
@@ -40,7 +40,7 @@
                     <StackPanel>
                         <TextBlock Text="Yaklasan" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding UpcomingCount}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#F59E0B" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"

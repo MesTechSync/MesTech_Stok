@@ -76,7 +76,7 @@
                                             <DataTemplate x:DataType="vm:DealCardVm">
                                                 <Border Margin="0,0,0,8" Padding="12"
                                                         Background="#F8F9FB" CornerRadius="6"
-                                                        BorderBrush="#E2E8F0" BorderThickness="1"
+                                                        BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1"
                                                         Cursor="Hand">
                                                     <StackPanel Spacing="4">
                                                         <TextBlock Text="{Binding Title}"

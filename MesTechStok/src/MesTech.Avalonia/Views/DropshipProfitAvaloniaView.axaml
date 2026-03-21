@@ -72,7 +72,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="3" Spacing="2">
                     <TextBlock Text="Net Kâr" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalNetProfit, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="#4CAF50" />
+                    <TextBlock Text="{Binding TotalNetProfit, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
                 </StackPanel>
                 <StackPanel Grid.Column="4" Spacing="2">
                     <TextBlock Text="Genel Marj" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />

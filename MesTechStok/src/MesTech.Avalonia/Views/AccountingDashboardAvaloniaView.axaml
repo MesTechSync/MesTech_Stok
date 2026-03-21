@@ -44,7 +44,7 @@
                     <StackPanel>
                         <TextBlock Text="Toplam Gider" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalExpense}" FontSize="22" FontWeight="Bold"
-                                   Foreground="#EF4444" Margin="0,6,0,0" />
+                                   Foreground="{DynamicResource MesRedBright}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
 
@@ -54,7 +54,7 @@
                     <StackPanel>
                         <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetProfit}" FontSize="22" FontWeight="Bold"
-                                   Foreground="#2563EB" Margin="0,6,0,0" />
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
 
@@ -64,7 +64,7 @@
                     <StackPanel>
                         <TextBlock Text="Bakiye" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding Balance}" FontSize="22" FontWeight="Bold"
-                                   Foreground="#8B5CF6" Margin="0,6,0,0" />
+                                   Foreground="{DynamicResource MesPurple}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
 

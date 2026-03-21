@@ -31,13 +31,13 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
-                        Background="#F1F5F9" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Tukendi" Command="{Binding FilterOutOfStockCommand}"
                         Background="#FEE2E2" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Kritik" Command="{Binding FilterCriticalCommand}"
-                        Background="#FEF3C7" Foreground="#D97706" Padding="12,6" CornerRadius="6" />
+                        Background="#FEF3C7" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Dusuk" Command="{Binding FilterLowCommand}"
-                        Background="#FED7AA" Foreground="#EA580C" Padding="12,6" CornerRadius="6" />
+                        Background="#FED7AA" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
             </StackPanel>
         </Border>
 
@@ -79,7 +79,7 @@
                                     <Button Content="Siparis Ver" Padding="10,4" CornerRadius="4"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontSize="11" FontWeight="SemiBold" />
                                     <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="4"
-                                            Background="#F1F5F9" Foreground="{DynamicResource MesTextSlate}" FontSize="11" />
+                                            Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" FontSize="11" />
                                 </StackPanel>
                             </Grid>
                         </Border>

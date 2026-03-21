@@ -34,7 +34,7 @@
         </Border>
 
         <!-- Label Preview Content -->
-        <ScrollViewer Grid.Row="1" Background="#F1F5F9" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgMist}" HorizontalScrollBarVisibility="Disabled">
             <Border Background="White" CornerRadius="8" Margin="40,24" Padding="0"
                     MaxWidth="500" HorizontalAlignment="Center"
                     BorderBrush="#CBD5E1" BorderThickness="2">
@@ -54,7 +54,7 @@
 
                     <!-- Barcode Area -->
                     <Border Background="{DynamicResource MesBgPage}" Padding="20,16"
-                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1">
                         <StackPanel HorizontalAlignment="Center" Spacing="4">
                             <Border Background="#1E293B" Height="60" Width="300" CornerRadius="2" />
                             <TextBlock Text="{Binding BarcodeText}" FontSize="12"
@@ -64,7 +64,7 @@
                     </Border>
 
                     <!-- Sender -->
-                    <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                    <Border Padding="16,12" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="GONDEREN" FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MesMutedGray}" />
@@ -76,7 +76,7 @@
                     </Border>
 
                     <!-- Recipient -->
-                    <Border Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                    <Border Padding="16,12" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="ALICI" FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MesMutedGray}" />

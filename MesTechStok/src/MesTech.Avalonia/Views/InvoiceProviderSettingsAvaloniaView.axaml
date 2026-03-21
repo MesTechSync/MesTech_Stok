@@ -58,7 +58,7 @@
                                 </Grid>
 
                                 <!-- Integration type label -->
-                                <Border Background="#F1F5F9" CornerRadius="4" Padding="8,4"
+                                <Border Background="{DynamicResource MesBgMist}" CornerRadius="4" Padding="8,4"
                                         HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding IntegrationType}"
                                                FontSize="{StaticResource FontSizeCaption}"
@@ -112,7 +112,7 @@
         </ScrollViewer>
 
         <!-- Row 2: P0 XAdES Warning Banner -->
-        <Border Grid.Row="2" Background="#FFF3F3" Padding="16,12"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgDangerLight}" Padding="16,12"
                 BorderBrush="{StaticResource ErrorRedBrush}" BorderThickness="0,2,0,0">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <PathIcon Data="{StaticResource IconWarning}" Width="20" Height="20"

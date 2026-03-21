@@ -35,9 +35,9 @@
                             <TextBlock Text="{Binding ActiveTenantId, StringFormat='ID: {0}'}"
                                        FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
-                        <Border Grid.Column="1" Background="#ECFDF5" CornerRadius="4" Padding="12,6"
+                        <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="4" Padding="12,6"
                                 VerticalAlignment="Center">
-                            <TextBlock Text="Aktif" FontSize="13" FontWeight="SemiBold" Foreground="#059669" />
+                            <TextBlock Text="Aktif" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesTeal}" />
                         </Border>
                     </Grid>
                 </Border>

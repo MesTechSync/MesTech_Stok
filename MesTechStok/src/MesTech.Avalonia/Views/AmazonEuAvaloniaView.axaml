@@ -67,11 +67,11 @@
             <Border Grid.Column="2" Background="White" CornerRadius="8" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#F59E0B" />
+                    <Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
                     <StackPanel Grid.Column="1" Margin="16">
                         <TextBlock Text="Gunluk Ciro" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding DailyRevenue, StringFormat='EUR {0:N0}'}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
+                                   FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Bugunku toplam ciro (EUR)"
                                    FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
@@ -174,9 +174,9 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14" Foreground="#666"
                                    TextWrapping="Wrap" MaxWidth="400" />

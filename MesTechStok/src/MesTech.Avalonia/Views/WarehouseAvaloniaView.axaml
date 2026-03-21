@@ -25,7 +25,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#2563EB" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -72,7 +72,7 @@
                                     <StackPanel Grid.Column="2" Spacing="2">
                                         <TextBlock Text="Alarm" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                                         <TextBlock Text="{Binding AlarmCount}" FontSize="16" FontWeight="Bold"
-                                                   Foreground="#EF4444" />
+                                                   Foreground="{DynamicResource MesRedBright}" />
                                     </StackPanel>
                                 </Grid>
 
@@ -84,7 +84,7 @@
                                         <TextBlock Grid.Column="1" Text="{Binding CapacityPercent, StringFormat='{}{0}%'}"
                                                    FontSize="11" Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
                                     </Grid>
-                                    <Border Background="#E2E8F0" CornerRadius="3" Height="8">
+                                    <Border Background="{DynamicResource MesBorderSoft}" CornerRadius="3" Height="8">
                                         <Border Background="{Binding CapacityColor}" CornerRadius="3"
                                                 HorizontalAlignment="Left"
                                                 Width="{Binding CapacityBarWidth}" />
@@ -126,7 +126,7 @@
                     </StackPanel>
                     <Grid ColumnDefinitions="*,8,*" Margin="0,8,0,0">
                         <Button Grid.Column="0" Content="Iptal" Command="{Binding CancelAddWarehouseCommand}"
-                                Background="#E2E8F0" Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold"
+                                Background="{DynamicResource MesBorderSoft}" Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold"
                                 Padding="16,10" CornerRadius="6"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
                         <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveWarehouseCommand}"

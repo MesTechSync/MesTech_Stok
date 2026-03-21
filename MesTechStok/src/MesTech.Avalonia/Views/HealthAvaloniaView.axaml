@@ -52,7 +52,7 @@
                             <TextBlock Text="{Binding RamUsage, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="4" Height="6" Background="#E5E9F2" Margin="0,4,0,0">
-                                <Border CornerRadius="4" Height="6" Background="#059669"
+                                <Border CornerRadius="4" Height="6" Background="{DynamicResource MesTeal}"
                                         HorizontalAlignment="Left" Width="140" />
                             </Border>
                         </StackPanel>

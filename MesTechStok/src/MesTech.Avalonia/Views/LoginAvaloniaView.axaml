@@ -36,7 +36,7 @@
                 <!-- Username -->
                 <StackPanel Spacing="6">
                     <TextBlock Text="Kullanici Adi" FontSize="13" FontWeight="SemiBold"
-                               Foreground="#374151" />
+                               Foreground="{DynamicResource MesDarkSlate}" />
                     <TextBox Text="{Binding Username}"
                              Watermark="Kullanici adinizi giriniz" AutomationProperties.Name="Kullanici adinizi giriniz"
                              Padding="12,10" CornerRadius="8" FontSize="14" />
@@ -45,7 +45,7 @@
                 <!-- Password -->
                 <StackPanel Spacing="6">
                     <TextBlock Text="Sifre" FontSize="13" FontWeight="SemiBold"
-                               Foreground="#374151" />
+                               Foreground="{DynamicResource MesDarkSlate}" />
                     <TextBox Text="{Binding Password}"
                              PasswordChar="●"
                              Watermark="Sifrenizi giriniz" AutomationProperties.Name="Sifrenizi giriniz"
@@ -53,7 +53,7 @@
                 </StackPanel>
 
                 <!-- Error Message -->
-                <Border Background="#FEF2F2" CornerRadius="8" Padding="12,10"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12,10"
                         IsVisible="{Binding HasError}"
                         BorderBrush="#FECACA" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}"
@@ -85,10 +85,10 @@
                 BoxShadow="0 4 24 #1A000000"
                 IsVisible="{Binding IsAuthenticated}">
             <StackPanel Spacing="16" HorizontalAlignment="Center">
-                <Border Background="#ECFDF5" CornerRadius="50" Width="72" Height="72"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
                         HorizontalAlignment="Center">
                     <TextBlock Text="&#x2713;" FontSize="36" FontWeight="Bold"
-                               Foreground="#059669"
+                               Foreground="{DynamicResource MesTeal}"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="{Binding WelcomeMessage}"

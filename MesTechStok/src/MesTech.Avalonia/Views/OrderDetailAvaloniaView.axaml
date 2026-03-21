@@ -50,7 +50,7 @@
                         <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
                             <TextBlock Text="Toplam Tutar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" FontSize="15"
-                                       FontWeight="SemiBold" Foreground="#059669" />
+                                       FontWeight="SemiBold" Foreground="{DynamicResource MesTeal}" />
                         </StackPanel>
                         <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
                             <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />

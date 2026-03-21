@@ -43,9 +43,9 @@
                            Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" Margin="0,0,12,0" />
                 <ProgressBar Grid.Column="1" Minimum="0" Maximum="100"
                              Value="{Binding MappingPercentage}" Height="10"
-                             Foreground="#4CAF50" Background="#E0E0E0" CornerRadius="5" />
+                             Foreground="{DynamicResource MesGreenMaterial}" Background="#E0E0E0" CornerRadius="5" />
                 <TextBlock Grid.Column="2" Text="{Binding MappingPercentage, StringFormat='%{0:N0} eslesmis'}"
-                           FontSize="13" FontWeight="SemiBold" Foreground="#4CAF50"
+                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesGreenMaterial}"
                            VerticalAlignment="Center" Margin="12,0,0,0" />
             </Grid>
         </Border>
@@ -135,10 +135,10 @@
         </Border>
 
         <!-- Bottom Status Bar -->
-        <Border Grid.Row="4" Background="#F1F5F9" Padding="16,10">
+        <Border Grid.Row="4" Background="{DynamicResource MesBgMist}" Padding="16,10">
             <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" Margin="0,0,20,0">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#4CAF50" VerticalAlignment="Center" />
+                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesGreenMaterial}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding MappedCount, StringFormat='Eslesmis: {0}'}"
                                FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>

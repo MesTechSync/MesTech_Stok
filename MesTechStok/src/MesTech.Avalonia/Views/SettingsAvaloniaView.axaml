@@ -32,11 +32,11 @@
             <StackPanel Spacing="24" MaxWidth="640">
 
                 <!-- Save Success Message -->
-                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="#A7F3D0" BorderThickness="1">
                     <TextBlock Text="Ayarlar basariyla kaydedildi."
-                               Foreground="#059669" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Section 1: API Ayarlari -->
@@ -52,7 +52,7 @@
 
                         <StackPanel Spacing="6">
                             <TextBlock Text="API URL" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#374151" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding ApiUrl}"
                                      Watermark="https://api.mestech.com/v1" AutomationProperties.Name="https://api.mestech.com/v1"
                                      Padding="12,10" CornerRadius="8" FontSize="14" />
@@ -60,7 +60,7 @@
 
                         <StackPanel Spacing="6">
                             <TextBlock Text="API Key" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#374151" />
+                                       Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding ApiKey}"
                                      Watermark="API anahtarinizi giriniz" AutomationProperties.Name="API anahtarinizi giriniz"
                                      PasswordChar="●"
@@ -105,7 +105,7 @@
                                           OnContent="" OffContent="" />
                         </Grid>
 
-                        <Border Height="1" Background="#F1F5F9" />
+                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
@@ -118,7 +118,7 @@
                                           OnContent="" OffContent="" />
                         </Grid>
 
-                        <Border Height="1" Background="#F1F5F9" />
+                        <Border Height="1" Background="{DynamicResource MesBgMist}" />
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">

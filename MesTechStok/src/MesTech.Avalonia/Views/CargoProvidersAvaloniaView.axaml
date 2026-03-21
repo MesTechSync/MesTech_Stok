@@ -32,7 +32,7 @@
         </Border>
 
         <!-- Provider Cards Grid -->
-        <ScrollViewer Grid.Row="1" Background="#F1F5F9">
+        <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgMist}">
             <ItemsControl ItemsSource="{Binding Providers}" Margin="20,16">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -42,7 +42,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="controls:CargoProviderCardViewModel">
                         <Border Background="White" CornerRadius="10" Margin="8" Padding="20"
-                                Width="280" BorderBrush="#E2E8F0" BorderThickness="1">
+                                Width="280" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <!-- Provider Name + Status -->
                                 <Grid ColumnDefinitions="*,Auto">
@@ -54,7 +54,7 @@
                                 </Grid>
 
                                 <!-- API Type -->
-                                <Border Background="#F1F5F9" CornerRadius="4" Padding="8,4"
+                                <Border Background="{DynamicResource MesBgMist}" CornerRadius="4" Padding="8,4"
                                         HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding ApiTypeText}" FontSize="11"
                                                Foreground="{DynamicResource MesSlateGray}" FontFamily="Consolas" />

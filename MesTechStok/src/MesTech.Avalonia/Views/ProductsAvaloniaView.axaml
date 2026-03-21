@@ -148,7 +148,7 @@
                                             Command="{Binding $parent[UserControl].((vm:ProductsAvaloniaViewModel)DataContext).ApplyRecentSearchCommand}"
                                             CommandParameter="{Binding}"
                                             FontSize="11" Padding="6,2" CornerRadius="8"
-                                            Background="#F1F5F9" Foreground="{DynamicResource MesSlateGray}" />
+                                            Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesSlateGray}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -211,7 +211,7 @@
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
                                 <!-- Product Image Placeholder -->
-                                <Border Grid.Row="0" Background="#F1F5F9" CornerRadius="10,10,0,0">
+                                <Border Grid.Row="0" Background="{DynamicResource MesBgMist}" CornerRadius="10,10,0,0">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock Text="&#x1F4E6;" FontSize="36"
@@ -222,7 +222,7 @@
                                         </StackPanel>
                                         <!-- Discount badge -->
                                         <Border IsVisible="{Binding HasDiscount}"
-                                                Background="#E74C3C" CornerRadius="0,0,0,8"
+                                                Background="{DynamicResource MesRedClassic}" CornerRadius="0,0,0,8"
                                                 Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top">
                                             <TextBlock Text="INDIRIM" FontSize="10"
                                                        Foreground="White" FontWeight="Bold" />
@@ -306,9 +306,9 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14" Foreground="#666"
                                    TextWrapping="Wrap" MaxWidth="400" />

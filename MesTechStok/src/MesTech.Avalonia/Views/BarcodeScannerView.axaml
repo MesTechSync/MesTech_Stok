@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#7C3AED" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Barkod Tarama Modu" Foreground="White"
@@ -38,13 +38,13 @@
                          FontSize="16" Padding="12,10"
                          Name="ScanInputBox" />
                 <Button Grid.Column="2" Content="Tara" Command="{Binding ScanCommand}"
-                        Background="#7C3AED" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
                         Padding="20,10" CornerRadius="6" Margin="12,0,0,0" />
             </Grid>
         </Border>
 
         <!-- Stats Bar -->
-        <Border Grid.Row="2" Background="#F1F5F9" Padding="16,8"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgMist}" Padding="16,8"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -56,12 +56,12 @@
                     <TextBlock Text="{Binding FoundCount}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <TextBlock Text="Bulunamayan:" FontSize="12" Foreground="#EF4444" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding NotFoundCount}" FontSize="14" FontWeight="Bold" Foreground="#EF4444" VerticalAlignment="Center" />
+                    <TextBlock Text="Bulunamayan:" FontSize="12" Foreground="{DynamicResource MesRedBright}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding NotFoundCount}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource MesRedBright}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <TextBlock Text="Son yanit:" FontSize="12" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding LastResponseTime, StringFormat='{}{0} ms'}" FontSize="14" FontWeight="Bold" Foreground="#7C3AED" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding LastResponseTime, StringFormat='{}{0} ms'}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource MesPurple}" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -100,7 +100,7 @@
                                                        Foreground="White" FontWeight="Bold" />
                                         </Border>
                                     </StackPanel>
-                                    <TextBlock Text="Urun bulunamadi" FontSize="12" Foreground="#EF4444"
+                                    <TextBlock Text="Urun bulunamadi" FontSize="12" Foreground="{DynamicResource MesRedBright}"
                                                IsVisible="{Binding !Found}" />
                                 </StackPanel>
 
@@ -135,7 +135,7 @@
                            FontSize="14" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
                 <TextBlock Text="Her tarama &lt; 200ms hedefi"
-                           FontSize="12" Foreground="#7C3AED"
+                           FontSize="12" Foreground="{DynamicResource MesPurple}"
                            HorizontalAlignment="Center" Opacity="0.6" Margin="0,4,0,0" />
             </StackPanel>
         </Border>

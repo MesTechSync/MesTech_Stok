@@ -44,7 +44,7 @@
                     <StackPanel>
                         <TextBlock Text="Toplam Gider" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalExpense}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#EF4444" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesRedBright}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
@@ -52,7 +52,7 @@
                     <StackPanel>
                         <TextBlock Text="Net Bakiye" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetBalance}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#2563EB" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>

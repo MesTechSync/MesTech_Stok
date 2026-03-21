@@ -61,8 +61,8 @@
 <!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !FilteredItems.Count}" />
 
         <!-- Balance Summary Footer -->
-        <Border Grid.Row="3" Background="#F1F5F9" Padding="20,12"
-                BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource MesBgMist}" Padding="20,12"
+                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
@@ -82,7 +82,7 @@
                 </Border>
                 <Border Grid.Column="3" Background="#FEF3C7" CornerRadius="8" Padding="14,8" Margin="8,0">
                     <StackPanel>
-                        <TextBlock Text="Net Bakiye" FontSize="11" Foreground="#D97706" />
+                        <TextBlock Text="Net Bakiye" FontSize="11" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="#B45309" />
                     </StackPanel>

@@ -67,8 +67,8 @@
 <!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Footer with changed count -->
-        <Border Grid.Row="3" Background="#F1F5F9" Padding="20,10"
-                BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource MesBgMist}" Padding="20,10"
+                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,1,0,0">
             <TextBlock FontSize="12" Foreground="{DynamicResource MesSlateGray}">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="Toplam {0} urun | {1} degisiklik bekliyor">

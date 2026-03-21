@@ -39,14 +39,14 @@
                 </Border>
                 <Border Background="#FFF1F2" CornerRadius="8" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Kaybedilen" FontSize="12" Foreground="#EF4444" FontWeight="SemiBold" />
+                        <TextBlock Text="Kaybedilen" FontSize="12" Foreground="{DynamicResource MesRedBright}" FontWeight="SemiBold" />
                         <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
                 <Border Background="#F0F9FF" CornerRadius="8" Padding="16,12" MinWidth="160">
                     <StackPanel>
                         <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="#3B82F6" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="#2563EB" />
+                        <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
             </StackPanel>

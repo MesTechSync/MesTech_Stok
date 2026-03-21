@@ -13,7 +13,7 @@
         <!-- Row 0: Header Bar                                           -->
         <!-- ════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Background="White" Padding="20,12"
-                BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1"
                 BoxShadow="0 1 3 0 #0D000000">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
@@ -37,7 +37,7 @@
                     <Button Command="{Binding RefreshCommand}"
                             ToolTip.Tip="Yenile"
                             Background="Transparent" BorderThickness="1"
-                            BorderBrush="#E2E8F0" CornerRadius="6"
+                            BorderBrush="{DynamicResource MesBorderSoft}" CornerRadius="6"
                             Padding="8">
                         <PathIcon Data="{StaticResource IconRefresh}"
                                   Width="16" Height="16" Foreground="{DynamicResource MesSlateGray}" />
@@ -88,7 +88,7 @@
                     Padding="0" ClipToBounds="True">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"
-                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1">
                         <Grid ColumnDefinitions="Auto,*,Auto">
                             <PathIcon Grid.Column="0"
                                       Data="{StaticResource IconShoppingCart}"
@@ -150,11 +150,11 @@
                     Padding="0" ClipToBounds="True">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"
-                            BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1">
                         <Grid ColumnDefinitions="Auto,*,Auto">
                             <PathIcon Grid.Column="0"
                                       Data="{StaticResource IconWarning}"
-                                      Width="18" Height="18" Foreground="#F59E0B"
+                                      Width="18" Height="18" Foreground="{DynamicResource MesAmber}"
                                       Margin="0,0,8,0" />
                             <TextBlock Grid.Column="1" Text="Stok Uyarilari"
                                        FontSize="15" FontWeight="SemiBold"
@@ -164,7 +164,7 @@
                                     CornerRadius="10" Padding="8,2">
                                 <TextBlock Text="{Binding CriticalStockCount}"
                                            FontSize="11" FontWeight="Bold"
-                                           Foreground="#D97706"
+                                           Foreground="{DynamicResource MesAmber}"
                                            HorizontalAlignment="Center" />
                             </Border>
                         </Grid>
@@ -254,7 +254,7 @@
                             <Border Margin="0,0,16,6" Padding="8,4"
                                     CornerRadius="12"
                                     Background="{DynamicResource MesBgPage}"
-                                    BorderBrush="#E2E8F0"
+                                    BorderBrush="{DynamicResource MesBorderSoft}"
                                     BorderThickness="1"
                                     ToolTip.Tip="{Binding TooltipText}">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
@@ -283,7 +283,7 @@
                 <!-- AI Icon + Title -->
                 <StackPanel Grid.Column="0" Margin="0,0,16,0"
                             VerticalAlignment="Center">
-                    <Border Background="#7C3AED" CornerRadius="8"
+                    <Border Background="{DynamicResource MesPurple}" CornerRadius="8"
                             Width="40" Height="40"
                             HorizontalAlignment="Center">
                         <TextBlock Text="AI" FontSize="14" FontWeight="Bold"
@@ -292,7 +292,7 @@
                                    VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="MESA OS" FontSize="9" FontWeight="SemiBold"
-                               Foreground="#7C3AED" Margin="0,4,0,0"
+                               Foreground="{DynamicResource MesPurple}" Margin="0,4,0,0"
                                HorizontalAlignment="Center" />
                 </StackPanel>
 
@@ -300,7 +300,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center"
                             Spacing="4">
                     <TextBlock Text="AI Onerisi" FontSize="14" FontWeight="Bold"
-                               Foreground="#7C3AED" />
+                               Foreground="{DynamicResource MesPurple}" />
                     <TextBlock Text="{Binding AiInsightText}"
                                FontSize="13" Foreground="#4C1D95"
                                TextWrapping="Wrap"
@@ -311,7 +311,7 @@
                 <Button Grid.Column="2"
                         Content="Detaylar &#x2192;"
                         Command="{Binding OpenAIInsightCommand}"
-                        Background="#7C3AED" Foreground="White"
+                        Background="{DynamicResource MesPurple}" Foreground="White"
                         FontSize="12" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="8"
                         VerticalAlignment="Center" />
@@ -365,15 +365,15 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="#FFF3F3" CornerRadius="12" Padding="32"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="12" Padding="32"
                         HorizontalAlignment="Center"
                         BoxShadow="0 2 8 0 #1A000000">
                     <StackPanel Spacing="8" HorizontalAlignment="Center">
                         <PathIcon Data="{StaticResource IconError}"
-                                  Width="32" Height="32" Foreground="#E74C3C"
+                                  Width="32" Height="32" Foreground="{DynamicResource MesRedClassic}"
                                   HorizontalAlignment="Center" />
                         <TextBlock Text="Hata Olustu" FontWeight="Bold"
-                                   Foreground="#E74C3C" FontSize="16"
+                                   Foreground="{DynamicResource MesRedClassic}" FontSize="16"
                                    HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14" Foreground="#666"

@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#059669" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Karlilik Analizi" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#059669" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -32,7 +32,7 @@
                     <StackPanel>
                         <TextBlock Text="Toplam Ciro" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalRevenue}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#2563EB" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
@@ -48,7 +48,7 @@
                     <StackPanel>
                         <TextBlock Text="Ortalama Marj" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding AverageMargin}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#8B5CF6" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesPurple}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>

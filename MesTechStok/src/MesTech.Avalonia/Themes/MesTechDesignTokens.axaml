@@ -37,6 +37,15 @@
     <Color x:Key="MesTextSlate">#475569</Color>
     <Color x:Key="MesRedAlert">#DC2626</Color>
     <Color x:Key="MesEmerald">#10B981</Color>
+    <Color x:Key="MesBgMist">#F1F5F9</Color>
+    <Color x:Key="MesAmber">#F59E0B</Color>
+    <Color x:Key="MesBorderSoft">#E2E8F0</Color>
+    <Color x:Key="MesGreenMaterial">#4CAF50</Color>
+    <Color x:Key="MesTeal">#059669</Color>
+    <Color x:Key="MesBgDangerLight">#FEF2F2</Color>
+    <Color x:Key="MesRedBright">#EF4444</Color>
+    <Color x:Key="MesPurple">#7C3AED</Color>
+    <Color x:Key="MesRedClassic">#E74C3C</Color>
 
     <!-- ═══ STATUS COLORS ═══ -->
     <Color x:Key="MesSuccess">#34C759</Color>

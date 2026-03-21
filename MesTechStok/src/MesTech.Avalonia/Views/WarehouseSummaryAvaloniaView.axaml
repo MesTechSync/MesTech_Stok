@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#059669" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Depo Ozet Paneli" Foreground="White"
@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#059669" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -71,7 +71,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasCritical}">
                                         <Border Width="8" Height="8" CornerRadius="4" Background="#D97706" VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="#D97706" />
+                                        <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="{DynamicResource MesAmber}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding IsHealthy}">
@@ -83,7 +83,7 @@
 
                                 <!-- Detail Button -->
                                 <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
-                                        Background="#F1F5F9" Foreground="{DynamicResource MesTextSlate}"
+                                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                                         Padding="12,6" CornerRadius="6" FontSize="12" />
                             </StackPanel>
                         </Border>

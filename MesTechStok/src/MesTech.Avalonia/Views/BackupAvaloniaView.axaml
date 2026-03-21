@@ -47,11 +47,11 @@
                 </Border>
 
                 <!-- Backup Success Message (non-progress) -->
-                <Border Background="#ECFDF5" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding BackupMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                         BorderBrush="#A7F3D0" BorderThickness="1">
                     <TextBlock Text="{Binding BackupMessage}"
-                               Foreground="#059669" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold"
                                IsVisible="{Binding !IsBackingUp}" />
                 </Border>
 

@@ -44,11 +44,11 @@
                     <TextBlock Text="Satis" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Border Width="12" Height="12" CornerRadius="6" Background="#2563EB" />
+                    <Border Width="12" Height="12" CornerRadius="6" Background="{DynamicResource MesPrimaryBlue}" />
                     <TextBlock Text="Transfer" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Border Width="12" Height="12" CornerRadius="6" Background="#7C3AED" />
+                    <Border Width="12" Height="12" CornerRadius="6" Background="{DynamicResource MesPurple}" />
                     <TextBlock Text="Iade" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">

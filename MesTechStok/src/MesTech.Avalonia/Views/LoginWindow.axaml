@@ -81,7 +81,7 @@
 
       <!-- Hata mesaji (varsayilan gizli) -->
       <Border x:Name="ErrorPanel"
-              Background="#FFEBEE"
+              Background="{DynamicResource MesBgDangerLight}"
               CornerRadius="{StaticResource CornerRadiusLarge}"
               Padding="12,8"
               IsVisible="False">

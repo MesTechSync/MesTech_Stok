@@ -78,7 +78,7 @@
                     Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
                     <!-- Drag-Drop Area -->
-                    <Border Background="#F1F5F9" CornerRadius="12" Padding="48,32"
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="12" Padding="48,32"
                             BorderBrush="#CBD5E1" BorderThickness="2"
                             HorizontalAlignment="Stretch">
                         <StackPanel Spacing="12" HorizontalAlignment="Center">
@@ -118,7 +118,7 @@
                                    Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                         <Border Background="#DBEAFE" CornerRadius="10" Padding="10,4">
                             <TextBlock Text="{Binding TotalRowCount, StringFormat='{}{0} satir'}"
-                                       FontSize="12" Foreground="#1D4ED8" />
+                                       FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </Border>
                         <Border Background="{Binding ErrorCountBackground}" CornerRadius="10" Padding="10,4"
                                 IsVisible="{Binding HasPreviewErrors}">
@@ -174,7 +174,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ImportColumnMappingDto">
                                     <Grid ColumnDefinitions="*,40,*" Margin="0,4">
-                                        <Border Grid.Column="0" Background="#F1F5F9" CornerRadius="6" Padding="12,8">
+                                        <Border Grid.Column="0" Background="{DynamicResource MesBgMist}" CornerRadius="6" Padding="12,8">
                                             <TextBlock Text="{Binding SourceColumn}" Foreground="#334155" />
                                         </Border>
                                         <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center"
@@ -237,7 +237,7 @@
                     </Border>
 
                     <!-- Error Summary -->
-                    <Border IsVisible="{Binding HasImportErrors}" Background="#FEF2F2"
+                    <Border IsVisible="{Binding HasImportErrors}" Background="{DynamicResource MesBgDangerLight}"
                             CornerRadius="8" Padding="16">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Hatali Satirlar" FontWeight="SemiBold" Foreground="#991B1B" />

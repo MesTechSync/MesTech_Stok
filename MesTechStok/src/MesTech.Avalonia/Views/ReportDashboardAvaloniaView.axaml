@@ -62,7 +62,7 @@
                             <Button Content="Musteri Yasam Boyu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="CLV Analizi"
-                                    Background="#7C3AED" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Gonderim Raporu"
                                     Command="{Binding GenerateQuickReportCommand}"
@@ -93,7 +93,7 @@
                             <!-- Report Type -->
                             <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
                                 <TextBlock Text="Rapor Turu" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#374151" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding ReportTypes}"
                                           SelectedItem="{Binding SelectedReportType}"
                                           HorizontalAlignment="Stretch" />
@@ -102,7 +102,7 @@
                             <!-- Platform Filter -->
                             <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
                                 <TextBlock Text="Platform" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#374151" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding Platforms}"
                                           SelectedItem="{Binding SelectedPlatform}"
                                           HorizontalAlignment="Stretch" />
@@ -111,21 +111,21 @@
                             <!-- Start Date -->
                             <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
                                 <TextBlock Text="Baslangic Tarihi" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#374151" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch" />
                             </StackPanel>
 
                             <!-- End Date -->
                             <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
                                 <TextBlock Text="Bitis Tarihi" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#374151" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch" />
                             </StackPanel>
 
                             <!-- Export Format -->
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,0,0,12">
                                 <TextBlock Text="Disari Aktarma Formati" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#374151" />
+                                           Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="16">
                                     <RadioButton GroupName="ExportFmt" Content="Excel"
                                                  IsChecked="{Binding SelectedExportFormat,

@@ -92,7 +92,7 @@
                             <StackPanel>
                                 <TextBlock Text="Toplam Tutar" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                                 <TextBlock Text="{Binding TotalAmount}" FontSize="16" FontWeight="Bold"
-                                           Foreground="#2563EB" />
+                                           Foreground="{DynamicResource MesPrimaryBlue}" />
                             </StackPanel>
                         </StackPanel>
                     </Border>

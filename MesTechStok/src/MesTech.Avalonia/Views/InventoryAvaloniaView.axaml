@@ -18,7 +18,7 @@
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="#EF4444" CornerRadius="10" Padding="8,2"
+                    <Border Background="{DynamicResource MesRedBright}" CornerRadius="10" Padding="8,2"
                             IsVisible="{Binding AlarmCount}">
                         <TextBlock Text="{Binding AlarmCount, StringFormat='{}{0} alarm'}"
                                    Foreground="White" FontSize="12" FontWeight="Bold"
@@ -44,9 +44,9 @@
                     </StackPanel>
                 </Border>
                 <!-- Kritik Stok -->
-                <Border Background="#FEF2F2" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Kritik Stok" FontSize="11" Foreground="#EF4444" />
+                        <TextBlock Text="Kritik Stok" FontSize="11" Foreground="{DynamicResource MesRedBright}" />
                         <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
@@ -62,7 +62,7 @@
                 <Border Background="#FFF7ED" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Tukenen" FontSize="11" Foreground="#F97316" />
-                        <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="#EA580C" />
+                        <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -143,9 +143,9 @@
                             <TextBlock Text="{Binding TestResultMessage}" Foreground="#2E7D32" FontWeight="SemiBold" />
                         </Border>
 
-                        <Border Background="#FFEBEE" CornerRadius="6" Padding="12"
+                        <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="6" Padding="12"
                                 IsVisible="{Binding TestFailed}">
-                            <TextBlock Text="{Binding TestResultMessage}" Foreground="#C62828" />
+                            <TextBlock Text="{Binding TestResultMessage}" Foreground="{DynamicResource MesRedAlert}" />
                         </Border>
                     </StackPanel>
                 </Border>
@@ -154,7 +154,7 @@
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
                             Background="{DynamicResource MesMutedGray}" Foreground="White" Padding="16,8" CornerRadius="6" />
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveStoreCommand}"
-                            Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesGreenMaterial}" Foreground="White" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6"
                             IsEnabled="{Binding TestPassed}" />
                 </StackPanel>

@@ -50,7 +50,7 @@
                                         <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
                                                    FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBlock Text="{Binding StatusText}" FontSize="12"
-                                                   Foreground="#4CAF50" />
+                                                   Foreground="{DynamicResource MesGreenMaterial}" />
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

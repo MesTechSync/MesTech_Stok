@@ -81,7 +81,7 @@
                 <!-- Summary -->
                 <StackPanel Orientation="Horizontal" Spacing="20"
                             IsVisible="{Binding !IsSending}">
-                    <TextBlock FontSize="13" Foreground="#4CAF50">
+                    <TextBlock FontSize="13" Foreground="{DynamicResource MesGreenMaterial}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Basarili: {0}">
                                 <Binding Path="SuccessCount" />

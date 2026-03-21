@@ -59,8 +59,10 @@ public partial class WelcomeWindow : Window
         _clockTimer.Stop();
         _blinkTimer.Stop();
 
-        var loginWindow = new LoginWindow();
-        loginWindow.Show();
+        // Login bypass — doğrudan MainWindow'a geç
+        var app = (App)global::Avalonia.Application.Current!;
+        var mainWindow = app.CreateMainWindow();
+        mainWindow.Show();
         Close();
     }
 }

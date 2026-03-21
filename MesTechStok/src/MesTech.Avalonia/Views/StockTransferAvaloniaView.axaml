@@ -83,7 +83,7 @@
                     </StackPanel>
 
                     <!-- Stok Bilgisi -->
-                    <Border Background="#F1F5F9" CornerRadius="6" Padding="12,8">
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="6" Padding="12,8">
                         <Grid ColumnDefinitions="*,*">
                             <StackPanel Grid.Column="0" Spacing="2">
                                 <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />

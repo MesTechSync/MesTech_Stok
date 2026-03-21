@@ -118,7 +118,7 @@
                         BorderBrush="#FDE68A" BorderThickness="1"
                         IsVisible="{Binding HasWarnings}">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Uyarilar" FontSize="13" FontWeight="SemiBold" Foreground="#D97706" />
+                        <TextBlock Text="Uyarilar" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" />
                         <ItemsControl ItemsSource="{Binding Warnings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -139,7 +139,7 @@
                            FontSize="13" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Iptal"
-                        Background="#F1F5F9" Foreground="{DynamicResource MesTextSlate}"
+                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                         Padding="20,10" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"

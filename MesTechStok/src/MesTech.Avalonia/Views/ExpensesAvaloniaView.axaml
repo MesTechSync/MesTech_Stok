@@ -44,7 +44,7 @@
 
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         IsVisible="{Binding !IsLoading}" Spacing="12">
-                <Border Background="#FEF2F2" CornerRadius="50" Width="72" Height="72"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="50" Width="72" Height="72"
                         HorizontalAlignment="Center">
                     <TextBlock Text="&#x1F4B8;" FontSize="32"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />

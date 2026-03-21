@@ -97,7 +97,7 @@
                         <TextBlock Text="Islemler" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Onayla" Command="{Binding ApproveCommand}"
-                                    Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesGreenMaterial}" Foreground="White" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="6" />
                             <ComboBox Width="200"
                                       ItemsSource="{Binding RejectReasons}"

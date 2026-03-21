@@ -36,7 +36,7 @@
                            Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,20" />
 
                 <!-- Error -->
-                <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
+                <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                         CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
@@ -51,7 +51,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:PipelineStageVm">
                             <Border Margin="0,0,0,12" Padding="20" Background="White"
-                                    CornerRadius="10" BorderBrush="#E2E8F0" BorderThickness="1">
+                                    CornerRadius="10" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                                     <!-- Color indicator -->
                                     <Border Grid.Column="0" Width="6" CornerRadius="3" Margin="0,0,16,0">

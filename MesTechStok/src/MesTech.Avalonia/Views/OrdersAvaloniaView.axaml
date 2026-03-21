@@ -103,9 +103,9 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="#FFF3F3" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="#E74C3C" FontSize="16" />
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14" Foreground="#666"
                                    TextWrapping="Wrap" MaxWidth="400" />
