@@ -5,6 +5,9 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -20,6 +23,7 @@ public class PttKargoAdapter : ICargoAdapter
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttKargoAdapter> _logger;
     private readonly SimpleSoapClient _soapClient;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private string _shipmentServiceUrl = string.Empty;
     private string _trackingServiceUrl = string.Empty;
@@ -36,6 +40,42 @@ public class PttKargoAdapter : ICargoAdapter
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _soapClient = new SimpleSoapClient(httpClient, logger);
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "[PttKargoAdapter] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("[PttKargoAdapter] Circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     public CargoProvider Provider => CargoProvider.PttKargo;

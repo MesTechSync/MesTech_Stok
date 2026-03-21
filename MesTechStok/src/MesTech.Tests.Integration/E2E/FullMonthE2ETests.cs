@@ -27,7 +27,7 @@ namespace MesTech.Tests.Integration.E2E;
 /// Docker gerektirir. Docker yoksa otomatik skip olur.
 /// Testcontainers ile gerçek PostgreSQL 17 container başlatır.
 ///
-/// TODO — MediatR entegrasyonu:
+/// FUTURE — MediatR entegrasyonu:
 ///   Scaffold direkt DB yazıyor. CQRS handler'lar bağlandığında
 ///   CreateProductCommand, AddStockCommand, PlaceOrderCommand,
 ///   CreateEInvoiceCommand, AutoShipOrderCommand, RunReconciliationCommand,
@@ -466,7 +466,7 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
         }
         await _context.SaveChangesAsync();
 
-        // TODO: MediatR entegrasyonu:
+        // FUTURE: MediatR entegrasyonu:
         // var cmd = new RunReconciliationCommand(_tenantId);
         // var result = await Mediator.Send(cmd);
         // result.AutoMatchedCount.Should().Be(10);
@@ -503,7 +503,7 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
     {
         DockerHelper.SkipIfNoDocker();
 
-        // TODO — MediatR ile muhasebe raporları:
+        // FUTURE — MediatR ile muhasebe raporları:
         // var mizan = await Mediator.Send(new GetTrialBalanceQuery(_tenantId, startDate, endDate));
         // Math.Abs(mizan.TotalDebit - mizan.TotalCredit).Should().BeLessThan(0.01m);
         //

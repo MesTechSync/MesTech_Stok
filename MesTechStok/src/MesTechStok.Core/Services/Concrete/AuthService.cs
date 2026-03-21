@@ -22,8 +22,13 @@ public class AuthService : IAuthService
     private const int MaxAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(1);
 
+    // Admin credentials from environment — no hardcoded values
+    private static readonly string _adminUsername =
+        Environment.GetEnvironmentVariable("MESTECH_ADMIN_USER") ?? "admin";
+    private static readonly string _adminEmail =
+        Environment.GetEnvironmentVariable("MESTECH_ADMIN_EMAIL") ?? "admin@mestech.local";
+
     // DB erişilemezse fallback hash — generated at startup, no hardcoded password
-    // NOTE: In production, this fallback should be removed or sourced from env var
     private static readonly string _fallbackAdminHash =
         Environment.GetEnvironmentVariable("MESTECH_ADMIN_HASH")
         ?? BCrypt.Net.BCrypt.HashPassword(
@@ -86,13 +91,13 @@ public class AuthService : IAuthService
         {
             _logger.LogError(ex, "DB auth error for user: {Username} — falling back to static hash", username);
 
-            // DB erişilemezse: sadece "admin" kullanıcısı için BCrypt fallback
-            if (normalizedUser == "admin" && BCrypt.Net.BCrypt.Verify(normalizedPass, _fallbackAdminHash))
+            // DB erişilemezse: sadece admin kullanıcısı için BCrypt fallback
+            if (normalizedUser == _adminUsername.ToLowerInvariant() && BCrypt.Net.BCrypt.Verify(normalizedPass, _fallbackAdminHash))
             {
                 _loginAttempts.TryRemove(normalizedUser, out _);
                 _currentUser = new User
                 {
-                    Id = 1, Username = "admin", Email = "admin@mestech.com",
+                    Id = 1, Username = _adminUsername, Email = _adminEmail,
                     FirstName = "Admin", LastName = "MesTech", FullName = "Admin MesTech",
                     IsActive = true, CreatedDate = DateTime.UtcNow
                 };
@@ -113,10 +118,10 @@ public class AuthService : IAuthService
         {
             var adminUser = new User
             {
-                Username = "admin",
-                Email = "admin@mestech.com",
+                Username = _adminUsername,
+                Email = _adminEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(
-                    Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? "ChangeMe!2026",
+                    Environment.GetEnvironmentVariable("MESTECH_ADMIN_PASSWORD") ?? Guid.NewGuid().ToString(),
                     workFactor: 12),
                 FirstName = "Admin",
                 LastName = "MesTech",

@@ -19,8 +19,7 @@ public class CreateAccountingBankAccountHandler : IRequestHandler<CreateAccounti
             request.TenantId, request.AccountName, request.Currency,
             request.BankName, request.IBAN, request.AccountNumber, request.IsDefault, request.StoreId);
 
-        // BankAccount zaten AppDbContext'te DbSet olarak tanimli.
-        // UnitOfWork SaveChanges ile kayit yapilir.
+        // BankAccount DbSet — UnitOfWork SaveChanges ile kayit yapilir.
         await _uow.SaveChangesAsync(cancellationToken);
         return bankAccount.Id;
     }

@@ -11,6 +11,9 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -32,6 +35,7 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
     private readonly ILogger<ShopifyAdapter> _logger;
     private readonly ShopifyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     // Runtime credential state — set via TestConnectionAsync
     private string _shopDomain = string.Empty;
@@ -67,6 +71,42 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             WriteIndented = false,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "[ShopifyAdapter] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("[ShopifyAdapter] Circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     // ─────────────────────────────────────────────
@@ -134,7 +174,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             // Verify by hitting shop.json — returns store info
             var url = $"{BaseUrl}/shop.json";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
 
@@ -157,7 +198,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             // Count products
             var countUrl = $"{BaseUrl}/products/count.json";
-            var countResponse = await _httpClient.GetAsync(countUrl, ct).ConfigureAwait(false);
+            var countResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(countUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
             if (countResponse.IsSuccessStatusCode)
             {
                 var countContent = await countResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -207,7 +249,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -330,7 +373,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             // Step 1: Find variant by productId (used as SKU in Shopify context)
             var sku = productId.ToString();
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku,inventory_item_id&limit=250";
-            var variantResponse = await _httpClient.GetAsync(variantsUrl, ct).ConfigureAwait(false);
+            var variantResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(variantsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!variantResponse.IsSuccessStatusCode)
             {
@@ -380,7 +424,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             var json = JsonSerializer.Serialize(payload);
             using var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var setUrl = $"{BaseUrl}/inventory_levels/set.json";
-            var setResponse = await _httpClient.PostAsync(setUrl, requestContent, ct).ConfigureAwait(false);
+            var setResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.PostAsync(setUrl, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!setResponse.IsSuccessStatusCode)
             {
@@ -424,7 +469,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             // Step 1: Find variant id by SKU
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku&limit=250";
-            var variantResponse = await _httpClient.GetAsync(variantsUrl, ct).ConfigureAwait(false);
+            var variantResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(variantsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!variantResponse.IsSuccessStatusCode)
             {
@@ -476,7 +522,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             var json = JsonSerializer.Serialize(payload);
             using var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var putUrl = $"{BaseUrl}/variants/{variantId}.json";
-            var putResponse = await _httpClient.PutAsync(putUrl, requestContent, ct).ConfigureAwait(false);
+            var putResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.PutAsync(putUrl, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -516,7 +563,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             try
             {
             var url = $"{BaseUrl}/custom_collections.json?fields=id,title&limit=250";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -593,7 +641,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -854,7 +903,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             }
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, requestContent, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -921,7 +971,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
                 var url = $"{BaseUrl}/webhooks.json";
-                var response = await _httpClient.PostAsync(url, requestContent, ct).ConfigureAwait(false);
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -965,7 +1016,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             try
             {
             var listUrl = $"{BaseUrl}/webhooks.json";
-            var listResponse = await _httpClient.GetAsync(listUrl, ct).ConfigureAwait(false);
+            var listResponse = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(listUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!listResponse.IsSuccessStatusCode)
             {
@@ -1159,7 +1211,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/orders/{Uri.EscapeDataString(platformOrderId)}/fulfillments.json";
-            var response = await _httpClient.PostAsync(url, requestContent, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1206,7 +1259,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             try
             {
             var url = $"{BaseUrl}/locations.json";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1295,7 +1349,8 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
             try
             {
             var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

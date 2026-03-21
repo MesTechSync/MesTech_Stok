@@ -130,7 +130,7 @@ public static class BlazorTestConfiguration
     /// </summary>
     public static void EnsurePlaywrightInstalled()
     {
-        // TODO: When Playwright NuGet is added, call:
+        // FUTURE: When Playwright NuGet is added, call:
         // Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
     }
 

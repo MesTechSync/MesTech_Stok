@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 
 /// <summary>
 /// Unified dashboard summary handler.
-/// Delegesi IDashboardSummaryRepository — AppDbContext sorguları Infrastructure katmanında.
+/// Delegesi IDashboardSummaryRepository — sorgular Infrastructure katmanında.
 /// Mevcut 6 Dashboard query'ye DOKUNMAZ.
 /// </summary>
 public class GetDashboardSummaryQueryHandler

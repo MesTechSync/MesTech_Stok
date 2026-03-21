@@ -148,22 +148,17 @@ public partial class MainWindow : Window
         {
             System.Diagnostics.Debug.WriteLine(
                 $"[CommandPalette] Selected: {dialog.SelectedCommand.Title} ({dialog.SelectedCommand.Category})");
-            HandleCommandPaletteSelection(dialog.SelectedCommand);
+            NavigateToCommand(dialog.SelectedCommand);
         }
     }
 
-    private void HandleCommandPaletteSelection(CommandItem command)
+    private void NavigateToCommand(CommandItem command)
     {
+        // Navigasyon komutları için mevcut sidebar/modül sistemiyle entegre
         switch (command.Category)
         {
             case "Sistem":
-                switch (command.Title)
-                {
-                    case "Tam Ekran": ToggleFullScreen(); break;
-                    case "Yenile": RefreshCurrentView(); break;
-                    case "Kilitle": LockScreen(); break;
-                    case "Sidebar Ac/Kapa": OnSidebarToggle(this, new RoutedEventArgs()); break;
-                }
+                HandleSystemCommand(command.Title);
                 break;
             default:
                 System.Diagnostics.Debug.WriteLine(
@@ -171,6 +166,18 @@ public partial class MainWindow : Window
                 break;
         }
     }
+
+    private void HandleSystemCommand(string title)
+    {
+        switch (title)
+        {
+            case "Tam Ekran": ToggleFullScreen(); break;
+            case "Yenile": RefreshCurrentView(); break;
+            case "Kilitle": LockScreen(); break;
+            case "Sidebar Ac/Kapa": OnSidebarToggle(this, new RoutedEventArgs()); break;
+        }
+    }
+
 
     private void FocusSearchBox()
     {

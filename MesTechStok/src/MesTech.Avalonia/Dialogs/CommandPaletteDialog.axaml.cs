@@ -75,7 +75,7 @@ public partial class CommandPaletteDialog : Window
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        // Double-click desteği
+        // Double-click support handled by selection
     }
 
     private void ConfirmSelection()

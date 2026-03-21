@@ -85,7 +85,7 @@ public class FullMonthE2ETests : E2ETestBase
         var expectedTotal = _productIds.Count * 100;
         expectedTotal.Should().Be(500);
 
-        // FUTURE: DB dogrulama
+        // FUTURE: DB dogrulama (AppDbContext wiring gerekli)
         // var totalStock = await DbContext.StockMovements.SumAsync(s => s.Quantity);
         // totalStock.Should().Be(500);
 
@@ -132,7 +132,7 @@ public class FullMonthE2ETests : E2ETestBase
         var totalSold = orders.Sum(o => o.Qty);
         totalSold.Should().Be(18);
 
-        // FUTURE: Stok dogrulama — 500 - 18 = 482 kalan
+        // FUTURE: Stok dogrulama (AppDbContext wiring gerekli) — 500 - 18 = 482 kalan
         // var remainingStock = await DbContext.StockMovements.SumAsync(s => s.Quantity);
         // remainingStock.Should().Be(482);
 
@@ -161,7 +161,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Assert
         _invoiceIds.Should().HaveCount(10, "10 fatura kesilmeli");
 
-        // FUTURE: KDV kontrolu — her faturada KDV hesaplanmis olmali
+        // FUTURE: KDV kontrolu (AppDbContext wiring gerekli) — her faturada KDV hesaplanmis olmali
         // foreach (var invoiceId in _invoiceIds)
         // {
         //     var invoice = await DbContext.Invoices.FindAsync(invoiceId);
@@ -199,7 +199,7 @@ public class FullMonthE2ETests : E2ETestBase
         // Assert
         _shipmentIds.Should().HaveCount(10, "10 kargo gonderilmeli");
 
-        // FUTURE: Her kargonun takip numarasi olmali
+        // FUTURE: Her kargonun takip numarasi olmali (AppDbContext wiring gerekli)
         // foreach (var shipmentId in _shipmentIds)
         // {
         //     var shipment = await DbContext.Shipments.FindAsync(shipmentId);

@@ -6,6 +6,7 @@ namespace MesTech.Infrastructure.DependencyInjection;
 /// Registers all named HttpClients used by Integration adapters, providers, and services.
 /// Centralizes HttpClient lifecycle management via IHttpClientFactory — eliminates socket exhaustion
 /// from raw <c>new HttpClient()</c> calls across 40+ adapter registrations.
+/// Socket exhaustion prevention + DNS rotation + configurable timeouts.
 /// </summary>
 public static class IntegrationHttpClientRegistry
 {
@@ -74,46 +75,46 @@ public static class IntegrationHttpClientRegistry
     public static IServiceCollection AddIntegrationHttpClients(this IServiceCollection services)
     {
         // ── Platform Adapters ──────────────────────────────
-        services.AddHttpClient(ClientNames.Trendyol);
-        services.AddHttpClient(ClientNames.OpenCart);
-        services.AddHttpClient(ClientNames.Ciceksepeti);
-        services.AddHttpClient(ClientNames.HepsiburadaToken);
-        services.AddHttpClient(ClientNames.Hepsiburada);
-        services.AddHttpClient(ClientNames.Pazarama);
-        services.AddHttpClient(ClientNames.PazaramaToken);
-        services.AddHttpClient(ClientNames.AmazonTr);
-        services.AddHttpClient(ClientNames.AmazonEu);
-        services.AddHttpClient(ClientNames.AmazonFBA);
-        services.AddHttpClient(ClientNames.AmazonLWA);
-        services.AddHttpClient(ClientNames.Bitrix24);
-        services.AddHttpClient(ClientNames.Bitrix24Auth);
-        services.AddHttpClient(ClientNames.Ebay);
-        services.AddHttpClient(ClientNames.Ozon);
-        services.AddHttpClient(ClientNames.PttAvm);
-        services.AddHttpClient(ClientNames.Shopify);
-        services.AddHttpClient(ClientNames.WooCommerce);
-        services.AddHttpClient(ClientNames.Etsy);
-        services.AddHttpClient(ClientNames.Zalando);
+        RegisterDefault(services, ClientNames.Trendyol);
+        RegisterDefault(services, ClientNames.OpenCart);
+        RegisterDefault(services, ClientNames.Ciceksepeti);
+        RegisterDefault(services, ClientNames.HepsiburadaToken);
+        RegisterDefault(services, ClientNames.Hepsiburada);
+        RegisterDefault(services, ClientNames.Pazarama);
+        RegisterDefault(services, ClientNames.PazaramaToken);
+        RegisterDefault(services, ClientNames.AmazonTr);
+        RegisterDefault(services, ClientNames.AmazonEu);
+        RegisterDefault(services, ClientNames.AmazonFBA);
+        RegisterDefault(services, ClientNames.AmazonLWA);
+        RegisterDefault(services, ClientNames.Bitrix24);
+        RegisterDefault(services, ClientNames.Bitrix24Auth);
+        RegisterDefault(services, ClientNames.Ebay);
+        RegisterDefault(services, ClientNames.Ozon);
+        RegisterDefault(services, ClientNames.PttAvm);
+        RegisterDefault(services, ClientNames.Shopify);
+        RegisterDefault(services, ClientNames.WooCommerce);
+        RegisterDefault(services, ClientNames.Etsy);
+        RegisterDefault(services, ClientNames.Zalando);
 
         // ── Cargo Adapters ─────────────────────────────────
-        services.AddHttpClient(ClientNames.YurticiKargo);
-        services.AddHttpClient(ClientNames.ArasKargo);
-        services.AddHttpClient(ClientNames.SuratKargo);
-        services.AddHttpClient(ClientNames.MngKargo);
-        services.AddHttpClient(ClientNames.PttKargo);
-        services.AddHttpClient(ClientNames.HepsiJet);
-        services.AddHttpClient(ClientNames.Sendeo);
+        RegisterDefault(services, ClientNames.YurticiKargo);
+        RegisterDefault(services, ClientNames.ArasKargo);
+        RegisterDefault(services, ClientNames.SuratKargo);
+        RegisterDefault(services, ClientNames.MngKargo);
+        RegisterDefault(services, ClientNames.PttKargo);
+        RegisterDefault(services, ClientNames.HepsiJet);
+        RegisterDefault(services, ClientNames.Sendeo);
 
         // ── Invoice Providers ──────────────────────────────
-        services.AddHttpClient(ClientNames.Sovos);
-        services.AddHttpClient(ClientNames.ParasutInvoice);
-        services.AddHttpClient(ClientNames.TrendyolEFaturam);
-        services.AddHttpClient(ClientNames.ELogoSoap);
-        services.AddHttpClient(ClientNames.ELogo);
-        services.AddHttpClient(ClientNames.BirFatura);
-        services.AddHttpClient(ClientNames.DijitalPlanet);
-        services.AddHttpClient(ClientNames.GibPortal);
-        services.AddHttpClient(ClientNames.HBFatura);
+        RegisterDefault(services, ClientNames.Sovos);
+        RegisterDefault(services, ClientNames.ParasutInvoice);
+        RegisterDefault(services, ClientNames.TrendyolEFaturam);
+        RegisterDefault(services, ClientNames.ELogoSoap);
+        RegisterDefault(services, ClientNames.ELogo);
+        RegisterDefault(services, ClientNames.BirFatura);
+        RegisterDefault(services, ClientNames.DijitalPlanet);
+        RegisterDefault(services, ClientNames.GibPortal);
+        RegisterDefault(services, ClientNames.HBFatura);
 
         // GibPortalEInvoice — 30s timeout for e-Arsiv Portal REST calls
         services.AddHttpClient(ClientNames.GibPortalEInvoice, client =>
@@ -122,18 +123,23 @@ public static class IntegrationHttpClientRegistry
         });
 
         // ── Services ───────────────────────────────────────
-        services.AddHttpClient(ClientNames.ProductScraper);
-        services.AddHttpClient(ClientNames.FeedHealthCheck);
-        services.AddHttpClient(ClientNames.PayTRDirect);
-        services.AddHttpClient(ClientNames.PayTRiFrame);
-        services.AddHttpClient(ClientNames.Hepsilojistik);
+        RegisterDefault(services, ClientNames.ProductScraper);
 
         // ParasutAccounting — pre-configured base address
         services.AddHttpClient(ClientNames.ParasutAccounting, client =>
         {
             client.BaseAddress = new Uri("https://api.parasut.com/v4/");
         });
+        RegisterDefault(services, ClientNames.FeedHealthCheck);
+        RegisterDefault(services, ClientNames.PayTRDirect);
+        RegisterDefault(services, ClientNames.PayTRiFrame);
+        RegisterDefault(services, ClientNames.Hepsilojistik);
 
         return services;
+    }
+
+    private static void RegisterDefault(IServiceCollection services, string name)
+    {
+        services.AddHttpClient(name);
     }
 }
