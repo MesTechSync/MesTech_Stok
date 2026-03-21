@@ -1,0 +1,219 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MesTech.Avalonia.Views.ThemeTestView"
+             Background="{StaticResource BackgroundBrush}">
+
+  <ScrollViewer Padding="24">
+    <StackPanel Spacing="24">
+
+      <!-- Header -->
+      <TextBlock Text="MesTech Theme Test"
+                 FontSize="{StaticResource FontSizeHeader}"
+                 FontWeight="Bold"
+                 Foreground="{StaticResource TextPrimaryBrush}"/>
+      <TextBlock Text="Avalonia tema bilesenlerinin gorusel dogrulamasi"
+                 FontSize="{StaticResource FontSizeBody}"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Margin="0,-16,0,0"/>
+
+      <!-- Buttons Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="section-title" Text="Button Styles"/>
+          <WrapPanel Orientation="Horizontal">
+            <Button Classes="mestech-raised" Content="Raised" Margin="0,0,8,8"/>
+            <Button Classes="mestech-accent" Content="Accent" Margin="0,0,8,8"/>
+            <Button Classes="mestech-outline" Content="Outline" Margin="0,0,8,8"/>
+            <Button Classes="mestech-flat" Content="Flat" Margin="0,0,8,8"/>
+            <Button Classes="mestech-danger" Content="Danger" Margin="0,0,8,8"/>
+            <Button Classes="mestech-icon-btn" Margin="0,0,8,8">
+              <PathIcon Data="{StaticResource IconSettings}" Width="20" Height="20"/>
+            </Button>
+            <Button Classes="mestech-raised" Content="Disabled" IsEnabled="False" Margin="0,0,8,8"/>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Cards Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="section-title" Text="Card Styles"/>
+          <WrapPanel Orientation="Horizontal">
+            <Border Classes="mestech-card" Margin="0,0,12,12" Width="220">
+              <StackPanel>
+                <TextBlock Text="Standard Card" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Temel kart bileseni" Margin="0,4,0,0"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+              </StackPanel>
+            </Border>
+            <Border Classes="mestech-kpi-card" Margin="0,0,12,12" Width="220">
+              <StackPanel>
+                <TextBlock Classes="kpi-value" Text="1,234"/>
+                <TextBlock Classes="kpi-label" Text="Toplam Urun"/>
+              </StackPanel>
+            </Border>
+            <Border Classes="mestech-kpi-card" Margin="0,0,12,12" Width="220">
+              <StackPanel>
+                <TextBlock Classes="kpi-value" Text="87.5%" Foreground="{StaticResource AccentGreenBrush}"/>
+                <TextBlock Classes="kpi-label" Text="Stok Doluluk"/>
+              </StackPanel>
+            </Border>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Inputs Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="section-title" Text="Input Styles"/>
+          <TextBox Classes="mestech" Watermark="Standard TextBox" Width="300" HorizontalAlignment="Left"/>
+          <TextBox Classes="mestech-search" Width="300" HorizontalAlignment="Left"/>
+          <ComboBox Classes="mestech" Width="300" HorizontalAlignment="Left" PlaceholderText="ComboBox Secimi">
+            <ComboBoxItem Content="Secenek 1"/>
+            <ComboBoxItem Content="Secenek 2"/>
+            <ComboBoxItem Content="Secenek 3"/>
+          </ComboBox>
+        </StackPanel>
+      </Border>
+
+      <!-- Icons Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="section-title" Text="Icon System"/>
+          <WrapPanel Orientation="Horizontal">
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconDashboard}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Dashboard" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconInventory}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Inventory" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconShoppingCart}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Cart" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconBarcode}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Barcode" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconTruck}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Cargo" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconReceipt}" Width="24" Height="24"
+                        Foreground="{StaticResource PrimaryBlueBrush}"/>
+              <TextBlock Text="Receipt" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconChart}" Width="24" Height="24"
+                        Foreground="{StaticResource AccentGreenBrush}"/>
+              <TextBlock Text="Chart" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconPerson}" Width="24" Height="24"
+                        Foreground="{StaticResource OrangePrimaryBrush}"/>
+              <TextBlock Text="User" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconNotification}" Width="24" Height="24"
+                        Foreground="{StaticResource WarningOrangeBrush}"/>
+              <TextBlock Text="Notify" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconCheck}" Width="24" Height="24"
+                        Foreground="{StaticResource AccentGreenBrush}"/>
+              <TextBlock Text="Check" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconWarning}" Width="24" Height="24"
+                        Foreground="{StaticResource WarningOrangeBrush}"/>
+              <TextBlock Text="Warning" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" HorizontalAlignment="Center">
+              <PathIcon Data="{StaticResource IconError}" Width="24" Height="24"
+                        Foreground="{StaticResource ErrorRedBrush}"/>
+              <TextBlock Text="Error" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Color Palette Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="section-title" Text="Color Palette"/>
+          <WrapPanel Orientation="Horizontal">
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource PrimaryBlueBrush}">
+              <TextBlock Text="Primary" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource SecondaryBlueBrush}">
+              <TextBlock Text="Secondary" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource AccentGreenBrush}">
+              <TextBlock Text="Accent" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource OrangePrimaryBrush}">
+              <TextBlock Text="Orange" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource WarningOrangeBrush}">
+              <TextBlock Text="Warning" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource ErrorRedBrush}">
+              <TextBlock Text="Error" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <Border Width="80" Height="60" CornerRadius="4" Margin="0,0,8,8"
+                    Background="{StaticResource SidebarBackgroundBrush}">
+              <TextBlock Text="Sidebar" Foreground="White" FontSize="10"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Typography Section -->
+      <Border Classes="mestech-section">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="section-title" Text="Typography"/>
+          <TextBlock Text="Display (32px)" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock Text="Header (24px)" FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock Text="Title (20px)" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock Text="Subtitle (16px)" FontSize="{StaticResource FontSizeSubtitle}"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock Text="Body (14px)" FontSize="{StaticResource FontSizeBody}"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock Text="Small (12px)" FontSize="{StaticResource FontSizeSmall}"
+                     Foreground="{StaticResource TextSecondaryBrush}"/>
+          <TextBlock Text="Caption (11px)" FontSize="{StaticResource FontSizeCaption}"
+                     Foreground="{StaticResource TextSecondaryBrush}"/>
+          <TextBlock Text="Monospace Font" FontSize="{StaticResource FontSizeBody}"
+                     FontFamily="{StaticResource MonoFontFamily}"
+                     Foreground="{StaticResource TextPrimaryBrush}"/>
+        </StackPanel>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
