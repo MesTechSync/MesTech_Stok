@@ -138,6 +138,7 @@ public static class InfrastructureServiceRegistration
         // Billing — Abonelik (DEV6)
         services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
+        services.AddScoped<IBillingInvoiceRepository, BillingInvoiceRepository>();
 
         // Onboarding (DEV6)
         services.AddScoped<IOnboardingProgressRepository, OnboardingProgressRepository>();
