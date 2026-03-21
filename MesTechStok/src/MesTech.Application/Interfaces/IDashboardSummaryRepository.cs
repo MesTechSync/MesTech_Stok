@@ -4,7 +4,7 @@ namespace MesTech.Application.Interfaces;
 
 /// <summary>
 /// Unified dashboard özet verisi sağlar — 12 KPI + 2 chart + 2 tablo.
-/// Implementation: MesTech.Infrastructure / DashboardSummaryRepository (AppDbContext).
+/// Implementation: MesTech.Infrastructure / DashboardSummaryRepository.
 /// </summary>
 public interface IDashboardSummaryRepository
 {
