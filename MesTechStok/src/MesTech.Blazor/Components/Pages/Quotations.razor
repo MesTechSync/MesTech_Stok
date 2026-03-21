@@ -237,7 +237,7 @@
                       }
                       @if (q.Durum != "Faturaya Cevrildi")
                       {
-                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => DeleteQuotation(q)"
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => ConfirmDeleteQuotation(q)"
                                 title="Sil">
                           <i class="fas fa-trash"></i>
                         </button>
@@ -254,12 +254,22 @@
   }
 </div>
 
+<ConfirmDialog IsVisible="showDeleteConfirm"
+               Title="Teklif Sil"
+               Message="@($"'{_deletingQuotation?.TeklifNo} - {_deletingQuotation?.Musteri}' teklifini silmek istediginize emin misiniz?")"
+               ConfirmText="Sil"
+               ButtonVariant="danger"
+               OnConfirmed="ExecuteDeleteQuotation"
+               OnCancelled="CancelDeleteQuotation" />
+
 @code {
   private bool isLoading = true;
   private bool _isDemoMode;
   private bool isSubmitting;
   private string? errorMessage;
   private string? successMessage;
+  private bool showDeleteConfirm;
+  private QuotationRow? _deletingQuotation;
   private string searchText = string.Empty;
   private string selectedStatus = string.Empty;
   private bool showNewForm;
@@ -436,11 +446,28 @@
     }
   }
 
-  private async Task DeleteQuotation(QuotationRow q)
+  private void ConfirmDeleteQuotation(QuotationRow q)
   {
-    var deleteResult = await ApiClient.SafeDeleteAsync($"quotations/{q.TeklifNo}");
-    if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
-    quotations.Remove(q);
+    _deletingQuotation = q;
+    showDeleteConfirm = true;
+  }
+
+  private async Task ExecuteDeleteQuotation()
+  {
+    if (_deletingQuotation is not null)
+    {
+      var deleteResult = await ApiClient.SafeDeleteAsync($"quotations/{_deletingQuotation.TeklifNo}");
+      if (!deleteResult.IsSuccess) { errorMessage = deleteResult.ErrorMessage; }
+      quotations.Remove(_deletingQuotation);
+    }
+    showDeleteConfirm = false;
+    _deletingQuotation = null;
+  }
+
+  private void CancelDeleteQuotation()
+  {
+    showDeleteConfirm = false;
+    _deletingQuotation = null;
   }
 
   private void UpdateStatus(QuotationRow q, string newStatus)
