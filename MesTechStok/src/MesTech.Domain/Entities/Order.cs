@@ -100,6 +100,45 @@ public class Order : BaseEntity, ITenantEntity
         RaiseDomainEvent(new OrderShippedEvent(Id, trackingNumber, provider, DateTime.UtcNow));
     }
 
+    /// <summary>
+    /// Siparisi iptal eder. Sadece Pending veya Confirmed statusunden iptal edilebilir.
+    /// </summary>
+    public void Cancel(string? reason = null)
+    {
+        if (Status is not (OrderStatus.Pending or OrderStatus.Confirmed))
+            throw new InvalidOperationException(
+                $"Cannot cancel order in {Status} status. Only Pending or Confirmed orders can be cancelled.");
+
+        Status = OrderStatus.Cancelled;
+
+        RaiseDomainEvent(new OrderCancelledEvent(
+            Id,
+            SourcePlatform?.ToString() ?? "Internal",
+            ExternalOrderId ?? OrderNumber,
+            reason,
+            DateTime.UtcNow));
+    }
+
+    /// <summary>
+    /// Siparisi teslim alindi olarak isaretler. Sadece Shipped statusunden gecis yapilabilir.
+    /// </summary>
+    public void MarkAsDelivered()
+    {
+        if (Status != OrderStatus.Shipped)
+            throw new InvalidOperationException(
+                $"Cannot mark as delivered in {Status} status. Only Shipped orders can be delivered.");
+
+        DeliveredAt = DateTime.UtcNow;
+        Status = OrderStatus.Delivered;
+
+        RaiseDomainEvent(new OrderReceivedEvent(
+            Id,
+            SourcePlatform?.ToString() ?? "Internal",
+            ExternalOrderId ?? OrderNumber,
+            TotalAmount,
+            DateTime.UtcNow));
+    }
+
     public int TotalItems => _orderItems.Sum(i => i.Quantity);
 
     public override string ToString() => $"Order #{OrderNumber} ({Status}) - {TotalAmount:C}";

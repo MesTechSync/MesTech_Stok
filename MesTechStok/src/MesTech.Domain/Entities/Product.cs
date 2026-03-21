@@ -135,6 +135,15 @@ public class Product : BaseEntity, ITenantEntity
             RaiseDomainEvent(new LowStockDetectedEvent(
                 Id, SKU, Stock, MinimumStock, DateTime.UtcNow));
         }
+
+        if (IsCriticalStock || IsOutOfStock())
+        {
+            var level = IsOutOfStock() ? StockAlertLevel.OutOfStock
+                : IsCriticalStock ? StockAlertLevel.Critical
+                : StockAlertLevel.Low;
+            RaiseDomainEvent(new StockCriticalEvent(
+                Id, Name, SKU, Stock, MinimumStock, level, null, null, DateTime.UtcNow));
+        }
     }
 
     public void UpdatePrice(decimal newSalePrice)
@@ -177,6 +186,23 @@ public class Product : BaseEntity, ITenantEntity
         : 0;
 
     public decimal TotalValue => Stock * PurchasePrice;
+
+    /// <summary>
+    /// Ürün oluşturulduktan sonra ProductCreatedEvent fırlatır.
+    /// Handler veya factory'den çağrılmalı.
+    /// </summary>
+    public void MarkAsCreated()
+    {
+        RaiseDomainEvent(new ProductCreatedEvent(Id, SKU, Name, SalePrice, DateTime.UtcNow));
+    }
+
+    /// <summary>
+    /// Ürün bilgileri güncellendiğinde ProductUpdatedEvent fırlatır.
+    /// </summary>
+    public void MarkAsUpdated()
+    {
+        RaiseDomainEvent(new ProductUpdatedEvent(Id, SKU, DateTime.UtcNow));
+    }
 
     public decimal? Volume => Length.HasValue && Width.HasValue && Height.HasValue
         ? Length.Value * Width.Value * Height.Value
