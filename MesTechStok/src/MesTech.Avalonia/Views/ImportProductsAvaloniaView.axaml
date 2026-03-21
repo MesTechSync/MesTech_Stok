@@ -123,7 +123,7 @@
                         <Border Background="{Binding ErrorCountBackground}" CornerRadius="10" Padding="10,4"
                                 IsVisible="{Binding HasPreviewErrors}">
                             <TextBlock Text="{Binding ErrorRowCount, StringFormat='{}{0} hata'}"
-                                       FontSize="12" Foreground="#DC2626" />
+                                       FontSize="12" Foreground="{DynamicResource MesRedAlert}" />
                         </Border>
                     </StackPanel>
                 </Border>
@@ -165,8 +165,8 @@
 
                         <!-- Mapping Header -->
                         <Grid ColumnDefinitions="*,40,*" Margin="0,8,0,0">
-                            <TextBlock Grid.Column="0" Text="Kaynak Kolon" FontWeight="SemiBold" Foreground="#475569" FontSize="12" />
-                            <TextBlock Grid.Column="2" Text="Hedef Alan" FontWeight="SemiBold" Foreground="#475569" FontSize="12" />
+                            <TextBlock Grid.Column="0" Text="Kaynak Kolon" FontWeight="SemiBold" Foreground="{DynamicResource MesTextSlate}" FontSize="12" />
+                            <TextBlock Grid.Column="2" Text="Hedef Alan" FontWeight="SemiBold" Foreground="{DynamicResource MesTextSlate}" FontSize="12" />
                         </Grid>
 
                         <!-- Mapping Rows -->
@@ -214,7 +214,7 @@
                             <Grid ColumnDefinitions="*,*,*" HorizontalAlignment="Center">
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding SuccessCount}" FontSize="24" FontWeight="Bold"
-                                               Foreground="#16A34A" HorizontalAlignment="Center" />
+                                               Foreground="{DynamicResource MesGreen}" HorizontalAlignment="Center" />
                                     <TextBlock Text="Basarili" FontSize="12" Foreground="#15803D"
                                                HorizontalAlignment="Center" />
                                 </StackPanel>
@@ -226,7 +226,7 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Center" Margin="16,0">
                                     <TextBlock Text="{Binding FailedCount}" FontSize="24" FontWeight="Bold"
-                                               Foreground="#DC2626" HorizontalAlignment="Center" />
+                                               Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center" />
                                     <TextBlock Text="Hatali" FontSize="12" Foreground="#B91C1C"
                                                HorizontalAlignment="Center" />
                                 </StackPanel>
@@ -244,7 +244,7 @@
                             <ItemsControl ItemsSource="{Binding ImportErrors}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ImportErrorDto">
-                                        <TextBlock Text="{Binding Message}" FontSize="12" Foreground="#DC2626"
+                                        <TextBlock Text="{Binding Message}" FontSize="12" Foreground="{DynamicResource MesRedAlert}"
                                                    TextWrapping="Wrap" Margin="0,2" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -275,7 +275,7 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Dosya isleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Dosya isleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

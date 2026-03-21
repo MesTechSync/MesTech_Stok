@@ -33,15 +33,15 @@
                 <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="6"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Gelir" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Gelir" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalRevenue}" FontSize="22" FontWeight="Bold"
-                                   Foreground="#10B981" Margin="0,6,0,0" />
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" Margin="6"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Gider" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Gider" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalExpenses}" FontSize="22" FontWeight="Bold"
                                    Foreground="#EF4444" Margin="0,6,0,0" />
                     </StackPanel>
@@ -49,7 +49,7 @@
                 <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="20" Margin="6"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Net Kar" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetProfit}" FontSize="22" FontWeight="Bold"
                                    Foreground="#2563EB" Margin="0,6,0,0" />
                     </StackPanel>
@@ -57,7 +57,7 @@
                 <Border Grid.Column="3" Background="White" CornerRadius="12" Padding="20" Margin="6"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Kar Marji" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Kar Marji" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding ProfitMarginText}" FontSize="22" FontWeight="Bold"
                                    Foreground="#8B5CF6" Margin="0,6,0,0" />
                     </StackPanel>
@@ -104,14 +104,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kar/Zarar raporu yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Kar/Zarar raporu yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Veri bulunamadi" FontSize="22" FontWeight="Bold"
@@ -124,7 +124,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

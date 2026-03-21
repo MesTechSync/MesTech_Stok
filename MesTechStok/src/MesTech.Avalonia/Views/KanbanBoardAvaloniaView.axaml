@@ -28,7 +28,7 @@
             <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
                     CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
                     VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
 
             <!-- Kanban Columns -->

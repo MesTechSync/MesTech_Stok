@@ -38,7 +38,7 @@
                     <TextBlock Text="Kullanici Adi" FontSize="13" FontWeight="SemiBold"
                                Foreground="#374151" />
                     <TextBox Text="{Binding Username}"
-                             Watermark="Kullanici adinizi giriniz"
+                             Watermark="Kullanici adinizi giriniz" AutomationProperties.Name="Kullanici adinizi giriniz"
                              Padding="12,10" CornerRadius="8" FontSize="14" />
                 </StackPanel>
 
@@ -48,7 +48,7 @@
                                Foreground="#374151" />
                     <TextBox Text="{Binding Password}"
                              PasswordChar="●"
-                             Watermark="Sifrenizi giriniz"
+                             Watermark="Sifrenizi giriniz" AutomationProperties.Name="Sifrenizi giriniz"
                              Padding="12,10" CornerRadius="8" FontSize="14" />
                 </StackPanel>
 
@@ -57,7 +57,7 @@
                         IsVisible="{Binding HasError}"
                         BorderBrush="#FECACA" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="#DC2626" FontSize="13"
+                               Foreground="{DynamicResource MesRedAlert}" FontSize="13"
                                TextWrapping="Wrap" />
                 </Border>
 
@@ -107,7 +107,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Giris yapiliyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

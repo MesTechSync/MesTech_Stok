@@ -27,7 +27,7 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0" Watermark="Talep ara..." Width="250" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="0" Watermark="Talep ara..." AutomationProperties.Name="Talep ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0" />
                 <Button Grid.Column="2" Content="+ Yeni Talep" Background="#0D9488" Foreground="White"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />

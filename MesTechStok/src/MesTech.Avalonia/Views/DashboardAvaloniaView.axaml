@@ -261,7 +261,7 @@
                                     <Ellipse Width="8" Height="8"
                                              Fill="{Binding StatusColor}" />
                                     <TextBlock Text="{Binding PlatformName}"
-                                               FontSize="12" Foreground="#475569"
+                                               FontSize="12" Foreground="{DynamicResource MesTextSlate}"
                                                VerticalAlignment="Center" />
                                 </StackPanel>
                             </Border>
@@ -329,7 +329,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4"
                              Margin="0,0,0,12" />
                 <TextBlock Text="Dashboard verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

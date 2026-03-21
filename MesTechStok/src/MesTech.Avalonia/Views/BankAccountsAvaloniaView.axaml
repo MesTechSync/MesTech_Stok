@@ -27,7 +27,7 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBox Grid.Column="0" Watermark="Hesap ara..." Width="250" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="0" Watermark="Hesap ara..." AutomationProperties.Name="Hesap ara..." Width="250" HorizontalAlignment="Left" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="+ Hesap Ekle" Background="#059669" Foreground="White"
                             FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />

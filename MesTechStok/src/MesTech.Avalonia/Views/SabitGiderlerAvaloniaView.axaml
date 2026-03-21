@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesRedAlert}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Sabit Giderler" Foreground="White"
@@ -19,11 +19,11 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Sabit Gider"
                         Command="{Binding AddRecurringExpenseCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#DC2626" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -34,7 +34,7 @@
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Aylik Toplam" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Aylik Toplam" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding MonthlyTotal}" FontSize="20" FontWeight="Bold"
                                    Foreground="#EF4444" Margin="0,4,0,0" />
                     </StackPanel>
@@ -42,15 +42,15 @@
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Yillik Toplam" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Yillik Toplam" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding YearlyTotal}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#DC2626" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesRedAlert}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Aktif Gider Sayisi" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Aktif Gider Sayisi" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding ActiveCount}" FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource MesDarkSlate}" Margin="0,4,0,0" />
                     </StackPanel>
@@ -66,7 +66,7 @@
                           Width="180" />
                 <ComboBox ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}"
                           Width="140" />
-                <TextBox Width="220" Watermark="Gider adi ara..."
+                <TextBox Width="220" Watermark="Gider adi ara..." AutomationProperties.Name="Gider adi ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>
         </Border>
@@ -107,14 +107,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Sabit gider verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Sabit gider verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
@@ -127,7 +127,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

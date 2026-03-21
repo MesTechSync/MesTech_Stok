@@ -85,7 +85,7 @@
 
                 <!-- Orta: Arama -->
                 <TextBox Grid.Column="1"
-                         Watermark="Ara..."
+                         Watermark="Ara..." AutomationProperties.Name="Ara..."
                          MaxWidth="400" Margin="24,0"
                          VerticalAlignment="Center"
                          FontSize="{StaticResource FontSizeBody}"/>
@@ -167,7 +167,7 @@
                             BorderBrush="{StaticResource SidebarBorderBrush}"
                             BorderThickness="0,1,0,0">
                         <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="10"
-                                   Foreground="#475569"/>
+                                   Foreground="{DynamicResource MesTextSlate}"/>
                     </Border>
 
                     <!-- Sidebar menu — ScrollViewer icinde -->

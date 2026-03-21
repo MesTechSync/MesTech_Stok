@@ -32,7 +32,7 @@
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <TextBox Width="280" Watermark="Hesap adi ara..."
+                <TextBox Width="280" Watermark="Hesap adi ara..." AutomationProperties.Name="Hesap adi ara..."
                          Text="{Binding SearchText}"
                          HorizontalAlignment="Left" />
                 <ComboBox ItemsSource="{Binding AccountTypes}"
@@ -71,14 +71,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Cari hesaplar yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -92,7 +92,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

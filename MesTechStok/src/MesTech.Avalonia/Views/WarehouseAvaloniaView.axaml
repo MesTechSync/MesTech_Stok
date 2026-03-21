@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Depo Ekle"
                         Command="{Binding AddWarehouseCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -33,7 +33,7 @@
         <!-- Search Bar -->
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Depo adi veya konum ara..."
+            <TextBox Width="320" Watermark="Depo adi veya konum ara..." AutomationProperties.Name="Depo adi veya konum ara..."
                      Text="{Binding SearchText}"
                      HorizontalAlignment="Left" />
         </Border>
@@ -113,11 +113,11 @@
                                Foreground="{DynamicResource MesDarkSlate}" />
                     <StackPanel Spacing="4">
                         <TextBlock Text="Depo Adi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                        <TextBox Text="{Binding NewWarehouseName}" Watermark="Orn: Sube 2 Depo" />
+                        <TextBox Text="{Binding NewWarehouseName}" Watermark="Orn: Sube 2 Depo" AutomationProperties.Name="Orn: Sube 2 Depo" />
                     </StackPanel>
                     <StackPanel Spacing="4">
                         <TextBlock Text="Konum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                        <TextBox Text="{Binding NewWarehouseLocation}" Watermark="Orn: Istanbul, Ikitelli" />
+                        <TextBox Text="{Binding NewWarehouseLocation}" Watermark="Orn: Istanbul, Ikitelli" AutomationProperties.Name="Orn: Istanbul, Ikitelli" />
                     </StackPanel>
                     <StackPanel Spacing="4">
                         <TextBlock Text="Kapasite" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -126,11 +126,11 @@
                     </StackPanel>
                     <Grid ColumnDefinitions="*,8,*" Margin="0,8,0,0">
                         <Button Grid.Column="0" Content="Iptal" Command="{Binding CancelAddWarehouseCommand}"
-                                Background="#E2E8F0" Foreground="#475569" FontWeight="SemiBold"
+                                Background="#E2E8F0" Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold"
                                 Padding="16,10" CornerRadius="6"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
                         <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveWarehouseCommand}"
-                                Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                                Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                                 Padding="16,10" CornerRadius="6"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
                     </Grid>
@@ -146,14 +146,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Depo verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -167,7 +167,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

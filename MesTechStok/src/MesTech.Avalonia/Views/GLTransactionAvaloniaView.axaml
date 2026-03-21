@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Hareket"
                         Command="{Binding AddTransactionCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -34,7 +34,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}"
                           Width="220" />
-                <TextBox Width="200" Watermark="Fis no veya aciklama ara..."
+                <TextBox Width="200" Watermark="Fis no veya aciklama ara..." AutomationProperties.Name="Fis no veya aciklama ara..."
                          Text="{Binding SearchText}" />
                 <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
                 <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
@@ -79,14 +79,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Muhasebe hareketleri yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Muhasebe hareketleri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Hareket bulunamadi" FontSize="22" FontWeight="Bold"
@@ -99,7 +99,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

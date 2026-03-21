@@ -52,19 +52,19 @@
                         <StackPanel Grid.Row="1" Margin="16" Spacing="12">
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Veritabani:" FontSize="14"
-                                           Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" FontSize="14"
                                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Max Kullanici:" FontSize="14"
-                                           Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding MaxUsers}" FontSize="14"
                                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnDefinitions="160,*">
                                 <TextBlock Grid.Column="0" Text="Depolama:" FontSize="14"
-                                           Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding StorageUsed, StringFormat='{}{0} GB'}" FontSize="14"
                                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             </Grid>
@@ -83,7 +83,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Tenant bilgileri yukleniyor..."
-                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

@@ -23,25 +23,25 @@
     <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,12">
       <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="0,0,8,0" BoxShadow="0 1 3 0 #1A000000">
         <StackPanel>
-          <TextBlock Text="BUTCE" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="BUTCE" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalBudget}" FontSize="22" FontWeight="Bold" Foreground="#1D4ED8"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="0 1 3 0 #1A000000">
         <StackPanel>
-          <TextBlock Text="GERCEKLESEN" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="GERCEKLESEN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalActual}" FontSize="22" FontWeight="Bold" Foreground="#059669"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="0 1 3 0 #1A000000">
         <StackPanel>
-          <TextBlock Text="KALAN" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="KALAN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalRemaining}" FontSize="22" FontWeight="Bold" Foreground="#D97706"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="8,0,0,0" BoxShadow="0 1 3 0 #1A000000">
         <StackPanel>
-          <TextBlock Text="KULLANIM ORANI" FontSize="11" FontWeight="DemiBold" Foreground="#6B7280"/>
+          <TextBlock Text="KULLANIM ORANI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding UsageRate}" FontSize="22" FontWeight="Bold" Foreground="#7C3AED"/>
         </StackPanel>
       </Border>
@@ -74,7 +74,7 @@
         <!-- Loading overlay -->
         <Border Background="#80FFFFFF" IsVisible="{Binding IsLoading}" CornerRadius="8">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="#6B7280"/>
+            <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesCoolGray}"/>
           </StackPanel>
         </Border>
 
@@ -89,8 +89,8 @@
         <!-- Error state -->
         <Border Background="#FFF5F5" IsVisible="{Binding HasError}" CornerRadius="8" Padding="16">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-            <TextBlock Text="Hata" FontSize="16" FontWeight="Bold" Foreground="#DC2626" HorizontalAlignment="Center"/>
-            <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="#DC2626" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <TextBlock Text="Hata" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>
       </Panel>

@@ -36,11 +36,11 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Border Width="12" Height="12" CornerRadius="6" Background="#16A34A" />
+                    <Border Width="12" Height="12" CornerRadius="6" Background="{DynamicResource MesGreen}" />
                     <TextBlock Text="Alim" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Border Width="12" Height="12" CornerRadius="6" Background="#DC2626" />
+                    <Border Width="12" Height="12" CornerRadius="6" Background="{DynamicResource MesRedAlert}" />
                     <TextBlock Text="Satis" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -52,7 +52,7 @@
                     <TextBlock Text="Iade" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Border Width="12" Height="12" CornerRadius="6" Background="#6B7280" />
+                    <Border Width="12" Height="12" CornerRadius="6" Background="{DynamicResource MesCoolGray}" />
                     <TextBlock Text="Duzeltme" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
@@ -111,13 +111,13 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Stok hareketleri yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Stok hareketleri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="2" Background="#F7F9FC"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
                 <TextBlock Text="Stok Hareketi Bulunamadi" FontSize="22" FontWeight="Bold"

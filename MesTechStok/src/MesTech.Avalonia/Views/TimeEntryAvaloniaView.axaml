@@ -43,19 +43,19 @@
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
                                 <TextBlock Text="Baslangic Saati" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding StartTime}" Watermark="09:00" Padding="10,8" />
+                                <TextBox Text="{Binding StartTime}" Watermark="09:00" AutomationProperties.Name="09:00" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
                                 <TextBlock Text="Bitis Saati" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding EndTime}" Watermark="18:00" Padding="10,8" />
+                                <TextBox Text="{Binding EndTime}" Watermark="18:00" AutomationProperties.Name="18:00" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4" Margin="0,0,12,0">
                                 <TextBlock Text="Proje" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding ProjectName}" Watermark="Proje adi" Padding="10,8" />
+                                <TextBox Text="{Binding ProjectName}" Watermark="Proje adi" AutomationProperties.Name="Proje adi" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
                                 <TextBlock Text="Aciklama" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding Description}" Watermark="Yapilan is aciklamasi" Padding="10,8" />
+                                <TextBox Text="{Binding Description}" Watermark="Yapilan is aciklamasi" AutomationProperties.Name="Yapilan is aciklamasi" Padding="10,8" />
                             </StackPanel>
                         </Grid>
                         <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveEntryCommand}"
@@ -115,7 +115,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Zaman kayitlari yukleniyor..."
-                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

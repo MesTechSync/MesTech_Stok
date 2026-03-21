@@ -34,7 +34,7 @@
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
                         CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
 
                 <!-- KPI Cards -->
@@ -57,14 +57,14 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Dogruluk" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding Accuracy}" FontSize="24" FontWeight="Bold" Foreground="#10B981" />
+                            <TextBlock Text="{Binding Accuracy}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Durum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding AiStatus}" FontSize="24" FontWeight="Bold" Foreground="#10B981" />
+                            <TextBlock Text="{Binding AiStatus}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -98,7 +98,7 @@
                                                     <Border.Background>
                                                         <SolidColorBrush Color="#10B981" Opacity="0.15" />
                                                     </Border.Background>
-                                                    <TextBlock Text="{Binding Status}" FontSize="10" Foreground="#10B981" />
+                                                    <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource MesEmerald}" />
                                                 </Border>
                                             </Grid>
                                         </Border>
@@ -123,7 +123,7 @@
                                                     <TextBlock Grid.Column="0" Text="{Binding Tool}"
                                                                FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
                                                     <TextBlock Grid.Column="1" Text="{Binding Confidence}"
-                                                               FontSize="11" Foreground="#10B981" FontWeight="Bold" />
+                                                               FontSize="11" Foreground="{DynamicResource MesEmerald}" FontWeight="Bold" />
                                                 </Grid>
                                                 <TextBlock Text="{Binding Result}" FontSize="12"
                                                            TextWrapping="Wrap" />

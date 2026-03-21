@@ -33,7 +33,7 @@
             <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
                     CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
                     VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
 
             <!-- Empty -->
@@ -66,7 +66,7 @@
                                     </StackPanel>
                                     <Border Background="#F0FDF4" CornerRadius="4" Padding="8,2"
                                             HorizontalAlignment="Left">
-                                        <TextBlock Text="{Binding Status}" FontSize="11" Foreground="#16A34A" />
+                                        <TextBlock Text="{Binding Status}" FontSize="11" Foreground="{DynamicResource MesGreen}" />
                                     </Border>
                                 </StackPanel>
                             </Border>

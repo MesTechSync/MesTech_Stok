@@ -33,7 +33,7 @@
                     <!-- Urun Arama -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                        <TextBox Watermark="SKU veya urun adi ile ara..."
+                        <TextBox Watermark="SKU veya urun adi ile ara..." AutomationProperties.Name="SKU veya urun adi ile ara..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding ProductSuggestions}"
                                  SelectedItem="{Binding SelectedProduct}"
@@ -50,7 +50,7 @@
                     <!-- Lot Numarasi -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Lot Numarasi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                        <TextBox Watermark="LOT-2026-001"
+                        <TextBox Watermark="LOT-2026-001" AutomationProperties.Name="LOT-2026-001"
                                  Text="{Binding LotNumber}" />
                     </StackPanel>
 
@@ -95,14 +95,14 @@
 
                     <!-- Kaydet -->
                     <Button Content="Lot Kaydet" Command="{Binding SaveLotCommand}"
-                            Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                             Padding="16,10" CornerRadius="6"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,8,0,0" />
 
                     <!-- Status -->
                     <TextBlock Text="{Binding SaveStatus}" FontSize="13"
-                               Foreground="#16A34A" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                                TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
@@ -155,14 +155,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Lot verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

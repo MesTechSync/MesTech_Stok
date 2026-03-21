@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#DC2626" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesRedAlert}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Giderler" Foreground="White"
@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="#DC2626" FontWeight="SemiBold"
+                        Background="White" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -27,9 +27,9 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0" Watermark="Gider ara..." Width="250" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="0" Watermark="Gider ara..." AutomationProperties.Name="Gider ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Kategori" Width="140" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Gider Ekle" Background="#DC2626" Foreground="White"
+                <Button Grid.Column="2" Content="+ Gider Ekle" Background="{DynamicResource MesRedAlert}" Foreground="White"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

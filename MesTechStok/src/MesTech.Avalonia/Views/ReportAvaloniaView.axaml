@@ -73,7 +73,7 @@
                                         VerticalAlignment="Bottom" />
                                 <Button Content="Excel'e Aktar"
                                         Command="{Binding ExportExcelCommand}"
-                                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                                         Padding="16,8" CornerRadius="6"
                                         VerticalAlignment="Bottom" />
                             </StackPanel>
@@ -133,14 +133,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Rapor olusturuluyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Rapor olusturuluyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="1"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Rapor sonucu bos" FontSize="22" FontWeight="Bold"
@@ -153,7 +153,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

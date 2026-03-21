@@ -119,7 +119,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Takvim yukleniyor..."
-                           FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

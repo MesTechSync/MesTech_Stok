@@ -35,7 +35,7 @@
                                 <TextBlock Text="Dosya Secimi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding ImportFilePath}"
-                                             Watermark="Excel dosya sec..." IsReadOnly="True"
+                                             Watermark="Excel dosya sec..." AutomationProperties.Name="Excel dosya sec..." IsReadOnly="True"
                                              Height="36" FontSize="13" CornerRadius="4" />
                                     <Button Grid.Column="1" Content="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
@@ -238,7 +238,7 @@
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
                                         <TextBlock Text="Deger" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBox Text="{Binding BulkActionValue}"
-                                                 Watermark="Deger giriniz..."
+                                                 Watermark="Deger giriniz..." AutomationProperties.Name="Deger giriniz..."
                                                  Height="36" FontSize="13" CornerRadius="4" />
                                     </StackPanel>
                                 </Grid>
@@ -287,7 +287,7 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

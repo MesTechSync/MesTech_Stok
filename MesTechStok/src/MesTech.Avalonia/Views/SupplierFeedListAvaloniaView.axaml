@@ -51,13 +51,13 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Feed listesi yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Feed listesi yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="1" Background="#F7F9FC" IsVisible="{Binding IsEmpty}" ZIndex="50">
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Feed Bulunamadı" FontSize="20" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
@@ -67,7 +67,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="2" Background="#F7F9FC" IsVisible="{Binding HasError}" ZIndex="50">
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"
                            Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />

@@ -93,23 +93,23 @@
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding StoreName}" Watermark="Örn: Ana Mağaza" Padding="10,8" />
+                    <TextBox Text="{Binding StoreName}" Watermark="Örn: Ana Mağaza" AutomationProperties.Name="Örn: Ana Mağaza" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="{Binding Field1Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding Field1Value}" Watermark="{Binding Field1Label}" Padding="10,8" />
+                    <TextBox Text="{Binding Field1Value}" Watermark="{Binding Field1Label}" AutomationProperties.Name="{Binding Field1Label}" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="{Binding Field2Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding Field2Value}" Watermark="{Binding Field2Label}"
+                    <TextBox Text="{Binding Field2Value}" Watermark="{Binding Field2Label}" AutomationProperties.Name="{Binding Field2Label}"
                              PasswordChar="*" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4" IsVisible="{Binding Field3Visible}">
                     <TextBlock Text="{Binding Field3Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding Field3Value}" Watermark="{Binding Field3Label}" Padding="10,8" />
+                    <TextBox Text="{Binding Field3Value}" Watermark="{Binding Field3Label}" AutomationProperties.Name="{Binding Field3Label}" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
@@ -179,7 +179,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="İşleniyor..." FontSize="14" Foreground="#555555" HorizontalAlignment="Center" />
+                <TextBlock Text="İşleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

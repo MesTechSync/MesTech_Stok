@@ -59,7 +59,7 @@
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="MesTech Kategorileri" FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
-                    <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..."
+                    <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..." AutomationProperties.Name="Kategori ara..."
                              Text="{Binding LocalSearchText}" Margin="0,0,0,8"
                              Height="32" FontSize="13" CornerRadius="4" />
                     <TreeView ItemsSource="{Binding LocalCategoryTree}"
@@ -96,7 +96,7 @@
                     <TextBlock DockPanel.Dock="Top"
                                Text="{Binding SelectedPlatform, StringFormat='{}{0} Kategorileri'}"
                                FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
-                    <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..."
+                    <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..." AutomationProperties.Name="Kategori ara..."
                              Text="{Binding PlatformSearchText}" Margin="0,0,0,8"
                              Height="32" FontSize="13" CornerRadius="4" />
                     <TreeView ItemsSource="{Binding PlatformCategoryTree}"
@@ -162,7 +162,7 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kategoriler yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Kategoriler yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

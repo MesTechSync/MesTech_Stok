@@ -88,7 +88,7 @@
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Durum:"
                                            FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,0" />
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupStatus}"
-                                           FontSize="13" FontWeight="Bold" Foreground="#16A34A" />
+                                           FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -113,7 +113,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Sonuc:"
                                            FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,0,12,0" />
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastRestoreTestResult}"
-                                           FontSize="13" FontWeight="SemiBold" Foreground="#16A34A"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesGreen}"
                                            TextWrapping="Wrap" />
                             </Grid>
 
@@ -167,7 +167,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Yedekleme bilgileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

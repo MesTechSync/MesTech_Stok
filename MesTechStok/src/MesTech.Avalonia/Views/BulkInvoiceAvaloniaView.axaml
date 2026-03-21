@@ -36,7 +36,7 @@
                           SelectedItem="{Binding SelectedProvider}"/>
                 <Button Grid.Column="4" Content="Toplu Fatura Olustur"
                         Command="{Binding ProcessBulkCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         Margin="12,0,0,0"/>
             </Grid>

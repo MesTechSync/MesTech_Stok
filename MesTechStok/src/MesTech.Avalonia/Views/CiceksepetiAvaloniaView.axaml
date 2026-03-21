@@ -41,7 +41,7 @@
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="#E91E63" />
                     <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Toplam Urun" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Toplam Urun" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding ProductCount}"
                                    FontSize="28" FontWeight="Bold" Foreground="#E91E63"
                                    Margin="0,8,0,0" />
@@ -53,11 +53,11 @@
             <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#10B981" />
+                    <Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
                     <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Aktif Siparis" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Aktif Siparis" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding OrderCount}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#10B981"
+                                   FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Bekleyen siparis sayisi"
                                    FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
@@ -69,7 +69,7 @@
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="#F59E0B" />
                     <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Gunluk Ciro" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Gunluk Ciro" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding DailyRevenue, StringFormat='₺{0:N0}'}"
                                    FontSize="28" FontWeight="Bold" Foreground="#F59E0B"
                                    Margin="0,8,0,0" />
@@ -83,7 +83,7 @@
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
                     <StackPanel Grid.Column="1" Margin="16">
-                        <TextBlock Text="Stok Senkron" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Stok Senkron" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding SyncStatus}"
                                    FontSize="18" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"
                                    Margin="0,8,0,0" />
@@ -147,7 +147,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Ciceksepeti verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

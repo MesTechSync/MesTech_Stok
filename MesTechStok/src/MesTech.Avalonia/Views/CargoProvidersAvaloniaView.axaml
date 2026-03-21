@@ -63,7 +63,7 @@
                                 <!-- Stats -->
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{Binding TodayStats, StringFormat='Bugun: {0}'}"
-                                               FontSize="13" Foreground="#475569" />
+                                               FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                                     <TextBlock Text="{Binding LastShipmentText, StringFormat='Son gonderim: {0}'}"
                                                FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
                                     <TextBlock Text="{Binding AvgDeliveryDays, StringFormat='Ort. teslim: {0:N1} gun'}"
@@ -95,14 +95,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Kargo firmalari yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

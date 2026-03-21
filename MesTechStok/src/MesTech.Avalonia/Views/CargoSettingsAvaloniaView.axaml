@@ -13,7 +13,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -72,13 +72,13 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Siparis onayinda otomatik kargo olustur"
-                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateShipment}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Kargo takip numarasini otomatik guncelle"
-                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoUpdateTracking}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
@@ -93,12 +93,12 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Anahtari" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding ApiKey}" Watermark="Kargo API anahtari"
+                            <TextBox Text="{Binding ApiKey}" Watermark="Kargo API anahtari" AutomationProperties.Name="Kargo API anahtari"
                                      PasswordChar="*" />
                         </StackPanel>
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Sifresi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding ApiSecret}" Watermark="Kargo API sifresi"
+                            <TextBox Text="{Binding ApiSecret}" Watermark="Kargo API sifresi" AutomationProperties.Name="Kargo API sifresi"
                                      PasswordChar="*" />
                         </StackPanel>
                     </StackPanel>
@@ -113,14 +113,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kargo ayarlari yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Kargo ayarlari yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

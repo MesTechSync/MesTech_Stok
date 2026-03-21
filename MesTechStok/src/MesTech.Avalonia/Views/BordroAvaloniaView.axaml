@@ -30,7 +30,7 @@
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Toplam Brut" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Toplam Brut" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalGross}" FontSize="20" FontWeight="Bold"
                                    Foreground="#1D4ED8" Margin="0,4,0,0" />
                     </StackPanel>
@@ -38,15 +38,15 @@
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Toplam Net" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Toplam Net" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalNet}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#10B981" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Isveren Maliyeti" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Isveren Maliyeti" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalEmployerCost}" FontSize="20" FontWeight="Bold"
                                    Foreground="#EF4444" Margin="0,4,0,0" />
                     </StackPanel>
@@ -62,7 +62,7 @@
                           Width="140" />
                 <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}"
                           Width="100" />
-                <TextBox Width="220" Watermark="Personel ara..."
+                <TextBox Width="220" Watermark="Personel ara..." AutomationProperties.Name="Personel ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>
         </Border>
@@ -106,14 +106,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Bordro verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Bordro verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
@@ -126,7 +126,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

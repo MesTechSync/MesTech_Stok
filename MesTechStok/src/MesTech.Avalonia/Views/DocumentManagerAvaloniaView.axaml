@@ -27,7 +27,7 @@
         <Border Grid.Row="1" Background="White" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="260" Watermark="Belge ara..."
+                <TextBox Width="260" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..."
                          Text="{Binding SearchText}" />
                 <ComboBox Width="120" PlaceholderText="Tip"
                           ItemsSource="{Binding TypeOptions}"
@@ -45,7 +45,7 @@
             <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
                     CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
                     VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
 
             <!-- Empty -->

@@ -33,7 +33,7 @@
                    FontSize="{StaticResource FontSizeSmall}"
                    Foreground="{StaticResource TextSecondaryBrush}"/>
         <TextBox x:Name="UsernameBox"
-                 Watermark="Kullanıcı adınızı girin"
+                 Watermark="Kullanıcı adınızı girin" AutomationProperties.Name="Kullanıcı adınızı girin"
                  FontSize="{StaticResource FontSizeBody}"/>
       </StackPanel>
 
@@ -45,7 +45,7 @@
         <Grid>
           <TextBox x:Name="PasswordBox"
                    PasswordChar="●"
-                   Watermark="Şifrenizi girin"
+                   Watermark="Şifrenizi girin" AutomationProperties.Name="Şifrenizi girin"
                    FontSize="{StaticResource FontSizeBody}"/>
           <Button x:Name="TogglePasswordBtn"
                   HorizontalAlignment="Right"

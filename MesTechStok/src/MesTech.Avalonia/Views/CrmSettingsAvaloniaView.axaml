@@ -83,10 +83,10 @@
                         <!-- Add template -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
                             <TextBox Grid.Column="0" Text="{Binding NewTemplateText}"
-                                     Watermark="Yeni sablon metni..."
+                                     Watermark="Yeni sablon metni..." AutomationProperties.Name="Yeni sablon metni..."
                                      Margin="0,0,8,0" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddTemplateCommand}"
-                                    Background="#10B981" Foreground="White" Padding="14,8"
+                                    Background="{DynamicResource MesEmerald}" Foreground="White" Padding="14,8"
                                     CornerRadius="6" FontWeight="SemiBold" />
                         </Grid>
 

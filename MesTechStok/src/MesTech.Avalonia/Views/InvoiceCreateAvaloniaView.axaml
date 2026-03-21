@@ -131,9 +131,9 @@
 
                         <TextBlock Text="Alici Bilgileri" FontSize="{StaticResource FontSizeBody}"
                                    FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBox Watermark="Alici Adi / Unvani" Text="{Binding RecipientName}"/>
-                        <TextBox Watermark="VKN / TCKN" Text="{Binding RecipientVkn}"/>
-                        <TextBox Watermark="Adres" Text="{Binding RecipientAddress}"
+                        <TextBox Watermark="Alici Adi / Unvani" AutomationProperties.Name="Alici Adi / Unvani" Text="{Binding RecipientName}"/>
+                        <TextBox Watermark="VKN / TCKN" AutomationProperties.Name="VKN / TCKN" Text="{Binding RecipientVkn}"/>
+                        <TextBox Watermark="Adres" AutomationProperties.Name="Adres" Text="{Binding RecipientAddress}"
                                  AcceptsReturn="True" MinHeight="60"/>
                     </StackPanel>
                 </Border>
@@ -233,7 +233,7 @@
                     <Button Content="Fatura Olustur"
                             Command="{Binding ConfirmCommand}"
                             IsVisible="{Binding IsConfirmStep}"
-                            Background="#16A34A" Foreground="White"
+                            Background="{DynamicResource MesGreen}" Foreground="White"
                             Padding="20,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                             FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
                 </StackPanel>

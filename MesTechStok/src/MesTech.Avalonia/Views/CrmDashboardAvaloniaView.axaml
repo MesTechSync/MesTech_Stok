@@ -29,7 +29,7 @@
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="#FEF2F2"
                         CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
 
                 <!-- Empty state -->
@@ -51,7 +51,7 @@
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Aktif Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding NewThisMonth}" FontSize="28" FontWeight="Bold" Foreground="#10B981" />
+                            <TextBlock Text="{Binding NewThisMonth}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                     <!-- VIP Customers -->

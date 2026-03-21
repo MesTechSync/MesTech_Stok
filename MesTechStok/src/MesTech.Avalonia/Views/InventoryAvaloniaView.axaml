@@ -47,7 +47,7 @@
                 <Border Background="#FEF2F2" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Kritik Stok" FontSize="11" Foreground="#EF4444" />
-                        <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="#DC2626" />
+                        <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
                 <!-- Stok Degeri -->
@@ -72,11 +72,11 @@
         <Border Grid.Row="2" Background="White" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..."
+                <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..." AutomationProperties.Name="SKU, urun adi veya depo ara..."
                          Text="{Binding SearchText}"
                          HorizontalAlignment="Left" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="180" ItemsSource="{Binding WarehouseFilter}"
                               SelectedItem="{Binding SelectedWarehouse}"
                               PlaceholderText="Tum Depolar" />
@@ -157,14 +157,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Envanter verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="5"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -178,7 +178,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="5"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

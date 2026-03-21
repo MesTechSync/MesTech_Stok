@@ -40,9 +40,9 @@
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPage}" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Siparis Bilgisi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="{Binding SiparisNo, StringFormat='Siparis: {0}'}" FontSize="13" Foreground="#475569" />
-                            <TextBlock Text="{Binding Musteri, StringFormat='Musteri: {0}'}" FontSize="13" Foreground="#475569" />
-                            <TextBlock Text="{Binding Platform, StringFormat='Platform: {0}'}" FontSize="13" Foreground="#475569" />
+                            <TextBlock Text="{Binding SiparisNo, StringFormat='Siparis: {0}'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                            <TextBlock Text="{Binding Musteri, StringFormat='Musteri: {0}'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                            <TextBlock Text="{Binding Platform, StringFormat='Platform: {0}'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                         </StackPanel>
                     </Border>
 
@@ -50,9 +50,9 @@
                     <Border Grid.Column="1" Background="{DynamicResource MesBgPage}" CornerRadius="8" Padding="16" Margin="4,0">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Iade Bilgisi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="{Binding Tutar, StringFormat='Tutar: {0:N2} TL'}" FontSize="13" Foreground="#475569" />
-                            <TextBlock Text="{Binding Sebep, StringFormat='Sebep: {0}'}" FontSize="13" Foreground="#475569" />
-                            <TextBlock Text="{Binding TalepTarihi, StringFormat='Tarih: {0:dd.MM.yyyy}'}" FontSize="13" Foreground="#475569" />
+                            <TextBlock Text="{Binding Tutar, StringFormat='Tutar: {0:N2} TL'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                            <TextBlock Text="{Binding Sebep, StringFormat='Sebep: {0}'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                            <TextBlock Text="{Binding TalepTarihi, StringFormat='Tarih: {0:dd.MM.yyyy}'}" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                         </StackPanel>
                     </Border>
 
@@ -60,7 +60,7 @@
                     <Border Grid.Column="2" Background="{DynamicResource MesBgPage}" CornerRadius="8" Padding="16" Margin="8,0,0,0">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Aciklama" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="{Binding Aciklama}" FontSize="13" Foreground="#475569"
+                            <TextBlock Text="{Binding Aciklama}" FontSize="13" Foreground="{DynamicResource MesTextSlate}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
@@ -119,14 +119,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Iade detaylari yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

@@ -51,7 +51,7 @@
                     <!-- Urun Secimi -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Urun Ara" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                        <TextBox Watermark="SKU veya urun adi..."
+                        <TextBox Watermark="SKU veya urun adi..." AutomationProperties.Name="SKU veya urun adi..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding SourceProducts}"
                                  SelectedItem="{Binding SelectedProduct}"
@@ -107,7 +107,7 @@
 
                     <!-- Status -->
                     <TextBlock Text="{Binding TransferStatus}" FontSize="13"
-                               Foreground="#16A34A" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                                TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
@@ -160,14 +160,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Transfer verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

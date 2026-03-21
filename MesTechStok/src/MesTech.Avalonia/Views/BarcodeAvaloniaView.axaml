@@ -31,8 +31,8 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Barkod:" VerticalAlignment="Center" FontSize="14"
-                           Foreground="#475569" FontWeight="SemiBold" />
-                <TextBox Width="360" Watermark="Barkod okutun veya manuel girin (Enter ile sorgula)..."
+                           Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold" />
+                <TextBox Width="360" Watermark="Barkod okutun veya manuel girin (Enter ile sorgula)..." AutomationProperties.Name="Barkod okutun veya manuel girin (Enter ile sorgula)..."
                          Text="{Binding SearchText}"
                          FontSize="15" Padding="10,8"
                          Name="BarcodeInput" />
@@ -133,14 +133,14 @@
                                     Background="#4ADE80" Foreground="White" FontWeight="Bold"
                                     Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+5" Command="{Binding QuickUpdateCommand}" CommandParameter="5"
-                                    Background="#16A34A" Foreground="White" FontWeight="Bold"
+                                    Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="Bold"
                                     Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+10" Command="{Binding QuickUpdateCommand}" CommandParameter="10"
                                     Background="#15803D" Foreground="White" FontWeight="Bold"
                                     Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
                         </StackPanel>
                         <TextBlock Text="{Binding QuickUpdateStatus}" FontSize="13"
-                                   Foreground="#16A34A" FontWeight="SemiBold" />
+                                   Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -154,14 +154,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Barkod sorgusu yapiliyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State (no barcode scanned yet) -->
         <Border Grid.Row="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -175,7 +175,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

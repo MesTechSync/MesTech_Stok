@@ -30,15 +30,15 @@
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Toplam Giris" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Toplam Giris" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalInflow}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#10B981" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Toplam Cikis" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Toplam Cikis" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalOutflow}" FontSize="20" FontWeight="Bold"
                                    Foreground="#EF4444" Margin="0,4,0,0" />
                     </StackPanel>
@@ -46,7 +46,7 @@
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
-                        <TextBlock Text="Net Nakit" FontSize="12" Foreground="#6B7280" />
+                        <TextBlock Text="Net Nakit" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetCashFlow}" FontSize="20" FontWeight="Bold"
                                    Foreground="#2563EB" Margin="0,4,0,0" />
                     </StackPanel>
@@ -62,7 +62,7 @@
                           Width="140" />
                 <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
                 <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
-                <TextBox Width="220" Watermark="Aciklama ara..."
+                <TextBox Width="220" Watermark="Aciklama ara..." AutomationProperties.Name="Aciklama ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>
         </Border>
@@ -103,14 +103,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Nakit akis verileri yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Nakit akis verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kayit bulunamadi" FontSize="22" FontWeight="Bold"
@@ -123,7 +123,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

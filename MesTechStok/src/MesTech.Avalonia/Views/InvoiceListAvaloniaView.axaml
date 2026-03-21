@@ -23,7 +23,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Fatura"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
             </Grid>
         </Border>
@@ -32,7 +32,7 @@
         <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="16,10"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="260" Watermark="Fatura no veya alici ara..."
+                <TextBox Width="260" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
                          Text="{Binding SearchText}" FontSize="{StaticResource FontSizeBody}"/>
                 <ComboBox Width="140" ItemsSource="{Binding InvoiceTypes}"
                           SelectedItem="{Binding SelectedType}"/>

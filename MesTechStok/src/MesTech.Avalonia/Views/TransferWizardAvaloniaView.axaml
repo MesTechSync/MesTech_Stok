@@ -49,7 +49,7 @@
                         </Grid>
                         <!-- Same warehouse warning -->
                         <TextBlock Text="Kaynak ve hedef depo ayni olamaz!"
-                                   FontSize="12" Foreground="#DC2626" FontWeight="SemiBold"
+                                   FontSize="12" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
                                    IsVisible="{Binding IsSameWarehouse}" />
                     </StackPanel>
                 </Border>
@@ -60,7 +60,7 @@
                     <StackPanel Spacing="12">
                         <TextBlock Text="2. Urun Ekle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBox Grid.Column="0" Watermark="Barkod / SKU / Urun adi..."
+                            <TextBox Grid.Column="0" Watermark="Barkod / SKU / Urun adi..." AutomationProperties.Name="Barkod / SKU / Urun adi..."
                                      Text="{Binding ProductSearchText}" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddProductCommand}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
@@ -136,10 +136,10 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding TransferStatus}"
-                           FontSize="13" Foreground="#16A34A" FontWeight="SemiBold"
+                           FontSize="13" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Iptal"
-                        Background="#F1F5F9" Foreground="#475569"
+                        Background="#F1F5F9" Foreground="{DynamicResource MesTextSlate}"
                         Padding="20,10" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"
@@ -153,7 +153,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Transfer isleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Transfer isleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

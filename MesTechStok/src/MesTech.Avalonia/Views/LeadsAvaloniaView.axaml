@@ -39,7 +39,7 @@
         <Border Grid.Row="2" Background="White" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="220" Watermark="Isim, e-posta veya telefon ara..."
+                <TextBox Width="220" Watermark="Isim, e-posta veya telefon ara..." AutomationProperties.Name="Isim, e-posta veya telefon ara..."
                          Text="{Binding SearchText}" />
                 <ComboBox Width="140" PlaceholderText="Durum"
                           ItemsSource="{Binding StatusOptions}"

@@ -60,7 +60,7 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBox Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..."
+                    <TextBox Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..." AutomationProperties.Name="Ad, SKU, Barkod veya Aciklama ile arayin..."
                              Text="{Binding SearchText}" />
                     <!-- Barcode quick-search button -->
                     <Button Command="{Binding BarcodeSearchCommand}"
@@ -281,14 +281,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Urunler yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -302,7 +302,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

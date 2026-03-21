@@ -69,7 +69,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Webhook URL" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding WebhookUrl}" Padding="10,8"
-                                     Watermark="https://api.mestech.com/webhooks/..." />
+                                     Watermark="https://api.mestech.com/webhooks/..." AutomationProperties.Name="https://api.mestech.com/webhooks/..." />
                         </StackPanel>
 
                         <CheckBox Content="Otomatik Senkronizasyon" IsChecked="{Binding AutoSyncEnabled}"
@@ -103,7 +103,7 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Ayarlar yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Ayarlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

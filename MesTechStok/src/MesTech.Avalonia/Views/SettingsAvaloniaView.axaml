@@ -54,7 +54,7 @@
                             <TextBlock Text="API URL" FontSize="13" FontWeight="SemiBold"
                                        Foreground="#374151" />
                             <TextBox Text="{Binding ApiUrl}"
-                                     Watermark="https://api.mestech.com/v1"
+                                     Watermark="https://api.mestech.com/v1" AutomationProperties.Name="https://api.mestech.com/v1"
                                      Padding="12,10" CornerRadius="8" FontSize="14" />
                         </StackPanel>
 
@@ -62,7 +62,7 @@
                             <TextBlock Text="API Key" FontSize="13" FontWeight="SemiBold"
                                        Foreground="#374151" />
                             <TextBox Text="{Binding ApiKey}"
-                                     Watermark="API anahtarinizi giriniz"
+                                     Watermark="API anahtarinizi giriniz" AutomationProperties.Name="API anahtarinizi giriniz"
                                      PasswordChar="●"
                                      Padding="12,10" CornerRadius="8" FontSize="14" />
                         </StackPanel>
@@ -166,7 +166,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Ayarlar yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

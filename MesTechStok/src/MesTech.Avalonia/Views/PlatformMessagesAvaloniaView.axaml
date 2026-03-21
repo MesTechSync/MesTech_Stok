@@ -46,7 +46,7 @@
             <Border IsVisible="{Binding HasError}" Background="#FEF2F2" Margin="22"
                     CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
                     VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
 
             <!-- Empty -->
@@ -167,7 +167,7 @@
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Yanit Yaz" FontWeight="SemiBold" FontSize="13" />
                                 <TextBox Text="{Binding ReplyText}"
-                                         Watermark="Yanitinizi buraya yazin..."
+                                         Watermark="Yanitinizi buraya yazin..." AutomationProperties.Name="Yanitinizi buraya yazin..."
                                          MinHeight="80"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap" />

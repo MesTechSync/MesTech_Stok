@@ -13,7 +13,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -35,13 +35,13 @@
                         </StackPanel>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Fatura mukellefiyeti aktif"
-                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEInvoiceActive}"
                                           OnContent="Evet" OffContent="Hayir" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Arsiv fatura otomatik olustur"
-                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateEArchive}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
@@ -56,21 +56,21 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
                             <TextBlock Text="Firma Unvani" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding CompanyName}" Watermark="Orn: MesTech Yazilim A.S." />
+                            <TextBox Text="{Binding CompanyName}" Watermark="Orn: MesTech Yazilim A.S." AutomationProperties.Name="Orn: MesTech Yazilim A.S." />
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Vergi Dairesi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding TaxOffice}" Watermark="Orn: Mecidiyekoy" />
+                                <TextBox Text="{Binding TaxOffice}" Watermark="Orn: Mecidiyekoy" AutomationProperties.Name="Orn: Mecidiyekoy" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Vergi No" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding TaxNumber}" Watermark="Orn: 1234567890" />
+                                <TextBox Text="{Binding TaxNumber}" Watermark="Orn: 1234567890" AutomationProperties.Name="Orn: 1234567890" />
                             </StackPanel>
                         </Grid>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Adres" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding CompanyAddress}" Watermark="Firma adresi"
+                            <TextBox Text="{Binding CompanyAddress}" Watermark="Firma adresi" AutomationProperties.Name="Firma adresi"
                                      AcceptsReturn="True" Height="60" />
                         </StackPanel>
                     </StackPanel>
@@ -86,7 +86,7 @@
                             <TextBlock Grid.Column="0" Text="Seri Oneki:"
                                        FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Text="{Binding InvoicePrefix}"
-                                     Watermark="Orn: MES" Width="160" HorizontalAlignment="Left" />
+                                     Watermark="Orn: MES" AutomationProperties.Name="Orn: MES" Width="160" HorizontalAlignment="Left" />
                         </Grid>
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Sonraki Numara:"
@@ -113,7 +113,7 @@
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Fiyatlar KDV dahil gosterilsin"
-                                       FontSize="13" Foreground="#475569" VerticalAlignment="Center" />
+                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding PricesIncludeVat}"
                                           OnContent="Evet" OffContent="Hayir" />
                         </Grid>
@@ -129,14 +129,14 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Fatura ayarlari yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Fatura ayarlari yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="!" FontSize="48" FontWeight="Bold"

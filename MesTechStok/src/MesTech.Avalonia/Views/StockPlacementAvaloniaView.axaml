@@ -31,17 +31,17 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="180" ItemsSource="{Binding Warehouses}"
                               SelectedItem="{Binding SelectedWarehouse}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Raf:" VerticalAlignment="Center" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Raf:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="120" ItemsSource="{Binding Shelves}"
                               SelectedItem="{Binding SelectedShelf}"
                               PlaceholderText="Tumu" />
                 </StackPanel>
-                <TextBox Width="280" Watermark="SKU veya urun adi ara..."
+                <TextBox Width="280" Watermark="SKU veya urun adi ara..." AutomationProperties.Name="SKU veya urun adi ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>
         </Border>
@@ -99,14 +99,14 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Yerlesim verileri yukleniyor..."
-                           FontSize="14" Foreground="#555555"
+                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -120,7 +120,7 @@
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#F7F9FC"
+                Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

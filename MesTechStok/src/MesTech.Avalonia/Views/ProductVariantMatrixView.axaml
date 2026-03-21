@@ -36,7 +36,7 @@
                         Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Tumu Kaydet"
                         Command="{Binding SaveAllCommand}"
-                        Background="#16A34A" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -50,7 +50,7 @@
                                Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                         <TextBox Width="160" Text="{Binding NewAttributeName}"
-                                 Watermark="Ozellik adi (orn: Renk)" Padding="8,6" />
+                                 Watermark="Ozellik adi (orn: Renk)" AutomationProperties.Name="Ozellik adi (orn: Renk)" Padding="8,6" />
                         <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
                                 Padding="12,6" CornerRadius="4" FontSize="12" />
@@ -86,7 +86,7 @@
                                                         <Button Content="x" FontSize="9"
                                                                 Command="{Binding $parent[ItemsControl].((vm:AttributeGroupDto)DataContext).RemoveValueCommand}"
                                                                 CommandParameter="{Binding}"
-                                                                Background="Transparent" Foreground="#6B7280"
+                                                                Background="Transparent" Foreground="{DynamicResource MesCoolGray}"
                                                                 Padding="2,0" MinWidth="16" MinHeight="16"
                                                                 VerticalAlignment="Center" />
                                                     </StackPanel>
@@ -98,7 +98,7 @@
                                     <!-- Add Value -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
                                         <TextBox Width="100" Text="{Binding NewValue}"
-                                                 Watermark="Deger ekle" Padding="6,4" FontSize="12" />
+                                                 Watermark="Deger ekle" AutomationProperties.Name="Deger ekle" Padding="6,4" FontSize="12" />
                                         <Button Content="+" Command="{Binding AddValueCommand}"
                                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
                                                 Padding="8,4" CornerRadius="4" FontSize="12" />
@@ -130,20 +130,20 @@
                 BorderBrush="#BFDBFE" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Toplam Varyant:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Toplam Varyant:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <TextBlock Text="{Binding TotalVariants}" FontSize="13" FontWeight="Bold" Foreground="#1D4ED8" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Toplam Stok:" FontSize="13" Foreground="#475569" />
-                    <TextBlock Text="{Binding TotalStock}" FontSize="13" FontWeight="Bold" Foreground="#16A34A" />
+                    <TextBlock Text="Toplam Stok:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="{Binding TotalStock}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Stok Bitti:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Stok Bitti:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <TextBlock Text="{Binding OutOfStockCount}" FontSize="13" FontWeight="Bold"
                                Foreground="{Binding OutOfStockColor}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Aktif:" FontSize="13" Foreground="#475569" />
+                    <TextBlock Text="Aktif:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
                     <TextBlock Text="{Binding ActiveVariantCount}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
             </StackPanel>
@@ -175,7 +175,7 @@
 <!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Variants.Count}" />
 
         <!-- Empty State for Variants -->
-        <Border Grid.Row="3" Background="#F7F9FC"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding !HasVariants}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Varyant Bulunamadi" FontSize="20" FontWeight="Bold"
@@ -194,7 +194,7 @@
                 <ComboBox Width="160" ItemsSource="{Binding PriceUpdateModes}"
                           SelectedItem="{Binding SelectedPriceUpdateMode}" />
                 <TextBox Width="120" Text="{Binding PriceUpdateValue}"
-                         Watermark="Deger" Padding="8,6" />
+                         Watermark="Deger" AutomationProperties.Name="Deger" Padding="8,6" />
                 <Button Content="Uygula" Command="{Binding ApplyBulkPriceCommand}"
                         Background="#F59E0B" Foreground="White" FontWeight="SemiBold"
                         Padding="16,6" CornerRadius="4" />
@@ -209,7 +209,7 @@
                 Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Varyantlar yukleniyor..." FontSize="14" Foreground="#555555"
+                <TextBlock Text="Varyantlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
