@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities.Finance;
 
@@ -48,6 +49,7 @@ public class CashRegister : BaseEntity, ITenantEntity
 
         var tx = CashTransaction.Create(Id, TenantId, CashTransactionType.Income, amount, description, category);
         _transactions.Add(tx);
+        RaiseDomainEvent(new CashTransactionRecordedEvent(TenantId, Id, tx.Id, CashTransactionType.Income, amount, Balance, DateTime.UtcNow));
         return tx;
     }
 
@@ -60,6 +62,7 @@ public class CashRegister : BaseEntity, ITenantEntity
 
         var tx = CashTransaction.Create(Id, TenantId, CashTransactionType.Expense, amount, description, category);
         _transactions.Add(tx);
+        RaiseDomainEvent(new CashTransactionRecordedEvent(TenantId, Id, tx.Id, CashTransactionType.Expense, amount, Balance, DateTime.UtcNow));
         return tx;
     }
 

@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities.Billing;
 
@@ -47,7 +48,7 @@ public class TenantSubscription : BaseEntity, ITenantEntity
             ? now.AddYears(1)
             : now.AddMonths(1);
 
-        return new TenantSubscription
+        var sub = new TenantSubscription
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -58,6 +59,8 @@ public class TenantSubscription : BaseEntity, ITenantEntity
             NextBillingDate = nextBilling,
             CreatedAt = now
         };
+        sub.RaiseDomainEvent(new SubscriptionCreatedEvent(tenantId, sub.Id, planId, SubscriptionStatus.Active, now));
+        return sub;
     }
 
     public void Renew()
@@ -82,6 +85,8 @@ public class TenantSubscription : BaseEntity, ITenantEntity
         CancellationReason = reason;
         EndDate = NextBillingDate; // Donem sonuna kadar aktif kalir
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new SubscriptionCancelledEvent(TenantId, Id, reason, DateTime.UtcNow));
     }
 
     public void Expire()

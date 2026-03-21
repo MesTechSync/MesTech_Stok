@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities.Onboarding;
 
@@ -49,6 +50,7 @@ public class OnboardingProgress : BaseEntity, ITenantEntity
         {
             IsCompleted = true;
             CompletedAt = DateTime.UtcNow;
+            RaiseDomainEvent(new OnboardingCompletedEvent(TenantId, Id, StartedAt, CompletedAt.Value, DateTime.UtcNow));
         }
         else
         {

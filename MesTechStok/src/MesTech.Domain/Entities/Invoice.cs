@@ -207,6 +207,7 @@ public class Invoice : BaseEntity, ITenantEntity
 
         Status = InvoiceStatus.Queued;
         RaiseDomainEvent(new InvoiceApprovedEvent(Id, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceGeneratedForERPEvent(Id, InvoiceNumber, GrandTotal, "Default", DateTime.UtcNow));
     }
 
     public override string ToString() => $"Invoice #{InvoiceNumber} ({Status}) - {GrandTotal:C}";

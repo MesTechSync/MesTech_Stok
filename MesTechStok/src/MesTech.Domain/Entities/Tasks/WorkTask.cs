@@ -85,4 +85,19 @@ public class WorkTask : BaseEntity, ITenantEntity
         Status = newStatus;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Gecikme kontrolu — DueDate gecmisse ve tamamlanmamissa TaskOverdueEvent firlatir.
+    /// Hangfire job'dan periyodik olarak cagrilir.
+    /// </summary>
+    public bool CheckOverdue()
+    {
+        if (DueDate.HasValue && DueDate.Value < DateTime.UtcNow
+            && Status is not (WorkTaskStatus.Done or WorkTaskStatus.Cancelled))
+        {
+            RaiseDomainEvent(new TaskOverdueEvent(Id, DueDate.Value, DateTime.UtcNow));
+            return true;
+        }
+        return false;
+    }
 }
