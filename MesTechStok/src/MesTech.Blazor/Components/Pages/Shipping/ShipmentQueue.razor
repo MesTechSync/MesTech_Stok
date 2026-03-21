@@ -110,6 +110,15 @@ else
                         </tr>
                     </thead>
                     <tbody>
+                        @if (filteredShipments.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-inbox fa-2x d-block mb-2"></i>
+                                    Gonderi bulunamadi.
+                                </td>
+                            </tr>
+                        }
                         @foreach (var s in filteredShipments)
                         {
                             <tr class="@(selectedIds.Contains(s.Id) ? "table-active" : "")">
