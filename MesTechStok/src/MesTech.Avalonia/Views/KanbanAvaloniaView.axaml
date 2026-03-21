@@ -11,10 +11,13 @@
          - Cursor="Hand" → Cursor="Hand" (same)
          - ViewModel: KanbanAvaloniaViewModel (97% identical to WPF DealsViewModel) -->
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Loading State -->
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Height="3" Grid.Row="0" />
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#0078D4" Padding="20,14">
+        <Border Grid.Row="1" Background="#0078D4" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Firsatlar — Kanban" Foreground="White"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
@@ -32,7 +35,7 @@
         </Border>
 
         <!-- Kanban Columns -->
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled"
                       Background="#F4F6F9">
             <ItemsControl ItemsSource="{Binding Stages}" Margin="16">

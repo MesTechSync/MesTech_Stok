@@ -64,6 +64,7 @@
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Footer with changed count -->
         <Border Grid.Row="3" Background="#F1F5F9" Padding="20,10"

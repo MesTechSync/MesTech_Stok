@@ -146,6 +146,7 @@
                         <DataGridTextColumn Header="Kolon E" Binding="{Binding ColumnE}" Width="120" />
                     </DataGrid.Columns>
                 </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="1" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !PreviewRows.Count}" />
                 <Border Grid.Row="2" Background="#FFFBEB" CornerRadius="0,0,8,8" Padding="16,10"
                         BorderBrush="#FDE68A" BorderThickness="1,0,1,1"
                         IsVisible="{Binding HasPreviewErrors}">

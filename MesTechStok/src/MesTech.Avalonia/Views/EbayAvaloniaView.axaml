@@ -108,6 +108,7 @@
                                    FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center" />
                     </Grid>
                 </Border>
+${INDENT}<Grid>
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding RecentOrders}"
                           AutoGenerateColumns="False"
@@ -126,6 +127,7 @@
                         <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
                     </DataGrid.Columns>
                 </DataGrid>
+<!-- Empty State -->                    <TextBlock Text="Kayıt bulunamadı"                               HorizontalAlignment="Center"                               VerticalAlignment="Center"                               Margin="0,40"                               Opacity="0.5"                               FontSize="16"                               IsVisible="{Binding !RecentOrders.Count}" />                </Grid>
             </Grid>
         </Border>
 

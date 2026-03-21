@@ -127,6 +127,7 @@
                 </Style>
             </DataGrid.Styles>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Pagination -->
         <Border Grid.Row="4" Background="White" Padding="12,8"

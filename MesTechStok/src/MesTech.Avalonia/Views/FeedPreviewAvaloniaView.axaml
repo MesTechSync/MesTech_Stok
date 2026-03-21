@@ -59,6 +59,7 @@
             <!-- Preview DataGrid -->
             <Border Grid.Row="1" Background="White" CornerRadius="8"
                     BorderBrush="#E5E9F2" BorderThickness="1">
+${INDENT}<Grid>
                 <DataGrid ItemsSource="{Binding PreviewItems}"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
@@ -70,6 +71,7 @@
                         <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140" />
                     </DataGrid.Columns>
                 </DataGrid>
+<!-- Empty State -->                    <TextBlock Text="Kayıt bulunamadı"                               HorizontalAlignment="Center"                               VerticalAlignment="Center"                               Margin="0,40"                               Opacity="0.5"                               FontSize="16"                               IsVisible="{Binding !PreviewItems.Count}" />                </Grid>
             </Border>
 
             <!-- Validation Errors -->

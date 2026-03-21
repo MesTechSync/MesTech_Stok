@@ -63,6 +63,7 @@
                 <DataGridTextColumn Header="Tarih" Binding="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110" />
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Returns.Count}" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="3"

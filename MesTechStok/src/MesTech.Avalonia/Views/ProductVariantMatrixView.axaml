@@ -172,6 +172,7 @@
                 <DataGridTextColumn Header="Durum" Binding="{Binding StockStatus}" Width="100" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Variants.Count}" />
 
         <!-- Empty State for Variants -->
         <Border Grid.Row="3" Background="#F7F9FC"

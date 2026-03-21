@@ -91,6 +91,7 @@
                             <DataGridTextColumn Header="Rating" Binding="{Binding RatingStars}" Width="100" />
                         </DataGrid.Columns>
                     </DataGrid>
+<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Suppliers.Count}" />
                 </DockPanel>
             </Border>
 

@@ -168,6 +168,8 @@ public static class InfrastructureServiceRegistration
         // Notification + ERP Repositories
         services.AddScoped<MesTech.Application.Interfaces.INotificationLogRepository,
             MesTech.Infrastructure.Persistence.Repositories.NotificationLogRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IUserNotificationRepository,
+            MesTech.Infrastructure.Persistence.Repositories.UserNotificationRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Erp.IErpSyncLogRepository,
             MesTech.Infrastructure.Persistence.Repositories.Erp.ErpSyncLogRepository>();
 

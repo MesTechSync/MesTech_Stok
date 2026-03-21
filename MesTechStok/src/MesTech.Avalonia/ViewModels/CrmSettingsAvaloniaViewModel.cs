@@ -13,6 +13,7 @@ public partial class CrmSettingsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private int messageCheckIntervalMinutes = 5;
     [ObservableProperty] private string newTemplateText = string.Empty;
     [ObservableProperty] private string? selectedTemplate;
+    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool isSaving;
 
     public ObservableCollection<string> QuickReplyTemplates { get; } =

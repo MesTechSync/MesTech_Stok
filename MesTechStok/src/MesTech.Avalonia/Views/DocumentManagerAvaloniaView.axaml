@@ -54,6 +54,7 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
 
             <!-- Data Grid -->
+${INDENT}<Grid>
             <DataGrid ItemsSource="{Binding Documents}"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="True"
@@ -73,6 +74,7 @@
                     <DataGridTextColumn Header="Tarih" Binding="{Binding UploadedDisplay}" Width="100" />
                 </DataGrid.Columns>
             </DataGrid>
+<!-- Empty State -->                <TextBlock Text="Kayıt bulunamadı"                           HorizontalAlignment="Center"                           VerticalAlignment="Center"                           Margin="0,40"                           Opacity="0.5"                           FontSize="16"                           IsVisible="{Binding !Documents.Count}" />            </Grid>
         </Grid>
     </Grid>
 </UserControl>

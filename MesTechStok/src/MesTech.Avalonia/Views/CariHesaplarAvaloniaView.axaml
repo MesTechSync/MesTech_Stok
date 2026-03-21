@@ -58,6 +58,7 @@
                 <DataGridTextColumn Header="Bakiye (TL)" Binding="{Binding Bakiye, StringFormat='{}{0:N2}'}" Width="140" />
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !FilteredItems.Count}" />
 
         <!-- Balance Summary Footer -->
         <Border Grid.Row="3" Background="#F1F5F9" Padding="20,12"

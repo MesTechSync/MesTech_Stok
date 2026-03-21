@@ -69,6 +69,7 @@
             <DataGridTextColumn Header="Durum" Binding="{Binding StatusText}" Width="100"/>
           </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Loading overlay -->
         <Border Background="#80FFFFFF" IsVisible="{Binding IsLoading}" CornerRadius="8">

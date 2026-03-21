@@ -64,6 +64,7 @@
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !StockItems.Count}" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="3"

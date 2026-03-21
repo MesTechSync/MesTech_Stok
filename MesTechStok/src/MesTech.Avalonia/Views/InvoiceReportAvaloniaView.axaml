@@ -131,6 +131,7 @@
                 <DataGridTextColumn Header="e-Arsiv" Binding="{Binding EArsivCount}" Width="120"/>
             </DataGrid.Columns>
         </DataGrid>
+<!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !PlatformBreakdown.Count}" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="4"
