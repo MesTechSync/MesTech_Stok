@@ -34,11 +34,11 @@
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Tukendi" Command="{Binding FilterOutOfStockCommand}"
-                        Background="#FEE2E2" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Kritik" Command="{Binding FilterCriticalCommand}"
                         Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
                 <Button Content="Dusuk" Command="{Binding FilterLowCommand}"
-                        Background="#FED7AA" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBorderAmberLight}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
             </StackPanel>
         </Border>
 

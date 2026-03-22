@@ -71,7 +71,7 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasCritical}">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="#D97706" VerticalAlignment="Center" />
+                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
                                         <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="{DynamicResource MesAmber}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"

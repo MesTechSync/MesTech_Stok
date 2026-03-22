@@ -37,7 +37,7 @@
         <!-- Kanban Columns -->
         <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled"
-                      Background="#F4F6F9">
+                      Background="{DynamicResource MesBgSecondary}">
             <ItemsControl ItemsSource="{Binding Stages}" Margin="16">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -49,7 +49,7 @@
                         <!-- Single Kanban Column -->
                         <Border Width="260" VerticalAlignment="Top"
                                 Background="White" CornerRadius="8"
-                                BoxShadow="0 1 6 0 #1F000000">
+                                BoxShadow="{DynamicResource MesElevationCard}">
                             <DockPanel>
                                 <!-- Column Header — uses stage Color property -->
                                 <Border DockPanel.Dock="Top" CornerRadius="8,8,0,0"

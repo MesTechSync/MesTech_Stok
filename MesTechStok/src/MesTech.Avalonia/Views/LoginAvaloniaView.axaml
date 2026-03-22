@@ -15,13 +15,13 @@
                 Background="White" CornerRadius="16"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
-                BoxShadow="0 4 24 #1A000000"
+                BoxShadow="{DynamicResource MesElevation3}"
                 IsVisible="{Binding !IsAuthenticated}">
             <StackPanel Spacing="20">
 
                 <!-- Logo Area -->
                 <StackPanel HorizontalAlignment="Center" Spacing="8" Margin="0,0,0,8">
-                    <Border Background="#EBF0FA" CornerRadius="50" Width="72" Height="72"
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="50" Width="72" Height="72"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="32" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"
@@ -82,7 +82,7 @@
                 Background="White" CornerRadius="16"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
-                BoxShadow="0 4 24 #1A000000"
+                BoxShadow="{DynamicResource MesElevation3}"
                 IsVisible="{Binding IsAuthenticated}">
             <StackPanel Spacing="16" HorizontalAlignment="Center">
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"

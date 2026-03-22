@@ -20,7 +20,7 @@
         </Border>
 
         <!-- Content -->
-        <Grid Grid.Row="1" Background="#F4F6F9">
+        <Grid Grid.Row="1" Background="{DynamicResource MesBgSecondary}">
             <!-- Loading -->
             <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -46,7 +46,7 @@
                         <DataTemplate x:DataType="vm:TaskColumnVm">
                             <Border Width="280" VerticalAlignment="Top"
                                     Background="White" CornerRadius="8"
-                                    BoxShadow="0 1 6 0 #1F000000">
+                                    BoxShadow="{DynamicResource MesElevationCard}">
                                 <DockPanel>
                                     <!-- Column Header -->
                                     <Border DockPanel.Dock="Top" CornerRadius="8,8,0,0" Padding="14,10">

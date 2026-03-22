@@ -81,7 +81,7 @@
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=DUSUK]">
-                        <Setter Property="Background" Value="#F57C00" />
+                        <Setter Property="Background" Value="{DynamicResource MesWarning}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=YETERLI]">

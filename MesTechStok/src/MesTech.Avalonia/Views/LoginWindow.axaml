@@ -12,7 +12,7 @@
           Margin="32"
           Padding="32"
           VerticalAlignment="Center"
-          BoxShadow="0 4 24 0 #22000000">
+          BoxShadow="{DynamicResource MesElevation3}">
     <StackPanel Spacing="16">
 
       <!-- Logo / Baslik -->

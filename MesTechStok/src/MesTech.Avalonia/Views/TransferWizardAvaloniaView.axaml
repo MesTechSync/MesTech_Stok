@@ -114,8 +114,8 @@
                 </Border>
 
                 <!-- Warnings -->
-                <Border Background="#FFFBEB" CornerRadius="8" Padding="16"
-                        BorderBrush="#FDE68A" BorderThickness="1"
+                <Border Background="{DynamicResource MesBgAmberLight}" CornerRadius="8" Padding="16"
+                        BorderBrush="{DynamicResource MesBorderAmber}" BorderThickness="1"
                         IsVisible="{Binding HasWarnings}">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Uyarilar" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" />

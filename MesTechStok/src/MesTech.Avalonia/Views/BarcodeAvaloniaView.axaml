@@ -128,7 +128,7 @@
                                     Background="{DynamicResource MesRedBright}" Foreground="White" FontWeight="Bold"
                                     Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="-1" Command="{Binding QuickUpdateCommand}" CommandParameter="-1"
-                                    Background="#F87171" Foreground="White" FontWeight="Bold"
+                                    Background="{DynamicResource MesRedBright}" Foreground="White" FontWeight="Bold"
                                     Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+1" Command="{Binding QuickUpdateCommand}" CommandParameter="1"
                                     Background="#4ADE80" Foreground="White" FontWeight="Bold"

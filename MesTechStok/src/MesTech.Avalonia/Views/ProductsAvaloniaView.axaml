@@ -110,8 +110,8 @@
                             <Setter Property="Foreground" Value="{DynamicResource MesSlateGray}" />
                         </Style>
                         <Style Selector="ToggleButton:checked">
-                            <Setter Property="Background" Value="#FEF3C7" />
-                            <Setter Property="Foreground" Value="#D97706" />
+                            <Setter Property="Background" Value="{DynamicResource MesBgAmberLight}" />
+                            <Setter Property="Foreground" Value="{DynamicResource MesAmberDark}" />
                         </Style>
                     </ToggleButton.Styles>
                     <TextBlock Text="Dusuk Stok" />

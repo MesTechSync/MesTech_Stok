@@ -142,7 +142,7 @@
                         </Border>
 
                         <!-- AI Suggestion Box -->
-                        <Border Background="#F5F3FF" CornerRadius="10" Padding="16"
+                        <Border Background="{DynamicResource MesBgPurpleLight}" CornerRadius="10" Padding="16"
                                 BorderBrush="#DDD6FE" BorderThickness="1"
                                 IsVisible="{Binding SelectedMessage.AiSuggestedReply, Converter={x:Static ObjectConverters.IsNotNull}}">
                             <StackPanel Spacing="10">

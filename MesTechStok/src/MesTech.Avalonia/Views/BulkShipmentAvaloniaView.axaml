@@ -96,7 +96,7 @@
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
-                    <TextBlock FontSize="13" Foreground="#FF9800">
+                    <TextBlock FontSize="13" Foreground="{DynamicResource MesWarning}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Uyari: {0}">
                                 <Binding Path="WarningCount" />
