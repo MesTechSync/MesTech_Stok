@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.RecordTaxWithholding;
 using MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
+using MesTech.Application.Features.Accounting.Queries.ListTaxWithholdings;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -23,18 +24,16 @@ public static class TaxWithholdingEndpoints
         .WithSummary("KDV tevkifat oranlari listesi (GiB resmi listesi)");
 
         // GET /api/v1/accounting/tax-withholdings — tevkifat kayitlari listesi
-        // Awaiting DEV-1 ListTaxWithholdingsQuery handler
         group.MapGet("/tax-withholdings", async (
             Guid tenantId, DateTime? from, DateTime? to,
             ISender mediator, CancellationToken ct) =>
         {
-            // var result = await mediator.Send(
-            //     new ListTaxWithholdingsQuery(tenantId, from, to), ct);
-            // return Results.Ok(result);
-            return Results.StatusCode(StatusCodes.Status501NotImplemented);
+            var result = await mediator.Send(
+                new ListTaxWithholdingsQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
         })
         .WithName("ListTaxWithholdings")
-        .WithSummary("Tevkifat kayitlari listesi (tarih araligi — DEV-1 handler bekleniyor)");
+        .WithSummary("Tevkifat kayitlari listesi (tarih araligi filtresi)");
 
         // POST /api/v1/accounting/tax-withholdings — yeni tevkifat kaydi olustur
         group.MapPost("/tax-withholdings", async (
