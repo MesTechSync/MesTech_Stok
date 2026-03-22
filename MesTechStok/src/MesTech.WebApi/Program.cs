@@ -42,10 +42,14 @@ builder.Services.AddApiKeyAuthentication(builder.Configuration);
 // Memory cache for future endpoint use
 builder.Services.AddMemoryCache();
 
-// MediatR — Application CQRS handlers
+// MediatR — Application CQRS handlers + Infrastructure event handlers
 builder.Services.AddMediatR(cfg =>
+{
     cfg.RegisterServicesFromAssembly(
-        typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+        typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(
+        typeof(MesTech.Infrastructure.Integration.Orchestration.StockChangedEventHandler).Assembly);
+});
 
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
 // skipSelfHostedEndpoints=true: HealthCheckEndpoint/MesaStatusEndpoint/RealtimeDashboardEndpoint

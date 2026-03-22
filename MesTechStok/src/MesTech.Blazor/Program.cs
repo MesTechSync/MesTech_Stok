@@ -43,10 +43,14 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new CookieRequestCultureProvider { CookieName = ".MesTech.Culture" });
 });
 
-// ── MediatR — Application CQRS handlers (same assembly as WPF + WebApi) ──
+// ── MediatR — Application CQRS handlers + Infrastructure event handlers ──
 builder.Services.AddMediatR(cfg =>
+{
     cfg.RegisterServicesFromAssembly(
-        typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+        typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(
+        typeof(MesTech.Infrastructure.Integration.Orchestration.StockChangedEventHandler).Assembly);
+});
 
 // ── Infrastructure (DbContext, Repositories, Domain Services, Cache, Messaging, etc.) ──
 builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);
