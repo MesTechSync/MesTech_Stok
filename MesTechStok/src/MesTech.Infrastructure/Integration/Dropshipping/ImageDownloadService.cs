@@ -26,7 +26,7 @@ public class ImageDownloadService(
         CancellationToken ct = default)
     {
         var urls = imageUrls.Distinct().ToList();
-        var semaphore  = new SemaphoreSlim(options.MaxConcurrency, options.MaxConcurrency);
+        using var semaphore = new SemaphoreSlim(options.MaxConcurrency, options.MaxConcurrency);
         var succeeded  = new ConcurrentBag<DownloadedImage>();
         var failed     = new ConcurrentBag<ImageDownloadError>();
         int duplicates = 0;
