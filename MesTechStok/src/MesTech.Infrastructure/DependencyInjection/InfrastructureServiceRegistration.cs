@@ -184,6 +184,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Repositories.UserNotificationRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Erp.IErpSyncLogRepository,
             MesTech.Infrastructure.Persistence.Repositories.Erp.ErpSyncLogRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.INotificationSettingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.NotificationSettingRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IPlatformMessageRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Crm.PlatformMessageRepository>();
 
         // Message Publisher (MassTransit wrapper)
         services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,
