@@ -13,7 +13,7 @@ public record IBAN
     public IBAN(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        var normalized = value.Replace(" ", "").Replace("-", "").ToUpperInvariant();
+        var normalized = value.Replace(" ", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal).ToUpperInvariant();
 
         if (normalized.Length < 15 || normalized.Length > 34)
             throw new ArgumentException("IBAN uzunlugu 15-34 karakter olmali.", nameof(value));
