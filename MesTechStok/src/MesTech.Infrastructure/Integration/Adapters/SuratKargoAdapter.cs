@@ -201,7 +201,8 @@ public class SuratKargoAdapter : ICargoAdapter
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Surat Kargo tracking failed {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Surat Kargo tracking failed {Status} {Error}", response.StatusCode, errorBody);
                 return trackingResult;
             }
 
@@ -272,7 +273,10 @@ public class SuratKargoAdapter : ICargoAdapter
                 $"/api/v2/cargo/{shipmentId}/label"), ct);
 
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"Surat Kargo label request failed: {response.StatusCode}");
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            throw new HttpRequestException($"Surat Kargo label request failed: {response.StatusCode} — {errorBody}");
+        }
 
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(content);

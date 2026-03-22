@@ -266,7 +266,8 @@ public class HepsiJetCargoAdapter : ICargoAdapter
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("HepsiJet tracking failed {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("HepsiJet tracking failed {Status} {Error}", response.StatusCode, errorBody);
                 return trackingResult;
             }
 
@@ -325,7 +326,10 @@ public class HepsiJetCargoAdapter : ICargoAdapter
                 $"/api/v1/shipments/{shipmentId}/label"), ct);
 
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"HepsiJet label request failed: {response.StatusCode}");
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            throw new HttpRequestException($"HepsiJet label request failed: {response.StatusCode} — {errorBody}");
+        }
 
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(content);

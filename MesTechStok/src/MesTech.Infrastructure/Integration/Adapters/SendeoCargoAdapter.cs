@@ -199,7 +199,8 @@ public class SendeoCargoAdapter : ICargoAdapter
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sendeo tracking failed {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sendeo tracking failed {Status} {Error}", response.StatusCode, errorBody);
                 return trackingResult;
             }
 
@@ -258,7 +259,10 @@ public class SendeoCargoAdapter : ICargoAdapter
                 $"/api/v1/shipments/{shipmentId}/label"), ct);
 
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"Sendeo label request failed: {response.StatusCode}");
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            throw new HttpRequestException($"Sendeo label request failed: {response.StatusCode} — {errorBody}");
+        }
 
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(content);
