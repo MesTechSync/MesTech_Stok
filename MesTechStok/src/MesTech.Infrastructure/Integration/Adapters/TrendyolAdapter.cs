@@ -1133,7 +1133,10 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             result.IsHealthy = response.IsSuccessStatusCode;
 
             if (!response.IsSuccessStatusCode)
-                result.ErrorMessage = $"HTTP {(int)response.StatusCode}";
+            {
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                result.ErrorMessage = $"HTTP {(int)response.StatusCode}: {body[..Math.Min(body.Length, 200)]}";
+            }
         }
         catch (Exception ex)
         {
@@ -1854,7 +1857,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             // HEAD request to Trendyol API root — no auth needed, any HTTP response = reachable
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_options.BaseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Trendyol ping: {StatusCode}", response.StatusCode);
             return true; // Any response means the host is reachable
