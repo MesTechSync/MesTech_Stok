@@ -107,11 +107,11 @@ public class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProductsComma
                 break;
 
             case BulkUpdateAction.StatusActivate:
-                product.IsActive = true;
+                product.Activate();
                 break;
 
             case BulkUpdateAction.StatusDeactivate:
-                product.IsActive = false;
+                product.Deactivate();
                 break;
 
             case BulkUpdateAction.CategoryAssign:

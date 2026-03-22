@@ -54,7 +54,7 @@ public class Product : BaseEntity, ITenantEntity
     public string? Bin { get; set; }
 
     // Durum bayrakları
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; internal set; } = true;
     public bool IsDiscontinued { get; set; }
     public bool IsSerialized { get; set; }
     public bool IsBatchTracked { get; set; }
@@ -186,6 +186,18 @@ public class Product : BaseEntity, ITenantEntity
     public bool IsOutOfStock() => Stock <= 0;
     public bool IsOverStock() => MaximumStock > 0 && Stock > MaximumStock;
     public bool NeedsReorder() => Stock <= ReorderLevel;
+
+    public void Activate()
+    {
+        IsActive = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
     public decimal ProfitMargin => SalePrice > 0 && PurchasePrice > 0
         ? ((SalePrice - PurchasePrice) / SalePrice) * 100

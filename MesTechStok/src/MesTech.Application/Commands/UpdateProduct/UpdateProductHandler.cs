@@ -36,7 +36,11 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Update
         if (request.MaximumStock.HasValue) product.MaximumStock = request.MaximumStock.Value;
         if (request.Brand != null) product.Brand = request.Brand;
         if (request.BrandId.HasValue) product.BrandId = request.BrandId.Value;
-        if (request.IsActive.HasValue) product.IsActive = request.IsActive.Value;
+        if (request.IsActive.HasValue)
+        {
+            if (request.IsActive.Value) product.Activate();
+            else product.Deactivate();
+        }
 
         product.MarkAsUpdated();
         await _productRepository.UpdateAsync(product).ConfigureAwait(false);
