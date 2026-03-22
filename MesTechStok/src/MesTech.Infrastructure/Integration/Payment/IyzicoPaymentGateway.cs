@@ -13,13 +13,18 @@ public class IyzicoPaymentGateway : IPaymentGateway
 {
     private readonly ILogger<IyzicoPaymentGateway> _logger;
     private readonly IyzicoOptions _options;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public string ProviderName => "iyzico";
 
-    public IyzicoPaymentGateway(ILogger<IyzicoPaymentGateway> logger, IOptions<IyzicoOptions> options)
+    public IyzicoPaymentGateway(
+        ILogger<IyzicoPaymentGateway> logger,
+        IOptions<IyzicoOptions> options,
+        IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _options = options.Value;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<PaymentResult> ChargeAsync(decimal amount, string currency, string paymentMethodToken,
@@ -36,7 +41,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
         try
         {
             // iyzico REST API v2 cagirisi
-            using var http = CreateHttpClient();
+            var http = CreateHttpClient();
             var payload = new
             {
                 locale = "tr",
@@ -91,7 +96,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
 
         try
         {
-            using var http = CreateHttpClient();
+            var http = CreateHttpClient();
             var payload = new
             {
                 locale = "tr",
@@ -137,10 +142,9 @@ public class IyzicoPaymentGateway : IPaymentGateway
 
     private HttpClient CreateHttpClient()
     {
-        var client = new HttpClient
-        {
-            BaseAddress = new Uri(_options.BaseUrl)
-        };
+        var client = _httpClientFactory.CreateClient("Iyzico");
+        client.BaseAddress = new Uri(_options.BaseUrl);
+        client.DefaultRequestHeaders.Authorization = null;
         client.DefaultRequestHeaders.Add("Authorization", $"IYZWS {_options.ApiKey}");
         return client;
     }
