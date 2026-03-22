@@ -74,7 +74,12 @@ public class TenantContextInterceptor : DbCommandInterceptor
             return;
 
         using var setCmd = command.Connection.CreateCommand();
-        setCmd.CommandText = $"SET app.current_tenant_id = '{tenantId}'";
+        // Parameterized: Guid is safe but defense-in-depth against SQL injection
+        var param = setCmd.CreateParameter();
+        param.ParameterName = "@tenantId";
+        param.Value = tenantId.ToString();
+        setCmd.Parameters.Add(param);
+        setCmd.CommandText = "SET app.current_tenant_id = @tenantId";
         setCmd.ExecuteNonQuery();
     }
 }

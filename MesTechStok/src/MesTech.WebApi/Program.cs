@@ -187,6 +187,17 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
+// Security headers (OWASP recommended)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    context.Response.Headers["X-XSS-Protection"] = "0"; // Modern browsers: CSP preferred over X-XSS-Protection
+    await next();
+});
+
 // Serilog HTTP request logging — structured log per request
 app.UseSerilogRequestLogging();
 

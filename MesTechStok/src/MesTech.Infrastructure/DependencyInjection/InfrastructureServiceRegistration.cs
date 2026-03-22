@@ -327,11 +327,14 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<IMinioClient>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
+            var endpoint = config["MinIO:Endpoint"] ?? "localhost:9000";
+            var accessKey = config["MinIO:AccessKey"]
+                ?? throw new InvalidOperationException("MinIO:AccessKey config required. Set in appsettings.json or env.");
+            var secretKey = config["MinIO:SecretKey"]
+                ?? throw new InvalidOperationException("MinIO:SecretKey config required. Set in appsettings.json or env.");
             return new MinioClient()
-                .WithEndpoint(config["MinIO:Endpoint"] ?? "localhost:9000")
-                .WithCredentials(
-                    config["MinIO:AccessKey"] ?? "mestech_minio",
-                    config["MinIO:SecretKey"] ?? "changeme")
+                .WithEndpoint(endpoint)
+                .WithCredentials(accessKey, secretKey)
                 .Build();
         });
         services.AddScoped<IDocumentStorageService, MinioDocumentStorageService>();

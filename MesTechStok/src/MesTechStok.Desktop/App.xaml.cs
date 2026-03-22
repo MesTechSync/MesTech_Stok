@@ -248,7 +248,7 @@ public partial class App : Application
                         // Add in-memory configuration as fallback
                         config.AddInMemoryCollection(new Dictionary<string, string?>
                         {
-                            ["ConnectionStrings:DefaultConnection"] = Environment.GetEnvironmentVariable("MESTECH_PG_CONNECTION") ?? "Host=localhost;Port=5432;Database=mestech_stok;Username=mestech_user;Password=CHANGE_ME",
+                            ["ConnectionStrings:DefaultConnection"] = Environment.GetEnvironmentVariable("MESTECH_PG_CONNECTION") ?? throw new InvalidOperationException("MESTECH_PG_CONNECTION env var required. Set: export MESTECH_PG_CONNECTION='Host=localhost;Port=5432;Database=mestech_stok;Username=...;Password=...'"),
                             ["Logging:LogLevel:Default"] = "Information",
                             ["Application:Name"] = "MesTech Stok Takip Sistemi",
                             ["Application:Version"] = "2.0 Professional",
