@@ -143,8 +143,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos taxpayer check returned {Status} for {TaxNumber} — {Error}",
+                    response.StatusCode, taxNumber, errorBody);
                 return false;
             }
 
@@ -292,7 +293,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos GetIncomingInvoices failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos GetIncomingInvoices failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
                 return Array.Empty<IncomingInvoiceDto>();
             }
 
@@ -343,7 +346,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos AcceptInvoice failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos AcceptInvoice failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
             }
 
             return response.IsSuccessStatusCode;
@@ -370,7 +375,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos RejectInvoice failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos RejectInvoice failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
             }
 
             return response.IsSuccessStatusCode;
@@ -396,7 +403,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos GetKontorBalance failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos GetKontorBalance failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
                 return new KontorBalanceDto(0, 0, null, ProviderName);
             }
 
@@ -450,7 +459,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos SetInvoiceTemplate failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos SetInvoiceTemplate failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
             }
 
             return response.IsSuccessStatusCode;
@@ -527,7 +538,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos GetPdfUrlAsync failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos GetPdfUrlAsync failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
                 return null;
             }
 
@@ -560,7 +573,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos CancelAsync failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos CancelAsync failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
             }
 
             return response.IsSuccessStatusCode;
@@ -584,8 +599,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos CheckVknMukellefAsync failed: {Status} for VKN {Vkn}",
-                    response.StatusCode, vkn);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos CheckVknMukellefAsync failed: {Status} for VKN {Vkn} — {Error}",
+                    response.StatusCode, vkn, errorBody);
                 return new VknMukellefResult(vkn, false, false, null, null);
             }
 
@@ -619,7 +635,9 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Sovos GetCreditBalanceAsync failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Sovos GetCreditBalanceAsync failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
                 return 0;
             }
 
