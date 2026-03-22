@@ -37,6 +37,20 @@ public class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .AsNoTracking().ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<TenantSubscription>> GetDueForRenewalAsync(DateTime asOfDate, CancellationToken ct = default)
+        => await _context.TenantSubscriptions
+            .Include(s => s.Plan)
+            .Where(s => s.Status == SubscriptionStatus.Active &&
+                        s.NextBillingDate.HasValue &&
+                        s.NextBillingDate.Value <= asOfDate)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<TenantSubscription>> GetByStatusAsync(SubscriptionStatus status, CancellationToken ct = default)
+        => await _context.TenantSubscriptions
+            .Include(s => s.Plan)
+            .Where(s => s.Status == status)
+            .ToListAsync(ct);
+
     public async Task AddAsync(TenantSubscription subscription, CancellationToken ct = default)
         => await _context.TenantSubscriptions.AddAsync(subscription, ct);
 
