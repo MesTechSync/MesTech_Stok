@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
 
 namespace MesTech.WebApi.Endpoints;
@@ -24,16 +25,14 @@ public static class BaBsEndpoints
         .WithSummary("Ba/Bs beyanname raporu (VUK 396 — 5.000 TL ustu alis/satis)");
 
         // POST /api/v1/accounting/babs-records — yeni Ba/Bs kaydi olustur
-        // Awaiting DEV-1 CreateBaBsRecordCommand handler
         group.MapPost("/records", async (
-            // CreateBaBsRecordCommand command,
+            CreateBaBsRecordCommand command,
             ISender mediator, CancellationToken ct) =>
         {
-            // var id = await mediator.Send(command, ct);
-            // return Results.Created($"/api/v1/accounting/babs-records/{id}", new { id });
-            return Results.StatusCode(StatusCodes.Status501NotImplemented);
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/babs-records/{id}", new { id });
         })
         .WithName("CreateBaBsRecord")
-        .WithSummary("Yeni Ba/Bs kaydi olustur (DEV-1 handler bekleniyor)");
+        .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)");
     }
 }
