@@ -62,6 +62,15 @@
     <!-- ═══ BORDER AMBER (Dark) ═══ -->
     <Color x:Key="MesBorderAmberLight">#92400E</Color>
 
+    <!-- ═══ STATUS COLORS (Dark — iOS HIG) ═══ -->
+    <Color x:Key="MesSuccess">#30D158</Color>
+    <Color x:Key="MesWarning">#FFD60A</Color>
+    <Color x:Key="MesError">#FF453A</Color>
+    <Color x:Key="MesInfo">#0A84FF</Color>
+
+    <!-- ═══ ELEVATION (Dark — softer shadows) ═══ -->
+    <BoxShadows x:Key="MesElevationCard">0 2 8 0 #28000000</BoxShadows>
+
     <!-- ═══ OVERLAY (Dark) ═══ -->
     <Color x:Key="MesBadgeOverlay">#00000033</Color>
     <Color x:Key="MesOverlayLight">#99000000</Color>
