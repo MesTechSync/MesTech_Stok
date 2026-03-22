@@ -13,20 +13,20 @@
 
   <!-- Primary Gradient -->
   <LinearGradientBrush x:Key="MesTechPrimaryGradient" StartPoint="0%,0%" EndPoint="100%,100%">
-    <GradientStop Color="#0078D4" Offset="0"/>
-    <GradientStop Color="#1E3D7A" Offset="1"/>
+    <GradientStop Color="{DynamicResource MesPrimaryBlue}" Offset="0"/>
+    <GradientStop Color="{DynamicResource MesPrimaryBlueDark}" Offset="1"/>
   </LinearGradientBrush>
 
   <!-- Accent Gradient -->
   <LinearGradientBrush x:Key="MesTechAccentGradient" StartPoint="0%,0%" EndPoint="100%,100%">
-    <GradientStop Color="#FF6F00" Offset="0"/>
-    <GradientStop Color="#E65100" Offset="1"/>
+    <GradientStop Color="{DynamicResource MesAccentOrange}" Offset="0"/>
+    <GradientStop Color="{DynamicResource MesAccentOrangeDark}" Offset="1"/>
   </LinearGradientBrush>
 
   <!-- Teal Gradient -->
   <LinearGradientBrush x:Key="MesTechTealGradient" StartPoint="0%,0%" EndPoint="100%,100%">
-    <GradientStop Color="#00897B" Offset="0"/>
-    <GradientStop Color="#00695C" Offset="1"/>
+    <GradientStop Color="{DynamicResource MesTealMaterial}" Offset="0"/>
+    <GradientStop Color="{DynamicResource MesTealDark}" Offset="1"/>
   </LinearGradientBrush>
 
   <!-- ============================================================ -->
