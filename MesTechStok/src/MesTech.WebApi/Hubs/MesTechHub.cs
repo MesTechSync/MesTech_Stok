@@ -34,6 +34,36 @@ public class MesTechHub : Hub
     }
 
     /// <summary>
+    /// Client'i import ilerleme grubuna ekler. Import progress event'leri alir.
+    /// </summary>
+    public async Task JoinImportGroup(string importId)
+    {
+        if (string.IsNullOrWhiteSpace(importId))
+            return;
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}");
+
+        _logger.LogInformation(
+            "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}",
+            Context.ConnectionId, importId);
+    }
+
+    /// <summary>
+    /// Client'i import ilerleme grubundan cikarir.
+    /// </summary>
+    public async Task LeaveImportGroup(string importId)
+    {
+        if (string.IsNullOrWhiteSpace(importId))
+            return;
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"import-{importId}");
+
+        _logger.LogInformation(
+            "SignalR client left import group: connectionId={ConnectionId}, importId={ImportId}",
+            Context.ConnectionId, importId);
+    }
+
+    /// <summary>
     /// Client'i tenant grubundan cikarir.
     /// </summary>
     public async Task LeaveTenantGroup(string tenantId)
