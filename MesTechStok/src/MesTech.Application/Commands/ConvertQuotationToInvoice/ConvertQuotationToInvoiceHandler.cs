@@ -71,7 +71,7 @@ public class ConvertQuotationToInvoiceHandler
             InvoiceNumber = request.InvoiceNumber,
             TenantId = quotation.TenantId,
             Type = InvoiceType.EArsiv,
-            Status = InvoiceStatus.Draft,
+            // Status defaults to Draft
             CustomerName = quotation.CustomerName,
             CustomerTaxNumber = quotation.CustomerTaxNumber,
             CustomerTaxOffice = quotation.CustomerTaxOffice,

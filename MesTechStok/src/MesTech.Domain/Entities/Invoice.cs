@@ -13,7 +13,7 @@ public class Invoice : BaseEntity, ITenantEntity
 
     public string InvoiceNumber { get; set; } = string.Empty;
     public InvoiceType Type { get; set; }
-    public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
+    public InvoiceStatus Status { get; internal set; } = InvoiceStatus.Draft;
     public InvoiceDirection Direction { get; set; } = InvoiceDirection.Outgoing;
     public InvoiceProvider Provider { get; set; } = InvoiceProvider.None;
     public InvoiceScenario Scenario { get; set; } = InvoiceScenario.Basic;
