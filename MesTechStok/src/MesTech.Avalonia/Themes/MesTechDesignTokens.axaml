@@ -142,7 +142,9 @@
     <!-- ═══ BORDER RADIUS ═══ -->
     <CornerRadius x:Key="MesRadiusNone">0</CornerRadius>
     <CornerRadius x:Key="MesRadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="MesRadiusBase">6</CornerRadius>
     <CornerRadius x:Key="MesRadiusMd">8</CornerRadius>
+    <CornerRadius x:Key="MesRadiusMdLg">10</CornerRadius>
     <CornerRadius x:Key="MesRadiusLg">12</CornerRadius>
     <CornerRadius x:Key="MesRadiusXl">16</CornerRadius>
     <CornerRadius x:Key="MesRadiusFull">9999</CornerRadius>
