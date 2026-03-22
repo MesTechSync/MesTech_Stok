@@ -409,7 +409,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/sales_invoices?filter[number]={Uri.EscapeDataString(invoiceNumber)}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetInvoice failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return null;
+        }
         return ErpInvoiceResult.Ok(invoiceNumber, "", DateTime.UtcNow, 0m);
     }
 
@@ -418,7 +424,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/sales_invoices?filter[issue_date]={from:yyyy-MM-dd}..{to:yyyy-MM-dd}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return new List<ErpInvoiceResult>();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetInvoices failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return new List<ErpInvoiceResult>();
+        }
         // Parse JSON:API response
         return new List<ErpInvoiceResult>();
     }
@@ -428,6 +440,12 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/sales_invoices/{Uri.EscapeDataString(invoiceNumber)}";
         var response = await _httpClient.DeleteAsync(url, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] CancelInvoice failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+        }
         return response.IsSuccessStatusCode;
     }
 
@@ -464,7 +482,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/contacts?filter[code]={Uri.EscapeDataString(accountCode)}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetAccount failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return null;
+        }
         return ErpAccountResult.Ok(accountCode, "", 0m);
     }
 
@@ -495,9 +519,14 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         var content = new StringContent(json, Encoding.UTF8);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
         var response = await _httpClient.PatchAsync($"{BaseUrl}/contacts/{Uri.EscapeDataString(request.AccountCode)}", content, ct).ConfigureAwait(false);
-        return response.IsSuccessStatusCode
-            ? ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m)
-            : ErpAccountResult.Failed($"Update failed with status {response.StatusCode}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] UpdateAccount failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return ErpAccountResult.Failed($"Update failed with status {response.StatusCode}");
+        }
+        return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
     }
 
     async Task<List<ErpAccountResult>> IErpAccountCapable.SearchAccountsAsync(string query, CancellationToken ct)
@@ -505,7 +534,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/contacts?filter[name]={Uri.EscapeDataString(query)}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return new List<ErpAccountResult>();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] SearchAccounts failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return new List<ErpAccountResult>();
+        }
         return new List<ErpAccountResult>();
     }
 
@@ -522,7 +557,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/products?include=inventory_levels&page[size]=250";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return new List<ErpStockItem>();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetStockLevels failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return new List<ErpStockItem>();
+        }
         return new List<ErpStockItem>();
     }
 
@@ -531,7 +572,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/products?filter[code]={Uri.EscapeDataString(productCode)}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetStockByCode failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return null;
+        }
         return null; // Parse JSON:API response
     }
 
@@ -561,7 +608,13 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
         var url = $"{BaseUrl}/bank_transactions?filter[date]={from:yyyy-MM-dd}..{to:yyyy-MM-dd}";
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) return new List<ErpBankTransaction>();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetTransactions failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return new List<ErpBankTransaction>();
+        }
         return new List<ErpBankTransaction>();
     }
 

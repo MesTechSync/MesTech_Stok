@@ -267,7 +267,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return true;
             }
 
-            _logger.LogWarning("[NetsisERPAdapter] Ping failed: {Status}", response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[NetsisERPAdapter] Ping failed: {Status} — {Error}",
+                response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -370,7 +372,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetInvoice — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetInvoice — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return null;
             }
 
@@ -410,7 +414,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetInvoices — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetInvoices — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return [];
             }
 
@@ -469,7 +475,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return true;
             }
 
-            _logger.LogWarning("[NetsisERPAdapter] CancelInvoice failed — HTTP {Status}", (int)response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[NetsisERPAdapter] CancelInvoice failed — HTTP {Status}: {Error}",
+                (int)response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -553,7 +561,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetAccount — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetAccount — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return null;
             }
 
@@ -645,7 +655,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] SearchAccounts — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] SearchAccounts — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return [];
             }
 
@@ -711,7 +723,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetStockLevels — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetStockLevels — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return [];
             }
 
@@ -756,7 +770,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetStockByCode — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetStockByCode — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return null;
             }
 
@@ -816,7 +832,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return true;
             }
 
-            _logger.LogWarning("[NetsisERPAdapter] UpdateStock failed — HTTP {Status}", (int)response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[NetsisERPAdapter] UpdateStock failed — HTTP {Status}: {Error}",
+                (int)response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -904,7 +922,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetWaybill — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetWaybill — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return null;
             }
 
@@ -947,7 +967,9 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NetsisERPAdapter] GetTransactions — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetTransactions — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return [];
             }
 

@@ -276,7 +276,9 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 return true;
             }
 
-            _logger.LogWarning("[NebimERPAdapter] Ping failed: {Status}", response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[NebimERPAdapter] Ping failed: {Status} — {Error}",
+                response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -364,7 +366,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning(
+                    "[NebimERPAdapter] GetStockByCode failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
                 return null;
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var first = json.RootElement.EnumerateArray().FirstOrDefault();
@@ -527,7 +535,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetInvoice failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+                return null;
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var date = json.RootElement.TryGetProperty("invoiceDate", out var d)
@@ -557,7 +571,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var url = $"{BaseUrl}/api/invoices?fromDate={from:yyyy-MM-dd}&toDate={to:yyyy-MM-dd}&officeCode={_options.OfficeCode}";
             var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return new List<ErpInvoiceResult>();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetInvoices failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+                return new List<ErpInvoiceResult>();
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var results = new List<ErpInvoiceResult>();
@@ -601,6 +621,12 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             { Content = content };
 
             var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] CancelInvoice failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+            }
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -670,7 +696,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetAccount failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+                return null;
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var name = json.RootElement.TryGetProperty("currAccDescription", out var n)
@@ -742,7 +774,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers?search={Uri.EscapeDataString(query)}&officeCode={_options.OfficeCode}", ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return new List<ErpAccountResult>();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] SearchAccounts failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+                return new List<ErpAccountResult>();
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var results = new List<ErpAccountResult>();
@@ -778,7 +816,13 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return 0m;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetAccountBalance failed: {Status} — {Error}",
+                    (int)response.StatusCode, errorBody);
+                return 0m;
+            }
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             return json.RootElement.TryGetProperty("balance", out var b) ? b.GetDecimal() : 0m;
@@ -871,7 +915,9 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("[NebimERPAdapter] GetWaybill — HTTP {Status}", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetWaybill — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
                 return null;
             }
 
