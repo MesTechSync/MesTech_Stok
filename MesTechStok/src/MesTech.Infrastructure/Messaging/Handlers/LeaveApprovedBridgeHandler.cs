@@ -33,6 +33,6 @@ public class LeaveApprovedBridgeHandler : INotificationHandler<DomainEventNotifi
 
         // MESA Bot'a bildir — WhatsApp bildirimi tetikler
         await _mesa.PublishLeaveApprovedAsync(
-            e.LeaveId, e.EmployeeId, e.OccurredAt, ct);
+            e.LeaveId, e.EmployeeId, e.OccurredAt, ct).ConfigureAwait(false);
     }
 }

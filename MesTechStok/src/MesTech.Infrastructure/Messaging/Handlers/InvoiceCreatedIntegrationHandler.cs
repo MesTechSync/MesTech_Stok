@@ -33,6 +33,6 @@ public class InvoiceCreatedIntegrationHandler
             e.OrderId, e.GrandTotal);
 
         await _publisher.PublishInvoiceCreatedAsync(
-            e.InvoiceId, e.OrderId, string.Empty, e.GrandTotal);
+            e.InvoiceId, e.OrderId, string.Empty, e.GrandTotal).ConfigureAwait(false);
     }
 }

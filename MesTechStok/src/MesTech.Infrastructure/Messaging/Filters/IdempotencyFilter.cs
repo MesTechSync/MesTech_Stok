@@ -21,7 +21,7 @@ public class IdempotencyFilter<T> : IFilter<ConsumeContext<T>>
     {
         var messageId = context.MessageId ?? Guid.NewGuid();
 
-        if (await _store.IsProcessedAsync(messageId, context.CancellationToken))
+        if (await _store.IsProcessedAsync(messageId, context.CancellationToken).ConfigureAwait(false))
         {
             _logger.LogWarning(
                 "Duplicate message detected — skipping. MessageId: {MessageId}, Type: {Type}",
@@ -29,10 +29,10 @@ public class IdempotencyFilter<T> : IFilter<ConsumeContext<T>>
             return;
         }
 
-        await next.Send(context);
+        await next.Send(context).ConfigureAwait(false);
 
         await _store.MarkProcessedAsync(
-            messageId, typeof(T).Name, context.CancellationToken);
+            messageId, typeof(T).Name, context.CancellationToken).ConfigureAwait(false);
     }
 
     public void Probe(ProbeContext context) =>

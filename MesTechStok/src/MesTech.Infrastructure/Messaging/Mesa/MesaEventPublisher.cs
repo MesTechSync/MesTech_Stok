@@ -51,7 +51,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishProductCreatedAsync(
         MesaProductCreatedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] ProductCreated yayinlandi: {SKU} - {Name} (Tenant: {TenantId})",
             evt.SKU, evt.Name, evt.TenantId);
@@ -60,7 +60,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishStockLowAsync(
         MesaStockLowEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogWarning(
             "[MESA] StockLow yayinlandi: {SKU} stok={Current}, min={Min} (Tenant: {TenantId})",
             evt.SKU, evt.CurrentStock, evt.MinimumStock, evt.TenantId);
@@ -69,7 +69,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishOrderReceivedAsync(
         MesaOrderReceivedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] OrderReceived yayinlandi: {Platform} #{OrderId}, tutar={Amount} (Tenant: {TenantId})",
             evt.PlatformCode, evt.PlatformOrderId, evt.TotalAmount, evt.TenantId);
@@ -78,7 +78,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishPriceChangedAsync(
         MesaPriceChangedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] PriceChanged yayinlandi: {SKU} {Old} -> {New} (Tenant: {TenantId})",
             evt.SKU, evt.OldPrice, evt.NewPrice, evt.TenantId);
@@ -87,7 +87,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishInvoiceGeneratedAsync(
         MesaInvoiceGeneratedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] InvoiceGenerated yayinlandi: {InvoiceNumber}, tutar={Total} (Tenant: {TenantId})",
             evt.InvoiceNumber, evt.GrandTotal, evt.TenantId);
@@ -96,7 +96,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishInvoiceCancelledAsync(
         MesaInvoiceCancelledEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogWarning(
             "[MESA] InvoiceCancelled yayinlandi: {InvoiceNumber}, sebep={Reason} (Tenant: {TenantId})",
             evt.InvoiceNumber, evt.CancelReason, evt.TenantId);
@@ -105,7 +105,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishReturnCreatedAsync(
         MesaReturnCreatedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] ReturnCreated yayinlandi: siparis={OrderId}, platform={Platform} (Tenant: {TenantId})",
             evt.OrderId, evt.PlatformCode, evt.TenantId);
@@ -114,7 +114,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishReturnResolvedAsync(
         MesaReturnResolvedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] ReturnResolved yayinlandi: iade={ReturnId}, sonuc={Resolution} (Tenant: {TenantId})",
             evt.ReturnRequestId, evt.Resolution, evt.TenantId);
@@ -123,7 +123,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishBuyboxLostAsync(
         MesaBuyboxLostEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogWarning(
             "[MESA] BuyboxLost yayinlandi: {SKU}, rakip={Competitor} fiyat={CompPrice} (Tenant: {TenantId})",
             evt.SKU, evt.CompetitorName, evt.CompetitorPrice, evt.TenantId);
@@ -132,7 +132,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishSupplierFeedSyncedAsync(
         MesaSupplierFeedSyncedEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] SupplierFeedSynced yayinlandi: {Supplier}, toplam={Total}, yeni={New} (Tenant: {TenantId})",
             evt.SupplierName, evt.ProductsTotal, evt.ProductsNew, evt.TenantId);
@@ -141,7 +141,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishDailySummaryAsync(
         MesaDailySummaryEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation(
             "[MESA] DailySummary yayinlandi: {Date} — {OrderCount} siparis, {Revenue:C} gelir (Tenant: {TenantId})",
             evt.Date, evt.OrderCount, evt.Revenue, evt.TenantId);
@@ -150,7 +150,7 @@ public class MesaEventPublisher : IMesaEventPublisher
     public async Task PublishSyncErrorAsync(
         MesaSyncErrorEvent evt, CancellationToken ct = default)
     {
-        await _publishEndpoint.Publish(evt, ct);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogWarning(
             "[MESA] SyncError yayinlandi: {Platform} — {ErrorType}: {Message} (Tenant: {TenantId})",
             evt.Platform, evt.ErrorType, evt.Message, evt.TenantId);

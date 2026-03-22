@@ -33,6 +33,6 @@ public class StockChangedIntegrationHandler
             e.SKU, e.PreviousQuantity, e.NewQuantity, e.MovementType);
 
         await _publisher.PublishStockChangedAsync(
-            e.ProductId, e.SKU, e.NewQuantity, e.MovementType.ToString());
+            e.ProductId, e.SKU, e.NewQuantity, e.MovementType.ToString()).ConfigureAwait(false);
     }
 }

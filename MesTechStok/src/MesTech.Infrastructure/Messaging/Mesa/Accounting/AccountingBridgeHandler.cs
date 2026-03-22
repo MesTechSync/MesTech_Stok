@@ -56,7 +56,7 @@ public class SettlementImportedBridgeHandler
             tenantId,
             e.OccurredAt);
 
-        await _publishEndpoint.Publish(integrationEvent, ct);
+        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA] FinanceSettlementImported yayinlandi: batch={BatchId}, platform={Platform} (Tenant: {TenantId})",
@@ -106,7 +106,7 @@ public class DocumentReceivedBridgeHandler
             tenantId,
             e.OccurredAt);
 
-        await _publishEndpoint.Publish(integrationEvent, ct);
+        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA] FinanceDocumentReceived yayinlandi: doc={DocumentId}, dosya={FileName} (Tenant: {TenantId})",

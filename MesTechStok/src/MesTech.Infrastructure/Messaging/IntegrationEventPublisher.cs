@@ -34,7 +34,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new StockChangedIntegrationEvent(productId, sku, newQuantity, source, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("StockChanged yayinlandi: {SKU} -> {Qty} ({Source}) [Tenant={TenantId}]", sku, newQuantity, source, tenantId);
     }
 
@@ -42,7 +42,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new PriceChangedIntegrationEvent(productId, sku, newPrice, source, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("PriceChanged yayinlandi: {SKU} -> {Price} ({Source}) [Tenant={TenantId}]", sku, newPrice, source, tenantId);
     }
 
@@ -50,7 +50,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new OrderReceivedIntegrationEvent(orderId, platformCode, platformOrderId, totalAmount, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("OrderReceived yayinlandi: {Platform} #{PlatformOrderId} [Tenant={TenantId}]", platformCode, platformOrderId, tenantId);
     }
 
@@ -58,7 +58,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new InvoiceCreatedIntegrationEvent(invoiceId, orderId, invoiceNumber, grandTotal, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("InvoiceCreated yayinlandi: {InvoiceNumber} -> {Total} [Tenant={TenantId}]", invoiceNumber, grandTotal, tenantId);
     }
 
@@ -66,7 +66,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new OrderShippedIntegrationEvent(orderId, trackingNumber, cargoProvider, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("OrderShipped yayinlandi: {OrderId} kargo={Cargo} takip={Tracking} [Tenant={TenantId}]",
             orderId, cargoProvider, trackingNumber, tenantId);
     }
@@ -75,7 +75,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     {
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var evt = new ProductUpdatedIntegrationEvent(productId, sku, updatedField, tenantId, DateTime.UtcNow);
-        await _publishEndpoint.Publish(evt);
+        await _publishEndpoint.Publish(evt).ConfigureAwait(false);
         _logger.LogInformation("ProductUpdated yayinlandi: {SKU} alan={Field} [Tenant={TenantId}]",
             sku, updatedField, tenantId);
     }

@@ -35,7 +35,7 @@ public class DealWonBridgeHandler : INotificationHandler<DomainEventNotification
         // Deal entity'sini DB'den çek — Title ve CrmContactId için
         var deal = await _context.Set<Deal>()
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == e.DealId, cancellationToken);
+            .FirstOrDefaultAsync(d => d.Id == e.DealId, cancellationToken).ConfigureAwait(false);
 
         if (deal is null)
         {
@@ -59,6 +59,6 @@ public class DealWonBridgeHandler : INotificationHandler<DomainEventNotification
             CrmContactId: deal.CrmContactId,
             TenantId: tenantId,
             OccurredAt: e.OccurredAt
-        ), cancellationToken);
+        ), cancellationToken).ConfigureAwait(false);
     }
 }

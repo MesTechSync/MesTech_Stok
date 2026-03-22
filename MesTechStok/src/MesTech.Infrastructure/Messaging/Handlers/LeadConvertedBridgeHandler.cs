@@ -33,7 +33,7 @@ public class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotifi
 
         var lead = await _context.Set<Lead>()
             .AsNoTracking()
-            .FirstOrDefaultAsync(l => l.Id == e.LeadId, cancellationToken);
+            .FirstOrDefaultAsync(l => l.Id == e.LeadId, cancellationToken).ConfigureAwait(false);
 
         var tenantId = _tenantProvider.GetCurrentTenantId() != Guid.Empty
             ? _tenantProvider.GetCurrentTenantId()
@@ -46,6 +46,6 @@ public class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotifi
             Email: lead?.Email,
             TenantId: tenantId,
             OccurredAt: e.OccurredAt
-        ), cancellationToken);
+        ), cancellationToken).ConfigureAwait(false);
     }
 }
