@@ -35,11 +35,11 @@ public sealed class AmazonSettlementParser : ISettlementParser
         _logger.LogInformation("[AmazonSettlementParser] Parsing settlement data (format: {Format})", format);
 
         // Compute SHA256 hash of raw stream
-        _rawFileHash = await ComputeStreamHashAsync(rawData, ct);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         // Parse TSV lines
-        _cachedLines = await ParseTsvAsync(rawData, ct);
+        _cachedLines = await ParseTsvAsync(rawData, ct).ConfigureAwait(false);
 
         if (_cachedLines.Count == 0)
         {
@@ -188,7 +188,7 @@ public sealed class AmazonSettlementParser : ISettlementParser
         using var reader = new StreamReader(stream, leaveOpen: true);
 
         // Read header line
-        var headerLine = await reader.ReadLineAsync(ct);
+        var headerLine = await reader.ReadLineAsync(ct).ConfigureAwait(false);
         if (string.IsNullOrEmpty(headerLine))
             return results;
 
@@ -197,7 +197,7 @@ public sealed class AmazonSettlementParser : ISettlementParser
 
         // Read data lines
         string? line;
-        while ((line = await reader.ReadLineAsync(ct)) != null)
+        while ((line = await reader.ReadLineAsync(ct).ConfigureAwait(false)) != null)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -306,7 +306,7 @@ public sealed class AmazonSettlementParser : ISettlementParser
     private static async Task<string> ComputeStreamHashAsync(Stream stream, CancellationToken ct)
     {
         using var sha256 = SHA256.Create();
-        var hashBytes = await sha256.ComputeHashAsync(stream, ct);
+        var hashBytes = await sha256.ComputeHashAsync(stream, ct).ConfigureAwait(false);
         return Convert.ToHexString(hashBytes);
     }
 }

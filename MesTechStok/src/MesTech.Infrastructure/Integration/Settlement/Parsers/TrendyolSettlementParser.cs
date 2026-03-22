@@ -42,12 +42,12 @@ public sealed class TrendyolSettlementParser : ISettlementParser
         _logger.LogInformation("[TrendyolSettlementParser] Parsing settlement data (format: {Format})", format);
 
         // Compute SHA256 hash of raw stream
-        _rawFileHash = await ComputeStreamHashAsync(rawData, ct);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         // Deserialize JSON
         var response = await JsonSerializer.DeserializeAsync<TrendyolSettlementResponse>(
-            rawData, _jsonOptions, ct);
+            rawData, _jsonOptions, ct).ConfigureAwait(false);
 
         if (response is null || response.Content.Count == 0)
         {
@@ -194,7 +194,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
     private static async Task<string> ComputeStreamHashAsync(Stream stream, CancellationToken ct)
     {
         using var sha256 = SHA256.Create();
-        var hashBytes = await sha256.ComputeHashAsync(stream, ct);
+        var hashBytes = await sha256.ComputeHashAsync(stream, ct).ConfigureAwait(false);
         return Convert.ToHexString(hashBytes);
     }
 }

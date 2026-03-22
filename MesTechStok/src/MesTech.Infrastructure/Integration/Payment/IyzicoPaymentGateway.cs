@@ -60,17 +60,17 @@ public class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/auth", content, ct);
+            var response = await http.PostAsync("/payment/auth", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var txId = ExtractTransactionId(body);
                 _logger.LogInformation("iyzico odeme basarili: {TxId}", txId);
                 return new PaymentResult(true, txId);
             }
 
-            var error = await response.Content.ReadAsStringAsync(ct);
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogError("iyzico odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
@@ -102,12 +102,12 @@ public class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/refund", content, ct);
+            var response = await http.PostAsync("/payment/refund", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
 
-            var error = await response.Content.ReadAsStringAsync(ct);
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
         catch (Exception ex)

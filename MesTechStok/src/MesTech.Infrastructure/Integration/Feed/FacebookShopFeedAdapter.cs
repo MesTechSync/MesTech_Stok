@@ -57,7 +57,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
                     p.Tags != null && request.CategoryFilter.Any(f => p.Tags.Contains(f)));
             }
 
-            var products = await query.ToListAsync(ct);
+            var products = await query.ToListAsync(ct).ConfigureAwait(false);
 
             var errors = new List<string>();
             var items = new List<XElement>();

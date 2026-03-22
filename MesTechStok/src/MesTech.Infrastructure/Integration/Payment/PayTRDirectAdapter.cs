@@ -109,12 +109,12 @@ public class PayTRDirectAdapter : IPaymentProvider
 
             if (!response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("[PayTRDirect] Token request failed {Status}: {Body}", response.StatusCode, body);
                 return new PaymentResult(false, null, null, $"PayTR hatasi: {response.StatusCode}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<PayTRTokenResponse>(_jsonOptions, ct);
+            var result = await response.Content.ReadFromJsonAsync<PayTRTokenResponse>(_jsonOptions, ct).ConfigureAwait(false);
 
             if (result?.Status != "success")
             {
@@ -164,7 +164,7 @@ public class PayTRDirectAdapter : IPaymentProvider
             if (!response.IsSuccessStatusCode)
                 return new PaymentStatusResult(transactionId, PaymentTransactionStatus.Failed, 0m, null);
 
-            var result = await response.Content.ReadFromJsonAsync<PayTRStatusResponse>(_jsonOptions, ct);
+            var result = await response.Content.ReadFromJsonAsync<PayTRStatusResponse>(_jsonOptions, ct).ConfigureAwait(false);
 
             var status = result?.Status switch
             {
@@ -218,7 +218,7 @@ public class PayTRDirectAdapter : IPaymentProvider
             if (!response.IsSuccessStatusCode)
                 return new InstallmentOptions(Array.Empty<InstallmentOption>());
 
-            var result = await response.Content.ReadFromJsonAsync<PayTRBinResponse>(_jsonOptions, ct);
+            var result = await response.Content.ReadFromJsonAsync<PayTRBinResponse>(_jsonOptions, ct).ConfigureAwait(false);
 
             if (result?.Status != "success" || result.InstallmentTable is null)
                 return new InstallmentOptions(Array.Empty<InstallmentOption>());
@@ -270,7 +270,7 @@ public class PayTRDirectAdapter : IPaymentProvider
             var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(RefundEndpoint, payload), ct);
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(body);
 
             var status = doc.RootElement.TryGetProperty("status", out var s) ? s.GetString() : null;

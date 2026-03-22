@@ -43,7 +43,7 @@ public class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushIncome for income {IncomeId}", incomeId);
 
-        var income = await _incomeRepository.GetByIdAsync(incomeId);
+        var income = await _incomeRepository.GetByIdAsync(incomeId).ConfigureAwait(false);
         if (income is null)
         {
             _logger.LogWarning("Parasut PushIncome: income {IncomeId} not found", incomeId);
@@ -66,7 +66,7 @@ public class ParasutAccountingService : IParasutAccountingService
             }
         };
 
-        return await PostJsonApiAsync("sales_invoices", payload, ct);
+        return await PostJsonApiAsync("sales_invoices", payload, ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -74,7 +74,7 @@ public class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushExpense for expense {ExpenseId}", expenseId);
 
-        var expense = await _expenseRepository.GetByIdAsync(expenseId);
+        var expense = await _expenseRepository.GetByIdAsync(expenseId).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("Parasut PushExpense: expense {ExpenseId} not found", expenseId);
@@ -97,7 +97,7 @@ public class ParasutAccountingService : IParasutAccountingService
             }
         };
 
-        return await PostJsonApiAsync("purchase_invoices", payload, ct);
+        return await PostJsonApiAsync("purchase_invoices", payload, ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -107,11 +107,11 @@ public class ParasutAccountingService : IParasutAccountingService
 
         try
         {
-            var response = await _httpClient.GetAsync("accounts", ct);
+            var response = await _httpClient.GetAsync("accounts", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut GetBalance failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
 
@@ -119,7 +119,7 @@ public class ParasutAccountingService : IParasutAccountingService
                 return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API: { data: [ { attributes: { balance, ... } } ] }
@@ -180,17 +180,17 @@ public class ParasutAccountingService : IParasutAccountingService
             var toDate = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             var url = $"transaction_documents?filter[issue_date_gte]={fromDate}&filter[issue_date_lte]={toDate}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut GetRecentTransactions failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return Array.Empty<ParasutTransactionDto>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             var transactions = new List<ParasutTransactionDto>();
@@ -266,17 +266,17 @@ public class ParasutAccountingService : IParasutAccountingService
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
 
-            var response = await _httpClient.PostAsync(endpoint, content, ct);
+            var response = await _httpClient.PostAsync(endpoint, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut POST {Endpoint} failed: {Status} — {Error}",
                     endpoint, response.StatusCode, errorBody);
                 return new ParasutSyncResult { Success = false, ErrorMessage = errorBody };
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
 
             // JSON:API: { data: { id, ... } }

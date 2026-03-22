@@ -35,11 +35,11 @@ public sealed class N11SettlementParser : ISettlementParser
         _logger.LogInformation("[N11SettlementParser] Parsing settlement data (format: {Format})", format);
 
         // Compute SHA256 hash of raw stream
-        _rawFileHash = await ComputeStreamHashAsync(rawData, ct);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         // Parse SOAP XML response
-        var doc = await XDocument.LoadAsync(rawData, LoadOptions.None, ct);
+        var doc = await XDocument.LoadAsync(rawData, LoadOptions.None, ct).ConfigureAwait(false);
         _cachedItems = ParseXmlItems(doc);
 
         if (_cachedItems.Count == 0)
@@ -240,7 +240,7 @@ public sealed class N11SettlementParser : ISettlementParser
     private static async Task<string> ComputeStreamHashAsync(Stream stream, CancellationToken ct)
     {
         using var sha256 = SHA256.Create();
-        var hashBytes = await sha256.ComputeHashAsync(stream, ct);
+        var hashBytes = await sha256.ComputeHashAsync(stream, ct).ConfigureAwait(false);
         return Convert.ToHexString(hashBytes);
     }
 }

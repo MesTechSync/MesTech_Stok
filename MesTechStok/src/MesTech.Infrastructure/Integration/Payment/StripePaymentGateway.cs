@@ -45,17 +45,17 @@ public class StripePaymentGateway : IPaymentGateway
                 ["description"] = description ?? "MesTech Subscription"
             });
 
-            var response = await http.PostAsync("/v1/payment_intents", formData, ct);
+            var response = await http.PostAsync("/v1/payment_intents", formData, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var txId = ExtractField(body, "id");
                 _logger.LogInformation("Stripe odeme basarili: {TxId}", txId);
                 return new PaymentResult(true, txId);
             }
 
-            var error = await response.Content.ReadAsStringAsync(ct);
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogError("Stripe odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
@@ -84,12 +84,12 @@ public class StripePaymentGateway : IPaymentGateway
             if (partialAmount.HasValue)
                 formData["amount"] = ((int)(partialAmount.Value * 100)).ToString();
 
-            var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct);
+            var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
 
-            var error = await response.Content.ReadAsStringAsync(ct);
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
         catch (Exception ex)

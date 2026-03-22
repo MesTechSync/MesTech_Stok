@@ -40,7 +40,7 @@ public class SocialFeedRefreshJob
 
         var configs = await _dbContext.Set<SocialFeedConfiguration>()
             .Where(c => c.IsActive)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         if (configs.Count == 0)
         {
@@ -64,10 +64,10 @@ public class SocialFeedRefreshJob
             {
                 var wait = ThrottleDelay - elapsed;
                 _logger.LogDebug("[SocialFeedRefresh] Throttling — waiting {Wait}ms before next feed", wait.TotalMilliseconds);
-                await Task.Delay(wait, ct);
+                await Task.Delay(wait, ct).ConfigureAwait(false);
             }
 
-            await RefreshSingleFeedAsync(config, adapterMap, ct);
+            await RefreshSingleFeedAsync(config, adapterMap, ct).ConfigureAwait(false);
             lastRunAt = DateTime.UtcNow;
         }
 
@@ -90,7 +90,7 @@ public class SocialFeedRefreshJob
             var msg = $"No adapter registered for platform {config.Platform}.";
             _logger.LogWarning("[SocialFeedRefresh] {Message} Config={ConfigId}", msg, config.Id);
             config.RecordError(msg);
-            await _dbContext.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
             return;
         }
 
@@ -108,7 +108,7 @@ public class SocialFeedRefreshJob
                 Currency: "TRY",
                 Language: "tr");
 
-            var result = await adapter.GenerateFeedAsync(request, ct);
+            var result = await adapter.GenerateFeedAsync(request, ct).ConfigureAwait(false);
 
             if (result.Success)
             {
@@ -147,7 +147,7 @@ public class SocialFeedRefreshJob
         }
         finally
         {
-            await _dbContext.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 

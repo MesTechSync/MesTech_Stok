@@ -44,11 +44,11 @@ public sealed class EbaySettlementParser : ISettlementParser
         _logger.LogInformation("[EbaySettlementParser] Parsing settlement data (format: {Format})", format);
 
         // Compute SHA256 hash of raw stream for deduplication
-        _rawFileHash = await ComputeStreamHashAsync(rawData, ct);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         // Deserialize JSON — eBay Finances API response
-        using var doc = await JsonDocument.ParseAsync(rawData, cancellationToken: ct);
+        using var doc = await JsonDocument.ParseAsync(rawData, cancellationToken: ct).ConfigureAwait(false);
         _cachedTransactions = new List<EbayTransaction>();
 
         if (doc.RootElement.TryGetProperty("transactions", out var transactionsArr))
@@ -236,7 +236,7 @@ public sealed class EbaySettlementParser : ISettlementParser
     private static async Task<string> ComputeStreamHashAsync(Stream stream, CancellationToken ct)
     {
         using var sha256 = SHA256.Create();
-        var hashBytes = await sha256.ComputeHashAsync(stream, ct);
+        var hashBytes = await sha256.ComputeHashAsync(stream, ct).ConfigureAwait(false);
         return Convert.ToHexString(hashBytes);
     }
 

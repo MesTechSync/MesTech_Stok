@@ -42,7 +42,7 @@ public class CategoryAutoMapper(
         var manualKey = $"{ManualCacheKeyPrefix}{normalizedInput.GetHashCode()}";
         if (cache.TryGetValue(manualKey, out Guid manualTargetId) && manualTargetId != Guid.Empty)
         {
-            var allCats = await categoryRepo.GetActiveAsync();
+            var allCats = await categoryRepo.GetActiveAsync().ConfigureAwait(false);
             var target = allCats.FirstOrDefault(c => c.Id == manualTargetId);
             if (target is not null)
             {
@@ -58,7 +58,7 @@ public class CategoryAutoMapper(
         }
 
         // 3. Tüm aktif kategorileri al
-        var categories = await categoryRepo.GetActiveAsync();
+        var categories = await categoryRepo.GetActiveAsync().ConfigureAwait(false);
 
         // 4. Kesin eşleşme (normalize ad veya kod)
         var exact = categories.FirstOrDefault(c =>

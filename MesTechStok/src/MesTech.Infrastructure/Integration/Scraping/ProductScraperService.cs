@@ -57,7 +57,7 @@ public class ProductScraperService : IProductScraperService
 
         try
         {
-            return await FetchProductAsync(platform, uri, ct);
+            return await FetchProductAsync(platform, uri, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -103,7 +103,7 @@ public class ProductScraperService : IProductScraperService
             return null;
         }
 
-        var response = await _httpClient.GetAsync(apiUrl, ct);
+        var response = await _httpClient.GetAsync(apiUrl, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning("API call to {Platform} failed: {Status} for product {ProductId}",
@@ -111,7 +111,7 @@ public class ProductScraperService : IProductScraperService
             return null;
         }
 
-        var json = await response.Content.ReadAsStringAsync(ct);
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         return ParseProductResponse(platform, json);
     }
 
