@@ -13,13 +13,20 @@ public class StripePaymentGateway : IPaymentGateway
 {
     private readonly ILogger<StripePaymentGateway> _logger;
     private readonly StripeOptions _options;
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    private const string StripeApiBaseUrl = "https://api.stripe.com";
 
     public string ProviderName => "Stripe";
 
-    public StripePaymentGateway(ILogger<StripePaymentGateway> logger, IOptions<StripeOptions> options)
+    public StripePaymentGateway(
+        ILogger<StripePaymentGateway> logger,
+        IOptions<StripeOptions> options,
+        IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _options = options.Value;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<PaymentResult> ChargeAsync(decimal amount, string currency, string paymentMethodToken,
@@ -35,7 +42,7 @@ public class StripePaymentGateway : IPaymentGateway
 
         try
         {
-            using var http = CreateHttpClient();
+            var http = CreateHttpClient();
             var formData = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["amount"] = ((int)(amount * 100)).ToString(), // Stripe kuruş/cent cinsinden alir
@@ -76,7 +83,7 @@ public class StripePaymentGateway : IPaymentGateway
 
         try
         {
-            using var http = CreateHttpClient();
+            var http = CreateHttpClient();
             var formData = new Dictionary<string, string>
             {
                 ["payment_intent"] = transactionId
@@ -118,15 +125,14 @@ public class StripePaymentGateway : IPaymentGateway
 
     private HttpClient CreateHttpClient()
     {
-        var client = new HttpClient
-        {
-            BaseAddress = new Uri("https://api.stripe.com")
-        };
-        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_options.SecretKey}");
+        var client = _httpClientFactory.CreateClient("Stripe");
+        client.BaseAddress = new Uri(StripeApiBaseUrl);
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.SecretKey);
         return client;
     }
 
-    private static string ExtractField(string json, string field)
+    private string ExtractField(string json, string field)
     {
         try
         {
@@ -134,7 +140,10 @@ public class StripePaymentGateway : IPaymentGateway
             if (doc.RootElement.TryGetProperty(field, out var val))
                 return val.GetString() ?? Guid.NewGuid().ToString("N");
         }
-        catch { }
+        catch (System.Text.Json.JsonException ex)
+        {
+            _logger.LogWarning(ex, "Stripe response {Field} parse failed", field);
+        }
         return Guid.NewGuid().ToString("N");
     }
 }
