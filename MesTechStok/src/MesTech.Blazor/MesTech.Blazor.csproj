@@ -19,6 +19,9 @@
     <PackageReference Include="Newtonsoft.Json" />
     <!-- JWT token parsing for JwtAuthenticationStateProvider -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <!-- Structured logging — Console + Seq (production observability) -->
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
 
 </Project>

@@ -6,7 +6,16 @@ using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.DependencyInjection;
 
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog structured logging — Console + Seq (production observability)
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.Console()
+    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:5341")
+    .Enrich.WithProperty("Application", "MesTech.Blazor"));
 
 // Development: skip DI validation (some repos not yet implemented)
 if (builder.Environment.IsDevelopment())
@@ -92,6 +101,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseResponseCompression();
+app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseRequestLocalization();
 app.UseAntiforgery();
