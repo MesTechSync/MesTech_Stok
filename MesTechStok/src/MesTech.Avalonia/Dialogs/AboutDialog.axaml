@@ -10,7 +10,7 @@
   <Border Padding="24">
     <StackPanel Spacing="16" HorizontalAlignment="Center">
 
-      <!-- Logo Placeholder -->
+      <!-- Logo -->
       <Border Width="80" Height="80"
               CornerRadius="12"
               Background="{DynamicResource PrimaryBlueBrush}"
