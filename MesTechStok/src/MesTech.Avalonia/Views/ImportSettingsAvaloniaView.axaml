@@ -69,7 +69,7 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Templates.Count}" />
+<!-- Empty State -->        <TextBlock Text="Icerik bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Templates.Count}" />
 
             <!-- Edit Mode -->
             <ScrollViewer IsVisible="{Binding IsEditing}" Padding="24">

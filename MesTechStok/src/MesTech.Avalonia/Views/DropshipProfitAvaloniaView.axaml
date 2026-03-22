@@ -53,7 +53,7 @@
                 <DataGridTextColumn Header="Marj %" Binding="{Binding MarginPercent, StringFormat='{}{0:N1}%'}" Width="90" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Karlilik verisi bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Summary Row -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16" Margin="0"

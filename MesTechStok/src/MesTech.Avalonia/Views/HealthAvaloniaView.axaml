@@ -100,7 +100,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
+                    <TextBlock Text="Servis durumu bulunamadi"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Margin="0,40"

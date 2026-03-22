@@ -107,7 +107,7 @@
                         </DataGrid>
 
                         <!-- Empty State: Barcode -->
-                        <TextBlock Text="Kayıt bulunamadı"
+                        <TextBlock Text="Stok verisi bulunamadi"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Margin="0,40"

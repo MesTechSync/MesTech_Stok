@@ -65,7 +65,7 @@
                                         <DataGridTextColumn Header="MesTech Alani" Binding="{Binding MesTechField}" Width="*" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !ColumnMappings.Count}" />
+<!-- Empty State -->        <TextBlock Text="Urun bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !ColumnMappings.Count}" />
                             </StackPanel>
                         </Border>
 

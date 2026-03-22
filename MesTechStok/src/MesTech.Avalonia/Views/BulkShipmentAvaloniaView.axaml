@@ -66,7 +66,7 @@
                 <DataGridTextColumn Header="Takip No" Binding="{Binding TrackingNumber}" Width="180" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Orders.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Siparis bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Orders.Count}" />
 
         <!-- Progress + Summary Footer -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16,10"

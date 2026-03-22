@@ -72,7 +72,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
                 <!-- Empty State -->
-                <TextBlock Text="Kayıt bulunamadı"
+                <TextBlock Text="Urun bulunamadi"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                            Margin="0,40"
