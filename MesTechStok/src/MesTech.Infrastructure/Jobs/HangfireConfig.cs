@@ -286,5 +286,36 @@ public static class HangfireConfig
             "dunning-escalation",
             x => x.ProcessDunningAsync(CancellationToken.None),
             "0 4 * * *");
+
+        // ── Zincir 11: Gecikmiş sipariş kontrolü (her saat başı) ──
+        RecurringJob.AddOrUpdate<CheckStaleOrdersJob>(
+            "check-stale-orders",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *");
+
+        // ── 12-Platform Stok Sync (GenericPlatformStockSyncJob) ──
+        var platformSyncSchedules = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "*/30 * * * *"),  // 30dk
+            ("Ciceksepeti",  "*/30 * * * *"),
+            ("N11",          "*/30 * * * *"),
+            ("Pazarama",     "*/30 * * * *"),
+            ("Amazon_TR",    "0 * * * *"),     // 1 saat
+            ("eBay",         "0 * * * *"),
+            ("Shopify",      "0 * * * *"),
+            ("WooCommerce",  "0 * * * *"),
+            ("Ozon",         "0 */2 * * *"),   // 2 saat
+            ("Etsy",         "0 */2 * * *"),
+            ("Zalando",      "0 */2 * * *"),
+            ("PttAVM",       "0 */2 * * *"),
+        };
+
+        foreach (var (code, cron) in platformSyncSchedules)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformStockSyncJob>(
+                $"stock-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
     }
 }
