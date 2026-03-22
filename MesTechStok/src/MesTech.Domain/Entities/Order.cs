@@ -183,5 +183,41 @@ public class Order : BaseEntity, ITenantEntity
 
     public int TotalItems => _orderItems.Sum(i => i.Quantity);
 
+    // === Factory Methods ===
+
+    /// <summary>
+    /// Platform siparis verisi ile Order olusturur.
+    /// Adapter'dan gelen veriler icin kullanilir.
+    /// </summary>
+    public static Order CreateFromPlatform(
+        Guid tenantId,
+        string platformOrderId,
+        PlatformType platform,
+        string? customerName,
+        string? customerEmail,
+        IReadOnlyList<OrderItem> items)
+    {
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            OrderNumber = $"{platform.ToString()[..2].ToUpperInvariant()}-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}",
+            ExternalOrderId = platformOrderId,
+            PlatformOrderNumber = platformOrderId,
+            SourcePlatform = platform,
+            CustomerName = customerName,
+            CustomerEmail = customerEmail,
+            OrderDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending,
+            PaymentStatus = "Pending",
+            Type = "SALE"
+        };
+
+        foreach (var item in items)
+            order.AddItem(item);
+
+        return order;
+    }
+
     public override string ToString() => $"Order #{OrderNumber} ({Status}) - {TotalAmount:C}";
 }

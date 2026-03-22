@@ -52,6 +52,13 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    public async Task ReloadAsync<TEntity>(Guid id, CancellationToken ct = default) where TEntity : class
+    {
+        var entity = await _context.Set<TEntity>().FindAsync(new object[] { id }, ct).ConfigureAwait(false);
+        if (entity is not null)
+            await _context.Entry(entity).ReloadAsync(ct).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
         Dispose(true);
