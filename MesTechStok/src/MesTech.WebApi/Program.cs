@@ -180,6 +180,13 @@ catch (Exception ex)
     app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
 }
 
+// HTTPS redirection + HSTS (S01f+S01g security hardening)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+app.UseHttpsRedirection();
+
 // Serilog HTTP request logging — structured log per request
 app.UseSerilogRequestLogging();
 
