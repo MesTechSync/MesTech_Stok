@@ -24,7 +24,7 @@ public class CreateCampaignHandler : IRequestHandler<CreateCampaignCommand, Guid
             request.DiscountPercent,
             request.PlatformType);
 
-        if (request.ProductIds is { Length: > 0 })
+        if (request.ProductIds is { Count: > 0 })
         {
             foreach (var productId in request.ProductIds)
             {
