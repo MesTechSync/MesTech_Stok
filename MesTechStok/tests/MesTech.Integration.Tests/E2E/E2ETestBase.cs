@@ -10,6 +10,7 @@ namespace MesTech.Integration.Tests.E2E;
 /// Testcontainers ile gercek PostgreSQL 17 container baslatir.
 /// Docker yoksa test skip olur.
 /// </summary>
+[Trait("Requires", "Docker")]
 public abstract class E2ETestBase : IAsyncLifetime
 {
     private PostgreSqlContainer? _pgContainer;

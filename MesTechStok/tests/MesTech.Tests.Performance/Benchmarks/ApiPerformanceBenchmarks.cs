@@ -27,6 +27,7 @@ namespace MesTech.Tests.Performance.Benchmarks;
 /// </summary>
 [Trait("Category", "Performance")]
 [Trait("EMR", "EMR-18-L01")]
+[Trait("Requires", "Docker")]
 [Collection("PostgresPerformance")]
 public sealed class ApiPerformanceBenchmarks : IAsyncLifetime
 {

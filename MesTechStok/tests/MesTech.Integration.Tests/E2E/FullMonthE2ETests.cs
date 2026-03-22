@@ -21,6 +21,7 @@ namespace MesTech.Integration.Tests.E2E;
 /// </summary>
 [Collection("E2E")]
 [Trait("Category", "E2E")]
+[Trait("Requires", "Docker")]
 [TestCaseOrderer(
     "MesTech.Integration.Tests.E2E.PriorityOrderer",
     "MesTech.Integration.Tests")]
