@@ -37,33 +37,12 @@
 
         <!-- Content -->
         <Grid Grid.Row="2">
-            <!-- Platform DataGrid -->
-            <DataGrid ItemsSource="{Binding Platforms}"
-                      SelectedItem="{Binding SelectedPlatform}"
-                      AutoGenerateColumns="False"
-                      CanUserReorderColumns="True"
-                      CanUserResizeColumns="True"
-                      CanUserSortColumns="True"
-                      IsReadOnly="True"
-                      GridLinesVisibility="Horizontal"
-                      BorderThickness="0"
-                      Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Platform" Binding="{Binding Name}" Width="180" />
-                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100" />
-                    <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding ProductCount}" Width="110" />
-                    <DataGridTextColumn Header="Siparis" Binding="{Binding OrderCount}" Width="100" />
-                    <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding LastSyncDisplay}" Width="180" />
-                    <DataGridTextColumn Header="API Durumu" Binding="{Binding ApiStatus}" Width="120" />
-                </DataGrid.Columns>
-            </DataGrid>
-
-            <!-- Empty State -->
-            <TextBlock Text="Platform bulunamadi"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Margin="0,40" Opacity="0.5" FontSize="16"
-                       IsVisible="{Binding !Platforms.Count}" />
+            <!-- Platform Summary -->
+            <StackPanel VerticalAlignment="Top" Margin="20" Spacing="12"
+                        IsVisible="{Binding !IsLoading}">
+                <TextBlock Text="{Binding Summary}" FontSize="14" TextWrapping="Wrap" Opacity="0.7" />
+                <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} platform'}" FontSize="13" Opacity="0.5" />
+            </StackPanel>
 
             <!-- Loading Overlay -->
             <Border Background="{DynamicResource MesOverlayLight}"

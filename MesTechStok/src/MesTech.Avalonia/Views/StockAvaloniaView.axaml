@@ -32,34 +32,12 @@
 
         <!-- Content -->
         <Grid Grid.Row="2">
-            <!-- Stock DataGrid -->
-            <DataGrid ItemsSource="{Binding StockItems}"
-                      SelectedItem="{Binding SelectedStockItem}"
-                      AutoGenerateColumns="False"
-                      CanUserReorderColumns="True"
-                      CanUserResizeColumns="True"
-                      CanUserSortColumns="True"
-                      IsReadOnly="True"
-                      GridLinesVisibility="Horizontal"
-                      BorderThickness="0"
-                      Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="140" />
-                    <DataGridTextColumn Header="Urun Adi" Binding="{Binding ProductName}" Width="250" />
-                    <DataGridTextColumn Header="Depo" Binding="{Binding Warehouse}" Width="120" />
-                    <DataGridTextColumn Header="Mevcut Stok" Binding="{Binding CurrentStock}" Width="110" />
-                    <DataGridTextColumn Header="Min Stok" Binding="{Binding MinStock}" Width="90" />
-                    <DataGridTextColumn Header="Durum" Binding="{Binding StockStatus}" Width="100" />
-                    <DataGridTextColumn Header="Son Hareket" Binding="{Binding LastMovementDisplay}" Width="160" />
-                </DataGrid.Columns>
-            </DataGrid>
-
-            <!-- Empty State -->
-            <TextBlock Text="Stok verisi bulunamadi"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Margin="0,40" Opacity="0.5" FontSize="16"
-                       IsVisible="{Binding !StockItems.Count}" />
+            <!-- Stock Summary -->
+            <StackPanel VerticalAlignment="Top" Margin="20" Spacing="12"
+                        IsVisible="{Binding !IsLoading}">
+                <TextBlock Text="{Binding Summary}" FontSize="14" TextWrapping="Wrap" Opacity="0.7" />
+                <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} stok kalemi'}" FontSize="13" Opacity="0.5" />
+            </StackPanel>
 
             <!-- Loading Overlay -->
             <Border Background="{DynamicResource MesOverlayLight}"
