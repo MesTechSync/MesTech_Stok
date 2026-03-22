@@ -18,6 +18,8 @@ public partial class SelectDialog : Window
     public bool Result { get; private set; }
     public SelectDialogItem? SelectedItem { get; private set; }
 
+    public SelectDialog() : this(string.Empty, Enumerable.Empty<SelectDialogItem>()) { }
+
     public SelectDialog(string title, IEnumerable<SelectDialogItem> items)
     {
         InitializeComponent();

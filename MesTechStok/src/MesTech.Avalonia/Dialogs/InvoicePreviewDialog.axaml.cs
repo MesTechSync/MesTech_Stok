@@ -15,6 +15,12 @@ public class InvoiceItemRow
 
 public partial class InvoicePreviewDialog : Window
 {
+    public InvoicePreviewDialog() : this(string.Empty, string.Empty, string.Empty,
+        string.Empty, string.Empty, string.Empty,
+        string.Empty, string.Empty, string.Empty,
+        System.Array.Empty<InvoiceItemRow>(),
+        string.Empty, string.Empty, string.Empty) { }
+
     public InvoicePreviewDialog(string invoiceNo, string invoiceDate, string invoiceType,
                                  string sellerName, string sellerAddress, string sellerTaxInfo,
                                  string buyerName, string buyerAddress, string buyerTaxInfo,

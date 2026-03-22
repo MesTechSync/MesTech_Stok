@@ -15,6 +15,9 @@ public class OrderItemRow
 
 public partial class OrderDetailDialog : Window
 {
+    public OrderDetailDialog() : this(string.Empty, string.Empty, string.Empty,
+        System.Array.Empty<OrderItemRow>(), string.Empty) { }
+
     public OrderDetailDialog(string orderNo, string orderDate, string status,
                              IEnumerable<OrderItemRow> items, string totalAmount)
     {

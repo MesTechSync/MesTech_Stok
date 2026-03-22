@@ -17,6 +17,8 @@ public partial class InputDialog : Window
     public bool Result { get; private set; }
     public string? InputValue => InputBox.Text;
 
+    public InputDialog() : this(string.Empty, string.Empty) { }
+
     public InputDialog(string title, string label, InputDialogMode mode = InputDialogMode.Text, string? defaultValue = null)
     {
         InitializeComponent();

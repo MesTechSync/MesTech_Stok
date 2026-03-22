@@ -21,6 +21,8 @@ public partial class MappingDialog : Window
     public bool Result { get; private set; }
     public List<MappingPair> Mappings { get; private set; } = new();
 
+    public MappingDialog() : this(string.Empty, Enumerable.Empty<string>(), Enumerable.Empty<string>()) { }
+
     public MappingDialog(string title, IEnumerable<string> sourceColumns, IEnumerable<string> targetColumns)
     {
         InitializeComponent();

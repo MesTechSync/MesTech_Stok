@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -16,6 +17,8 @@ public partial class TreeSelectDialog : Window
 {
     public bool Result { get; private set; }
     public TreeSelectItem? SelectedItem { get; private set; }
+
+    public TreeSelectDialog() : this(string.Empty, Enumerable.Empty<TreeSelectItem>()) { }
 
     public TreeSelectDialog(string title, IEnumerable<TreeSelectItem> items)
     {

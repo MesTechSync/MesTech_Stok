@@ -9,6 +9,8 @@ public partial class StockAdjustDialog : Window
     public int AdjustQuantity => (int)(QuantityInput.Value ?? 0);
     public string? Reason => ReasonBox.Text;
 
+    public StockAdjustDialog() : this(string.Empty, 0) { }
+
     public StockAdjustDialog(string productName, int currentStock)
     {
         InitializeComponent();

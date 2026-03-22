@@ -5,6 +5,8 @@ namespace MesTech.Avalonia.Dialogs;
 
 public partial class AboutDialog : Window
 {
+    public AboutDialog() : this("v1.0.0") { }
+
     public AboutDialog(string version = "v1.0.0", string? license = null)
     {
         InitializeComponent();

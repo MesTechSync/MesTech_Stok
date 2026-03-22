@@ -13,6 +13,8 @@ public partial class ProductEditDialog : Window
     public string? Category => CategoryBox.Text;
     public string? Description => DescriptionBox.Text;
 
+    public ProductEditDialog() : this("Urun Duzenle") { }
+
     public ProductEditDialog(string title = "Urun Duzenle",
                              string? name = null,
                              string? sku = null,

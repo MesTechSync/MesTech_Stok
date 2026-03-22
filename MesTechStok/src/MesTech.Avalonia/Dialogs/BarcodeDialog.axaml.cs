@@ -7,6 +7,8 @@ public partial class BarcodeDialog : Window
 {
     public string? BarcodeValue => BarcodeInput.Text;
 
+    public BarcodeDialog() : this(null) { }
+
     public BarcodeDialog(string? defaultBarcode = null)
     {
         InitializeComponent();

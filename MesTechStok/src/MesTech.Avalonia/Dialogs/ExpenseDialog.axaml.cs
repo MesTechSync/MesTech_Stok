@@ -13,6 +13,8 @@ public partial class ExpenseDialog : Window
     public string? Description => DescriptionBox.Text;
     public string? DocumentNo => DocumentNoBox.Text;
 
+    public ExpenseDialog() : this("Gider Kaydi") { }
+
     public ExpenseDialog(string title = "Gider Kaydi")
     {
         InitializeComponent();

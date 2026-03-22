@@ -12,6 +12,8 @@ public partial class SearchSelectDialog : Window
     public bool Result { get; private set; }
     public SelectDialogItem? SelectedItem { get; private set; }
 
+    public SearchSelectDialog() : this(string.Empty) { }
+
     public SearchSelectDialog(string title, Func<string, Task<IEnumerable<SelectDialogItem>>>? searchFunc = null)
     {
         InitializeComponent();

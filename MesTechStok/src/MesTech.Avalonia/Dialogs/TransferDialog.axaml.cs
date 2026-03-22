@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -11,6 +12,8 @@ public partial class TransferDialog : Window
     public string? SelectedTarget => (TargetWarehouse.SelectedItem as ComboBoxItem)?.Content?.ToString();
     public string? Product => ProductBox.Text;
     public int Quantity => (int)(QuantityInput.Value ?? 1);
+
+    public TransferDialog() : this(Enumerable.Empty<string>()) { }
 
     public TransferDialog(IEnumerable<string> warehouses)
     {

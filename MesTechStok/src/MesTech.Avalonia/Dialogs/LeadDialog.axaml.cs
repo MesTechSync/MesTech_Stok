@@ -12,6 +12,8 @@ public partial class LeadDialog : Window
     public string? Source => (SourceCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
     public string? Note => NoteBox.Text;
 
+    public LeadDialog() : this("Yeni Musteri Adayi") { }
+
     public LeadDialog(string title = "Yeni Musteri Adayi",
                       string? name = null,
                       string? email = null,

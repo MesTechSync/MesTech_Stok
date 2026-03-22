@@ -10,6 +10,8 @@ public partial class ImageDialog : Window
     private readonly List<string> _imagePaths = new();
     public IReadOnlyList<string> ImagePaths => _imagePaths;
 
+    public ImageDialog() : this("Resim Galerisi") { }
+
     public ImageDialog(string title = "Resim Galerisi")
     {
         InitializeComponent();

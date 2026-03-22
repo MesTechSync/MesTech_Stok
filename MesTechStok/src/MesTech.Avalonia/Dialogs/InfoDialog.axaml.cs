@@ -13,6 +13,8 @@ public enum InfoDialogType
 
 public partial class InfoDialog : Window
 {
+    public InfoDialog() : this(string.Empty, string.Empty) { }
+
     public InfoDialog(string title, string message, InfoDialogType type = InfoDialogType.Info)
     {
         InitializeComponent();

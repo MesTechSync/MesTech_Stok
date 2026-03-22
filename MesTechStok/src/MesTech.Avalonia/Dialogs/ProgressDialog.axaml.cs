@@ -8,6 +8,8 @@ public partial class ProgressDialog : Window
 {
     private readonly ObservableCollection<string> _errors = new();
 
+    public ProgressDialog() : this("Islem Devam Ediyor...") { }
+
     public ProgressDialog(string title = "Islem Devam Ediyor...")
     {
         InitializeComponent();

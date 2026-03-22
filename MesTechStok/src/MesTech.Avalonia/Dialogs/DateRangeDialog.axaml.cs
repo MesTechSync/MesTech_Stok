@@ -10,6 +10,8 @@ public partial class DateRangeDialog : Window
     public DateTimeOffset? StartDate => StartDatePicker.SelectedDate;
     public DateTimeOffset? EndDate => EndDatePicker.SelectedDate;
 
+    public DateRangeDialog() : this("Tarih Araligi Secin") { }
+
     public DateRangeDialog(string title = "Tarih Araligi Secin", DateTimeOffset? defaultStart = null, DateTimeOffset? defaultEnd = null)
     {
         InitializeComponent();

@@ -8,6 +8,8 @@ public partial class TextAreaDialog : Window
     public bool Result { get; private set; }
     public string? InputValue => TextAreaBox.Text;
 
+    public TextAreaDialog() : this(string.Empty, string.Empty) { }
+
     public TextAreaDialog(string title, string label, string? defaultValue = null)
     {
         InitializeComponent();

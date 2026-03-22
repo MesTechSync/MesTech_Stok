@@ -17,6 +17,8 @@ public partial class ColumnSelectDialog : Window
     public bool Result { get; private set; }
     public List<string> SelectedColumns { get; private set; } = new();
 
+    public ColumnSelectDialog() : this(Enumerable.Empty<ColumnSelectItem>()) { }
+
     public ColumnSelectDialog(IEnumerable<ColumnSelectItem> columns)
     {
         InitializeComponent();

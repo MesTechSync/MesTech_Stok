@@ -7,6 +7,8 @@ public partial class ConfirmDialog : Window
 {
     public bool Result { get; private set; }
 
+    public ConfirmDialog() : this(string.Empty, string.Empty) { }
+
     public ConfirmDialog(string title, string message, string confirmText = "Evet", string cancelText = "Iptal", bool isDanger = false)
     {
         InitializeComponent();

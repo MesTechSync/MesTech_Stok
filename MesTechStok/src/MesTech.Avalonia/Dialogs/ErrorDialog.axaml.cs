@@ -5,6 +5,8 @@ namespace MesTech.Avalonia.Dialogs;
 
 public partial class ErrorDialog : Window
 {
+    public ErrorDialog() : this(string.Empty) { }
+
     public ErrorDialog(string message, string? stackTrace = null)
     {
         InitializeComponent();

@@ -9,6 +9,8 @@ public partial class PasswordDialog : Window
     public string? OldPassword => OldPasswordBox.Text;
     public string? NewPassword => NewPasswordBox.Text;
 
+    public PasswordDialog() : this("Sifre Degistir") { }
+
     public PasswordDialog(string title = "Sifre Degistir")
     {
         InitializeComponent();

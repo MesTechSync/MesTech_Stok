@@ -8,6 +8,8 @@ public partial class ReplyDialog : Window
     public bool Result { get; private set; }
     public string? ReplyText => ReplyBox.Text;
 
+    public ReplyDialog() : this(string.Empty) { }
+
     public ReplyDialog(string originalMessage)
     {
         InitializeComponent();
