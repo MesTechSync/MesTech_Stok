@@ -101,7 +101,7 @@ public class DomainCoverageGapFillTests
     [Fact]
     public void SyncRetryItem_CalculateNextRetry_ExponentialBackoff()
     {
-        var item = new SyncRetryItem { RetryCount = 0 };
+        var item = new SyncRetryItem();
         item.CalculateNextRetry();
 
         // 2^0 * 60 = 60 seconds
@@ -113,7 +113,10 @@ public class DomainCoverageGapFillTests
     [Fact]
     public void SyncRetryItem_CalculateNextRetry_HighRetryCount_CappedAt24Hours()
     {
-        var item = new SyncRetryItem { RetryCount = 20 };
+        var item = new SyncRetryItem();
+        // Simulate 20 retries via IncrementRetry
+        for (int i = 0; i < 20; i++)
+            item.IncrementRetry($"error-{i}", "Network");
         item.CalculateNextRetry();
 
         // Cap at 24 hours
@@ -125,7 +128,7 @@ public class DomainCoverageGapFillTests
     [Fact]
     public void SyncRetryItem_IncrementRetry_UpdatesCountAndTimestamps()
     {
-        var item = new SyncRetryItem { RetryCount = 0 };
+        var item = new SyncRetryItem();
         var beforeRetry = DateTime.UtcNow;
 
         item.IncrementRetry("Connection timeout", "Network");
@@ -140,11 +143,9 @@ public class DomainCoverageGapFillTests
     [Fact]
     public void SyncRetryItem_MarkAsResolved_ClearsNextRetry()
     {
-        var item = new SyncRetryItem
-        {
-            RetryCount = 2,
-            NextRetryUtc = DateTime.UtcNow.AddMinutes(5)
-        };
+        var item = new SyncRetryItem();
+        item.IncrementRetry("err1", "Net");
+        item.IncrementRetry("err2", "Net");
 
         item.MarkAsResolved();
 

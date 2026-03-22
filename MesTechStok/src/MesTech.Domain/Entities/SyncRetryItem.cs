@@ -9,15 +9,15 @@ public class SyncRetryItem : BaseEntity, ITenantEntity
     public string ItemId { get; set; } = string.Empty;
     public string ItemType { get; set; } = string.Empty;
     public string? ItemData { get; set; }
-    public string LastError { get; set; } = string.Empty;
-    public string ErrorCategory { get; set; } = string.Empty;
-    public int RetryCount { get; set; }
+    public string LastError { get; private set; } = string.Empty;
+    public string ErrorCategory { get; private set; } = string.Empty;
+    public int RetryCount { get; private set; }
     public int MaxRetries { get; set; } = 3;
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
-    public DateTime LastRetryUtc { get; set; } = DateTime.UtcNow;
-    public DateTime? NextRetryUtc { get; set; }
-    public bool IsResolved { get; set; }
-    public DateTime? ResolvedUtc { get; set; }
+    public DateTime LastRetryUtc { get; private set; } = DateTime.UtcNow;
+    public DateTime? NextRetryUtc { get; private set; }
+    public bool IsResolved { get; private set; }
+    public DateTime? ResolvedUtc { get; private set; }
     public string? CorrelationId { get; set; }
     public string? AdditionalInfo { get; set; }
 
