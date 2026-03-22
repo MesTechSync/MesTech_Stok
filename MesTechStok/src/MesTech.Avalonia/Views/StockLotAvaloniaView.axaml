@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Lot Ekleme" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -28,12 +28,12 @@
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
-                    <TextBlock Text="Yeni Lot Kaydi" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Text="Yeni Lot Kaydi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,4" />
 
                     <!-- Urun Arama -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="SKU veya urun adi ile ara..." AutomationProperties.Name="SKU veya urun adi ile ara..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding ProductSuggestions}"
@@ -42,7 +42,7 @@
                                  IsVisible="{Binding ProductSuggestions.Count}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:LotProductDto">
-                                    <TextBlock Text="{Binding Ad}" FontSize="13" />
+                                    <TextBlock Text="{Binding Ad}" FontSize="{StaticResource FontSizeCallout}" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -50,7 +50,7 @@
 
                     <!-- Lot Numarasi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Lot Numarasi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Lot Numarasi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="LOT-2026-001" AutomationProperties.Name="LOT-2026-001"
                                  Text="{Binding LotNumber}" />
                     </StackPanel>
@@ -58,12 +58,12 @@
                     <!-- Miktar + Birim Maliyet -->
                     <Grid ColumnDefinitions="*,12,*">
                         <StackPanel Grid.Column="0" Spacing="4">
-                            <TextBlock Text="Miktar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Miktar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding Quantity}" Minimum="0"
                                            FormatString="N0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="4">
-                            <TextBlock Text="Birim Maliyet (TL)" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Birim Maliyet (TL)" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding UnitCost}" Minimum="0"
                                            FormatString="N2" Increment="0.01" />
                         </StackPanel>
@@ -71,7 +71,7 @@
 
                     <!-- Tedarikci -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Tedarikci" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Tedarikci" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Suppliers}"
                                   SelectedItem="{Binding SelectedSupplier}"
                                   PlaceholderText="Tedarikci secin..."
@@ -80,14 +80,14 @@
 
                     <!-- Son Kullanma Tarihi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <DatePicker SelectedDate="{Binding ExpiryDate}"
                                     HorizontalAlignment="Stretch" />
                     </StackPanel>
 
                     <!-- Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Depo" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedWarehouse}"
                                   PlaceholderText="Depo secin..."
@@ -102,7 +102,7 @@
                             Margin="0,8,0,0" />
 
                     <!-- Status -->
-                    <TextBlock Text="{Binding SaveStatus}" FontSize="13"
+                    <TextBlock Text="{Binding SaveStatus}" FontSize="{StaticResource FontSizeCallout}"
                                Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                                TextWrapping="Wrap" />
                 </StackPanel>
@@ -138,7 +138,7 @@
                     <!-- Empty State -->
                     <!-- Empty State -->
                     <TextBlock Text="Stok verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Margin="0,40" Opacity="0.5" FontSize="14"
+                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                IsVisible="{Binding !IsLoading}" />
                 </Grid>
                 </Grid>
@@ -153,7 +153,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Lot verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -164,11 +164,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

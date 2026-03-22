@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Platformlar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -46,11 +46,11 @@
                                         Background="{Binding Color}" />
                                 <Border Padding="16,12">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                         <TextBlock Text="{Binding StoreCount, StringFormat='{}{0} mağaza'}"
-                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                        <TextBlock Text="{Binding StatusText}" FontSize="12"
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding StatusText}" FontSize="{StaticResource FontSizeSmall}"
                                                    Foreground="{DynamicResource MesGreenMaterial}" />
                                     </StackPanel>
                                 </Border>
@@ -69,7 +69,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Platformlar yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
@@ -79,9 +79,9 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"
                         Padding="16,6" Margin="0,12,0,0" />

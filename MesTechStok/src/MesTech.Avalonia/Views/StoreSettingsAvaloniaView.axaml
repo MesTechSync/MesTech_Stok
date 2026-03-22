@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Mağaza Ayarları" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -30,27 +30,27 @@
                         <TextBlock Text="Mağaza Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Mağaza Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding StoreName}" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding PlatformName}" IsReadOnly="True" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API Key" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding ApiKey}" PasswordChar="*" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API Secret" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="API Secret" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding ApiSecret}" PasswordChar="*" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Seller ID" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Seller ID" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding SellerId}" Padding="10,8" />
                         </StackPanel>
                     </StackPanel>
@@ -62,19 +62,19 @@
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="{Binding SyncIntervalMinutes, StringFormat='Sync Aralığı: {0} dakika'}"
-                                       FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <Slider Minimum="5" Maximum="120" Value="{Binding SyncIntervalMinutes}"
                                     TickFrequency="5" IsSnapToTickEnabled="True" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Webhook URL" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Webhook URL" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding WebhookUrl}" Padding="10,8"
                                      Watermark="https://api.mestech.com/webhooks/..." AutomationProperties.Name="https://api.mestech.com/webhooks/..." />
                         </StackPanel>
 
                         <CheckBox Content="Otomatik Senkronizasyon" IsChecked="{Binding AutoSyncEnabled}"
-                                  FontSize="13" />
+                                  FontSize="{StaticResource FontSizeCallout}" />
                     </StackPanel>
                 </Border>
 
@@ -104,7 +104,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Ayarlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Ayarlar yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

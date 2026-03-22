@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Magaza Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} magaza'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -32,7 +32,7 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <TextBox Width="360" Watermark="Magaza adi ile arama..." AutomationProperties.Name="Magaza adi ile arama..."
                      Text="{Binding SearchText}"
-                     FontSize="14" Padding="10,8" HorizontalAlignment="Left" />
+                     FontSize="{StaticResource FontSizeBody}" Padding="10,8" HorizontalAlignment="Left" />
         </Border>
 
         <!-- Store DataGrid -->
@@ -55,7 +55,7 @@
         </DataGrid>
         <!-- Empty State -->
         <TextBlock Grid.Row="2" Text="Magaza bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                    IsVisible="{Binding !IsLoading}" />
 
         <!-- Empty State -->
@@ -64,10 +64,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Magaza Bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Magaza Bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz magaza tanimlanmamis"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -80,7 +80,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Magaza bilgileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

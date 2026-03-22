@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Dropshipping Kârlılık Analizi" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -25,7 +25,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
+                <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
                 <DatePicker SelectedDate="{Binding StartDate}" />
                 <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
                 <DatePicker SelectedDate="{Binding EndDate}" />
@@ -53,31 +53,31 @@
                 <DataGridTextColumn Header="Marj %" Binding="{Binding MarginPercent, StringFormat='{}{0:N1}%'}" Width="90" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Karlilik verisi bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Karlilik verisi bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Summary Row -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16" Margin="0"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,*,*,*,*">
                 <StackPanel Grid.Column="0" Spacing="2">
-                    <TextBlock Text="Toplam Ciro" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalRevenue, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                    <TextBlock Text="Toplam Ciro" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding TotalRevenue, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="2">
-                    <TextBlock Text="Toplam Maliyet" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalCost, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesDanger}" />
+                    <TextBlock Text="Toplam Maliyet" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding TotalCost, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesDanger}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Spacing="2">
-                    <TextBlock Text="Toplam Komisyon" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalCommission, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                    <TextBlock Text="Toplam Komisyon" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding TotalCommission, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                 </StackPanel>
                 <StackPanel Grid.Column="3" Spacing="2">
-                    <TextBlock Text="Net Kâr" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding TotalNetProfit, StringFormat='₺{0:N0}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
+                    <TextBlock Text="Net Kâr" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding TotalNetProfit, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
                 </StackPanel>
                 <StackPanel Grid.Column="4" Spacing="2">
-                    <TextBlock Text="Genel Marj" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBlock Text="{Binding OverallMargin, StringFormat='%{0:N1}'}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                    <TextBlock Text="Genel Marj" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding OverallMargin, StringFormat='%{0:N1}'}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -87,7 +87,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Karlilik verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Karlilik verileri yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -95,10 +95,10 @@
         <!-- Empty State -->
         <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Veri Bulunamadı" FontSize="20" FontWeight="Bold"
+                <TextBlock Text="Veri Bulunamadı" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Seçilen tarih aralığında kârlılık verisi yok"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

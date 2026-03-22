@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Stok Hareket Gecmisi" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hareket'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
@@ -38,23 +38,23 @@
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Border Width="12" Height="12" CornerRadius="{StaticResource MesRadiusBase}" Background="{DynamicResource MesGreen}" />
-                    <TextBlock Text="Alim" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <TextBlock Text="Alim" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Border Width="12" Height="12" CornerRadius="{StaticResource MesRadiusBase}" Background="{DynamicResource MesRedAlert}" />
-                    <TextBlock Text="Satis" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <TextBlock Text="Satis" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Border Width="12" Height="12" CornerRadius="{StaticResource MesRadiusBase}" Background="{DynamicResource MesPrimaryBlue}" />
-                    <TextBlock Text="Transfer" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <TextBlock Text="Transfer" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Border Width="12" Height="12" CornerRadius="{StaticResource MesRadiusBase}" Background="{DynamicResource MesPurple}" />
-                    <TextBlock Text="Iade" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <TextBlock Text="Iade" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Border Width="12" Height="12" CornerRadius="{StaticResource MesRadiusBase}" Background="{DynamicResource MesCoolGray}" />
-                    <TextBlock Text="Duzeltme" FontSize="11" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <TextBlock Text="Duzeltme" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -67,8 +67,8 @@
                         <Grid ColumnDefinitions="80,Auto,*,120" Margin="0,0,0,2">
                             <!-- Timestamp -->
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding DateText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBlock Text="{Binding TimeText}" FontSize="10" Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding DateText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding TimeText}" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
 
                             <!-- Timeline Dot + Line -->
@@ -84,11 +84,11 @@
                                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                                 <StackPanel Spacing="2">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{Binding TypeIcon}" FontSize="13" Foreground="{Binding TypeColor}"
+                                        <TextBlock Text="{Binding TypeIcon}" FontSize="{StaticResource FontSizeCallout}" Foreground="{Binding TypeColor}"
                                                    VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding TypeText}" FontSize="13" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding TypeText}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding Reason}" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                                        <TextBlock Text="{Binding Reason}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                                    VerticalAlignment="Center" />
                                     </StackPanel>
                                 </StackPanel>
@@ -96,9 +96,9 @@
 
                             <!-- Quantity Change -->
                             <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding QuantityText}" FontSize="14" FontWeight="Bold"
+                                <TextBlock Text="{Binding QuantityText}" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
                                            Foreground="{Binding QuantityColor}" HorizontalAlignment="Right" />
-                                <TextBlock Text="{Binding ResultStockText}" FontSize="11" Foreground="{DynamicResource MesMutedGray}"
+                                <TextBlock Text="{Binding ResultStockText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}"
                                            HorizontalAlignment="Right" />
                             </StackPanel>
                         </Grid>
@@ -112,7 +112,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Stok hareketleri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Stok hareketleri yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -121,10 +121,10 @@
         <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-                <TextBlock Text="Stok Hareketi Bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Stok Hareketi Bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
                 <TextBlock Text="Secilen tarih araliginda hareket yok"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>

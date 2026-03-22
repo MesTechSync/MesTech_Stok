@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Tedarikçi Feed'leri" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} feed'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -47,7 +47,7 @@
         </DataGrid>
         <!-- Empty State -->
         <TextBlock Grid.Row="1" Text="Tedarikci bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                    IsVisible="{Binding !IsLoading}" />
 
         <!-- Loading Overlay -->
@@ -55,7 +55,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Feed listesi yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Feed listesi yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -63,19 +63,19 @@
         <!-- Empty State -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Feed Bulunamadı" FontSize="20" FontWeight="Bold"
+                <TextBlock Text="Feed Bulunamadı" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henüz tedarikçi feed'i tanımlanmamış"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold" HorizontalAlignment="Center"
                            Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"
                         Padding="16,6" Margin="0,12,0,0" />

@@ -16,10 +16,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Stok Guncelleme" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Toplu Guncelle"
@@ -40,7 +40,7 @@
                 <TextBox Width="320" Watermark="SKU, urun adi veya platform ara..." AutomationProperties.Name="SKU, urun adi veya platform ara..."
                          Text="{Binding SearchText}"
                          HorizontalAlignment="Left" />
-                <TextBlock Text="{Binding UpdateStatus}" FontSize="13" Foreground="{DynamicResource MesGreen}"
+                <TextBlock Text="{Binding UpdateStatus}" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesGreen}"
                            FontWeight="SemiBold" VerticalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -65,7 +65,7 @@
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !StockItems.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !StockItems.Count}" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="3"
@@ -75,7 +75,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Stok verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -86,10 +86,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Stok verisi bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Stok verisi bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Arama kriterlerine uygun urun yok"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -100,11 +100,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

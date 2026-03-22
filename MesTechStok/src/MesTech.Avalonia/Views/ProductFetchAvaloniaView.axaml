@@ -11,7 +11,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <TextBlock Text="Ürün Çekme" Foreground="{DynamicResource MesBgPrimary}"
-                       FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                       FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
 
         <!-- URL Input -->
@@ -38,30 +38,30 @@
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                         IsVisible="{Binding ProductLoaded}">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Çekilen Ürün Bilgileri" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Çekilen Ürün Bilgileri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Ürün Adı:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FetchedName}" FontSize="13" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Ürün Adı:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FetchedName}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" />
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Fiyat:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Fiyat:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FetchedPrice, StringFormat='₺{0:N2}'}"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,6,0,0" />
+                                       FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,6,0,0" />
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="SKU:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FetchedSKU}" FontSize="13" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="SKU:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FetchedSKU}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Stok:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FetchedStock}" FontSize="13" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Stok:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FetchedStock}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Kategori:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FetchedCategory}" FontSize="13" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Kategori:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FetchedCategory}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Platform:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding FetchedPlatform}" FontSize="13" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Platform:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding FetchedPlatform}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
 
-                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Açıklama:" FontSize="13" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding FetchedDescription}" FontSize="13"
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Açıklama:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding FetchedDescription}" FontSize="{StaticResource FontSizeCallout}"
                                        TextWrapping="Wrap" Margin="0,6,0,0" />
                         </Grid>
 
@@ -89,7 +89,7 @@
                 <!-- Empty state before fetch -->
                 <StackPanel IsVisible="{Binding !ProductLoaded}" HorizontalAlignment="Center" Margin="0,48,0,0">
                     <TextBlock Text="Ürün URL'si girin ve 'Çek' butonuna tıklayın"
-                               FontSize="16" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
@@ -99,7 +99,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Ürün bilgileri çekiliyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Ürün bilgileri çekiliyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

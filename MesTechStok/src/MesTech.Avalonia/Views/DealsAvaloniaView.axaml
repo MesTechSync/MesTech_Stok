@@ -11,14 +11,14 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Firsatlar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} firsat'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalAmount}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="12" VerticalAlignment="Center" />
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Firsat"
@@ -55,7 +55,7 @@
             <!-- Empty -->
             <TextBlock Text="Henuz firsat bulunmuyor."
                        IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{StaticResource FontSizeBody}" />
 
             <!-- Data Grid -->
                 <Grid>
@@ -84,7 +84,7 @@
                                VerticalAlignment="Center"
                                Margin="0,40"
                                Opacity="0.5"
-                               FontSize="16"
+                               FontSize="{StaticResource FontSizeSubtitle}"
                                IsVisible="{Binding !Deals.Count}" />
                 </Grid>
         </Grid>

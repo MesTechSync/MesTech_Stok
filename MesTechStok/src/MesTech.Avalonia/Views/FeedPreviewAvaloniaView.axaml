@@ -11,7 +11,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <TextBlock Text="Feed Önizleme" Foreground="{DynamicResource MesBgPrimary}"
-                       FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                       FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
 
         <!-- URL Input -->
@@ -37,20 +37,20 @@
                 <StackPanel Orientation="Horizontal" Spacing="24">
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalProducts}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="Toplam Ürün" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Geçerli" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding ValidProducts}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
+                            <TextBlock Text="Geçerli" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding ValidProducts}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Hata" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding ErrorCount}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" />
+                            <TextBlock Text="Hata" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding ErrorCount}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -77,7 +77,7 @@
                            VerticalAlignment="Center"
                            Margin="0,40"
                            Opacity="0.5"
-                           FontSize="16"
+                           FontSize="{StaticResource FontSizeSubtitle}"
                            IsVisible="{Binding !PreviewItems.Count}" />
             </Grid>
             </Border>
@@ -86,11 +86,11 @@
             <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12" Margin="0,12,0,0"
                     IsVisible="{Binding ErrorCount}">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Doğrulama Uyarıları" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" />
+                    <TextBlock Text="Doğrulama Uyarıları" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" />
                     <ItemsControl ItemsSource="{Binding ValidationErrors}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource MesRedDark}" Padding="4,1" />
+                                <TextBlock Text="{Binding}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesRedDark}" Padding="4,1" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -103,7 +103,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Feed okunuyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Feed okunuyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -112,9 +112,9 @@
         <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}" IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
             </StackPanel>
         </Border>

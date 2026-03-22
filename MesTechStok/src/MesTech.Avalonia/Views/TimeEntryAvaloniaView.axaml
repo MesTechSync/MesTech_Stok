@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Zaman Kaydi" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -39,23 +39,23 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
-                                <TextBlock Text="Tarih" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Tarih" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <DatePicker SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Stretch" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
-                                <TextBlock Text="Baslangic Saati" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Baslangic Saati" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding StartTime}" Watermark="09:00" AutomationProperties.Name="09:00" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
-                                <TextBlock Text="Bitis Saati" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Bitis Saati" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding EndTime}" Watermark="18:00" AutomationProperties.Name="18:00" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4" Margin="0,0,12,0">
-                                <TextBlock Text="Proje" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Proje" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding ProjectName}" Watermark="Proje adi" AutomationProperties.Name="Proje adi" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
-                                <TextBlock Text="Aciklama" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Aciklama" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding Description}" Watermark="Yapilan is aciklamasi" AutomationProperties.Name="Yapilan is aciklamasi" Padding="10,8" />
                             </StackPanel>
                         </Grid>
@@ -96,7 +96,7 @@
                     <!-- Empty State -->
                     <!-- Empty State -->
                     <TextBlock Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Margin="0,40" Opacity="0.5" FontSize="14"
+                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                IsVisible="{Binding !IsLoading}" />
                 </Grid>
                     </Grid>
@@ -113,7 +113,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Zaman kayitlari yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

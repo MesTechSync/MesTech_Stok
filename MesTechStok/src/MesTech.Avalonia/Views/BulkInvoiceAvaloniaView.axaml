@@ -71,7 +71,7 @@
                        VerticalAlignment="Center"
                        Margin="0,40"
                        Opacity="0.5"
-                       FontSize="16"
+                       FontSize="{StaticResource FontSizeSubtitle}"
                        IsVisible="{Binding !Orders.Count}" />
 
             <!-- Processing Progress -->

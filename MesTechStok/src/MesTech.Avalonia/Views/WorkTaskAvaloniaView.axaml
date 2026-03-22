@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Gorevler" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} gorev'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -33,7 +33,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="300" Watermark="Gorev adi ile arama..." AutomationProperties.Name="Gorev adi ile arama..."
                          Text="{Binding SearchText}"
-                         FontSize="14" Padding="10,8" />
+                         FontSize="{StaticResource FontSizeBody}" Padding="10,8" />
                 <Button Content="Ara" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -60,7 +60,7 @@
         </DataGrid>
         <!-- Empty State -->
         <TextBlock Grid.Row="2" Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                    IsVisible="{Binding !IsLoading}" />
 
         <!-- Empty State -->
@@ -69,10 +69,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Gorev Bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Gorev Bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz gorev tanimlanmamis"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -85,7 +85,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Gorevler yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

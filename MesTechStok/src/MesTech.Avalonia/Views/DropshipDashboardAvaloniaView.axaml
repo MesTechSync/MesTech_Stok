@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Dropshipping Paneli" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -28,44 +28,44 @@
                 <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Tedarikci Sayisi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Tedarikci Sayisi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding SupplierCount, StringFormat='{}{0:N0}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
-                        <TextBlock Text="{Binding ActiveSupplierText}" FontSize="11" Foreground="{DynamicResource MesGreenMaterial}" />
+                                   FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="{Binding ActiveSupplierText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesGreenMaterial}" />
                     </StackPanel>
                 </Border>
                 <!-- Aktif Urun -->
                 <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Aktif Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Aktif Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding ActiveProductCount, StringFormat='{}{0:N0}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
-                        <TextBlock Text="{Binding ProductGrowthText}" FontSize="11" Foreground="{DynamicResource MesGreenMaterial}" />
+                                   FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                        <TextBlock Text="{Binding ProductGrowthText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesGreenMaterial}" />
                     </StackPanel>
                 </Border>
                 <!-- Karlilik % -->
                 <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Karlilik" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Karlilik" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBlock Text="{Binding ProfitabilityPercent, StringFormat='%{0:N1}'}"
-                                   FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
-                        <TextBlock Text="{Binding ProfitTrendText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                   FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
+                        <TextBlock Text="{Binding ProfitTrendText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                     </StackPanel>
                 </Border>
                 <!-- Ort Teslim Suresi -->
                 <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Ort. Teslim Suresi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Ort. Teslim Suresi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="{Binding AverageDeliveryDays, StringFormat='{}{0:N1}'}"
-                                       FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
-                            <TextBlock Text="gun" FontSize="14" Foreground="{DynamicResource MesAmber}" VerticalAlignment="Bottom"
+                                       FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                            <TextBlock Text="gun" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesAmber}" VerticalAlignment="Bottom"
                                        Margin="0,0,0,4" />
                         </StackPanel>
-                        <TextBlock Text="{Binding DeliveryTrendText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding DeliveryTrendText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -92,7 +92,7 @@
                             <DataGridTextColumn Header="Rating" Binding="{Binding RatingStars}" Width="100" />
                         </DataGrid.Columns>
                     </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Tedarikci bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Suppliers.Count}" />
+<!-- Empty State -->        <TextBlock Text="Tedarikci bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Suppliers.Count}" />
                 </DockPanel>
             </Border>
 
@@ -121,13 +121,13 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" Padding="16,12">
             <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="Otomatik Siparis Ayarlari"
-                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}"
+                           FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}"
                            VerticalAlignment="Center" Margin="0,0,16,0" />
                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoOrderEnabled}"
                               OnContent="Aktif" OffContent="Pasif"
                               VerticalAlignment="Center" Margin="0,0,16,0" />
                 <TextBlock Grid.Column="2" Text="Min. Stok Esigi:"
-                           FontSize="13" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <NumericUpDown Grid.Column="3" Value="{Binding AutoOrderThreshold}"
                                Minimum="1" Maximum="999" Width="120"
@@ -144,7 +144,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Dropshipping verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Dropshipping verileri yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

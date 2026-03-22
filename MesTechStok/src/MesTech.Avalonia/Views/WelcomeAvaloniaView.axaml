@@ -19,7 +19,7 @@
                                    Foreground="{DynamicResource MesPrimaryBlue}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="MesTech Stok" FontSize="28" FontWeight="Bold"
+                    <TextBlock Text="MesTech Stok" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                     <TextBlock Text="{Binding WelcomeText}" FontSize="15"
                                Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
@@ -30,27 +30,27 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="6"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding TotalProducts}" FontSize="28" FontWeight="Bold"
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center" />
-                            <TextBlock Text="Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                            <TextBlock Text="Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="6"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding TotalOrders}" FontSize="28" FontWeight="Bold"
+                            <TextBlock Text="{Binding TotalOrders}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesTeal}" HorizontalAlignment="Center" />
-                            <TextBlock Text="Siparis" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                            <TextBlock Text="Siparis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="6"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="150">
                         <StackPanel Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding ActivePlatforms}" FontSize="28" FontWeight="Bold"
+                            <TextBlock Text="{Binding ActivePlatforms}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesAmber}" HorizontalAlignment="Center" />
-                            <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                            <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -71,9 +71,9 @@
                                     <Border Padding="16,10" BorderBrush="{DynamicResource MesBgMist}" BorderThickness="0,0,0,1">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0" Text="{Binding Description}"
-                                                       FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
+                                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" />
                                             <TextBlock Grid.Column="1" Text="{Binding TimeAgo}"
-                                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -84,7 +84,7 @@
 
                 <!-- Version -->
                 <TextBlock Text="MesTech Stok v10.0 — Avalonia"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}"
+                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" />
 
             </StackPanel>
@@ -97,7 +97,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Veriler yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Takvim" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding CurrentMonth}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="12" VerticalAlignment="Center" />
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
@@ -41,7 +41,7 @@
                 <!-- Empty -->
                 <TextBlock Text="Henuz etkinlik bulunmuyor."
                            IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
-                           HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
+                           HorizontalAlignment="Center" Margin="0,40" FontSize="{StaticResource FontSizeBody}" />
 
                 <!-- Events List -->
                 <ItemsControl ItemsSource="{Binding Events}" IsVisible="{Binding !IsLoading}">
@@ -58,15 +58,15 @@
                                     </Border>
                                     <!-- Content -->
                                     <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" />
-                                        <TextBlock Text="{Binding DateDisplay}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" />
+                                        <TextBlock Text="{Binding DateDisplay}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <!-- Time + Type -->
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
-                                        <TextBlock Text="{Binding TimeRange}" FontSize="12"
+                                        <TextBlock Text="{Binding TimeRange}" FontSize="{StaticResource FontSizeSmall}"
                                                    Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Right" />
                                         <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2">
-                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="{DynamicResource MesSlateGray}" />
+                                            <TextBlock Text="{Binding Type}" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" />
                                         </Border>
                                     </StackPanel>
                                 </Grid>

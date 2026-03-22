@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Depo Ozet Paneli" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalWarehouses, StringFormat='{}{0} depo'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -42,13 +42,13 @@
                             <StackPanel Spacing="12">
                                 <!-- Warehouse Name -->
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"
+                                    <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                                Foreground="{DynamicResource MesDarkSlate}" />
-                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Text="{Binding Location}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Product Count -->
-                                <TextBlock Text="{Binding ProductCountText}" FontSize="14" Foreground="{DynamicResource MesTextSlate}" />
+                                <TextBlock Text="{Binding ProductCountText}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextSlate}" />
 
                                 <!-- Capacity Bar -->
                                 <StackPanel Spacing="4">
@@ -59,7 +59,7 @@
                                                 Width="{Binding CapacityBarWidth}"
                                                 HorizontalAlignment="Left" />
                                     </Grid>
-                                    <TextBlock Text="{Binding CapacityText}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Text="{Binding CapacityText}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Stock Health -->
@@ -67,25 +67,25 @@
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasOutOfStock}">
                                         <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesRedAlert}" VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding OutOfStockText}" FontSize="12" Foreground="{DynamicResource MesRedAlert}" />
+                                        <TextBlock Text="{Binding OutOfStockText}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesRedAlert}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasCritical}">
                                         <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="{DynamicResource MesAmber}" />
+                                        <TextBlock Text="{Binding CriticalText}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesAmber}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding IsHealthy}">
                                         <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesGreen}" VerticalAlignment="Center" />
-                                        <TextBlock Text="Saglikli" FontSize="12" Foreground="{DynamicResource MesGreen}" />
+                                        <TextBlock Text="Saglikli" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesGreen}" />
                                     </StackPanel>
-                                    <TextBlock Text="{Binding NormalText}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Text="{Binding NormalText}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 </StackPanel>
 
                                 <!-- Detail Button -->
                                 <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
                                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
-                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" FontSize="12" />
+                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -98,7 +98,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Depo verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Depo verileri yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

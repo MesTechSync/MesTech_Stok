@@ -11,7 +11,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Kargo Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -43,20 +43,20 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Desi Katsayisi:"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding DesiMultiplier}"
                                           Minimum="1" Maximum="10000" FormatString="N0" Width="160"
                                           HorizontalAlignment="Left" />
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Min. Desi:"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center"
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center"
                                        Margin="0,8,0,0" />
                             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MinDesi}"
                                           Minimum="0" FormatString="N1" Width="160"
                                           HorizontalAlignment="Left" Margin="0,8,0,0" />
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Max. Desi:"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center"
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center"
                                        Margin="0,8,0,0" />
                             <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MaxDesi}"
                                           Minimum="0" FormatString="N1" Width="160"
@@ -73,13 +73,13 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Siparis onayinda otomatik kargo olustur"
-                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateShipment}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Kargo takip numarasini otomatik guncelle"
-                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoUpdateTracking}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
@@ -93,12 +93,12 @@
                         <TextBlock Text="API Baglanti Bilgileri" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API Anahtari" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="API Anahtari" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding ApiKey}" Watermark="Kargo API anahtari" AutomationProperties.Name="Kargo API anahtari"
                                      PasswordChar="*" />
                         </StackPanel>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API Sifresi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="API Sifresi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding ApiSecret}" Watermark="Kargo API sifresi" AutomationProperties.Name="Kargo API sifresi"
                                      PasswordChar="*" />
                         </StackPanel>
@@ -114,7 +114,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kargo ayarlari yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Kargo ayarlari yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -124,9 +124,9 @@
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />

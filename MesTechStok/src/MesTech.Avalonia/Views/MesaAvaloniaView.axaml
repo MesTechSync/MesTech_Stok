@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="MESA OS — AI Dashboard" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesMesaGlow}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding AiStatus}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="12" VerticalAlignment="Center" />
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
@@ -43,29 +43,29 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Model" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding ModelVersion}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                            <TextBlock Text="Model" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding ModelVersion}" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Tahmin Sayisi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding PredictionCount}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                            <TextBlock Text="Tahmin Sayisi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding PredictionCount}" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Dogruluk" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding Accuracy}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
+                            <TextBlock Text="Dogruluk" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding Accuracy}" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Durum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding AiStatus}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
+                            <TextBlock Text="Durum" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding AiStatus}" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -86,12 +86,12 @@
                                                 <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="{StaticResource MesRadiusBase}"
                                                         Width="36" Height="36" Margin="0,0,12,0">
                                                     <TextBlock Text="{Binding Icon}" Foreground="{DynamicResource MesBgPrimary}"
-                                                               FontSize="16" FontWeight="Bold"
+                                                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
-                                                    <TextBlock Text="{Binding Description}" FontSize="11"
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCallout}" />
+                                                    <TextBlock Text="{Binding Description}" FontSize="{StaticResource FontSizeCaption}"
                                                                Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                                 <Border Grid.Column="2" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2"
@@ -99,7 +99,7 @@
                                                     <Border.Background>
                                                         <SolidColorBrush Color="{DynamicResource MesEmerald}" Opacity="0.15" />
                                                     </Border.Background>
-                                                    <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource MesEmerald}" />
+                                                    <TextBlock Text="{Binding Status}" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesEmerald}" />
                                                 </Border>
                                             </Grid>
                                         </Border>
@@ -122,13 +122,13 @@
                                             <StackPanel Spacing="4">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <TextBlock Grid.Column="0" Text="{Binding Tool}"
-                                                               FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" />
                                                     <TextBlock Grid.Column="1" Text="{Binding Confidence}"
-                                                               FontSize="11" Foreground="{DynamicResource MesEmerald}" FontWeight="Bold" />
+                                                               FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesEmerald}" FontWeight="Bold" />
                                                 </Grid>
-                                                <TextBlock Text="{Binding Result}" FontSize="12"
+                                                <TextBlock Text="{Binding Result}" FontSize="{StaticResource FontSizeSmall}"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding TimeDisplay}" FontSize="10"
+                                                <TextBlock Text="{Binding TimeDisplay}" FontSize="{StaticResource FontSizeCaption1}"
                                                            Foreground="{DynamicResource MesMutedGray}" />
                                             </StackPanel>
                                         </Border>
@@ -141,7 +141,7 @@
 
                 <!-- Last Updated -->
                 <TextBlock Text="{Binding LastUpdated, StringFormat='Son guncelleme: {0}'}"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
+                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
                            IsVisible="{Binding !IsLoading}" />
 
             </StackPanel>

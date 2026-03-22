@@ -14,15 +14,15 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Envanter" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesRedBright}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
                             IsVisible="{Binding AlarmCount}">
                         <TextBlock Text="{Binding AlarmCount, StringFormat='{}{0} alarm'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
                                    VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -40,30 +40,30 @@
                 <!-- Toplam Urun -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Toplam Urun" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
-                        <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                        <TextBlock Text="Toplam Urun" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesPrimaryBlue}" />
+                        <TextBlock Text="{Binding KpiTotal}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
                 <!-- Kritik Stok -->
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Kritik Stok" FontSize="11" Foreground="{DynamicResource MesRedBright}" />
-                        <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
+                        <TextBlock Text="Kritik Stok" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesRedBright}" />
+                        <TextBlock Text="{Binding KpiCritical}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
                 <!-- Stok Degeri -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="160">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Stok Degeri" FontSize="11" Foreground="{DynamicResource MesEmerald}" />
+                        <TextBlock Text="Stok Degeri" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesEmerald}" />
                         <TextBlock Text="{Binding KpiStockValue, StringFormat='{}{0:N0} TL'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
+                                   FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
                 <!-- Tukenen -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Tukenen" FontSize="11" Foreground="{DynamicResource MesBrandAccent}" />
-                        <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                        <TextBlock Text="Tukenen" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesBrandAccent}" />
+                        <TextBlock Text="{Binding KpiOutOfStock}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -77,7 +77,7 @@
                          Text="{Binding SearchText}"
                          HorizontalAlignment="Left" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="180" ItemsSource="{Binding WarehouseFilter}"
                               SelectedItem="{Binding SelectedWarehouse}"
                               PlaceholderText="Tum Depolar" />
@@ -128,24 +128,24 @@
                 </Style>
             </DataGrid.Styles>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Pagination -->
         <Border Grid.Row="4" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,*">
                 <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
-                           FontSize="12" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                     <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
                             IsEnabled="{Binding CanGoPrevious}"
-                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                     <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
-                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="8,0" />
                     <Button Content="Sonraki" Command="{Binding NextPageCommand}"
                             IsEnabled="{Binding CanGoNext}"
-                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -158,7 +158,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Envanter verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -169,10 +169,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Envanter bos" FontSize="48"
+                <TextBlock Text="Envanter bos" FontSize="{StaticResource FontSizeHero}"
                            HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz envanter verisi bulunamadi"
-                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -183,11 +183,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Toplu Urun Islemleri" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -33,18 +33,18 @@
                         <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Dosya Secimi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Dosya Secimi" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding ImportFilePath}"
                                              Watermark="Excel dosya sec..." AutomationProperties.Name="Excel dosya sec..." IsReadOnly="True"
-                                             Height="36" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
+                                             Height="36" FontSize="{StaticResource FontSizeCallout}" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Grid.Column="1" Content="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                             Margin="8,0,0,0" />
                                 </Grid>
-                                <TextBlock Text="{Binding ImportFileInfo}" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                                <TextBlock Text="{Binding ImportFileInfo}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                            IsVisible="{Binding HasImportFile}" />
                             </StackPanel>
                         </Border>
@@ -54,7 +54,7 @@
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Kolon Eslestirme" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Kolon Eslestirme" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <DataGrid ItemsSource="{Binding ColumnMappings}"
                                           AutoGenerateColumns="False" IsReadOnly="False"
                                           GridLinesVisibility="Horizontal" BorderThickness="0"
@@ -65,7 +65,7 @@
                                         <DataGridTextColumn Header="MesTech Alani" Binding="{Binding MesTechField}" Width="*" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Urun bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !ColumnMappings.Count}" />
+<!-- Empty State -->        <TextBlock Text="Urun bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !ColumnMappings.Count}" />
                             </StackPanel>
                         </Border>
 
@@ -75,11 +75,11 @@
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Text="Veri Onizleme (ilk 10 satir)" FontSize="14"
+                                    <TextBlock Text="Veri Onizleme (ilk 10 satir)" FontSize="{StaticResource FontSizeBody}"
                                                FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding PreviewValidationSummary}"
-                                               FontSize="12" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                                 </Grid>
                                 <DataGrid ItemsSource="{Binding PreviewRows}"
                                           AutoGenerateColumns="False" IsReadOnly="True"
@@ -102,7 +102,7 @@
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Import Secenekleri" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Import Secenekleri" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="24">
                                     <CheckBox Content="Mevcut urunleri guncelle"
                                               IsChecked="{Binding UpdateExistingProducts}" />
@@ -123,7 +123,7 @@
                                                      Value="{Binding ImportProgress}" Height="8"
                                                      Foreground="{DynamicResource MesGreenMaterial}" Background="{DynamicResource MesBorderLight}" CornerRadius="{StaticResource MesRadiusSm}"
                                                      IsVisible="{Binding IsImporting}" />
-                                        <TextBlock Text="{Binding ImportStatusText}" FontSize="12"
+                                        <TextBlock Text="{Binding ImportStatusText}" FontSize="{StaticResource FontSizeSmall}"
                                                    Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Iptal"
@@ -153,22 +153,22 @@
                         <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Export Filtreleri" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Export Filtreleri" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Grid ColumnDefinitions="*,*,*" Margin="0,4,0,0">
                                     <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
-                                        <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportPlatformList}"
                                                   SelectedItem="{Binding SelectedExportPlatform}"
                                                   HorizontalAlignment="Stretch" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="4,0,4,0">
-                                        <TextBlock Text="Kategori" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="Kategori" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportCategoryList}"
                                                   SelectedItem="{Binding SelectedExportCategory}"
                                                   HorizontalAlignment="Stretch" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4" Margin="8,0,0,0">
-                                        <TextBlock Text="Stok Durumu" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="Stok Durumu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportStockFilterList}"
                                                   SelectedItem="{Binding SelectedExportStockFilter}"
                                                   HorizontalAlignment="Stretch" />
@@ -181,7 +181,7 @@
                         <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
-                                <TextBlock Grid.Column="0" Text="Format:" FontSize="13"
+                                <TextBlock Grid.Column="0" Text="Format:" FontSize="{StaticResource FontSizeCallout}"
                                            Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" Margin="0,0,12,0" />
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                                     <RadioButton Content="XLSX" IsChecked="{Binding IsXlsxFormat}" GroupName="ExportFormat" />
@@ -189,7 +189,7 @@
                                 </StackPanel>
                                 <TextBlock Grid.Column="3"
                                            Text="{Binding ExportProductCount, StringFormat='{}{0:N0} urun bulundu'}"
-                                           FontSize="13" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
+                                           FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                            VerticalAlignment="Center" Margin="0,0,16,0" />
                                 <Button Grid.Column="4" Content="Indir"
                                         Command="{Binding ExportCommand}"
@@ -210,16 +210,16 @@
                         <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="8">
-                                <TextBlock Text="Toplu Guncelleme" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Toplu Guncelleme" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="12,4">
                                         <TextBlock Text="{Binding SelectedProductCount, StringFormat='{}{0} urun secili'}"
-                                                   FontSize="13" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
+                                                   FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                                     </Border>
                                     <Button Content="Tum Urunleri Sec"
                                             Command="{Binding SelectAllProductsCommand}"
                                             Background="Transparent" Foreground="{DynamicResource MesPrimaryBlue}"
-                                            FontSize="12" Padding="8,4" />
+                                            FontSize="{StaticResource FontSizeSmall}" Padding="8,4" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -228,19 +228,19 @@
                         <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Islem Sec" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Islem Sec" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Grid ColumnDefinitions="*,*" Margin="0,4,0,0">
                                     <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
-                                        <TextBlock Text="Islem Turu" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="Islem Turu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding BulkActionList}"
                                                   SelectedItem="{Binding SelectedBulkAction}"
                                                   HorizontalAlignment="Stretch" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
-                                        <TextBlock Text="Deger" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="Deger" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBox Text="{Binding BulkActionValue}"
                                                  Watermark="Deger giriniz..." AutomationProperties.Name="Deger giriniz..."
-                                                 Height="36" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
+                                                 Height="36" FontSize="{StaticResource FontSizeCallout}" CornerRadius="{StaticResource MesRadiusSm}" />
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -251,7 +251,7 @@
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasBulkPreview}">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Onizleme" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Onizleme" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <DataGrid ItemsSource="{Binding BulkPreviewRows}"
                                           AutoGenerateColumns="False" IsReadOnly="True"
                                           GridLinesVisibility="Horizontal" BorderThickness="0"
@@ -270,7 +270,7 @@
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="{Binding BulkUpdateStatusText}"
-                                           FontSize="12" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                                 <Button Grid.Column="1" Content="Uygula"
                                         Command="{Binding BulkUpdateCommand}"
                                         IsEnabled="{Binding CanBulkUpdate}"
@@ -288,7 +288,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

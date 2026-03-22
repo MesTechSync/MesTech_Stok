@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Siparis Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} siparis'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -68,7 +68,7 @@
                    VerticalAlignment="Center"
                    Margin="0,40"
                    Opacity="0.5"
-                   FontSize="16"
+                   FontSize="{StaticResource FontSizeSubtitle}"
                    IsVisible="{Binding !Orders.Count}" />
 
         <!-- Loading Overlay -->
@@ -79,7 +79,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Siparisler yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -90,10 +90,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kayit bulunamadi" FontSize="20"
+                <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeTitle}"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
                 <TextBlock Text="Arama kriterlerine uygun siparis bulunamadi"
-                           FontSize="16" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -106,9 +106,9 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="14" Foreground="{DynamicResource MesCoolGray}"
+                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"
                                    TextWrapping="Wrap" MaxWidth="400" />
                         <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                                 Command="{Binding RefreshCommand}"

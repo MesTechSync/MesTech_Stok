@@ -11,10 +11,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Departmanlar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} departman'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Departman"
@@ -39,7 +39,7 @@
             <!-- Empty -->
             <TextBlock Text="Henuz departman bulunmuyor."
                        IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{StaticResource FontSizeBody}" />
 
             <!-- Department Cards -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding !IsLoading}">
@@ -55,18 +55,18 @@
                                     Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}"
                                     BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Text="Yonetici:" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                        <TextBlock Text="{Binding Manager}" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                        <TextBlock Text="Yonetici:" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding Manager}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Text="Calisan:" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                        <TextBlock Text="{Binding EmployeeCount}" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock Text="Calisan:" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding EmployeeCount}" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" />
                                     </StackPanel>
                                     <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusSm}" Padding="8,2"
                                             HorizontalAlignment="Left">
-                                        <TextBlock Text="{Binding Status}" FontSize="11" Foreground="{DynamicResource MesGreen}" />
+                                        <TextBlock Text="{Binding Status}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesGreen}" />
                                     </Border>
                                 </StackPanel>
                             </Border>

@@ -9,7 +9,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <TextBlock Text="Hakkinda" Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="Hakkinda" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" />
         </Border>
 
         <!-- Content -->
@@ -20,12 +20,12 @@
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                     <Border Background="{DynamicResource MesPrimaryBlue}" CornerRadius="16" Width="80" Height="80"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="MT" Foreground="{DynamicResource MesBgPrimary}" FontSize="32" FontWeight="Bold"
+                        <TextBlock Text="MT" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="MesTech Stok Yonetimi" FontSize="24" FontWeight="Bold"
+                    <TextBlock Text="MesTech Stok Yonetimi" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding VersionText}" FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                    <TextBlock Text="{Binding VersionText}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                                HorizontalAlignment="Center" />
                 </StackPanel>
 
@@ -35,46 +35,46 @@
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Uygulama:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Uygulama:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="MesTech Stok" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="MesTech Stok" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Versiyon:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Versiyon:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="{Binding VersionText}" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="{Binding VersionText}" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Platform:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Platform:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="{Binding PlatformText}" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="{Binding PlatformText}" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Framework:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Framework:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text=".NET 9.0 / Avalonia UI" FontSize="13"
+                            <TextBlock Grid.Column="1" Text=".NET 9.0 / Avalonia UI" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Lisans:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Lisans:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="{Binding LicenseText}" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="{Binding LicenseText}" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*">
-                            <TextBlock Grid.Column="0" Text="Gelistirici:" FontSize="13"
+                            <TextBlock Grid.Column="0" Text="Gelistirici:" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="MesTech Yazilim" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="MesTech Yazilim" FontSize="{StaticResource FontSizeCallout}"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- Copyright -->
-                <TextBlock Text="{Binding CopyrightText}" FontSize="12" Foreground="{DynamicResource MesMutedGray}"
+                <TextBlock Text="{Binding CopyrightText}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" />
 
             </StackPanel>
@@ -87,7 +87,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Bilgiler yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Bilgiler yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -98,9 +98,9 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}"

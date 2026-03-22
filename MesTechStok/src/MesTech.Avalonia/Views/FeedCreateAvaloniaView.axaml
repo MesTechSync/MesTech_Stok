@@ -11,7 +11,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <TextBlock Text="Yeni Feed Oluştur" Foreground="{DynamicResource MesBgPrimary}"
-                       FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                       FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
 
         <!-- Form -->
@@ -24,24 +24,24 @@
                         <TextBlock Text="Feed Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Feed Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Feed Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding FeedName}" Watermark="Örn: ABC Elektronik XML" AutomationProperties.Name="Örn: ABC Elektronik XML" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Feed URL" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Feed URL" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding FeedUrl}" Watermark="https://tedarikci.com/feed.xml" AutomationProperties.Name="https://tedarikci.com/feed.xml" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Format" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Format" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding FormatOptions}"
                                       SelectedItem="{Binding SelectedFormat}" Width="160" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="{Binding SyncIntervalMinutes, StringFormat='Senkronizasyon Aralığı: {0} dakika'}"
-                                       FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <Slider Minimum="15" Maximum="1440" Value="{Binding SyncIntervalMinutes}"
                                     TickFrequency="15" IsSnapToTickEnabled="True" />
                         </StackPanel>
@@ -55,11 +55,11 @@
 
                         <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
                             <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
-                                <TextBlock Text="Fiyat Artış %" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Fiyat Artış %" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding PriceMarkupPercent}" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
-                                <TextBlock Text="Minimum Marj %" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Minimum Marj %" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding MinimumMarginPercent}" Padding="10,8" />
                             </StackPanel>
                         </Grid>
@@ -72,7 +72,7 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="Kolon Eşleştirme" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddMappingCommand}"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                         </Grid>
 
                         <ItemsControl ItemsSource="{Binding ColumnMappings}">
@@ -81,11 +81,11 @@
                                     <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,4">
                                         <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak kolon" AutomationProperties.Name="Kaynak kolon"
                                                  Padding="8,6" Margin="0,0,8,0" />
-                                        <TextBlock Grid.Column="1" Text="→" FontSize="16" VerticalAlignment="Center"
+                                        <TextBlock Grid.Column="1" Text="→" FontSize="{StaticResource FontSizeSubtitle}" VerticalAlignment="Center"
                                                    Foreground="{DynamicResource MesMutedGray}" Margin="4,0" />
                                         <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef alan" AutomationProperties.Name="Hedef alan"
                                                  Padding="8,6" Margin="0,0,8,0" />
-                                        <Button Grid.Column="3" Content="X" FontSize="11"
+                                        <Button Grid.Column="3" Content="X" FontSize="{StaticResource FontSizeCaption}"
                                                 Command="{Binding $parent[ItemsControl].((vm:FeedCreateAvaloniaViewModel)DataContext).RemoveMappingCommand}"
                                                 CommandParameter="{Binding}"
                                                 Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -121,7 +121,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Isleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                <TextBlock Text="Isleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

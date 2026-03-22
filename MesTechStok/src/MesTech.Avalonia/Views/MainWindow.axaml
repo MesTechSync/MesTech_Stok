@@ -166,7 +166,7 @@
                     <Border DockPanel.Dock="Bottom" Padding="16,10"
                             BorderBrush="{DynamicResource SidebarBorderBrush}"
                             BorderThickness="0,1,0,0">
-                        <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="10"
+                        <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="{StaticResource FontSizeCaption1}"
                                    Foreground="{DynamicResource MesTextSlate}"/>
                     </Border>
 

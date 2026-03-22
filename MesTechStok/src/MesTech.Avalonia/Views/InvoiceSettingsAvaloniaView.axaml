@@ -11,7 +11,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Fatura Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -30,19 +30,19 @@
                         <TextBlock Text="E-Fatura Entegrasyonu" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
-                            <TextBlock Text="E-Fatura Saglayici" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="E-Fatura Saglayici" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding InvoiceProviders}"
                                       SelectedItem="{Binding SelectedProvider}" Width="300" />
                         </StackPanel>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Fatura mukellefiyeti aktif"
-                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEInvoiceActive}"
                                           OnContent="Evet" OffContent="Hayir" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Arsiv fatura otomatik olustur"
-                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateEArchive}"
                                           OnContent="Acik" OffContent="Kapali" />
                         </Grid>
@@ -56,21 +56,21 @@
                         <TextBlock Text="Firma Bilgileri" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Firma Unvani" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Firma Unvani" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding CompanyName}" Watermark="Orn: MesTech Yazilim A.S." AutomationProperties.Name="Orn: MesTech Yazilim A.S." />
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="Vergi Dairesi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Vergi Dairesi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding TaxOffice}" Watermark="Orn: Mecidiyekoy" AutomationProperties.Name="Orn: Mecidiyekoy" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
-                                <TextBlock Text="Vergi No" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Vergi No" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding TaxNumber}" Watermark="Orn: 1234567890" AutomationProperties.Name="Orn: 1234567890" />
                             </StackPanel>
                         </Grid>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Adres" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Adres" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding CompanyAddress}" Watermark="Firma adresi" AutomationProperties.Name="Firma adresi"
                                      AcceptsReturn="True" Height="60" />
                         </StackPanel>
@@ -85,13 +85,13 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Seri Oneki:"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Text="{Binding InvoicePrefix}"
                                      Watermark="Orn: MES" AutomationProperties.Name="Orn: MES" Width="160" HorizontalAlignment="Left" />
                         </Grid>
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Sonraki Numara:"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding NextInvoiceNumber}"
                                           Minimum="1" FormatString="N0" Width="160"
                                           HorizontalAlignment="Left" />
@@ -107,14 +107,14 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Varsayilan KDV Orani (%):"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding DefaultVatRate}"
                                           Minimum="0" Maximum="100" FormatString="N0" Width="160"
                                           HorizontalAlignment="Left" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Fiyatlar KDV dahil gosterilsin"
-                                       FontSize="13" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding PricesIncludeVat}"
                                           OnContent="Evet" OffContent="Hayir" />
                         </Grid>
@@ -130,7 +130,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Fatura ayarlari yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Fatura ayarlari yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -140,9 +140,9 @@
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />

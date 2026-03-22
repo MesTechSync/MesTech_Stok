@@ -13,7 +13,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="CRM Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveSettingsCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -34,9 +34,9 @@
 
                         <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="MESA AI Otomatik Yanit" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="MESA AI Otomatik Yanit" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" />
                                 <TextBlock Text="Gelen mesajlar icin AI yanit onerisi olusturur"
-                                           FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                             <CheckBox Grid.Column="1" IsChecked="{Binding IsMesaAiEnabled}"
                                       VerticalAlignment="Center" />
@@ -54,10 +54,10 @@
                                            Minimum="1" Maximum="60" Increment="1"
                                            Width="120" />
                             <TextBlock Text="dakika" VerticalAlignment="Center"
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
                         <TextBlock Text="Platformlardan yeni mesaj kontrolu bu aralikta yapilir."
-                                   FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
                     </StackPanel>
                 </Border>
 
@@ -75,7 +75,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}" TextWrapping="Wrap"
-                                               FontSize="12" Padding="4,6" />
+                                               FontSize="{StaticResource FontSizeSmall}" Padding="4,6" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -93,7 +93,7 @@
                         <!-- Remove selected -->
                         <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
                                 Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
-                                CornerRadius="{StaticResource MesRadiusBase}" FontSize="12"
+                                CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}"
                                 HorizontalAlignment="Left"
                                 IsEnabled="{Binding SelectedTemplate, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     </StackPanel>

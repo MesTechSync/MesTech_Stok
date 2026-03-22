@@ -16,14 +16,14 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Ayarlar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
-                           Foreground="{DynamicResource MesOverlayLight}" FontSize="12"
+                           Foreground="{DynamicResource MesOverlayLight}" FontSize="{StaticResource FontSizeSmall}"
                            VerticalAlignment="Center" />
             </Grid>
         </Border>
@@ -37,7 +37,7 @@
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Ayarlar basariyla kaydedildi."
-                               Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesTeal}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Section 1: API Ayarlari -->
@@ -45,27 +45,27 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API Ayarlari" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="API Ayarlari" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Platform API baglanti yapilandirmasi"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <StackPanel Spacing="6">
-                            <TextBlock Text="API URL" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock Text="API URL" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding ApiUrl}"
                                      Watermark="https://api.mestech.com/v1" AutomationProperties.Name="https://api.mestech.com/v1"
-                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="{StaticResource FontSizeBody}" />
                         </StackPanel>
 
                         <StackPanel Spacing="6">
-                            <TextBlock Text="API Key" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock Text="API Key" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding ApiKey}"
                                      Watermark="API anahtarinizi giriniz" AutomationProperties.Name="API anahtarinizi giriniz"
                                      PasswordChar="●"
-                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="{StaticResource FontSizeBody}" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Spacing="12">
@@ -77,7 +77,7 @@
 
                             <!-- Connection Result -->
                             <TextBlock Text="{Binding ConnectionMessage}"
-                                       FontSize="13" VerticalAlignment="Center"
+                                       FontSize="{StaticResource FontSizeCallout}" VerticalAlignment="Center"
                                        IsVisible="{Binding IsConnectionTested}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
@@ -89,18 +89,18 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Bildirimler" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Bildirimler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Bildirim kanali tercihleri"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="E-posta Bildirimleri" FontSize="14"
+                                <TextBlock Text="E-posta Bildirimleri" FontSize="{StaticResource FontSizeBody}"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Siparis ve stok uyarilari e-posta ile gonderilir"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
                                           OnContent="" OffContent="" />
@@ -110,10 +110,10 @@
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="SMS Bildirimleri" FontSize="14"
+                                <TextBlock Text="SMS Bildirimleri" FontSize="{StaticResource FontSizeBody}"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Kritik stok uyarilari SMS ile gonderilir"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSmsEnabled}"
                                           OnContent="" OffContent="" />
@@ -123,10 +123,10 @@
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="Push Bildirimleri" FontSize="14"
+                                <TextBlock Text="Push Bildirimleri" FontSize="{StaticResource FontSizeBody}"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Anlık bildirimler masaustu uygulamasinda gosterilir"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsPushEnabled}"
                                           OnContent="" OffContent="" />
@@ -139,19 +139,19 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Tema" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Tema" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Uygulama gorunum tercihi"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <StackPanel Spacing="12">
                             <RadioButton GroupName="Theme"
                                          IsChecked="{Binding SelectedTheme,
                                              Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                         Content="Acik Tema (Light)" FontSize="14" />
+                                         Content="Acik Tema (Light)" FontSize="{StaticResource FontSizeBody}" />
                             <RadioButton GroupName="Theme"
-                                         Content="Koyu Tema (Dark)" FontSize="14" />
+                                         Content="Koyu Tema (Dark)" FontSize="{StaticResource FontSizeBody}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -167,7 +167,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Ayarlar yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -178,11 +178,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kategori Eslestirme" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} eslesme'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformList}"
@@ -40,13 +40,13 @@
         <!-- Progress Bar -->
         <Border Grid.Row="1" Padding="16,12,16,4">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <TextBlock Grid.Column="0" Text="Eslestirme Durumu:" FontSize="13"
+                <TextBlock Grid.Column="0" Text="Eslestirme Durumu:" FontSize="{StaticResource FontSizeCallout}"
                            Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" Margin="0,0,12,0" />
                 <ProgressBar Grid.Column="1" Minimum="0" Maximum="100"
                              Value="{Binding MappingPercentage}" Height="10"
                              Foreground="{DynamicResource MesGreenMaterial}" Background="{DynamicResource MesBorderLight}" CornerRadius="5" />
                 <TextBlock Grid.Column="2" Text="{Binding MappingPercentage, StringFormat='%{0:N0} eslesmis'}"
-                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesGreenMaterial}"
+                           FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesGreenMaterial}"
                            VerticalAlignment="Center" Margin="12,0,0,0" />
             </Grid>
         </Border>
@@ -58,11 +58,11 @@
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12"
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="MesTech Kategorileri" FontSize="14" FontWeight="SemiBold"
+                    <TextBlock DockPanel.Dock="Top" Text="MesTech Kategorileri" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                     <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..." AutomationProperties.Name="Kategori ara..."
                              Text="{Binding LocalSearchText}" Margin="0,0,0,8"
-                             Height="32" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
+                             Height="32" FontSize="{StaticResource FontSizeCallout}" CornerRadius="{StaticResource MesRadiusSm}" />
                     <TreeView ItemsSource="{Binding LocalCategoryTree}"
                               SelectedItem="{Binding SelectedLocalCategoryNode}">
                         <TreeView.ItemTemplate>
@@ -70,8 +70,8 @@
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <Border Width="10" Height="10" CornerRadius="5"
                                             Background="{Binding StatusColor}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding StatusText}" FontSize="11"
+                                    <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeCallout}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding StatusText}" FontSize="{StaticResource FontSizeCaption}"
                                                Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                                 </StackPanel>
                             </TreeDataTemplate>
@@ -96,16 +96,16 @@
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top"
                                Text="{Binding SelectedPlatform, StringFormat='{}{0} Kategorileri'}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                               FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                     <TextBox DockPanel.Dock="Top" Watermark="Kategori ara..." AutomationProperties.Name="Kategori ara..."
                              Text="{Binding PlatformSearchText}" Margin="0,0,0,8"
-                             Height="32" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
+                             Height="32" FontSize="{StaticResource FontSizeCallout}" CornerRadius="{StaticResource MesRadiusSm}" />
                     <TreeView ItemsSource="{Binding PlatformCategoryTree}"
                               SelectedItem="{Binding SelectedPlatformCategoryNode}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}" x:DataType="vm:CategoryTreeNodeDto">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeCallout}" VerticalAlignment="Center" />
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
@@ -118,7 +118,7 @@
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16,0,16,8" CornerRadius="{StaticResource MesRadiusMd}"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" MaxHeight="220">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Mevcut Eslestirmeler" FontSize="14" FontWeight="SemiBold"
+                <TextBlock DockPanel.Dock="Top" Text="Mevcut Eslestirmeler" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" Padding="12,8" />
                 <DataGrid ItemsSource="{Binding Mappings}"
                           AutoGenerateColumns="False" IsReadOnly="True"
@@ -131,7 +131,7 @@
                         <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="100" />
                     </DataGrid.Columns>
                 </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Eslestirme bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Mappings.Count}" />
+<!-- Empty State -->        <TextBlock Text="Eslestirme bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Mappings.Count}" />
             </DockPanel>
         </Border>
 
@@ -141,20 +141,20 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" Margin="0,0,20,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesGreenMaterial}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding MappedCount, StringFormat='Eslesmis: {0}'}"
-                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,20,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesBrandAccent}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding AiSuggestionCount, StringFormat='AI Onerisi: {0}'}"
-                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesDanger}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding UnmappedCount, StringFormat='Eslesmemis: {0}'}"
-                               FontSize="12" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock Grid.Column="4" Text="{Binding LastSyncText}"
-                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
             </Grid>
         </Border>
 
@@ -163,7 +163,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Kategoriler yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Kategoriler yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

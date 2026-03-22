@@ -11,8 +11,8 @@
     <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="16" CornerRadius="{StaticResource MesRadiusMd}" Margin="0,0,0,12">
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel>
-          <TextBlock Text="Butce &amp; Gerceklesme" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesBgPrimary}"/>
-          <TextBlock Text="Aylik butce takibi ve gerceklesme karsilastirmasi" FontSize="12" Foreground="{DynamicResource MesTextTertiary}"/>
+          <TextBlock Text="Butce &amp; Gerceklesme" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesBgPrimary}"/>
+          <TextBlock Text="Aylik butce takibi ve gerceklesme karsilastirmasi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextTertiary}"/>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
           <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}" Classes="accent"/>
@@ -24,26 +24,26 @@
     <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,12">
       <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="0,0,8,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
-          <TextBlock Text="BUTCE" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
-          <TextBlock Text="{Binding TotalBudget}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"/>
+          <TextBlock Text="BUTCE" FontSize="{StaticResource FontSizeCaption}" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
+          <TextBlock Text="{Binding TotalBudget}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
-          <TextBlock Text="GERCEKLESEN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
-          <TextBlock Text="{Binding TotalActual}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesTeal}"/>
+          <TextBlock Text="GERCEKLESEN" FontSize="{StaticResource FontSizeCaption}" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
+          <TextBlock Text="{Binding TotalActual}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesTeal}"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
-          <TextBlock Text="KALAN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
-          <TextBlock Text="{Binding TotalRemaining}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"/>
+          <TextBlock Text="KALAN" FontSize="{StaticResource FontSizeCaption}" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
+          <TextBlock Text="{Binding TotalRemaining}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"/>
         </StackPanel>
       </Border>
       <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="8,0,0,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
-          <TextBlock Text="KULLANIM ORANI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
-          <TextBlock Text="{Binding UsageRate}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPurple}"/>
+          <TextBlock Text="KULLANIM ORANI" FontSize="{StaticResource FontSizeCaption}" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
+          <TextBlock Text="{Binding UsageRate}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" Foreground="{DynamicResource MesPurple}"/>
         </StackPanel>
       </Border>
     </Grid>
@@ -70,28 +70,28 @@
             <DataGridTextColumn Header="Durum" Binding="{Binding StatusText}" Width="100"/>
           </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
+<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Loading overlay -->
         <Border Background="{DynamicResource MesOverlayMedium}" IsVisible="{Binding IsLoading}" CornerRadius="{StaticResource MesRadiusMd}">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesCoolGray}"/>
+            <TextBlock Text="Yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"/>
           </StackPanel>
         </Border>
 
         <!-- Empty state -->
         <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-            <TextBlock Text="Butce verisi bulunamadi" FontSize="16" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
-            <TextBlock Text="Bu donem icin butce tanimlanmamis" FontSize="12" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Butce verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Bu donem icin butce tanimlanmamis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>
 
         <!-- Error state -->
         <Border Background="{DynamicResource MesBgDangerLight}" IsVisible="{Binding HasError}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-            <TextBlock Text="Hata" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center"/>
-            <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <TextBlock Text="Hata" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>
       </Panel>

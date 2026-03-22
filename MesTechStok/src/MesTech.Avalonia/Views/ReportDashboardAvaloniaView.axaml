@@ -14,7 +14,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Rapor Paneli"
-                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -35,7 +35,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <ProgressBar IsIndeterminate="True" Width="120" Height="4"
                                          VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
+                            <TextBlock Text="{Binding GeneratingMessage}" FontSize="{StaticResource FontSizeBody}"
                                        Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                         </StackPanel>
                         <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
@@ -47,7 +47,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Hizli Raporlar" FontSize="16" FontWeight="Bold"
+                        <TextBlock Text="Hizli Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Stok Degerleme"
@@ -84,16 +84,16 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Rapor Parametreleri" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Rapor Parametreleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Ozel rapor olusturmak icin parametreleri ayarlayin"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
                             <!-- Report Type -->
                             <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
-                                <TextBlock Text="Rapor Turu" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="Rapor Turu" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding ReportTypes}"
                                           SelectedItem="{Binding SelectedReportType}"
@@ -102,7 +102,7 @@
 
                             <!-- Platform Filter -->
                             <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
-                                <TextBlock Text="Platform" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="Platform" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding Platforms}"
                                           SelectedItem="{Binding SelectedPlatform}"
@@ -111,29 +111,29 @@
 
                             <!-- Start Date -->
                             <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
-                                <TextBlock Text="Baslangic Tarihi" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="Baslangic Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch" />
                             </StackPanel>
 
                             <!-- End Date -->
                             <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
-                                <TextBlock Text="Bitis Tarihi" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="Bitis Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch" />
                             </StackPanel>
 
                             <!-- Export Format -->
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,0,0,12">
-                                <TextBlock Text="Disari Aktarma Formati" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="Disari Aktarma Formati" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="16">
                                     <RadioButton GroupName="ExportFmt" Content="Excel"
                                                  IsChecked="{Binding SelectedExportFormat,
                                                      Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                                 FontSize="14" />
-                                    <RadioButton GroupName="ExportFmt" Content="PDF" FontSize="14" />
-                                    <RadioButton GroupName="ExportFmt" Content="CSV" FontSize="14" />
+                                                 FontSize="{StaticResource FontSizeBody}" />
+                                    <RadioButton GroupName="ExportFmt" Content="PDF" FontSize="{StaticResource FontSizeBody}" />
+                                    <RadioButton GroupName="ExportFmt" Content="CSV" FontSize="{StaticResource FontSizeBody}" />
                                 </StackPanel>
                             </StackPanel>
 
@@ -154,10 +154,10 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Zamanlanmis Raporlar" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Zamanlanmis Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Otomatik olarak olusturulan periyodik raporlar"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding ScheduledReports}"
@@ -178,7 +178,7 @@
                         </DataGrid>
                         <!-- Empty State -->
                         <TextBlock Text="Rapor verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Margin="0,40" Opacity="0.5" FontSize="14"
+                                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                    IsVisible="{Binding !IsLoading}" />
                     </StackPanel>
                 </Border>
@@ -188,10 +188,10 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Son Raporlar" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Son Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="En son olusturulan raporlar"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding RecentReports}"
@@ -211,7 +211,7 @@
                         </DataGrid>
                         <!-- Empty State -->
                         <TextBlock Text="Rapor verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Margin="0,40" Opacity="0.5" FontSize="14"
+                                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                    IsVisible="{Binding !IsLoading}" />
                     </StackPanel>
                 </Border>
@@ -227,7 +227,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Rapor paneli yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -238,11 +238,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

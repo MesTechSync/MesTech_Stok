@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="CRM Kisiler" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -40,7 +40,7 @@
         <Grid Grid.Row="2" Margin="16">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                <TextBlock Text="Yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
             </StackPanel>
 
@@ -48,16 +48,16 @@
                         IsVisible="{Binding !IsLoading}" Spacing="12">
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4D6;" FontSize="32"
+                    <TextBlock Text="&#x1F4D6;" FontSize="{StaticResource FontSizeDisplay}"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
-                <TextBlock Text="CRM Kisiler" FontSize="20" FontWeight="SemiBold"
+                <TextBlock Text="CRM Kisiler" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
+                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
                            TextAlignment="Center" />
                 <TextBlock Text="Kisi yonetimi | Firma eslestirme | Iletisim gecmisi | Notlar"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
+                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                            Margin="0,4,0,0" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         HorizontalAlignment="Center" Padding="16,6" CornerRadius="{StaticResource MesRadiusSm}"

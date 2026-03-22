@@ -23,33 +23,33 @@
                 <StackPanel HorizontalAlignment="Center" Spacing="8" Margin="0,0,0,8">
                     <Border Background="{DynamicResource MesBgMist}" CornerRadius="50" Width="72" Height="72"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="M" FontSize="32" FontWeight="Bold"
+                        <TextBlock Text="M" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="MesTech Stok" FontSize="22" FontWeight="Bold"
+                    <TextBlock Text="MesTech Stok" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                    <TextBlock Text="Hesabiniza giris yapin" FontSize="13"
+                    <TextBlock Text="Hesabiniza giris yapin" FontSize="{StaticResource FontSizeCallout}"
                                Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <!-- Username -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Kullanici Adi" FontSize="13" FontWeight="SemiBold"
+                    <TextBlock Text="Kullanici Adi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" />
                     <TextBox Text="{Binding Username}"
                              Watermark="Kullanici adinizi giriniz" AutomationProperties.Name="Kullanici adinizi giriniz"
-                             Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
+                             Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="{StaticResource FontSizeBody}" />
                 </StackPanel>
 
                 <!-- Password -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Sifre" FontSize="13" FontWeight="SemiBold"
+                    <TextBlock Text="Sifre" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" />
                     <TextBox Text="{Binding Password}"
                              PasswordChar="●"
                              Watermark="Sifrenizi giriniz" AutomationProperties.Name="Sifrenizi giriniz"
-                             Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
+                             Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="{StaticResource FontSizeBody}" />
                 </StackPanel>
 
                 <!-- Error Message -->
@@ -57,7 +57,7 @@
                         IsVisible="{Binding HasError}"
                         BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="{DynamicResource MesRedAlert}" FontSize="13"
+                               Foreground="{DynamicResource MesRedAlert}" FontSize="{StaticResource FontSizeCallout}"
                                TextWrapping="Wrap" />
                 </Border>
 
@@ -72,7 +72,7 @@
 
                 <!-- Version Info -->
                 <TextBlock Text="MesTech Stok v10.0 — Avalonia PoC"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}"
+                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}"
                            HorizontalAlignment="Center" Margin="0,4,0,0" />
             </StackPanel>
         </Border>
@@ -92,10 +92,10 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="{Binding WelcomeMessage}"
-                           FontSize="20" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
                 <TextBlock Text="Sisteme basariyla giris yaptiniz."
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -107,7 +107,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Giris yapiliyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

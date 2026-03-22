@@ -16,14 +16,14 @@
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Varyant Matrisi" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding ProductName}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="12" VerticalAlignment="Center" />
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding ProductSKU}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
+                                   FontSize="{StaticResource FontSizeCaption}" VerticalAlignment="Center" Opacity="0.8" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Toplu Fiyat Guncelle"
@@ -46,14 +46,14 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <TextBlock Grid.Column="0" Text="Ozellik Gruplari" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Grid.Column="0" Text="Ozellik Gruplari" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                         <TextBox Width="160" Text="{Binding NewAttributeName}"
                                  Watermark="Ozellik adi (orn: Renk)" AutomationProperties.Name="Ozellik adi (orn: Renk)" Padding="8,6" />
                         <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                                Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                     </StackPanel>
                 </Grid>
 
@@ -81,9 +81,9 @@
                                             <DataTemplate x:DataType="vm:AttributeValueDto">
                                                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusLg}" Padding="10,4" Margin="4,2">
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                                        <TextBlock Text="{Binding Value}" FontSize="12"
+                                                        <TextBlock Text="{Binding Value}" FontSize="{StaticResource FontSizeSmall}"
                                                                    Foreground="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />
-                                                        <Button Content="x" FontSize="9"
+                                                        <Button Content="x" FontSize="{StaticResource FontSizeCaption2}"
                                                                 Command="{Binding $parent[ItemsControl].((vm:AttributeGroupDto)DataContext).RemoveValueCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 Background="Transparent" Foreground="{DynamicResource MesCoolGray}"
@@ -98,10 +98,10 @@
                                     <!-- Add Value -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
                                         <TextBox Width="100" Text="{Binding NewValue}"
-                                                 Watermark="Deger ekle" AutomationProperties.Name="Deger ekle" Padding="6,4" FontSize="12" />
+                                                 Watermark="Deger ekle" AutomationProperties.Name="Deger ekle" Padding="6,4" FontSize="{StaticResource FontSizeSmall}" />
                                         <Button Content="+" Command="{Binding AddValueCommand}"
                                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                                Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                                                Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                                     </StackPanel>
 
                                     <!-- Remove Attribute -->
@@ -109,7 +109,7 @@
                                             Command="{Binding $parent[ItemsControl].((vm:ProductVariantMatrixViewModel)DataContext).RemoveAttributeCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
-                                            Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="11"
+                                            Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeCaption}"
                                             Margin="8,0,0,0" VerticalAlignment="Center" />
                                 </Grid>
                             </Border>
@@ -130,21 +130,21 @@
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Toplam Varyant:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
-                    <TextBlock Text="{Binding TotalVariants}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                    <TextBlock Text="Toplam Varyant:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="{Binding TotalVariants}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Toplam Stok:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
-                    <TextBlock Text="{Binding TotalStock}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
+                    <TextBlock Text="Toplam Stok:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="{Binding TotalStock}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Stok Bitti:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
-                    <TextBlock Text="{Binding OutOfStockCount}" FontSize="13" FontWeight="Bold"
+                    <TextBlock Text="Stok Bitti:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="{Binding OutOfStockCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                Foreground="{Binding OutOfStockColor}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Aktif:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
-                    <TextBlock Text="{Binding ActiveVariantCount}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                    <TextBlock Text="Aktif:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
+                    <TextBlock Text="{Binding ActiveVariantCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -174,17 +174,17 @@
         </DataGrid>
         <!-- Empty State -->
         <TextBlock Grid.Row="3" Text="Urun bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                    IsVisible="{Binding !IsLoading}" />
 
         <!-- Empty State for Variants -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding !HasVariants}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Varyant Bulunamadi" FontSize="20" FontWeight="Bold"
+                <TextBlock Text="Varyant Bulunamadi" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Ozellik gruplari ekleyip 'Varyantlari Olustur' butonuna tiklayin"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
@@ -212,7 +212,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Varyantlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Varyantlar yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

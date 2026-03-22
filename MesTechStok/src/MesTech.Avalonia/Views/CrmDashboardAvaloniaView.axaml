@@ -11,7 +11,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="CRM Dashboard" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -35,7 +35,7 @@
 
                 <!-- Empty state -->
                 <TextBlock Text="Henuz CRM verisi yok." IsVisible="{Binding IsEmpty}"
-                           Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" FontSize="14" Margin="0,20" />
+                           Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" FontSize="{StaticResource FontSizeBody}" Margin="0,20" />
 
                 <!-- KPI Cards Row 1 — 4 cards -->
                 <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
@@ -43,32 +43,32 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Toplam Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalCustomers}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                            <TextBlock Text="Toplam Musteri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding TotalCustomers}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
                     <!-- New This Month -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Aktif Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding NewThisMonth}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
+                            <TextBlock Text="Aktif Musteri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding NewThisMonth}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
                     <!-- VIP Customers -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="VIP Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding VipCustomers}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                            <TextBlock Text="VIP Musteri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding VipCustomers}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                         </StackPanel>
                     </Border>
                     <!-- Pipeline Value -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Pipeline Degeri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding PipelineValue}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesPurple}" />
+                            <TextBlock Text="Pipeline Degeri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding PipelineValue}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesPurple}" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -79,32 +79,32 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Acik Firsatlar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding OpenDeals}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                            <TextBlock Text="Acik Firsatlar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding OpenDeals}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
                     <!-- Unread Messages -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Okunmamis Mesaj" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding UnreadMessages}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
+                            <TextBlock Text="Okunmamis Mesaj" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding UnreadMessages}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                         </StackPanel>
                     </Border>
                     <!-- Pending Replies -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Yanit Bekleyen" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding PendingReplies}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                            <TextBlock Text="Yanit Bekleyen" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding PendingReplies}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                         </StackPanel>
                     </Border>
                     <!-- Total Leads -->
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Potansiyel" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalLeads}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
+                            <TextBlock Text="Potansiyel" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding TotalLeads}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesGreenMaterial}" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -128,12 +128,12 @@
                                                     </Border.Background>
                                                 </Border>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Stage}" FontWeight="SemiBold" FontSize="13" />
+                                                    <TextBlock Text="{Binding Stage}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCallout}" />
                                                     <TextBlock Text="{Binding Count, StringFormat='{}{0} firsat'}"
-                                                               FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                                               FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="2" Text="{Binding Amount}"
-                                                           FontWeight="Bold" FontSize="13" Foreground="{DynamicResource MesPrimaryBlue}"
+                                                           FontWeight="Bold" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesPrimaryBlue}"
                                                            VerticalAlignment="Center" />
                                             </Grid>
                                         </Border>
@@ -157,12 +157,12 @@
                                                 <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="14"
                                                         Width="28" Height="28" Margin="0,0,10,0">
                                                     <TextBlock Text="{Binding Type}"
-                                                               Foreground="{DynamicResource MesBgPrimary}" FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCaption2}" FontWeight="Bold"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap" />
-                                                    <TextBlock Text="{Binding Time}" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                                    <TextBlock Text="{Binding Description}" FontSize="{StaticResource FontSizeCallout}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Time}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
@@ -175,7 +175,7 @@
 
                 <!-- Last Updated -->
                 <TextBlock Text="{Binding LastUpdated, StringFormat='Son guncelleme: {0}'}"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
+                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
                            IsVisible="{Binding !IsLoading}" />
 
             </StackPanel>

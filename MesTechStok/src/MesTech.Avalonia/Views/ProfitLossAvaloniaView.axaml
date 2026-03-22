@@ -11,16 +11,16 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu (EN)" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
                     <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
-                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                            BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <TextBlock Text="{Binding PeriodLabel}" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
-                            BorderThickness="0" FontSize="16" Padding="8,4" />
+                            BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <Button Content="Refresh" Command="{Binding RefreshCommand}"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" Margin="12,0,0,0" />
@@ -34,32 +34,32 @@
                 <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20" Margin="6"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Revenue" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
-                        <TextBlock Text="{Binding TotalRevenue}" FontSize="22" FontWeight="Bold"
+                        <TextBlock Text="Revenue" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalRevenue}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesEmerald}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20" Margin="6"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Expenses" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
-                        <TextBlock Text="{Binding TotalExpenses}" FontSize="22" FontWeight="Bold"
+                        <TextBlock Text="Expenses" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalExpenses}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesRedBright}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20" Margin="6"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Net Profit" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
-                        <TextBlock Text="{Binding NetProfit}" FontSize="22" FontWeight="Bold"
+                        <TextBlock Text="Net Profit" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding NetProfit}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20" Margin="6"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Margin" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
-                        <TextBlock Text="{Binding ProfitMarginText}" FontSize="22" FontWeight="Bold"
+                        <TextBlock Text="Margin" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding ProfitMarginText}" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPurple}" Margin="0,6,0,0" />
                     </StackPanel>
                 </Border>
@@ -90,7 +90,7 @@
                     <!-- Empty State -->
                     <!-- Empty State -->
                     <TextBlock Text="Rapor verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Margin="0,40" Opacity="0.5" FontSize="14"
+                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                IsVisible="{Binding !IsLoading}" />
                 </Grid>
             </Grid>
@@ -102,7 +102,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Loading profit/loss report..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Loading profit/loss report..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -112,10 +112,10 @@
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="No data found" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="No data found" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="No profit/loss data available for the selected period"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -125,9 +125,9 @@
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource MesDanger}"
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Retry" Command="{Binding RefreshCommand}" Padding="16,6" />

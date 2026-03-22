@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Cari Hesaplar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hesap'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -31,7 +31,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Tip:" FontSize="14" Foreground="{DynamicResource MesTextSlate}"
+                <TextBlock Text="Tip:" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextSlate}"
                            VerticalAlignment="Center" />
                 <ComboBox Width="180"
                           ItemsSource="{Binding TypeOptions}"
@@ -59,31 +59,31 @@
                 <DataGridTextColumn Header="Bakiye (TL)" Binding="{Binding Bakiye, StringFormat='{}{0:N2}'}" Width="140" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !FilteredItems.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !FilteredItems.Count}" />
 
         <!-- Balance Summary Footer -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgMist}" Padding="20,12"
                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
+                <TextBlock Grid.Column="0" Text="Ozet" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                 <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
-                        <TextBlock Text="Toplam Borc" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
+                        <TextBlock Text="Toplam Borc" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
-                        <TextBlock Text="Toplam Alacak" FontSize="11" Foreground="{DynamicResource MesGreen}" />
+                        <TextBlock Text="Toplam Alacak" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesGreen}" />
                         <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
-                        <TextBlock Text="Net Bakiye" FontSize="11" Foreground="{DynamicResource MesAmber}" />
+                        <TextBlock Text="Net Bakiye" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
@@ -99,7 +99,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Cari hesaplar yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -110,7 +110,7 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Cari hesap bulunamadi" FontSize="16" Foreground="{DynamicResource MesSlateGray}"
+                <TextBlock Text="Cari hesap bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -121,11 +121,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="İçe Aktarma Şablonları" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} şablon'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Şablon"
@@ -57,35 +57,35 @@
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).EditTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                            FontSize="11" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
+                                            FontSize="{StaticResource FontSizeCaption}" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Content="Sil"
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).DeleteTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
-                                            FontSize="11" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
+                                            FontSize="{StaticResource FontSizeCaption}" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Icerik bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Templates.Count}" />
+<!-- Empty State -->        <TextBlock Text="Icerik bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Templates.Count}" />
 
             <!-- Edit Mode -->
             <ScrollViewer IsVisible="{Binding IsEditing}" Padding="24">
                 <StackPanel MaxWidth="600" Spacing="16">
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="14">
-                            <TextBlock Text="Şablon Düzenle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="Şablon Düzenle" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Şablon Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Şablon Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TextBox Text="{Binding EditTemplateName}" Padding="10,8" />
                             </StackPanel>
 
                             <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="Alan Eşleştirmeleri" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Alan Eşleştirmeleri" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddFieldMappingCommand}"
-                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                             </Grid>
 
                             <ItemsControl ItemsSource="{Binding EditMappings}">
@@ -95,7 +95,7 @@
                                             <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak" AutomationProperties.Name="Kaynak" Padding="8,6" Margin="0,0,6,0" />
                                             <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="4,0" />
                                             <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef" AutomationProperties.Name="Hedef" Padding="8,6" Margin="0,0,6,0" />
-                                            <Button Grid.Column="3" Content="X" FontSize="11"
+                                            <Button Grid.Column="3" Content="X" FontSize="{StaticResource FontSizeCaption}"
                                                     Command="{Binding $parent[ItemsControl].((vm:ImportSettingsAvaloniaViewModel)DataContext).RemoveFieldMappingCommand}"
                                                     CommandParameter="{Binding}"
                                                     Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -123,7 +123,7 @@
                 Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Sablonlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Sablonlar yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -131,10 +131,10 @@
         <!-- Empty State -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Şablon Bulunamadı" FontSize="20" FontWeight="Bold"
+                <TextBlock Text="Şablon Bulunamadı" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henüz içe aktarma şablonu tanımlanmamış"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

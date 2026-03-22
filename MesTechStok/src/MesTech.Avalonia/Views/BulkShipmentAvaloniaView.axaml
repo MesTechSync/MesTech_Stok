@@ -14,14 +14,14 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Toplu Kargo Gonderim" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} secili'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} toplam'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <ComboBox Grid.Column="1" Width="180" Margin="0,0,12,0"
@@ -66,7 +66,7 @@
                 <DataGridTextColumn Header="Takip No" Binding="{Binding TrackingNumber}" Width="180" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Siparis bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Orders.Count}" />
+<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Siparis bulunamadi"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Orders.Count}" />
 
         <!-- Progress + Summary Footer -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
@@ -77,26 +77,26 @@
                              Height="6" IsVisible="{Binding IsSending}" />
                 <TextBlock IsVisible="{Binding IsSending}"
                            Text="{Binding ProgressCurrent, StringFormat='Gonderiliyor: {0}'}"
-                           FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
 
                 <!-- Summary -->
                 <StackPanel Orientation="Horizontal" Spacing="20"
                             IsVisible="{Binding !IsSending}">
-                    <TextBlock FontSize="13" Foreground="{DynamicResource MesGreenMaterial}">
+                    <TextBlock FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesGreenMaterial}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Basarili: {0}">
                                 <Binding Path="SuccessCount" />
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
-                    <TextBlock FontSize="13" Foreground="{DynamicResource MesRedClassic}">
+                    <TextBlock FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesRedClassic}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Hata: {0}">
                                 <Binding Path="FailCount" />
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
-                    <TextBlock FontSize="13" Foreground="{DynamicResource MesWarning}">
+                    <TextBlock FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesWarning}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Uyari: {0}">
                                 <Binding Path="WarningCount" />
@@ -115,7 +115,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Siparisler yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -126,11 +126,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

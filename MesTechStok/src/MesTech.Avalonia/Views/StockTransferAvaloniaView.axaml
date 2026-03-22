@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Depolar Arasi Transfer" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
@@ -28,12 +28,12 @@
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
-                    <TextBlock Text="Yeni Transfer" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Text="Yeni Transfer" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,4" />
 
                     <!-- Kaynak Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Kaynak Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Kaynak Depo" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedSourceWarehouse}"
                                   PlaceholderText="Kaynak depo secin..."
@@ -42,7 +42,7 @@
 
                     <!-- Hedef Depo -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Hedef Depo" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Hedef Depo" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedTargetWarehouse}"
                                   PlaceholderText="Hedef depo secin..."
@@ -51,7 +51,7 @@
 
                     <!-- Urun Secimi -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Urun Ara" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Urun Ara" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Watermark="SKU veya urun adi..." AutomationProperties.Name="SKU veya urun adi..."
                                  Text="{Binding ProductSearchText}" />
                         <ListBox ItemsSource="{Binding SourceProducts}"
@@ -60,14 +60,14 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:TransferProductDto">
                                     <Grid ColumnDefinitions="*,Auto,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Ad}" FontSize="13"
+                                        <TextBlock Grid.Column="0" Text="{Binding Ad}" FontSize="{StaticResource FontSizeCallout}"
                                                    VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="{Binding Miktar, StringFormat='Stok: {0}'}"
-                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                                    VerticalAlignment="Center" Margin="8,0" />
                                         <Border Grid.Column="2" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2"
                                                 Background="{Binding StokDurumRenk}">
-                                            <TextBlock Text="{Binding StokDurum}" FontSize="10"
+                                            <TextBlock Text="{Binding StokDurum}" FontSize="{StaticResource FontSizeCaption1}"
                                                        Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                         </Border>
                                     </Grid>
@@ -78,7 +78,7 @@
 
                     <!-- Transfer Miktari -->
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Transfer Miktari" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Transfer Miktari" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <NumericUpDown Value="{Binding TransferQuantity}" Minimum="0"
                                        FormatString="N0" />
                     </StackPanel>
@@ -87,13 +87,13 @@
                     <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusBase}" Padding="12,8">
                         <Grid ColumnDefinitions="*,*">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBlock Text="{Binding SourceStock}" FontSize="16" FontWeight="Bold"
+                                <TextBlock Text="Kaynak Stok" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding SourceStock}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="2">
-                                <TextBlock Text="Kalan Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBlock Text="{Binding RemainingStock}" FontSize="16" FontWeight="Bold"
+                                <TextBlock Text="Kalan Stok" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding RemainingStock}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                             </StackPanel>
                         </Grid>
@@ -107,7 +107,7 @@
                             Margin="0,4,0,0" />
 
                     <!-- Status -->
-                    <TextBlock Text="{Binding TransferStatus}" FontSize="13"
+                    <TextBlock Text="{Binding TransferStatus}" FontSize="{StaticResource FontSizeCallout}"
                                Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                                TextWrapping="Wrap" />
                 </StackPanel>
@@ -143,7 +143,7 @@
                     <!-- Empty State -->
                     <!-- Empty State -->
                     <TextBlock Text="Stok verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Margin="0,40" Opacity="0.5" FontSize="14"
+                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                                IsVisible="{Binding !IsLoading}" />
                 </Grid>
                 </Grid>
@@ -158,7 +158,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Transfer verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -169,11 +169,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

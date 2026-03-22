@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kargo Takip" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} gonderi'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -34,17 +34,17 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesTeal}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding DeliveredCount, StringFormat='Teslim Edildi: {0}'}"
-                               FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
+                               FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding InTransitCount, StringFormat='Yolda: {0}'}"
-                               FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
+                               FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding PreparingCount, StringFormat='Hazirlaniyor: {0}'}"
-                               FontSize="13" Foreground="{DynamicResource MesDarkSlate}" />
+                               FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -70,7 +70,7 @@
         </DataGrid>
         <!-- Empty State -->
         <TextBlock Grid.Row="2" Text="Siparis bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
                    IsVisible="{Binding !IsLoading}" />
 
         <!-- Loading Overlay -->
@@ -81,7 +81,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Gonderi bilgileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
@@ -91,10 +91,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Gonderi Bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Gonderi Bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz aktif gonderi bulunmuyor"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>

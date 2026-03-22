@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Aktiviteler" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
@@ -51,7 +51,7 @@
                 <!-- Empty -->
                 <TextBlock Text="Henuz aktivite bulunmuyor."
                            IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
-                           HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
+                           HorizontalAlignment="Center" Margin="0,40" FontSize="{StaticResource FontSizeBody}" />
 
                 <!-- Timeline -->
                 <ItemsControl ItemsSource="{Binding Activities}" IsVisible="{Binding !IsLoading}">
@@ -64,26 +64,26 @@
                                     <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="18"
                                             Width="36" Height="36" Margin="0,0,14,0">
                                         <TextBlock Text="{Binding TypeIcon}" Foreground="{DynamicResource MesBgPrimary}"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <!-- Content -->
                                     <StackPanel Grid.Column="1" Spacing="2">
-                                        <TextBlock Text="{Binding Subject}" FontWeight="SemiBold" FontSize="14" />
-                                        <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
+                                        <TextBlock Text="{Binding Subject}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" />
+                                        <TextBlock Text="{Binding Description}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
                                                    TextWrapping="Wrap" />
                                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                            <TextBlock Text="{Binding ContactName}" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
-                                            <TextBlock Text="|" FontSize="11" Foreground="{DynamicResource MesBorderMuted}" />
-                                            <TextBlock Text="{Binding CreatedBy}" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
+                                            <TextBlock Text="{Binding ContactName}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                            <TextBlock Text="|" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesBorderMuted}" />
+                                            <TextBlock Text="{Binding CreatedBy}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
                                         </StackPanel>
                                     </StackPanel>
                                     <!-- Time -->
                                     <StackPanel Grid.Column="2" VerticalAlignment="Top">
-                                        <TextBlock Text="{Binding TimeAgo}" FontSize="11" Foreground="{DynamicResource MesMutedGray}"
+                                        <TextBlock Text="{Binding TimeAgo}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}"
                                                    HorizontalAlignment="Right" />
                                         <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2" Margin="0,4,0,0">
-                                            <TextBlock Text="{Binding Type}" FontSize="10" Foreground="{DynamicResource MesSlateGray}" />
+                                            <TextBlock Text="{Binding Type}" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" />
                                         </Border>
                                     </StackPanel>
                                 </Grid>

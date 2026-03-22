@@ -20,17 +20,17 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconDashboard}"
                               Width="24" Height="24" Foreground="{DynamicResource MesPrimaryBlue}" />
-                    <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold"
+                    <TextBlock Text="Dashboard" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusLg}" Padding="10,4"
                             VerticalAlignment="Center">
-                        <TextBlock Text="Canli" FontSize="11" FontWeight="SemiBold"
+                        <TextBlock Text="Canli" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesPrimaryBlue}" />
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="{Binding LastRefreshText}"
-                               FontSize="12" Foreground="{DynamicResource MesMutedGray}"
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
                                VerticalAlignment="Center" />
                     <ToggleSwitch IsChecked="{Binding IsAutoRefreshEnabled}"
                                   OnContent="Canli" OffContent="Durdur"
@@ -100,7 +100,7 @@
                                        Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="10 kayit"
-                                       FontSize="11" Foreground="{DynamicResource MesMutedGray}"
+                                       FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}"
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Border>
@@ -140,7 +140,7 @@
                                VerticalAlignment="Center"
                                Margin="0,40"
                                Opacity="0.5"
-                               FontSize="16"
+                               FontSize="{StaticResource FontSizeSubtitle}"
                                IsVisible="{Binding !RecentOrders.Count}" />
                 </Grid>
                 </Grid>
@@ -164,7 +164,7 @@
                             <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}"
                                     CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                                 <TextBlock Text="{Binding CriticalStockCount}"
-                                           FontSize="11" FontWeight="Bold"
+                                           FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesAmber}"
                                            HorizontalAlignment="Center" />
                             </Border>
@@ -192,18 +192,18 @@
                                                         Margin="12,6,8,6"
                                                         VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding ProductName}"
-                                                           FontSize="13" FontWeight="SemiBold"
+                                                           FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource MesDarkSlate}"
                                                            TextTrimming="CharacterEllipsis"
                                                            MaxWidth="180" />
                                                 <TextBlock Text="{Binding SKU}"
-                                                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
+                                                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
                                             </StackPanel>
 
                                             <!-- Stock count -->
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding StockText}"
-                                                       FontSize="13" FontWeight="Bold"
+                                                       FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                                        Foreground="{Binding SeverityColor}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0" />
@@ -212,7 +212,7 @@
                                             <Button Grid.Column="3"
                                                     Content="Siparis &#x2192;"
                                                     Command="{Binding OrderCommand}"
-                                                    FontSize="11"
+                                                    FontSize="{StaticResource FontSizeCaption}"
                                                     Padding="10,4"
                                                     CornerRadius="{StaticResource MesRadiusSm}"
                                                     Background="{DynamicResource MesPrimaryBlue}"
@@ -240,7 +240,7 @@
                     <PathIcon Data="{StaticResource IconChart}"
                               Width="16" Height="16" Foreground="{DynamicResource MesPrimaryBlue}" />
                     <TextBlock Text="Platform Saglik Durumu"
-                               FontSize="14" FontWeight="SemiBold"
+                               FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" />
                 </StackPanel>
                 <ItemsControl Grid.Row="1"
@@ -262,7 +262,7 @@
                                     <Ellipse Width="8" Height="8"
                                              Fill="{Binding StatusColor}" />
                                     <TextBlock Text="{Binding PlatformName}"
-                                               FontSize="12" Foreground="{DynamicResource MesTextSlate}"
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextSlate}"
                                                VerticalAlignment="Center" />
                                 </StackPanel>
                             </Border>
@@ -287,12 +287,12 @@
                     <Border Background="{DynamicResource MesPurple}" CornerRadius="{StaticResource MesRadiusMd}"
                             Width="40" Height="40"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="AI" FontSize="14" FontWeight="Bold"
+                        <TextBlock Text="AI" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesBgPrimary}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="MESA OS" FontSize="9" FontWeight="SemiBold"
+                    <TextBlock Text="MESA OS" FontSize="{StaticResource FontSizeCaption2}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesPurple}" Margin="0,4,0,0"
                                HorizontalAlignment="Center" />
                 </StackPanel>
@@ -300,10 +300,10 @@
                 <!-- AI Content -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center"
                             Spacing="4">
-                    <TextBlock Text="AI Onerisi" FontSize="14" FontWeight="Bold"
+                    <TextBlock Text="AI Onerisi" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
                                Foreground="{DynamicResource MesPurple}" />
                     <TextBlock Text="{Binding AiInsightText}"
-                               FontSize="13" Foreground="{DynamicResource MesPurpleDark}"
+                               FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesPurpleDark}"
                                TextWrapping="Wrap"
                                MaxWidth="600" />
                 </StackPanel>
@@ -313,7 +313,7 @@
                         Content="Detaylar &#x2192;"
                         Command="{Binding OpenAIInsightCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontSize="12" FontWeight="SemiBold"
+                        FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusMd}"
                         VerticalAlignment="Center" />
             </Grid>
@@ -330,7 +330,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4"
                              Margin="0,0,0,12" />
                 <TextBlock Text="Dashboard verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -345,11 +345,11 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <PathIcon Data="{StaticResource IconDashboard}"
                           Width="48" Height="48" Foreground="{DynamicResource MesMutedGray}" />
-                <TextBlock Text="Veri yok" FontSize="20"
+                <TextBlock Text="Veri yok" FontSize="{StaticResource FontSizeTitle}"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MesMutedGray}" Margin="0,12,0,4" />
                 <TextBlock Text="Henuz veri bulunamadi"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Margin="0,16,0,0" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}"
@@ -374,10 +374,10 @@
                                   Width="32" Height="32" Foreground="{DynamicResource MesRedClassic}"
                                   HorizontalAlignment="Center" />
                         <TextBlock Text="Hata Olustu" FontWeight="Bold"
-                                   Foreground="{DynamicResource MesRedClassic}" FontSize="16"
+                                   Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}"
                                    HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                                    TextWrapping="Wrap" MaxWidth="400"
                                    HorizontalAlignment="Center" />
                         <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

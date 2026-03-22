@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Bildirimler" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} bildirim'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
@@ -44,12 +44,12 @@
                                 <Border Grid.Column="0" Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}"
                                         Background="{Binding StatusColor}" VerticalAlignment="Top" Margin="0,6,12,0" />
                                 <StackPanel Grid.Column="1" Spacing="4">
-                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding Title}" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                                Foreground="{DynamicResource MesDarkSlate}" />
-                                    <TextBlock Text="{Binding Message}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
+                                    <TextBlock Text="{Binding Message}" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}"
                                                TextWrapping="Wrap" />
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="{Binding TimeAgo}" FontSize="12"
+                                <TextBlock Grid.Column="2" Text="{Binding TimeAgo}" FontSize="{StaticResource FontSizeSmall}"
                                            Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Top" Margin="12,0,0,0" />
                             </Grid>
                         </Border>
@@ -64,10 +64,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Bildirim Yok" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Bildirim Yok" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz bildiriminiz bulunmuyor"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -80,7 +80,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Bildirimler yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

@@ -12,14 +12,14 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Pipeline" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} firsat'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalValue}" Foreground="{DynamicResource MesBgPrimary}"
-                                   FontSize="12" VerticalAlignment="Center" />
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
@@ -45,7 +45,7 @@
                 <!-- Empty -->
                 <TextBlock Text="Pipeline verisi bulunmuyor."
                            IsVisible="{Binding IsEmpty}" Foreground="{DynamicResource MesMutedGray}"
-                           HorizontalAlignment="Center" Margin="0,40" FontSize="14" />
+                           HorizontalAlignment="Center" Margin="0,40" FontSize="{StaticResource FontSizeBody}" />
 
                 <!-- Pipeline Stages as horizontal bars -->
                 <ItemsControl ItemsSource="{Binding Stages}" IsVisible="{Binding !IsLoading}">
@@ -64,11 +64,11 @@
                                     <StackPanel Grid.Column="1" Spacing="4">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" />
                                         <TextBlock Text="{Binding DealCount, StringFormat='{}{0} firsat'}"
-                                                   FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <!-- Amount -->
                                     <TextBlock Grid.Column="2" Text="{Binding Amount}"
-                                               FontWeight="Bold" FontSize="16" Foreground="{DynamicResource MesPrimaryBlue}"
+                                               FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesPrimaryBlue}"
                                                VerticalAlignment="Center" Margin="0,0,20,0" />
                                     <!-- Percentage -->
                                     <Border Grid.Column="3" CornerRadius="{StaticResource MesRadiusSm}" Padding="10,4"
@@ -76,7 +76,7 @@
                                         <Border.Background>
                                             <SolidColorBrush Color="{Binding Color}" Opacity="0.15" />
                                         </Border.Background>
-                                        <TextBlock Text="{Binding Percentage, StringFormat='%{0}'}" FontWeight="Bold" FontSize="13">
+                                        <TextBlock Text="{Binding Percentage, StringFormat='%{0}'}" FontWeight="Bold" FontSize="{StaticResource FontSizeCallout}">
                                             <TextBlock.Foreground>
                                                 <SolidColorBrush Color="{Binding Color}" />
                                             </TextBlock.Foreground>

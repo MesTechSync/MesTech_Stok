@@ -75,7 +75,7 @@
                                         <Binding Path="Type"/>
                                     </MultiBinding>
                                 </Border.Background>
-                                <TextBlock Text="{Binding Type}" FontSize="11" Foreground="{DynamicResource MesBgPrimary}"
+                                <TextBlock Text="{Binding Type}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesBgPrimary}"
                                            FontWeight="SemiBold"/>
                             </Border>
                         </DataTemplate>
@@ -86,7 +86,7 @@
                         <DataTemplate x:DataType="vm:InvoiceListItemDto">
                             <Border Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" HorizontalAlignment="Left"
                                     Margin="4,0">
-                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                <TextBlock Text="{Binding Status}" FontSize="{StaticResource FontSizeCaption}"
                                            FontWeight="SemiBold"/>
                             </Border>
                         </DataTemplate>
@@ -105,7 +105,7 @@
                    VerticalAlignment="Center"
                    Margin="0,40"
                    Opacity="0.5"
-                   FontSize="16"
+                   FontSize="{StaticResource FontSizeSubtitle}"
                    IsVisible="{Binding !Invoices.Count}" />
 
         <!-- Row 3: Footer — pagination -->

@@ -12,10 +12,10 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Yeni Mağaza Ekle" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                     <TextBlock Text="{Binding CurrentStep, StringFormat='Adım {0}/3'}"
-                               Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                               Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                 </Border>
             </StackPanel>
         </Border>
@@ -26,26 +26,26 @@
             <StackPanel Orientation="Horizontal" Spacing="24" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesPrimaryBlue}">
-                        <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="Platform Seç" VerticalAlignment="Center" FontSize="13" />
+                    <TextBlock Text="Platform Seç" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" />
                 </StackPanel>
                 <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
-                        <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="Kimlik Bilgileri" VerticalAlignment="Center" FontSize="13" />
+                    <TextBlock Text="Kimlik Bilgileri" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" />
                 </StackPanel>
                 <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
-                        <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="Test ve Kaydet" VerticalAlignment="Center" FontSize="13" />
+                    <TextBlock Text="Test ve Kaydet" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -56,7 +56,7 @@
 
             <!-- STEP 1: Platform Select -->
             <StackPanel IsVisible="{Binding IsStep1Visible}">
-                <TextBlock Text="Platform Seçin" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"
+                <TextBlock Text="Platform Seçin" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Margin="0,0,0,16"
                            Foreground="{DynamicResource MesDarkSlate}" />
                 <ItemsControl ItemsSource="{Binding AvailablePlatforms}">
                     <ItemsControl.ItemsPanel>
@@ -76,7 +76,7 @@
                                         <StackPanel Spacing="6">
                                             <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource MesDarkSlate}" />
-                                            <TextBlock Text="Seç" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                            <TextBlock Text="Seç" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" />
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -89,26 +89,26 @@
             <!-- STEP 2: Credential Form -->
             <StackPanel IsVisible="{Binding IsStep2Visible}" MaxWidth="500" Spacing="16">
                 <TextBlock Text="{Binding SelectedPlatform, StringFormat='{}{0} — Kimlik Bilgileri'}"
-                           FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Mağaza Adı" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Mağaza Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding StoreName}" Watermark="Örn: Ana Mağaza" AutomationProperties.Name="Örn: Ana Mağaza" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding Field1Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding Field1Label}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field1Value}" Watermark="{Binding Field1Label}" AutomationProperties.Name="{Binding Field1Label}" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding Field2Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding Field2Label}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field2Value}" Watermark="{Binding Field2Label}" AutomationProperties.Name="{Binding Field2Label}"
                              PasswordChar="*" Padding="10,8" />
                 </StackPanel>
 
                 <StackPanel Spacing="4" IsVisible="{Binding Field3Visible}">
-                    <TextBlock Text="{Binding Field3Label}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="{Binding Field3Label}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding Field3Value}" Watermark="{Binding Field3Label}" AutomationProperties.Name="{Binding Field3Label}" Padding="10,8" />
                 </StackPanel>
 
@@ -123,13 +123,13 @@
 
             <!-- STEP 3: Test + Save -->
             <StackPanel IsVisible="{Binding IsStep3Visible}" MaxWidth="500" Spacing="16">
-                <TextBlock Text="Bağlantı Testi ve Kayıt" FontSize="16" FontWeight="SemiBold"
+                <TextBlock Text="Bağlantı Testi ve Kayıt" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" />
 
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="{Binding SelectedPlatform, StringFormat='Platform: {0}'}" FontSize="14" />
-                        <TextBlock Text="{Binding StoreName, StringFormat='Mağaza: {0}'}" FontSize="14" />
+                        <TextBlock Text="{Binding SelectedPlatform, StringFormat='Platform: {0}'}" FontSize="{StaticResource FontSizeBody}" />
+                        <TextBlock Text="{Binding StoreName, StringFormat='Mağaza: {0}'}" FontSize="{StaticResource FontSizeBody}" />
 
                         <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -162,7 +162,7 @@
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         IsVisible="{Binding SaveCompleted}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="16" FontWeight="SemiBold"
+                        <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesGreen}" />
                         <Button Content="Yeni Mağaza Ekle" Command="{Binding ResetCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -179,7 +179,7 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="İşleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                <TextBlock Text="İşleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

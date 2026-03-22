@@ -55,7 +55,7 @@
                   Padding="4"
                   Cursor="Hand"
                   Click="OnTogglePassword">
-            <TextBlock x:Name="PasswordToggleIcon" Text="👁" FontSize="14"/>
+            <TextBlock x:Name="PasswordToggleIcon" Text="👁" FontSize="{StaticResource FontSizeBody}"/>
           </Button>
         </Grid>
       </StackPanel>
@@ -104,7 +104,7 @@
                      FontWeight="SemiBold"/>
           <TextBlock x:Name="LockoutCountdown"
                      Foreground="{DynamicResource TextSecondaryBrush}"
-                     FontSize="11"/>
+                     FontSize="{StaticResource FontSizeCaption}"/>
         </StackPanel>
       </Border>
 

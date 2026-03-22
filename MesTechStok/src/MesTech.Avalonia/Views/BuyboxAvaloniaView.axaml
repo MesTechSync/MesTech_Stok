@@ -13,10 +13,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="{Binding PageTitle}" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding Items.Count, StringFormat='{}{0} ürün'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -33,20 +33,20 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Kazanılan" FontSize="12" Foreground="{DynamicResource MesEmerald}" FontWeight="SemiBold" />
-                        <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
+                        <TextBlock Text="Kazanılan" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesEmerald}" FontWeight="SemiBold" />
+                        <TextBlock Text="—" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Kaybedilen" FontSize="12" Foreground="{DynamicResource MesRedBright}" FontWeight="SemiBold" />
-                        <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
+                        <TextBlock Text="Kaybedilen" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesRedBright}" FontWeight="SemiBold" />
+                        <TextBlock Text="—" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
                 <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
-                        <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                        <TextBlock Text="Toplam Ürün" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Items.Count}" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -73,7 +73,7 @@
                                             HorizontalAlignment="Left"
                                             Background="{Binding StatusColor}">
                                         <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MesBgPrimary}"
-                                                   FontSize="12" FontWeight="SemiBold" />
+                                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" />
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -86,7 +86,7 @@
                            VerticalAlignment="Center"
                            Margin="0,40"
                            Opacity="0.5"
-                           FontSize="16"
+                           FontSize="{StaticResource FontSizeSubtitle}"
                            IsVisible="{Binding !Items.Count}" />
             </Grid>
             </Border>
@@ -95,7 +95,7 @@
         <!-- Loading overlay -->
         <Border Grid.RowSpan="2" Background="{DynamicResource MesOverlayMedium}"
                 IsVisible="{Binding IsLoading}">
-            <TextBlock Text="Yükleniyor..." FontSize="16" Foreground="{DynamicResource MesSlateGray}"
+            <TextBlock Text="Yükleniyor..." FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
     </Grid>

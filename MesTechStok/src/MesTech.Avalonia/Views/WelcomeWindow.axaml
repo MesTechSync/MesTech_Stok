@@ -26,19 +26,19 @@
 
       <!-- Logo -->
       <TextBlock Text="MesTech"
-                 FontSize="48" FontWeight="Bold"
+                 FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                  Foreground="{DynamicResource MesBgPrimary}"
                  HorizontalAlignment="Center"/>
 
       <TextBlock Text="Entegratör"
-                 FontSize="24" FontWeight="Light"
+                 FontSize="{StaticResource FontSizeHeader}" FontWeight="Light"
                  Foreground="{DynamicResource MesMutedGray}"
                  HorizontalAlignment="Center"
                  Margin="0,-12,0,0"/>
 
       <!-- Alt baslik -->
       <TextBlock Text="Çoklu Pazaryeri Yönetim Platformu"
-                 FontSize="16"
+                 FontSize="{StaticResource FontSizeSubtitle}"
                  Foreground="{DynamicResource MesSlateGray}"
                  HorizontalAlignment="Center"
                  Margin="0,8,0,0"/>
@@ -49,7 +49,7 @@
       <!-- Baslama mesaji (yanip sonen animasyon) -->
       <TextBlock x:Name="StartHintText"
                  Text="Başlamak için tıklayın veya herhangi bir tuşa basın"
-                 FontSize="14"
+                 FontSize="{StaticResource FontSizeBody}"
                  Foreground="{DynamicResource MesTextSlate}"
                  HorizontalAlignment="Center"
                  Opacity="1"/>
@@ -66,14 +66,14 @@
                  HorizontalAlignment="Right"/>
       <TextBlock x:Name="DateText"
                  Text=""
-                 FontSize="14"
+                 FontSize="{StaticResource FontSizeBody}"
                  Foreground="{DynamicResource MesSlateGray}"
                  HorizontalAlignment="Right"/>
     </StackPanel>
 
     <!-- Versiyon (sol alt) -->
     <TextBlock Text="v1.0.0"
-               FontSize="12"
+               FontSize="{StaticResource FontSizeSmall}"
                Foreground="{DynamicResource MesTextTertiary}"
                HorizontalAlignment="Left" VerticalAlignment="Bottom"
                Margin="24,0,0,24"/>

@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Pazaryerleri" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding PlatformCount, StringFormat='{}{0} platform'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -40,8 +40,8 @@
             <!-- Platform Summary -->
             <StackPanel VerticalAlignment="Top" Margin="20" Spacing="12"
                         IsVisible="{Binding !IsLoading}">
-                <TextBlock Text="{Binding Summary}" FontSize="14" TextWrapping="Wrap" Opacity="0.7" />
-                <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} platform'}" FontSize="13" Opacity="0.5" />
+                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap" Opacity="0.7" />
+                <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} platform'}" FontSize="{StaticResource FontSizeCallout}" Opacity="0.5" />
             </StackPanel>
 
             <!-- Loading Overlay -->
@@ -50,7 +50,7 @@
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                     <TextBlock Text="Platformlar yukleniyor..."
-                               FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                                HorizontalAlignment="Center" />
                 </StackPanel>
             </Border>

@@ -14,7 +14,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Bildirim Ayarlari"
-                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Test Gonder"
                         Command="{Binding SendTestNotificationCommand}"
@@ -36,7 +36,7 @@
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Bildirim ayarlari basariyla kaydedildi."
-                               Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesTeal}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Test Result -->
@@ -44,7 +44,7 @@
                         IsVisible="{Binding IsTestSent}"
                         BorderBrush="{DynamicResource MesInfo}" BorderThickness="1">
                     <TextBlock Text="{Binding TestResult}"
-                               Foreground="{DynamicResource MesPrimaryBlue}" FontSize="13" FontWeight="SemiBold" />
+                               Foreground="{DynamicResource MesPrimaryBlue}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" />
                 </Border>
 
                 <!-- Section 1: Bildirim Kanallari -->
@@ -52,18 +52,18 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Bildirim Kanallari" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Bildirim Kanallari" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Bildirimlerin gonderilecegi kanallari secin"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <!-- InApp Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="Uygulama Ici" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Uygulama Ici" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Anlık bildirimler uygulama icerisinde gosterilir"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsInAppEnabled}"
                                           OnContent="" OffContent="" IsEnabled="False" />
@@ -74,9 +74,9 @@
                         <!-- Email Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="E-posta" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="E-posta" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Onemli bildirimler e-posta adresinize gonderilir"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
                                           OnContent="" OffContent="" />
@@ -84,11 +84,11 @@
 
                         <!-- Email Address (shown when email enabled) -->
                         <StackPanel Spacing="6" IsVisible="{Binding IsEmailEnabled}" Margin="16,0,0,0">
-                            <TextBlock Text="E-posta Adresi" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock Text="E-posta Adresi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding EmailAddress}"
                                      Watermark="ornek@sirket.com" AutomationProperties.Name="ornek@sirket.com"
-                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="{StaticResource FontSizeBody}" />
                         </StackPanel>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -96,9 +96,9 @@
                         <!-- Telegram Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="Telegram" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Telegram" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="Telegram bot uzerinden anlık bildirimler"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTelegramEnabled}"
                                           OnContent="" OffContent="" />
@@ -109,9 +109,9 @@
                         <!-- WhatsApp Channel -->
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                             <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="WhatsApp" FontSize="14" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="WhatsApp" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" />
                                 <TextBlock Text="WhatsApp Business API ile bildirimler"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsWhatsAppEnabled}"
                                           OnContent="" OffContent="" />
@@ -124,23 +124,23 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Bildirim Kategorileri" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Bildirim Kategorileri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Her kategori icin hangi kanallardan bildirim alacaginizi secin"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <!-- Column Headers -->
                         <Grid ColumnDefinitions="2*,*,*,*,*" Margin="0,4">
-                            <TextBlock Grid.Column="0" Text="Kategori" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Grid.Column="0" Text="Kategori" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Grid.Column="1" Text="Uygulama" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Grid.Column="1" Text="Uygulama" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="2" Text="E-posta" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Grid.Column="2" Text="E-posta" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="3" Text="Telegram" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Grid.Column="3" Text="Telegram" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="4" Text="WhatsApp" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Grid.Column="4" Text="WhatsApp" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                         </Grid>
 
@@ -153,7 +153,7 @@
                                     <StackPanel Spacing="0">
                                         <Grid ColumnDefinitions="2*,*,*,*,*" Margin="0,6">
                                             <TextBlock Grid.Column="0" Text="{Binding CategoryName}"
-                                                       FontSize="13" Foreground="{DynamicResource MesDarkSlate}"
+                                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}"
                                                        VerticalAlignment="Center" />
                                             <CheckBox Grid.Column="1" IsChecked="{Binding InApp}"
                                                       HorizontalAlignment="Center" />
@@ -177,14 +177,14 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Sessiz Saatler" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Sessiz Saatler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Belirtilen saatler arasinda bildirim gonderilmez"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <Grid ColumnDefinitions="*,Auto" Margin="0,4">
-                            <TextBlock Grid.Column="0" Text="Sessiz saatleri etkinlestir" FontSize="14"
+                            <TextBlock Grid.Column="0" Text="Sessiz saatleri etkinlestir" FontSize="{StaticResource FontSizeBody}"
                                        Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsQuietHoursEnabled}"
                                           OnContent="" OffContent="" />
@@ -193,11 +193,11 @@
                         <StackPanel Orientation="Horizontal" Spacing="16"
                                     IsVisible="{Binding IsQuietHoursEnabled}">
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Baslangic" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Baslangic" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TimePicker SelectedTime="{Binding QuietStart}" Width="140" />
                             </StackPanel>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Bitis" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Bitis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <TimePicker SelectedTime="{Binding QuietEnd}" Width="140" />
                             </StackPanel>
                         </StackPanel>
@@ -209,26 +209,26 @@
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Bildirim Gonderim Modu" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="Bildirim Gonderim Modu" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Bildirimlerin anlık mi yoksa gunluk ozet olarak mi gonderilecegini secin"
-                                       FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
                         <StackPanel Spacing="12">
                             <RadioButton GroupName="DigestMode"
                                          IsChecked="{Binding IsInstantMode}"
                                          Content="Anlık Bildirim — Her olay aninda gonderilir"
-                                         FontSize="14" />
+                                         FontSize="{StaticResource FontSizeBody}" />
                             <RadioButton GroupName="DigestMode"
                                          IsChecked="{Binding IsDailyDigestMode}"
                                          Content="Gunluk Ozet — Tum bildirimler tek e-postada"
-                                         FontSize="14" />
+                                         FontSize="{StaticResource FontSizeBody}" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Spacing="12"
                                     IsVisible="{Binding IsDailyDigestMode}">
-                            <TextBlock Text="Ozet gonderim saati:" FontSize="13" Foreground="{DynamicResource MesDarkSlate}"
+                            <TextBlock Text="Ozet gonderim saati:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
                             <TimePicker SelectedTime="{Binding DigestTime}" Width="140" />
                         </StackPanel>
@@ -246,7 +246,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Bildirim ayarlari yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -257,11 +257,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

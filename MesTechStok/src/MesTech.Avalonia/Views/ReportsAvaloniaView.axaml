@@ -13,7 +13,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Raporlar"
-                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -30,15 +30,15 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Tarih Araligi" FontSize="16" FontWeight="SemiBold"
+                        <TextBlock Text="Tarih Araligi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Baslangic" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Baslangic" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <DatePicker SelectedDate="{Binding StartDate}" Width="180" />
                             </StackPanel>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Bitis" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="Bitis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                 <DatePicker SelectedDate="{Binding EndDate}" Width="180" />
                             </StackPanel>
                         </StackPanel>
@@ -46,7 +46,7 @@
                 </Border>
 
                 <!-- Status Message -->
-                <TextBlock Text="{Binding Summary}" FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            TextWrapping="Wrap" Margin="0,0,0,4" />
 
                 <!-- Generating Overlay Message -->
@@ -56,7 +56,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <ProgressBar IsIndeterminate="True" Width="120" Height="4"
                                      VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding GeneratingMessage}" FontSize="14"
+                        <TextBlock Text="{Binding GeneratingMessage}" FontSize="{StaticResource FontSizeBody}"
                                    Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
@@ -68,9 +68,9 @@
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,6,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Toplam Satis" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalSales}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
-                            <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0} siparis'}" FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                            <TextBlock Text="Toplam Satis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding TotalSales}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                            <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0} siparis'}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
                     </Border>
 
@@ -78,9 +78,9 @@
                     <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="3,0,3,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Toplam Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalProducts}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
-                            <TextBlock Text="{Binding LowStockCount, StringFormat='{}{0} dusuk stok'}" FontSize="12" Foreground="{DynamicResource MesAmber}" />
+                            <TextBlock Text="Toplam Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
+                            <TextBlock Text="{Binding LowStockCount, StringFormat='{}{0} dusuk stok'}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesAmber}" />
                         </StackPanel>
                     </Border>
 
@@ -88,9 +88,9 @@
                     <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="6,0,0,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding NetProfit}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MesTeal}" />
-                            <TextBlock Text="{Binding TotalExpenses, StringFormat='Gider: {0}'}" FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                            <TextBlock Text="Net Kar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding NetProfit}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesTeal}" />
+                            <TextBlock Text="{Binding TotalExpenses, StringFormat='Gider: {0}'}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -104,14 +104,14 @@
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
-                                <TextBlock Text="S" FontSize="22" FontWeight="Bold"
+                                <TextBlock Text="S" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesPrimaryBlue}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="Satis Raporu" FontSize="18" FontWeight="SemiBold"
+                            <TextBlock Text="Satis Raporu" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Secili tarih araligindaki satis performansi, siparis sayilari ve ortalama sepet tutari analizi."
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
                                        MinHeight="48" />
                             <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                     Command="{Binding GenerateReportCommand}"
@@ -129,14 +129,14 @@
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
-                                <TextBlock Text="D" FontSize="22" FontWeight="Bold"
+                                <TextBlock Text="D" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesGreen}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="Stok Raporu" FontSize="18" FontWeight="SemiBold"
+                            <TextBlock Text="Stok Raporu" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Depo bazli stok durumu, dusuk stoklu urunler ve stok hareket gecmisi detaylari."
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
                                        MinHeight="48" />
                             <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                     Command="{Binding GenerateReportCommand}"
@@ -154,14 +154,14 @@
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
-                                <TextBlock Text="F" FontSize="22" FontWeight="Bold"
+                                <TextBlock Text="F" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesRedAlert}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="Finansal Rapor" FontSize="18" FontWeight="SemiBold"
+                            <TextBlock Text="Finansal Rapor" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBlock Text="Gelir-gider analizi, kar-zarar tablosu ve donem bazli finansal performans ozeti."
-                                       FontSize="13" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
+                                       FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap"
                                        MinHeight="48" />
                             <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                     Command="{Binding GenerateReportCommand}"
@@ -184,7 +184,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Raporlar yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -195,11 +195,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"

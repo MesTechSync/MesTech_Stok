@@ -20,7 +20,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="Firsatlar — Kanban" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
@@ -59,12 +59,12 @@
                                     </Border.Background>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock Text="{Binding Name}" Foreground="{DynamicResource MesBgPrimary}"
-                                                   FontWeight="SemiBold" FontSize="13"
+                                                   FontWeight="SemiBold" FontSize="{StaticResource FontSizeCallout}"
                                                    Grid.Column="0" />
                                         <Border Grid.Column="1" Background="{DynamicResource MesBadgeOverlay}"
                                                 CornerRadius="{StaticResource MesRadiusMdLg}" Padding="6,2">
                                             <TextBlock Text="{Binding DealCount}" Foreground="{DynamicResource MesBgPrimary}"
-                                                       FontSize="11" FontWeight="Bold" />
+                                                       FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" />
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -80,12 +80,12 @@
                                                         Cursor="Hand">
                                                     <StackPanel Spacing="4">
                                                         <TextBlock Text="{Binding Title}"
-                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   FontWeight="SemiBold" FontSize="{StaticResource FontSizeCallout}"
                                                                    TextWrapping="Wrap" />
                                                         <TextBlock Text="{Binding ContactName}"
-                                                                   FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
+                                                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                                                         <TextBlock Text="{Binding Amount, StringFormat='TL {0:N0}'}"
-                                                                   FontSize="13" FontWeight="Bold"
+                                                                   FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,2,0,0" />
                                                     </StackPanel>
                                                 </Border>

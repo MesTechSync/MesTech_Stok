@@ -14,10 +14,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Depolar" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} depo'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Depo Ekle"
@@ -56,23 +56,23 @@
                                 <!-- Depo Adi + Konum -->
                                 <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="Bold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
-                                <TextBlock Text="{Binding Location}" FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding Location}" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
 
                                 <!-- KPI Row -->
                                 <Grid ColumnDefinitions="*,*,*" Margin="0,4,0,0">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Urun" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
-                                        <TextBlock Text="{Binding ProductCount}" FontSize="16" FontWeight="Bold"
+                                        <TextBlock Text="Urun" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
+                                        <TextBlock Text="{Binding ProductCount}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="2">
-                                        <TextBlock Text="Toplam Stok" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
-                                        <TextBlock Text="{Binding TotalStock}" FontSize="16" FontWeight="Bold"
+                                        <TextBlock Text="Toplam Stok" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
+                                        <TextBlock Text="{Binding TotalStock}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="2">
-                                        <TextBlock Text="Alarm" FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
-                                        <TextBlock Text="{Binding AlarmCount}" FontSize="16" FontWeight="Bold"
+                                        <TextBlock Text="Alarm" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
+                                        <TextBlock Text="{Binding AlarmCount}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MesRedBright}" />
                                     </StackPanel>
                                 </Grid>
@@ -80,10 +80,10 @@
                                 <!-- Kapasite Doluluk Cubugu -->
                                 <StackPanel Spacing="4">
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="Kapasite Dolulugu" FontSize="11"
+                                        <TextBlock Grid.Column="0" Text="Kapasite Dolulugu" FontSize="{StaticResource FontSizeCaption}"
                                                    Foreground="{DynamicResource MesMutedGray}" />
                                         <TextBlock Grid.Column="1" Text="{Binding CapacityPercent, StringFormat='{}{0}%'}"
-                                                   FontSize="11" Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
+                                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
                                     </Grid>
                                     <Border Background="{DynamicResource MesBorderSoft}" CornerRadius="3" Height="8">
                                         <Border Background="{Binding CapacityColor}" CornerRadius="3"
@@ -94,7 +94,7 @@
 
                                 <!-- Raf Sayisi -->
                                 <TextBlock Text="{Binding ShelfCount, StringFormat='{}{0} raf'}"
-                                           FontSize="12" Foreground="{DynamicResource MesMutedGray}" />
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -110,18 +110,18 @@
             <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="28"
                     Width="400" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Spacing="14">
-                    <TextBlock Text="Yeni Depo Ekle" FontSize="18" FontWeight="Bold"
+                    <TextBlock Text="Yeni Depo Ekle" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" />
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Depo Adi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Depo Adi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Text="{Binding NewWarehouseName}" Watermark="Orn: Sube 2 Depo" AutomationProperties.Name="Orn: Sube 2 Depo" />
                     </StackPanel>
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Konum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Konum" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <TextBox Text="{Binding NewWarehouseLocation}" Watermark="Orn: Istanbul, Ikitelli" AutomationProperties.Name="Orn: Istanbul, Ikitelli" />
                     </StackPanel>
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Kapasite" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="Kapasite" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <NumericUpDown Value="{Binding NewWarehouseCapacity}" Minimum="1"
                                        FormatString="N0" />
                     </StackPanel>
@@ -147,7 +147,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Depo verileri yukleniyor..."
-                           FontSize="14" Foreground="{DynamicResource MesTextMuted}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -158,10 +158,10 @@
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Depo bulunamadi" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="Depo bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
                 <TextBlock Text="Henuz depo tanimlanmamis veya arama sonucu bos"
-                           FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
         </Border>
@@ -172,11 +172,11 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="48" FontWeight="Bold"
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
                            Margin="0,0,0,8" />
                 <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="14" Foreground="{DynamicResource MesDanger}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
