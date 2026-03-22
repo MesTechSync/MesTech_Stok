@@ -17,10 +17,14 @@ public abstract class BaseView : UserControl
         base.OnAttachedToVisualTree(e);
         SubscribeEvents();
 
-        // ViewModel varsa otomatik LoadAsync/InitializeAsync çağır
+        // ViewModel LoadAsync otomatik çağrısı
         if (DataContext is ViewModelBase vmBase)
         {
             await vmBase.InitializeAsync();
+        }
+        else if (DataContext is ILoadable loadable)
+        {
+            await loadable.LoadAsync();
         }
     }
 
