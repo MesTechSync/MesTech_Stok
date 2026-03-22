@@ -42,6 +42,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Create
             IsActive = true,
         };
 
+        product.MarkAsCreated();
         await _productRepository.AddAsync(product);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -38,6 +38,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Update
         if (request.BrandId.HasValue) product.BrandId = request.BrandId.Value;
         if (request.IsActive.HasValue) product.IsActive = request.IsActive.Value;
 
+        product.MarkAsUpdated();
         await _productRepository.UpdateAsync(product).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
