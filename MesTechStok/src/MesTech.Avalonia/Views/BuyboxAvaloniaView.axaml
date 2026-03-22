@@ -21,7 +21,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding LoadDataCommand}"
-                        Background="White" Foreground="{DynamicResource MesBrandPrimary}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesBrandPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -52,7 +52,7 @@
             </StackPanel>
 
             <!-- DataGrid -->
-            <Border Grid.Row="1" Background="White" CornerRadius="8"
+            <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                     BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1" Padding="0">
             <Grid>
                 <DataGrid ItemsSource="{Binding Items}"

@@ -12,7 +12,7 @@
 
         <!-- Login Form (visible when NOT authenticated) -->
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="White" CornerRadius="16"
+                Background="{DynamicResource MesBgPrimary}" CornerRadius="16"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="{DynamicResource MesElevation3}"
@@ -79,7 +79,7 @@
 
         <!-- Welcome State (visible when authenticated) -->
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="White" CornerRadius="16"
+                Background="{DynamicResource MesBgPrimary}" CornerRadius="16"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="{DynamicResource MesElevation3}"

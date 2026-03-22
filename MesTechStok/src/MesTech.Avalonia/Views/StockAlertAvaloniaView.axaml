@@ -22,13 +22,13 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
@@ -47,7 +47,7 @@
             <ItemsControl ItemsSource="{Binding FilteredAlerts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:StockAlertItemDto">
-                        <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,0,8"
                                 BorderBrush="{Binding AlertBorderColor}" BorderThickness="2,2,2,2">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <!-- Severity Icon -->

@@ -22,25 +22,25 @@
 
     <!-- KPI Cards -->
     <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,12">
-      <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="0,0,8,0" BoxShadow="{DynamicResource MesElevation1}">
+      <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,8,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
           <TextBlock Text="BUTCE" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalBudget}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
+      <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
           <TextBlock Text="GERCEKLESEN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalActual}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesTeal}"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
+      <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
           <TextBlock Text="KALAN" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding TotalRemaining}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="8,0,0,0" BoxShadow="{DynamicResource MesElevation1}">
+      <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="8,0,0,0" BoxShadow="{DynamicResource MesElevation1}">
         <StackPanel>
           <TextBlock Text="KULLANIM ORANI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesCoolGray}"/>
           <TextBlock Text="{Binding UsageRate}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPurple}"/>
@@ -49,7 +49,7 @@
     </Grid>
 
     <!-- Filters -->
-    <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,12" BoxShadow="{DynamicResource MesElevation1}">
+    <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="12" Margin="0,0,0,12" BoxShadow="{DynamicResource MesElevation1}">
       <StackPanel Orientation="Horizontal" Spacing="12">
         <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Width="120" PlaceholderText="Ay"/>
         <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Width="100" PlaceholderText="Yil"/>
@@ -57,7 +57,7 @@
     </Border>
 
     <!-- Budget DataGrid -->
-    <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="8" BoxShadow="{DynamicResource MesElevation1}">
+    <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="8" BoxShadow="{DynamicResource MesElevation1}">
       <Panel>
         <DataGrid ItemsSource="{Binding Items}" IsReadOnly="True" AutoGenerateColumns="False"
                   GridLinesVisibility="Horizontal" BorderThickness="0"
@@ -80,7 +80,7 @@
         </Border>
 
         <!-- Empty state -->
-        <Border Background="White" IsVisible="{Binding IsEmpty}" CornerRadius="8">
+        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="8">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
             <TextBlock Text="Butce verisi bulunamadi" FontSize="16" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
             <TextBlock Text="Bu donem icin butce tanimlanmamis" FontSize="12" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>

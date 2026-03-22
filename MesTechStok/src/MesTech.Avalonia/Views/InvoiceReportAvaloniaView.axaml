@@ -20,11 +20,11 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Excel" Command="{Binding ExportExcelCommand}"
-                            Background="White" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
-                            Background="White" Foreground="{StaticResource ErrorRedBrush}" FontWeight="SemiBold"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource ErrorRedBrush}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>
                 </StackPanel>

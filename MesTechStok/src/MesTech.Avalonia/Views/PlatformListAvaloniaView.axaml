@@ -22,7 +22,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -37,7 +37,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:PlatformCardDto">
-                        <Border Background="White" CornerRadius="8" Margin="8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="8"
                                 Width="200" Padding="0"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel>

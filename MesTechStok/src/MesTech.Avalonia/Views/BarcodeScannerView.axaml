@@ -28,7 +28,7 @@
         </Border>
 
         <!-- Barcode Input (USB HID wedge — auto-focus, Enter triggers search) -->
-        <Border Grid.Row="1" Background="White" Padding="16,14"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,14"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="Barkod / SKU:" VerticalAlignment="Center" FontSize="14"
@@ -71,7 +71,7 @@
             <ItemsControl ItemsSource="{Binding ScanResults}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:ScanResultItem">
-                        <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,0,8"
                                 BorderBrush="{Binding BorderColor}" BorderThickness="1,1,1,1">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <!-- Status Icon -->

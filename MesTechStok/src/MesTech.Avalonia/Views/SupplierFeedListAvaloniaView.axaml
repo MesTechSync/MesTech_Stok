@@ -22,7 +22,7 @@
                 </StackPanel>
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -35,7 +35,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="16">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Feed Adı" Binding="{Binding FeedName}" Width="220" />

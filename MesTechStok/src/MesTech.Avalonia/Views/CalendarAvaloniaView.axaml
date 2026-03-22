@@ -19,7 +19,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -47,7 +47,7 @@
                 <ItemsControl ItemsSource="{Binding Events}" IsVisible="{Binding !IsLoading}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:CalendarEventVm">
-                            <Border Margin="0,0,0,10" Padding="16" Background="White"
+                            <Border Margin="0,0,0,10" Padding="16" Background="{DynamicResource MesBgPrimary}"
                                     CornerRadius="8" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*,Auto">
                                     <!-- Color bar -->

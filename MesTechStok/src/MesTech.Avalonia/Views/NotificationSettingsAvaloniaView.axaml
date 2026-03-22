@@ -22,7 +22,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -48,7 +48,7 @@
                 </Border>
 
                 <!-- Section 1: Bildirim Kanallari -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -120,7 +120,7 @@
                 </Border>
 
                 <!-- Section 2: Kategori Matrisi -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -173,7 +173,7 @@
                 </Border>
 
                 <!-- Section 3: Sessiz Saatler -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -205,7 +205,7 @@
                 </Border>
 
                 <!-- Section 4: Ozet Modu -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">

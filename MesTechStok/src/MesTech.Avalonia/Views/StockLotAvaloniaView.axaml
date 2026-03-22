@@ -16,7 +16,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -25,7 +25,7 @@
         <Grid Grid.Row="1" ColumnDefinitions="400,*" Margin="16">
 
             <!-- Left: Lot Entry Form -->
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Yeni Lot Kaydi" FontSize="16" FontWeight="SemiBold"
@@ -109,7 +109,7 @@
             </Border>
 
             <!-- Right: Recent Lots Table -->
-            <Border Grid.Column="1" Background="White" CornerRadius="8"
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"
@@ -125,7 +125,7 @@
                               IsReadOnly="True"
                               GridLinesVisibility="Horizontal"
                               BorderThickness="0"
-                              Background="White">
+                              Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Lot No" Binding="{Binding LotNo}" Width="140" />
                             <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="200" />

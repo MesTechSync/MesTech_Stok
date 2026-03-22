@@ -27,7 +27,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -37,7 +37,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Order Info Card -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                         <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
@@ -69,7 +69,7 @@
                 </Border>
 
                 <!-- Order Items DataGrid -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -85,7 +85,7 @@
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
                                   BorderThickness="0"
-                                  Background="White"
+                                  Background="{DynamicResource MesBgPrimary}"
                                   MaxHeight="300">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Urun Adi" Binding="{Binding ProductName}" Width="250" />

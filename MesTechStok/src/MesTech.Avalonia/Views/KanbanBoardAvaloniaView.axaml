@@ -14,7 +14,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -45,7 +45,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:TaskColumnVm">
                             <Border Width="280" VerticalAlignment="Top"
-                                    Background="White" CornerRadius="8"
+                                    Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                                     BoxShadow="{DynamicResource MesElevationCard}">
                                 <DockPanel>
                                     <!-- Column Header -->

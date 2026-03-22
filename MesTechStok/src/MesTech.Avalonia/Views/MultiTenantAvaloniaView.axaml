@@ -16,7 +16,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -26,7 +26,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Active Tenant Card -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
@@ -44,7 +44,7 @@
                 </Border>
 
                 <!-- Tenant List -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -60,7 +60,7 @@
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
                                   BorderThickness="0"
-                                  Background="White"
+                                  Background="{DynamicResource MesBgPrimary}"
                                   MaxHeight="300">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Tenant Adi" Binding="{Binding Name}" Width="200" />

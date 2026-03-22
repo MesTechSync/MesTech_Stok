@@ -28,13 +28,13 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Search Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <TextBox Width="320" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
                      Text="{Binding SearchText}"
@@ -51,7 +51,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White">
+                  Background="{DynamicResource MesBgPrimary}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNo}" Width="180" />

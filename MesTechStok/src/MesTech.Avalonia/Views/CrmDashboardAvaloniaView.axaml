@@ -14,7 +14,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -40,7 +40,7 @@
                 <!-- KPI Cards Row 1 — 4 cards -->
                 <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
                     <!-- Total Customers -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -48,7 +48,7 @@
                         </StackPanel>
                     </Border>
                     <!-- New This Month -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Aktif Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -56,7 +56,7 @@
                         </StackPanel>
                     </Border>
                     <!-- VIP Customers -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="VIP Musteri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -64,7 +64,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Pipeline Value -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Pipeline Degeri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -76,7 +76,7 @@
                 <!-- KPI Cards Row 2 — 4 cards -->
                 <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
                     <!-- Open Deals -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Acik Firsatlar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -84,7 +84,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Unread Messages -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Okunmamis Mesaj" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -92,7 +92,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Pending Replies -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Yanit Bekleyen" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -100,7 +100,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Total Leads -->
-                    <Border Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Potansiyel" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -112,7 +112,7 @@
                 <!-- Pipeline Summary + Recent Activities -->
                 <Grid ColumnDefinitions="*,*" IsVisible="{Binding !IsLoading}">
                     <!-- Pipeline Summary -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Pipeline Ozeti" FontWeight="SemiBold" FontSize="15" />
@@ -144,7 +144,7 @@
                     </Border>
 
                     <!-- Recent Activities -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Son Aktiviteler" FontWeight="SemiBold" FontSize="15" />

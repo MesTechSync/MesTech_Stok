@@ -19,7 +19,7 @@
             <StackPanel MaxWidth="600" Spacing="16">
 
                 <!-- Basic Info -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
                         <TextBlock Text="Feed Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
@@ -49,7 +49,7 @@
                 </Border>
 
                 <!-- Pricing -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
                         <TextBlock Text="Fiyatlandırma" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
@@ -67,7 +67,7 @@
                 </Border>
 
                 <!-- Column Mapping -->
-                <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="Kolon Eşleştirme" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />

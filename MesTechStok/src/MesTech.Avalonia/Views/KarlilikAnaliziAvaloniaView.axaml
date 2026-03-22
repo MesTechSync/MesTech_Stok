@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -28,7 +28,7 @@
         <!-- KPI Row -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
             <Grid ColumnDefinitions="*,*,*">
-                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Toplam Ciro" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
@@ -36,7 +36,7 @@
                                    Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Toplam Kar" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
@@ -44,7 +44,7 @@
                                    Foreground="{DynamicResource MesEmerald}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Ortalama Marj" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
@@ -56,7 +56,7 @@
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="2" Background="White" Padding="16,10"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
@@ -71,7 +71,7 @@
         </Border>
 
         <!-- DataGrid -->
-        <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="12"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid>
             <DataGrid ItemsSource="{Binding Items}"

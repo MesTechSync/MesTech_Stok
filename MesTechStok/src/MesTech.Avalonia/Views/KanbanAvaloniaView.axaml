@@ -24,7 +24,7 @@
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
-                            Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="6" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
                             Background="Transparent" Foreground="White"
@@ -48,7 +48,7 @@
                     <DataTemplate x:DataType="vm:KanbanStageVm">
                         <!-- Single Kanban Column -->
                         <Border Width="260" VerticalAlignment="Top"
-                                Background="White" CornerRadius="8"
+                                Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                                 BoxShadow="{DynamicResource MesElevationCard}">
                             <DockPanel>
                                 <!-- Column Header — uses stage Color property -->

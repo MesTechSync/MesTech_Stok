@@ -17,7 +17,7 @@
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -27,7 +27,7 @@
             <StackPanel Margin="24" Spacing="20">
 
                 <!-- Date Range Picker -->
-                <Border Background="White" CornerRadius="12" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Tarih Araligi" FontSize="16" FontWeight="SemiBold"
@@ -65,7 +65,7 @@
                 <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,8">
 
                     <!-- Satis Ozeti -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,6,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Satis" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -75,7 +75,7 @@
                     </Border>
 
                     <!-- Stok Ozeti -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="3,0,3,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -85,7 +85,7 @@
                     </Border>
 
                     <!-- Gelir Ozeti -->
-                    <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="6,0,0,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -99,7 +99,7 @@
                 <Grid ColumnDefinitions="*,*,*">
 
                     <!-- Satis Raporu Card -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,10,0">
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Width="48" Height="48"
@@ -124,7 +124,7 @@
                     </Border>
 
                     <!-- Stok Raporu Card -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="5,0,5,0">
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Width="48" Height="48"
@@ -149,7 +149,7 @@
                     </Border>
 
                     <!-- Finansal Rapor Card -->
-                    <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="10,0,0,0">
                         <StackPanel Spacing="12">
                             <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Width="48" Height="48"

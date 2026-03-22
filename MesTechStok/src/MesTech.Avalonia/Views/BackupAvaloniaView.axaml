@@ -18,7 +18,7 @@
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Manuel Yedekle"
                         Command="{Binding ManualBackupCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -60,7 +60,7 @@
                 <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
 
                     <!-- Last Backup Card -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
@@ -95,7 +95,7 @@
                     </Border>
 
                     <!-- Restore Test Card -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
@@ -127,7 +127,7 @@
                 </Grid>
 
                 <!-- Backup History -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">

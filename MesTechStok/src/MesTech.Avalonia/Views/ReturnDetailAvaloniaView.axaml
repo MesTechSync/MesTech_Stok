@@ -26,13 +26,13 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Content -->
-        <ScrollViewer Grid.Row="1" Background="White">
+        <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgPrimary}">
             <StackPanel Margin="24,20" Spacing="24">
 
                 <!-- Info Cards Row -->

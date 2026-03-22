@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
             </Grid>
         </Border>

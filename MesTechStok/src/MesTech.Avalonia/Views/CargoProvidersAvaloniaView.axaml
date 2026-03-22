@@ -27,7 +27,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -42,7 +42,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="controls:CargoProviderCardViewModel">
-                        <Border Background="White" CornerRadius="10" Margin="8" Padding="20"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="8" Padding="20"
                                 Width="280" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <!-- Provider Name + Status -->

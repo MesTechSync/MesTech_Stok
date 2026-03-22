@@ -16,13 +16,13 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Date Range Filter -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
@@ -40,7 +40,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
                   IsVisible="{Binding !IsLoading}">
             <DataGrid.Columns>
@@ -56,7 +56,7 @@
 <!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Summary Row -->
-        <Border Grid.Row="3" Background="White" Padding="16" Margin="0"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16" Margin="0"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,*,*,*,*">
                 <StackPanel Grid.Column="0" Spacing="2">

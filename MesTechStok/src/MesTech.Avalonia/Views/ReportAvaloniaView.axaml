@@ -14,7 +14,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -23,7 +23,7 @@
         <Grid Grid.Row="1" ColumnDefinitions="320,*" Margin="16">
 
             <!-- Left Panel: Report Types -->
-            <Border Grid.Column="0" Background="White" CornerRadius="12"
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0" Padding="0">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
@@ -49,7 +49,7 @@
             </Border>
 
             <!-- Right Panel: Report Config + Result -->
-            <Border Grid.Column="1" Background="White" CornerRadius="12"
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0" Padding="0">
                 <Grid RowDefinitions="Auto,Auto,*">
 

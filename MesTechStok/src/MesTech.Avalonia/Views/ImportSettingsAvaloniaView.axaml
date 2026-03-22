@@ -26,7 +26,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -41,7 +41,7 @@
                       IsReadOnly="True"
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
-                      Background="White"
+                      Background="{DynamicResource MesBgPrimary}"
                       Margin="16"
                       IsVisible="{Binding !IsEditing}">
                 <DataGrid.Columns>
@@ -74,7 +74,7 @@
             <!-- Edit Mode -->
             <ScrollViewer IsVisible="{Binding IsEditing}" Padding="24">
                 <StackPanel MaxWidth="600" Spacing="16">
-                    <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="14">
                             <TextBlock Text="Şablon Düzenle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Spacing="4">

@@ -22,13 +22,13 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Barcode Scan Input (USB HID keyboard wedge) -->
-        <Border Grid.Row="1" Background="White" Padding="16,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Barkod:" VerticalAlignment="Center" FontSize="14"
@@ -48,7 +48,7 @@
             <StackPanel Spacing="16" IsVisible="{Binding HasProduct}">
 
                 <!-- Product Card -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
@@ -80,7 +80,7 @@
                 </Border>
 
                 <!-- Warehouse Breakdown -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -95,7 +95,7 @@
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
                                   BorderThickness="0"
-                                  Background="White"
+                                  Background="{DynamicResource MesBgPrimary}"
                                   MaxHeight="200">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Depo" Binding="{Binding WarehouseName}" Width="200" />
@@ -118,7 +118,7 @@
                 </Border>
 
                 <!-- Quick Stock Update Buttons -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="10">
                         <TextBlock Text="Hizli Stok Guncelleme" FontSize="15" FontWeight="SemiBold"

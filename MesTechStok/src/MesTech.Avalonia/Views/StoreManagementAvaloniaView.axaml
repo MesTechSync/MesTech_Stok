@@ -22,13 +22,13 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Search Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <TextBox Width="360" Watermark="Magaza adi ile arama..." AutomationProperties.Name="Magaza adi ile arama..."
                      Text="{Binding SearchText}"
@@ -43,7 +43,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="16">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Magaza Adi" Binding="{Binding StoreName}" Width="200" />

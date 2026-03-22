@@ -19,13 +19,13 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox Width="160" PlaceholderText="Aktivite tipi"
@@ -57,7 +57,7 @@
                 <ItemsControl ItemsSource="{Binding Activities}" IsVisible="{Binding !IsLoading}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ActivityItemVm">
-                            <Border Margin="0,0,0,12" Padding="16" Background="White"
+                            <Border Margin="0,0,0,12" Padding="16" Background="{DynamicResource MesBgPrimary}"
                                     CornerRadius="8" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*,Auto">
                                     <!-- Icon -->

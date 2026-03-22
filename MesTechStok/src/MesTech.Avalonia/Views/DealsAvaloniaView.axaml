@@ -22,13 +22,13 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Firsat"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="220" Watermark="Firsat ara..." AutomationProperties.Name="Firsat ara..."
@@ -67,7 +67,7 @@
                       IsReadOnly="True"
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
-                      Background="White"
+                      Background="{DynamicResource MesBgPrimary}"
                       IsVisible="{Binding !IsLoading}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Firsat Adi" Binding="{Binding Title}" Width="200" />

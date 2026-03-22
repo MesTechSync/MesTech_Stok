@@ -16,7 +16,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -26,7 +26,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Current Tenant Info -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Aktif Tenant" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -42,7 +42,7 @@
                 </Border>
 
                 <!-- Tenant Config -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"

@@ -30,13 +30,13 @@
                 <Button Grid.Column="2" Content="Gonder"
                         Command="{Binding SendBulkCommand}"
                         IsEnabled="{Binding !IsSending}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Tumunu Sec" IsChecked="{Binding SelectAll}" VerticalAlignment="Center" />
@@ -54,7 +54,7 @@
                   IsReadOnly="False"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White">
+                  Background="{DynamicResource MesBgPrimary}">
 
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Sec" Binding="{Binding IsSelected}" Width="60" />
@@ -69,7 +69,7 @@
 <!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Orders.Count}" />
 
         <!-- Progress + Summary Footer -->
-        <Border Grid.Row="3" Background="White" Padding="16,10"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <StackPanel Spacing="8">
                 <!-- Progress Bar -->

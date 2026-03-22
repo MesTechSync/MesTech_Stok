@@ -16,7 +16,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveSettingsCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6"
                         IsEnabled="{Binding !IsSaving}" />
             </Grid>
@@ -27,7 +27,7 @@
             <StackPanel Margin="22" Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
 
                 <!-- MESA AI Settings -->
-                <Border Background="White" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="15" />
@@ -45,7 +45,7 @@
                 </Border>
 
                 <!-- Message Check Interval -->
-                <Border Background="White" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="15" />
@@ -62,7 +62,7 @@
                 </Border>
 
                 <!-- Quick Reply Templates -->
-                <Border Background="White" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="15" />

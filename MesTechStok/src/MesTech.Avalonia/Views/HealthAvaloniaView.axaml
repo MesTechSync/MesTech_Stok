@@ -22,7 +22,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -33,7 +33,7 @@
 
                 <!-- KPI Cards Row -->
                 <WrapPanel Orientation="Horizontal">
-                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
                             <TextBlock Text="CPU Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -46,7 +46,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
                             <TextBlock Text="RAM Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -59,7 +59,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Background="White" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Disk Kullanimi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -74,7 +74,7 @@
                 </WrapPanel>
 
                 <!-- Service Status Table -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -90,7 +90,7 @@
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
                                   BorderThickness="0"
-                                  Background="White"
+                                  Background="{DynamicResource MesBgPrimary}"
                                   MaxHeight="300">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Servis" Binding="{Binding ServiceName}" Width="200" />

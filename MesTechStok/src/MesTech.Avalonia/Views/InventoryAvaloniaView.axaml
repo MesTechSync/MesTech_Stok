@@ -28,13 +28,13 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- KPI Cards -->
-        <Border Grid.Row="1" Background="White" Padding="16,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- Toplam Urun -->
@@ -70,7 +70,7 @@
         </Border>
 
         <!-- Search Bar + Warehouse Filter -->
-        <Border Grid.Row="2" Background="White" Padding="16,10"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <TextBox Width="320" Watermark="SKU, urun adi veya depo ara..." AutomationProperties.Name="SKU, urun adi veya depo ara..."
@@ -95,7 +95,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White">
+                  Background="{DynamicResource MesBgPrimary}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120" />
@@ -131,7 +131,7 @@
 <!-- Empty State -->        <TextBlock Grid.Row="3" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Items.Count}" />
 
         <!-- Pagination -->
-        <Border Grid.Row="4" Background="White" Padding="12,8"
+        <Border Grid.Row="4" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,*">
                 <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"

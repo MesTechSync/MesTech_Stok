@@ -15,7 +15,7 @@
         </Border>
 
         <!-- URL Input -->
-        <Border Grid.Row="1" Background="White" Padding="16,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="600" Watermark="Ürün URL'si giriniz..." AutomationProperties.Name="Ürün URL'si giriniz..."
@@ -34,7 +34,7 @@
             <StackPanel MaxWidth="700" Spacing="16">
 
                 <!-- Product Card (visible after fetch) -->
-                <Border Background="White" CornerRadius="8" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="24"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                         IsVisible="{Binding ProductLoaded}">
                     <StackPanel Spacing="14">

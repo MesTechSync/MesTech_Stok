@@ -13,7 +13,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 0: Header Bar                                           -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Background="White" Padding="20,12"
+        <Border Grid.Row="0" Background="{DynamicResource MesBgPrimary}" Padding="20,12"
                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="0,0,0,1"
                 BoxShadow="{DynamicResource MesElevation1}">
             <Grid ColumnDefinitions="*,Auto">
@@ -114,7 +114,7 @@
                               IsReadOnly="True"
                               GridLinesVisibility="Horizontal"
                               BorderThickness="0"
-                              Background="White"
+                              Background="{DynamicResource MesBgPrimary}"
                               MaxHeight="380">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Siparis No"

@@ -22,7 +22,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Tümü Yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -35,7 +35,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
                   IsVisible="{Binding !IsLoading}">
             <DataGrid.Columns>

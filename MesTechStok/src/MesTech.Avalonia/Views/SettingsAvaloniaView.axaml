@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
                            Foreground="#FFFFFF99" FontSize="12"
@@ -41,7 +41,7 @@
                 </Border>
 
                 <!-- Section 1: API Ayarlari -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -85,7 +85,7 @@
                 </Border>
 
                 <!-- Section 2: Bildirimler -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -135,7 +135,7 @@
                 </Border>
 
                 <!-- Section 3: Tema -->
-                <Border Background="White" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">

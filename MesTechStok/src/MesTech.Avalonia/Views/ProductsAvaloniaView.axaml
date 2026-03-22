@@ -51,13 +51,13 @@
 
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Row 1: Enhanced Search Bar (GOREV 4) -->
-        <Border Grid.Row="1" Background="White" Padding="16,10"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="12">
@@ -169,7 +169,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
                   IsVisible="{Binding IsListView}">
             <DataGrid.Columns>
@@ -206,7 +206,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:ProductItemDto">
                         <Border Width="220" Height="280" Margin="8"
-                                Background="White" CornerRadius="10"
+                                Background="{DynamicResource MesBgPrimary}" CornerRadius="10"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">

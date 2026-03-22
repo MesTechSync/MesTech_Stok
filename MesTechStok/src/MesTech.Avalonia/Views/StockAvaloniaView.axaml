@@ -15,13 +15,13 @@
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Toolbar -->
-        <Border Grid.Row="1" Background="White" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Depo" Width="140" Margin="8,0" />

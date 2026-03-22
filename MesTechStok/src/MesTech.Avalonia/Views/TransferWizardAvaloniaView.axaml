@@ -25,7 +25,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Step 1: Warehouse Selection -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="1. Depo Secimi" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -55,7 +55,7 @@
                 </Border>
 
                 <!-- Step 2: Product Search -->
-                <Border Background="White" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="2. Urun Ekle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -70,7 +70,7 @@
                 </Border>
 
                 <!-- Step 3: Transfer List -->
-                <Border Background="White" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -90,7 +90,7 @@
                                   IsReadOnly="False"
                                   GridLinesVisibility="Horizontal"
                                   BorderThickness="0"
-                                  Background="White"
+                                  Background="{DynamicResource MesBgPrimary}"
                                   MinHeight="150"
                                   MaxHeight="320">
                             <DataGrid.Columns>
@@ -132,7 +132,7 @@
         </ScrollViewer>
 
         <!-- Footer: Action Buttons -->
-        <Border Grid.Row="2" Background="White" Padding="16,12"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding TransferStatus}"

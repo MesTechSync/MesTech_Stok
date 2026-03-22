@@ -16,13 +16,13 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
 
         <!-- Store Info Card -->
-        <Border Grid.Row="1" Background="White" Margin="16,16,16,0" CornerRadius="8" Padding="20"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Margin="16,16,16,0" CornerRadius="8" Padding="20"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
             <Grid ColumnDefinitions="*,*,*,*">
                 <StackPanel Grid.Column="0" Spacing="4">
@@ -45,14 +45,14 @@
         </Border>
 
         <!-- Sync History DataGrid -->
-        <Border Grid.Row="2" Background="White" Margin="16" CornerRadius="8"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="8"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Senkronizasyon Geçmişi (Son 10)" FontSize="15" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                 <DataGrid ItemsSource="{Binding SyncHistory}"
                           AutoGenerateColumns="False" IsReadOnly="True"
-                          GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                          GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Zaman" Binding="{Binding SyncTime}" Width="180" />
                         <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
@@ -65,7 +65,7 @@
         </Border>
 
         <!-- Adapter Health -->
-        <Border Grid.Row="3" Background="White" Margin="16,0,16,16" CornerRadius="8" Padding="16"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16,0,16,16" CornerRadius="8" Padding="16"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
             <StackPanel Orientation="Horizontal" Spacing="32">
                 <StackPanel Spacing="2">

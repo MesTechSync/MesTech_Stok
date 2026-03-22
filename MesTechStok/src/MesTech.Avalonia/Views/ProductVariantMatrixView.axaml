@@ -42,7 +42,7 @@
         </Border>
 
         <!-- Row 1: Attribute Editor -->
-        <Border Grid.Row="1" Background="White" Padding="16,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="Auto,*,Auto">
@@ -159,7 +159,7 @@
                   IsReadOnly="False"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="White"
+                  Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
                   IsVisible="{Binding HasVariants}">
             <DataGrid.Columns>
@@ -186,7 +186,7 @@
         </Border>
 
         <!-- Row 4: Bulk Price Update Panel -->
-        <Border Grid.Row="4" Background="White" Padding="16,12"
+        <Border Grid.Row="4" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0"
                 IsVisible="{Binding IsBulkPriceVisible}">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">

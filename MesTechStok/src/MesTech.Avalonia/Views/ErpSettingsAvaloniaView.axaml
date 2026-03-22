@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Baglanti Test"
                         Command="{Binding TestConnectionCommand}"
-                        Background="White" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         Margin="0,0,8,0"/>
                 <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"

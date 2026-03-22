@@ -24,7 +24,7 @@
         </Border>
 
         <!-- Row 1: Step Indicators -->
-        <Border Grid.Row="1" Background="White" Padding="20,12"
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="20,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,*,*,*" HorizontalAlignment="Stretch">
                 <!-- Step 1 -->
@@ -74,7 +74,7 @@
         <Grid Grid.Row="2" Margin="20">
 
             <!-- Step 1: File Selection -->
-            <Border IsVisible="{Binding IsStep1}" Background="White" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep1}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                     Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
                     <!-- Drag-Drop Area -->
@@ -111,7 +111,7 @@
 
             <!-- Step 2: Preview -->
             <Grid IsVisible="{Binding IsStep2}" RowDefinitions="Auto,*,Auto">
-                <Border Grid.Row="0" Background="White" CornerRadius="8,8,0,0" Padding="16,12"
+                <Border Grid.Row="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8,8,0,0" Padding="16,12"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1,1,1,0">
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <TextBlock Text="On Izleme (ilk 10 satir)" FontSize="16" FontWeight="SemiBold"
@@ -135,7 +135,7 @@
                           GridLinesVisibility="All"
                           BorderThickness="1"
                           BorderBrush="{DynamicResource MesBorderMedium}"
-                          Background="White">
+                          Background="{DynamicResource MesBgPrimary}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Satir" Binding="{Binding RowNumber}" Width="60" />
                         <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80" />
@@ -155,7 +155,7 @@
             </Grid>
 
             <!-- Step 3: Column Mapping -->
-            <Border IsVisible="{Binding IsStep3}" Background="White" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep3}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                     Padding="24" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <ScrollViewer>
                     <StackPanel Spacing="16">
@@ -192,7 +192,7 @@
             </Border>
 
             <!-- Step 4: Import Progress -->
-            <Border IsVisible="{Binding IsStep4}" Background="White" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep4}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
                     Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" MinWidth="400">
                     <!-- Progress -->
@@ -256,7 +256,7 @@
         </Grid>
 
         <!-- Row 3: Navigation Buttons -->
-        <Border Grid.Row="3" Background="White" Padding="20,12"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="20,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri" Command="{Binding GoBackCommand}"

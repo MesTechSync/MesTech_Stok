@@ -16,7 +16,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -25,7 +25,7 @@
         <Border Grid.Row="1" Padding="16,16,16,0">
             <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,0,8">
                 <!-- Tedarikci Sayisi -->
-                <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="4"
+                <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Tedarikci Sayisi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -35,7 +35,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Aktif Urun -->
-                <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="16" Margin="4"
+                <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Aktif Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -45,7 +45,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Karlilik % -->
-                <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="16" Margin="4"
+                <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Karlilik" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -55,7 +55,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Ort Teslim Suresi -->
-                <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="16" Margin="4"
+                <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Ort. Teslim Suresi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -75,14 +75,14 @@
         <Grid Grid.Row="2" ColumnDefinitions="3*,2*" Margin="16,8,16,8">
 
             <!-- Supplier Performance Table -->
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="0,0,8,0"
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="0,0,8,0"
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="15" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding Suppliers}"
                               AutoGenerateColumns="False" IsReadOnly="True"
-                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Tedarikci" Binding="{Binding SupplierName}" Width="160" />
                             <DataGridTextColumn Header="Siparis" Binding="{Binding OrderCount}" Width="80" />
@@ -97,14 +97,14 @@
             </Border>
 
             <!-- Top 10 Profitable Products -->
-            <Border Grid.Column="1" Background="White" CornerRadius="8" Margin="8,0,0,0"
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="8,0,0,0"
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="15" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding TopProfitableProducts}"
                               AutoGenerateColumns="False" IsReadOnly="True"
-                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="White">
+                              GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
                             <DataGridTextColumn Header="Satis" Binding="{Binding SalesCount}" Width="70" />
@@ -117,7 +117,7 @@
         </Grid>
 
         <!-- Auto-Order Settings -->
-        <Border Grid.Row="3" Background="White" Margin="16,0,16,16" CornerRadius="8"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16,0,16,16" CornerRadius="8"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" Padding="16,12">
             <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="Otomatik Siparis Ayarlari"
