@@ -3,6 +3,7 @@ using Hangfire.PostgreSql;
 using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
 using MesTech.Infrastructure.Jobs.Billing;
+using MesTech.Infrastructure.Jobs.Crm;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -72,6 +73,9 @@ public static class HangfireConfig
         // Billing — Abonelik yenileme ve dunning job'lari
         services.AddScoped<SubscriptionRenewalWorker>();
         services.AddScoped<DunningWorker>();
+
+        // CRM — Loyalty points expiration worker
+        services.AddScoped<ExpirePointsWorker>();
 
         return services;
     }
@@ -260,6 +264,14 @@ public static class HangfireConfig
 
         // Her 6 saatte bir — aktif SocialFeedConfiguration'lar icin feed uretimi
         SocialFeedRefreshJob.Register();
+
+        // === CRM — Loyalty Points Expiration ===
+
+        // Her gece 02:00 — 12 aydan eski kazanilmis puanlari surdur
+        RecurringJob.AddOrUpdate<ExpirePointsWorker>(
+            "crm-expire-loyalty-points",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(2));
 
         // === Billing — Abonelik Yenileme & Dunning ===
 
