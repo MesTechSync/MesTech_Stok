@@ -43,25 +43,25 @@
                 <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Hepsiburada" FontSize="12" Foreground="#ff6000" FontWeight="SemiBold" />
+                        <TextBlock Text="Hepsiburada" FontSize="12" Foreground="{DynamicResource MesBrandHepsiburada}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding HepsiburadaAvgRate}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#ff6000" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesBrandHepsiburada}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="Ciceksepeti" FontSize="12" Foreground="#6c3f99" FontWeight="SemiBold" />
+                        <TextBlock Text="Ciceksepeti" FontSize="12" Foreground="{DynamicResource MesBrandCiceksepetiAlt}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding CiceksepetiAvgRate}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#6c3f99" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesBrandCiceksepetiAlt}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
-                        <TextBlock Text="N11" FontSize="12" Foreground="#6610f2" FontWeight="SemiBold" />
+                        <TextBlock Text="N11" FontSize="12" Foreground="{DynamicResource MesBrandN11Alt}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding N11AvgRate}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#6610f2" Margin="0,4,0,0" />
+                                   Foreground="{DynamicResource MesBrandN11Alt}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>

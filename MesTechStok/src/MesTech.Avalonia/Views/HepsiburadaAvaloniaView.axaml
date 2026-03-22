@@ -40,11 +40,11 @@
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
-                    <Border Grid.Column="0" Background="#FF6000" />
+                    <Border Grid.Column="0" Background="{DynamicResource MesBrandHepsiburada}" />
                     <StackPanel Grid.Column="1" Margin="16">
                         <TextBlock Text="Toplam Urun" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding ProductCount}"
-                                   FontSize="28" FontWeight="Bold" Foreground="#FF6000"
+                                   FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesBrandHepsiburada}"
                                    Margin="0,8,0,0" />
                         <TextBlock Text="Hepsiburada'daki urun sayisi"
                                    FontSize="11" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />

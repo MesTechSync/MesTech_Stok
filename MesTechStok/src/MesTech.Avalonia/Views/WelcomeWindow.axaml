@@ -14,9 +14,9 @@
     <Border>
       <Border.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-          <GradientStop Color="#0D1B2A" Offset="0"/>
-          <GradientStop Color="#1B2838" Offset="0.5"/>
-          <GradientStop Color="#0078D4" Offset="1"/>
+          <GradientStop Color="{DynamicResource MesGradientDark}" Offset="0"/>
+          <GradientStop Color="{DynamicResource MesGradientMid}" Offset="0.5"/>
+          <GradientStop Color="{DynamicResource MesPrimaryBlue}" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
     </Border>

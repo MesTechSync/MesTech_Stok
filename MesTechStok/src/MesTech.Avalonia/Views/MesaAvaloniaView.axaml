@@ -13,7 +13,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="MESA OS — AI Dashboard" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="#10B98144" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesMesaGlow}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding AiStatus}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
