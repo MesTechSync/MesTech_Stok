@@ -11,9 +11,9 @@ public class StockMovement : BaseEntity, ITenantEntity
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
     public int Quantity { get; set; }
-    public int PreviousStock { get; set; }
-    public int NewStock { get; set; }
-    public int NewStockLevel { get; set; }
+    public int PreviousStock { get; private set; }
+    public int NewStock { get; private set; }
+    public int NewStockLevel { get; private set; }
     public string MovementType { get; set; } = string.Empty;
     public string? Reason { get; set; }
     public string? Notes { get; set; }
@@ -36,13 +36,13 @@ public class StockMovement : BaseEntity, ITenantEntity
     // Zaman
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public string? ProcessedBy { get; set; }
-    public string? ApprovedBy { get; set; }
-    public DateTime? ApprovedDate { get; set; }
-    public bool IsApproved { get; set; }
+    public string? ApprovedBy { get; private set; }
+    public DateTime? ApprovedDate { get; private set; }
+    public bool IsApproved { get; private set; }
 
     // Geri alma
-    public bool IsReversed { get; set; }
-    public Guid? ReversalMovementId { get; set; }
+    public bool IsReversed { get; private set; }
+    public Guid? ReversalMovementId { get; private set; }
 
     // Lot/Seri takibi
     public string? BatchNumber { get; set; }
@@ -64,6 +64,28 @@ public class StockMovement : BaseEntity, ITenantEntity
     public void SetMovementType(StockMovementType type)
     {
         MovementType = type.ToString();
+    }
+
+    public void SetStockLevels(int previousStock, int newStock)
+    {
+        PreviousStock = previousStock;
+        NewStock = newStock;
+        NewStockLevel = newStock;
+    }
+
+    public void Approve(string approvedBy)
+    {
+        if (string.IsNullOrWhiteSpace(approvedBy))
+            throw new ArgumentException("Approver is required.", nameof(approvedBy));
+        IsApproved = true;
+        ApprovedBy = approvedBy;
+        ApprovedDate = DateTime.UtcNow;
+    }
+
+    public void MarkAsReversed(Guid reversalMovementId)
+    {
+        IsReversed = true;
+        ReversalMovementId = reversalMovementId;
     }
 
     public override string ToString() => $"{MovementType}: {Quantity} (Product: {ProductId})";

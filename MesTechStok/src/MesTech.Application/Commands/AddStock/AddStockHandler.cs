@@ -38,9 +38,6 @@ public class AddStockHandler : IRequestHandler<AddStockCommand, AddStockResult>
         {
             ProductId = request.ProductId,
             Quantity = request.Quantity,
-            PreviousStock = previousStock,
-            NewStock = product.Stock,
-            NewStockLevel = product.Stock,
             UnitCost = request.UnitCost,
             TotalCost = request.Quantity * request.UnitCost,
             BatchNumber = request.BatchNumber,
@@ -49,6 +46,7 @@ public class AddStockHandler : IRequestHandler<AddStockCommand, AddStockResult>
             Reason = request.Reason,
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockIn);
 
         await _movementRepository.AddAsync(movement);

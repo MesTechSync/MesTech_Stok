@@ -39,13 +39,11 @@ public class AdjustStockHandler : IRequestHandler<AdjustStockCommand, AdjustStoc
         {
             ProductId = request.ProductId,
             Quantity = request.Quantity,
-            PreviousStock = previousStock,
-            NewStock = product.Stock,
-            NewStockLevel = product.Stock,
             Reason = request.Reason,
             ProcessedBy = request.PerformedBy,
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.Adjustment);
 
         await _movementRepository.AddAsync(movement).ConfigureAwait(false);

@@ -60,9 +60,6 @@ public class AddStockLotHandler : IRequestHandler<AddStockLotCommand, AddStockLo
             TenantId = product.TenantId,
             ProductId = request.ProductId,
             Quantity = request.Quantity,
-            PreviousStock = previousStock,
-            NewStock = product.Stock,
-            NewStockLevel = product.Stock,
             UnitCost = request.UnitCost,
             TotalCost = request.Quantity * request.UnitCost,
             SupplierId = request.SupplierId,
@@ -72,6 +69,7 @@ public class AddStockLotHandler : IRequestHandler<AddStockLotCommand, AddStockLo
             Reason = $"Lot girişi: {request.LotNumber}",
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.Purchase);
 
         await _movementRepository.AddAsync(movement).ConfigureAwait(false);

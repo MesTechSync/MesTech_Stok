@@ -42,13 +42,12 @@ public class StockMovementRepositoryTests : IntegrationTestBase
         {
             ProductId = _productId,
             Quantity = 50,
-            PreviousStock = 0,
-            NewStock = 50,
             MovementType = StockMovementType.Purchase.ToString(),
             Reason = "Ilk alis",
             TenantId = TestTenantId,
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(0, 50);
 
         await _repo.AddAsync(movement);
         await Context.SaveChangesAsync();

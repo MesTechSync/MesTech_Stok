@@ -50,13 +50,11 @@ public class RemoveStockHandler : IRequestHandler<RemoveStockCommand, RemoveStoc
         {
             ProductId = request.ProductId,
             Quantity = -request.Quantity,
-            PreviousStock = previousStock,
-            NewStock = product.Stock,
-            NewStockLevel = product.Stock,
             Reason = request.Reason,
             DocumentNumber = request.DocumentNumber,
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockOut);
 
         await _movementRepository.AddAsync(movement).ConfigureAwait(false);

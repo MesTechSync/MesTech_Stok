@@ -824,9 +824,6 @@ public class AhmetBeyDemoSeeder
                 TenantId = AhmetBeyTenantId,
                 ProductId = m.ProductId,
                 Quantity = m.Qty,
-                PreviousStock = m.Prev,
-                NewStock = m.New,
-                NewStockLevel = m.New,
                 MovementType = m.Type,
                 Reason = m.Reason,
                 OrderId = m.OrderId,
@@ -835,11 +832,10 @@ public class AhmetBeyDemoSeeder
                 TotalCost = Math.Abs(m.Qty) * m.Cost,
                 Date = DateTime.UtcNow.AddDays(m.OrderId.HasValue ? -10 : -15),
                 ProcessedBy = "AhmetBeyDemoSeeder",
-                IsApproved = true,
-                ApprovedBy = "AhmetBeyDemoSeeder",
-                ApprovedDate = DateTime.UtcNow.AddDays(-10),
                 CreatedBy = "AhmetBeyDemoSeeder"
             };
+            sm.SetStockLevels(m.Prev, m.New);
+            sm.Approve("AhmetBeyDemoSeeder");
             _context.StockMovements.Add(sm);
         }
 

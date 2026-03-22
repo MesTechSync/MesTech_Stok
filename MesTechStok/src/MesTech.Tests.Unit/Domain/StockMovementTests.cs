@@ -123,10 +123,9 @@ public class StockMovementTests
         var originalId = Guid.NewGuid();
         var reversal = new StockMovement
         {
-            Quantity = 10,
-            IsReversed = true,
-            ReversalMovementId = originalId
+            Quantity = 10
         };
+        reversal.MarkAsReversed(originalId);
 
         reversal.IsReversed.Should().BeTrue();
         reversal.ReversalMovementId.Should().Be(originalId);
@@ -137,18 +136,15 @@ public class StockMovementTests
     [Fact]
     public void Approval_ShouldSetApproverAndDate()
     {
-        var now = DateTime.UtcNow;
         var movement = new StockMovement
         {
-            Quantity = 500,
-            IsApproved = true,
-            ApprovedBy = "admin@mestech.com",
-            ApprovedDate = now
+            Quantity = 500
         };
+        movement.Approve("admin@mestech.com");
 
         movement.IsApproved.Should().BeTrue();
         movement.ApprovedBy.Should().Be("admin@mestech.com");
-        movement.ApprovedDate.Should().BeCloseTo(now, TimeSpan.FromSeconds(1));
+        movement.ApprovedDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
     }
 
     // ── Negative Stock Control (User-requested: documents domain behavior) ──

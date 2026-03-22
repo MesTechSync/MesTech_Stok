@@ -237,20 +237,20 @@ public class FullMonthAccountingCycleTests
                 purchase.invoice);
 
             // Stok hareketi kaydi
-            _stockMovements.Add(new StockMovement
+            var mov = new StockMovement
             {
                 TenantId = _tenantId,
                 ProductId = Guid.NewGuid(),
                 Quantity = 10,
-                PreviousStock = 0,
-                NewStock = 10,
                 MovementType = StockMovementType.Purchase.ToString(),
                 UnitCost = purchase.amount / 10m,
                 TotalCost = purchase.amount,
                 DocumentNumber = purchase.invoice,
                 Date = purchase.date,
                 SupplierId = Guid.NewGuid()
-            });
+            };
+            mov.SetStockLevels(0, 10);
+            _stockMovements.Add(mov);
         }
 
         var totalPurchaseAmount = purchases.Sum(p => p.amount);  // 16,700 TL
@@ -910,42 +910,12 @@ public class FullMonthAccountingCycleTests
         // 3 farkli alistan stok giris hareketleri
         var movements = new[]
         {
-            new StockMovement
-            {
-                TenantId = _tenantId,
-                ProductId = productId,
-                Quantity = 10,
-                PreviousStock = 0,
-                NewStock = 10,
-                MovementType = StockMovementType.Purchase.ToString(),
-                UnitCost = 800m,
-                TotalCost = 8_000m,
-                Date = _monthStart.AddDays(7)
-            },
-            new StockMovement
-            {
-                TenantId = _tenantId,
-                ProductId = productId,
-                Quantity = 15,
-                PreviousStock = 10,
-                NewStock = 25,
-                MovementType = StockMovementType.Purchase.ToString(),
-                UnitCost = 550m / 15m * 15m, // = 550 per unit (total 8,250 for 15)
-                TotalCost = 5_500m,
-                Date = _monthStart.AddDays(8)
-            },
-            new StockMovement
-            {
-                TenantId = _tenantId,
-                ProductId = productId,
-                Quantity = -5,
-                PreviousStock = 25,
-                NewStock = 20,
-                MovementType = StockMovementType.Sale.ToString(),
-                UnitCost = 800m, // FIFO: ilk alinan maliyetten
-                TotalCost = 4_000m,
-                Date = _monthStart.AddDays(10)
-            }
+            CreateMovementWithLevels(_tenantId, productId, 10, 0, 10,
+                StockMovementType.Purchase.ToString(), 800m, 8_000m, _monthStart.AddDays(7)),
+            CreateMovementWithLevels(_tenantId, productId, 15, 10, 25,
+                StockMovementType.Purchase.ToString(), 550m / 15m * 15m, 5_500m, _monthStart.AddDays(8)),
+            CreateMovementWithLevels(_tenantId, productId, -5, 25, 20,
+                StockMovementType.Sale.ToString(), 800m, 4_000m, _monthStart.AddDays(10))
         };
 
         // Toplam stok girisi
@@ -973,5 +943,23 @@ public class FullMonthAccountingCycleTests
         // FIFO maliyet kontrolu
         var fifoCost = movements.First(m => m.IsPositiveMovement).UnitCost!.Value;
         fifoCost.Should().Be(800m, "FIFO: Ilk alisin birim maliyeti 800 TL");
+    }
+
+    private static StockMovement CreateMovementWithLevels(
+        Guid tenantId, Guid productId, int quantity, int previousStock, int newStock,
+        string movementType, decimal unitCost, decimal totalCost, DateTime date)
+    {
+        var m = new StockMovement
+        {
+            TenantId = tenantId,
+            ProductId = productId,
+            Quantity = quantity,
+            MovementType = movementType,
+            UnitCost = unitCost,
+            TotalCost = totalCost,
+            Date = date
+        };
+        m.SetStockLevels(previousStock, newStock);
+        return m;
     }
 }

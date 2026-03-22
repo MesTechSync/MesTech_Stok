@@ -50,13 +50,11 @@ public static class FakeDataBuilder
         {
             ProductId = productId ?? Guid.NewGuid(),
             Quantity = quantity,
-            PreviousStock = previousStock,
-            NewStock = previousStock + quantity,
-            NewStockLevel = previousStock + quantity,
             UnitCost = _faker.Random.Decimal(10, 500),
             Date = DateTime.UtcNow,
             Reason = _faker.Lorem.Sentence()
         };
+        movement.SetStockLevels(previousStock, previousStock + quantity);
         movement.SetMovementType(type);
         return movement;
     }

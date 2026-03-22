@@ -74,12 +74,11 @@ public class StokFeatureRegressionTests : IntegrationTestBase
         {
             ProductId = product.Id,
             Quantity = 100,
-            PreviousStock = 0,
-            NewStock = 100,
             MovementType = StockMovementType.Purchase.ToString(),
             Reason = "Alis",
             TenantId = TestTenantId
         };
+        purchaseMovement.SetStockLevels(0, 100);
         await _movementRepo.AddAsync(purchaseMovement);
         await Context.SaveChangesAsync();
 
@@ -89,12 +88,11 @@ public class StokFeatureRegressionTests : IntegrationTestBase
         {
             ProductId = product.Id,
             Quantity = -30,
-            PreviousStock = 100,
-            NewStock = 70,
             MovementType = StockMovementType.Sale.ToString(),
             Reason = "Satis",
             TenantId = TestTenantId
         };
+        saleMovement.SetStockLevels(100, 70);
         await _movementRepo.AddAsync(saleMovement);
         await Context.SaveChangesAsync();
 
@@ -118,14 +116,13 @@ public class StokFeatureRegressionTests : IntegrationTestBase
         {
             ProductId = product.Id,
             Quantity = -10,
-            PreviousStock = 50,
-            NewStock = 40,
             MovementType = StockMovementType.Transfer.ToString(),
             FromWarehouseId = warehouseA,
             ToWarehouseId = warehouseB,
             Reason = "Depo transferi",
             TenantId = TestTenantId
         };
+        transfer.SetStockLevels(50, 40);
         await _movementRepo.AddAsync(transfer);
         await Context.SaveChangesAsync();
 
@@ -323,11 +320,10 @@ public class StokFeatureRegressionTests : IntegrationTestBase
             ProductId = product.Id,
             Quantity = 20,
             MovementType = StockMovementType.Return.ToString(),
-            IsReversed = true,
-            ReversalMovementId = original.Id,
             Reason = "Iade",
             TenantId = TestTenantId
         };
+        reversal.MarkAsReversed(original.Id);
         await _movementRepo.AddAsync(reversal);
         await Context.SaveChangesAsync();
 

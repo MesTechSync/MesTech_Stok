@@ -180,13 +180,12 @@ public class PostgreSqlRepositoryTests : IClassFixture<PostgreSqlContainerFixtur
         {
             ProductId = product.Id,
             Quantity = -20,
-            PreviousStock = 100,
-            NewStock = 80,
             MovementType = StockMovementType.Sale.ToString(),
             Reason = "Satis",
             TenantId = TestTenantId,
             Date = DateTime.UtcNow
         };
+        movement.SetStockLevels(100, 80);
         await _movementRepo.AddAsync(movement);
         await _context.SaveChangesAsync();
 

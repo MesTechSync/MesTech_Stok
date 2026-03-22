@@ -50,14 +50,12 @@ public class PullProductFromPoolCommandHandler(
             ProductId = poolProduct.ProductId,
             ToWarehouseId = req.TargetWarehouseId,
             Quantity = 1,
-            PreviousStock = previousStock,
-            NewStock = product.Stock,
-            NewStockLevel = product.Stock,
             DocumentNumber = $"POOL-PULL:{poolProduct.Id}",
             Reason = "Havuzdan çekildi",
             Date = DateTime.UtcNow,
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
+        movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockIn);
 
         await movementRepo.AddAsync(movement);

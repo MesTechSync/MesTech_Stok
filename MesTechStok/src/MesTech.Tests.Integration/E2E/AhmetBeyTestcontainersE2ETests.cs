@@ -315,13 +315,12 @@ public class AhmetBeyTestcontainersE2ETests : IClassFixture<PostgreSqlContainerF
                 TenantId = _tenantId,
                 ProductId = product.Id,
                 Quantity = 100,
-                PreviousStock = 0,
-                NewStock = 100,
                 MovementType = StockMovementType.Purchase.ToString(),
                 Reason = "Ilk stok girisi — tedarikci alimi",
-                Date = DateTime.UtcNow,
-                IsApproved = true
+                Date = DateTime.UtcNow
             };
+            movement.SetStockLevels(0, 100);
+            movement.Approve("system");
             _context.StockMovements.Add(movement);
         }
         await _context.SaveChangesAsync();
@@ -517,13 +516,12 @@ public class AhmetBeyTestcontainersE2ETests : IClassFixture<PostgreSqlContainerF
                     ProductId = product.Id,
                     OrderId = order.Id,
                     Quantity = -item.Quantity,
-                    PreviousStock = previousStock,
-                    NewStock = product.Stock,
                     MovementType = StockMovementType.Sale.ToString(),
                     Reason = $"Siparis {order.OrderNumber}",
-                    Date = DateTime.UtcNow,
-                    IsApproved = true
+                    Date = DateTime.UtcNow
                 };
+                movement.SetStockLevels(previousStock, product.Stock);
+                movement.Approve("system");
                 _context.StockMovements.Add(movement);
             }
         }
