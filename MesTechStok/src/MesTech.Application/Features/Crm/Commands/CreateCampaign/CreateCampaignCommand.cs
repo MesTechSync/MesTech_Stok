@@ -10,5 +10,5 @@ public record CreateCampaignCommand(
     DateTime EndDate,
     decimal DiscountPercent,
     PlatformType? PlatformType = null,
-    Guid[]? ProductIds = null
+    IReadOnlyList<Guid>? ProductIds = null
 ) : IRequest<Guid>;
