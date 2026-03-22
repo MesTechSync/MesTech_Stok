@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Monitoring"
+             x:Class="MesTech.Avalonia.Views.Monitoring.StaleOrdersAvaloniaView"
+             x:DataType="vm:StaleOrdersAvaloniaViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesDanger}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Gecikmis Siparisler" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" />
+                    <TextBlock Text="48+ saat gonderilmemis siparisler"
+                               Foreground="{DynamicResource MesBgPrimary}" Opacity="0.8"
+                               FontSize="{StaticResource FontSizeSmall}" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesDanger}"
+                        FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="16,12">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="16" Margin="0,0,6,0" BoxShadow="{DynamicResource MesElevation1}">
+                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{Binding TotalStaleCount}" FontSize="{StaticResource FontSizeLargeTitle}"
+                               FontWeight="Bold" Foreground="{DynamicResource MesDanger}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Toplam Gecikmis" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="16" Margin="3,0" BoxShadow="{DynamicResource MesElevation1}">
+                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{Binding Warning48hCount}" FontSize="{StaticResource FontSizeLargeTitle}"
+                               FontWeight="Bold" Foreground="{DynamicResource MesAmber}" HorizontalAlignment="Center" />
+                    <TextBlock Text="48-72 Saat" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="16" Margin="6,0,0,0" BoxShadow="{DynamicResource MesElevation1}">
+                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{Binding Critical72hCount}" FontSize="{StaticResource FontSizeLargeTitle}"
+                               FontWeight="Bold" Foreground="{DynamicResource MesRedBright}" HorizontalAlignment="Center" />
+                    <TextBlock Text="72+ Saat (KRITIK)" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="2" Margin="16,0,16,16"
+                  ItemsSource="{Binding StaleOrders}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  CanUserResizeColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="140" />
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" />
+                <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="180" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDateText}" Width="130" />
+                <DataGridTextColumn Header="Gecen Sure" Binding="{Binding ElapsedText}" Width="120" />
+                <DataGridTextColumn Header="Ciddiyet" Binding="{Binding SeverityText}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty State -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    IsVisible="{Binding IsEmpty}" Spacing="8">
+            <TextBlock Text="Gecikmis siparis yok!" FontSize="{StaticResource FontSizeH3}"
+                       Foreground="{DynamicResource MesGreen}" HorizontalAlignment="Center" />
+            <TextBlock Text="Tum siparisler zamaninda gonderilmis" FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <!-- Loading -->
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Gecikmis siparisler yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
