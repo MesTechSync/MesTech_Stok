@@ -22,18 +22,3 @@ public interface IPaymentGateway
     /// <summary>Kayitli karti sil.</summary>
     Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default);
 }
-
-/// <summary>Odeme sonucu.</summary>
-public record PaymentResult(
-    bool Success,
-    string? TransactionId,
-    string? ErrorMessage = null,
-    string? ErrorCode = null);
-
-/// <summary>Kart bilgisi (tokenizasyon icin). Gercek kart numarasi ASLA saklanmaz.</summary>
-public record CardInfo(
-    string CardHolderName,
-    string CardNumber,
-    int ExpiryMonth,
-    int ExpiryYear,
-    string? Cvv = null);
