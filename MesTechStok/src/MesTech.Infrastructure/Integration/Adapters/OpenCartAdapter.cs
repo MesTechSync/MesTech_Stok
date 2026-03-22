@@ -295,7 +295,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         _logger.LogInformation("OpenCartAdapter.PushBatchStockUpdateAsync: {Count} items", updates.Count);
 
         var successCount = 0;
-        var semaphore = new SemaphoreSlim(5, 5);
+        using var semaphore = new SemaphoreSlim(5, 5);
 
         var tasks = updates.Select(async update =>
         {
