@@ -111,7 +111,7 @@ public class StripePaymentGateway : IPaymentGateway
 
     public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
-        _logger.LogInformation("Stripe DeleteCard: {Token}", cardToken[..8]);
+        _logger.LogInformation("Stripe DeleteCard: token=***masked***");
         await Task.CompletedTask;
         return true;
     }
