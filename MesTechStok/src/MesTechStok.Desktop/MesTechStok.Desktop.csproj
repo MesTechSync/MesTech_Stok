@@ -113,9 +113,8 @@
 
   <!-- Core project reference - DUPLICATE REMOVED -->
 
-  <!-- Assets: mark logos as WPF Resource -->
+  <!-- Assets: SVG only — PNG already included above -->
   <ItemGroup>
-    <Resource Include="Assets\Logos\**\*.png" />
     <Resource Include="Assets\Logos\**\*.svg" />
   </ItemGroup>
 
