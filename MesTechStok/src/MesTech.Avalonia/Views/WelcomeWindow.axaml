@@ -32,25 +32,25 @@
 
       <TextBlock Text="Entegratör"
                  FontSize="24" FontWeight="Light"
-                 Foreground="#B0BEC5"
+                 Foreground="{DynamicResource MesMutedGray}"
                  HorizontalAlignment="Center"
                  Margin="0,-12,0,0"/>
 
       <!-- Alt baslik -->
       <TextBlock Text="Çoklu Pazaryeri Yönetim Platformu"
                  FontSize="16"
-                 Foreground="#78909C"
+                 Foreground="{DynamicResource MesSlateGray}"
                  HorizontalAlignment="Center"
                  Margin="0,8,0,0"/>
 
       <!-- Ayirici cizgi -->
-      <Border Height="1" Width="200" Background="#2A4A6B" Margin="0,16"/>
+      <Border Height="1" Width="200" Background="{DynamicResource MesDarkSlate}" Margin="0,16"/>
 
       <!-- Baslama mesaji (yanip sonen animasyon) -->
       <TextBlock x:Name="StartHintText"
                  Text="Başlamak için tıklayın veya herhangi bir tuşa basın"
                  FontSize="14"
-                 Foreground="#546E7A"
+                 Foreground="{DynamicResource MesTextSlate}"
                  HorizontalAlignment="Center"
                  Opacity="1"/>
 
@@ -67,14 +67,14 @@
       <TextBlock x:Name="DateText"
                  Text=""
                  FontSize="14"
-                 Foreground="#78909C"
+                 Foreground="{DynamicResource MesSlateGray}"
                  HorizontalAlignment="Right"/>
     </StackPanel>
 
     <!-- Versiyon (sol alt) -->
     <TextBlock Text="v1.0.0"
                FontSize="12"
-               Foreground="#37474F"
+               Foreground="{DynamicResource MesTextTertiary}"
                HorizontalAlignment="Left" VerticalAlignment="Bottom"
                Margin="24,0,0,24"/>
   </Panel>

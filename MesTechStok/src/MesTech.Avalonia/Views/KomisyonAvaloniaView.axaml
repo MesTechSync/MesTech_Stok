@@ -24,7 +24,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="White" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -32,7 +32,7 @@
         <!-- Platform KPI Row -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
             <Grid ColumnDefinitions="*,*,*,*">
-                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="0" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
                         <TextBlock Text="Trendyol" FontSize="12" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />
@@ -40,7 +40,7 @@
                                    Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
                         <TextBlock Text="Hepsiburada" FontSize="12" Foreground="#ff6000" FontWeight="SemiBold" />
@@ -48,7 +48,7 @@
                                    Foreground="#ff6000" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
                         <TextBlock Text="Ciceksepeti" FontSize="12" Foreground="#6c3f99" FontWeight="SemiBold" />
@@ -56,7 +56,7 @@
                                    Foreground="#6c3f99" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="3" Background="White" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
                         BoxShadow="0 2 8 0 #14000000">
                     <StackPanel>
                         <TextBlock Text="N11" FontSize="12" Foreground="#6610f2" FontWeight="SemiBold" />
@@ -68,7 +68,7 @@
         </Border>
 
         <!-- Filter Bar -->
-        <Border Grid.Row="2" Background="White" Padding="16,10"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
@@ -81,7 +81,7 @@
         </Border>
 
         <!-- DataGrid -->
-        <Border Grid.Row="3" Background="White" Margin="16" CornerRadius="12"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgSurface}" Margin="16" CornerRadius="12"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid>
             <DataGrid ItemsSource="{Binding Items}"
@@ -112,7 +112,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />

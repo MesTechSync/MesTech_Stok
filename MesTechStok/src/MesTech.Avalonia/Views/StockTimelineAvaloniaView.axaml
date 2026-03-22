@@ -15,18 +15,18 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Stok Hareket Gecmisi" Foreground="White"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hareket'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Son 7 Gun" Command="{Binding FilterWeekCommand}"
-                            Background="#FFFFFF33" Foreground="White" Padding="10,6" CornerRadius="6" />
+                            Background="{DynamicResource MesOverlayLight}" Foreground="White" Padding="10,6" CornerRadius="6" />
                     <Button Content="Son 30 Gun" Command="{Binding FilterMonthCommand}"
-                            Background="#FFFFFF33" Foreground="White" Padding="10,6" CornerRadius="6" />
+                            Background="{DynamicResource MesOverlayLight}" Foreground="White" Padding="10,6" CornerRadius="6" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                            Background="White" Foreground="#0284C7" FontWeight="SemiBold"
+                            Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                 </StackPanel>
             </Grid>
@@ -73,7 +73,7 @@
 
                             <!-- Timeline Dot + Line -->
                             <Grid Grid.Column="1" Width="32" VerticalAlignment="Stretch">
-                                <Border Width="2" Background="#E5E9F2" HorizontalAlignment="Center" />
+                                <Border Width="2" Background="{DynamicResource MesBorderMedium}" HorizontalAlignment="Center" />
                                 <Border Width="14" Height="14" CornerRadius="7"
                                         Background="{Binding TypeColor}"
                                         HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -108,7 +108,7 @@
         </ScrollViewer>
 
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3" Background="#99FFFFFF"
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />

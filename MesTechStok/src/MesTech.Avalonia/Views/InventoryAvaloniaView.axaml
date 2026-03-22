@@ -41,7 +41,7 @@
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Toplam Urun" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
-                        <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="#1E40AF" />
+                        <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
                 <!-- Kritik Stok -->
@@ -62,7 +62,7 @@
                 <!-- Tukenen -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Tukenen" FontSize="11" Foreground="#F97316" />
+                        <TextBlock Text="Tukenen" FontSize="11" Foreground="{DynamicResource MesBrandAccent}" />
                         <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
                 </Border>
@@ -111,19 +111,19 @@
                 <!-- EMR-06 renk tablosu — 4 seviye stok durumu satir renklendirme -->
                 <Style Selector="DataGridRow" x:DataType="vm:InventoryItemDto">
                     <Style Selector="^[Tag=TUKENDI]">
-                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=KRITIK]">
-                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=DUSUK]">
-                        <Setter Property="Background" Value="#F57C00" />
+                        <Setter Property="Background" Value="{DynamicResource MesWarning}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=YETERLI]">
-                        <Setter Property="Background" Value="#E8F5E9" />
+                        <Setter Property="Background" Value="{DynamicResource MesBgSurface}" />
                     </Style>
                 </Style>
             </DataGrid.Styles>
@@ -152,7 +152,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="5"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
