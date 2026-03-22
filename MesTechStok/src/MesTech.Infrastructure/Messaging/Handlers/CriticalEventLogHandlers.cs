@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Features.Notifications.Commands.SendNotification;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Domain.Events;
 using Microsoft.Extensions.Logging;
@@ -6,61 +7,118 @@ using Microsoft.Extensions.Logging;
 namespace MesTech.Infrastructure.Messaging.Handlers;
 
 /// <summary>
-/// OrderShippedEvent handler — kargo takip ve müşteri bilgilendirme tetikler.
-/// Phase 2'de MESA bridge + kargo API entegrasyonu eklenecek.
+/// OrderShippedEvent handler — kargo takip loglama + müşteri bildirim dispatch.
 /// </summary>
 public class OrderShippedLogHandler : INotificationHandler<DomainEventNotification<OrderShippedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<OrderShippedLogHandler> _logger;
 
-    public OrderShippedLogHandler(ILogger<OrderShippedLogHandler> logger) => _logger = logger;
+    public OrderShippedLogHandler(IMediator mediator, ILogger<OrderShippedLogHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<OrderShippedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<OrderShippedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] OrderShipped — OrderId={OrderId}, Tracking={Tracking}, Provider={Provider}",
             e.OrderId, e.TrackingNumber, e.CargoProvider);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "order-shipped",
+                Content: $"Sipariş kargoya verildi.\n" +
+                         $"Takip No: {e.TrackingNumber}\n" +
+                         $"Kargo: {e.CargoProvider}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "OrderShipped bildirim gönderilemedi — OrderId={OrderId}", e.OrderId);
+        }
     }
 }
 
 /// <summary>
-/// StockCriticalEvent handler — kritik stok seviyesi uyarısı.
-/// Phase 2'de notification service + Telegram/Email alert entegrasyonu eklenecek.
+/// StockCriticalEvent handler — kritik stok seviyesi uyarısı + bildirim dispatch.
 /// </summary>
 public class StockCriticalLogHandler : INotificationHandler<DomainEventNotification<StockCriticalEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<StockCriticalLogHandler> _logger;
 
-    public StockCriticalLogHandler(ILogger<StockCriticalLogHandler> logger) => _logger = logger;
+    public StockCriticalLogHandler(IMediator mediator, ILogger<StockCriticalLogHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<StockCriticalEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<StockCriticalEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogWarning(
             "[Event] StockCritical — Product={SKU} ({Name}), Stock={Stock}, Minimum={MinStock}, Level={Level}",
             e.SKU, e.ProductName, e.CurrentStock, e.MinimumStock, e.Level);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "stock-critical",
+                Content: $"⚠️ Kritik stok: {e.SKU} ({e.ProductName})\n" +
+                         $"Mevcut: {e.CurrentStock} / Minimum: {e.MinimumStock}\n" +
+                         $"Seviye: {e.Level}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "StockCritical bildirim gönderilemedi — SKU={SKU}", e.SKU);
+        }
     }
 }
 
 /// <summary>
-/// InvoiceApprovedEvent handler — fatura onaylandığında loglama.
-/// Phase 2'de MESA bridge + e-Fatura gönderim kuyruğu entegrasyonu eklenecek.
+/// InvoiceApprovedEvent handler — fatura onay loglama + bildirim dispatch.
 /// </summary>
 public class InvoiceApprovedLogHandler : INotificationHandler<DomainEventNotification<InvoiceApprovedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<InvoiceApprovedLogHandler> _logger;
 
-    public InvoiceApprovedLogHandler(ILogger<InvoiceApprovedLogHandler> logger) => _logger = logger;
+    public InvoiceApprovedLogHandler(IMediator mediator, ILogger<InvoiceApprovedLogHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<InvoiceApprovedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<InvoiceApprovedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] InvoiceApproved — InvoiceId={InvoiceId}, Number={Number}, Total={Total}, Type={Type}",
             e.InvoiceId, e.InvoiceNumber, e.GrandTotal, e.Type);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "invoice-approved",
+                Content: $"Fatura onaylandı: {e.InvoiceNumber}\n" +
+                         $"Toplam: {e.GrandTotal:C}\n" +
+                         $"Tip: {e.Type}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "InvoiceApproved bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
+        }
     }
 }

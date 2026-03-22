@@ -106,7 +106,7 @@ public class Order : BaseEntity, ITenantEntity
         ShippedAt = DateTime.UtcNow;
         Status = OrderStatus.Shipped;
 
-        RaiseDomainEvent(new OrderShippedEvent(Id, trackingNumber, provider, DateTime.UtcNow));
+        RaiseDomainEvent(new OrderShippedEvent(Id, TenantId, trackingNumber, provider, DateTime.UtcNow));
     }
 
     /// <summary>

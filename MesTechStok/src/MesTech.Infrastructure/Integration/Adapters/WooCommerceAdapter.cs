@@ -454,8 +454,45 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         }
     }
 
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        var allCategories = new List<CategoryDto>();
+        int page = 1;
+        const int perPage = 100;
+
+        while (true)
+        {
+            var response = await ThrottledExecuteAsync(async (token) =>
+            {
+                ApplyBasicAuthHeader();
+                return await _httpClient.GetAsync(
+                    $"{ApiBase}/products/categories?per_page={perPage}&page={page}", token)
+                    .ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var categories = System.Text.Json.JsonSerializer.Deserialize<List<WcCategoryResponse>>(json, _jsonOptions);
+
+            if (categories is null || categories.Count == 0) break;
+
+            allCategories.AddRange(categories.Select(c => new CategoryDto
+            {
+                PlatformCategoryId = c.Id,
+                Name = c.Name ?? string.Empty,
+                ParentId = c.Parent > 0 ? c.Parent : null
+            }));
+
+            if (categories.Count < perPage) break;
+            page++;
+        }
+
+        _logger.LogInformation("WooCommerce {Count} kategori çekildi", allCategories.Count);
+        return allCategories;
+    }
+
+    private record WcCategoryResponse(int Id, string? Name, string? Slug, int Parent, int Count);
 
     // ─────────────────────────────────────────────
     // IOrderCapableAdapter

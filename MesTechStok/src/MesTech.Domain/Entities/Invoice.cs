@@ -214,8 +214,8 @@ public class Invoice : BaseEntity, ITenantEntity
             throw new BusinessRuleException("InvoiceRule","Fatura tutari sifirdan buyuk olmali.");
 
         Status = InvoiceStatus.Queued;
-        RaiseDomainEvent(new InvoiceApprovedEvent(Id, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
-        RaiseDomainEvent(new InvoiceGeneratedForERPEvent(Id, InvoiceNumber, GrandTotal, "Default", DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceApprovedEvent(Id, TenantId, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceGeneratedForERPEvent(Id, TenantId, InvoiceNumber, GrandTotal, "Default", DateTime.UtcNow));
     }
 
     public void MarkParasutSynced(string salesInvoiceId, string? eInvoiceId)

@@ -88,7 +88,18 @@ public sealed class ErpInvoiceCreationHandler
             // 3. Get adapter
             var adapter = _erpAdapterFactory.GetAdapter(erpProvider);
 
-            // 4. Fetch invoice from repository for order reference
+            // 4a. Idempotency check — zaten başarıyla sync edilmiş mi?
+            var existingLog = await _syncLogRepo.GetLatestByEntityAsync(
+                e.TenantId, "Invoice", e.InvoiceId, cancellationToken).ConfigureAwait(false);
+            if (existingLog is { Success: true })
+            {
+                _logger.LogInformation(
+                    "[ErpInvoiceCreation] Invoice {InvoiceId} already synced to {Erp} — skip duplicate",
+                    e.InvoiceId, erpProvider);
+                return;
+            }
+
+            // 4b. Fetch invoice from repository for order reference
             var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
             if (invoice is null)
             {

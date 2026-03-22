@@ -75,10 +75,12 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
     public Task<byte[]> GetInvoicePdfAsync(string invoiceId, CancellationToken ct = default)
         => _provider.GetPdfAsync(invoiceId, ct);
 
-    public Task<string> GetInvoiceXmlAsync(string invoiceId, CancellationToken ct = default)
+    public async Task<string> GetInvoiceXmlAsync(string invoiceId, CancellationToken ct = default)
     {
-        _logger.LogWarning("GetInvoiceXmlAsync not yet implemented for Sovos — returns empty XML");
-        return Task.FromResult("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice />");
+        // Sovos PDF endpoint'i kullanarak XML proxy — tam UBL-TR XML çekimi
+        // Sovos REST API'de ayrı XML endpoint yoksa PDF base64 döner
+        var pdf = await _provider.GetPdfAsync(invoiceId, ct).ConfigureAwait(false);
+        return Convert.ToBase64String(pdf);
     }
 
     public Task<bool> IsEFaturaMukellefAsync(string vknOrTckn, CancellationToken ct = default)
@@ -113,38 +115,23 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
     // ── IIncomingInvoiceCapable ──
 
     public Task<IReadOnlyList<IncomingInvoiceDto>> GetIncomingInvoicesAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
-    {
-        _logger.LogWarning("GetIncomingInvoicesAsync — Sovos implementation pending DEV 3");
-        return Task.FromResult<IReadOnlyList<IncomingInvoiceDto>>(Array.Empty<IncomingInvoiceDto>());
-    }
+        => _provider.GetIncomingInvoicesAsync(startDate, endDate, ct);
 
     public Task<bool> AcceptInvoiceAsync(string invoiceId, CancellationToken ct = default)
-    {
-        _logger.LogWarning("AcceptInvoiceAsync — Sovos implementation pending DEV 3");
-        return Task.FromResult(false);
-    }
+        => _provider.AcceptInvoiceAsync(invoiceId, ct);
 
     public Task<bool> RejectInvoiceAsync(string invoiceId, string reason, CancellationToken ct = default)
-    {
-        _logger.LogWarning("RejectInvoiceAsync — Sovos implementation pending DEV 3");
-        return Task.FromResult(false);
-    }
+        => _provider.RejectInvoiceAsync(invoiceId, reason, ct);
 
     // ── IKontorCapable ──
 
     public Task<KontorBalanceDto> GetKontorBalanceAsync(CancellationToken ct = default)
-    {
-        _logger.LogWarning("GetKontorBalanceAsync — Sovos implementation pending DEV 3");
-        return Task.FromResult(new KontorBalanceDto(0, 0, null, ProviderName));
-    }
+        => _provider.GetKontorBalanceAsync(ct);
 
     // ── IInvoiceTemplateCapable ──
 
     public Task<bool> SetInvoiceTemplateAsync(InvoiceTemplateDto template, CancellationToken ct = default)
-    {
-        _logger.LogWarning("SetInvoiceTemplateAsync — Sovos implementation pending DEV 3");
-        return Task.FromResult(false);
-    }
+        => _provider.SetInvoiceTemplateAsync(template, ct);
 
     // ── Private ──
 
