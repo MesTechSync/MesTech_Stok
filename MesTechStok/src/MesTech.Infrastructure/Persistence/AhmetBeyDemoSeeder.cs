@@ -671,28 +671,22 @@ public class AhmetBeyDemoSeeder
             StoreId = TrendyolStoreId,
             InvoiceNumber = "AB2026000001",
             Type = InvoiceType.EArsiv, // Bireysel musteri -> e-Arsiv
-            Status = InvoiceStatus.Sent,
             Direction = InvoiceDirection.Outgoing,
             Provider = InvoiceProvider.Sovos,
             CustomerName = "Zeynep Kara",
             CustomerAddress = "Cankaya, Ankara",
             CustomerEmail = "zeynep.kara@email.com",
             IsEInvoiceTaxpayer = false,
-            SubTotal = 799.70m,
-            TaxTotal = 159.94m,
-            GrandTotal = 959.64m,
             Currency = "TRY",
             PlatformCode = "TY",
             PlatformOrderId = "TY-98765432",
-            GibInvoiceId = "DEMO-GIB-00000001",
             InvoiceDate = DateTime.UtcNow.AddDays(-9),
-            SentAt = DateTime.UtcNow.AddDays(-9),
             GLAccountCode = "600.01.001", // Trendyol Satislari
             CreatedBy = "AhmetBeyDemoSeeder"
         };
 
-        // Invoice lines for Order 1
-        var inv1Line1 = new InvoiceLine
+        // Invoice lines for Order 1 — AddLine auto-calculates totals
+        inv1.AddLine(new InvoiceLine
         {
             TenantId = AhmetBeyTenantId,
             InvoiceId = inv1.Id,
@@ -706,8 +700,8 @@ public class AhmetBeyDemoSeeder
             TaxAmount = 99.98m,
             LineTotal = 599.88m,
             CreatedBy = "AhmetBeyDemoSeeder"
-        };
-        var inv1Line2 = new InvoiceLine
+        });
+        inv1.AddLine(new InvoiceLine
         {
             TenantId = AhmetBeyTenantId,
             InvoiceId = inv1.Id,
@@ -721,11 +715,10 @@ public class AhmetBeyDemoSeeder
             TaxAmount = 59.96m,
             LineTotal = 359.76m,
             CreatedBy = "AhmetBeyDemoSeeder"
-        };
+        });
+        inv1.MarkAsSent("DEMO-GIB-00000001", null);
 
         _context.Invoices.Add(inv1);
-        _context.InvoiceLines.Add(inv1Line1);
-        _context.InvoiceLines.Add(inv1Line2);
 
         // Invoice for Order 2 (Hepsiburada — Shipped)
         var inv2 = new Invoice
@@ -735,27 +728,21 @@ public class AhmetBeyDemoSeeder
             StoreId = HepsiburadaStoreId,
             InvoiceNumber = "AB2026000002",
             Type = InvoiceType.EArsiv,
-            Status = InvoiceStatus.Sent,
             Direction = InvoiceDirection.Outgoing,
             Provider = InvoiceProvider.Sovos,
             CustomerName = "Zeynep Kara",
             CustomerAddress = "Cankaya, Ankara",
             CustomerEmail = "zeynep.kara@email.com",
             IsEInvoiceTaxpayer = false,
-            SubTotal = 2999.90m,
-            TaxTotal = 599.98m,
-            GrandTotal = 3599.88m,
             Currency = "TRY",
             PlatformCode = "HB",
             PlatformOrderId = "HB-55443322",
-            GibInvoiceId = "DEMO-GIB-00000002",
             InvoiceDate = DateTime.UtcNow.AddDays(-4),
-            SentAt = DateTime.UtcNow.AddDays(-4),
             GLAccountCode = "600.01.002", // Hepsiburada Satislari
             CreatedBy = "AhmetBeyDemoSeeder"
         };
 
-        var inv2Line1 = new InvoiceLine
+        inv2.AddLine(new InvoiceLine
         {
             TenantId = AhmetBeyTenantId,
             InvoiceId = inv2.Id,
@@ -769,10 +756,10 @@ public class AhmetBeyDemoSeeder
             TaxAmount = 599.98m,
             LineTotal = 3599.88m,
             CreatedBy = "AhmetBeyDemoSeeder"
-        };
+        });
+        inv2.MarkAsSent("DEMO-GIB-00000002", null);
 
         _context.Invoices.Add(inv2);
-        _context.InvoiceLines.Add(inv2Line1);
 
         await _context.SaveChangesAsync(ct);
         _logger.LogInformation(

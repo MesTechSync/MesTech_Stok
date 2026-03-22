@@ -25,22 +25,22 @@ public class Invoice : BaseEntity, ITenantEntity
     public string? CustomerEmail { get; set; }
     public bool IsEInvoiceTaxpayer { get; set; }
 
-    public decimal SubTotal { get; set; }
-    public decimal TaxTotal { get; set; }
-    public decimal GrandTotal { get; set; }
+    public decimal SubTotal { get; private set; }
+    public decimal TaxTotal { get; private set; }
+    public decimal GrandTotal { get; private set; }
     public string Currency { get; set; } = "TRY";
 
     public string? PlatformCode { get; set; }
     public string? PlatformOrderId { get; set; }
-    public string? PlatformInvoiceUrl { get; set; }
+    public string? PlatformInvoiceUrl { get; private set; }
 
-    public string? GibInvoiceId { get; set; }
-    public string? GibEnvelopeId { get; set; }
-    public string? PdfUrl { get; set; }
+    public string? GibInvoiceId { get; private set; }
+    public string? GibEnvelopeId { get; private set; }
+    public string? PdfUrl { get; private set; }
 
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
-    public DateTime? SentAt { get; set; }
-    public DateTime? AcceptedAt { get; set; }
+    public DateTime? SentAt { get; private set; }
+    public DateTime? AcceptedAt { get; private set; }
 
     // ── Muhasebe Modulu (MUH-01) ──
     public string? GLAccountCode { get; set; }
@@ -69,19 +69,19 @@ public class Invoice : BaseEntity, ITenantEntity
     public string? ExemptionCode { get; set; }
 
     // ── Dijital İmza (İ-08) ──
-    public SignatureStatus SignatureStatus { get; set; } = SignatureStatus.Unsigned;
-    public DateTime? SignedAt { get; set; }
-    public string? SignedBy { get; set; }
-    public SignatureType? SignatureType { get; set; }
-    public string? GibStatus { get; set; }
-    public DateTime? GibStatusDate { get; set; }
+    public SignatureStatus SignatureStatus { get; private set; } = SignatureStatus.Unsigned;
+    public DateTime? SignedAt { get; private set; }
+    public string? SignedBy { get; private set; }
+    public SignatureType? SignatureType { get; private set; }
+    public string? GibStatus { get; private set; }
+    public DateTime? GibStatusDate { get; private set; }
 
     // ── Paraşüt Sync (İ-08) ──
-    public string? ParasutSalesInvoiceId { get; set; }
-    public string? ParasutEInvoiceId { get; set; }
-    public SyncStatus? ParasutSyncStatus { get; set; }
-    public DateTime? ParasutSyncedAt { get; set; }
-    public string? ParasutSyncError { get; set; }
+    public string? ParasutSalesInvoiceId { get; private set; }
+    public string? ParasutEInvoiceId { get; private set; }
+    public SyncStatus? ParasutSyncStatus { get; private set; }
+    public DateTime? ParasutSyncedAt { get; private set; }
+    public string? ParasutSyncError { get; private set; }
 
     private readonly List<InvoiceLine> _lines = new();
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
@@ -99,6 +99,13 @@ public class Invoice : BaseEntity, ITenantEntity
         SubTotal = _lines.Sum(l => l.UnitPrice * l.Quantity - (l.DiscountAmount ?? 0));
         TaxTotal = _lines.Sum(l => l.TaxAmount);
         GrandTotal = SubTotal + TaxTotal;
+    }
+
+    public void SetFinancials(decimal subTotal, decimal taxTotal, decimal grandTotal)
+    {
+        SubTotal = subTotal;
+        TaxTotal = taxTotal;
+        GrandTotal = grandTotal;
     }
 
     public void MarkAsSent(string? gibInvoiceId, string? pdfUrl)
@@ -121,8 +128,8 @@ public class Invoice : BaseEntity, ITenantEntity
         Status = InvoiceStatus.Rejected;
     }
 
-    public string? CancellationReason { get; set; }
-    public DateTime? CancelledAt { get; set; }
+    public string? CancellationReason { get; private set; }
+    public DateTime? CancelledAt { get; private set; }
 
     public void Cancel(string? reason = null)
     {
@@ -209,6 +216,36 @@ public class Invoice : BaseEntity, ITenantEntity
         Status = InvoiceStatus.Queued;
         RaiseDomainEvent(new InvoiceApprovedEvent(Id, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
         RaiseDomainEvent(new InvoiceGeneratedForERPEvent(Id, InvoiceNumber, GrandTotal, "Default", DateTime.UtcNow));
+    }
+
+    public void MarkParasutSynced(string salesInvoiceId, string? eInvoiceId)
+    {
+        ParasutSalesInvoiceId = salesInvoiceId;
+        ParasutEInvoiceId = eInvoiceId;
+        ParasutSyncStatus = SyncStatus.Synced;
+        ParasutSyncedAt = DateTime.UtcNow;
+        ParasutSyncError = null;
+    }
+
+    public void MarkParasutFailed(string error)
+    {
+        ParasutSyncStatus = SyncStatus.Failed;
+        ParasutSyncError = error.Length > 500 ? error[..500] : error;
+    }
+
+    public void Sign(string signedBy, SignatureType signatureType)
+    {
+        SignatureStatus = SignatureStatus.Signed;
+        SignedAt = DateTime.UtcNow;
+        SignedBy = signedBy;
+        SignatureType = signatureType;
+    }
+
+    public void UpdateGibStatus(string status, string? envelopeId = null)
+    {
+        GibStatus = status;
+        GibStatusDate = DateTime.UtcNow;
+        if (envelopeId != null) GibEnvelopeId = envelopeId;
     }
 
     public override string ToString() => $"Invoice #{InvoiceNumber} ({Status}) - {GrandTotal:C}";

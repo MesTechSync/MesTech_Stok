@@ -155,6 +155,10 @@ public class AppDbContext : DbContext
     public DbSet<Deal> Deals => Set<Deal>();
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<PlatformMessage> PlatformMessages => Set<PlatformMessage>();
+    public DbSet<Campaign> Campaigns => Set<Campaign>();
+    public DbSet<CampaignProduct> CampaignProducts => Set<CampaignProduct>();
+    public DbSet<LoyaltyProgram> LoyaltyPrograms => Set<LoyaltyProgram>();
+    public DbSet<LoyaltyTransaction> LoyaltyTransactions => Set<LoyaltyTransaction>();
 
     // ═══════════════════════════════════════
     // DALGA 8 — FİNANS

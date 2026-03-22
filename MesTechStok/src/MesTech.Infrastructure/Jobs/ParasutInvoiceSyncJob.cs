@@ -70,29 +70,22 @@ public class ParasutInvoiceSyncJob
                 var salesId = await _syncService.CreateSalesInvoiceAsync(request, ct);
                 if (salesId == null)
                 {
-                    invoice.ParasutSyncStatus = SyncStatus.Failed;
-                    invoice.ParasutSyncError = "Sales invoice creation failed";
+                    invoice.MarkParasutFailed("Sales invoice creation failed");
                     continue;
                 }
-
-                invoice.ParasutSalesInvoiceId = salesId;
 
                 // e-Fatura mükellefi → e-Fatura, değilse → e-Arşiv
                 var eId = invoice.IsEInvoiceTaxpayer
                     ? await _syncService.CreateEInvoiceAsync(salesId, ct)
                     : await _syncService.CreateEArchiveAsync(salesId, ct);
 
-                invoice.ParasutEInvoiceId = eId;
-                invoice.ParasutSyncStatus = SyncStatus.Synced;
-                invoice.ParasutSyncedAt = DateTime.UtcNow;
-                invoice.ParasutSyncError = null;
+                invoice.MarkParasutSynced(salesId, eId);
 
                 _logger.LogInformation("Synced invoice {Number} → Paraşüt {SalesId}", invoice.InvoiceNumber, salesId);
             }
             catch (Exception ex)
             {
-                invoice.ParasutSyncStatus = SyncStatus.Failed;
-                invoice.ParasutSyncError = ex.Message.Length > 500 ? ex.Message[..500] : ex.Message;
+                invoice.MarkParasutFailed(ex.Message);
                 _logger.LogError(ex, "Paraşüt sync failed for {Number}", invoice.InvoiceNumber);
             }
         }
