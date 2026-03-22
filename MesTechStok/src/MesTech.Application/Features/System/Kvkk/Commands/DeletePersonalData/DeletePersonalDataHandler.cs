@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using MediatR;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -7,14 +9,24 @@ namespace MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 public class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDataCommand, DeletePersonalDataResult>
 {
     private readonly ITenantRepository _tenantRepo;
+    private readonly IStoreRepository _storeRepo;
+    private readonly IStoreCredentialRepository _credentialRepo;
+    private readonly IOrderRepository _orderRepo;
     private readonly IUnitOfWork _uow;
     private readonly ILogger<DeletePersonalDataHandler> _logger;
 
     public DeletePersonalDataHandler(
-        ITenantRepository tenantRepo, IUnitOfWork uow,
+        ITenantRepository tenantRepo,
+        IStoreRepository storeRepo,
+        IStoreCredentialRepository credentialRepo,
+        IOrderRepository orderRepo,
+        IUnitOfWork uow,
         ILogger<DeletePersonalDataHandler> logger)
     {
         _tenantRepo = tenantRepo;
+        _storeRepo = storeRepo;
+        _credentialRepo = credentialRepo;
+        _orderRepo = orderRepo;
         _uow = uow;
         _logger = logger;
     }
@@ -29,16 +41,85 @@ public class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDataComma
         var tenant = await _tenantRepo.GetByIdAsync(request.TenantId, cancellationToken)
             ?? throw new InvalidOperationException($"Tenant bulunamadi: {request.TenantId}");
 
-        int anonymized = 0;
+        var anonymized = 0;
 
-        // Tenant kisisel bilgilerini anonimlesttir
-        // Gercek uygulamada: User tablosu, CariHesap, StoreCredential vb. anonimlestirilir
-        // Burada tenant seviyesinde islem yapiliyor
-        _logger.LogInformation("KVKK: Tenant {TenantId} kisisel verileri anonimlestirildi. {Count} kayit islendi.",
-            request.TenantId, anonymized);
+        // 1. Tenant kisisel bilgilerini anonimlesttir
+        tenant.Name = "ANONIM";
+        tenant.TaxNumber = null;
+        await _tenantRepo.UpdateAsync(tenant, cancellationToken);
+        anonymized++;
+
+        _logger.LogInformation("KVKK: Tenant {TenantId} bilgileri anonimlestirildi.", request.TenantId);
+
+        // 2. Tenant'a ait kullanicilari anonimlesttir
+        // User.TenantId uzerinden, Tenant.Users navigation ile erisilebilir
+        foreach (var user in tenant.Users)
+        {
+            user.FirstName = "ANONIM";
+            user.LastName = null;
+            user.Email = $"{ComputeHash(user.Id.ToString())}@anon.mestech.app";
+            user.Phone = null;
+            user.IsActive = false;
+            anonymized++;
+        }
+
+        _logger.LogInformation("KVKK: {Count} kullanici anonimlestirildi, TenantId={TenantId}.",
+            tenant.Users.Count, request.TenantId);
+
+        // 3. Store credential'larini sil (API key, secret vb.)
+        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var credentialDeleteCount = 0;
+        foreach (var store in stores)
+        {
+            var credentials = await _credentialRepo.GetByStoreIdAsync(store.Id, cancellationToken);
+            foreach (var credential in credentials)
+            {
+                await _credentialRepo.DeleteAsync(credential, cancellationToken);
+                credentialDeleteCount++;
+                anonymized++;
+            }
+        }
+
+        _logger.LogInformation("KVKK: {Count} store credential silindi, TenantId={TenantId}.",
+            credentialDeleteCount, request.TenantId);
+
+        // 4. Siparis musteri bilgilerini anonimlesttir
+        // Son 10 yilin siparislerini kapsayacak genis tarih araligi
+        var orders = await _orderRepo.GetByDateRangeAsync(
+            request.TenantId,
+            DateTime.UtcNow.AddYears(-10),
+            DateTime.UtcNow.AddDays(1),
+            cancellationToken);
+
+        foreach (var order in orders)
+        {
+            order.CustomerName = "ANONIM";
+            order.CustomerEmail = null;
+            await _orderRepo.UpdateAsync(order);
+            anonymized++;
+        }
+
+        _logger.LogInformation("KVKK: {Count} siparis musteri bilgisi anonimlestirildi, TenantId={TenantId}.",
+            orders.Count, request.TenantId);
+
+        // 5. Loglama — KVKK uyumluluk kaydı
+        _logger.LogWarning(
+            "KVKK TAMAMLANDI: TenantId={TenantId}, RequestedBy={UserId}, Reason={Reason}, " +
+            "AnonymizedRecords={AnonymizedCount}, Timestamp={Timestamp}",
+            request.TenantId, request.RequestedByUserId, request.Reason,
+            anonymized, DateTime.UtcNow);
 
         await _uow.SaveChangesAsync(cancellationToken);
 
         return new DeletePersonalDataResult(true, anonymized, DateTime.UtcNow);
+    }
+
+    /// <summary>
+    /// SHA256 hash uretir — e-posta anonimizasyonu icin deterministic pseudonym.
+    /// </summary>
+    private static string ComputeHash(string input)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        return Convert.ToHexStringLower(hash)[..16];
     }
 }
