@@ -32,7 +32,8 @@ public class PushOrderToBitrix24HandlerTests
         // Arrange
         var orderId = Guid.NewGuid();
         var externalDealId = "12345";
-        var order = new Order { OrderNumber = "ORD-100", TotalAmount = 500m };
+        var order = new Order { OrderNumber = "ORD-100" };
+        order.SetFinancials(0m, 0m, 500m);
         EntityTestHelper.SetEntityId(order, orderId);
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
@@ -112,7 +113,8 @@ public class PushOrderToBitrix24HandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var order = new Order { OrderNumber = "ORD-ERR", TotalAmount = 100m };
+        var order = new Order { OrderNumber = "ORD-ERR" };
+        order.SetFinancials(0m, 0m, 100m);
         EntityTestHelper.SetEntityId(order, orderId);
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
@@ -138,7 +140,8 @@ public class PushOrderToBitrix24HandlerTests
     {
         // Arrange — adapter returns null string (push failed silently)
         var orderId = Guid.NewGuid();
-        var order = new Order { OrderNumber = "ORD-NULL", TotalAmount = 250m };
+        var order = new Order { OrderNumber = "ORD-NULL" };
+        order.SetFinancials(0m, 0m, 250m);
         EntityTestHelper.SetEntityId(order, orderId);
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))

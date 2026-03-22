@@ -436,14 +436,15 @@ public class Bitrix24AdapterUnitTests
 
     private static Order CreateTestOrder()
     {
-        return new Order
+        var order = new Order
         {
             OrderNumber = "MES-2026-001",
             CustomerId = Guid.NewGuid(),
             Status = OrderStatus.Confirmed,
-            TotalAmount = 1250.00m,
             OrderDate = new DateTime(2026, 3, 12, 10, 0, 0, DateTimeKind.Utc)
         };
+        order.SetFinancials(0m, 0m, 1250.00m);
+        return order;
     }
 
     #endregion

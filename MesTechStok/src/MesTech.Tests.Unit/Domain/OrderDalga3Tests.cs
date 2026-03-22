@@ -103,7 +103,7 @@ public class OrderDalga3Tests
         var scheduledAt = DateTime.UtcNow.AddHours(2);
 
         order.AutoShipmentEnabled = true;
-        order.AutoShipmentScheduledAt = scheduledAt;
+        order.ScheduleAutoShipment(scheduledAt);
 
         order.AutoShipmentEnabled.Should().BeTrue();
         order.AutoShipmentScheduledAt.Should().Be(scheduledAt);
@@ -140,7 +140,7 @@ public class OrderDalga3Tests
         var order = FakeData.CreateOrder(status: OrderStatus.Confirmed);
         order.MarkAsShipped("SR-111", CargoProvider.SuratKargo);
 
-        order.CargoBarcode = "BC-SURAT-2026-001";
+        order.SetCargoBarcode("BC-SURAT-2026-001");
 
         order.CargoBarcode.Should().Be("BC-SURAT-2026-001");
         order.TrackingNumber.Should().Be("SR-111");
@@ -152,11 +152,10 @@ public class OrderDalga3Tests
         var order = FakeData.CreateOrder(status: OrderStatus.Confirmed);
         order.MarkAsShipped("AR-222", CargoProvider.ArasKargo);
 
-        var deliveryTime = DateTime.UtcNow;
-        order.DeliveredAt = deliveryTime;
-        order.Status = OrderStatus.Delivered;
+        order.MarkAsDelivered();
 
-        order.DeliveredAt.Should().Be(deliveryTime);
+        order.DeliveredAt.Should().NotBeNull();
+        order.DeliveredAt!.Value.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
         order.Status.Should().Be(OrderStatus.Delivered);
         order.ShippedAt.Should().NotBeNull();
     }

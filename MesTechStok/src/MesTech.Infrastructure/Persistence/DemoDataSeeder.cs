@@ -264,9 +264,7 @@ public class DemoDataSeeder
                 taxAmount += itemTax;
             }
 
-            order.SubTotal = subTotal;
-            order.TaxAmount = taxAmount;
-            order.TotalAmount = subTotal + taxAmount;
+            order.SetFinancials(subTotal, taxAmount, subTotal + taxAmount);
             order.TaxRate = 0.20m;
 
             _context.Orders.Add(order);

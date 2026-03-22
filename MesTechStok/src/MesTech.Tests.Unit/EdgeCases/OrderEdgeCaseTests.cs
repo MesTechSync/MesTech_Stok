@@ -104,9 +104,9 @@ public class OrderEdgeCaseTests
         var order = new Order
         {
             OrderNumber = "ORD-EDGE-01",
-            CustomerId = customerId,
-            TotalAmount = 999.99m
+            CustomerId = customerId
         };
+        order.SetFinancials(0m, 0m, 999.99m);
 
         order.Place();
 
@@ -151,9 +151,9 @@ public class OrderEdgeCaseTests
         var order = new Order
         {
             OrderNumber = "ORD-TS-01",
-            Status = OrderStatus.Confirmed,
-            TotalAmount = 150m
+            Status = OrderStatus.Confirmed
         };
+        order.SetFinancials(0m, 0m, 150m);
 
         var str = order.ToString();
 

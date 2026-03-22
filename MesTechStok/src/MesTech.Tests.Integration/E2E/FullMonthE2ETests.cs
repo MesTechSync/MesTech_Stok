@@ -279,9 +279,9 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
                 ExternalOrderId = extOrderId,
                 Status = OrderStatus.Confirmed,
                 OrderDate = DateTime.UtcNow.AddDays(-20 + _orderIds.Count),
-                SubTotal = salePrice * qty,
                 TenantId = _tenantId
             };
+            order.SetFinancials(salePrice * qty, 0m, salePrice * qty);
             _context.Orders.Add(order);
             _orderIds.Add(order.Id);
 
@@ -349,12 +349,10 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
                 OrderId = orderId,
                 InvoiceNumber = $"FAT-E2E-{_invoiceIds.Count + 1:D4}",
                 InvoiceDate = DateTime.UtcNow,
-                SubTotal = subTotal,
-                TaxTotal = taxTotal,
-                GrandTotal = grandTotal,
                 Currency = "TRY",
                 TenantId = _tenantId
             };
+            invoice.SetFinancials(subTotal, taxTotal, grandTotal);
             _context.Invoices.Add(invoice);
             _invoiceIds.Add(invoice.Id);
         }
@@ -398,9 +396,7 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
         for (int i = 0; i < _orderIds.Count; i++)
         {
             var order = await _context.Orders.FindAsync(_orderIds[i]);
-            order!.CargoProvider = providers[i];
-            order.TrackingNumber = $"{providers[i]}-{DateTime.UtcNow:yyyyMMdd}-{i + 1:D4}";
-            order.Status = OrderStatus.Shipped;
+            order!.MarkAsShipped($"{providers[i]}-{DateTime.UtcNow:yyyyMMdd}-{i + 1:D4}", providers[i]);
         }
         await _context.SaveChangesAsync();
 

@@ -507,11 +507,11 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
         var order = new MesTech.Domain.Entities.Order
         {
             OrderNumber = "TST-001",
-            TotalAmount = 2500.00m,
             Status = OrderStatus.Confirmed,
             OrderDate = DateTime.UtcNow,
             CustomerId = Guid.NewGuid()
         };
+        order.SetFinancials(0m, 0m, 2500.00m);
 
         var result = await adapter.PushDealAsync(order);
         // Adapter returns the Bitrix24 integer deal ID as a string
@@ -532,10 +532,10 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
         var order = new MesTech.Domain.Entities.Order
         {
             OrderNumber = "TST-002",
-            TotalAmount = 500.00m,
             Status = OrderStatus.Pending,
             OrderDate = DateTime.UtcNow
         };
+        order.SetFinancials(0m, 0m, 500.00m);
         order.AddItem(new MesTech.Domain.Entities.OrderItem
         {
             ProductName = "Widget A",

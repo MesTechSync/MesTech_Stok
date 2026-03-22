@@ -175,16 +175,17 @@ public class ProfitLossHandlerTests
     private static Order CreateOrder(
         Guid tenantId, decimal totalAmount, OrderStatus status, PlatformType platform)
     {
-        return new Order
+        var order = new Order
         {
             TenantId = tenantId,
             OrderNumber = $"ORD-{Guid.NewGuid():N}".Substring(0, 12),
             CustomerId = Guid.NewGuid(),
             Status = status,
-            TotalAmount = totalAmount,
             SourcePlatform = platform,
             OrderDate = DateTime.UtcNow
         };
+        order.SetFinancials(0m, 0m, totalAmount);
+        return order;
     }
 
     #endregion

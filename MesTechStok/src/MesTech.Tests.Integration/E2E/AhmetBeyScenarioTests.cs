@@ -350,12 +350,10 @@ public class AhmetBeyScenarioTests
             CustomerId = Guid.NewGuid(),
             CustomerName = "Ali Veli",
             CustomerEmail = "ali@example.com",
-            SubTotal = 250m,
-            TaxAmount = 45m,
-            TotalAmount = 295m,
             Status = OrderStatus.Confirmed,
             SourcePlatform = PlatformType.Trendyol
         };
+        order.SetFinancials(250m, 45m, 295m);
 
         // Act — create invoice from order
         var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-2026-001");

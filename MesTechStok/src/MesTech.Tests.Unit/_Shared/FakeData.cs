@@ -79,17 +79,19 @@ public static class FakeData
         PlatformType? sourcePlatform = null)
     {
         var faker = new Faker("tr");
-        return new Order
+        var order = new Order
         {
             OrderNumber = $"ORD-{faker.Random.Int(10000, 99999)}",
             CustomerId = customerId ?? Guid.NewGuid(),
             TenantId = Guid.NewGuid(),
             Status = status,
-            SubTotal = faker.Random.Decimal(50, 5000),
-            TaxAmount = faker.Random.Decimal(10, 500),
-            TotalAmount = faker.Random.Decimal(60, 5500),
             SourcePlatform = sourcePlatform,
         };
+        order.SetFinancials(
+            faker.Random.Decimal(50, 5000),
+            faker.Random.Decimal(10, 500),
+            faker.Random.Decimal(60, 5500));
+        return order;
     }
 
     public static CiceksepetiCategory CreateCiceksepetiCategory(

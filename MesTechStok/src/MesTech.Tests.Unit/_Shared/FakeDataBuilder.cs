@@ -79,17 +79,16 @@ public static class FakeDataBuilder
         Guid? customerId = null,
         OrderStatus status = OrderStatus.Pending)
     {
-        return new Order
+        var order = new Order
         {
             OrderNumber = $"ORD-{_faker.Random.Int(10000, 99999)}",
             CustomerId = customerId ?? Guid.NewGuid(),
             Status = status,
             OrderDate = DateTime.UtcNow,
-            SubTotal = 0,
-            TaxAmount = 0,
-            TotalAmount = 0,
             TaxRate = 0.20m
         };
+        order.SetFinancials(0, 0, 0);
+        return order;
     }
 
     public static User CreateUser(

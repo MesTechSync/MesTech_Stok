@@ -59,7 +59,7 @@ public class ExistingEntityExtensionTests
     public void Order_CommissionAmount_SetAndRead_ShouldWork()
     {
         var order = FakeData.CreateOrder();
-        order.CommissionAmount = 150m;
+        order.SetCommission(null, 150m);
 
         order.CommissionAmount.Should().Be(150m);
     }
@@ -68,7 +68,7 @@ public class ExistingEntityExtensionTests
     public void Order_CommissionRate_SetAndRead_ShouldWork()
     {
         var order = FakeData.CreateOrder();
-        order.CommissionRate = 0.15m;
+        order.SetCommission(0.15m, null);
 
         order.CommissionRate.Should().Be(0.15m);
     }
@@ -143,8 +143,7 @@ public class ExistingEntityExtensionTests
     public void Order_CommissionFields_SetToZero_ShouldNotBeNull()
     {
         var order = FakeData.CreateOrder();
-        order.CommissionAmount = 0m;
-        order.CommissionRate = 0m;
+        order.SetCommission(0m, 0m);
 
         order.CommissionAmount.Should().Be(0m);
         order.CommissionRate.Should().Be(0m);

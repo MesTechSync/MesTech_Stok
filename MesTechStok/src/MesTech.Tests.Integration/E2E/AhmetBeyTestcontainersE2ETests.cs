@@ -690,9 +690,8 @@ public class AhmetBeyTestcontainersE2ETests : IClassFixture<PostgreSqlContainerF
             _context.Set<CommissionRecord>().Add(commissionRecord);
 
             // Update order with commission info
-            order.CommissionRate = commissionRate;
-            order.CommissionAmount = orderCommission;
-            order.CargoExpenseAmount = cargoDeduction;
+            order.SetCommission(commissionRate, orderCommission);
+            order.SetCargoExpense(cargoDeduction);
         }
         await _context.SaveChangesAsync();
 

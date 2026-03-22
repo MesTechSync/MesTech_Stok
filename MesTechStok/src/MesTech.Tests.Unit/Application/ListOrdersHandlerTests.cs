@@ -12,16 +12,20 @@ public class ListOrdersHandlerTests
 {
     private readonly Mock<IOrderRepository> _orderRepo = new();
 
-    private static Order CreateOrder(string orderNumber, OrderStatus status, DateTime? date = null) => new()
+    private static Order CreateOrder(string orderNumber, OrderStatus status, DateTime? date = null)
     {
-        OrderNumber = orderNumber,
-        Status = status,
-        OrderDate = date ?? DateTime.UtcNow,
-        CustomerName = "Test Musteri",
-        TotalAmount = 100m,
-        PaymentStatus = "Paid",
-        TenantId = Guid.NewGuid()
-    };
+        var order = new Order
+        {
+            OrderNumber = orderNumber,
+            Status = status,
+            OrderDate = date ?? DateTime.UtcNow,
+            CustomerName = "Test Musteri",
+            PaymentStatus = "Paid",
+            TenantId = Guid.NewGuid()
+        };
+        order.SetFinancials(0m, 0m, 100m);
+        return order;
+    }
 
     [Fact]
     public async Task Handle_NoFilters_UsesLast30DaysRange()

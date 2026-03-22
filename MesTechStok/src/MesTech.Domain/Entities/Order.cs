@@ -19,9 +19,9 @@ public class Order : BaseEntity, ITenantEntity
     public DateTime? RequiredDate { get; set; }
 
     // Tutarlar
-    public decimal SubTotal { get; set; }
-    public decimal TaxAmount { get; set; }
-    public decimal TotalAmount { get; set; }
+    public decimal SubTotal { get; private set; }
+    public decimal TaxAmount { get; private set; }
+    public decimal TotalAmount { get; private set; }
     public decimal TaxRate { get; set; }
 
     // Durum
@@ -38,20 +38,20 @@ public class Order : BaseEntity, ITenantEntity
     public string? PlatformOrderNumber { get; set; }
 
     // Kargo bilgisi
-    public CargoProvider? CargoProvider { get; set; }
-    public string? TrackingNumber { get; set; }
-    public string? CargoBarcode { get; set; }
-    public DateTime? ShippedAt { get; set; }
-    public DateTime? DeliveredAt { get; set; }
+    public CargoProvider? CargoProvider { get; private set; }
+    public string? TrackingNumber { get; private set; }
+    public string? CargoBarcode { get; private set; }
+    public DateTime? ShippedAt { get; private set; }
+    public DateTime? DeliveredAt { get; private set; }
 
     // Otomatik gonderim
     public bool AutoShipmentEnabled { get; set; }
-    public DateTime? AutoShipmentScheduledAt { get; set; }
+    public DateTime? AutoShipmentScheduledAt { get; private set; }
 
     // ── Muhasebe Modulu (MUH-01) ──
-    public decimal? CommissionAmount { get; set; }
-    public decimal? CommissionRate { get; set; }
-    public decimal? CargoExpenseAmount { get; set; }
+    public decimal? CommissionAmount { get; private set; }
+    public decimal? CommissionRate { get; private set; }
+    public decimal? CargoExpenseAmount { get; private set; }
 
     // Concurrency
     public byte[]? RowVersion { get; set; }
@@ -138,6 +138,34 @@ public class Order : BaseEntity, ITenantEntity
             ExternalOrderId ?? OrderNumber,
             TotalAmount,
             DateTime.UtcNow));
+    }
+
+    public void SetFinancials(decimal subTotal, decimal taxAmount, decimal totalAmount)
+    {
+        SubTotal = subTotal;
+        TaxAmount = taxAmount;
+        TotalAmount = totalAmount;
+    }
+
+    public void SetCommission(decimal? rate, decimal? amount)
+    {
+        CommissionRate = rate;
+        CommissionAmount = amount;
+    }
+
+    public void SetCargoExpense(decimal amount)
+    {
+        CargoExpenseAmount = amount;
+    }
+
+    public void SetCargoBarcode(string barcode)
+    {
+        CargoBarcode = barcode;
+    }
+
+    public void ScheduleAutoShipment(DateTime scheduledAt)
+    {
+        AutoShipmentScheduledAt = scheduledAt;
     }
 
     public int TotalItems => _orderItems.Sum(i => i.Quantity);

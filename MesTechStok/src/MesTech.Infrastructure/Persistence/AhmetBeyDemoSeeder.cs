@@ -488,7 +488,6 @@ public class AhmetBeyDemoSeeder
             TenantId = AhmetBeyTenantId,
             OrderNumber = "AB-TY-2026-001",
             CustomerId = CustomerId,
-            Status = OrderStatus.Delivered,
             OrderDate = DateTime.UtcNow.AddDays(-10),
             SourcePlatform = PlatformType.Trendyol,
             ExternalOrderId = "TY-98765432",
@@ -496,11 +495,6 @@ public class AhmetBeyDemoSeeder
             CustomerName = "Zeynep Kara",
             CustomerEmail = "zeynep.kara@email.com",
             PaymentStatus = "Paid",
-            CommissionRate = 12.99m, // Trendyol Elektronik komisyonu ~%12.99
-            CargoProvider = CargoProvider.YurticiKargo,
-            TrackingNumber = "YK-2026-001234",
-            ShippedAt = DateTime.UtcNow.AddDays(-9),
-            DeliveredAt = DateTime.UtcNow.AddDays(-7),
             CreatedBy = "AhmetBeyDemoSeeder"
         };
         SetEntityId(order1, OrderTrendyolId);
@@ -535,12 +529,15 @@ public class AhmetBeyDemoSeeder
             CreatedBy = "AhmetBeyDemoSeeder"
         };
 
-        order1.SubTotal = 799.70m;
-        order1.TaxAmount = 159.94m;
-        order1.TotalAmount = 959.64m;
+        order1.SetFinancials(799.70m, 159.94m, 959.64m);
         order1.TaxRate = 0.20m;
-        order1.CommissionAmount = Math.Round(799.70m * 12.99m / 100m, 2); // 103.88 TL
-        order1.CargoExpenseAmount = 24.99m;
+        order1.SetCommission(12.99m, Math.Round(799.70m * 12.99m / 100m, 2)); // 103.88 TL
+        order1.SetCargoExpense(24.99m);
+
+        // State transitions: Pending → Confirmed → Shipped → Delivered
+        order1.Place();
+        order1.MarkAsShipped("YK-2026-001234", CargoProvider.YurticiKargo);
+        order1.MarkAsDelivered();
 
         _context.Orders.Add(order1);
         _context.OrderItems.Add(o1Item1);
@@ -552,7 +549,6 @@ public class AhmetBeyDemoSeeder
             TenantId = AhmetBeyTenantId,
             OrderNumber = "AB-HB-2026-001",
             CustomerId = CustomerId,
-            Status = OrderStatus.Shipped,
             OrderDate = DateTime.UtcNow.AddDays(-5),
             SourcePlatform = PlatformType.Hepsiburada,
             ExternalOrderId = "HB-55443322",
@@ -560,10 +556,6 @@ public class AhmetBeyDemoSeeder
             CustomerName = "Zeynep Kara",
             CustomerEmail = "zeynep.kara@email.com",
             PaymentStatus = "Paid",
-            CommissionRate = 14.50m, // Hepsiburada Elektronik komisyonu ~%14.5
-            CargoProvider = CargoProvider.ArasKargo,
-            TrackingNumber = "AK-2026-005678",
-            ShippedAt = DateTime.UtcNow.AddDays(-4),
             CreatedBy = "AhmetBeyDemoSeeder"
         };
         SetEntityId(order2, OrderHepsiburadaId);
@@ -584,12 +576,14 @@ public class AhmetBeyDemoSeeder
             CreatedBy = "AhmetBeyDemoSeeder"
         };
 
-        order2.SubTotal = 2999.90m;
-        order2.TaxAmount = 599.98m;
-        order2.TotalAmount = 3599.88m;
+        order2.SetFinancials(2999.90m, 599.98m, 3599.88m);
         order2.TaxRate = 0.20m;
-        order2.CommissionAmount = Math.Round(2999.90m * 14.50m / 100m, 2); // 434.99 TL
-        order2.CargoExpenseAmount = 34.99m;
+        order2.SetCommission(14.50m, Math.Round(2999.90m * 14.50m / 100m, 2)); // 434.99 TL
+        order2.SetCargoExpense(34.99m);
+
+        // State transitions: Pending → Confirmed → Shipped
+        order2.Place();
+        order2.MarkAsShipped("AK-2026-005678", CargoProvider.ArasKargo);
 
         _context.Orders.Add(order2);
         _context.OrderItems.Add(o2Item1);
@@ -600,7 +594,6 @@ public class AhmetBeyDemoSeeder
             TenantId = AhmetBeyTenantId,
             OrderNumber = "AB-MAN-2026-001",
             CustomerId = CustomerId,
-            Status = OrderStatus.Confirmed,
             OrderDate = DateTime.UtcNow.AddDays(-1),
             CustomerName = "Zeynep Kara",
             CustomerEmail = "zeynep.kara@email.com",
@@ -640,10 +633,11 @@ public class AhmetBeyDemoSeeder
             CreatedBy = "AhmetBeyDemoSeeder"
         };
 
-        order3.SubTotal = 649.80m;
-        order3.TaxAmount = 129.96m;
-        order3.TotalAmount = 779.76m;
+        order3.SetFinancials(649.80m, 129.96m, 779.76m);
         order3.TaxRate = 0.20m;
+
+        // State transition: Pending → Confirmed
+        order3.Place();
 
         _context.Orders.Add(order3);
         _context.OrderItems.Add(o3Item1);

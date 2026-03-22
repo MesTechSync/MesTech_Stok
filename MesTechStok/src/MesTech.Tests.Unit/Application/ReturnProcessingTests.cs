@@ -19,15 +19,16 @@ public class ReturnProcessingTests
 
     private static Order CreateDeliveredOrder(DateTime orderDate)
     {
-        return new Order
+        var order = new Order
         {
             TenantId = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             CustomerId = Guid.NewGuid(),
             Status = OrderStatus.Delivered,
-            OrderDate = orderDate,
-            TotalAmount = 500m
+            OrderDate = orderDate
         };
+        order.SetFinancials(0m, 0m, 500m);
+        return order;
     }
 
     private static ReturnRequest CreateReturn(PlatformType platform, DateTime requestDate, Guid orderId)
