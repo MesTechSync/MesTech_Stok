@@ -92,6 +92,18 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.mesa.buybox.lost"));
                 cfg.Message<MesaSupplierFeedSyncedEvent>(x =>
                     x.SetEntityName("mestech.mesa.supplier.feed.synced"));
+                cfg.Message<MesaDailySummaryEvent>(x =>
+                    x.SetEntityName("mestech.mesa.daily.summary"));
+                cfg.Message<MesaSyncErrorEvent>(x =>
+                    x.SetEntityName("mestech.mesa.sync.error"));
+
+                // CRM integration event exchange'ler — MesTech -> MESA
+                cfg.Message<LeadConvertedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.mesa.lead.converted"));
+                cfg.Message<DealWonIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.mesa.deal.won"));
+                cfg.Message<DealLostIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.mesa.deal.lost"));
 
                 // MESA OS exchange'ler — MESA -> MesTech
                 cfg.Message<MesaAiContentGeneratedEvent>(x =>
@@ -110,6 +122,8 @@ public static class MassTransitConfig
                     x.SetEntityName("mesa.bot.return.requested"));
                 cfg.Message<MesaMeetingScheduledEvent>(x =>
                     x.SetEntityName("mesa.meeting.scheduled"));
+                cfg.Message<MesaLeadScoredEvent>(x =>
+                    x.SetEntityName("mesa.lead.scored"));
 
                 // Muhasebe MESA exchange'ler (MUH-01)
                 // MesTech -> MESA (publish)
