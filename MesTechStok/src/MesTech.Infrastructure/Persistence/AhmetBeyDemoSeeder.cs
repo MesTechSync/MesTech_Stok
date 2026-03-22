@@ -471,11 +471,11 @@ public class AhmetBeyDemoSeeder
             CustomerName = "Zeynep Kara",
             CustomerEmail = "zeynep.kara@email.com",
             CustomerPhone = "+90 535 555 1234",
-            CreditLimit = 10000.00m,
             Currency = "TRY",
-            IsActive = true,
             CreatedBy = "AhmetBeyDemoSeeder"
         };
+        customerAccount.SetCreditLimit(10000.00m);
+        customerAccount.Activate();
         SetEntityId(customerAccount, CustomerAccountId);
         _context.CustomerAccounts.Add(customerAccount);
 
