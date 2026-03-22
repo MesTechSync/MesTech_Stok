@@ -28,6 +28,7 @@ public class PayTRDirectAdapter : IPaymentProvider
     private readonly PayTRDirectOptions _options;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private readonly JsonSerializerOptions _jsonOptions;
+    private const int CurrencySubunitMultiplier = 100; // TL → kuruş
 
     private const string DefaultBaseUrl = "https://www.paytr.com/odeme";
     private const string TokenEndpoint = "/api/paytrdirect";
@@ -80,7 +81,7 @@ public class PayTRDirectAdapter : IPaymentProvider
                 merchantOid: merchantOid,
                 email: "customer@mestech.app",
                 userIp: request.CustomerIp,
-                paymentAmount: (long)(request.Amount * 100),
+                paymentAmount: (long)(request.Amount * CurrencySubunitMultiplier),
                 basketJson: basketJson,
                 currency: request.Currency,
                 testMode: _options.TestMode ? "1" : "0");
@@ -91,7 +92,7 @@ public class PayTRDirectAdapter : IPaymentProvider
                 ["user_ip"] = request.CustomerIp,
                 ["merchant_oid"] = merchantOid,
                 ["email"] = "customer@mestech.app",
-                ["payment_amount"] = ((long)(request.Amount * 100)).ToString(),
+                ["payment_amount"] = ((long)(request.Amount * CurrencySubunitMultiplier)).ToString(),
                 ["paytr_token"] = token,
                 ["user_basket"] = basketJson,
                 ["debug_on"] = _options.TestMode ? "1" : "0",
@@ -201,14 +202,14 @@ public class PayTRDirectAdapter : IPaymentProvider
 
         try
         {
-            var hashInput = $"{_options.MerchantId}{binNumber}{(long)(amount * 100)}{_options.MerchantSalt}";
+            var hashInput = $"{_options.MerchantId}{binNumber}{(long)(amount * CurrencySubunitMultiplier)}{_options.MerchantSalt}";
             var token = ComputeHmacSha256Base64(hashInput, _options.MerchantKey);
 
             var payload = new Dictionary<string, string>
             {
                 ["merchant_id"] = _options.MerchantId,
                 ["card_type"] = binNumber?.Length >= 6 ? binNumber[..6] : string.Empty,
-                ["amount"] = ((long)(amount * 100)).ToString(),
+                ["amount"] = ((long)(amount * CurrencySubunitMultiplier)).ToString(),
                 ["paytr_token"] = token
             };
 
@@ -255,7 +256,7 @@ public class PayTRDirectAdapter : IPaymentProvider
 
         try
         {
-            var refundAmount = (long)(amount * 100);
+            var refundAmount = (long)(amount * CurrencySubunitMultiplier);
             var hashInput = $"{_options.MerchantId}{transactionId}{refundAmount}{_options.MerchantSalt}";
             var token = ComputeHmacSha256Base64(hashInput, _options.MerchantKey);
 
