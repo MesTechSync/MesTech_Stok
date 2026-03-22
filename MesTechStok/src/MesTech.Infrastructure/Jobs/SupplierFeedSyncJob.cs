@@ -66,7 +66,7 @@ public class SupplierFeedSyncJob
             return;
         }
 
-        feed.LastSyncStatus = FeedSyncStatus.InProgress;
+        feed.MarkSyncInProgress();
         await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
 
         int totalProducts = 0;

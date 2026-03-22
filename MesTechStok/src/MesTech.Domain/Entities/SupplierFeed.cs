@@ -32,13 +32,13 @@ public class SupplierFeed : BaseEntity, ITenantEntity
     public int SyncIntervalMinutes { get; set; } = 60;
     public string? CronExpression { get; set; }
 
-    // Son sync durumu
-    public FeedSyncStatus LastSyncStatus { get; set; } = FeedSyncStatus.None;
-    public DateTime? LastSyncAt { get; set; }
-    public int LastSyncProductCount { get; set; }
-    public int LastSyncUpdatedCount { get; set; }
-    public int LastSyncDeactivatedCount { get; set; }
-    public string? LastSyncError { get; set; }
+    // Son sync durumu — RecordSyncResult() ile yönetilir
+    public FeedSyncStatus LastSyncStatus { get; private set; } = FeedSyncStatus.None;
+    public DateTime? LastSyncAt { get; private set; }
+    public int LastSyncProductCount { get; private set; }
+    public int LastSyncUpdatedCount { get; private set; }
+    public int LastSyncDeactivatedCount { get; private set; }
+    public string? LastSyncError { get; private set; }
 
     // Hedef platformlar (virgülle ayrılmış PlatformType değerleri)
     public string? TargetPlatforms { get; set; }
@@ -65,6 +65,11 @@ public class SupplierFeed : BaseEntity, ITenantEntity
 
     // Navigation
     public Supplier? Supplier { get; set; }
+
+    public void MarkSyncInProgress()
+    {
+        LastSyncStatus = FeedSyncStatus.InProgress;
+    }
 
     public decimal ApplyMarkup(decimal originalPrice)
     {
