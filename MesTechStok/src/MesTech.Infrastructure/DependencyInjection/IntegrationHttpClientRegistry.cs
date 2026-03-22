@@ -146,12 +146,19 @@ public static class IntegrationHttpClientRegistry
     /// </summary>
     private static readonly TimeSpan DnsRefreshTimeout = TimeSpan.FromMinutes(2);
 
+    /// <summary>
+    /// Max concurrent connections per server — prevents socket exhaustion under high load.
+    /// .NET default is int.MaxValue (unlimited). Microsoft recommends setting a reasonable limit.
+    /// </summary>
+    private const int DefaultMaxConnectionsPerServer = 20;
+
     private static void RegisterDefault(IServiceCollection services, string name)
     {
         services.AddHttpClient(name)
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
-                PooledConnectionLifetime = DnsRefreshTimeout
+                PooledConnectionLifetime = DnsRefreshTimeout,
+                MaxConnectionsPerServer = DefaultMaxConnectionsPerServer
             });
     }
 }
