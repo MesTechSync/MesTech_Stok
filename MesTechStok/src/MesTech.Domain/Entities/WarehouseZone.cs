@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class WarehouseZone : BaseEntity
+public class WarehouseZone : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public Guid WarehouseId { get; set; }
