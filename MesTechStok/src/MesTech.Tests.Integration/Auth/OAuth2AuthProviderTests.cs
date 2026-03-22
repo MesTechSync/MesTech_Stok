@@ -171,7 +171,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*401*");
+      .WithMessage("*Unauthorized*");
   }
 
   [Fact]
@@ -186,7 +186,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*403*");
+      .WithMessage("*Forbidden*");
   }
 
   [Fact]
@@ -201,7 +201,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*500*");
+      .WithMessage("*InternalServerError*");
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -239,7 +239,7 @@ public class OAuth2AuthProviderTests : IClassFixture<WireMockFixture>, IDisposab
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*400*");
+      .WithMessage("*BadRequest*");
   }
 
   [Fact]

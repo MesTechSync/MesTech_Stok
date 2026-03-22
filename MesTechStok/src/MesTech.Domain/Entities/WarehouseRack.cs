@@ -19,5 +19,8 @@ public class WarehouseRack : BaseEntity, ITenantEntity
     public string? RackType { get; set; }
     public decimal? MaxWeight { get; set; }
     public bool IsMovable { get; set; }
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; private set; } = true;
+
+    public void Activate() => IsActive = true;
+    public void Deactivate() => IsActive = false;
 }

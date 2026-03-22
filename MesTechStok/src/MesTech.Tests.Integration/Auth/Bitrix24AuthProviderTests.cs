@@ -174,7 +174,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*401*");
+      .WithMessage("*Unauthorized*");
   }
 
   [Fact]
@@ -189,7 +189,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*400*");
+      .WithMessage("*BadRequest*");
   }
 
   [Fact]
@@ -293,7 +293,7 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*400*");
+      .WithMessage("*BadRequest*");
   }
 
   [Fact]
@@ -439,6 +439,6 @@ public class Bitrix24AuthProviderTests : IClassFixture<WireMockFixture>, IDispos
 
     // Assert
     await act.Should().ThrowAsync<HttpRequestException>()
-      .WithMessage("*500*");
+      .WithMessage("*InternalServerError*");
   }
 }

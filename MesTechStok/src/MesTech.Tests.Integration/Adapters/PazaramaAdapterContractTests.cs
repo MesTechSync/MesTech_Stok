@@ -40,7 +40,11 @@ public class PazaramaAdapterContractTests : IClassFixture<WireMockFixture>, IDis
     private PazaramaAdapter CreateAdapter()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
-        return new PazaramaAdapter(httpClient, _logger);
+        var mockFactory = new Moq.Mock<IHttpClientFactory>();
+        mockFactory
+            .Setup(f => f.CreateClient(Moq.It.IsAny<string>()))
+            .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) });
+        return new PazaramaAdapter(httpClient, _logger, mockFactory.Object);
     }
 
     private Dictionary<string, string> GetValidCredentials()

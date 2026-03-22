@@ -18,7 +18,28 @@ public class WarehouseBin : BaseEntity, ITenantEntity
     public int? ZPosition { get; set; }
     public string? BinType { get; set; }
     public decimal? MaxWeight { get; set; }
-    public bool IsActive { get; set; } = true;
-    public bool IsReserved { get; set; }
-    public bool IsLocked { get; set; }
+    public bool IsActive { get; private set; } = true;
+    public bool IsReserved { get; private set; }
+    public bool IsLocked { get; private set; }
+
+    public void Activate() => IsActive = true;
+    public void Deactivate() => IsActive = false;
+
+    public void Reserve()
+    {
+        if (IsLocked) throw new InvalidOperationException("Kilitli bin rezerve edilemez.");
+        IsReserved = true;
+    }
+
+    public void ReleaseReservation() => IsReserved = false;
+
+    public void Lock()
+    {
+        IsLocked = true;
+        IsReserved = false; // Kilit rezervasyonu iptal eder
+    }
+
+    public void Unlock() => IsLocked = false;
+
+    public bool IsAvailable => IsActive && !IsReserved && !IsLocked;
 }
