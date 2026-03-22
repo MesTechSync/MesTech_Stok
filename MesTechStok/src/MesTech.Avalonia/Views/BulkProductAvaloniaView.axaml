@@ -121,7 +121,7 @@
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <ProgressBar Minimum="0" Maximum="100"
                                                      Value="{Binding ImportProgress}" Height="8"
-                                                     Foreground="{DynamicResource MesGreenMaterial}" Background="#E0E0E0" CornerRadius="4"
+                                                     Foreground="{DynamicResource MesGreenMaterial}" Background="{DynamicResource MesBorderLight}" CornerRadius="4"
                                                      IsVisible="{Binding IsImporting}" />
                                         <TextBlock Text="{Binding ImportStatusText}" FontSize="12"
                                                    Foreground="{DynamicResource MesSlateGray}" />

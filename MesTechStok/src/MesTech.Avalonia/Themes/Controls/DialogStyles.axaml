@@ -23,7 +23,7 @@
     <Setter Property="MaxWidth" Value="600"/>
     <Setter Property="HorizontalAlignment" Value="Center"/>
     <Setter Property="VerticalAlignment" Value="Center"/>
-    <Setter Property="BoxShadow" Value="0 8 24 0 #40000000"/>
+    <Setter Property="BoxShadow" Value="{DynamicResource MesElevation3}"/>
   </Style>
 
   <!-- Dialog Title -->

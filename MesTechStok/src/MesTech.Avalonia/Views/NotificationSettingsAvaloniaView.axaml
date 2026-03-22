@@ -42,7 +42,7 @@
                 <!-- Test Result -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding IsTestSent}"
-                        BorderBrush="#93C5FD" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesInfo}" BorderThickness="1">
                     <TextBlock Text="{Binding TestResult}"
                                Foreground="{DynamicResource MesPrimaryBlue}" FontSize="13" FontWeight="SemiBold" />
                 </Border>

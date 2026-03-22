@@ -143,14 +143,14 @@
 
                         <!-- AI Suggestion Box -->
                         <Border Background="{DynamicResource MesBgPurpleLight}" CornerRadius="10" Padding="16"
-                                BorderBrush="#DDD6FE" BorderThickness="1"
+                                BorderBrush="{DynamicResource MesBorderPurple}" BorderThickness="1"
                                 IsVisible="{Binding SelectedMessage.AiSuggestedReply, Converter={x:Static ObjectConverters.IsNotNull}}">
                             <StackPanel Spacing="10">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="MESA AI Onerisi" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource MesPurple}" />
                                 </StackPanel>
                                 <TextBlock Text="{Binding SelectedMessage.AiSuggestedReply}"
-                                           TextWrapping="Wrap" FontSize="12" Foreground="#4C1D95" />
+                                           TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource MesPurpleDark}" />
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Button Content="Kullan" Command="{Binding UseAiSuggestionCommand}"
                                             Background="{DynamicResource MesPurple}" Foreground="White" Padding="12,6"

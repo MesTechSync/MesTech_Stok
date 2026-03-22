@@ -152,7 +152,7 @@
                                        Foreground="{DynamicResource MesRedAlert}" />
                             <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="6" Padding="12,8">
                                 <TextBlock Text="{Binding OldValues}" FontSize="13"
-                                           Foreground="#991B1B" TextWrapping="Wrap" />
+                                           Foreground="{DynamicResource MesRedDark}" TextWrapping="Wrap" />
                             </Border>
                         </StackPanel>
 

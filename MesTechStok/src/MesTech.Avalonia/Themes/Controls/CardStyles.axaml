@@ -13,7 +13,7 @@
     <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
     <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}"/>
     <Setter Property="Padding" Value="{StaticResource PaddingLarge}"/>
-    <Setter Property="BoxShadow" Value="0 1 3 0 #1A000000"/>
+    <Setter Property="BoxShadow" Value="{DynamicResource MesElevation1}"/>
   </Style>
   <Style Selector="Border.mestech-card:pointerover">
     <Setter Property="BoxShadow" Value="0 2 8 0 #26000000"/>
@@ -28,7 +28,7 @@
     <Setter Property="Padding" Value="{StaticResource PaddingLarge}"/>
     <Setter Property="MinWidth" Value="200"/>
     <Setter Property="MinHeight" Value="100"/>
-    <Setter Property="BoxShadow" Value="0 1 3 0 #1A000000"/>
+    <Setter Property="BoxShadow" Value="{DynamicResource MesElevation1}"/>
   </Style>
 
   <!-- KPI Value Text -->
