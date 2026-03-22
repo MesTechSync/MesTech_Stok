@@ -6,6 +6,8 @@ using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.DependencyInjection;
 
+using Polly;
+using Polly.Extensions.Http;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,7 +64,24 @@ builder.Services.AddScoped<ICurrentUserService, BlazorCurrentUserService>();
 builder.Services.AddScoped<IBlazorNotificationService, BlazorNotificationService>();
 
 // ── MesTechApiClient (HttpClient → WebAPI, scoped per-circuit) ──
-builder.Services.AddHttpClient<MesTechApiClient>();
+// Polly resilience: retry 3x (exponential backoff) + circuit breaker (5 fail / 30s break)
+var retryPolicy = HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+var circuitBreakerPolicy = HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .CircuitBreakerAsync(
+        handledEventsAllowedBeforeBreaking: 5,
+        durationOfBreak: TimeSpan.FromSeconds(30));
+
+builder.Services.AddHttpClient<MesTechApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5100");
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddPolicyHandler(retryPolicy)
+.AddPolicyHandler(circuitBreakerPolicy);
 
 // ── Authentication & Authorization (JWT token-based, scoped per circuit) ──
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
@@ -76,7 +95,29 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<OnboardingService>();
 
 // ── Health Checks (Docker + Kubernetes + Prometheus /health endpoint) ──
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddNpgSql(
+        builder.Configuration.GetConnectionString("DefaultConnection")!,
+        name: "postgresql",
+        tags: new[] { "db", "ready" })
+    .AddRedis(
+        builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379",
+        name: "redis",
+        tags: new[] { "cache", "ready" })
+    .AddRabbitMQ(
+        sp =>
+        {
+            var factory = new RabbitMQ.Client.ConnectionFactory
+            {
+                HostName = builder.Configuration["RabbitMQ:Host"] ?? "localhost",
+                Port = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672"),
+                UserName = builder.Configuration["RabbitMQ:Username"] ?? "guest",
+                Password = builder.Configuration["RabbitMQ:Password"] ?? "guest"
+            };
+            return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+        },
+        name: "rabbitmq",
+        tags: new[] { "messaging", "ready" });
 
 // ── Response Compression (Blazor Server JS bundles + SignalR) ──
 builder.Services.AddResponseCompression(options =>
