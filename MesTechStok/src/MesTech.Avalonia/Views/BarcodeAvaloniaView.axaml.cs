@@ -1,19 +1,20 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class BarcodeAvaloniaView : UserControl
+public partial class BarcodeAvaloniaView : BaseView
 {
     public BarcodeAvaloniaView()
     {
         InitializeComponent();
-        Loaded += (_, _) =>
-        {
-            // Auto-focus barcode input for USB HID keyboard wedge
-            var barcodeInput = this.FindControl<TextBox>("BarcodeInput");
-            barcodeInput?.Focus();
-        };
+    }
+
+    protected override void SubscribeEvents()
+    {
+        // Auto-focus barcode input for USB HID keyboard wedge
+        var barcodeInput = this.FindControl<TextBox>("BarcodeInput");
+        barcodeInput?.Focus();
     }
 }

@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class DashboardAvaloniaView : UserControl
+public partial class DashboardAvaloniaView : BaseView
 {
     public DashboardAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is DashboardAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

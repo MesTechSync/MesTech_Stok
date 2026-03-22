@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class LeaveRequestsAvaloniaView : UserControl
+public partial class LeaveRequestsAvaloniaView : BaseView
 {
     public LeaveRequestsAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is LeaveRequestsAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

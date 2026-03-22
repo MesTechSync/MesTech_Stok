@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ProductVariantMatrixView : UserControl
+public partial class ProductVariantMatrixView : BaseView
 {
     public ProductVariantMatrixView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is ProductVariantMatrixViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

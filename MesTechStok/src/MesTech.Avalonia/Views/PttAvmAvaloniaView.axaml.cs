@@ -1,8 +1,8 @@
-using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class PttAvmAvaloniaView : UserControl
+public partial class PttAvmAvaloniaView : BaseView
 {
     public PttAvmAvaloniaView()
     {

@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class CrmDashboardAvaloniaView : UserControl
+public partial class CrmDashboardAvaloniaView : BaseView
 {
     public CrmDashboardAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is CrmDashboardAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

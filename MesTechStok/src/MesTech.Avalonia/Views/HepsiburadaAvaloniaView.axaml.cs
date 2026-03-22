@@ -1,8 +1,8 @@
-using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class HepsiburadaAvaloniaView : UserControl
+public partial class HepsiburadaAvaloniaView : BaseView
 {
     public HepsiburadaAvaloniaView()
     {

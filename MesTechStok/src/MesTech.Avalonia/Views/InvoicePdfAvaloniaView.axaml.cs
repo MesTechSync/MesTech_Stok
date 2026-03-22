@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class InvoicePdfAvaloniaView : UserControl
+public partial class InvoicePdfAvaloniaView : BaseView
 {
     public InvoicePdfAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is InvoicePdfAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

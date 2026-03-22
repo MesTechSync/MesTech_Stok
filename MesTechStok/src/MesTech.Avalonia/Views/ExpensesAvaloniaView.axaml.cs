@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ExpensesAvaloniaView : UserControl
+public partial class ExpensesAvaloniaView : BaseView
 {
     public ExpensesAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is ExpensesAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

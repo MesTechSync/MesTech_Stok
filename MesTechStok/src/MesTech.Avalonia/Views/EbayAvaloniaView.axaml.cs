@@ -1,8 +1,8 @@
-using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class EbayAvaloniaView : UserControl
+public partial class EbayAvaloniaView : BaseView
 {
     public EbayAvaloniaView()
     {
