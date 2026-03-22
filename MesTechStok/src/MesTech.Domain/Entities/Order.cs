@@ -13,7 +13,7 @@ public class Order : BaseEntity, ITenantEntity
     public Guid TenantId { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
     public Guid CustomerId { get; set; }
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; internal set; } = OrderStatus.Pending;
     public string Type { get; set; } = "SALE";
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public DateTime? RequiredDate { get; set; }
@@ -25,7 +25,7 @@ public class Order : BaseEntity, ITenantEntity
     public decimal TaxRate { get; set; }
 
     // Durum
-    public string PaymentStatus { get; set; } = "Pending";
+    public string PaymentStatus { get; internal set; } = "Pending";
     public string? Notes { get; set; }
 
     // Müşteri snapshot
@@ -80,6 +80,10 @@ public class Order : BaseEntity, ITenantEntity
 
     public void Place()
     {
+        if (Status != OrderStatus.Pending)
+            throw new BusinessRuleException("OrderStatusTransition",
+                $"Cannot place order in {Status} status. Only Pending orders can be placed.");
+
         Status = OrderStatus.Confirmed;
         RaiseDomainEvent(new OrderPlacedEvent(Id, OrderNumber, CustomerId, TotalAmount, DateTime.UtcNow));
     }
@@ -145,6 +149,11 @@ public class Order : BaseEntity, ITenantEntity
         SubTotal = subTotal;
         TaxAmount = taxAmount;
         TotalAmount = totalAmount;
+    }
+
+    public void MarkAsPaid()
+    {
+        PaymentStatus = "Paid";
     }
 
     public void SetCommission(decimal? rate, decimal? amount)
