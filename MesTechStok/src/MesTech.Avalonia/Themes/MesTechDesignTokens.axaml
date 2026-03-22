@@ -73,6 +73,26 @@
     <Color x:Key="MesOverlayLight">#99FFFFFF</Color>
     <Color x:Key="MesOverlayMedium">#80FFFFFF</Color>
 
+    <!-- ═══ PLATFORM BRAND COLORS ═══ -->
+    <Color x:Key="MesBrandAmazon">#FF9900</Color>
+    <Color x:Key="MesBrandAmazonEu">#232F3E</Color>
+    <Color x:Key="MesBrandCiceksepeti">#E91E63</Color>
+    <Color x:Key="MesBrandCiceksepetiAlt">#6c3f99</Color>
+    <Color x:Key="MesBrandEbay">#E53238</Color>
+    <Color x:Key="MesBrandHepsiburada">#FF6000</Color>
+    <Color x:Key="MesBrandN11">#6B21A8</Color>
+    <Color x:Key="MesBrandN11Alt">#6610f2</Color>
+    <Color x:Key="MesBrandOpenCart">#2496E8</Color>
+    <Color x:Key="MesBrandOzon">#005BFF</Color>
+    <Color x:Key="MesBrandPazarama">#FF5722</Color>
+    <Color x:Key="MesBrandPttAvm">#FFD100</Color>
+    <Color x:Key="MesBrandPttAvmDark">#D4A800</Color>
+
+    <!-- ═══ GRADIENT / SPECIAL ═══ -->
+    <Color x:Key="MesGradientDark">#0D1B2A</Color>
+    <Color x:Key="MesGradientMid">#1B2838</Color>
+    <Color x:Key="MesMesaGlow">#10B98144</Color>
+
     <!-- ═══ STATUS COLORS ═══ -->
     <Color x:Key="MesSuccess">#34C759</Color>
     <Color x:Key="MesWarning">#FF9500</Color>
