@@ -98,7 +98,6 @@ public sealed class HepsiburadaTokenService
                 ["password"] = _password
             };
 
-            var content = new FormUrlEncodedContent(formData);
             var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var reqContent = new FormUrlEncodedContent(formData);

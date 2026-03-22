@@ -129,8 +129,23 @@ public static class IntegrationHttpClientRegistry
         return services;
     }
 
+    /// <summary>
+    /// Default timeout for named HttpClients.
+    /// </summary>
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
+
+    /// <summary>
+    /// DNS refresh interval — prevents stale DNS cache in long-running services.
+    /// Microsoft recommendation: 2 minutes.
+    /// </summary>
+    private static readonly TimeSpan DnsRefreshTimeout = TimeSpan.FromMinutes(2);
+
     private static void RegisterDefault(IServiceCollection services, string name)
     {
-        services.AddHttpClient(name);
+        services.AddHttpClient(name)
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = DnsRefreshTimeout
+            });
     }
 }
