@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateExpense;
@@ -17,10 +17,10 @@ public class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
             ?? throw new KeyNotFoundException($"Expense {request.Id} not found.");
 
         if (request.Description is not null) expense.Description = request.Description;
-        if (request.Amount.HasValue) expense.Amount = request.Amount.Value;
+        if (request.Amount.HasValue) expense.SetAmount(request.Amount.Value);
         if (request.ExpenseType.HasValue) expense.ExpenseType = request.ExpenseType.Value;
-        if (request.PaymentStatus.HasValue) expense.PaymentStatus = request.PaymentStatus.Value;
         if (request.Note is not null) expense.Note = request.Note;
+        // PaymentStatus: use domain methods (MarkAsProcessing/MarkAsCompleted/Cancel) instead of direct set
 
         await _repository.UpdateAsync(expense);
         await _uow.SaveChangesAsync(cancellationToken);

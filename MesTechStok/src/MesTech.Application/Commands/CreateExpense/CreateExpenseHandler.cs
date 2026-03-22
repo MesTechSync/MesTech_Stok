@@ -23,13 +23,13 @@ public class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
             TenantId = request.TenantId,
             StoreId = request.StoreId,
             Description = request.Description,
-            Amount = request.Amount,
             ExpenseType = request.ExpenseType,
             Date = request.Date ?? DateTime.UtcNow,
             Note = request.Note,
             IsRecurring = request.IsRecurring,
             RecurrencePeriod = request.RecurrencePeriod,
         };
+        expense.SetAmount(request.Amount);
 
         await _expenseRepository.AddAsync(expense);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
