@@ -47,7 +47,7 @@
             <ItemsControl ItemsSource="{Binding FilteredAlerts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:StockAlertItemDto">
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,0,8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="0,0,0,8"
                                 BorderBrush="{Binding AlertBorderColor}" BorderThickness="2,2,2,2">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <!-- Severity Icon -->
@@ -77,9 +77,9 @@
 
                                 <!-- Action Buttons -->
                                 <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
-                                    <Button Content="Siparis Ver" Padding="10,4" CornerRadius="4"
+                                    <Button Content="Siparis Ver" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontSize="11" FontWeight="SemiBold" />
-                                    <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="4"
+                                    <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
                                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" FontSize="11" />
                                 </StackPanel>
                             </Grid>

@@ -32,7 +32,7 @@
             <StackPanel Spacing="24" MaxWidth="900">
 
                 <!-- Backup Progress -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsBackingUp}">
                     <StackPanel Spacing="8">
@@ -48,7 +48,7 @@
                 </Border>
 
                 <!-- Backup Success Message (non-progress) -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,10"
                         IsVisible="{Binding BackupMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                         BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="{Binding BackupMessage}"
@@ -60,7 +60,7 @@
                 <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
 
                     <!-- Last Backup Card -->
-                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
@@ -95,7 +95,7 @@
                     </Border>
 
                     <!-- Restore Test Card -->
-                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                         <StackPanel Spacing="16">
                             <StackPanel Spacing="4">
@@ -118,7 +118,7 @@
                                            TextWrapping="Wrap" />
                             </Grid>
 
-                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
+                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12,8" Margin="0,8,0,0">
                                 <TextBlock Text="Otomatik dogrulama her gece 04:00'te calisir"
                                            FontSize="12" Foreground="{DynamicResource MesGreen}" />
                             </Border>
@@ -127,7 +127,7 @@
                 </Grid>
 
                 <!-- Backup History -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">

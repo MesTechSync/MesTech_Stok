@@ -48,7 +48,7 @@
             <StackPanel Spacing="16" IsVisible="{Binding HasProduct}">
 
                 <!-- Product Card -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
@@ -63,7 +63,7 @@
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding ProductPrice, StringFormat='Fiyat: {0:N2} TL'}"
                                            FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
-                                <Border CornerRadius="4" Padding="8,2"
+                                <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="8,2"
                                         Background="{Binding StokDurumRenk}">
                                     <TextBlock Text="{Binding StokDurum}" FontSize="11"
                                                Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
@@ -80,7 +80,7 @@
                 </Border>
 
                 <!-- Warehouse Breakdown -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -118,7 +118,7 @@
                 </Border>
 
                 <!-- Quick Stock Update Buttons -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="10">
                         <TextBlock Text="Hizli Stok Guncelleme" FontSize="15" FontWeight="SemiBold"

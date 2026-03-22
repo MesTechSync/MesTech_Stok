@@ -88,7 +88,7 @@
                 <TextBlock Text="Filtreler:" FontSize="12" Foreground="{DynamicResource MesMutedGray}"
                            VerticalAlignment="Center" Margin="0,0,4,0" />
                 <ToggleButton IsChecked="{Binding FilterOutOfStock}"
-                              Padding="10,5" CornerRadius="12" FontSize="12">
+                              Padding="10,5" CornerRadius="{StaticResource MesRadiusLg}" FontSize="12">
                     <ToggleButton.Styles>
                         <Style Selector="ToggleButton">
                             <Setter Property="Background" Value="{DynamicResource MesBgMist}" />
@@ -102,7 +102,7 @@
                     <TextBlock Text="Stokta Yok" />
                 </ToggleButton>
                 <ToggleButton IsChecked="{Binding FilterLowStock}"
-                              Padding="10,5" CornerRadius="12" FontSize="12">
+                              Padding="10,5" CornerRadius="{StaticResource MesRadiusLg}" FontSize="12">
                     <ToggleButton.Styles>
                         <Style Selector="ToggleButton">
                             <Setter Property="Background" Value="{DynamicResource MesBgMist}" />
@@ -116,7 +116,7 @@
                     <TextBlock Text="Dusuk Stok" />
                 </ToggleButton>
                 <ToggleButton IsChecked="{Binding FilterDiscounted}"
-                              Padding="10,5" CornerRadius="12" FontSize="12">
+                              Padding="10,5" CornerRadius="{StaticResource MesRadiusLg}" FontSize="12">
                     <ToggleButton.Styles>
                         <Style Selector="ToggleButton">
                             <Setter Property="Background" Value="{DynamicResource MesBgMist}" />
@@ -147,7 +147,7 @@
                                     <Button Content="{Binding}"
                                             Command="{Binding $parent[UserControl].((vm:ProductsAvaloniaViewModel)DataContext).ApplyRecentSearchCommand}"
                                             CommandParameter="{Binding}"
-                                            FontSize="11" Padding="6,2" CornerRadius="8"
+                                            FontSize="11" Padding="6,2" CornerRadius="{StaticResource MesRadiusMd}"
                                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesSlateGray}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -258,7 +258,7 @@
                                                Foreground="{Binding StockColor}" />
 
                                     <!-- Platform Badge -->
-                                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="4"
+                                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}"
                                             Padding="6,2" HorizontalAlignment="Left"
                                             Margin="0,2,0,0">
                                         <TextBlock Text="{Binding PlatformBadge}"
@@ -306,7 +306,7 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"

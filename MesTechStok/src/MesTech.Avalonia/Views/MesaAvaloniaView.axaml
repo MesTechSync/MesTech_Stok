@@ -34,7 +34,7 @@
 
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-                        CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
+                        CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
 
@@ -94,7 +94,7 @@
                                                     <TextBlock Text="{Binding Description}" FontSize="11"
                                                                Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap" />
                                                 </StackPanel>
-                                                <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                                                <Border Grid.Column="2" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2"
                                                         VerticalAlignment="Top">
                                                     <Border.Background>
                                                         <SolidColorBrush Color="{DynamicResource MesEmerald}" Opacity="0.15" />

@@ -32,7 +32,7 @@
             <StackPanel Spacing="16">
 
                 <!-- New Entry Form -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Yeni Zaman Kaydi" FontSize="15" FontWeight="SemiBold"
@@ -66,7 +66,7 @@
                 </Border>
 
                 <!-- Time Entry List -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"

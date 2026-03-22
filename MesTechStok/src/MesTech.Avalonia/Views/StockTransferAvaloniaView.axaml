@@ -25,7 +25,7 @@
         <Grid Grid.Row="1" ColumnDefinitions="420,*" Margin="16">
 
             <!-- Left: Transfer Form -->
-            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Yeni Transfer" FontSize="16" FontWeight="SemiBold"
@@ -65,7 +65,7 @@
                                         <TextBlock Grid.Column="1" Text="{Binding Miktar, StringFormat='Stok: {0}'}"
                                                    FontSize="12" Foreground="{DynamicResource MesSlateGray}"
                                                    VerticalAlignment="Center" Margin="8,0" />
-                                        <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                                        <Border Grid.Column="2" CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2"
                                                 Background="{Binding StokDurumRenk}">
                                             <TextBlock Text="{Binding StokDurum}" FontSize="10"
                                                        Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
@@ -114,7 +114,7 @@
             </Border>
 
             <!-- Right: Transfer History -->
-            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,12"

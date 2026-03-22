@@ -38,7 +38,7 @@
 
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-                        CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
+                        CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
                 </Border>
 
@@ -71,7 +71,7 @@
                                                FontWeight="Bold" FontSize="16" Foreground="{DynamicResource MesPrimaryBlue}"
                                                VerticalAlignment="Center" Margin="0,0,20,0" />
                                     <!-- Percentage -->
-                                    <Border Grid.Column="3" CornerRadius="4" Padding="10,4"
+                                    <Border Grid.Column="3" CornerRadius="{StaticResource MesRadiusSm}" Padding="10,4"
                                             VerticalAlignment="Center">
                                         <Border.Background>
                                             <SolidColorBrush Color="{Binding Color}" Opacity="0.15" />

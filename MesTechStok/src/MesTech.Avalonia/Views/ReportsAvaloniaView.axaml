@@ -27,7 +27,7 @@
             <StackPanel Margin="24" Spacing="20">
 
                 <!-- Date Range Picker -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Tarih Araligi" FontSize="16" FontWeight="SemiBold"
@@ -50,7 +50,7 @@
                            TextWrapping="Wrap" Margin="0,0,0,4" />
 
                 <!-- Generating Overlay Message -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsGenerating}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
@@ -99,10 +99,10 @@
                 <Grid ColumnDefinitions="*,*,*">
 
                     <!-- Satis Raporu Card -->
-                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,10,0">
                         <StackPanel Spacing="12">
-                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Width="48" Height="48"
+                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
                                 <TextBlock Text="S" FontSize="22" FontWeight="Bold"
                                            Foreground="{DynamicResource MesPrimaryBlue}"
@@ -124,10 +124,10 @@
                     </Border>
 
                     <!-- Stok Raporu Card -->
-                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="5,0,5,0">
                         <StackPanel Spacing="12">
-                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Width="48" Height="48"
+                            <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
                                 <TextBlock Text="D" FontSize="22" FontWeight="Bold"
                                            Foreground="{DynamicResource MesGreen}"
@@ -149,10 +149,10 @@
                     </Border>
 
                     <!-- Finansal Rapor Card -->
-                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="10,0,0,0">
                         <StackPanel Spacing="12">
-                            <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Width="48" Height="48"
+                            <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Width="48" Height="48"
                                     HorizontalAlignment="Left">
                                 <TextBlock Text="F" FontSize="22" FontWeight="Bold"
                                            Foreground="{DynamicResource MesRedAlert}"

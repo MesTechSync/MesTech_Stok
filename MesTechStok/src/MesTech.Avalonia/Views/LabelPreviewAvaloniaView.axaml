@@ -36,7 +36,7 @@
 
         <!-- Label Preview Content -->
         <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgMist}" HorizontalScrollBarVisibility="Disabled">
-            <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="40,24" Padding="0"
+            <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="40,24" Padding="0"
                     MaxWidth="500" HorizontalAlignment="Center"
                     BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="2">
 

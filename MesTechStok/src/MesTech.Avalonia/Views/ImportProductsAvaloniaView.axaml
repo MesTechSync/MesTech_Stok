@@ -74,11 +74,11 @@
         <Grid Grid.Row="2" Margin="20">
 
             <!-- Step 1: File Selection -->
-            <Border IsVisible="{Binding IsStep1}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep1}" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                     Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
                     <!-- Drag-Drop Area -->
-                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="12" Padding="48,32"
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusLg}" Padding="48,32"
                             BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="2"
                             HorizontalAlignment="Stretch">
                         <StackPanel Spacing="12" HorizontalAlignment="Center">
@@ -155,7 +155,7 @@
             </Grid>
 
             <!-- Step 3: Column Mapping -->
-            <Border IsVisible="{Binding IsStep3}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep3}" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                     Padding="24" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <ScrollViewer>
                     <StackPanel Spacing="16">
@@ -192,7 +192,7 @@
             </Border>
 
             <!-- Step 4: Import Progress -->
-            <Border IsVisible="{Binding IsStep4}" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+            <Border IsVisible="{Binding IsStep4}" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                     Padding="32" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" MinWidth="400">
                     <!-- Progress -->
@@ -207,7 +207,7 @@
 
                     <!-- Result Summary -->
                     <Border IsVisible="{Binding ImportCompleted}" Background="{DynamicResource MesBgSurface}"
-                            CornerRadius="8" Padding="24">
+                            CornerRadius="{StaticResource MesRadiusMd}" Padding="24">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Aktarma Tamamlandi" FontSize="20" FontWeight="Bold"
                                        Foreground="{DynamicResource MesGreen}" HorizontalAlignment="Center" />
@@ -238,7 +238,7 @@
 
                     <!-- Error Summary -->
                     <Border IsVisible="{Binding HasImportErrors}" Background="{DynamicResource MesBgDangerLight}"
-                            CornerRadius="8" Padding="16">
+                            CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Hatali Satirlar" FontWeight="SemiBold" Foreground="{DynamicResource MesRedDark}" />
                             <ItemsControl ItemsSource="{Binding ImportErrors}">

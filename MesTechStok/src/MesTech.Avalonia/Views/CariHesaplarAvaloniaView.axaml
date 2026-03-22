@@ -67,21 +67,21 @@
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Ozet" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
-                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,8" Margin="8,0">
+                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Toplam Borc" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,8" Margin="8,0">
+                <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Toplam Alacak" FontSize="11" Foreground="{DynamicResource MesGreen}" />
                         <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N2} TL'}"
                                    FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,8" Margin="8,0">
+                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Net Bakiye" FontSize="11" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"

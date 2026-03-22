@@ -73,7 +73,7 @@
             <ItemsControl ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="20" Margin="0,0,0,12"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="20" Margin="0,0,0,12"
                                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                                 BoxShadow="{DynamicResource MesElevationCard}">
                             <Grid ColumnDefinitions="Auto,*,Auto">

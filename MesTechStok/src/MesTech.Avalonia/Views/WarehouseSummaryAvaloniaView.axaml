@@ -66,17 +66,17 @@
                                 <StackPanel Spacing="4">
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasOutOfStock}">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource MesRedAlert}" VerticalAlignment="Center" />
+                                        <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesRedAlert}" VerticalAlignment="Center" />
                                         <TextBlock Text="{Binding OutOfStockText}" FontSize="12" Foreground="{DynamicResource MesRedAlert}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding HasCritical}">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
+                                        <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
                                         <TextBlock Text="{Binding CriticalText}" FontSize="12" Foreground="{DynamicResource MesAmber}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="6"
                                                 IsVisible="{Binding IsHealthy}">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource MesGreen}" VerticalAlignment="Center" />
+                                        <Border Width="8" Height="8" CornerRadius="{StaticResource MesRadiusSm}" Background="{DynamicResource MesGreen}" VerticalAlignment="Center" />
                                         <TextBlock Text="Saglikli" FontSize="12" Foreground="{DynamicResource MesGreen}" />
                                     </StackPanel>
                                     <TextBlock Text="{Binding NormalText}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />

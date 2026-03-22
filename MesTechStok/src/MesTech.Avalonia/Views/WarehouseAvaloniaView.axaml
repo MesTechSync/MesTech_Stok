@@ -107,7 +107,7 @@
                 Background="{DynamicResource MesBrandSecondary}"
                 IsVisible="{Binding IsAddingWarehouse}"
                 ZIndex="200">
-            <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="28"
+            <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="28"
                     Width="400" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Yeni Depo Ekle" FontSize="18" FontWeight="Bold"

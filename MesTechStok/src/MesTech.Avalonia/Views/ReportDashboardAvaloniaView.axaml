@@ -28,7 +28,7 @@
             <StackPanel Spacing="24" MaxWidth="900">
 
                 <!-- Generating Overlay -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsGenerating}">
                     <StackPanel Spacing="8">
@@ -44,7 +44,7 @@
                 </Border>
 
                 <!-- Quick Report Buttons -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Raporlar" FontSize="16" FontWeight="Bold"
@@ -80,7 +80,7 @@
                 </Border>
 
                 <!-- Report Parameters -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -150,7 +150,7 @@
                 </Border>
 
                 <!-- Scheduled Reports -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
@@ -184,7 +184,7 @@
                 </Border>
 
                 <!-- Recent Reports -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">

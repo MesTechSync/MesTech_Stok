@@ -33,7 +33,7 @@
             <StackPanel Spacing="24" MaxWidth="640">
 
                 <!-- Save Success Message -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Ayarlar basariyla kaydedildi."
@@ -41,7 +41,7 @@
                 </Border>
 
                 <!-- Section 1: API Ayarlari -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -56,7 +56,7 @@
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding ApiUrl}"
                                      Watermark="https://api.mestech.com/v1" AutomationProperties.Name="https://api.mestech.com/v1"
-                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
                         </StackPanel>
 
                         <StackPanel Spacing="6">
@@ -65,7 +65,7 @@
                             <TextBox Text="{Binding ApiKey}"
                                      Watermark="API anahtarinizi giriniz" AutomationProperties.Name="API anahtarinizi giriniz"
                                      PasswordChar="●"
-                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Spacing="12">
@@ -85,7 +85,7 @@
                 </Border>
 
                 <!-- Section 2: Bildirimler -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -135,7 +135,7 @@
                 </Border>
 
                 <!-- Section 3: Tema -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">

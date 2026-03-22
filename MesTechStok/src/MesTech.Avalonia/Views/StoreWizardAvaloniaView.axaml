@@ -66,7 +66,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:WizardPlatformDto">
-                            <Button Margin="6" Padding="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                            <Button Margin="6" Padding="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                     Command="{Binding $parent[ItemsControl].((vm:StoreWizardAvaloniaViewModel)DataContext).SelectPlatformCommand}"
                                     CommandParameter="{Binding}">
@@ -126,7 +126,7 @@
                 <TextBlock Text="Bağlantı Testi ve Kayıt" FontSize="16" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" />
 
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="{Binding SelectedPlatform, StringFormat='Platform: {0}'}" FontSize="14" />
                         <TextBlock Text="{Binding StoreName, StringFormat='Mağaza: {0}'}" FontSize="14" />
@@ -159,7 +159,7 @@
                             IsEnabled="{Binding TestPassed}" />
                 </StackPanel>
 
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         IsVisible="{Binding SaveCompleted}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="16" FontWeight="SemiBold"

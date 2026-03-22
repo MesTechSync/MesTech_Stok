@@ -56,7 +56,7 @@
                 <DataGridTemplateColumn Header="Sağlık" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
-                            <Border Background="{Binding HealthColor}" CornerRadius="4" Padding="8,2"
+                            <Border Background="{Binding HealthColor}" CornerRadius="{StaticResource MesRadiusSm}" Padding="8,2"
                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HealthStatus}" FontSize="11" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold" />
                             </Border>
@@ -71,7 +71,7 @@
                                     CommandParameter="{Binding}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontSize="11" FontWeight="SemiBold"
-                                    Padding="10,4" CornerRadius="4"
+                                    Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
                                     HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

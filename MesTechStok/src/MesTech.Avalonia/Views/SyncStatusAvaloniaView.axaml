@@ -53,7 +53,7 @@
                                     CommandParameter="{Binding}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontSize="12" FontWeight="SemiBold"
-                                    Padding="10,4" CornerRadius="4"
+                                    Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center" />
                         </DataTemplate>

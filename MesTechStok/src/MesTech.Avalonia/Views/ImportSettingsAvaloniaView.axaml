@@ -57,12 +57,12 @@
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).EditTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                            FontSize="11" Padding="8,3" CornerRadius="4" />
+                                            FontSize="11" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Content="Sil"
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).DeleteTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
-                                            FontSize="11" Padding="8,3" CornerRadius="4" />
+                                            FontSize="11" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -74,7 +74,7 @@
             <!-- Edit Mode -->
             <ScrollViewer IsVisible="{Binding IsEditing}" Padding="24">
                 <StackPanel MaxWidth="600" Spacing="16">
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                         <StackPanel Spacing="14">
                             <TextBlock Text="Şablon Düzenle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Spacing="4">
@@ -85,7 +85,7 @@
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Text="Alan Eşleştirmeleri" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddFieldMappingCommand}"
-                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="8,4" CornerRadius="4" FontSize="12" />
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
                             </Grid>
 
                             <ItemsControl ItemsSource="{Binding EditMappings}">
@@ -99,7 +99,7 @@
                                                     Command="{Binding $parent[ItemsControl].((vm:ImportSettingsAvaloniaViewModel)DataContext).RemoveFieldMappingCommand}"
                                                     CommandParameter="{Binding}"
                                                     Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
-                                                    Padding="6,2" CornerRadius="4" VerticalAlignment="Center" />
+                                                    Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" VerticalAlignment="Center" />
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

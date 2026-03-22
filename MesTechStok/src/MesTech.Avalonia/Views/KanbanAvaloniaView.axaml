@@ -48,7 +48,7 @@
                     <DataTemplate x:DataType="vm:KanbanStageVm">
                         <!-- Single Kanban Column -->
                         <Border Width="260" VerticalAlignment="Top"
-                                Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                                Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                                 BoxShadow="{DynamicResource MesElevationCard}">
                             <DockPanel>
                                 <!-- Column Header — uses stage Color property -->

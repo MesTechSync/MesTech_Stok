@@ -35,7 +35,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="10,6">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="10,6">
                     <TextBlock Text="{Binding ChangedCount, StringFormat='{}{0} degisiklik'}"
                                FontSize="13" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />
                 </Border>

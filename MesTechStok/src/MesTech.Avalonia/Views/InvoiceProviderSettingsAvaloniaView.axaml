@@ -59,7 +59,7 @@
                                 </Grid>
 
                                 <!-- Integration type label -->
-                                <Border Background="{DynamicResource MesBgMist}" CornerRadius="4" Padding="8,4"
+                                <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" Padding="8,4"
                                         HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding IntegrationType}"
                                                FontSize="{StaticResource FontSizeCaption}"

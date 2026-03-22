@@ -26,7 +26,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Active Tenant Card -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="6">
@@ -36,7 +36,7 @@
                             <TextBlock Text="{Binding ActiveTenantId, StringFormat='ID: {0}'}"
                                        FontSize="13" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
-                        <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="4" Padding="12,6"
+                        <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6"
                                 VerticalAlignment="Center">
                             <TextBlock Text="Aktif" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MesTeal}" />
                         </Border>
@@ -44,7 +44,7 @@
                 </Border>
 
                 <!-- Tenant List -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"

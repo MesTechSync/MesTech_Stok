@@ -75,7 +75,7 @@
         </Border>
 
         <!-- DataGrid -->
-        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="12"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="{StaticResource MesRadiusLg}"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid>
             <DataGrid ItemsSource="{Binding Items}"

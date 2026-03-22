@@ -38,21 +38,21 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- Toplam Urun -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Toplam Urun" FontSize="11" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding KpiTotal}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
                 <!-- Kritik Stok -->
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Kritik Stok" FontSize="11" Foreground="{DynamicResource MesRedBright}" />
                         <TextBlock Text="{Binding KpiCritical}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
                 <!-- Stok Degeri -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="160">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="160">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Stok Degeri" FontSize="11" Foreground="{DynamicResource MesEmerald}" />
                         <TextBlock Text="{Binding KpiStockValue, StringFormat='{}{0:N0} TL'}"
@@ -60,7 +60,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Tukenen -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,10" MinWidth="140">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,10" MinWidth="140">
                     <StackPanel Spacing="2">
                         <TextBlock Text="Tukenen" FontSize="11" Foreground="{DynamicResource MesBrandAccent}" />
                         <TextBlock Text="{Binding KpiOutOfStock}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
@@ -139,13 +139,13 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                     <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
                             IsEnabled="{Binding CanGoPrevious}"
-                            Padding="12,6" CornerRadius="4" FontSize="12" />
+                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
                     <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
                                FontSize="12" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="8,0" />
                     <Button Content="Sonraki" Command="{Binding NextPageCommand}"
                             IsEnabled="{Binding CanGoNext}"
-                            Padding="12,6" CornerRadius="4" FontSize="12" />
+                            Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="12" />
                 </StackPanel>
             </Grid>
         </Border>

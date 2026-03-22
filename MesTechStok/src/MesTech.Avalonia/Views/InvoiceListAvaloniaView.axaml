@@ -68,7 +68,7 @@
                 <DataGridTemplateColumn Header="Tip" Width="110">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:InvoiceListItemDto">
-                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                            <Border Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" HorizontalAlignment="Left"
                                     Margin="4,0">
                                 <Border.Background>
                                     <MultiBinding Converter="{x:Null}">
@@ -84,7 +84,7 @@
                 <DataGridTemplateColumn Header="Durum" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:InvoiceListItemDto">
-                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                            <Border Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" HorizontalAlignment="Left"
                                     Margin="4,0">
                                 <TextBlock Text="{Binding Status}" FontSize="11"
                                            FontWeight="SemiBold"/>

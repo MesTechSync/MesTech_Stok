@@ -26,7 +26,7 @@
                 <TextBox Grid.Column="0" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Depo" Width="140" Margin="8,0" />
                 <Button Grid.Column="2" Content="+ Stok Hareketi" Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
+                        FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>
 

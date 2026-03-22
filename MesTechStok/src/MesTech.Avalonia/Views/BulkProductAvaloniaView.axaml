@@ -30,14 +30,14 @@
                     <StackPanel Spacing="16">
 
                         <!-- File Selection -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Dosya Secimi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding ImportFilePath}"
                                              Watermark="Excel dosya sec..." AutomationProperties.Name="Excel dosya sec..." IsReadOnly="True"
-                                             Height="36" FontSize="13" CornerRadius="4" />
+                                             Height="36" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Grid.Column="1" Content="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
@@ -50,7 +50,7 @@
                         </Border>
 
                         <!-- Column Mapping Preview -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
@@ -70,7 +70,7 @@
                         </Border>
 
                         <!-- Data Preview -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
@@ -98,7 +98,7 @@
                         </Border>
 
                         <!-- Import Options -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
@@ -113,7 +113,7 @@
                         </Border>
 
                         <!-- Import Action -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasImportFile}">
                             <StackPanel Spacing="12">
@@ -121,7 +121,7 @@
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <ProgressBar Minimum="0" Maximum="100"
                                                      Value="{Binding ImportProgress}" Height="8"
-                                                     Foreground="{DynamicResource MesGreenMaterial}" Background="{DynamicResource MesBorderLight}" CornerRadius="4"
+                                                     Foreground="{DynamicResource MesGreenMaterial}" Background="{DynamicResource MesBorderLight}" CornerRadius="{StaticResource MesRadiusSm}"
                                                      IsVisible="{Binding IsImporting}" />
                                         <TextBlock Text="{Binding ImportStatusText}" FontSize="12"
                                                    Foreground="{DynamicResource MesSlateGray}" />
@@ -150,7 +150,7 @@
                     <StackPanel Spacing="16">
 
                         <!-- Export Filters -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Export Filtreleri" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -178,7 +178,7 @@
                         </Border>
 
                         <!-- Export Format & Action -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
                                 <TextBlock Grid.Column="0" Text="Format:" FontSize="13"
@@ -207,12 +207,12 @@
                     <StackPanel Spacing="16">
 
                         <!-- Selection Info -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="8">
                                 <TextBlock Text="Toplu Guncelleme" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="12" Padding="12,4">
+                                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="12,4">
                                         <TextBlock Text="{Binding SelectedProductCount, StringFormat='{}{0} urun secili'}"
                                                    FontSize="13" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                                     </Border>
@@ -225,7 +225,7 @@
                         </Border>
 
                         <!-- Action Selection -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Islem Sec" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -240,14 +240,14 @@
                                         <TextBlock Text="Deger" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBox Text="{Binding BulkActionValue}"
                                                  Watermark="Deger giriniz..." AutomationProperties.Name="Deger giriniz..."
-                                                 Height="36" FontSize="13" CornerRadius="4" />
+                                                 Height="36" FontSize="13" CornerRadius="{StaticResource MesRadiusSm}" />
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </Border>
 
                         <!-- Preview -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 IsVisible="{Binding HasBulkPreview}">
                             <StackPanel Spacing="12">
@@ -266,7 +266,7 @@
                         </Border>
 
                         <!-- Apply Action -->
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="{Binding BulkUpdateStatusText}"

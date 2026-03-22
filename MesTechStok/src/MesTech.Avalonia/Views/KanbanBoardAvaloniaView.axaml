@@ -27,7 +27,7 @@
 
             <!-- Error -->
             <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
-                    CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
+                    CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
                     VerticalAlignment="Top">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
@@ -45,7 +45,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:TaskColumnVm">
                             <Border Width="280" VerticalAlignment="Top"
-                                    Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                                    Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                                     BoxShadow="{DynamicResource MesElevationCard}">
                                 <DockPanel>
                                     <!-- Column Header -->
@@ -83,7 +83,7 @@
                                                                 <TextBlock Text="{Binding DueDateDisplay}"
                                                                            FontSize="11" Foreground="{DynamicResource MesMutedGray}" />
                                                             </StackPanel>
-                                                            <Border CornerRadius="4" Padding="6,2"
+                                                            <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="6,2"
                                                                     HorizontalAlignment="Left">
                                                                 <Border.Background>
                                                                     <SolidColorBrush Color="{Binding PriorityColor}" Opacity="0.15" />

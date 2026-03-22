@@ -25,7 +25,7 @@
             <StackPanel Spacing="16">
 
                 <!-- Step 1: Warehouse Selection -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="1. Depo Secimi" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -55,7 +55,7 @@
                 </Border>
 
                 <!-- Step 2: Product Search -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="2. Urun Ekle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
@@ -70,7 +70,7 @@
                 </Border>
 
                 <!-- Step 3: Transfer List -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
@@ -111,7 +111,7 @@
                 </Border>
 
                 <!-- Warnings -->
-                <Border Background="{DynamicResource MesBgAmberLight}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgAmberLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         BorderBrush="{DynamicResource MesBorderAmber}" BorderThickness="1"
                         IsVisible="{Binding HasWarnings}">
                     <StackPanel Spacing="4">

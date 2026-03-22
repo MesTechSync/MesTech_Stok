@@ -34,7 +34,7 @@
             <StackPanel MaxWidth="700" Spacing="16">
 
                 <!-- Product Card (visible after fetch) -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                         IsVisible="{Binding ProductLoaded}">
                     <StackPanel Spacing="14">
@@ -75,13 +75,13 @@
                 </Border>
 
                 <!-- Save Success -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
                         IsVisible="{Binding SaveCompleted}">
                     <TextBlock Text="Ürün başarıyla kaydedildi!" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesGreen}" />
                 </Border>
 
                 <!-- Error -->
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12"
                         IsVisible="{Binding HasError}">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
                 </Border>

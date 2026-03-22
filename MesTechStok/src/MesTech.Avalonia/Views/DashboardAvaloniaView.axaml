@@ -22,7 +22,7 @@
                               Width="24" Height="24" Foreground="{DynamicResource MesPrimaryBlue}" />
                     <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBgSurface}" CornerRadius="12" Padding="10,4"
+                    <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusLg}" Padding="10,4"
                             VerticalAlignment="Center">
                         <TextBlock Text="Canli" FontSize="11" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesPrimaryBlue}" />
@@ -214,7 +214,7 @@
                                                     Command="{Binding OrderCommand}"
                                                     FontSize="11"
                                                     Padding="10,4"
-                                                    CornerRadius="4"
+                                                    CornerRadius="{StaticResource MesRadiusSm}"
                                                     Background="{DynamicResource MesPrimaryBlue}"
                                                     Foreground="{DynamicResource MesBgPrimary}"
                                                     VerticalAlignment="Center"
@@ -253,7 +253,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,0,16,6" Padding="8,4"
-                                    CornerRadius="12"
+                                    CornerRadius="{StaticResource MesRadiusLg}"
                                     Background="{DynamicResource MesBgPage}"
                                     BorderBrush="{DynamicResource MesBorderSoft}"
                                     BorderThickness="1"
@@ -276,7 +276,7 @@
         <!-- Row 4: AI Onerisi (MESA OS — Mor/Purple)                    -->
         <!-- ════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="4" Margin="20,0,20,20"
-                Background="{DynamicResource MesBgPurpleLight}" CornerRadius="12"
+                Background="{DynamicResource MesBgPurpleLight}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="20,16"
                 BorderBrush="{DynamicResource MesBorderPurple}" BorderThickness="1"
                 IsVisible="{Binding HasAIInsight}">
@@ -284,7 +284,7 @@
                 <!-- AI Icon + Title -->
                 <StackPanel Grid.Column="0" Margin="0,0,16,0"
                             VerticalAlignment="Center">
-                    <Border Background="{DynamicResource MesPurple}" CornerRadius="8"
+                    <Border Background="{DynamicResource MesPurple}" CornerRadius="{StaticResource MesRadiusMd}"
                             Width="40" Height="40"
                             HorizontalAlignment="Center">
                         <TextBlock Text="AI" FontSize="14" FontWeight="Bold"
@@ -314,7 +314,7 @@
                         Command="{Binding OpenAIInsightCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
                         FontSize="12" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="8"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusMd}"
                         VerticalAlignment="Center" />
             </Grid>
         </Border>
@@ -366,7 +366,7 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="12" Padding="32"
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusLg}" Padding="32"
                         HorizontalAlignment="Center"
                         BoxShadow="{DynamicResource MesElevation2}">
                     <StackPanel Spacing="8" HorizontalAlignment="Center">

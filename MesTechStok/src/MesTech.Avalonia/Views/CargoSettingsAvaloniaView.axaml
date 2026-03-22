@@ -24,7 +24,7 @@
             <StackPanel Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
 
                 <!-- Varsayilan Kargo Firmasi -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Varsayilan Kargo Firmasi" FontSize="15" FontWeight="SemiBold"
@@ -36,7 +36,7 @@
                 </Border>
 
                 <!-- Kargo Desi Ayarlari -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Desi Hesaplama" FontSize="15" FontWeight="SemiBold"
@@ -66,7 +66,7 @@
                 </Border>
 
                 <!-- Otomatik Kargo Olusturma -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Otomasyon" FontSize="15" FontWeight="SemiBold"
@@ -87,7 +87,7 @@
                 </Border>
 
                 <!-- API Bilgileri -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="API Baglanti Bilgileri" FontSize="15" FontWeight="SemiBold"

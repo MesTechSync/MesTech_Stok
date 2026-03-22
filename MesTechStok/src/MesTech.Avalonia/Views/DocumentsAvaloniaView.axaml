@@ -31,7 +31,7 @@
                 <TextBox Grid.Column="0" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Belge Tipi" Width="140" Margin="8,0" />
                 <Button Grid.Column="2" Content="+ Belge Yukle" Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
+                        FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>
 
@@ -39,7 +39,7 @@
         <Grid Grid.Row="2" Margin="16">
             <!-- Loading Overlay -->
             <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsLoading}"
-                    CornerRadius="8" ZIndex="10">
+                    CornerRadius="{StaticResource MesRadiusMd}" ZIndex="10">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
                     <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
                     <TextBlock Text="Belgeler yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
@@ -52,7 +52,7 @@
                 <StackPanel Spacing="16">
 
                     <!-- Summary Card -->
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                             BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Belge Yonetimi" FontSize="18" FontWeight="SemiBold"
@@ -64,28 +64,28 @@
 
                     <!-- Document Categories -->
                     <Grid ColumnDefinitions="*,*,*,*" Margin="0,4,0,0">
-                        <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,8,0"
+                        <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="0,0,8,0"
                                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="FATURALAR" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesPurple}" />
                                 <TextBlock Text="Alis ve satis faturalari" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0"
+                        <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4,0,4,0"
                                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="IRSALIYELER" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesPrimaryBlue}" />
                                 <TextBlock Text="Sevk ve teslimat belgeleri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0"
+                        <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="4,0,4,0"
                                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="SOZLESMELER" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesTeal}" />
                                 <TextBlock Text="Tedarikci ve musteri sozlesmeleri" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="8,0,0,0"
+                        <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="8,0,0,0"
                                 BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="DIGER" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesAmber}" />
@@ -95,7 +95,7 @@
                     </Grid>
 
                     <!-- Empty Table Placeholder -->
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="24"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24"
                             BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1" MinHeight="200">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
                             <TextBlock Text="Belge listesi bos" FontSize="16" FontWeight="SemiBold"

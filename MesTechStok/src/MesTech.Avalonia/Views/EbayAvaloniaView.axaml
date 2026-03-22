@@ -37,7 +37,7 @@
 
         <!-- KPI Cards -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
-            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="6"
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="{DynamicResource MesBrandEbay}" />
@@ -51,7 +51,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="6"
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
@@ -65,7 +65,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="6"
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
@@ -79,7 +79,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="6"
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
                     <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
@@ -96,7 +96,7 @@
         </Grid>
 
         <!-- Recent Orders DataGrid -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="22,0,22,22"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,0,22,22"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid RowDefinitions="Auto,*">
                 <Border Grid.Row="0" Padding="20,14"
@@ -175,7 +175,7 @@
                 IsVisible="{Binding HasError}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="24" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"

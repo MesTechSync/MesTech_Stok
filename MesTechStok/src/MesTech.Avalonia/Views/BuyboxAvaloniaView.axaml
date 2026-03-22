@@ -31,19 +31,19 @@
 
             <!-- Summary Cards -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16,12" MinWidth="160">
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
                         <TextBlock Text="Kazanılan" FontSize="12" Foreground="{DynamicResource MesEmerald}" FontWeight="SemiBold" />
                         <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="16,12" MinWidth="160">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
                         <TextBlock Text="Kaybedilen" FontSize="12" Foreground="{DynamicResource MesRedBright}" FontWeight="SemiBold" />
                         <TextBlock Text="—" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" />
                     </StackPanel>
                 </Border>
-                <Border Background="{DynamicResource MesBgMist}" CornerRadius="8" Padding="16,12" MinWidth="160">
+                <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16,12" MinWidth="160">
                     <StackPanel>
                         <TextBlock Text="Toplam Ürün" FontSize="12" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding Items.Count}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
@@ -52,7 +52,7 @@
             </StackPanel>
 
             <!-- DataGrid -->
-            <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8"
+            <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                     BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1" Padding="0">
             <Grid>
                 <DataGrid ItemsSource="{Binding Items}"
@@ -69,7 +69,7 @@
                         <DataGridTemplateColumn Header="Durum" Width="140">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="vm:BuyboxItemViewModel">
-                                    <Border CornerRadius="4" Padding="8,4"
+                                    <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="8,4"
                                             HorizontalAlignment="Left"
                                             Background="{Binding StatusColor}">
                                         <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MesBgPrimary}"

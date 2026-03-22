@@ -32,7 +32,7 @@
             <StackPanel Spacing="24" MaxWidth="720">
 
                 <!-- Save Success -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
                         BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Bildirim ayarlari basariyla kaydedildi."
@@ -40,7 +40,7 @@
                 </Border>
 
                 <!-- Test Result -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,10"
                         IsVisible="{Binding IsTestSent}"
                         BorderBrush="{DynamicResource MesInfo}" BorderThickness="1">
                     <TextBlock Text="{Binding TestResult}"
@@ -48,7 +48,7 @@
                 </Border>
 
                 <!-- Section 1: Bildirim Kanallari -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -88,7 +88,7 @@
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <TextBox Text="{Binding EmailAddress}"
                                      Watermark="ornek@sirket.com" AutomationProperties.Name="ornek@sirket.com"
-                                     Padding="12,10" CornerRadius="8" FontSize="14" />
+                                     Padding="12,10" CornerRadius="{StaticResource MesRadiusMd}" FontSize="14" />
                         </StackPanel>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -120,7 +120,7 @@
                 </Border>
 
                 <!-- Section 2: Kategori Matrisi -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -173,7 +173,7 @@
                 </Border>
 
                 <!-- Section 3: Sessiz Saatler -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
@@ -205,7 +205,7 @@
                 </Border>
 
                 <!-- Section 4: Ozet Modu -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="24"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">

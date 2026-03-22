@@ -37,7 +37,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:PlatformCardDto">
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Margin="8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="8"
                                 Width="200" Padding="0"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                             <StackPanel>

@@ -71,7 +71,7 @@
             <ItemsControl ItemsSource="{Binding ScanResults}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:ScanResultItem">
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,0,8"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16" Margin="0,0,0,8"
                                 BorderBrush="{Binding BorderColor}" BorderThickness="1,1,1,1">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <!-- Status Icon -->
@@ -95,7 +95,7 @@
                                         <TextBlock Text="{Binding StockText}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBlock Text="{Binding PriceText}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <TextBlock Text="{Binding WarehouseName}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                                        <Border CornerRadius="4" Padding="6,1" Background="{Binding StockLevelColor}">
+                                        <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="6,1" Background="{Binding StockLevelColor}">
                                             <TextBlock Text="{Binding StockLevelText}" FontSize="10"
                                                        Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                         </Border>
