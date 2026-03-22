@@ -44,11 +44,11 @@ public class InvoiceGeneratedExpenseHandler
         {
             TenantId = Guid.Empty, // Will be resolved by invoice's TenantId via domain context
             Description = $"Fatura gideri — Fatura #{e.InvoiceId:N} (Tip: {e.Type})",
-            Amount = e.GrandTotal,
             ExpenseType = ExpenseType.Diger,
             Date = e.OccurredAt,
             Note = $"Otomatik olusturuldu. InvoiceId: {e.InvoiceId}, OrderId: {e.OrderId}"
         };
+        expense.SetAmount(e.GrandTotal);
 
         await _expenseRepo.AddAsync(expense).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
