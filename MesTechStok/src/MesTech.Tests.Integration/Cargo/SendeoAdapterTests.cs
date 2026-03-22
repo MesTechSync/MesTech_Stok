@@ -124,7 +124,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
-        result.ErrorMessage.Should().Contain("400", "error message should include HTTP status code");
+        result.ErrorMessage.Should().Contain("BadRequest", "error message should include HTTP status name");
         result.TrackingNumber.Should().BeNull();
     }
 
@@ -460,7 +460,7 @@ public class SendeoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert: 401 treated as failure (not retriable — only 5xx triggers Polly)
         result.Success.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("401", "error message should include HTTP 401 status");
+        result.ErrorMessage.Should().Contain("Unauthorized", "error message should include HTTP status name");
         result.TrackingNumber.Should().BeNull();
         _mockServer.LogEntries.Should().HaveCount(1, "401 should not trigger Polly retry");
     }

@@ -165,7 +165,7 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("401");
+        result.ErrorMessage.Should().Contain("Unauthorized");
     }
 
     // ══════════════════════════════════════════════════════════════════════════

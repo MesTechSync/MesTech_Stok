@@ -150,7 +150,7 @@ public class HepsijetAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         // Assert
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
-        result.ErrorMessage.Should().Contain("400");
+        result.ErrorMessage.Should().Contain("BadRequest");
     }
 
     // ══════════════════════════════════════

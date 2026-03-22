@@ -182,7 +182,7 @@ public class ShopifyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("401");
+        result.ErrorMessage.Should().Contain("Unauthorized");
     }
 
     // ══════════════════════════════════════════════════════════════════════════

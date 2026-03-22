@@ -49,7 +49,11 @@ public class PazaramaAdapterHardeningTests : IClassFixture<WireMockFixture>, IDi
             BaseAddress = new Uri(_fixture.BaseUrl),
             Timeout = timeout ?? TimeSpan.FromSeconds(5)
         };
-        return new PazaramaAdapter(httpClient, _logger);
+        var mockFactory = new Moq.Mock<IHttpClientFactory>();
+        mockFactory
+            .Setup(f => f.CreateClient(Moq.It.IsAny<string>()))
+            .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) });
+        return new PazaramaAdapter(httpClient, _logger, mockFactory.Object);
     }
 
     private Dictionary<string, string> CredentialsWithBaseUrl() => new(TestCredentials)
