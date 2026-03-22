@@ -34,6 +34,16 @@
     <Setter Property="MinWidth" Value="200"/>
     <Setter Property="MinHeight" Value="100"/>
     <Setter Property="BoxShadow" Value="{DynamicResource MesElevation1}"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2" />
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.mestech-kpi-card:pointerover">
+    <Setter Property="BoxShadow" Value="{DynamicResource MesElevation2}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MesPrimaryBlue}"/>
   </Style>
 
   <!-- KPI Value Text -->
@@ -57,6 +67,14 @@
     <Setter Property="Padding" Value="{StaticResource PaddingXLarge}"/>
     <Setter Property="Margin" Value="0,0,0,16"/>
     <Setter Property="BoxShadow" Value="0 1 2 0 #0D000000"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.mestech-section:pointerover">
+    <Setter Property="BoxShadow" Value="{DynamicResource MesElevation2}"/>
   </Style>
 
   <!-- Section Title -->
