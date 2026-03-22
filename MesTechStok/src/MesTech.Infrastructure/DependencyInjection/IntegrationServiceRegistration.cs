@@ -431,6 +431,9 @@ public static class IntegrationServiceRegistration
         // İ-14 R-01: Register Polly-resilient named HttpClients for all ERP adapters
         services.AddErpResilientHttpClients();
 
+        // Invoice provider Polly resilience — retry + circuit breaker on all invoice HttpClients
+        services.AddInvoiceResilientHttpClients();
+
         // MUH-02: Parasut ERP adapter — OAuth2 CC token service + JSON:API sync
         services.AddSingleton<ParasutTokenService>(sp =>
             new ParasutTokenService(
