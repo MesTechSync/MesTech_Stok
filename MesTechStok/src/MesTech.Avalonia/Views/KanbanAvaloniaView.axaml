@@ -28,7 +28,7 @@
                             Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
-                            BorderBrush="White" BorderThickness="1" Padding="12,8"
+                            BorderBrush="{DynamicResource MesBgPrimary}" BorderThickness="1" Padding="12,8"
                             CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
             </Grid>

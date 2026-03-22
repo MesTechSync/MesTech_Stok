@@ -108,7 +108,7 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="16" />
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="14" Foreground="#666"
+                                   FontSize="14" Foreground="{DynamicResource MesCoolGray}"
                                    TextWrapping="Wrap" MaxWidth="400" />
                         <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
                                 Command="{Binding RefreshCommand}"
