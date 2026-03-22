@@ -12,6 +12,9 @@ public partial class MarketplacesAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Pazaryeri yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int platformCount = 10;
+    [ObservableProperty] private int totalCount;
+    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> platforms = new();
+    [ObservableProperty] private string? selectedPlatform;
 
     public async Task LoadAsync()
     {

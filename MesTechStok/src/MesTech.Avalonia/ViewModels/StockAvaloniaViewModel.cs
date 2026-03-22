@@ -11,6 +11,9 @@ public partial class StockAvaloniaViewModel : ObservableObject
 {
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Stok yonetimi ekrani — Dalga 10 sonrasi aktif edilecek.";
+    [ObservableProperty] private int totalCount;
+    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> stockItems = new();
+    [ObservableProperty] private string? selectedStockItem;
 
     public async Task LoadAsync()
     {
