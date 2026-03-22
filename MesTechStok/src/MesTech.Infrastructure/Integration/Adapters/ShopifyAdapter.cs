@@ -1001,8 +1001,9 @@ public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhook
 
                 if (!deleteResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Shopify UnregisterWebhook delete failed for id={Id}: {Status}",
-                        webhookId, deleteResponse.StatusCode);
+                    var errorBody = await deleteResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("Shopify UnregisterWebhook delete failed for id={Id}: {Status} {Error}",
+                        webhookId, deleteResponse.StatusCode, errorBody);
                     allDeleted = false;
                 }
             }

@@ -219,7 +219,8 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Ciceksepeti PullProducts page {Page} failed: {Status}", page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ciceksepeti PullProducts page {Page} failed: {Status} {Error}", page, response.StatusCode, errorBody);
                 break;
             }
 
@@ -324,7 +325,8 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Ciceksepeti PullOrders page {Page} failed: {Status}", page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ciceksepeti PullOrders page {Page} failed: {Status} {Error}", page, response.StatusCode, errorBody);
                 break;
             }
 
@@ -486,7 +488,8 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Ciceksepeti GetReturns page {Page} failed: {Status}", page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ciceksepeti GetReturns page {Page} failed: {Status} {Error}", page, response.StatusCode, errorBody);
                 break;
             }
 

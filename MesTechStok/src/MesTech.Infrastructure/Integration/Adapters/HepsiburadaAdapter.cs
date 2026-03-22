@@ -222,8 +222,9 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Hepsiburada PullProducts offset {Offset} failed: {Status}",
-                    offset, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Hepsiburada PullProducts offset {Offset} failed: {Status} {Error}",
+                    offset, response.StatusCode, errorBody);
                 break;
             }
 
@@ -345,8 +346,9 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Hepsiburada PullOrders offset {Offset} failed: {Status}",
-                    offset, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Hepsiburada PullOrders offset {Offset} failed: {Status} {Error}",
+                    offset, response.StatusCode, errorBody);
                 break;
             }
 
