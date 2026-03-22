@@ -13,8 +13,8 @@
         <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <PathIcon Data="{StaticResource IconChart}" Width="22" Height="22" Foreground="White"/>
-                    <TextBlock Text="Fatura Raporlari" Foreground="White"
+                    <PathIcon Data="{StaticResource IconChart}" Width="22" Height="22" Foreground="{DynamicResource MesBgPrimary}"/>
+                    <TextBlock Text="Fatura Raporlari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                 </StackPanel>
@@ -106,7 +106,7 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding EArsivCount}"
                                    FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
-                                   Foreground="#7B1FA2"/>
+                                   Foreground="{DynamicResource MesPurple}"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>

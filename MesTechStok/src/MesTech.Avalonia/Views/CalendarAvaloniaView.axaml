@@ -11,10 +11,10 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Takvim" Foreground="White"
+                    <TextBlock Text="Takvim" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
-                        <TextBlock Text="{Binding CurrentMonth}" Foreground="White"
+                        <TextBlock Text="{Binding CurrentMonth}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>

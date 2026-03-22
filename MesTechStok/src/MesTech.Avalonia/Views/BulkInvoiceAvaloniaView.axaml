@@ -11,8 +11,8 @@
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
-                <TextBlock Text="Toplu Fatura Olustur" Foreground="White"
+                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="{DynamicResource MesBgPrimary}"/>
+                <TextBlock Text="Toplu Fatura Olustur" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                            VerticalAlignment="Center"/>
             </StackPanel>
@@ -36,7 +36,7 @@
                           SelectedItem="{Binding SelectedProvider}"/>
                 <Button Grid.Column="4" Content="Toplu Fatura Olustur"
                         Command="{Binding ProcessBulkCommand}"
-                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         Margin="12,0,0,0"/>
             </Grid>

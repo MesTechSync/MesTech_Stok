@@ -14,7 +14,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0" Text="Yedekleme Yonetimi"
-                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Manuel Yedekle"
                         Command="{Binding ManualBackupCommand}"
@@ -22,7 +22,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>

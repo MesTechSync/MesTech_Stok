@@ -10,11 +10,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Belge Klasorleri" Foreground="White"
+                    <TextBlock Text="Belge Klasorleri" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} klasor'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Klasor"
@@ -43,7 +43,7 @@
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="4"
                                                     Width="32" Height="32" Margin="0,0,10,0">
-                                                <TextBlock Text="{Binding Icon}" Foreground="White"
+                                                <TextBlock Text="{Binding Icon}" Foreground="{DynamicResource MesBgPrimary}"
                                                            FontSize="14" FontWeight="Bold"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             </Border>

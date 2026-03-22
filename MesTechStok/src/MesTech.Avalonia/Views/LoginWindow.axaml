@@ -75,7 +75,7 @@
               FontSize="{StaticResource FontSizeBody}"
               FontWeight="SemiBold"
               Background="{DynamicResource PrimaryBlueBrush}"
-              Foreground="White"
+              Foreground="{DynamicResource MesBgPrimary}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Click="OnLoginClick"/>
 

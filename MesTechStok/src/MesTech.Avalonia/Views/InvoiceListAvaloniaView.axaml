@@ -13,18 +13,18 @@
         <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
-                    <TextBlock Text="Faturalar" Foreground="White"
+                    <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="{DynamicResource MesBgPrimary}"/>
+                    <TextBlock Text="Faturalar" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="White" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}"
                                    VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Fatura"
-                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
             </Grid>
         </Border>
@@ -75,7 +75,7 @@
                                         <Binding Path="Type"/>
                                     </MultiBinding>
                                 </Border.Background>
-                                <TextBlock Text="{Binding Type}" FontSize="11" Foreground="White"
+                                <TextBlock Text="{Binding Type}" FontSize="11" Foreground="{DynamicResource MesBgPrimary}"
                                            FontWeight="SemiBold"/>
                             </Border>
                         </DataTemplate>

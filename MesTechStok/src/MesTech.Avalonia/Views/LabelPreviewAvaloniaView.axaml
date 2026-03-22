@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kargo Etiketi Onizleme" Foreground="White"
+                    <TextBlock Text="Kargo Etiketi Onizleme" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TrackingNumber}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <ComboBox Grid.Column="1" Width="100" Margin="0,0,8,0"
@@ -29,7 +29,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Indir"
                         Command="{Binding DownloadCommand}"
-                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -45,10 +45,10 @@
                     <Border Background="{DynamicResource MesDarkSlate}" Padding="16,12">
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="{Binding CargoProvider}"
-                                       Foreground="White" FontSize="16" FontWeight="Bold"
+                                       Foreground="{DynamicResource MesBgPrimary}" FontSize="16" FontWeight="Bold"
                                        VerticalAlignment="Center" />
                             <TextBlock Grid.Column="1" Text="{Binding TrackingNumber}"
-                                       Foreground="White" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesBgPrimary}" FontSize="14" FontWeight="SemiBold"
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Border>

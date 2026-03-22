@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Urun Yonetimi" Foreground="White"
+                    <TextBlock Text="Urun Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
 
@@ -30,7 +30,7 @@
                         <Button.Styles>
                             <Style Selector="Button">
                                 <Setter Property="Background" Value="{DynamicResource MesBadgeOverlay}" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                             </Style>
                         </Button.Styles>
                         <TextBlock Text="&#x2630;" FontSize="16" />
@@ -41,7 +41,7 @@
                         <Button.Styles>
                             <Style Selector="Button">
                                 <Setter Property="Background" Value="{DynamicResource MesBadgeOverlay}" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                             </Style>
                         </Button.Styles>
                         <TextBlock Text="&#x25A6;" FontSize="16" />
@@ -225,7 +225,7 @@
                                                 Background="{DynamicResource MesRedClassic}" CornerRadius="0,0,0,8"
                                                 Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top">
                                             <TextBlock Text="INDIRIM" FontSize="10"
-                                                       Foreground="White" FontWeight="Bold" />
+                                                       Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                         </Border>
                                     </Grid>
                                 </Border>

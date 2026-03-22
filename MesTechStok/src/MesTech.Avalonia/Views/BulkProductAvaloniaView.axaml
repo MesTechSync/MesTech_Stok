@@ -12,7 +12,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="Toplu Urun Islemleri" Foreground="White"
+                <TextBlock Text="Toplu Urun Islemleri" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -40,7 +40,7 @@
                                              Height="36" FontSize="13" CornerRadius="4" />
                                     <Button Grid.Column="1" Content="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
-                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="16,8" CornerRadius="6"
                                             Margin="8,0,0,0" />
                                 </Grid>
@@ -129,13 +129,13 @@
                                     <Button Grid.Column="1" Content="Iptal"
                                             Command="{Binding CancelCommand}"
                                             IsVisible="{Binding IsImporting}"
-                                            Background="{DynamicResource MesDanger}" Foreground="White"
+                                            Background="{DynamicResource MesDanger}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="16,8" CornerRadius="6"
                                             Margin="12,0,8,0" />
                                     <Button Grid.Column="2" Content="Import Baslat"
                                             Command="{Binding ImportCommand}"
                                             IsEnabled="{Binding CanImport}"
-                                            Background="{DynamicResource MesGreenMaterial}" Foreground="White"
+                                            Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
                                 </Grid>
                             </StackPanel>
@@ -193,7 +193,7 @@
                                            VerticalAlignment="Center" Margin="0,0,16,0" />
                                 <Button Grid.Column="4" Content="Indir"
                                         Command="{Binding ExportCommand}"
-                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                         FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
                             </Grid>
                         </Border>
@@ -212,7 +212,7 @@
                             <StackPanel Spacing="8">
                                 <TextBlock Text="Toplu Guncelleme" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Border Background="#E3F2FD" CornerRadius="12" Padding="12,4">
+                                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="12" Padding="12,4">
                                         <TextBlock Text="{Binding SelectedProductCount, StringFormat='{}{0} urun secili'}"
                                                    FontSize="13" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                                     </Border>
@@ -274,7 +274,7 @@
                                 <Button Grid.Column="1" Content="Uygula"
                                         Command="{Binding BulkUpdateCommand}"
                                         IsEnabled="{Binding CanBulkUpdate}"
-                                        Background="{DynamicResource MesBrandAccent}" Foreground="White"
+                                        Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"
                                         FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
                             </Grid>
                         </Border>

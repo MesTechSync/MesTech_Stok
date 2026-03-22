@@ -10,7 +10,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <TextBlock Text="Feed Önizleme" Foreground="White"
+            <TextBlock Text="Feed Önizleme" Foreground="{DynamicResource MesBgPrimary}"
                        FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
 
@@ -23,7 +23,7 @@
                 <ComboBox ItemsSource="{Binding FormatOptions}"
                           SelectedItem="{Binding FeedFormat}" Width="100" />
                 <Button Content="Çek" Command="{Binding PreviewFeedCommand}"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </StackPanel>
         </Border>
@@ -90,7 +90,7 @@
                     <ItemsControl ItemsSource="{Binding ValidationErrors}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" FontSize="12" Foreground="#BF360C" Padding="4,1" />
+                                <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource MesRedDark}" Padding="4,1" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

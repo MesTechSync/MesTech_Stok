@@ -13,8 +13,8 @@
         <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <PathIcon Data="{StaticResource IconSettings}" Width="22" Height="22" Foreground="White"/>
-                    <TextBlock Text="ERP Entegrasyon Ayarlari" Foreground="White"
+                    <PathIcon Data="{StaticResource IconSettings}" Width="22" Height="22" Foreground="{DynamicResource MesBgPrimary}"/>
+                    <TextBlock Text="ERP Entegrasyon Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                 </StackPanel>
@@ -25,7 +25,7 @@
                         Margin="0,0,8,0"/>
                 <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveSettingsCommand}"
-                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
             </Grid>
         </Border>

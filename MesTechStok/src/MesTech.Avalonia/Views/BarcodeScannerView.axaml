@@ -12,16 +12,16 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Barkod Tarama Modu" Foreground="White"
+                    <TextBlock Text="Barkod Tarama Modu" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding ScanSummary}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Temizle" Command="{Binding ClearCommand}"
-                            Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="12,8" CornerRadius="6" />
                 </StackPanel>
             </Grid>
@@ -38,7 +38,7 @@
                          FontSize="16" Padding="12,10"
                          Name="ScanInputBox" />
                 <Button Grid.Column="2" Content="Tara" Command="{Binding ScanCommand}"
-                        Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="20,10" CornerRadius="6" Margin="12,0,0,0" />
             </Grid>
         </Border>
@@ -80,7 +80,7 @@
                                         VerticalAlignment="Center">
                                     <TextBlock Text="{Binding StatusIcon}" FontSize="16"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                                               Foreground="White" FontWeight="Bold" />
+                                               Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                 </Border>
 
                                 <!-- Product Info -->
@@ -97,7 +97,7 @@
                                         <TextBlock Text="{Binding WarehouseName}" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                                         <Border CornerRadius="4" Padding="6,1" Background="{Binding StockLevelColor}">
                                             <TextBlock Text="{Binding StockLevelText}" FontSize="10"
-                                                       Foreground="White" FontWeight="Bold" />
+                                                       Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                         </Border>
                                     </StackPanel>
                                     <TextBlock Text="Urun bulunamadi" FontSize="12" Foreground="{DynamicResource MesRedBright}"

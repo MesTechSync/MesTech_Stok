@@ -14,15 +14,15 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kargo Firmalari" Foreground="White"
+                    <TextBlock Text="Kargo Firmalari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding ConnectedProviders, StringFormat='{}{0} bagli'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalProviders, StringFormat='{}{0} toplam'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -76,7 +76,7 @@
                                     <Button Content="Gonderim Olustur"
                                             Command="{Binding CreateShipmentCommand}"
                                             Padding="10,6" FontSize="12" CornerRadius="4"
-                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" />
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
                                     <Button Content="Takip"
                                             Command="{Binding TrackCommand}"
                                             Padding="10,6" FontSize="12" CornerRadius="4" />

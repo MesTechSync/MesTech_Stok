@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Zaman Kaydi" Foreground="White"
+                    <TextBlock Text="Zaman Kaydi" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -60,7 +60,7 @@
                             </StackPanel>
                         </Grid>
                         <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveEntryCommand}"
-                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                 Padding="16,8" CornerRadius="6" HorizontalAlignment="Left" />
                     </StackPanel>
                 </Border>

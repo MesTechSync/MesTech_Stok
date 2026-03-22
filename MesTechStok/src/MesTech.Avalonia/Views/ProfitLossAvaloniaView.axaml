@@ -10,16 +10,16 @@
         <!-- Header with period navigation -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu (EN)" Foreground="White"
+                <TextBlock Grid.Column="0" Text="Kar / Zarar Raporu (EN)" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
                     <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
-                            Background="Transparent" Foreground="White"
+                            Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="16" Padding="8,4" />
-                    <TextBlock Text="{Binding PeriodLabel}" Foreground="White"
+                    <TextBlock Text="{Binding PeriodLabel}" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
-                            Background="Transparent" Foreground="White"
+                            Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="16" Padding="8,4" />
                     <Button Content="Refresh" Command="{Binding RefreshCommand}"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"

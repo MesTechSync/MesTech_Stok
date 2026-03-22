@@ -14,12 +14,12 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Denetim Kayitlari" Foreground="White"
+                    <TextBlock Text="Denetim Kayitlari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="CSV Disari Aktar"
                         Command="{Binding ExportCsvCommand}"
-                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"

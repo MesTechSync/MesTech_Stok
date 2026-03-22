@@ -10,7 +10,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <TextBlock Text="Ürün Çekme" Foreground="White"
+            <TextBlock Text="Ürün Çekme" Foreground="{DynamicResource MesBgPrimary}"
                        FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
         </Border>
 
@@ -21,10 +21,10 @@
                 <TextBox Width="600" Watermark="Ürün URL'si giriniz..." AutomationProperties.Name="Ürün URL'si giriniz..."
                          Text="{Binding ProductUrl}" Padding="10,8" />
                 <Button Content="Çek" Command="{Binding FetchProductCommand}"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
                 <Button Content="Temizle" Command="{Binding ResetCommand}"
-                        Background="{DynamicResource MesMutedGray}" Foreground="White"
+                        Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="16,8" CornerRadius="6" />
             </StackPanel>
         </Border>
@@ -67,7 +67,7 @@
 
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
                             <Button Content="Ürün Olarak Kaydet" Command="{Binding SaveProductCommand}"
-                                    Background="{DynamicResource MesGreenMaterial}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="6"
                                     IsEnabled="{Binding !IsSaving}" />
                         </StackPanel>

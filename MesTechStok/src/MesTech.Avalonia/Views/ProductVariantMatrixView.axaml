@@ -15,28 +15,28 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Varyant Matrisi" Foreground="White"
+                    <TextBlock Text="Varyant Matrisi" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
-                        <TextBlock Text="{Binding ProductName}" Foreground="White"
+                        <TextBlock Text="{Binding ProductName}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
-                        <TextBlock Text="{Binding ProductSKU}" Foreground="White"
+                        <TextBlock Text="{Binding ProductSKU}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Toplu Fiyat Guncelle"
                         Command="{Binding BulkUpdatePriceCommand}"
-                        Background="{DynamicResource MesAmber}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Platformlara Gonder"
                         Command="{Binding SendToPlatformCommand}"
-                        Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Tumu Kaydet"
                         Command="{Binding SaveAllCommand}"
-                        Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -52,7 +52,7 @@
                         <TextBox Width="160" Text="{Binding NewAttributeName}"
                                  Watermark="Ozellik adi (orn: Renk)" AutomationProperties.Name="Ozellik adi (orn: Renk)" Padding="8,6" />
                         <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
-                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                 Padding="12,6" CornerRadius="4" FontSize="12" />
                     </StackPanel>
                 </Grid>
@@ -100,7 +100,7 @@
                                         <TextBox Width="100" Text="{Binding NewValue}"
                                                  Watermark="Deger ekle" AutomationProperties.Name="Deger ekle" Padding="6,4" FontSize="12" />
                                         <Button Content="+" Command="{Binding AddValueCommand}"
-                                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                                 Padding="8,4" CornerRadius="4" FontSize="12" />
                                     </StackPanel>
 
@@ -119,7 +119,7 @@
 
                 <!-- Generate Button -->
                 <Button Content="Varyantlari Olustur" Command="{Binding GenerateVariantsCommand}"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Left"
                         IsEnabled="{Binding CanGenerate}" />
             </StackPanel>
@@ -196,10 +196,10 @@
                 <TextBox Width="120" Text="{Binding PriceUpdateValue}"
                          Watermark="Deger" AutomationProperties.Name="Deger" Padding="8,6" />
                 <Button Content="Uygula" Command="{Binding ApplyBulkPriceCommand}"
-                        Background="{DynamicResource MesAmber}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,6" CornerRadius="4" />
                 <Button Content="Iptal" Command="{Binding CancelBulkPriceCommand}"
-                        Background="{DynamicResource MesMutedGray}" Foreground="White"
+                        Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="12,6" CornerRadius="4" />
             </StackPanel>
         </Border>

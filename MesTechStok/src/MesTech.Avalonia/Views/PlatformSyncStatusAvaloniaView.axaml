@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Platform Senkronizasyon Durumu" Foreground="White"
+                    <TextBlock Text="Platform Senkronizasyon Durumu" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Tümü Yenile"
@@ -58,7 +58,7 @@
                         <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
                             <Border Background="{Binding HealthColor}" CornerRadius="4" Padding="8,2"
                                     HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding HealthStatus}" FontSize="11" Foreground="White" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding HealthStatus}" FontSize="11" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold" />
                             </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -69,7 +69,7 @@
                             <Button Content="Sync"
                                     Command="{Binding $parent[DataGrid].((vm:PlatformSyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
                                     CommandParameter="{Binding}"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontSize="11" FontWeight="SemiBold"
                                     Padding="10,4" CornerRadius="4"
                                     HorizontalAlignment="Center" VerticalAlignment="Center" />

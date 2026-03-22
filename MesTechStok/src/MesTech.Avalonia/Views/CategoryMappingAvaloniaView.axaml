@@ -13,22 +13,22 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Kategori Eslestirme" Foreground="White"
+                    <TextBlock Text="Kategori Eslestirme" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} eslesme'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}" Width="160" Margin="0,0,12,0" />
                 <Button Grid.Column="2" Content="Sync"
                         Command="{Binding SyncPlatformCategoriesCommand}"
-                        Background="{DynamicResource MesTeal}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="AI Otomatik Eslestir"
                         Command="{Binding AiAutoMapCommand}"
-                        Background="{DynamicResource MesBrandAccent}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="4" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -83,10 +83,10 @@
             <!-- Map Buttons -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12" Spacing="8">
                 <Button Content="Esle >" Command="{Binding MapCategoryCommand}"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
                 <Button Content="&lt; Kaldir" Command="{Binding UnmapCategoryCommand}"
-                        Background="{DynamicResource MesDanger}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesDanger}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" HorizontalAlignment="Stretch" />
             </StackPanel>
 

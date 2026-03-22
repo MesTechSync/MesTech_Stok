@@ -216,7 +216,7 @@
                                                     Padding="10,4"
                                                     CornerRadius="4"
                                                     Background="{DynamicResource MesPrimaryBlue}"
-                                                    Foreground="White"
+                                                    Foreground="{DynamicResource MesBgPrimary}"
                                                     VerticalAlignment="Center"
                                                     Margin="0,0,8,0" />
                                         </Grid>
@@ -288,7 +288,7 @@
                             Width="40" Height="40"
                             HorizontalAlignment="Center">
                         <TextBlock Text="AI" FontSize="14" FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource MesBgPrimary}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Border>
@@ -312,7 +312,7 @@
                 <Button Grid.Column="2"
                         Content="Detaylar &#x2192;"
                         Command="{Binding OpenAIInsightCommand}"
-                        Background="{DynamicResource MesPurple}" Foreground="White"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
                         FontSize="12" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="8"
                         VerticalAlignment="Center" />
@@ -353,7 +353,7 @@
                            HorizontalAlignment="Center" Opacity="0.7" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Margin="0,16,0,0" Padding="20,8" CornerRadius="6"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -384,7 +384,7 @@
                                 Command="{Binding RefreshCommand}"
                                 Padding="20,8" Margin="0,8,0,0"
                                 CornerRadius="6"
-                                Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                 HorizontalAlignment="Center" />
                     </StackPanel>
                 </Border>

@@ -10,7 +10,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="CRM Dashboard" Foreground="White"
+                <TextBlock Text="CRM Dashboard" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
@@ -157,7 +157,7 @@
                                                 <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="14"
                                                         Width="28" Height="28" Margin="0,0,10,0">
                                                     <TextBlock Text="{Binding Type}"
-                                                               Foreground="White" FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MesBgPrimary}" FontSize="9" FontWeight="Bold"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>
                                                 <StackPanel Grid.Column="1">

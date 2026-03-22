@@ -27,7 +27,7 @@
       <!-- Logo -->
       <TextBlock Text="MesTech"
                  FontSize="48" FontWeight="Bold"
-                 Foreground="White"
+                 Foreground="{DynamicResource MesBgPrimary}"
                  HorizontalAlignment="Center"/>
 
       <TextBlock Text="Entegratör"
@@ -62,7 +62,7 @@
       <TextBlock x:Name="ClockText"
                  Text="00:00"
                  FontSize="36" FontWeight="Light"
-                 Foreground="White"
+                 Foreground="{DynamicResource MesBgPrimary}"
                  HorizontalAlignment="Right"/>
       <TextBlock x:Name="DateText"
                  Text=""

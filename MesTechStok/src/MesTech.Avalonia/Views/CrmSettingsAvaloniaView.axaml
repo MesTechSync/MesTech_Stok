@@ -12,7 +12,7 @@
         <!-- Header -->
         <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="CRM Ayarlari" Foreground="White"
+                <TextBlock Text="CRM Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveSettingsCommand}"
@@ -86,13 +86,13 @@
                                      Watermark="Yeni sablon metni..." AutomationProperties.Name="Yeni sablon metni..."
                                      Margin="0,0,8,0" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddTemplateCommand}"
-                                    Background="{DynamicResource MesEmerald}" Foreground="White" Padding="14,8"
+                                    Background="{DynamicResource MesEmerald}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
                                     CornerRadius="6" FontWeight="SemiBold" />
                         </Grid>
 
                         <!-- Remove selected -->
                         <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
-                                Background="{DynamicResource MesRedBright}" Foreground="White" Padding="14,8"
+                                Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
                                 CornerRadius="6" FontSize="12"
                                 HorizontalAlignment="Left"
                                 IsEnabled="{Binding SelectedTemplate, Converter={x:Static ObjectConverters.IsNotNull}}" />

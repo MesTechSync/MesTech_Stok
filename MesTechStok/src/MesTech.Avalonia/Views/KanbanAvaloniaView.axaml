@@ -19,7 +19,7 @@
         <!-- Header -->
         <Border Grid.Row="1" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="Firsatlar — Kanban" Foreground="White"
+                <TextBlock Text="Firsatlar — Kanban" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
@@ -27,7 +27,7 @@
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="6" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
-                            Background="Transparent" Foreground="White"
+                            Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderBrush="White" BorderThickness="1" Padding="12,8"
                             CornerRadius="6" />
                 </StackPanel>
@@ -58,12 +58,12 @@
                                         <SolidColorBrush Color="{Binding Color}" />
                                     </Border.Background>
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Text="{Binding Name}" Foreground="White"
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource MesBgPrimary}"
                                                    FontWeight="SemiBold" FontSize="13"
                                                    Grid.Column="0" />
                                         <Border Grid.Column="1" Background="{DynamicResource MesBadgeOverlay}"
                                                 CornerRadius="10" Padding="6,2">
-                                            <TextBlock Text="{Binding DealCount}" Foreground="White"
+                                            <TextBlock Text="{Binding DealCount}" Foreground="{DynamicResource MesBgPrimary}"
                                                        FontSize="11" FontWeight="Bold" />
                                         </Border>
                                     </Grid>

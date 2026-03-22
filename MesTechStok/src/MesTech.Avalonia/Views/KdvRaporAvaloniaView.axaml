@@ -8,14 +8,14 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#B45309" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesAmberDark}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="KDV Raporu" Foreground="White"
+                    <TextBlock Text="KDV Raporu" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} fatura'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"

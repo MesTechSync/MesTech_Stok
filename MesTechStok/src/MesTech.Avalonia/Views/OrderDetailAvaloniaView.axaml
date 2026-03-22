@@ -13,16 +13,16 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Siparis Detay" Foreground="White"
+                    <TextBlock Text="Siparis Detay" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding OrderNumber, StringFormat='#{0}'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border CornerRadius="4" Padding="8,2"
                             Background="{Binding StatusColor}">
                         <TextBlock Text="{Binding OrderStatus}" FontSize="11"
-                                   Foreground="White" FontWeight="Bold" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"

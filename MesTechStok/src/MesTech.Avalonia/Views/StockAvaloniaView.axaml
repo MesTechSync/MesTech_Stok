@@ -11,7 +11,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Stok Yonetimi"
-                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -25,7 +25,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Depo" Width="140" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Stok Hareketi" Background="{DynamicResource MesTeal}" Foreground="White"
+                <Button Grid.Column="2" Content="+ Stok Hareketi" Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

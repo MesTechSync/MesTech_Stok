@@ -11,11 +11,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Pazaryerleri" Foreground="White"
+                    <TextBlock Text="Pazaryerleri" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding PlatformCount, StringFormat='{}{0} platform'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -30,7 +30,7 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Platform ara..." AutomationProperties.Name="Platform ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Platform Ekle" Background="{DynamicResource MesBrandAccent}" Foreground="White"
+                <Button Grid.Column="2" Content="+ Platform Ekle" Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>

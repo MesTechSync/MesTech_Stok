@@ -11,10 +11,10 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="MESA OS — AI Dashboard" Foreground="White"
+                    <TextBlock Text="MESA OS — AI Dashboard" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="#10B98144" CornerRadius="10" Padding="8,2">
-                        <TextBlock Text="{Binding AiStatus}" Foreground="White"
+                        <TextBlock Text="{Binding AiStatus}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -85,7 +85,7 @@
                                             <Grid ColumnDefinitions="Auto,*,Auto">
                                                 <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="6"
                                                         Width="36" Height="36" Margin="0,0,12,0">
-                                                    <TextBlock Text="{Binding Icon}" Foreground="White"
+                                                    <TextBlock Text="{Binding Icon}" Foreground="{DynamicResource MesBgPrimary}"
                                                                FontSize="16" FontWeight="Bold"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>

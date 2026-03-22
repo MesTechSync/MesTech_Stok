@@ -9,7 +9,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <TextBlock Text="Hakkinda" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="Hakkinda" Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold" />
         </Border>
 
         <!-- Content -->
@@ -20,7 +20,7 @@
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                     <Border Background="{DynamicResource MesPrimaryBlue}" CornerRadius="16" Width="80" Height="80"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="MT" Foreground="White" FontSize="32" FontWeight="Bold"
+                        <TextBlock Text="MT" Foreground="{DynamicResource MesBgPrimary}" FontSize="32" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="MesTech Stok Yonetimi" FontSize="24" FontWeight="Bold"

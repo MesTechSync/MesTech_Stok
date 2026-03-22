@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesRedAlert}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Stok Uyarilari" Foreground="White"
+                    <TextBlock Text="Stok Uyarilari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding AlertSummary}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -56,7 +56,7 @@
                                         VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SeverityIcon}" FontSize="18"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                                               Foreground="White" FontWeight="Bold" />
+                                               Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                                 </Border>
 
                                 <!-- Alert Details -->
@@ -78,7 +78,7 @@
                                 <!-- Action Buttons -->
                                 <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
                                     <Button Content="Siparis Ver" Padding="10,4" CornerRadius="4"
-                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontSize="11" FontWeight="SemiBold" />
                                     <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="4"
                                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" FontSize="11" />
                                 </StackPanel>

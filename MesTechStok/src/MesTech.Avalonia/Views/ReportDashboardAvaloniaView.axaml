@@ -14,7 +14,7 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="Rapor Paneli"
-                           Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesBgPrimary}" FontSize="18" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -53,27 +53,27 @@
                             <Button Content="Stok Degerleme"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Stok Degerleme"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Platform Performans"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Platform Performans"
-                                    Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Musteri Yasam Boyu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="CLV Analizi"
-                                    Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Gonderim Raporu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Gonderim Raporu"
-                                    Background="#EA580C" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesWarning}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                             <Button Content="Vergi Ozeti"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Vergi Ozeti"
-                                    Background="{DynamicResource MesRedAlert}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
                         </WrapPanel>
                     </StackPanel>
@@ -141,7 +141,7 @@
                             <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
                                 <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                         Command="{Binding GenerateReportCommand}"
-                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                         Padding="24,12" CornerRadius="6"
                                         HorizontalAlignment="Left" />
                             </StackPanel>
