@@ -124,6 +124,10 @@ public class Product : BaseEntity, ITenantEntity
 
     public void AdjustStock(int quantity, StockMovementType movementType, string? reason = null)
     {
+        // Guard: stok çıkışında negatife düşmeyi engelle
+        if (quantity < 0 && Stock + quantity < 0)
+            throw new InsufficientStockException(SKU, Stock, Math.Abs(quantity));
+
         var previousStock = Stock;
         Stock += quantity;
         LastStockUpdate = DateTime.UtcNow;
@@ -149,6 +153,8 @@ public class Product : BaseEntity, ITenantEntity
 
     public void UpdatePrice(decimal newSalePrice)
     {
+        if (newSalePrice < 0)
+            throw new ArgumentException("Satış fiyatı negatif olamaz.", nameof(newSalePrice));
         if (newSalePrice == SalePrice) return;
         var oldPrice = SalePrice;
         SalePrice = newSalePrice;

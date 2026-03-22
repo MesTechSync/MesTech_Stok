@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public class Bitrix24DealProductRow : BaseEntity, ITenantEntity
 {
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public Guid Bitrix24DealId { get; set; }
     public Guid? ProductId { get; set; }
     public string ExternalProductId { get; set; } = string.Empty;
