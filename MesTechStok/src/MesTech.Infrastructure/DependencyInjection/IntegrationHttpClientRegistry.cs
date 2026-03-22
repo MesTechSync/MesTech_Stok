@@ -60,6 +60,8 @@ public static class IntegrationHttpClientRegistry
         public const string FeedHealthCheck = "FeedHealthCheck";
         public const string PayTRDirect = "PayTRDirect";
         public const string PayTRiFrame = "PayTRiFrame";
+        public const string Iyzico = "Iyzico";
+        public const string Stripe = "Stripe";
         public const string Hepsilojistik = "Hepsilojistik";
     }
 
@@ -124,6 +126,8 @@ public static class IntegrationHttpClientRegistry
         RegisterDefault(services, ClientNames.FeedHealthCheck);
         RegisterDefault(services, ClientNames.PayTRDirect);
         RegisterDefault(services, ClientNames.PayTRiFrame);
+        RegisterDefault(services, ClientNames.Iyzico);
+        RegisterDefault(services, ClientNames.Stripe);
         RegisterDefault(services, ClientNames.Hepsilojistik);
 
         return services;
