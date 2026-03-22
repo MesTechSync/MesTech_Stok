@@ -31,9 +31,11 @@ public partial class StaleOrdersAvaloniaViewModel : ObservableObject
 
             StaleOrders.Clear();
             // Demo data — gerçek API bağlantısında MediatR Send kullanılacak
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0891", "Trendyol", "Ahmet Yilmaz", DateTime.UtcNow.AddHours(-52)));
+            StaleOrders.Add(new StaleOrderItem("SIP-2026-0891", "Trendyol", "Ahmet Yılmaz", DateTime.UtcNow.AddHours(-52)));
             StaleOrders.Add(new StaleOrderItem("SIP-2026-0887", "Hepsiburada", "Mehmet Demir", DateTime.UtcNow.AddHours(-74)));
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0882", "N11", "Ayse Kara", DateTime.UtcNow.AddHours(-96)));
+            StaleOrders.Add(new StaleOrderItem("SIP-2026-0882", "N11", "Ayşe Kara", DateTime.UtcNow.AddHours(-96)));
+            StaleOrders.Add(new StaleOrderItem("SIP-2026-0879", "Çiçeksepeti", "Elif Şahin", DateTime.UtcNow.AddHours(-120)));
+            StaleOrders.Add(new StaleOrderItem("SIP-2026-0875", "Trendyol", "Hüseyin Öztürk", DateTime.UtcNow.AddHours(-168)));
 
             OnPropertyChanged(nameof(TotalStaleCount));
             OnPropertyChanged(nameof(Warning48hCount));

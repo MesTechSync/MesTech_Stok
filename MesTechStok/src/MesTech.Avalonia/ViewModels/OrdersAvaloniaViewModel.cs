@@ -22,7 +22,7 @@ public partial class OrdersAvaloniaViewModel : ObservableObject
 
     public ObservableCollection<string> Statuses { get; } =
     [
-        "Tumu", "Yeni", "Hazirlaniyor", "Kargoda", "Teslim Edildi"
+        "Tümü", "Yeni", "Hazırlanıyor", "Kargoda", "Teslim Edildi"
     ];
 
     private List<OrderItemDto> _allOrders = [];
@@ -39,21 +39,21 @@ public partial class OrdersAvaloniaViewModel : ObservableObject
 
             _allOrders =
             [
-                new() { OrderNo = "SIP-2026-0041", Date = "17.03.2026", Customer = "Ahmet Yilmaz", Amount = "2,450.00 TL", Status = "Yeni" },
-                new() { OrderNo = "SIP-2026-0040", Date = "17.03.2026", Customer = "Fatma Demir", Amount = "1,890.50 TL", Status = "Hazirlaniyor" },
-                new() { OrderNo = "SIP-2026-0039", Date = "16.03.2026", Customer = "Mehmet Kaya", Amount = "5,200.00 TL", Status = "Kargoda" },
-                new() { OrderNo = "SIP-2026-0038", Date = "16.03.2026", Customer = "Ayse Celik", Amount = "890.00 TL", Status = "Teslim Edildi" },
-                new() { OrderNo = "SIP-2026-0037", Date = "16.03.2026", Customer = "Ali Ozturk", Amount = "3,150.75 TL", Status = "Yeni" },
-                new() { OrderNo = "SIP-2026-0036", Date = "15.03.2026", Customer = "Zeynep Arslan", Amount = "4,720.00 TL", Status = "Hazirlaniyor" },
-                new() { OrderNo = "SIP-2026-0035", Date = "15.03.2026", Customer = "Hasan Dogan", Amount = "1,340.25 TL", Status = "Kargoda" },
-                new() { OrderNo = "SIP-2026-0034", Date = "15.03.2026", Customer = "Elif Sahin", Amount = "6,890.00 TL", Status = "Teslim Edildi" },
-                new() { OrderNo = "SIP-2026-0033", Date = "14.03.2026", Customer = "Burak Yildiz", Amount = "2,100.00 TL", Status = "Teslim Edildi" },
-                new() { OrderNo = "SIP-2026-0032", Date = "14.03.2026", Customer = "Selin Korkmaz", Amount = "7,450.50 TL", Status = "Kargoda" },
-                new() { OrderNo = "SIP-2026-0031", Date = "14.03.2026", Customer = "Emre Aksoy", Amount = "1,675.00 TL", Status = "Yeni" },
-                new() { OrderNo = "SIP-2026-0030", Date = "13.03.2026", Customer = "Deniz Polat", Amount = "3,890.00 TL", Status = "Hazirlaniyor" },
-                new() { OrderNo = "SIP-2026-0029", Date = "13.03.2026", Customer = "Gul Erdem", Amount = "12,350.00 TL", Status = "Teslim Edildi" },
-                new() { OrderNo = "SIP-2026-0028", Date = "12.03.2026", Customer = "Cem Aydin", Amount = "4,200.75 TL", Status = "Kargoda" },
-                new() { OrderNo = "SIP-2026-0027", Date = "12.03.2026", Customer = "Nese Karaca", Amount = "8,900.00 TL", Status = "Yeni" },
+                new() { OrderNo = "SIP-2026-0041", Date = "17.03.2026", Customer = "Ahmet Yılmaz", Amount = "2,450.00 TL", Status = "Yeni", Platform = "Trendyol", StockDeducted = false },
+                new() { OrderNo = "SIP-2026-0040", Date = "17.03.2026", Customer = "Fatma Demir", Amount = "1,890.50 TL", Status = "Hazırlanıyor", Platform = "Hepsiburada", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0039", Date = "16.03.2026", Customer = "Mehmet Kaya", Amount = "5,200.00 TL", Status = "Kargoda", Platform = "Trendyol", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0038", Date = "16.03.2026", Customer = "Ayşe Çelik", Amount = "890.00 TL", Status = "Teslim Edildi", Platform = "N11", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0037", Date = "16.03.2026", Customer = "Ali Öztürk", Amount = "3,150.75 TL", Status = "Yeni", Platform = "Trendyol", StockDeducted = false },
+                new() { OrderNo = "SIP-2026-0036", Date = "15.03.2026", Customer = "Zeynep Arslan", Amount = "4,720.00 TL", Status = "Hazırlanıyor", Platform = "Çiçeksepeti", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0035", Date = "15.03.2026", Customer = "Hasan Doğan", Amount = "1,340.25 TL", Status = "Kargoda", Platform = "Hepsiburada", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0034", Date = "15.03.2026", Customer = "Elif Şahin", Amount = "6,890.00 TL", Status = "Teslim Edildi", Platform = "Trendyol", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0033", Date = "14.03.2026", Customer = "Burak Yıldız", Amount = "2,100.00 TL", Status = "Teslim Edildi", Platform = "N11", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0032", Date = "14.03.2026", Customer = "Selin Korkmaz", Amount = "7,450.50 TL", Status = "Kargoda", Platform = "Trendyol", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0031", Date = "14.03.2026", Customer = "Emre Aksoy", Amount = "1,675.00 TL", Status = "Yeni", Platform = "Pazarama", StockDeducted = false },
+                new() { OrderNo = "SIP-2026-0030", Date = "13.03.2026", Customer = "Deniz Polat", Amount = "3,890.00 TL", Status = "Hazırlanıyor", Platform = "Hepsiburada", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0029", Date = "13.03.2026", Customer = "Gül Erdem", Amount = "12,350.00 TL", Status = "Teslim Edildi", Platform = "Trendyol", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0028", Date = "12.03.2026", Customer = "Cem Aydın", Amount = "4,200.75 TL", Status = "Kargoda", Platform = "Çiçeksepeti", StockDeducted = true },
+                new() { OrderNo = "SIP-2026-0027", Date = "12.03.2026", Customer = "Neşe Karaca", Amount = "8,900.00 TL", Status = "Yeni", Platform = "N11", StockDeducted = false },
             ];
 
             ApplyFilters();
@@ -81,7 +81,7 @@ public partial class OrdersAvaloniaViewModel : ObservableObject
                 o.Customer.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (SelectedStatus != "Tumu")
+        if (SelectedStatus != "Tümü")
         {
             filtered = filtered.Where(o => o.Status == SelectedStatus);
         }
