@@ -107,7 +107,7 @@ public class FeedSyncIntegrationTests : IDisposable
         // Assert
         response.IsSuccessStatusCode.Should().BeFalse(
             "a missing feed URL should return a non-success status");
-        ((int)response.StatusCode).Should().Be(404);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
     }
 
     // ── Test 4: Yavaş Feed → Timeout Exception ───────────────────────────
