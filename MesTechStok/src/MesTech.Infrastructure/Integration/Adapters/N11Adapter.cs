@@ -28,6 +28,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     private bool _isConfigured;
 
     private const int DefaultPageSize = 100;
+    private const int OrderPageSize = 50;
 
     // SOAP service URL suffixes
     private const string ProductServicePath = "/ws/ProductService.wsdl";
@@ -102,7 +103,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
     private async Task<List<T>> FetchAllPagesAsync<T>(
         Func<int, int, Task<(List<T> items, int totalPages)>> fetcher,
-        int pageSize = 100,
+        int pageSize = DefaultPageSize,
         CancellationToken ct = default)
     {
         var all = new List<T>();
@@ -215,7 +216,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
                     return (items, totalPages);
                 },
-                pageSize: 100,
+                pageSize: DefaultPageSize,
                 ct).ConfigureAwait(false);
 
             _logger.LogInformation("N11 PullProducts tamamlandi — {Count} urun cekildi", products.Count);
@@ -398,7 +399,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
                     return (items, totalPages);
                 },
-                pageSize: 50,
+                pageSize: OrderPageSize,
                 ct).ConfigureAwait(false);
 
             // Filter by since date if provided
@@ -672,7 +673,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
                     return (items, totalPages);
                 },
-                pageSize: 50,
+                pageSize: OrderPageSize,
                 ct).ConfigureAwait(false);
 
             if (since.HasValue)
@@ -831,7 +832,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     /// N11'den marka listesini cekilir (BrandService → getBrands).
     /// </summary>
     public async Task<IReadOnlyList<BrandDto>> GetBrandsAsync(
-        int page = 0, int pageSize = 100, CancellationToken ct = default)
+        int page = 0, int pageSize = DefaultPageSize, CancellationToken ct = default)
     {
         EnsureConfigured();
         try
@@ -942,7 +943,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         if (totalCount is not null)
         {
             var count = int.Parse(totalCount.Value, CultureInfo.InvariantCulture);
-            return count > 0 ? (int)Math.Ceiling(count / 50.0) : 1;
+            return count > 0 ? (int)Math.Ceiling(count / (double)OrderPageSize) : 1;
         }
 
         return 1;
