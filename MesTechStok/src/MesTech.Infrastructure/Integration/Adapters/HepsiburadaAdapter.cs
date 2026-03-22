@@ -163,7 +163,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/listings/merchantid/{_merchantId}?limit=1&offset=0"), ct);
+                    $"/listings/merchantid/{_merchantId}?limit=1&offset=0"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -218,7 +218,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/listings/merchantid/{_merchantId}?limit={limit}&offset={offset}"), ct);
+                    $"/listings/merchantid/{_merchantId}?limit={limit}&offset={offset}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -284,7 +284,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -313,7 +313,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -341,7 +341,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         while (!ct.IsCancellationRequested)
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}&offset={offset}"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}&offset={offset}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -407,7 +407,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Put, $"/packages/{packageId}/status");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -451,7 +451,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Post, $"/packages/{platformOrderId}/shipment");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -475,7 +475,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/claims"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, "/claims"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -499,7 +499,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/approve"), ct);
+            () => new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/approve"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -528,7 +528,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/reject");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -551,7 +551,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/activate"), ct);
+            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/activate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -572,7 +572,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/deactivate"), ct);
+            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/deactivate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -595,7 +595,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/listings/upload-status/{correlationId}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/listings/upload-status/{correlationId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -624,7 +624,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var url = $"/finance/commissions?startDate={start:yyyy-MM-dd}&endDate={end:yyyy-MM-dd}";
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, url), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -664,7 +664,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 var req = new HttpRequestMessage(HttpMethod.Post, "/invoices");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -688,7 +688,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/packages/{packageId}/label"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/packages/{packageId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -713,7 +713,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/transportation/tracking/{trackingNo}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/transportation/tracking/{trackingNo}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {

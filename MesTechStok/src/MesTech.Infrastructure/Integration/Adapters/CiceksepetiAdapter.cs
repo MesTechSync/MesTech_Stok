@@ -131,7 +131,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             ConfigureAuth(credentials);
 
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Products?PageSize=1&Page=1"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Products?PageSize=1&Page=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -192,7 +192,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -215,7 +215,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         while (!ct.IsCancellationRequested)
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Products?PageSize={pageSize}&Page={page}"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Products?PageSize={pageSize}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -266,7 +266,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -292,7 +292,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -320,7 +320,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         while (!ct.IsCancellationRequested)
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -391,7 +391,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -450,7 +450,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -482,7 +482,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         while (!ct.IsCancellationRequested)
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -524,7 +524,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -553,7 +553,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -585,7 +585,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -606,7 +606,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Products/{productId}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Products/{productId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -629,7 +629,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Categories"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Categories"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -654,7 +654,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Categories/{categoryId}/attributes"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Categories/{categoryId}/attributes"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -691,7 +691,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -721,7 +721,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -744,7 +744,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Order/Tracking?orderId={orderId}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Order/Tracking?orderId={orderId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {

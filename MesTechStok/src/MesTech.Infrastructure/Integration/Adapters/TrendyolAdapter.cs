@@ -1163,7 +1163,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.UnregisterWebhookAsync");
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return true;
     }
 
