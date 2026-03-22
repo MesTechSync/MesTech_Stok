@@ -22,7 +22,7 @@ public class PlatformMessageRepository : IPlatformMessageRepository
         int page, int pageSize, CancellationToken ct = default)
     {
         var query = _context.PlatformMessages
-            .Where(m => m.TenantId == tenantId && !m.IsDeleted);
+            .Where(m => m.TenantId == tenantId );
 
         if (platform.HasValue)
             query = query.Where(m => m.Platform == platform.Value);
@@ -42,12 +42,12 @@ public class PlatformMessageRepository : IPlatformMessageRepository
 
     public async Task<int> CountByStatusAsync(Guid tenantId, MessageStatus status, CancellationToken ct = default)
         => await _context.PlatformMessages
-            .CountAsync(m => m.TenantId == tenantId && m.Status == status && !m.IsDeleted, ct)
+            .CountAsync(m => m.TenantId == tenantId && m.Status == status , ct)
             .ConfigureAwait(false);
 
     public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.PlatformMessages
-            .CountAsync(m => m.TenantId == tenantId && !m.IsDeleted, ct)
+            .CountAsync(m => m.TenantId == tenantId , ct)
             .ConfigureAwait(false);
 
     public async Task AddAsync(PlatformMessage message, CancellationToken ct = default)

@@ -4,7 +4,7 @@ namespace MesTech.Domain.Exceptions;
 /// Is kurali ihlali — gecerli input ama is mantigi reddetti.
 /// Dalga 9+ standart exception.
 /// </summary>
-public class BusinessRuleException : DomainException
+public sealed class BusinessRuleException : DomainException
 {
     public string? RuleName { get; }
 

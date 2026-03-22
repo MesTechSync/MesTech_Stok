@@ -1,6 +1,6 @@
 namespace MesTech.Domain.Exceptions;
 
-public class InsufficientStockException : DomainException
+public sealed class InsufficientStockException : DomainException
 {
     public string SKU { get; }
     public int AvailableStock { get; }

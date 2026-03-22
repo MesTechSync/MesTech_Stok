@@ -4,7 +4,7 @@ namespace MesTech.Domain.Exceptions;
 /// Validation hatasi — input/format gecersizligi.
 /// Dalga 9+ standart exception.
 /// </summary>
-public class DomainValidationException : DomainException
+public sealed class DomainValidationException : DomainException
 {
     public string? PropertyName { get; }
 

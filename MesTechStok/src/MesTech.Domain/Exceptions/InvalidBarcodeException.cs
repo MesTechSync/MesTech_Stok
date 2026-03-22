@@ -1,6 +1,6 @@
 namespace MesTech.Domain.Exceptions;
 
-public class InvalidBarcodeException : DomainException
+public sealed class InvalidBarcodeException : DomainException
 {
     public string Barcode { get; }
 

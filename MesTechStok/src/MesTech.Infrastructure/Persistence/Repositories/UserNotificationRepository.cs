@@ -46,14 +46,11 @@ public class UserNotificationRepository : IUserNotificationRepository
             .AsNoTracking().ToListAsync(cancellationToken);
 
     public async Task AddAsync(UserNotification notification, CancellationToken cancellationToken = default)
-    {
-        await _db.UserNotifications.AddAsync(notification, cancellationToken);
-        await _db.SaveChangesAsync(cancellationToken);
-    }
+        => await _db.UserNotifications.AddAsync(notification, cancellationToken);
 
-    public async Task UpdateAsync(UserNotification notification, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(UserNotification notification, CancellationToken cancellationToken = default)
     {
         _db.UserNotifications.Update(notification);
-        await _db.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 }

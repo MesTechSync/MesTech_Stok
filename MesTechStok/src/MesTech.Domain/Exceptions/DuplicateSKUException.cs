@@ -1,6 +1,6 @@
 namespace MesTech.Domain.Exceptions;
 
-public class DuplicateSKUException : DomainException
+public sealed class DuplicateSKUException : DomainException
 {
     public string SKU { get; }
 

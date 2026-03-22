@@ -18,42 +18,41 @@ public class CrmDashboardQueryService : ICrmDashboardQueryService
         var dto = new CrmDashboardDto
         {
             TotalCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId && !c.IsDeleted, ct),
+                .CountAsync(c => c.TenantId == tenantId, ct),
             ActiveCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId && c.IsActive && !c.IsDeleted, ct),
+                .CountAsync(c => c.TenantId == tenantId && c.IsActive, ct),
             VipCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId && c.IsVip && !c.IsDeleted, ct),
+                .CountAsync(c => c.TenantId == tenantId && c.IsVip, ct),
             TotalSuppliers = await _db.Suppliers
-                .CountAsync(s => s.TenantId == tenantId && !s.IsDeleted, ct),
+                .CountAsync(s => s.TenantId == tenantId, ct),
             TotalLeads = await _db.Leads
-                .CountAsync(l => l.TenantId == tenantId && !l.IsDeleted, ct),
+                .CountAsync(l => l.TenantId == tenantId, ct),
             OpenDeals = await _db.Deals
-                .CountAsync(d => d.TenantId == tenantId && d.Status == DealStatus.Open && !d.IsDeleted, ct),
+                .CountAsync(d => d.TenantId == tenantId && d.Status == DealStatus.Open, ct),
             PipelineValue = await _db.Deals
-                .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open && !d.IsDeleted)
+                .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open)
                 .SumAsync(d => d.Amount, ct),
             UnreadMessages = await _db.PlatformMessages
-                .CountAsync(m => m.TenantId == tenantId && m.Status == MessageStatus.Unread && !m.IsDeleted, ct),
+                .CountAsync(m => m.TenantId == tenantId && m.Status == MessageStatus.Unread, ct),
             TotalMessages = await _db.PlatformMessages
-                .CountAsync(m => m.TenantId == tenantId && !m.IsDeleted, ct),
+                .CountAsync(m => m.TenantId == tenantId, ct),
         };
 
         dto.StageSummaries = await _db.PipelineStages
-            .Where(s => !s.IsDeleted)
             .Select(s => new StageSummaryDto
             {
                 StageId = s.Id,
                 StageName = s.Name,
                 StageColor = s.Color,
-                DealCount = _db.Deals.Count(d => d.StageId == s.Id && d.TenantId == tenantId && !d.IsDeleted),
+                DealCount = _db.Deals.Count(d => d.StageId == s.Id && d.TenantId == tenantId),
                 TotalValue = _db.Deals
-                    .Where(d => d.StageId == s.Id && d.TenantId == tenantId && !d.IsDeleted)
+                    .Where(d => d.StageId == s.Id && d.TenantId == tenantId)
                     .Sum(d => d.Amount)
             })
             .AsNoTracking().ToListAsync(ct);
 
         dto.RecentActivities = await _db.Activities
-            .Where(a => a.TenantId == tenantId && !a.IsDeleted)
+            .Where(a => a.TenantId == tenantId)
             .OrderByDescending(a => a.CreatedAt)
             .Take(10)
             .Select(a => new RecentActivityDto
@@ -72,7 +71,7 @@ public class CrmDashboardQueryService : ICrmDashboardQueryService
         Guid tenantId, bool? isVip, bool? isActive, string? searchTerm,
         int page, int pageSize, CancellationToken ct = default)
     {
-        var query = _db.Customers.Where(c => c.TenantId == tenantId && !c.IsDeleted);
+        var query = _db.Customers.Where(c => c.TenantId == tenantId);
 
         if (isVip.HasValue) query = query.Where(c => c.IsVip == isVip.Value);
         if (isActive.HasValue) query = query.Where(c => c.IsActive == isActive.Value);
@@ -105,7 +104,7 @@ public class CrmDashboardQueryService : ICrmDashboardQueryService
         Guid tenantId, bool? isActive, bool? isPreferred, string? searchTerm,
         int page, int pageSize, CancellationToken ct = default)
     {
-        var query = _db.Suppliers.Where(s => s.TenantId == tenantId && !s.IsDeleted);
+        var query = _db.Suppliers.Where(s => s.TenantId == tenantId);
 
         if (isActive.HasValue) query = query.Where(s => s.IsActive == isActive.Value);
         if (isPreferred.HasValue) query = query.Where(s => s.IsPreferred == isPreferred.Value);
