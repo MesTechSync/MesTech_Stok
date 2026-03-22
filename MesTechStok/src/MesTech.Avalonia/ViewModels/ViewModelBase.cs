@@ -28,8 +28,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     [ObservableProperty]
     private string _title = string.Empty;
 
-    /// <summary>View ilk yüklendiğinde çağrılır.</summary>
-    public virtual Task InitializeAsync() => Task.CompletedTask;
+    /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.</summary>
+    public virtual async Task InitializeAsync() => await LoadAsync();
+
+    /// <summary>Veri yükleme. Mevcut 124 ViewModel bu metodu kullanıyor.</summary>
+    public virtual Task LoadAsync() => Task.CompletedTask;
 
     /// <summary>Hata durumunu temizle.</summary>
     protected void ClearError()
