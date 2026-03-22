@@ -9,6 +9,12 @@
   <ItemGroup>
     <InternalsVisibleTo Include="MesTech.Infrastructure" />
     <InternalsVisibleTo Include="MesTech.Tests.Unit" />
+    <InternalsVisibleTo Include="MesTech.Tests.Integration" />
+    <InternalsVisibleTo Include="MesTech.Integration.Tests" />
+    <InternalsVisibleTo Include="MesTech.Tests.Performance" />
+    <InternalsVisibleTo Include="MesTech.Tests.E2E" />
+    <InternalsVisibleTo Include="MesTech.Blazor.Tests" />
+    <InternalsVisibleTo Include="MesTechStok.Avalonia.Tests" />
   </ItemGroup>
 
 </Project>
