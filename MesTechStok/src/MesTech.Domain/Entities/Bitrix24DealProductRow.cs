@@ -1,12 +1,13 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
 /// <summary>
 /// Bitrix24 Deal ürün satırı — crm.deal.productrows.set ile gönderilen kalemler.
 /// </summary>
-public class Bitrix24DealProductRow : BaseEntity
+public class Bitrix24DealProductRow : BaseEntity, ITenantEntity
 {
+    public string TenantId { get; set; } = string.Empty;
     public Guid Bitrix24DealId { get; set; }
     public Guid? ProductId { get; set; }
     public string ExternalProductId { get; set; } = string.Empty;
