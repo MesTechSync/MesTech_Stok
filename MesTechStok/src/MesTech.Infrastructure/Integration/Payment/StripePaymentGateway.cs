@@ -16,6 +16,7 @@ public class StripePaymentGateway : IPaymentGateway
     private readonly IHttpClientFactory _httpClientFactory;
 
     private const string StripeApiBaseUrl = "https://api.stripe.com";
+    private const int CurrencySubunitMultiplier = 100; // USD → cents
 
     public string ProviderName => "Stripe";
 
@@ -45,7 +46,7 @@ public class StripePaymentGateway : IPaymentGateway
             var http = CreateHttpClient();
             var formData = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["amount"] = ((int)(amount * 100)).ToString(), // Stripe kuruş/cent cinsinden alir
+                ["amount"] = ((int)(amount * CurrencySubunitMultiplier)).ToString(), // Stripe kuruş/cent cinsinden alir
                 ["currency"] = currency.ToLowerInvariant(),
                 ["payment_method"] = paymentMethodToken,
                 ["confirm"] = "true",
@@ -89,7 +90,7 @@ public class StripePaymentGateway : IPaymentGateway
                 ["payment_intent"] = transactionId
             };
             if (partialAmount.HasValue)
-                formData["amount"] = ((int)(partialAmount.Value * 100)).ToString();
+                formData["amount"] = ((int)(partialAmount.Value * CurrencySubunitMultiplier)).ToString();
 
             var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
 
