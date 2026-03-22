@@ -60,6 +60,16 @@ public class OrderRepository : IOrderRepository
         return Task.CompletedTask;
     }
 
+    public async Task<IReadOnlyList<Order>> GetStaleOrdersAsync(
+        Guid tenantId, DateTime cutoffDate, CancellationToken ct = default)
+        => await _context.Orders
+            .Where(o => o.TenantId == tenantId
+                     && o.Status == Domain.Enums.OrderStatus.Confirmed
+                     && o.OrderDate < cutoffDate
+                     && o.ShippedAt == null)
+            .OrderBy(o => o.OrderDate)
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+
     public async Task<int> GetCountAsync()
         => await _context.Orders.CountAsync().ConfigureAwait(false);
 }
