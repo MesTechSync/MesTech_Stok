@@ -145,18 +145,14 @@ public class BizimHesapERPAdapterTests
         // Arrange
         SetupHttpResponse(HttpStatusCode.OK, "{\"id\":\"inv-1\"}");
 
-        var invoices = new List<InvoiceEntity>
+        var bhInv = new InvoiceEntity
         {
-            new InvoiceEntity
-            {
-                InvoiceNumber = "BH-INV-001",
-                CustomerName = "Musteri A",
-                SubTotal = 2000m,
-                TaxTotal = 360m,
-                GrandTotal = 2360m,
-                Currency = "TRY"
-            }
+            InvoiceNumber = "BH-INV-001",
+            CustomerName = "Musteri A",
+            Currency = "TRY"
         };
+        bhInv.SetFinancials(2000m, 360m, 2360m);
+        var invoices = new List<InvoiceEntity> { bhInv };
 
         // Act
         var act = () => _sut.SyncInvoicesAsync(invoices);
@@ -182,10 +178,11 @@ public class BizimHesapERPAdapterTests
             (HttpStatusCode.OK, "{\"id\":3}"));
 
         var invoices = Enumerable.Range(1, 3)
-            .Select(i => new InvoiceEntity
+            .Select(i =>
             {
-                InvoiceNumber = $"BH-INV-{i:D3}",
-                GrandTotal = i * 100m
+                var inv = new InvoiceEntity { InvoiceNumber = $"BH-INV-{i:D3}" };
+                inv.SetFinancials(i * 100m, 0m, i * 100m);
+                return inv;
             }).ToList();
 
         // Act

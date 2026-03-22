@@ -134,11 +134,9 @@ public class InvoiceEdgeCaseTests
         var order = new Order
         {
             TenantId = Guid.NewGuid(),
-            CustomerName = null,
-            SubTotal = 100m,
-            TaxAmount = 18m,
-            TotalAmount = 118m
+            CustomerName = null
         };
+        order.SetFinancials(100m, 18m, 118m);
 
         var invoice = Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-NULL-01");
 
@@ -151,9 +149,9 @@ public class InvoiceEdgeCaseTests
         var invoice = new Invoice
         {
             InvoiceNumber = "INV-TS-01",
-            Status = InvoiceStatus.Sent,
-            GrandTotal = 250m
+            Status = InvoiceStatus.Sent
         };
+        invoice.SetFinancials(250m, 0m, 250m);
 
         var str = invoice.ToString();
 

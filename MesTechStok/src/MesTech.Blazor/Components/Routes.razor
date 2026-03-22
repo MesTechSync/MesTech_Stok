@@ -9,6 +9,20 @@
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <div class="container text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-map-signs fa-4x text-muted"></i>
+                </div>
+                <h2 class="text-muted mb-3">Sayfa Bulunamadi (404)</h2>
+                <p class="text-secondary mb-4">Aradiginiz sayfa mevcut degil veya kaldirilmis olabilir.</p>
+                <a href="/dashboard" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Ana Sayfaya Don
+                </a>
+            </div>
+        </LayoutView>
+    </NotFound>
 </Router>
 
 @code {

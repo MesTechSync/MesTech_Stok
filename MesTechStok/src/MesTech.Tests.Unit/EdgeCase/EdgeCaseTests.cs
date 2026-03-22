@@ -134,10 +134,9 @@ public class EdgeCaseTests
             {
                 TenantId = Guid.NewGuid(),
                 ProductId = Guid.NewGuid(),
-                Quantity = -50,
-                PreviousStock = 100,
-                NewStock = 50
+                Quantity = -50
             };
+            movement.SetStockLevels(100, 50);
 
             movement.IsNegativeMovement.Should().BeTrue();
             movement.IsPositiveMovement.Should().BeFalse();

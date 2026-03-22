@@ -280,15 +280,14 @@ public class ParasutERPAdapterTests
 
     private static InvoiceEntity CreateMockInvoice()
     {
-        return new InvoiceEntity
+        var invoice = new InvoiceEntity
         {
             TenantId = Guid.NewGuid(),
             InvoiceNumber = "INV-001",
             CustomerName = "Test Customer",
-            SubTotal = 1000m,
-            TaxTotal = 180m,
-            GrandTotal = 1180m,
             InvoiceDate = DateTime.UtcNow
         };
+        invoice.SetFinancials(1000m, 180m, 1180m);
+        return invoice;
     }
 }

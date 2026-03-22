@@ -26,7 +26,8 @@ public class ExistingEntityExtensionTests
     [Fact]
     public void Customer_CurrentBalance_SetAndRead_ShouldWork()
     {
-        var customer = new Customer { CurrentBalance = 1500.50m };
+        var customer = new Customer();
+        customer.AdjustBalance(1500.50m);
 
         customer.CurrentBalance.Should().Be(1500.50m);
     }
@@ -152,7 +153,8 @@ public class ExistingEntityExtensionTests
     [Fact]
     public void Customer_CurrentBalance_SetToNegative_ShouldWork()
     {
-        var customer = new Customer { CurrentBalance = -500m };
+        var customer = new Customer();
+        customer.AdjustBalance(-500m);
 
         customer.CurrentBalance.Should().Be(-500m);
     }

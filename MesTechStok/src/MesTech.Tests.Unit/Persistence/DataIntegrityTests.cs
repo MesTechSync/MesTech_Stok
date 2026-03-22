@@ -752,12 +752,10 @@ public class DataIntegrityTests : IDisposable
             OrderId = Guid.NewGuid(),
             CustomerName = "CreditNoteCustomer",
             CustomerAddress = "Addr",
-            SubTotal = 0m,
-            TaxTotal = 0m,
-            GrandTotal = 0m,
             Type = InvoiceType.EArsiv,
             Status = InvoiceStatus.Draft
         };
+        invoice.SetFinancials(0m, 0m, 0m);
 
         invoice.GrandTotal.Should().Be(0m, "zero-amount invoice is valid for credit notes");
         invoice.Status.Should().Be(InvoiceStatus.Draft);

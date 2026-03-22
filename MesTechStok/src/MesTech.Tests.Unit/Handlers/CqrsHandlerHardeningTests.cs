@@ -261,9 +261,10 @@ public class CqrsHandlerHardeningTests
         var order = new Order
         {
             TenantId = _tenantId,
-            TrackingNumber = "TR12345",
+            Status = OrderStatus.Confirmed,
             OrderNumber = "ORD-001"
         };
+        order.MarkAsShipped("TR12345", CargoProvider.YurticiKargo);
         var orderId = order.Id; // use auto-generated Id
         _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
 

@@ -180,18 +180,14 @@ public class LogoERPAdapterTests
         // Arrange
         SetupHttpResponse(HttpStatusCode.OK, "{\"id\":1}");
 
-        var invoices = new List<InvoiceEntity>
+        var logoInv = new InvoiceEntity
         {
-            new InvoiceEntity
-            {
-                InvoiceNumber = "INV-001",
-                CustomerName = "Test Customer",
-                SubTotal = 1000m,
-                TaxTotal = 200m,
-                GrandTotal = 1200m,
-                Currency = "TRY"
-            }
+            InvoiceNumber = "INV-001",
+            CustomerName = "Test Customer",
+            Currency = "TRY"
         };
+        logoInv.SetFinancials(1000m, 200m, 1200m);
+        var invoices = new List<InvoiceEntity> { logoInv };
 
         // Act
         var act = () => _sut.SyncInvoicesAsync(invoices);
@@ -232,8 +228,8 @@ public class LogoERPAdapterTests
 
         var invoices = new List<InvoiceEntity>
         {
-            new InvoiceEntity { InvoiceNumber = "INV-FAIL", GrandTotal = 100m },
-            new InvoiceEntity { InvoiceNumber = "INV-OK", GrandTotal = 200m }
+            CreateInvoiceWithTotal("INV-FAIL", 100m),
+            CreateInvoiceWithTotal("INV-OK", 200m)
         };
 
         // Act — should not throw even if individual invoices fail
@@ -374,7 +370,7 @@ public class LogoERPAdapterTests
 
         var invoices = new List<InvoiceEntity>
         {
-            new InvoiceEntity { InvoiceNumber = "INV-AUTH", GrandTotal = 100m }
+            CreateInvoiceWithTotal("INV-AUTH", 100m)
         };
 
         // Act — should not throw, just log and continue
@@ -420,11 +416,9 @@ public class LogoERPAdapterTests
         {
             OrderNumber = "ORD-001",
             CustomerName = "Test Customer",
-            SubTotal = 1000m,
-            TaxAmount = 200m,
-            TotalAmount = 1200m,
             OrderDate = DateTime.UtcNow
         };
+        order.SetFinancials(1000m, 200m, 1200m);
         // Set the Id via reflection since BaseEntity has it
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
@@ -477,9 +471,9 @@ public class LogoERPAdapterTests
         var orderId = Guid.NewGuid();
         var order = new Order
         {
-            OrderNumber = "ORD-FAIL",
-            TotalAmount = 100m
+            OrderNumber = "ORD-FAIL"
         };
+        order.SetFinancials(0m, 0m, 100m);
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
@@ -501,7 +495,8 @@ public class LogoERPAdapterTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var order = new Order { OrderNumber = "ORD-NET", TotalAmount = 100m };
+        var order = new Order { OrderNumber = "ORD-NET" };
+        order.SetFinancials(0m, 0m, 100m);
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
@@ -536,12 +531,10 @@ public class LogoERPAdapterTests
         {
             InvoiceNumber = "INV-001",
             CustomerName = "Test Customer",
-            SubTotal = 1000m,
-            TaxTotal = 200m,
-            GrandTotal = 1200m,
             Currency = "TRY",
             InvoiceDate = DateTime.UtcNow
         };
+        invoice.SetFinancials(1000m, 200m, 1200m);
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
@@ -594,9 +587,9 @@ public class LogoERPAdapterTests
         var invoice = new InvoiceEntity
         {
             InvoiceNumber = "INV-FAIL",
-            GrandTotal = 100m,
             Currency = "TRY"
         };
+        invoice.SetFinancials(100m, 0m, 100m);
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
@@ -621,9 +614,9 @@ public class LogoERPAdapterTests
         var invoice = new InvoiceEntity
         {
             InvoiceNumber = "INV-AUTH",
-            GrandTotal = 100m,
             Currency = "TRY"
         };
+        invoice.SetFinancials(100m, 0m, 100m);
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
@@ -803,9 +796,9 @@ public class LogoERPAdapterTests
         var orderId = Guid.NewGuid();
         var order = new Order
         {
-            OrderNumber = "ORD-NOID",
-            TotalAmount = 500m
+            OrderNumber = "ORD-NOID"
         };
+        order.SetFinancials(0m, 0m, 500m);
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
@@ -822,5 +815,12 @@ public class LogoERPAdapterTests
         result.Success.Should().BeTrue();
         result.ErpRef.Should().NotBeNullOrEmpty();
         result.ErpRef.Should().StartWith("LOGO-");
+    }
+
+    private static InvoiceEntity CreateInvoiceWithTotal(string invoiceNumber, decimal grandTotal)
+    {
+        var inv = new InvoiceEntity { InvoiceNumber = invoiceNumber };
+        inv.SetFinancials(grandTotal, 0m, grandTotal);
+        return inv;
     }
 }

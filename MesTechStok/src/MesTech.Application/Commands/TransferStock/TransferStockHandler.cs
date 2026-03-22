@@ -58,15 +58,13 @@ public class TransferStockHandler : IRequestHandler<TransferStockCommand, Transf
         {
             ProductId = request.ProductId,
             Quantity = -request.Quantity,
-            PreviousStock = previousStock,
-            NewStock = previousStock - request.Quantity,
-            NewStockLevel = previousStock - request.Quantity,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
             Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
             Date = DateTime.UtcNow
         };
+        outMovement.SetStockLevels(previousStock, previousStock - request.Quantity);
         outMovement.SetMovementType(StockMovementType.Transfer);
 
         // IN movement to target
@@ -74,15 +72,13 @@ public class TransferStockHandler : IRequestHandler<TransferStockCommand, Transf
         {
             ProductId = request.ProductId,
             Quantity = request.Quantity,
-            PreviousStock = previousStock - request.Quantity,
-            NewStock = previousStock, // net effect is zero for transfer
-            NewStockLevel = previousStock,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
             Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
             Date = DateTime.UtcNow
         };
+        inMovement.SetStockLevels(previousStock - request.Quantity, previousStock);
         inMovement.SetMovementType(StockMovementType.Transfer);
 
         await _movementRepository.AddAsync(outMovement).ConfigureAwait(false);

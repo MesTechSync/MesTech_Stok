@@ -447,22 +447,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Redirect to dashboard if onboarding already completed
-        var completed = await OnboardingService.IsOnboardingCompletedAsync(Guid.Empty);
-        if (completed)
+        try
         {
-            Nav.NavigateTo("/dashboard", replace: true);
-            return;
-        }
+            // Redirect to dashboard if onboarding already completed
+            var completed = await OnboardingService.IsOnboardingCompletedAsync(Guid.Empty);
+            if (completed)
+            {
+                Nav.NavigateTo("/dashboard", replace: true);
+                return;
+            }
 
-        // Resume from last completed step
-        var lastStep = await OnboardingService.GetLastCompletedStepAsync(Guid.Empty);
-        if (lastStep > 0 && lastStep < TotalSteps)
+            // Resume from last completed step
+            var lastStep = await OnboardingService.GetLastCompletedStepAsync(Guid.Empty);
+            if (lastStep > 0 && lastStep < TotalSteps)
+            {
+                currentStep = lastStep + 1;
+            }
+        }
+        catch (Exception ex)
         {
-            currentStep = lastStep + 1;
+            Console.WriteLine($"Onboarding init error: {ex.Message}");
         }
-
-        _onboardingChecked = true;
+        finally
+        {
+            _onboardingChecked = true;
+        }
     }
 
     private bool IsCurrentStepValid()

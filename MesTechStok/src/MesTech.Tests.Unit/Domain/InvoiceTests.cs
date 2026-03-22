@@ -171,11 +171,9 @@ public class InvoiceTests
             TenantId = Guid.NewGuid(),
             OrderNumber = "ORD-100",
             CustomerName = "Ahmet Yilmaz",
-            CustomerEmail = "ahmet@example.com",
-            SubTotal = 1000m,
-            TaxAmount = 180m,
-            TotalAmount = 1180m
+            CustomerEmail = "ahmet@example.com"
         };
+        order.SetFinancials(1000m, 180m, 1180m);
 
         var invoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-100");
 
