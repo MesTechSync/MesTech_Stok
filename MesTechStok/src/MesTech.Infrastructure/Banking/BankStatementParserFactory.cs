@@ -98,6 +98,17 @@ public class BankStatementParserFactory : IBankStatementParserFactory
                 return "CAMT053";
             }
 
+            // CSV fallback: check for common CSV headers (delimiter-separated with known column names)
+            var firstLine = header.Split('\n')[0].TrimEnd('\r');
+            if (firstLine.Contains("Tarih", StringComparison.OrdinalIgnoreCase) ||
+                firstLine.Contains("Date", StringComparison.OrdinalIgnoreCase) ||
+                (firstLine.Contains(';') && firstLine.Contains("Tutar", StringComparison.OrdinalIgnoreCase)) ||
+                (firstLine.Contains(',') && firstLine.Contains("Amount", StringComparison.OrdinalIgnoreCase)))
+            {
+                _logger.LogInformation("[BankStatementParserFactory] CSV formati tespit edildi");
+                return "CSV";
+            }
+
             throw new NotSupportedException(
                 "Banka ekstre formati otomatik tespit edilemedi. " +
                 $"Desteklenen formatlar: {string.Join(", ", SupportedFormats)}");
