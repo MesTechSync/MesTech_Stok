@@ -53,11 +53,13 @@
                   Margin="0"
                   IsVisible="{Binding !IsLoading}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="160" />
-                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
-                <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="200" />
-                <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="150" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="140" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
+                <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="180" />
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" />
+                <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="120" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
+                <DataGridTextColumn Header="Stok" Binding="{Binding StockStatusText}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
 

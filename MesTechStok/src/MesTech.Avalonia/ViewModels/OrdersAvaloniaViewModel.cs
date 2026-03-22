@@ -117,4 +117,7 @@ public class OrderItemDto
     public string Customer { get; set; } = string.Empty;
     public string Amount { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public string Platform { get; set; } = string.Empty;
+    public bool StockDeducted { get; set; }
+    public string StockStatusText => StockDeducted ? "Stok Dusuruldu" : "Beklemede";
 }
