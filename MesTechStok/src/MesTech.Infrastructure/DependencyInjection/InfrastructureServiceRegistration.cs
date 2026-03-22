@@ -309,6 +309,10 @@ public static class InfrastructureServiceRegistration
                 port: configuration.GetValue<int>("Realtime:WebSocketPort", 3102)
             ));
 
+        // Email Sender (S05 — MailKit SMTP)
+        services.Configure<Email.SmtpSettings>(configuration.GetSection("Smtp"));
+        services.AddTransient<IEmailService, Email.MailKitEmailService>();
+
         // XML Import / Export
         services.AddScoped<IXmlImportService, XmlImportService>();
         services.AddScoped<IXmlExportService, XmlExportService>();
