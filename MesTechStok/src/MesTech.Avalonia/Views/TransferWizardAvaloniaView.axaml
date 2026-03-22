@@ -11,11 +11,11 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Depo Arasi Transfer Wizard" Foreground="White"
+                <TextBlock Grid.Column="0" Text="Depo Arasi Transfer Wizard" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Sifirla"
                         Command="{Binding ResetCommand}"
-                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="12,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -63,7 +63,7 @@
                             <TextBox Grid.Column="0" Watermark="Barkod / SKU / Urun adi..." AutomationProperties.Name="Barkod / SKU / Urun adi..."
                                      Text="{Binding ProductSearchText}" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddProductCommand}"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,8" CornerRadius="6" Margin="8,0,0,0" />
                         </Grid>
                     </StackPanel>
@@ -122,7 +122,7 @@
                         <ItemsControl ItemsSource="{Binding Warnings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#92400E" />
+                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource MesAmberDark}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -143,7 +143,7 @@
                         Padding="20,10" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="24,10" CornerRadius="6" />
             </Grid>
         </Border>

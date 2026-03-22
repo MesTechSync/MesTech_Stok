@@ -12,7 +12,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Lot Ekleme" Foreground="White"
+                <TextBlock Grid.Column="0" Text="Lot Ekleme" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -96,7 +96,7 @@
 
                     <!-- Kaydet -->
                     <Button Content="Lot Kaydet" Command="{Binding SaveLotCommand}"
-                            Background="{DynamicResource MesGreen}" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,10" CornerRadius="6"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,8,0,0" />

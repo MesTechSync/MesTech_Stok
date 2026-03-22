@@ -13,11 +13,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Stok Yerlesim" Foreground="White"
+                    <TextBlock Text="Stok Yerlesim" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -74,18 +74,18 @@
                 <Style Selector="DataGridRow" x:DataType="vm:PlacementItemDto">
                     <Style Selector="^[Tag=TUKENDI]">
                         <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=KRITIK]">
                         <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=DUSUK]">
                         <Setter Property="Background" Value="{DynamicResource MesWarning}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=YETERLI]">
-                        <Setter Property="Background" Value="#E8F5E9" />
+                        <Setter Property="Background" Value="{DynamicResource MesBgSurface}" />
                     </Style>
                 </Style>
             </DataGrid.Styles>

@@ -11,8 +11,8 @@
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
-                <TextBlock Text="PDF Goruntuleme" Foreground="White"
+                <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="{DynamicResource MesBgPrimary}"/>
+                <TextBlock Text="PDF Goruntuleme" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                            VerticalAlignment="Center"/>
             </StackPanel>
@@ -106,12 +106,12 @@
                 <!-- Action Buttons -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
                     <Button Command="{Binding DownloadPdfCommand}"
-                            Background="{DynamicResource PrimaryBlueBrush}" Foreground="White"
+                            Background="{DynamicResource PrimaryBlueBrush}" Foreground="{DynamicResource MesBgPrimary}"
                             Padding="20,10" CornerRadius="{StaticResource CornerRadiusMedium}"
                             FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"
-                                      Foreground="White"/>
+                                      Foreground="{DynamicResource MesBgPrimary}"/>
                             <TextBlock Text="Indir"/>
                         </StackPanel>
                     </Button>

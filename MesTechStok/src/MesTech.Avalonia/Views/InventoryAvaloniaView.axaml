@@ -13,16 +13,16 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Envanter" Foreground="White"
+                    <TextBlock Text="Envanter" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Background="{DynamicResource MesRedBright}" CornerRadius="10" Padding="8,2"
                             IsVisible="{Binding AlarmCount}">
                         <TextBlock Text="{Binding AlarmCount, StringFormat='{}{0} alarm'}"
-                                   Foreground="White" FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" FontWeight="Bold"
                                    VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -112,15 +112,15 @@
                 <Style Selector="DataGridRow" x:DataType="vm:InventoryItemDto">
                     <Style Selector="^[Tag=TUKENDI]">
                         <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=KRITIK]">
                         <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=DUSUK]">
                         <Setter Property="Background" Value="{DynamicResource MesWarning}" />
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
                     </Style>
                     <Style Selector="^[Tag=YETERLI]">
                         <Setter Property="Background" Value="{DynamicResource MesBgSurface}" />
