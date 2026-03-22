@@ -37,6 +37,9 @@ public class Order : BaseEntity, ITenantEntity
     public string? ExternalOrderId { get; set; }
     public string? PlatformOrderNumber { get; set; }
 
+    // Onay
+    public DateTime? ConfirmedAt { get; private set; }
+
     // Kargo bilgisi
     public CargoProvider? CargoProvider { get; private set; }
     public string? TrackingNumber { get; private set; }
@@ -85,6 +88,7 @@ public class Order : BaseEntity, ITenantEntity
                 $"Cannot place order in {Status} status. Only Pending orders can be placed.");
 
         Status = OrderStatus.Confirmed;
+        ConfirmedAt = DateTime.UtcNow;
         RaiseDomainEvent(new OrderPlacedEvent(Id, OrderNumber, CustomerId, TotalAmount, DateTime.UtcNow));
     }
 

@@ -141,6 +141,13 @@ public class Product : BaseEntity, ITenantEntity
                 Id, SKU, Stock, MinimumStock, DateTime.UtcNow));
         }
 
+        // Stok sıfıra düştüyse — platform pasife alma zinciri tetikle
+        if (Stock <= 0 && previousStock > 0)
+        {
+            RaiseDomainEvent(new ZeroStockDetectedEvent(
+                Id, TenantId, SKU, previousStock, DateTime.UtcNow));
+        }
+
         if (IsCriticalStock || IsOutOfStock())
         {
             var level = IsOutOfStock() ? StockAlertLevel.OutOfStock
@@ -161,6 +168,14 @@ public class Product : BaseEntity, ITenantEntity
 
         RaiseDomainEvent(new PriceChangedEvent(
             Id, SKU, oldPrice, newSalePrice, DateTime.UtcNow));
+
+        // Zarar kontrolü — satış fiyatı alışın altına düştüyse uyarı
+        if (PurchasePrice > 0 && newSalePrice < PurchasePrice)
+        {
+            var lossPerUnit = PurchasePrice - newSalePrice;
+            RaiseDomainEvent(new PriceLossDetectedEvent(
+                Id, TenantId, SKU, PurchasePrice, newSalePrice, lossPerUnit, DateTime.UtcNow));
+        }
     }
 
     public void AddStock(int quantity, string? reference = null)
