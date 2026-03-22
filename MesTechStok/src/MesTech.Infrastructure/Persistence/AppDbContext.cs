@@ -175,6 +175,7 @@ public class AppDbContext : DbContext
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
     public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
     public DbSet<BillingInvoice> BillingInvoices => Set<BillingInvoice>();
+    public DbSet<DunningLog> DunningLogs => Set<DunningLog>();
     public DbSet<OnboardingProgress> OnboardingProgress => Set<OnboardingProgress>();
 
     // ═══════════════════════════════════════

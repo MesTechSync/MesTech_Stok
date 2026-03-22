@@ -139,6 +139,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
         services.AddScoped<IBillingInvoiceRepository, BillingInvoiceRepository>();
+        services.AddScoped<IDunningLogRepository, DunningLogRepository>();
 
         // Onboarding (DEV6)
         services.AddScoped<IOnboardingProgressRepository, OnboardingProgressRepository>();
@@ -529,6 +530,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<IDepreciationService, MesTech.Infrastructure.Finance.DepreciationService>();
         services.AddSingleton<IIncomeTaxService, MesTech.Infrastructure.Finance.IncomeTaxService>();
         services.AddScoped<IBaBsReportService, MesTech.Infrastructure.Finance.BaBsReportService>();
+        services.AddScoped<IBaBsXmlExportService, MesTech.Infrastructure.Finance.BaBsXmlExportService>();
         services.AddScoped<IBankReconciliationReportService, MesTech.Infrastructure.Finance.BankReconciliationReportService>();
 
         // ── MUH-02: Anomaly Check Handler (MediatR INotificationHandler) ──
