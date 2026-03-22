@@ -33,7 +33,7 @@
       <!-- Barcode Display Area -->
       <Border x:Name="BarcodeDisplay"
               Height="80"
-              Background="#F8FAFC"
+              Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               BorderBrush="{StaticResource BorderBrush}"
               BorderThickness="1"

@@ -10,7 +10,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#E65100" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Iade Listesi" Foreground="White"

@@ -16,7 +16,7 @@
 
       <!-- Order Header -->
       <Border Grid.Row="1"
-              Background="#F8FAFC"
+              Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Padding="12"
               Margin="0,8,0,8">
@@ -71,7 +71,7 @@
 
       <!-- Total -->
       <Border Grid.Row="3"
-              Background="#F8FAFC"
+              Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Padding="12"
               Margin="0,8,0,0">

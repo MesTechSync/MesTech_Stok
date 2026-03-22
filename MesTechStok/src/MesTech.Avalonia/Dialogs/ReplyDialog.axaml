@@ -14,7 +14,7 @@
                  Text="Yanit Yaz" />
 
       <!-- Original Message -->
-      <Border Background="#F8FAFC"
+      <Border Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Padding="12"
               BorderBrush="{StaticResource BorderBrush}"

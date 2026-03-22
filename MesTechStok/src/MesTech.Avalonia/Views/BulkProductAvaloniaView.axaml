@@ -274,7 +274,7 @@
                                 <Button Grid.Column="1" Content="Uygula"
                                         Command="{Binding BulkUpdateCommand}"
                                         IsEnabled="{Binding CanBulkUpdate}"
-                                        Background="#FF6F00" Foreground="White"
+                                        Background="{DynamicResource MesBrandAccent}" Foreground="White"
                                         FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
                             </Grid>
                         </Border>

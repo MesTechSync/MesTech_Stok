@@ -108,7 +108,7 @@
     <Setter Property="Background" Value="#E53935"/>
   </Style>
   <Style Selector="Button.mestech-danger:pressed">
-    <Setter Property="Background" Value="#D32F2F"/>
+    <Setter Property="Background" Value="{DynamicResource MesRedAlert}"/>
   </Style>
 
   <!-- Icon Button -->

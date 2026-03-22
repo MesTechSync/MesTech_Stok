@@ -73,11 +73,11 @@
                 <!-- EMR-06 renk tablosu — stok durumu satir renklendirme -->
                 <Style Selector="DataGridRow" x:DataType="vm:PlacementItemDto">
                     <Style Selector="^[Tag=TUKENDI]">
-                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=KRITIK]">
-                        <Setter Property="Background" Value="#D32F2F" />
+                        <Setter Property="Background" Value="{DynamicResource MesRedAlert}" />
                         <Setter Property="Foreground" Value="White" />
                     </Style>
                     <Style Selector="^[Tag=DUSUK]">
