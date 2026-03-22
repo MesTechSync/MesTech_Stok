@@ -265,8 +265,9 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
                 if (!listResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Ozon PullProducts /v2/product/list failed: {Status}",
-                        listResponse.StatusCode);
+                    var listError = await listResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Ozon PullProducts /v2/product/list failed: {Status} - {Error}",
+                        listResponse.StatusCode, listError);
                     break;
                 }
 
@@ -299,8 +300,9 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
                 if (!infoResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Ozon PullProducts /v2/product/info/list failed: {Status}",
-                        infoResponse.StatusCode);
+                    var infoError = await infoResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Ozon PullProducts /v2/product/info/list failed: {Status} - {Error}",
+                        infoResponse.StatusCode, infoError);
                     break;
                 }
 
@@ -566,8 +568,9 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Ozon PullOrders /v3/posting/fbs/list failed: {Status}",
-                        response.StatusCode);
+                    var orderError = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Ozon PullOrders /v3/posting/fbs/list failed: {Status} - {Error}",
+                        response.StatusCode, orderError);
                     break;
                 }
 

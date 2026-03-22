@@ -883,7 +883,11 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) break;
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                break;
+            }
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);

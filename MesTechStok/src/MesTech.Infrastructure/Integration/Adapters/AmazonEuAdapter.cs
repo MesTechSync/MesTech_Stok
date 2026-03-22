@@ -579,7 +579,11 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                     return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return;
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return;
+            }
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
@@ -785,7 +789,8 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
 
         if (!uploadResponse.IsSuccessStatusCode)
         {
-            _logger.LogError("Amazon EU feed XML upload failed: {Status}", uploadResponse.StatusCode);
+            var uploadError = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogError("Amazon EU feed XML upload failed: {Status} - {Error}", uploadResponse.StatusCode, uploadError);
             return false;
         }
 
