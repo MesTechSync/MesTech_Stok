@@ -32,13 +32,16 @@ public sealed class BulkProductImportService : IBulkProductImportService
 
     private readonly AppDbContext _dbContext;
     private readonly IProductRepository _productRepository;
+    private readonly IImportProgressReporter? _progressReporter;
 
     public BulkProductImportService(
         AppDbContext dbContext,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        IImportProgressReporter? progressReporter = null)
     {
         _dbContext = dbContext;
         _productRepository = productRepository;
+        _progressReporter = progressReporter;
     }
 
     public Task<ImportValidationResult> ValidateExcelAsync(
@@ -120,6 +123,13 @@ public sealed class BulkProductImportService : IBulkProductImportService
     public async Task<ImportResult> ImportProductsAsync(
         Stream fileStream,
         ImportOptions options,
+        CancellationToken cancellationToken = default)
+        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken);
+
+    public async Task<ImportResult> ImportProductsAsync(
+        Stream fileStream,
+        ImportOptions options,
+        Guid importId,
         CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
@@ -218,6 +228,14 @@ public sealed class BulkProductImportService : IBulkProductImportService
                     {
                         await _dbContext.SaveChangesAsync(cancellationToken);
                         batchCount = 0;
+
+                        // Report progress every batch (100 rows)
+                        var processed = importedCount + updatedCount + skippedCount;
+                        if (_progressReporter != null)
+                        {
+                            await _progressReporter.ReportProgressAsync(
+                                importId, processed, totalRows, errors.Count, cancellationToken);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -242,6 +260,14 @@ public sealed class BulkProductImportService : IBulkProductImportService
             }
 
             sw.Stop();
+
+            // Report completion
+            if (_progressReporter != null)
+            {
+                await _progressReporter.ReportCompletedAsync(
+                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, cancellationToken);
+            }
+
             var status = errors.Count > 0 ? ImportStatus.CompletedWithErrors : ImportStatus.Completed;
             return new ImportResult(
                 status, totalRows, importedCount, updatedCount,
