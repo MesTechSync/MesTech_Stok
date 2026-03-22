@@ -33,6 +33,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+    private const int DefaultTokenExpirySeconds = 3600;
 
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
@@ -164,7 +165,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
         _accessToken = json.RootElement.GetProperty("access_token").GetString() ?? string.Empty;
         var expiresIn = json.RootElement.TryGetProperty("expires_in", out var expEl)
             ? expEl.GetInt32()
-            : 3600;
+            : DefaultTokenExpirySeconds;
         _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
 
         _httpClient.DefaultRequestHeaders.Authorization =
