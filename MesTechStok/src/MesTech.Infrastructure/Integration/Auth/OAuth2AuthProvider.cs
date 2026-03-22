@@ -22,6 +22,7 @@ public class OAuth2AuthProvider : IAuthenticationProvider
     private readonly ILogger<OAuth2AuthProvider> _logger;
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private static readonly TimeSpan RefreshBuffer = TimeSpan.FromMinutes(5);
+    private const int DefaultTokenExpirySeconds = 3600;
 
     public OAuth2AuthProvider(
         string platformCode,
@@ -148,7 +149,7 @@ public class OAuth2AuthProvider : IAuthenticationProvider
         var accessToken = root.GetProperty("access_token").GetString()
             ?? throw new InvalidOperationException("access_token missing from OAuth2 response");
 
-        var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : 3600;
+        var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : DefaultTokenExpirySeconds;
         var refreshTokenValue = root.TryGetProperty("refresh_token", out var rt) ? rt.GetString() : null;
         var tokenType = root.TryGetProperty("token_type", out var tt) ? tt.GetString() ?? "Bearer" : "Bearer";
 
