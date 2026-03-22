@@ -186,8 +186,12 @@ public static class MassTransitConfig
             });
         });
 
-        // İ-13: Idempotency store DI kaydı
-        services.AddSingleton<IProcessedMessageStore, InMemoryProcessedMessageStore>();
+        // İ-13: Idempotency store DI kaydı — PostgreSQL varsa production-grade, yoksa InMemory
+        var connString = configuration.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrEmpty(connString))
+            services.AddSingleton<IProcessedMessageStore, PostgresProcessedMessageStore>();
+        else
+            services.AddSingleton<IProcessedMessageStore, InMemoryProcessedMessageStore>();
 
         // İ-13: DLQ servisleri
         services.AddScoped<DlqMonitorService>();
