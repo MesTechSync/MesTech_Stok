@@ -31,7 +31,7 @@
                     </Border>
                     <TextBlock Text="Platform Seç" VerticalAlignment="Center" FontSize="13" />
                 </StackPanel>
-                <TextBlock Text="—" Foreground="#CBD5E1" VerticalAlignment="Center" />
+                <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="2" Foreground="White" FontSize="13" FontWeight="Bold"
@@ -39,7 +39,7 @@
                     </Border>
                     <TextBlock Text="Kimlik Bilgileri" VerticalAlignment="Center" FontSize="13" />
                 </StackPanel>
-                <TextBlock Text="—" Foreground="#CBD5E1" VerticalAlignment="Center" />
+                <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="3" Foreground="White" FontSize="13" FontWeight="Bold"

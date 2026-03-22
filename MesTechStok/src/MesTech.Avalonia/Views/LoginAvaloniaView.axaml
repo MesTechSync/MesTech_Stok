@@ -55,7 +55,7 @@
                 <!-- Error Message -->
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="8" Padding="12,10"
                         IsVisible="{Binding HasError}"
-                        BorderBrush="#FECACA" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
                     <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="{DynamicResource MesRedAlert}" FontSize="13"
                                TextWrapping="Wrap" />

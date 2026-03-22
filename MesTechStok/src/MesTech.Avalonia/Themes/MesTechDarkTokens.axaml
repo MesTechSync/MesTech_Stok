@@ -54,6 +54,11 @@
     <Color x:Key="MesBgAmberLight">#3A2E1A</Color>
     <Color x:Key="MesBorderAmber">#92400E</Color>
 
+    <!-- ═══ BORDER SEMANTIC (Dark) ═══ -->
+    <Color x:Key="MesBorderDanger">#7F1D1D</Color>
+    <Color x:Key="MesBorderSuccess">#064E3B</Color>
+    <Color x:Key="MesBorderMuted">#475569</Color>
+
     <!-- ═══ OVERLAY (Dark) ═══ -->
     <Color x:Key="MesOverlayLight">#99000000</Color>
     <Color x:Key="MesOverlayMedium">#80000000</Color>

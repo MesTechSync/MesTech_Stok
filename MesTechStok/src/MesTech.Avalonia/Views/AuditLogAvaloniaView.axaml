@@ -58,7 +58,7 @@
         <!-- Export Success Message -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" CornerRadius="0" Padding="12,8"
                 IsVisible="{Binding IsExported}"
-                BorderBrush="#A7F3D0" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="0,0,0,1"
                 Margin="0,52,0,0">
             <TextBlock Text="{Binding ExportMessage}"
                        Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
@@ -114,7 +114,7 @@
                                 FontWeight="Bold" Padding="8,4" />
                     </Grid>
 
-                    <Border Height="1" Background="#E0E6ED" />
+                    <Border Height="1" Background="{DynamicResource MesBorderLight}" />
 
                     <StackPanel Spacing="8" DataContext="{Binding SelectedEntry}">
                         <StackPanel Spacing="2">
@@ -144,7 +144,7 @@
                                        TextWrapping="Wrap" />
                         </StackPanel>
 
-                        <Border Height="1" Background="#E0E6ED" Margin="0,8" />
+                        <Border Height="1" Background="{DynamicResource MesBorderLight}" Margin="0,8" />
 
                         <!-- Old Values -->
                         <StackPanel Spacing="4">

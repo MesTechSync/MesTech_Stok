@@ -35,7 +35,7 @@
                 <!-- Save Success Message -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
-                        BorderBrush="#A7F3D0" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Ayarlar basariyla kaydedildi."
                                Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
                 </Border>

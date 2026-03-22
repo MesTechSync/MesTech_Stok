@@ -34,7 +34,7 @@
                 <!-- Save Success -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="14,10"
                         IsVisible="{Binding IsSaved}"
-                        BorderBrush="#A7F3D0" BorderThickness="1">
+                        BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1">
                     <TextBlock Text="Bildirim ayarlari basariyla kaydedildi."
                                Foreground="{DynamicResource MesTeal}" FontSize="13" FontWeight="SemiBold" />
                 </Border>
@@ -144,7 +144,7 @@
                                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                         </Grid>
 
-                        <Border Height="1" Background="#E0E6ED" />
+                        <Border Height="1" Background="{DynamicResource MesBorderLight}" />
 
                         <!-- Category rows -->
                         <ItemsControl ItemsSource="{Binding Categories}">

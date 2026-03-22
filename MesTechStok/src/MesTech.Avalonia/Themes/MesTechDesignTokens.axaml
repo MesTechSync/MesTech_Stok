@@ -60,6 +60,11 @@
     <Color x:Key="MesBgAmberLight">#FFFBEB</Color>
     <Color x:Key="MesBorderAmber">#FDE68A</Color>
 
+    <!-- ═══ BORDER SEMANTIC ═══ -->
+    <Color x:Key="MesBorderDanger">#FECACA</Color>
+    <Color x:Key="MesBorderSuccess">#A7F3D0</Color>
+    <Color x:Key="MesBorderMuted">#CBD5E1</Color>
+
     <!-- ═══ OVERLAY ═══ -->
     <Color x:Key="MesOverlayLight">#99FFFFFF</Color>
     <Color x:Key="MesOverlayMedium">#80FFFFFF</Color>

@@ -27,7 +27,7 @@
 
             <!-- Error -->
             <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
-                    CornerRadius="8" Padding="16" BorderBrush="#FECACA" BorderThickness="1"
+                    CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
                     VerticalAlignment="Top">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
