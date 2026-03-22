@@ -237,4 +237,11 @@ public partial class LoginWindow : Window
         }
         catch { /* Sessizce geç */ }
     }
+
+    /// <summary>Window kapanırken timer temizliği [V4-B1]</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        _lockoutTimer?.Stop();
+        base.OnClosed(e);
+    }
 }

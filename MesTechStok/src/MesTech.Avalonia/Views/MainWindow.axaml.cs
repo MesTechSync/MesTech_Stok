@@ -240,4 +240,13 @@ public partial class MainWindow : Window
         welcome.Show();
         Close();
     }
+
+    /// <summary>Window kapanırken timer + event temizliği [V4-B1]</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        _clockTimer.Stop();
+        _idleTimer.Stop();
+        KeyDown -= OnGlobalKeyDown;
+        base.OnClosed(e);
+    }
 }
