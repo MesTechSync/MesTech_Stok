@@ -381,12 +381,10 @@ public sealed class ApiPerformanceBenchmarks : IAsyncLifetime
                 Scenario = InvoiceScenario.Basic,
                 CustomerName = $"PerfCustomer-{i}",
                 CustomerAddress = $"Perf Test Address {i}",
-                SubTotal = 100m + i * 10,
-                TaxTotal = (100m + i * 10) * 0.18m,
-                GrandTotal = (100m + i * 10) * 1.18m,
                 Currency = "TRY",
                 InvoiceDate = DateTime.UtcNow
             };
+            invoice.SetFinancials(100m + i * 10, (100m + i * 10) * 0.18m, (100m + i * 10) * 1.18m);
 
             var sw = Stopwatch.StartNew();
             await ctx.Set<Invoice>().AddAsync(invoice);

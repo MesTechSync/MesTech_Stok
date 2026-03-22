@@ -377,11 +377,9 @@ public class LogoERPAdapterTests : IDisposable
         {
             OrderNumber = orderNumber,
             CustomerName = "Test Customer",
-            SubTotal = total * 0.82m,
-            TaxAmount = total * 0.18m,
-            TotalAmount = total,
             OrderDate = DateTime.UtcNow
         };
+        order.SetFinancials(total * 0.82m, total * 0.18m, total);
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, id);
         return order;
@@ -393,12 +391,10 @@ public class LogoERPAdapterTests : IDisposable
         {
             InvoiceNumber = invoiceNumber,
             CustomerName = "Test Customer",
-            SubTotal = total * 0.82m,
-            TaxTotal = total * 0.18m,
-            GrandTotal = total,
             Currency = "TRY",
             InvoiceDate = DateTime.UtcNow
         };
+        invoice.SetFinancials(total * 0.82m, total * 0.18m, total);
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, id);
         return invoice;

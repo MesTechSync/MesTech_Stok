@@ -117,23 +117,23 @@ public class CrmDashboardQueryTests
 
     private static Customer CreateCustomer(string code, string name, bool isVip = false)
     {
-        return new Customer
+        var customer = new Customer
         {
             TenantId = TenantId,
             Code = code,
             Name = name,
-            IsVip = isVip,
             IsActive = true
         };
+        if (isVip) customer.PromoteToVip();
+        return customer;
     }
 
     private static PlatformMessage CreateMessage(PlatformType platform, MessageStatus status)
     {
-        return new PlatformMessage
+        var message = new PlatformMessage
         {
             TenantId = TenantId,
             Platform = platform,
-            Status = status,
             ExternalMessageId = Guid.NewGuid().ToString(),
             SenderName = "Test Sender",
             Subject = "Test Subject",
@@ -141,5 +141,12 @@ public class CrmDashboardQueryTests
             Direction = MessageDirection.Incoming,
             ReceivedAt = DateTime.UtcNow
         };
+        switch (status)
+        {
+            case MessageStatus.Read: message.MarkAsRead(); break;
+            case MessageStatus.Replied: message.SetReply("Auto reply", "System"); break;
+            case MessageStatus.Archived: message.Archive(); break;
+        }
+        return message;
     }
 }

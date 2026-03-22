@@ -23,7 +23,6 @@ public class PlatformMessageTests
         Subject = "Urun iade talebi",
         Body = "Urun iade etmek istiyorum.",
         Direction = MessageDirection.Incoming,
-        Status = MessageStatus.Unread,
         ReceivedAt = DateTime.UtcNow
     };
 

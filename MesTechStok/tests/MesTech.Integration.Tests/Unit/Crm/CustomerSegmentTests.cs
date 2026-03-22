@@ -26,9 +26,9 @@ public class CustomerSegmentTests
             TenantId = Guid.NewGuid(),
             Code = "VIP-001",
             Name = "Global Import A.S.",
-            IsVip = true,
             Segment = "Enterprise"
         };
+        customer.PromoteToVip();
 
         // Assert
         customer.IsVip.Should().BeTrue();

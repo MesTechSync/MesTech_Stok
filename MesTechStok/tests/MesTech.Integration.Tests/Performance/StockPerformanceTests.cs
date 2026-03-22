@@ -98,12 +98,10 @@ public sealed class StockPerformanceTests : IDisposable
                 CustomerId = customerId,
                 Status = OrderStatus.Confirmed,
                 OrderDate = DateTime.UtcNow.AddDays(-i),
-                SubTotal = 100m + i,
-                TaxAmount = 18m,
-                TotalAmount = 118m + i,
                 TaxRate = 0.18m,
                 CustomerName = $"Customer-{i}"
             };
+            order.SetFinancials(100m + i, 18m, 118m + i);
             await _context.Orders.AddAsync(order);
 
             // Add 2 order items per order
@@ -156,18 +154,20 @@ public sealed class StockPerformanceTests : IDisposable
     {
         // Arrange — seed 10,000 orders
         var customerId = Guid.NewGuid();
-        var orders = Enumerable.Range(1, 10_000).Select(i => new Order
+        var orders = Enumerable.Range(1, 10_000).Select(i =>
         {
-            TenantId = _tenantId,
-            OrderNumber = $"DASH-{i:D6}",
-            CustomerId = customerId,
-            Status = (OrderStatus)(i % 5), // distribute across statuses
-            OrderDate = DateTime.UtcNow.AddDays(-(i % 365)),
-            SubTotal = 50m + (i % 200),
-            TaxAmount = 9m + (i % 36),
-            TotalAmount = 59m + (i % 236),
-            TaxRate = 0.18m,
-            CustomerName = $"DashCustomer-{i % 100}"
+            var order = new Order
+            {
+                TenantId = _tenantId,
+                OrderNumber = $"DASH-{i:D6}",
+                CustomerId = customerId,
+                Status = (OrderStatus)(i % 5), // distribute across statuses
+                OrderDate = DateTime.UtcNow.AddDays(-(i % 365)),
+                TaxRate = 0.18m,
+                CustomerName = $"DashCustomer-{i % 100}"
+            };
+            order.SetFinancials(50m + (i % 200), 9m + (i % 36), 59m + (i % 236));
+            return order;
         }).ToList();
 
         await _context.Orders.AddRangeAsync(orders);

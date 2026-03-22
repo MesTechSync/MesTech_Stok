@@ -45,16 +45,17 @@ public class ReportingTests
         Guid tenantId, decimal total, OrderStatus status,
         PlatformType platform, DateTime? orderDate = null)
     {
-        return new Order
+        var order = new Order
         {
             TenantId = tenantId,
             OrderNumber = $"ORD-{Guid.NewGuid():N}"[..12],
             CustomerId = Guid.NewGuid(),
             Status = status,
-            TotalAmount = total,
             SourcePlatform = platform,
             OrderDate = orderDate ?? DateTime.UtcNow
         };
+        order.SetFinancials(total, 0m, total);
+        return order;
     }
 
     // ═══════════════════════════════════════════════════════════════════

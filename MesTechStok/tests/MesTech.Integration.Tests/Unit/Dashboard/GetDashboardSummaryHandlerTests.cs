@@ -170,14 +170,18 @@ public class GetDashboardSummaryHandlerTests : IDisposable
 
     // ─── Yardımcılar ──────────────────────────────────────────
 
-    private Order MakeOrder(decimal amount, DateTime orderDate) => new()
+    private Order MakeOrder(decimal amount, DateTime orderDate)
     {
-        TenantId = _tenantId,
-        OrderDate = orderDate,
-        TotalAmount = amount,
-        Status = OrderStatus.Pending,
-        IsDeleted = false
-    };
+        var order = new Order
+        {
+            TenantId = _tenantId,
+            OrderDate = orderDate,
+            Status = OrderStatus.Pending,
+            IsDeleted = false
+        };
+        order.SetFinancials(amount, 0m, amount);
+        return order;
+    }
 
     private Product MakeProduct(int stock, int minStock) => new()
     {
