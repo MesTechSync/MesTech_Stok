@@ -91,7 +91,7 @@
         </ScrollViewer>
 
         <!-- Loading Overlay -->
-        <Border Background="#99FFFFFF"
+        <Border Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

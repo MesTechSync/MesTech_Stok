@@ -162,7 +162,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

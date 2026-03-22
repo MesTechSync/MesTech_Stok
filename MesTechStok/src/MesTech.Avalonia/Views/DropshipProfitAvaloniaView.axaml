@@ -84,7 +84,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+                Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Karlilik verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"
