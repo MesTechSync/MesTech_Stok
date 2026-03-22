@@ -43,11 +43,11 @@ public class OrderReceivedIncomeHandler
         {
             TenantId = Guid.Empty, // Will be resolved by order's TenantId via domain context
             Description = $"Satis geliri — {e.PlatformCode} #{e.PlatformOrderId}",
-            Amount = e.TotalAmount,
             IncomeType = IncomeType.Satis,
             Date = e.OccurredAt,
             Note = $"Otomatik olusturuldu. OrderId: {e.OrderId}"
         };
+        income.SetAmount(e.TotalAmount);
 
         await _incomeRepo.AddAsync(income).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

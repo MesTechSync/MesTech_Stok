@@ -17,7 +17,7 @@ public class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
             ?? throw new KeyNotFoundException($"Income {request.Id} not found.");
 
         if (request.Description is not null) income.Description = request.Description;
-        if (request.Amount.HasValue) income.Amount = request.Amount.Value;
+        if (request.Amount.HasValue) income.SetAmount(request.Amount.Value);
         if (request.IncomeType.HasValue) income.IncomeType = request.IncomeType.Value;
         if (request.Note is not null) income.Note = request.Note;
 

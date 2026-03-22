@@ -23,12 +23,12 @@ public class CreateIncomeHandler : IRequestHandler<CreateIncomeCommand, Guid>
             TenantId = request.TenantId,
             StoreId = request.StoreId,
             Description = request.Description,
-            Amount = request.Amount,
             IncomeType = request.IncomeType,
             InvoiceId = request.InvoiceId,
             Date = request.Date ?? DateTime.UtcNow,
             Note = request.Note,
         };
+        income.SetAmount(request.Amount);
 
         await _incomeRepository.AddAsync(income);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
