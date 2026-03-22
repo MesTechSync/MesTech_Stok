@@ -189,6 +189,15 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Domain.Interfaces.IPlatformMessageRepository,
             MesTech.Infrastructure.Persistence.Repositories.Crm.PlatformMessageRepository>();
 
+        services.AddScoped<MesTech.Application.Interfaces.IBulkProductImportService,
+            MesTech.Infrastructure.Services.BulkProductImportService>();
+        services.AddScoped<MesTech.Application.Interfaces.ICategoryPlatformMappingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.CategoryPlatformMappingRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.ICrmDashboardQueryService,
+            MesTech.Infrastructure.Services.CrmDashboardQueryService>();
+        services.AddScoped<MesTech.Application.Interfaces.Cargo.ICargoRateProvider,
+            MesTech.Infrastructure.Integration.Cargo.NullCargoRateProvider>();
+
         // Message Publisher (MassTransit wrapper)
         services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,
             MesTech.Infrastructure.Messaging.MassTransitMessagePublisher>();
