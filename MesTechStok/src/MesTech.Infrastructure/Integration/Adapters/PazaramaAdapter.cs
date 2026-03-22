@@ -179,7 +179,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -246,7 +246,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/create");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -283,7 +283,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/product/getProductBatchResult?BatchRequestId={batchRequestId}"), ct);
+                    $"/product/getProductBatchResult?BatchRequestId={batchRequestId}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -337,7 +337,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/product/products?Approved=true&Page={page}&Size={pageSize}"), ct);
+                    $"/product/products?Approved=true&Page={page}&Size={pageSize}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -397,7 +397,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/updateStock");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -435,7 +435,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/updatePrice");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -486,7 +486,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                     var req = new HttpRequestMessage(HttpMethod.Post, "/order/getOrdersForApi");
                     req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     return req;
-                }, ct);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -589,7 +589,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -638,7 +638,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(stage1Json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (!stage1Response.IsSuccessStatusCode)
         {
@@ -670,7 +670,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(stage2Json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (stage2Response.IsSuccessStatusCode)
         {
@@ -716,7 +716,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                     var req = new HttpRequestMessage(HttpMethod.Post, "/order/getRefund");
                     req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     return req;
-                }, ct);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -796,7 +796,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -834,7 +834,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -876,7 +876,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/invoice-link");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -906,7 +906,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
