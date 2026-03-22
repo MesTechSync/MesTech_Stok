@@ -25,7 +25,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
     public async Task<PaymentResult> ChargeAsync(decimal amount, string currency, string paymentMethodToken,
         string? description = null, CancellationToken ct = default)
     {
-        _logger.LogInformation("iyzico Charge: {Amount} {Currency} token={Token}", amount, currency, paymentMethodToken[..8]);
+        _logger.LogInformation("iyzico Charge: {Amount} {Currency} token=***masked***", amount, currency);
 
         if (!_options.IsConfigured)
         {
@@ -130,7 +130,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
 
     public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
-        _logger.LogInformation("iyzico DeleteCard: {Token}", cardToken[..8]);
+        _logger.LogInformation("iyzico DeleteCard: token=***masked***");
         await Task.CompletedTask;
         return true;
     }
@@ -145,7 +145,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
         return client;
     }
 
-    private static string ExtractTransactionId(string responseBody)
+    private string ExtractTransactionId(string responseBody)
     {
         try
         {
@@ -153,7 +153,10 @@ public class IyzicoPaymentGateway : IPaymentGateway
             if (doc.RootElement.TryGetProperty("paymentId", out var pid))
                 return pid.GetString() ?? Guid.NewGuid().ToString("N");
         }
-        catch { }
+        catch (System.Text.Json.JsonException ex)
+        {
+            _logger.LogWarning(ex, "iyzico response paymentId parse failed");
+        }
         return Guid.NewGuid().ToString("N");
     }
 }
