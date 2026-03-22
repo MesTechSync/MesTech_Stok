@@ -6,6 +6,11 @@ public class BulkUpdateProductsValidator : AbstractValidator<BulkUpdateProductsC
 {
     public BulkUpdateProductsValidator()
     {
-        // No properties to validate — add rules as business requirements emerge
+        RuleFor(x => x.ProductIds)
+            .NotEmpty().WithMessage("En az bir ürün seçilmelidir.")
+            .Must(ids => ids.Count <= 500).WithMessage("Tek seferde en fazla 500 ürün güncellenebilir.");
+
+        RuleFor(x => x.Action)
+            .IsInEnum().WithMessage("Geçersiz toplu güncelleme işlemi.");
     }
 }
