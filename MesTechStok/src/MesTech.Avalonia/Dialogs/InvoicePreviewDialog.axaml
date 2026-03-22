@@ -5,7 +5,7 @@
         Width="600" Height="700"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
@@ -24,18 +24,18 @@
             <TextBlock Text="Satici"
                        FontSize="{StaticResource FontSizeSmall}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="SellerName"
                        FontSize="{StaticResource FontSizeBody}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
             <TextBlock x:Name="SellerAddress"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap" />
             <TextBlock x:Name="SellerTaxInfo"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
           </StackPanel>
         </Border>
         <Border Grid.Column="2"
@@ -46,18 +46,18 @@
             <TextBlock Text="Alici"
                        FontSize="{StaticResource FontSizeSmall}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="BuyerName"
                        FontSize="{StaticResource FontSizeBody}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
             <TextBlock x:Name="BuyerAddress"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap" />
             <TextBlock x:Name="BuyerTaxInfo"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
           </StackPanel>
         </Border>
       </Grid>
@@ -67,27 +67,27 @@
         <StackPanel Grid.Column="0" Spacing="2">
           <TextBlock Text="Fatura No"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBlock x:Name="InvoiceNoText"
                      FontSize="{StaticResource FontSizeBody}"
                      FontWeight="SemiBold"
-                     Foreground="{StaticResource TextPrimaryBrush}" />
+                     Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>
         <StackPanel Grid.Column="1" Spacing="2">
           <TextBlock Text="Tarih"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBlock x:Name="InvoiceDateText"
                      FontSize="{StaticResource FontSizeBody}"
-                     Foreground="{StaticResource TextPrimaryBrush}" />
+                     Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>
         <StackPanel Grid.Column="2" Spacing="2">
           <TextBlock Text="Tur"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBlock x:Name="InvoiceTypeText"
                      FontSize="{StaticResource FontSizeBody}"
-                     Foreground="{StaticResource TextPrimaryBrush}" />
+                     Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>
       </Grid>
 
@@ -98,7 +98,7 @@
                 AutoGenerateColumns="False"
                 IsReadOnly="True"
                 CanUserReorderColumns="False"
-                BorderBrush="{StaticResource BorderBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1">
         <DataGrid.Columns>
           <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
@@ -117,17 +117,17 @@
               Margin="0,8,0,0">
         <StackPanel HorizontalAlignment="Right" Spacing="4">
           <StackPanel Orientation="Horizontal" Spacing="24">
-            <TextBlock Text="Ara Toplam:" Foreground="{StaticResource TextSecondaryBrush}" />
-            <TextBlock x:Name="SubtotalText" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            <TextBlock Text="Ara Toplam:" Foreground="{DynamicResource TextSecondaryBrush}" />
+            <TextBlock x:Name="SubtotalText" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="24">
-            <TextBlock Text="KDV:" Foreground="{StaticResource TextSecondaryBrush}" />
-            <TextBlock x:Name="VatText" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            <TextBlock Text="KDV:" Foreground="{DynamicResource TextSecondaryBrush}" />
+            <TextBlock x:Name="VatText" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
           </StackPanel>
-          <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4" />
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4" />
           <StackPanel Orientation="Horizontal" Spacing="24">
-            <TextBlock Text="Genel Toplam:" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{StaticResource TextPrimaryBrush}" />
-            <TextBlock x:Name="GrandTotalText" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{StaticResource PrimaryBlueBrush}" />
+            <TextBlock Text="Genel Toplam:" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <TextBlock x:Name="GrandTotalText" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource PrimaryBlueBrush}" />
           </StackPanel>
         </StackPanel>
       </Border>

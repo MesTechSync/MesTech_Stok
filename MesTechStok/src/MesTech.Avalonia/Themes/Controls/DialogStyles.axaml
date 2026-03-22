@@ -16,7 +16,7 @@
 
   <!-- Dialog Container -->
   <Style Selector="Border.mestech-dialog">
-    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
     <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusRound}"/>
     <Setter Property="Padding" Value="{StaticResource PaddingXLarge}"/>
     <Setter Property="MinWidth" Value="400"/>
@@ -30,14 +30,14 @@
   <Style Selector="TextBlock.dialog-title">
     <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     <Setter Property="Margin" Value="0,0,0,8"/>
   </Style>
 
   <!-- Dialog Body Text -->
   <Style Selector="TextBlock.dialog-body">
     <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     <Setter Property="TextWrapping" Value="Wrap"/>
     <Setter Property="Margin" Value="0,0,0,16"/>
   </Style>
@@ -53,7 +53,7 @@
   <!-- Dialog Close Button -->
   <Style Selector="Button.dialog-close">
     <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="Width" Value="32"/>
     <Setter Property="Height" Value="32"/>
@@ -64,8 +64,8 @@
     <Setter Property="Cursor" Value="Hand"/>
   </Style>
   <Style Selector="Button.dialog-close:pointerover">
-    <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}"/>
-    <Setter Property="Foreground" Value="{StaticResource ErrorRedBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource HoverOverlayBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ErrorRedBrush}"/>
   </Style>
 
 </Styles>

@@ -6,10 +6,10 @@
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         SystemDecorations="BorderOnly"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="16" CornerRadius="{StaticResource CornerRadiusLarge}"
-          BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
     <Grid RowDefinitions="Auto,Auto,*">
 
       <TextBox x:Name="QueryBox"
@@ -24,7 +24,7 @@
       <TextBlock x:Name="HintText"
                  Grid.Row="1"
                  FontSize="11"
-                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Foreground="{DynamicResource TextSecondaryBrush}"
                  Margin="4,6,0,4"
                  Text="↑↓ gezin · Enter sec · Esc kapat" />
 
@@ -43,15 +43,15 @@
               <StackPanel Grid.Column="1" Spacing="2">
                 <TextBlock Text="{Binding Title}"
                            FontSize="14"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
                 <TextBlock Text="{Binding Category}"
                            FontSize="11"
-                           Foreground="{StaticResource TextSecondaryBrush}" />
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
               </StackPanel>
               <TextBlock Grid.Column="2"
                          Text="{Binding Shortcut}"
                          FontSize="11"
-                         Foreground="{StaticResource TextTertiaryBrush}"
+                         Foreground="{DynamicResource TextTertiaryBrush}"
                          VerticalAlignment="Center"
                          Margin="8,0,0,0" />
             </Grid>

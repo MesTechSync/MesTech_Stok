@@ -11,7 +11,7 @@
   <Style Selector="TextBlock.page-title">
     <Setter Property="FontSize" Value="{StaticResource FontSizeHeader}"/>
     <Setter Property="FontWeight" Value="Bold"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     <Setter Property="Margin" Value="0,0,0,8"/>
   </Style>
 
@@ -19,7 +19,7 @@
   <Style Selector="TextBlock.section-title">
     <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}"/>
     <Setter Property="FontWeight" Value="DemiBold"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     <Setter Property="Margin" Value="0,16,0,8"/>
   </Style>
 
@@ -27,26 +27,26 @@
   <Style Selector="TextBlock.subtitle">
     <Setter Property="FontSize" Value="{StaticResource FontSizeSubtitle}"/>
     <Setter Property="FontWeight" Value="DemiBold"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
   </Style>
 
   <!-- Gövde metin — 14px, normal -->
   <Style Selector="TextBlock.body">
     <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     <Setter Property="TextWrapping" Value="Wrap"/>
   </Style>
 
   <!-- Küçük metin — 12px, secondary renk -->
   <Style Selector="TextBlock.caption">
     <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
   </Style>
 
   <!-- Üst etiket — 11px, semibold, uppercase -->
   <Style Selector="TextBlock.overline">
     <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     <Setter Property="FontWeight" Value="DemiBold"/>
   </Style>
 
@@ -54,20 +54,20 @@
   <Style Selector="TextBlock.mono">
     <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
     <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
   </Style>
 
   <!-- KPI büyük sayı — 32px, bold -->
   <Style Selector="TextBlock.kpi-value">
     <Setter Property="FontSize" Value="{StaticResource FontSizeDisplay}"/>
     <Setter Property="FontWeight" Value="Bold"/>
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
   </Style>
 
   <!-- KPI etiket — 12px, secondary -->
   <Style Selector="TextBlock.kpi-label">
     <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     <Setter Property="FontWeight" Value="DemiBold"/>
   </Style>
 

@@ -5,7 +5,7 @@
         Width="500" Height="400"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="12">
@@ -18,7 +18,7 @@
         <StackPanel Grid.Column="0" Spacing="4">
           <TextBlock Text="Ad Soyad"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBox x:Name="NameBox"
                    Classes="mestech"
                    Watermark="Ad Soyad" />
@@ -26,7 +26,7 @@
         <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="Telefon"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBox x:Name="PhoneBox"
                    Classes="mestech"
                    Watermark="05XX XXX XXXX" />
@@ -36,7 +36,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="E-posta"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <TextBox x:Name="EmailBox"
                  Classes="mestech"
                  Watermark="ornek@email.com" />
@@ -45,7 +45,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Kaynak"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <ComboBox x:Name="SourceCombo"
                   HorizontalAlignment="Stretch"
                   SelectedIndex="0">
@@ -60,7 +60,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Not"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <TextBox x:Name="NoteBox"
                  Classes="mestech"
                  AcceptsReturn="True"

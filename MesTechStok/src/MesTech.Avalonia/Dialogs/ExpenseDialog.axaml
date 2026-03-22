@@ -5,7 +5,7 @@
         Width="450" Height="350"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="12">
@@ -18,7 +18,7 @@
         <StackPanel Grid.Column="0" Spacing="4">
           <TextBlock Text="Kategori"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <ComboBox x:Name="CategoryCombo"
                     HorizontalAlignment="Stretch"
                     SelectedIndex="0">
@@ -32,7 +32,7 @@
         <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="Tutar"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBox x:Name="AmountBox"
                    Classes="mestech"
                    Watermark="0.00" />
@@ -43,14 +43,14 @@
         <StackPanel Grid.Column="0" Spacing="4">
           <TextBlock Text="Tarih"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <DatePicker x:Name="DatePicker"
                       HorizontalAlignment="Stretch" />
         </StackPanel>
         <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="Belge No"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBox x:Name="DocumentNoBox"
                    Classes="mestech"
                    Watermark="Belge numarasi" />
@@ -60,7 +60,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Aciklama"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <TextBox x:Name="DescriptionBox"
                  Classes="mestech"
                  Watermark="Aciklama giriniz" />

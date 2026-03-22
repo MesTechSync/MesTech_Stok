@@ -5,7 +5,7 @@
         Width="600" Height="450"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,Auto,*,Auto">
@@ -21,7 +21,7 @@
                    Text="Kaynak Kolon"
                    FontSize="{StaticResource FontSizeSmall}"
                    FontWeight="SemiBold"
-                   Foreground="{StaticResource TextSecondaryBrush}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    HorizontalAlignment="Center" />
         <TextBlock Grid.Column="1"
                    Text=""
@@ -30,13 +30,13 @@
                    Text="Hedef Kolon"
                    FontSize="{StaticResource FontSizeSmall}"
                    FontWeight="SemiBold"
-                   Foreground="{StaticResource TextSecondaryBrush}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    HorizontalAlignment="Center" />
       </Grid>
 
       <!-- Mapping Area -->
       <Border Grid.Row="2"
-              BorderBrush="{StaticResource BorderBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Padding="8">

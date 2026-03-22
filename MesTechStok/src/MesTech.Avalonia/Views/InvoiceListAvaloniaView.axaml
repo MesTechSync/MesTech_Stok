@@ -7,10 +7,10 @@
 
     <!-- Fatura Listesi — Arama, Filtre, DataGrid, Sayfalama -->
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource BackgroundBrush}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
@@ -30,8 +30,8 @@
         </Border>
 
         <!-- Row 1: Filters -->
-        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="16,10"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox Width="260" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
                          Text="{Binding SearchText}" FontSize="{StaticResource FontSizeBody}"/>
@@ -45,7 +45,7 @@
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">
                     <PathIcon Data="{StaticResource IconRefresh}" Width="18" Height="18"
-                              Foreground="{StaticResource TextSecondaryBrush}"/>
+                              Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
             </StackPanel>
         </Border>
@@ -60,7 +60,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="{StaticResource SurfaceBrush}"
+                  Background="{DynamicResource SurfaceBrush}"
                   IsVisible="{Binding !IsLoading}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="170"/>
@@ -109,13 +109,13 @@
                    IsVisible="{Binding !Invoices.Count}" />
 
         <!-- Row 3: Footer — pagination -->
-        <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" Padding="16,10"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0"
                            Text="{Binding TotalCount, StringFormat='Toplam: {0} fatura'}"
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
@@ -124,11 +124,11 @@
                     <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
                                VerticalAlignment="Center"
                                FontSize="{StaticResource FontSizeSmall}"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <TextBlock Text="{Binding TotalPages, StringFormat='/ {0}'}"
                                VerticalAlignment="Center"
                                FontSize="{StaticResource FontSizeSmall}"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <Button Content="Sonraki" Command="{Binding NextPageCommand}"
                             Padding="12,6" CornerRadius="{StaticResource CornerRadiusMedium}"
                             FontSize="{StaticResource FontSizeSmall}"/>
@@ -145,25 +145,25 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
                 <TextBlock Text="Faturalar yukleniyor..."
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>
 
         <!-- Empty State -->
         <Border Grid.Row="2"
-                Background="{StaticResource BackgroundBrush}"
+                Background="{DynamicResource BackgroundBrush}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <PathIcon Data="{StaticResource IconReceipt}" Width="48" Height="48"
-                          Foreground="{StaticResource TextSecondaryBrush}" Opacity="0.4"/>
+                          Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.4"/>
                 <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeTitle}"
-                           HorizontalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,12,0,4"/>
                 <TextBlock Text="Arama kriterlerine uygun fatura bulunamadi"
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center" Opacity="0.7"/>
             </StackPanel>
         </Border>

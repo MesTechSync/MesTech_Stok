@@ -5,7 +5,7 @@
         Width="500" Height="350"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -17,16 +17,16 @@
       <Border Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Padding="12"
-              BorderBrush="{StaticResource BorderBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1">
         <StackPanel Spacing="4">
           <TextBlock Text="Orijinal Mesaj:"
                      FontSize="{StaticResource FontSizeSmall}"
                      FontWeight="SemiBold"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <TextBlock x:Name="OriginalMessageText"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}"
+                     Foreground="{DynamicResource TextSecondaryBrush}"
                      TextWrapping="Wrap"
                      MaxHeight="60" />
         </StackPanel>
@@ -35,7 +35,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Yanitiniz"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <TextBox x:Name="ReplyBox"
                  Classes="mestech"
                  AcceptsReturn="True"

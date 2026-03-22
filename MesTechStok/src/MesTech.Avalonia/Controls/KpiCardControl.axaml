@@ -47,7 +47,7 @@
                    VerticalAlignment="Center"/>
         <TextBlock Text="{Binding ComparisonPeriod}"
                    FontSize="12"
-                   Foreground="{StaticResource TextSecondaryBrush}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    VerticalAlignment="Center"
                    Margin="4,0,0,0"/>
       </StackPanel>

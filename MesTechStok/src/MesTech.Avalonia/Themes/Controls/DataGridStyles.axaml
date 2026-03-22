@@ -7,12 +7,12 @@
 
   <!-- DataGrid with MesTech class -->
   <Style Selector="DataGrid.mestech">
-    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
     <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}"/>
     <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}"/>
     <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-    <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}"/>
+    <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource BorderBrush}"/>
     <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
     <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
     <Setter Property="RowHeight" Value="44"/>
@@ -24,8 +24,8 @@
 
   <!-- Column Headers -->
   <Style Selector="DataGrid.mestech DataGridColumnHeader">
-    <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
     <Setter Property="Padding" Value="12,8"/>
@@ -37,10 +37,10 @@
 
   <!-- Row Styles -->
   <Style Selector="DataGrid.mestech DataGridRow">
-    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
   </Style>
   <Style Selector="DataGrid.mestech DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
-    <Setter Property="Fill" Value="{StaticResource HoverOverlayBrush}"/>
+    <Setter Property="Fill" Value="{DynamicResource HoverOverlayBrush}"/>
   </Style>
   <Style Selector="DataGrid.mestech DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
     <Setter Property="Fill" Value="#1A2196F3"/>

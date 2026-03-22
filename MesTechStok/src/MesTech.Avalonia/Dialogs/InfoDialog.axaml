@@ -5,7 +5,7 @@
         Width="420" Height="250"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -14,7 +14,7 @@
         <Border x:Name="IconBorder"
                 Width="40" Height="40"
                 CornerRadius="20"
-                Background="{StaticResource InfoBrush}"
+                Background="{DynamicResource InfoBrush}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
           <TextBlock x:Name="IconText"

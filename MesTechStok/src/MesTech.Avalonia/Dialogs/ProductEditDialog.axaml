@@ -5,7 +5,7 @@
         Width="600" Height="500"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,*,Auto">
@@ -21,7 +21,7 @@
           <StackPanel Spacing="4">
             <TextBlock Text="Urun Adi"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBox x:Name="NameBox"
                      Classes="mestech"
                      Watermark="Urun adini giriniz" />
@@ -31,7 +31,7 @@
             <StackPanel Grid.Column="0" Spacing="4">
               <TextBlock Text="SKU"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}" />
+                         Foreground="{DynamicResource TextSecondaryBrush}" />
               <TextBox x:Name="SkuBox"
                        Classes="mestech"
                        Watermark="SKU" />
@@ -39,7 +39,7 @@
             <StackPanel Grid.Column="2" Spacing="4">
               <TextBlock Text="Barkod"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}" />
+                         Foreground="{DynamicResource TextSecondaryBrush}" />
               <TextBox x:Name="BarcodeBox"
                        Classes="mestech"
                        Watermark="Barkod" />
@@ -50,7 +50,7 @@
             <StackPanel Grid.Column="0" Spacing="4">
               <TextBlock Text="Fiyat"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}" />
+                         Foreground="{DynamicResource TextSecondaryBrush}" />
               <TextBox x:Name="PriceBox"
                        Classes="mestech"
                        Watermark="0.00" />
@@ -58,7 +58,7 @@
             <StackPanel Grid.Column="2" Spacing="4">
               <TextBlock Text="Kategori"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}" />
+                         Foreground="{DynamicResource TextSecondaryBrush}" />
               <TextBox x:Name="CategoryBox"
                        Classes="mestech"
                        Watermark="Kategori" />
@@ -68,7 +68,7 @@
           <StackPanel Spacing="4">
             <TextBlock Text="Aciklama"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBox x:Name="DescriptionBox"
                      Classes="mestech"
                      AcceptsReturn="True"

@@ -5,7 +5,7 @@
         Width="600" Height="450"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,*,Auto">
@@ -16,7 +16,7 @@
                  Text="Resim Galerisi" />
 
       <Border Grid.Row="1"
-              BorderBrush="{StaticResource BorderBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1"
               CornerRadius="{StaticResource CornerRadiusMedium}"
               Margin="0,8,0,0"
@@ -33,7 +33,7 @@
                     VerticalAlignment="Center">
               <TextBlock Text="Resim Yok"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}"
+                         Foreground="{DynamicResource TextSecondaryBrush}"
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center" />
             </Border>

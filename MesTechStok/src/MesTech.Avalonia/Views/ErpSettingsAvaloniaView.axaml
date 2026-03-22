@@ -7,10 +7,10 @@
 
     <!-- ERP Entegrasyon Ayarlari -->
 
-    <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundBrush}">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource BackgroundBrush}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconSettings}" Width="22" Height="22" Foreground="White"/>
@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Baglanti Test"
                         Command="{Binding TestConnectionCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         Margin="0,0,8,0"/>
                 <Button Grid.Column="2" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
@@ -35,12 +35,12 @@
             <StackPanel Spacing="20" MaxWidth="800" HorizontalAlignment="Left">
 
                 <!-- Provider Selection -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <TextBlock Text="ERP Saglayici Secimi"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <ComboBox ItemsSource="{Binding ErpProviders}"
                                   SelectedItem="{Binding SelectedErpProvider}"
                                   Width="300"/>
@@ -56,35 +56,35 @@
                             </Border>
                             <TextBlock Grid.Column="1" Text="{Binding LastTestResult}"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- Logo Fields -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsLogoSelected}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Logo ERP Ayarlari"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Base URL" FontSize="{StaticResource FontSizeSmall}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBox Text="{Binding LogoBaseUrl}"
                                      Watermark="Orn: https://firma.logo.com.tr/logo-rest/api/" AutomationProperties.Name="Orn: https://firma.logo.com.tr/logo-rest/api/"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Kullanici Adi" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding LogoUsername}" Watermark="Logo kullanici adi" AutomationProperties.Name="Logo kullanici adi"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Sifre" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding LogoPassword}" PasswordChar="*"
                                          Watermark="Logo sifresi" AutomationProperties.Name="Logo sifresi"/>
                             </StackPanel>
@@ -92,12 +92,12 @@
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Firma Numarasi" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding LogoFirmNumber}" Watermark="Orn: 001" AutomationProperties.Name="Orn: 001"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Donem Numarasi" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding LogoPeriodNumber}" Watermark="Orn: 01" AutomationProperties.Name="Orn: 01"/>
                             </StackPanel>
                         </Grid>
@@ -105,28 +105,28 @@
                 </Border>
 
                 <!-- Netsis Fields -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsNetsisSelected}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Netsis ERP Ayarlari"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Base URL" FontSize="{StaticResource FontSizeSmall}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBox Text="{Binding NetsisBaseUrl}"
                                      Watermark="Orn: https://FIRMA.netsis.com.tr/api/v2" AutomationProperties.Name="Orn: https://FIRMA.netsis.com.tr/api/v2"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Kullanici Adi" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NetsisUsername}" Watermark="Netsis kullanici adi" AutomationProperties.Name="Netsis kullanici adi"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Sifre" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NetsisPassword}" PasswordChar="*"
                                          Watermark="Netsis sifresi" AutomationProperties.Name="Netsis sifresi"/>
                             </StackPanel>
@@ -134,12 +134,12 @@
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Sirket Kodu" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NetsisCompanyCode}" Watermark="Orn: MESTECH" AutomationProperties.Name="Orn: MESTECH"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Sube Kodu" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NetsisBranchCode}" Watermark="Orn: MERKEZ" AutomationProperties.Name="Orn: MERKEZ"/>
                             </StackPanel>
                         </Grid>
@@ -147,34 +147,34 @@
                 </Border>
 
                 <!-- Nebim Fields -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsNebimSelected}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Nebim ERP Ayarlari"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Base URL" FontSize="{StaticResource FontSizeSmall}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBox Text="{Binding NebimBaseUrl}"
                                      Watermark="Orn: https://firma.nebim.com/api/v3" AutomationProperties.Name="Orn: https://firma.nebim.com/api/v3"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBox Text="{Binding NebimApiKey}" PasswordChar="*"
                                      Watermark="Nebim API anahtari" AutomationProperties.Name="Nebim API anahtari"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Veritabani Kodu" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NebimDatabaseCode}" Watermark="Orn: NEBIMDB" AutomationProperties.Name="Orn: NEBIMDB"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Ofis Kodu" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding NebimOfficeCode}" Watermark="Orn: MERKEZ" AutomationProperties.Name="Orn: MERKEZ"/>
                             </StackPanel>
                         </Grid>
@@ -182,36 +182,36 @@
                 </Border>
 
                 <!-- Parasut Fields -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsParasutSelected}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Parasut Ayarlari"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Grid ColumnDefinitions="*,16,*">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="Client ID" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding ParasutClientId}" Watermark="OAuth Client ID" AutomationProperties.Name="OAuth Client ID"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="Client Secret" FontSize="{StaticResource FontSizeSmall}"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Text="{Binding ParasutClientSecret}" PasswordChar="*"
                                          Watermark="OAuth Client Secret" AutomationProperties.Name="OAuth Client Secret"/>
                             </StackPanel>
                         </Grid>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Company ID" FontSize="{StaticResource FontSizeSmall}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBox Text="{Binding ParasutCompanyId}" Watermark="Parasut sirket ID" AutomationProperties.Name="Parasut sirket ID"
                                      Width="300" HorizontalAlignment="Left"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Sandbox Modu"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding ParasutSandbox}"
                                           OnContent="Acik" OffContent="Kapali"/>
@@ -220,17 +220,17 @@
                 </Border>
 
                 <!-- Sync Settings -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsProviderSelected}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Senkronizasyon Ayarlari"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Otomatik stok senkronizasyonu"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncStock}"
                                           OnContent="Acik" OffContent="Kapali"/>
@@ -238,7 +238,7 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Fatura otomatik aktarimi"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncInvoice}"
                                           OnContent="Acik" OffContent="Kapali"/>
@@ -246,7 +246,7 @@
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Stok senk. araligi (dk):"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <NumericUpDown Grid.Column="1" Value="{Binding StockSyncPeriodMinutes}"
                                           Minimum="5" Maximum="1440" FormatString="N0" Width="160"
@@ -255,7 +255,7 @@
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Fiyat senk. araligi (dk):"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <NumericUpDown Grid.Column="1" Value="{Binding PriceSyncPeriodMinutes}"
                                           Minimum="5" Maximum="1440" FormatString="N0" Width="160"
@@ -265,13 +265,13 @@
                 </Border>
 
                 <!-- Sync History -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding IsProviderSelected}">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Son Senkronizasyon Gecmisi"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <ItemsControl ItemsSource="{Binding SyncHistory}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ErpSyncHistoryItem">
@@ -281,16 +281,16 @@
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding SyncDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
                                                        FontSize="{StaticResource FontSizeSmall}"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding SyncType}"
                                                        FontSize="{StaticResource FontSizeSmall}"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="2"
                                                        FontSize="{StaticResource FontSizeSmall}"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        VerticalAlignment="Center">
                                                 <Run Text="{Binding RecordCount}"/>
                                                 <Run Text=" kayit"/>
@@ -304,7 +304,7 @@
                                             </TextBlock>
                                             <TextBlock Grid.Column="4" Text="{Binding Duration}"
                                                        FontSize="{StaticResource FontSizeSmall}"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Right"
                                                        VerticalAlignment="Center"/>
                                         </Grid>
@@ -326,7 +326,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
                 <TextBlock Text="ERP ayarlari yukleniyor..."
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>
@@ -337,9 +337,9 @@
                 IsVisible="{Binding HasError}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <PathIcon Data="{StaticResource IconWarning}" Width="48" Height="48"
-                          Foreground="{StaticResource ErrorRedBrush}" Margin="0,0,0,8"/>
+                          Foreground="{DynamicResource ErrorRedBrush}" Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource ErrorRedBrush}"
+                           Foreground="{DynamicResource ErrorRedBrush}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400"/>
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6"/>

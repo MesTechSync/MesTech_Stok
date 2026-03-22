@@ -5,7 +5,7 @@
         Width="450" Height="350"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
@@ -20,18 +20,18 @@
                    Minimum="0" Maximum="100" Value="0"
                    Height="8"
                    Margin="0,8,0,8"
-                   Foreground="{StaticResource PrimaryBlueBrush}" />
+                   Foreground="{DynamicResource PrimaryBlueBrush}" />
 
       <TextBlock x:Name="StatusText"
                  Grid.Row="2"
                  FontSize="{StaticResource FontSizeSmall}"
-                 Foreground="{StaticResource TextSecondaryBrush}"
+                 Foreground="{DynamicResource TextSecondaryBrush}"
                  Text="Baslatiliyor..."
                  Margin="0,0,0,8" />
 
       <ListBox x:Name="ErrorList"
                Grid.Row="3"
-               BorderBrush="{StaticResource ErrorRedBrush}"
+               BorderBrush="{DynamicResource ErrorRedBrush}"
                BorderThickness="1"
                CornerRadius="{StaticResource CornerRadiusMedium}"
                IsVisible="False">
@@ -39,7 +39,7 @@
           <DataTemplate>
             <TextBlock Text="{Binding}"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource ErrorRedBrush}" />
+                       Foreground="{DynamicResource ErrorRedBrush}" />
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>

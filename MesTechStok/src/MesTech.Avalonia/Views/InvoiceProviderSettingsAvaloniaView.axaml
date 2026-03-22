@@ -7,10 +7,10 @@
 
     <!-- E-Fatura Provider Ayarlari — 9 kart -->
 
-    <Grid RowDefinitions="Auto,*,Auto" Background="{StaticResource BackgroundBrush}">
+    <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource BackgroundBrush}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconSettings}" Width="22" Height="22" Foreground="White"/>
@@ -20,7 +20,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource PrimaryBlueBrush}" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
             </Grid>
         </Border>
@@ -35,17 +35,17 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:ProviderCardItem">
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="{StaticResource CornerRadiusLarge}"
                                 Padding="20" Margin="8"
-                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                                 Width="340" MinHeight="200">
                             <StackPanel Spacing="10">
                                 <!-- Provider name + status -->
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="{Binding Name}"
                                                FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                         <Ellipse Width="10" Height="10">
                                             <Ellipse.Fill>
@@ -63,31 +63,31 @@
                                         HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding IntegrationType}"
                                                FontSize="{StaticResource FontSizeCaption}"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 </Border>
 
                                 <!-- Supported types -->
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Desteklenen tipler:"
                                                FontSize="{StaticResource FontSizeSmall}"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SupportedTypes}"
                                                FontSize="{StaticResource FontSizeBody}"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 </StackPanel>
 
                                 <!-- Last test result -->
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Son test:"
                                                FontSize="{StaticResource FontSizeSmall}"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <TextBlock Text="{Binding LastTestResult}"
                                                    FontSize="{StaticResource FontSizeBody}"
                                                    FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding LastTestDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
                                                    FontSize="{StaticResource FontSizeSmall}"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -114,17 +114,17 @@
 
         <!-- Row 2: P0 XAdES Warning Banner -->
         <Border Grid.Row="2" Background="{DynamicResource MesBgDangerLight}" Padding="16,12"
-                BorderBrush="{StaticResource ErrorRedBrush}" BorderThickness="0,2,0,0">
+                BorderBrush="{DynamicResource ErrorRedBrush}" BorderThickness="0,2,0,0">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <PathIcon Data="{StaticResource IconWarning}" Width="20" Height="20"
-                          Foreground="{StaticResource ErrorRedBrush}"/>
+                          Foreground="{DynamicResource ErrorRedBrush}"/>
                 <StackPanel Spacing="2">
                     <TextBlock Text="P0 UYARI: XAdES Imza Desteği"
                                FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
-                               Foreground="{StaticResource ErrorRedBrush}"/>
+                               Foreground="{DynamicResource ErrorRedBrush}"/>
                     <TextBlock Text="e-Fatura UBL-TR 1.2 XAdES-BES imza zorunlulugu mevcut. Production provider'lar HSM veya yazilim sertifikasi gerektirmektedir."
                                FontSize="{StaticResource FontSizeSmall}"
-                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
@@ -139,7 +139,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
                 <TextBlock Text="Provider bilgileri yukleniyor..."
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>

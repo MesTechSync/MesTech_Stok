@@ -5,7 +5,7 @@
         Width="450" Height="350"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -16,7 +16,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Etiket Boyutu"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <ComboBox x:Name="LabelSizeCombo"
                   HorizontalAlignment="Stretch"
                   SelectedIndex="0">
@@ -30,7 +30,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Kopya Sayisi"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <NumericUpDown x:Name="CopyCount"
                        Minimum="1" Maximum="100" Value="1"
                        HorizontalAlignment="Stretch" />
@@ -39,7 +39,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Yazici"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <ComboBox x:Name="PrinterCombo"
                   HorizontalAlignment="Stretch">
           <ComboBoxItem Content="Varsayilan Yazici" />

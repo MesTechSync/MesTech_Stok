@@ -69,36 +69,36 @@
   <!-- SolidColorBrush Definitions (WPF-Aligned)                    -->
   <!-- ============================================================ -->
 
-  <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}"/>
-  <SolidColorBrush x:Key="SecondaryBlueBrush" Color="{StaticResource SecondaryBlueColor}"/>
-  <SolidColorBrush x:Key="AccentGreenBrush" Color="{StaticResource AccentGreenColor}"/>
-  <SolidColorBrush x:Key="OrangePrimaryBrush" Color="{StaticResource OrangePrimaryColor}"/>
-  <SolidColorBrush x:Key="OrangeHoverBrush" Color="{StaticResource OrangeHoverColor}"/>
-  <SolidColorBrush x:Key="OrangeDarkBrush" Color="{StaticResource OrangeDarkColor}"/>
-  <SolidColorBrush x:Key="WarningOrangeBrush" Color="{StaticResource WarningOrangeColor}"/>
-  <SolidColorBrush x:Key="ErrorRedBrush" Color="{StaticResource ErrorRedColor}"/>
-  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
-  <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
-  <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
-  <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
-  <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+  <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{DynamicResource PrimaryBlueColor}"/>
+  <SolidColorBrush x:Key="SecondaryBlueBrush" Color="{DynamicResource SecondaryBlueColor}"/>
+  <SolidColorBrush x:Key="AccentGreenBrush" Color="{DynamicResource AccentGreenColor}"/>
+  <SolidColorBrush x:Key="OrangePrimaryBrush" Color="{DynamicResource OrangePrimaryColor}"/>
+  <SolidColorBrush x:Key="OrangeHoverBrush" Color="{DynamicResource OrangeHoverColor}"/>
+  <SolidColorBrush x:Key="OrangeDarkBrush" Color="{DynamicResource OrangeDarkColor}"/>
+  <SolidColorBrush x:Key="WarningOrangeBrush" Color="{DynamicResource WarningOrangeColor}"/>
+  <SolidColorBrush x:Key="ErrorRedBrush" Color="{DynamicResource ErrorRedColor}"/>
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource TextPrimaryColor}"/>
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource TextSecondaryColor}"/>
+  <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource BackgroundColor}"/>
+  <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource SurfaceColor}"/>
+  <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}"/>
 
   <!-- Sidebar Brushes -->
-  <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{StaticResource SidebarBackgroundColor}"/>
-  <SolidColorBrush x:Key="SidebarHoverBrush" Color="{StaticResource SidebarHoverColor}"/>
-  <SolidColorBrush x:Key="SidebarActiveBrush" Color="{StaticResource SidebarActiveColor}"/>
-  <SolidColorBrush x:Key="SidebarTextBrush" Color="{StaticResource SidebarTextColor}"/>
-  <SolidColorBrush x:Key="SidebarTextActiveBrush" Color="{StaticResource SidebarTextActiveColor}"/>
-  <SolidColorBrush x:Key="SidebarBorderBrush" Color="{StaticResource SidebarBorderColor}"/>
+  <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{DynamicResource SidebarBackgroundColor}"/>
+  <SolidColorBrush x:Key="SidebarHoverBrush" Color="{DynamicResource SidebarHoverColor}"/>
+  <SolidColorBrush x:Key="SidebarActiveBrush" Color="{DynamicResource SidebarActiveColor}"/>
+  <SolidColorBrush x:Key="SidebarTextBrush" Color="{DynamicResource SidebarTextColor}"/>
+  <SolidColorBrush x:Key="SidebarTextActiveBrush" Color="{DynamicResource SidebarTextActiveColor}"/>
+  <SolidColorBrush x:Key="SidebarBorderBrush" Color="{DynamicResource SidebarBorderColor}"/>
 
   <!-- State Brushes -->
-  <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
-  <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
-  <SolidColorBrush x:Key="DisabledBrush" Color="{StaticResource DisabledColor}"/>
-  <SolidColorBrush x:Key="DisabledTextBrush" Color="{StaticResource DisabledTextColor}"/>
-  <SolidColorBrush x:Key="HoverOverlayBrush" Color="{StaticResource HoverOverlayColor}"/>
-  <SolidColorBrush x:Key="PressedOverlayBrush" Color="{StaticResource PressedOverlayColor}"/>
-  <SolidColorBrush x:Key="FocusBorderBrush" Color="{StaticResource FocusBorderColor}"/>
+  <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}"/>
+  <SolidColorBrush x:Key="InfoBrush" Color="{DynamicResource InfoColor}"/>
+  <SolidColorBrush x:Key="DisabledBrush" Color="{DynamicResource DisabledColor}"/>
+  <SolidColorBrush x:Key="DisabledTextBrush" Color="{DynamicResource DisabledTextColor}"/>
+  <SolidColorBrush x:Key="HoverOverlayBrush" Color="{DynamicResource HoverOverlayColor}"/>
+  <SolidColorBrush x:Key="PressedOverlayBrush" Color="{DynamicResource PressedOverlayColor}"/>
+  <SolidColorBrush x:Key="FocusBorderBrush" Color="{DynamicResource FocusBorderColor}"/>
 
   <!-- ============================================================ -->
   <!-- Status Palette — Tüm modüllerde tutarlı durum renkleri       -->
@@ -109,10 +109,10 @@
   <Color x:Key="PlatformInactiveColor">#9CA3AF</Color>
   <Color x:Key="PlatformErrorColor">#D32F2F</Color>
   <Color x:Key="PlatformSyncingColor">#0078D4</Color>
-  <SolidColorBrush x:Key="PlatformActiveBrush" Color="{StaticResource PlatformActiveColor}"/>
-  <SolidColorBrush x:Key="PlatformInactiveBrush" Color="{StaticResource PlatformInactiveColor}"/>
-  <SolidColorBrush x:Key="PlatformErrorBrush" Color="{StaticResource PlatformErrorColor}"/>
-  <SolidColorBrush x:Key="PlatformSyncingBrush" Color="{StaticResource PlatformSyncingColor}"/>
+  <SolidColorBrush x:Key="PlatformActiveBrush" Color="{DynamicResource PlatformActiveColor}"/>
+  <SolidColorBrush x:Key="PlatformInactiveBrush" Color="{DynamicResource PlatformInactiveColor}"/>
+  <SolidColorBrush x:Key="PlatformErrorBrush" Color="{DynamicResource PlatformErrorColor}"/>
+  <SolidColorBrush x:Key="PlatformSyncingBrush" Color="{DynamicResource PlatformSyncingColor}"/>
 
   <!-- Order Status -->
   <Color x:Key="OrderNewColor">#0078D4</Color>
@@ -121,12 +121,12 @@
   <Color x:Key="OrderDeliveredColor">#388E3C</Color>
   <Color x:Key="OrderCancelledColor">#D32F2F</Color>
   <Color x:Key="OrderReturnedColor">#E91E63</Color>
-  <SolidColorBrush x:Key="OrderNewBrush" Color="{StaticResource OrderNewColor}"/>
-  <SolidColorBrush x:Key="OrderProcessingBrush" Color="{StaticResource OrderProcessingColor}"/>
-  <SolidColorBrush x:Key="OrderShippedBrush" Color="{StaticResource OrderShippedColor}"/>
-  <SolidColorBrush x:Key="OrderDeliveredBrush" Color="{StaticResource OrderDeliveredColor}"/>
-  <SolidColorBrush x:Key="OrderCancelledBrush" Color="{StaticResource OrderCancelledColor}"/>
-  <SolidColorBrush x:Key="OrderReturnedBrush" Color="{StaticResource OrderReturnedColor}"/>
+  <SolidColorBrush x:Key="OrderNewBrush" Color="{DynamicResource OrderNewColor}"/>
+  <SolidColorBrush x:Key="OrderProcessingBrush" Color="{DynamicResource OrderProcessingColor}"/>
+  <SolidColorBrush x:Key="OrderShippedBrush" Color="{DynamicResource OrderShippedColor}"/>
+  <SolidColorBrush x:Key="OrderDeliveredBrush" Color="{DynamicResource OrderDeliveredColor}"/>
+  <SolidColorBrush x:Key="OrderCancelledBrush" Color="{DynamicResource OrderCancelledColor}"/>
+  <SolidColorBrush x:Key="OrderReturnedBrush" Color="{DynamicResource OrderReturnedColor}"/>
 
   <!-- Cargo Status -->
   <Color x:Key="CargoPickedUpColor">#0078D4</Color>
@@ -134,31 +134,31 @@
   <Color x:Key="CargoAtBranchColor">#7B1FA2</Color>
   <Color x:Key="CargoDeliveredColor">#388E3C</Color>
   <Color x:Key="CargoFailedColor">#D32F2F</Color>
-  <SolidColorBrush x:Key="CargoPickedUpBrush" Color="{StaticResource CargoPickedUpColor}"/>
-  <SolidColorBrush x:Key="CargoInTransitBrush" Color="{StaticResource CargoInTransitColor}"/>
-  <SolidColorBrush x:Key="CargoAtBranchBrush" Color="{StaticResource CargoAtBranchColor}"/>
-  <SolidColorBrush x:Key="CargoDeliveredBrush" Color="{StaticResource CargoDeliveredColor}"/>
-  <SolidColorBrush x:Key="CargoFailedBrush" Color="{StaticResource CargoFailedColor}"/>
+  <SolidColorBrush x:Key="CargoPickedUpBrush" Color="{DynamicResource CargoPickedUpColor}"/>
+  <SolidColorBrush x:Key="CargoInTransitBrush" Color="{DynamicResource CargoInTransitColor}"/>
+  <SolidColorBrush x:Key="CargoAtBranchBrush" Color="{DynamicResource CargoAtBranchColor}"/>
+  <SolidColorBrush x:Key="CargoDeliveredBrush" Color="{DynamicResource CargoDeliveredColor}"/>
+  <SolidColorBrush x:Key="CargoFailedBrush" Color="{DynamicResource CargoFailedColor}"/>
 
   <!-- Invoice Status -->
   <Color x:Key="InvoiceDraftColor">#9CA3AF</Color>
   <Color x:Key="InvoiceSentColor">#0078D4</Color>
   <Color x:Key="InvoiceAcceptedColor">#388E3C</Color>
   <Color x:Key="InvoiceRejectedColor">#D32F2F</Color>
-  <SolidColorBrush x:Key="InvoiceDraftBrush" Color="{StaticResource InvoiceDraftColor}"/>
-  <SolidColorBrush x:Key="InvoiceSentBrush" Color="{StaticResource InvoiceSentColor}"/>
-  <SolidColorBrush x:Key="InvoiceAcceptedBrush" Color="{StaticResource InvoiceAcceptedColor}"/>
-  <SolidColorBrush x:Key="InvoiceRejectedBrush" Color="{StaticResource InvoiceRejectedColor}"/>
+  <SolidColorBrush x:Key="InvoiceDraftBrush" Color="{DynamicResource InvoiceDraftColor}"/>
+  <SolidColorBrush x:Key="InvoiceSentBrush" Color="{DynamicResource InvoiceSentColor}"/>
+  <SolidColorBrush x:Key="InvoiceAcceptedBrush" Color="{DynamicResource InvoiceAcceptedColor}"/>
+  <SolidColorBrush x:Key="InvoiceRejectedBrush" Color="{DynamicResource InvoiceRejectedColor}"/>
 
   <!-- Stock Level -->
   <Color x:Key="StockNormalColor">#388E3C</Color>
   <Color x:Key="StockLowColor">#F57C00</Color>
   <Color x:Key="StockCriticalColor">#D32F2F</Color>
   <Color x:Key="StockOutColor">#1A1A1A</Color>
-  <SolidColorBrush x:Key="StockNormalBrush" Color="{StaticResource StockNormalColor}"/>
-  <SolidColorBrush x:Key="StockLowBrush" Color="{StaticResource StockLowColor}"/>
-  <SolidColorBrush x:Key="StockCriticalBrush" Color="{StaticResource StockCriticalColor}"/>
-  <SolidColorBrush x:Key="StockOutBrush" Color="{StaticResource StockOutColor}"/>
+  <SolidColorBrush x:Key="StockNormalBrush" Color="{DynamicResource StockNormalColor}"/>
+  <SolidColorBrush x:Key="StockLowBrush" Color="{DynamicResource StockLowColor}"/>
+  <SolidColorBrush x:Key="StockCriticalBrush" Color="{DynamicResource StockCriticalColor}"/>
+  <SolidColorBrush x:Key="StockOutBrush" Color="{DynamicResource StockOutColor}"/>
 
   <!-- ============================================================ -->
   <!-- MESA OS Renk Token'ları — AI/Bot/RAG ayrı renk ailesi        -->
@@ -170,12 +170,12 @@
   <Color x:Key="BotNotificationBgColor">#D1FAE5</Color>
   <Color x:Key="RagSearchColor">#0891B2</Color>
   <Color x:Key="RagSearchBgColor">#CFFAFE</Color>
-  <SolidColorBrush x:Key="AIInsightBrush" Color="{StaticResource AIInsightColor}"/>
-  <SolidColorBrush x:Key="AIInsightBgBrush" Color="{StaticResource AIInsightBgColor}"/>
-  <SolidColorBrush x:Key="BotNotificationBrush" Color="{StaticResource BotNotificationColor}"/>
-  <SolidColorBrush x:Key="BotNotificationBgBrush" Color="{StaticResource BotNotificationBgColor}"/>
-  <SolidColorBrush x:Key="RagSearchBrush" Color="{StaticResource RagSearchColor}"/>
-  <SolidColorBrush x:Key="RagSearchBgBrush" Color="{StaticResource RagSearchBgColor}"/>
+  <SolidColorBrush x:Key="AIInsightBrush" Color="{DynamicResource AIInsightColor}"/>
+  <SolidColorBrush x:Key="AIInsightBgBrush" Color="{DynamicResource AIInsightBgColor}"/>
+  <SolidColorBrush x:Key="BotNotificationBrush" Color="{DynamicResource BotNotificationColor}"/>
+  <SolidColorBrush x:Key="BotNotificationBgBrush" Color="{DynamicResource BotNotificationBgColor}"/>
+  <SolidColorBrush x:Key="RagSearchBrush" Color="{DynamicResource RagSearchColor}"/>
+  <SolidColorBrush x:Key="RagSearchBgBrush" Color="{DynamicResource RagSearchBgColor}"/>
 
   <!-- ============================================================ -->
   <!-- Platform Marka Renkleri (resmi)                               -->
@@ -195,20 +195,20 @@
   <Color x:Key="WooCommerceColor">#9B5C8F</Color>
   <Color x:Key="EtsyColor">#F16521</Color>
   <Color x:Key="BitrixColor">#2FC6F6</Color>
-  <SolidColorBrush x:Key="TrendyolBrush" Color="{StaticResource TrendyolColor}"/>
-  <SolidColorBrush x:Key="HepsiburadaBrush" Color="{StaticResource HepsiburadaColor}"/>
+  <SolidColorBrush x:Key="TrendyolBrush" Color="{DynamicResource TrendyolColor}"/>
+  <SolidColorBrush x:Key="HepsiburadaBrush" Color="{DynamicResource HepsiburadaColor}"/>
   <SolidColorBrush x:Key="N11Brush" Color="{StaticResource N11Color}"/>
-  <SolidColorBrush x:Key="CiceksepetiBrush" Color="{StaticResource CiceksepetiColor}"/>
-  <SolidColorBrush x:Key="AmazonBrush" Color="{StaticResource AmazonColor}"/>
-  <SolidColorBrush x:Key="PazaramaBrush" Color="{StaticResource PazaramaColor}"/>
-  <SolidColorBrush x:Key="EbayBrush" Color="{StaticResource EbayColor}"/>
-  <SolidColorBrush x:Key="OpenCartBrush" Color="{StaticResource OpenCartColor}"/>
-  <SolidColorBrush x:Key="OzonBrush" Color="{StaticResource OzonColor}"/>
-  <SolidColorBrush x:Key="PttAvmBrush" Color="{StaticResource PttAvmColor}"/>
-  <SolidColorBrush x:Key="ShopifyBrush" Color="{StaticResource ShopifyColor}"/>
-  <SolidColorBrush x:Key="WooCommerceBrush" Color="{StaticResource WooCommerceColor}"/>
-  <SolidColorBrush x:Key="EtsyBrush" Color="{StaticResource EtsyColor}"/>
-  <SolidColorBrush x:Key="BitrixBrush" Color="{StaticResource BitrixColor}"/>
+  <SolidColorBrush x:Key="CiceksepetiBrush" Color="{DynamicResource CiceksepetiColor}"/>
+  <SolidColorBrush x:Key="AmazonBrush" Color="{DynamicResource AmazonColor}"/>
+  <SolidColorBrush x:Key="PazaramaBrush" Color="{DynamicResource PazaramaColor}"/>
+  <SolidColorBrush x:Key="EbayBrush" Color="{DynamicResource EbayColor}"/>
+  <SolidColorBrush x:Key="OpenCartBrush" Color="{DynamicResource OpenCartColor}"/>
+  <SolidColorBrush x:Key="OzonBrush" Color="{DynamicResource OzonColor}"/>
+  <SolidColorBrush x:Key="PttAvmBrush" Color="{DynamicResource PttAvmColor}"/>
+  <SolidColorBrush x:Key="ShopifyBrush" Color="{DynamicResource ShopifyColor}"/>
+  <SolidColorBrush x:Key="WooCommerceBrush" Color="{DynamicResource WooCommerceColor}"/>
+  <SolidColorBrush x:Key="EtsyBrush" Color="{DynamicResource EtsyColor}"/>
+  <SolidColorBrush x:Key="BitrixBrush" Color="{DynamicResource BitrixColor}"/>
 
   <!-- ============================================================ -->
   <!-- Semantik Light Backgrounds (alert/badge arka planları)       -->
@@ -218,10 +218,10 @@
   <Color x:Key="SuccessLightColor">#E8F5E9</Color>
   <Color x:Key="WarningLightColor">#FFF3E0</Color>
   <Color x:Key="InfoLightColor">#E3F2FD</Color>
-  <SolidColorBrush x:Key="ErrorLightBrush" Color="{StaticResource ErrorLightColor}"/>
-  <SolidColorBrush x:Key="SuccessLightBrush" Color="{StaticResource SuccessLightColor}"/>
-  <SolidColorBrush x:Key="WarningLightBrush" Color="{StaticResource WarningLightColor}"/>
-  <SolidColorBrush x:Key="InfoLightBrush" Color="{StaticResource InfoLightColor}"/>
+  <SolidColorBrush x:Key="ErrorLightBrush" Color="{DynamicResource ErrorLightColor}"/>
+  <SolidColorBrush x:Key="SuccessLightBrush" Color="{DynamicResource SuccessLightColor}"/>
+  <SolidColorBrush x:Key="WarningLightBrush" Color="{DynamicResource WarningLightColor}"/>
+  <SolidColorBrush x:Key="InfoLightBrush" Color="{DynamicResource InfoLightColor}"/>
 
   <!-- ============================================================ -->
   <!-- Typography                                                    -->

@@ -9,13 +9,13 @@
         Width="1400" Height="900"
         MinWidth="1024" MinHeight="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BackgroundBrush}">
+        Background="{DynamicResource BackgroundBrush}">
 
     <Window.Styles>
         <!-- Sidebar button style -->
         <Style Selector="Button.sidebar-btn">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarTextBrush}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Padding" Value="16,10" />
@@ -24,8 +24,8 @@
             <Setter Property="CornerRadius" Value="0" />
         </Style>
         <Style Selector="Button.sidebar-btn:pointerover">
-            <Setter Property="Background" Value="{StaticResource SidebarHoverBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource SidebarTextActiveBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SidebarHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarTextActiveBrush}" />
         </Style>
         <!-- Icon button style (toolbar) -->
         <Style Selector="Button.icon-btn">
@@ -33,10 +33,10 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8" />
             <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
         </Style>
         <Style Selector="Button.icon-btn:pointerover">
-            <Setter Property="Background" Value="{StaticResource HoverOverlayBrush}" />
+            <Setter Property="Background" Value="{DynamicResource HoverOverlayBrush}" />
         </Style>
         <!-- Sidebar section header -->
         <Style Selector="TextBlock.sidebar-section">
@@ -50,7 +50,7 @@
             <Setter Property="IsEnabled" Value="False" />
             <Setter Property="Opacity" Value="0.4" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarTextBrush}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Padding" Value="16,10" />
@@ -64,9 +64,9 @@
 
         <!-- ═══ TOOLBAR (UST) ═══ -->
         <Border DockPanel.Dock="Top"
-                Background="{StaticResource SurfaceBrush}"
+                Background="{DynamicResource SurfaceBrush}"
                 Height="52"
-                BorderBrush="{StaticResource BorderBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,*,Auto">
 
@@ -79,7 +79,7 @@
                     </Button>
                     <TextBlock Text="MesTech Entegratör"
                                FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center" Margin="12,0,0,0"/>
                 </StackPanel>
 
@@ -95,7 +95,7 @@
                             VerticalAlignment="Center" Margin="0,0,16,0" Spacing="4">
                     <TextBlock x:Name="ToolbarClock" Text="00:00"
                                FontSize="{StaticResource FontSizeSmall}"
-                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Classes="icon-btn">
                         <PathIcon Data="{StaticResource IconNotification}" Width="18" Height="18"/>
@@ -105,7 +105,7 @@
                     </Button>
                     <TextBlock Text="Admin"
                                FontSize="{StaticResource FontSizeSmall}"
-                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="4,0,0,0"/>
                 </StackPanel>
             </Grid>
@@ -113,28 +113,28 @@
 
         <!-- ═══ STATUSBAR (ALT) ═══ -->
         <Border DockPanel.Dock="Bottom"
-                Background="{StaticResource SurfaceBrush}"
+                Background="{DynamicResource SurfaceBrush}"
                 Height="30"
-                BorderBrush="{StaticResource BorderBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto" Margin="16,0">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
                             VerticalAlignment="Center">
-                    <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}"/>
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource SuccessBrush}"/>
                     <TextBlock Text="Bağlı" FontSize="{StaticResource FontSizeCaption}"
-                               Foreground="{StaticResource SuccessBrush}"/>
-                    <TextBlock Text="|" Foreground="{StaticResource BorderBrush}"/>
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                    <TextBlock Text="|" Foreground="{DynamicResource BorderBrush}"/>
                     <TextBlock Text="PostgreSQL 17" FontSize="{StaticResource FontSizeCaption}"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
                             VerticalAlignment="Center">
                     <TextBlock Text="v1.0.0" FontSize="{StaticResource FontSizeCaption}"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="|" Foreground="{StaticResource BorderBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="|" Foreground="{DynamicResource BorderBrush}"/>
                     <TextBlock x:Name="StatusUser" Text="admin"
                                FontSize="{StaticResource FontSizeCaption}"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -144,19 +144,19 @@
 
             <!-- SIDEBAR -->
             <Border x:Name="SidebarPanel" Grid.Column="0" Width="240"
-                    Background="{StaticResource SidebarBackgroundBrush}">
+                    Background="{DynamicResource SidebarBackgroundBrush}">
                 <DockPanel>
 
                     <!-- Sidebar ust: MesTech mini logo -->
                     <Border DockPanel.Dock="Top" Height="48" Padding="16,0"
-                            BorderBrush="{StaticResource SidebarBorderBrush}"
+                            BorderBrush="{DynamicResource SidebarBorderBrush}"
                             BorderThickness="0,0,0,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
                             <PathIcon Data="{StaticResource IconMenu}"
-                                      Foreground="{StaticResource SidebarTextActiveBrush}"
+                                      Foreground="{DynamicResource SidebarTextActiveBrush}"
                                       Width="16" Height="16"/>
                             <TextBlock x:Name="SidebarTitle" Text="MesTech"
-                                       Foreground="{StaticResource SidebarTextActiveBrush}"
+                                       Foreground="{DynamicResource SidebarTextActiveBrush}"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -164,7 +164,7 @@
 
                     <!-- Sidebar alt: Footer -->
                     <Border DockPanel.Dock="Bottom" Padding="16,10"
-                            BorderBrush="{StaticResource SidebarBorderBrush}"
+                            BorderBrush="{DynamicResource SidebarBorderBrush}"
                             BorderThickness="0,1,0,0">
                         <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="10"
                                    Foreground="{DynamicResource MesTextSlate}"/>
@@ -596,7 +596,7 @@
                             </Button>
 
                             <!-- Cikis -->
-                            <Border Height="1" Background="{StaticResource SidebarBorderBrush}" Margin="16,8"/>
+                            <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
                             <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
@@ -613,12 +613,12 @@
             <!-- CONTENT AREA -->
             <DockPanel Grid.Column="1">
                 <!-- Content Header -->
-                <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}"
+                <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}"
                         Padding="24,14"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                     <TextBlock Text="{Binding CurrentViewTitle}"
                                FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                 </Border>
 
                 <!-- Dynamic Content -->

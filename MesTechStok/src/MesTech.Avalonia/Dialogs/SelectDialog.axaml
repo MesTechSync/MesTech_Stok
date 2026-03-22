@@ -5,7 +5,7 @@
         Width="500" Height="400"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,Auto,*,Auto">
@@ -23,7 +23,7 @@
 
       <ListBox x:Name="ItemsList"
                Grid.Row="2"
-               BorderBrush="{StaticResource BorderBrush}"
+               BorderBrush="{DynamicResource BorderBrush}"
                BorderThickness="1"
                CornerRadius="{StaticResource CornerRadiusMedium}">
         <ListBox.ItemTemplate>
@@ -31,10 +31,10 @@
             <StackPanel Spacing="2" Margin="4">
               <TextBlock Text="{Binding Name}"
                          FontSize="{StaticResource FontSizeBody}"
-                         Foreground="{StaticResource TextPrimaryBrush}" />
+                         Foreground="{DynamicResource TextPrimaryBrush}" />
               <TextBlock Text="{Binding Description}"
                          FontSize="{StaticResource FontSizeSmall}"
-                         Foreground="{StaticResource TextSecondaryBrush}" />
+                         Foreground="{DynamicResource TextSecondaryBrush}" />
             </StackPanel>
           </DataTemplate>
         </ListBox.ItemTemplate>

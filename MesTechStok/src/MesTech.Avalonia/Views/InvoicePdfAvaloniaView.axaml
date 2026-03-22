@@ -6,10 +6,10 @@
 
     <!-- Fatura PDF Goruntuleme -->
 
-    <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundBrush}">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource BackgroundBrush}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <PathIcon Data="{StaticResource IconReceipt}" Width="22" Height="22" Foreground="White"/>
                 <TextBlock Text="PDF Goruntuleme" Foreground="White"
@@ -23,44 +23,44 @@
             <StackPanel HorizontalAlignment="Center" MaxWidth="600" Spacing="24" Margin="0,24">
 
                 <!-- Invoice Info Card -->
-                <Border Background="{StaticResource SurfaceBrush}"
+                <Border Background="{DynamicResource SurfaceBrush}"
                         CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        Padding="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="14">
                         <TextBlock Text="Fatura Bilgileri"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Fatura No:"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InvoiceNumber}"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Alici:" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RecipientName}" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Tutar:" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Row="2" Grid.Column="1"
                                        Text="{Binding Amount, StringFormat='{}{0:N2} TL'}" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource PrimaryBlueBrush}"/>
+                                       Foreground="{DynamicResource PrimaryBlueBrush}"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Tip:" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding InvoiceType}" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Tarih:" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Row="4" Grid.Column="1"
                                        Text="{Binding InvoiceDate, StringFormat='{}{0:dd.MM.yyyy}'}" Margin="0,6,0,0"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
@@ -69,20 +69,20 @@
                 </Border>
 
                 <!-- PDF Placeholder -->
-                <Border Background="{StaticResource SurfaceBrush}"
+                <Border Background="{DynamicResource SurfaceBrush}"
                         CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="40,48" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        Padding="40,48" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         IsVisible="{Binding HasPdf}">
                     <StackPanel HorizontalAlignment="Center" Spacing="12">
                         <PathIcon Data="{StaticResource IconReceipt}" Width="48" Height="48"
-                                  Foreground="{StaticResource TextSecondaryBrush}" Opacity="0.4"/>
+                                  Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.4"/>
                         <TextBlock Text="PDF Onizleme"
                                    FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="Avalonia native PDF goruntuleme desteklemiyor. Asagidaki butonlarla PDF dosyasina erisebilirsiniz."
                                    FontSize="{StaticResource FontSizeBody}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center" TextAlignment="Center"
                                    TextWrapping="Wrap" MaxWidth="400"/>
                     </StackPanel>
@@ -91,14 +91,14 @@
                 <!-- No PDF state -->
                 <Border Background="{DynamicResource MesBgSurface}"
                         CornerRadius="{StaticResource CornerRadiusLarge}"
-                        Padding="20" BorderBrush="{StaticResource WarningOrangeBrush}" BorderThickness="1"
+                        Padding="20" BorderBrush="{DynamicResource WarningOrangeBrush}" BorderThickness="1"
                         IsVisible="{Binding !HasPdf}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <PathIcon Data="{StaticResource IconWarning}" Width="20" Height="20"
-                                  Foreground="{StaticResource WarningOrangeBrush}"/>
+                                  Foreground="{DynamicResource WarningOrangeBrush}"/>
                         <TextBlock Text="Bu fatura icin henuz PDF olusturulmamis."
                                    FontSize="{StaticResource FontSizeBody}"
-                                   Foreground="{StaticResource WarningOrangeBrush}"
+                                   Foreground="{DynamicResource WarningOrangeBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -106,7 +106,7 @@
                 <!-- Action Buttons -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
                     <Button Command="{Binding DownloadPdfCommand}"
-                            Background="{StaticResource PrimaryBlueBrush}" Foreground="White"
+                            Background="{DynamicResource PrimaryBlueBrush}" Foreground="White"
                             Padding="20,10" CornerRadius="{StaticResource CornerRadiusMedium}"
                             FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold">
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -136,7 +136,7 @@
                 <!-- Status message -->
                 <TextBlock Text="{Binding StatusMessage}"
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource SuccessBrush}"
+                           Foreground="{DynamicResource SuccessBrush}"
                            HorizontalAlignment="Center"
                            IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
@@ -151,7 +151,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
                 <TextBlock Text="Islem yapiliyor..."
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>

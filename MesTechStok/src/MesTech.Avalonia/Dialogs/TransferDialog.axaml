@@ -5,7 +5,7 @@
         Width="500" Height="400"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -17,14 +17,14 @@
         <StackPanel Grid.Column="0" Spacing="4">
           <TextBlock Text="Kaynak Depo"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <ComboBox x:Name="SourceWarehouse"
                     HorizontalAlignment="Stretch" />
         </StackPanel>
         <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="Hedef Depo"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <ComboBox x:Name="TargetWarehouse"
                     HorizontalAlignment="Stretch" />
         </StackPanel>
@@ -33,7 +33,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Urun"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <TextBox x:Name="ProductBox"
                  Classes="mestech"
                  Watermark="Urun adi veya SKU" />
@@ -42,14 +42,14 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Miktar"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <NumericUpDown x:Name="QuantityInput"
                        Minimum="1" Maximum="99999" Value="1"
                        HorizontalAlignment="Stretch" />
       </StackPanel>
 
       <TextBlock x:Name="ErrorText"
-                 Foreground="{StaticResource ErrorRedBrush}"
+                 Foreground="{DynamicResource ErrorRedBrush}"
                  FontSize="{StaticResource FontSizeSmall}"
                  IsVisible="False" />
 

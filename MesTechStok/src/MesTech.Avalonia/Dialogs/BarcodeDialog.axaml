@@ -5,7 +5,7 @@
         Width="400" Height="300"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -16,7 +16,7 @@
       <StackPanel Spacing="4">
         <TextBlock Text="Barkod Numarasi"
                    FontSize="{StaticResource FontSizeSmall}"
-                   Foreground="{StaticResource TextSecondaryBrush}" />
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
         <Grid ColumnDefinitions="*,Auto">
           <TextBox x:Name="BarcodeInput"
                    Grid.Column="0"
@@ -35,14 +35,14 @@
               Height="80"
               Background="{DynamicResource MesBgPage}"
               CornerRadius="{StaticResource CornerRadiusMedium}"
-              BorderBrush="{StaticResource BorderBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1"
               HorizontalAlignment="Stretch">
         <TextBlock x:Name="BarcodePreview"
                    FontFamily="{StaticResource MonoFontFamily}"
                    FontSize="24"
                    FontWeight="Bold"
-                   Foreground="{StaticResource TextPrimaryBrush}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
       </Border>

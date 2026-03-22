@@ -5,7 +5,7 @@
         Width="500" Height="450"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,*,Auto">
@@ -17,14 +17,14 @@
 
       <TreeView x:Name="TreeItems"
                 Grid.Row="1"
-                BorderBrush="{StaticResource BorderBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 Margin="0,8,0,0">
         <TreeView.ItemTemplate>
           <TreeDataTemplate x:CompileBindings="False" ItemsSource="{Binding Children}">
             <TextBlock Text="{Binding Name}"
                        FontSize="{StaticResource FontSizeBody}"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
           </TreeDataTemplate>
         </TreeView.ItemTemplate>
       </TreeView>

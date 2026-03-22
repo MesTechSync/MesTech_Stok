@@ -5,7 +5,7 @@
         Width="450" Height="280"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <StackPanel Spacing="16">
@@ -18,7 +18,7 @@
         <StackPanel Grid.Column="0" Spacing="8">
           <TextBlock Text="Baslangic"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <DatePicker x:Name="StartDatePicker"
                       HorizontalAlignment="Stretch" />
         </StackPanel>
@@ -26,14 +26,14 @@
         <StackPanel Grid.Column="2" Spacing="8">
           <TextBlock Text="Bitis"
                      FontSize="{StaticResource FontSizeSmall}"
-                     Foreground="{StaticResource TextSecondaryBrush}" />
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
           <DatePicker x:Name="EndDatePicker"
                       HorizontalAlignment="Stretch" />
         </StackPanel>
       </Grid>
 
       <TextBlock x:Name="ErrorText"
-                 Foreground="{StaticResource ErrorRedBrush}"
+                 Foreground="{DynamicResource ErrorRedBrush}"
                  FontSize="{StaticResource FontSizeSmall}"
                  IsVisible="False" />
 

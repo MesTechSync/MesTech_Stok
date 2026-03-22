@@ -5,7 +5,7 @@
         Width="650" Height="500"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
 
   <Border Padding="24">
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
@@ -24,28 +24,28 @@
           <StackPanel Grid.Column="0" Spacing="2">
             <TextBlock Text="Siparis No"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="OrderNoText"
                        FontSize="{StaticResource FontSizeBody}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
           </StackPanel>
           <StackPanel Grid.Column="1" Spacing="2">
             <TextBlock Text="Tarih"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="OrderDateText"
                        FontSize="{StaticResource FontSizeBody}"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
           </StackPanel>
           <StackPanel Grid.Column="2" Spacing="2">
             <TextBlock Text="Durum"
                        FontSize="{StaticResource FontSizeSmall}"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="StatusText"
                        FontSize="{StaticResource FontSizeBody}"
                        FontWeight="SemiBold"
-                       Foreground="{StaticResource AccentGreenBrush}" />
+                       Foreground="{DynamicResource AccentGreenBrush}" />
           </StackPanel>
         </Grid>
       </Border>
@@ -58,7 +58,7 @@
                 IsReadOnly="True"
                 CanUserReorderColumns="False"
                 CanUserResizeColumns="True"
-                BorderBrush="{StaticResource BorderBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1">
         <DataGrid.Columns>
           <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
@@ -79,12 +79,12 @@
           <TextBlock Text="Genel Toplam:"
                      FontSize="{StaticResource FontSizeSubtitle}"
                      FontWeight="SemiBold"
-                     Foreground="{StaticResource TextPrimaryBrush}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
                      VerticalAlignment="Center" />
           <TextBlock x:Name="TotalText"
                      FontSize="{StaticResource FontSizeTitle}"
                      FontWeight="Bold"
-                     Foreground="{StaticResource PrimaryBlueBrush}"
+                     Foreground="{DynamicResource PrimaryBlueBrush}"
                      VerticalAlignment="Center" />
         </StackPanel>
       </Border>

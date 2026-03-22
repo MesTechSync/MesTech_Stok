@@ -7,10 +7,10 @@
 
     <!-- Fatura Raporlari — Donem secimi, KPI kartlari, platform dagilimi -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{StaticResource BackgroundBrush}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource BackgroundBrush}">
 
         <!-- Row 0: Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBlueBrush}" Padding="20,14">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryBlueBrush}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <PathIcon Data="{StaticResource IconChart}" Width="22" Height="22" Foreground="White"/>
@@ -24,7 +24,7 @@
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
-                            Background="{DynamicResource MesBgPrimary}" Foreground="{StaticResource ErrorRedBrush}" FontWeight="SemiBold"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource ErrorRedBrush}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>
                 </StackPanel>
@@ -32,16 +32,16 @@
         </Border>
 
         <!-- Row 1: Period Filter -->
-        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="16,10"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Baslangic:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                 <DatePicker SelectedDate="{Binding FromDate}" Width="160"/>
                 <TextBlock Text="Bitis:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                 <DatePicker SelectedDate="{Binding ToDate}" Width="160"/>
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}"/>
@@ -49,61 +49,61 @@
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">
                     <PathIcon Data="{StaticResource IconRefresh}" Width="18" Height="18"
-                              Foreground="{StaticResource TextSecondaryBrush}"/>
+                              Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
             </StackPanel>
         </Border>
 
         <!-- Row 2: KPI Cards -->
-        <Border Grid.Row="2" Background="{StaticResource BackgroundBrush}" Padding="16">
+        <Border Grid.Row="2" Background="{DynamicResource BackgroundBrush}" Padding="16">
             <UniformGrid Columns="4" Rows="1">
                 <!-- Total Invoices -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
                         Padding="20,16" Margin="8,0"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Toplam Fatura"
                                    FontSize="{StaticResource FontSizeSmall}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding TotalCount}"
                                    FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </StackPanel>
                 </Border>
                 <!-- Total Amount -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
                         Padding="20,16" Margin="8,0"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Toplam Tutar"
                                    FontSize="{StaticResource FontSizeSmall}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}"
                                    FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryBlueBrush}"/>
+                                   Foreground="{DynamicResource PrimaryBlueBrush}"/>
                     </StackPanel>
                 </Border>
                 <!-- e-Fatura Count -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
                         Padding="20,16" Margin="8,0"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="e-Fatura"
                                    FontSize="{StaticResource FontSizeSmall}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding EFaturaCount}"
                                    FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"/>
                     </StackPanel>
                 </Border>
                 <!-- e-Arsiv Count -->
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="{StaticResource CornerRadiusLarge}"
                         Padding="20,16" Margin="8,0"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="e-Arsiv"
                                    FontSize="{StaticResource FontSizeSmall}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding EArsivCount}"
                                    FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
                                    Foreground="#7B1FA2"/>
@@ -120,7 +120,7 @@
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
-                  Background="{StaticResource SurfaceBrush}"
+                  Background="{DynamicResource SurfaceBrush}"
                   Margin="16,0,16,16"
                   CornerRadius="{StaticResource CornerRadiusLarge}"
                   IsVisible="{Binding !IsLoading}">
@@ -143,7 +143,7 @@
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
                 <TextBlock Text="Rapor yukleniyor..."
                            FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>

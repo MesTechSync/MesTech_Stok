@@ -9,35 +9,35 @@
 
   <!-- Button focus ring -->
   <Style Selector="Button:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
     <Setter Property="BorderThickness" Value="2"/>
   </Style>
 
   <!-- TextBox focus ring -->
   <Style Selector="TextBox:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
     <Setter Property="BorderThickness" Value="2"/>
   </Style>
 
   <!-- ComboBox focus ring -->
   <Style Selector="ComboBox:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
     <Setter Property="BorderThickness" Value="2"/>
   </Style>
 
   <!-- CheckBox focus ring -->
   <Style Selector="CheckBox:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
   </Style>
 
   <!-- RadioButton focus ring -->
   <Style Selector="RadioButton:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
   </Style>
 
   <!-- ListBoxItem focus ring -->
   <Style Selector="ListBoxItem:focus-visible">
-    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
     <Setter Property="BorderThickness" Value="2"/>
   </Style>
 
