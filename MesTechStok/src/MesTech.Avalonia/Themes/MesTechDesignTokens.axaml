@@ -92,6 +92,11 @@
     <Color x:Key="MesGradientDark">#0D1B2A</Color>
     <Color x:Key="MesGradientMid">#1B2838</Color>
     <Color x:Key="MesMesaGlow">#10B98144</Color>
+    <Color x:Key="MesPrimaryBlueDark">#1E3D7A</Color>
+    <Color x:Key="MesAccentOrange">#FF6F00</Color>
+    <Color x:Key="MesAccentOrangeDark">#E65100</Color>
+    <Color x:Key="MesTealMaterial">#00897B</Color>
+    <Color x:Key="MesTealDark">#00695C</Color>
 
     <!-- ═══ STATUS COLORS ═══ -->
     <Color x:Key="MesSuccess">#34C759</Color>
