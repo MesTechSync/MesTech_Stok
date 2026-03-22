@@ -424,15 +424,14 @@ public class AhmetBeyDemoSeeder
             TaxOffice = "Bayrampasa VD",
             PaymentTermDays = 30,
             CreditLimit = 100000.00m,
-            CurrentBalance = 0m,
             Currency = "TRY",
             IsActive = true,
-            IsPreferred = true,
-            Rating = 4,
             Notes = "Dropshipping anlasmasi mevcut. Elektronik kategorisinde ana tedarikci.",
             CreatedBy = "AhmetBeyDemoSeeder"
         };
         SetEntityId(supplier, SupplierId);
+        supplier.MarkAsPreferred();
+        supplier.SetRating(4);
         _context.Suppliers.Add(supplier);
 
         await _context.SaveChangesAsync(ct);

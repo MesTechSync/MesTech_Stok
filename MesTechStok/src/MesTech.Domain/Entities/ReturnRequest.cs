@@ -16,7 +16,7 @@ public class ReturnRequest : BaseEntity, ITenantEntity
 
     public string? PlatformReturnId { get; set; }
     public PlatformType Platform { get; set; }
-    public ReturnStatus Status { get; set; } = ReturnStatus.Pending;
+    public ReturnStatus Status { get; private set; } = ReturnStatus.Pending;
     public ReturnReason Reason { get; set; } = ReturnReason.None;
     public string? ReasonDetail { get; set; }
 
@@ -24,21 +24,21 @@ public class ReturnRequest : BaseEntity, ITenantEntity
     public string? CustomerEmail { get; set; }
     public string? CustomerPhone { get; set; }
 
-    public decimal RefundAmount { get; set; }
+    public decimal RefundAmount { get; private set; }
     public string Currency { get; set; } = "TRY";
 
-    public string? TrackingNumber { get; set; }
-    public CargoProvider CargoProvider { get; set; } = CargoProvider.None;
+    public string? TrackingNumber { get; private set; }
+    public CargoProvider CargoProvider { get; private set; } = CargoProvider.None;
     public bool IsCargoFree { get; set; }
 
     public DateTime RequestDate { get; set; } = DateTime.UtcNow;
-    public DateTime? ApprovedAt { get; set; }
-    public DateTime? ReceivedAt { get; set; }
-    public DateTime? RefundedAt { get; set; }
+    public DateTime? ApprovedAt { get; private set; }
+    public DateTime? ReceivedAt { get; private set; }
+    public DateTime? RefundedAt { get; private set; }
     public DateTime? DeadlineDate { get; set; }
 
     public string? Notes { get; set; }
-    public bool StockRestored { get; set; }
+    public bool StockRestored { get; private set; }
 
     // Navigation
     public Order? Order { get; set; }
@@ -90,6 +90,13 @@ public class ReturnRequest : BaseEntity, ITenantEntity
     public void MarkStockRestored()
     {
         StockRestored = true;
+    }
+
+    public void SetCargoInfo(string trackingNumber, CargoProvider provider)
+    {
+        TrackingNumber = trackingNumber;
+        CargoProvider = provider;
+        Status = ReturnStatus.InTransit;
     }
 
     public static ReturnRequest Create(

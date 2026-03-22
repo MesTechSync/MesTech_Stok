@@ -28,22 +28,52 @@ public class Supplier : BaseEntity, ITenantEntity
     public string? TradeRegisterNumber { get; set; }
     public int PaymentTermDays { get; set; }
     public decimal? CreditLimit { get; set; }
-    public decimal CurrentBalance { get; set; }
+    public decimal CurrentBalance { get; private set; }
     public decimal? DiscountRate { get; set; }
     public string Currency { get; set; } = "TRY";
     public bool IsActive { get; set; } = true;
-    public bool IsPreferred { get; set; }
-    public int? Rating { get; set; }
-    public DateTime? LastOrderDate { get; set; }
+    public bool IsPreferred { get; private set; }
+    public int? Rating { get; private set; }
+    public DateTime? LastOrderDate { get; private set; }
     public string? Notes { get; set; }
     public string? DocumentUrls { get; set; }
 
     // ── Muhasebe Modulu (MUH-01) ──
-    public DateTime? LastPaymentDate { get; set; }
+    public DateTime? LastPaymentDate { get; private set; }
 
     // Navigation
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
+
+    // ── Domain Logic ──
+
+    public void AdjustBalance(decimal amount)
+    {
+        CurrentBalance += amount;
+    }
+
+    public void RecordPayment(decimal amount)
+    {
+        CurrentBalance -= amount;
+        LastPaymentDate = DateTime.UtcNow;
+    }
+
+    public void RecordOrderPlaced()
+    {
+        LastOrderDate = DateTime.UtcNow;
+    }
+
+    public void SetRating(int rating)
+    {
+        if (rating < 1 || rating > 5)
+            throw new ArgumentOutOfRangeException(nameof(rating), "Rating must be between 1 and 5.");
+        Rating = rating;
+    }
+
+    public void MarkAsPreferred() => IsPreferred = true;
+    public void UnmarkAsPreferred() => IsPreferred = false;
+
+    public bool HasExceededCreditLimit => CreditLimit.HasValue && CurrentBalance > CreditLimit.Value;
 
     public override string ToString() => $"[{Code}] {Name}";
 }

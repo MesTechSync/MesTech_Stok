@@ -228,8 +228,7 @@ public class ExpandedRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
             Code = $"WH-{Guid.NewGuid().ToString()[..6]}",
             Type = "MAIN",
             TenantId = TestTenantId,
-            IsActive = true,
-            IsDefault = false
+            IsActive = true
         };
         await repo.AddAsync(wh);
         await _context.SaveChangesAsync();
@@ -249,9 +248,9 @@ public class ExpandedRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
             Code = $"DWH-{Guid.NewGuid().ToString()[..6]}",
             Type = "MAIN",
             TenantId = TestTenantId,
-            IsActive = true,
-            IsDefault = true
+            IsActive = true
         };
+        defaultWh.SetAsDefault();
         await repo.AddAsync(defaultWh);
         await _context.SaveChangesAsync();
 

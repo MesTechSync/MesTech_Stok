@@ -738,7 +738,6 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
                 TenantId = tenantId,
                 OrderId = order.Id,
                 Platform = default, // [Phase-2]: Add PlatformType.Bot or PlatformType.Manual enum value
-                Status = MesTech.Domain.Enums.ReturnStatus.Pending,
                 CustomerPhone = msg.CustomerPhone,
                 ReasonDetail = msg.ReturnReason,
                 RequestDate = DateTime.UtcNow,

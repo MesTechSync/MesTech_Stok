@@ -418,8 +418,10 @@ public class GetSuppliersHandlerTests
     {
         var suppliers = new List<Supplier>
         {
-            new() { Name = "Supplier A", Code = "SA", IsActive = true, IsPreferred = true, CurrentBalance = 1000m }
+            new() { Name = "Supplier A", Code = "SA", IsActive = true }
         };
+        suppliers[0].MarkAsPreferred();
+        suppliers[0].AdjustBalance(1000m);
         _supplierRepo.Setup(r => r.GetActiveAsync()).ReturnsAsync(suppliers.AsReadOnly());
 
         var handler = CreateHandler();
@@ -472,9 +474,10 @@ public class GetWarehousesHandlerTests
     {
         var warehouses = new List<Warehouse>
         {
-            new() { Name = "Main", Code = "WH1", Type = "MAIN", IsActive = true, IsDefault = true },
+            new() { Name = "Main", Code = "WH1", Type = "MAIN", IsActive = true },
             new() { Name = "Old", Code = "WH2", Type = "AUX", IsActive = false }
         };
+        warehouses[0].SetAsDefault();
         _warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(warehouses.AsReadOnly());
 
         var handler = CreateHandler();

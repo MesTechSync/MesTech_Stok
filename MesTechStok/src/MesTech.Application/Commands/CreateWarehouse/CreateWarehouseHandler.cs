@@ -34,9 +34,11 @@ public class CreateWarehouseHandler : IRequestHandler<CreateWarehouseCommand, Cr
             Code = request.Code,
             Address = request.Address,
             City = request.City,
-            IsDefault = request.IsDefault,
             IsActive = true
         };
+
+        if (request.IsDefault)
+            warehouse.SetAsDefault();
 
         await _warehouseRepository.AddAsync(warehouse).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

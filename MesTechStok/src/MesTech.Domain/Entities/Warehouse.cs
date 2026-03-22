@@ -45,16 +45,34 @@ public class Warehouse : BaseEntity, ITenantEntity
     // Operasyon
     public string? OperatingHours { get; set; }
     public bool Is24Hours { get; set; }
-    public decimal? MonthlyCost { get; set; }
-    public decimal? CostPerSquareMeter { get; set; }
+    public decimal? MonthlyCost { get; private set; }
+    public decimal? CostPerSquareMeter { get; private set; }
     public string? CostCenter { get; set; }
     public bool IsActive { get; set; } = true;
-    public bool IsDefault { get; set; }
+    public bool IsDefault { get; private set; }
     public string? Notes { get; set; }
 
     // Navigation
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
+
+    // ── Domain Logic ──
+
+    public void SetAsDefault()
+    {
+        IsDefault = true;
+    }
+
+    public void UnsetDefault()
+    {
+        IsDefault = false;
+    }
+
+    public void UpdateCosts(decimal? monthlyCost, decimal? costPerSquareMeter)
+    {
+        MonthlyCost = monthlyCost;
+        CostPerSquareMeter = costPerSquareMeter;
+    }
 
     public string DisplayName => string.IsNullOrWhiteSpace(Code) ? Name : $"[{Code}] {Name}";
 

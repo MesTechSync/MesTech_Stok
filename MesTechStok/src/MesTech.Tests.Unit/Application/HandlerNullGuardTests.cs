@@ -158,9 +158,9 @@ public class HandlerNullGuardTests
             City = "İstanbul",
             Address = "Atatürk Mah. No:1",
             IsActive = true,
-            IsDefault = true,
             HasClimateControl = false
         };
+        wh.SetAsDefault();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { wh }.AsReadOnly());
 
         var handler = new GetWarehousesHandler(repo.Object);
