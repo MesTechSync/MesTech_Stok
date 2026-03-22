@@ -287,7 +287,8 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Pazarama batch poll failed {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama batch poll failed {Status}: {Error}", response.StatusCode, errorBody);
                 continue;
             }
 
@@ -341,8 +342,9 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Pazarama PullProducts page {Page} failed: {Status}",
-                    page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama PullProducts page {Page} failed: {Status} {Error}",
+                    page, response.StatusCode, errorBody);
                 break;
             }
 
@@ -490,8 +492,9 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Pazarama PullOrders page {Page} failed: {Status}",
-                    page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama PullOrders page {Page} failed: {Status} {Error}",
+                    page, response.StatusCode, errorBody);
                 break;
             }
 
@@ -720,8 +723,9 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Pazarama PullClaims page {Page} failed: {Status}",
-                    page, response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama PullClaims page {Page} failed: {Status} {Error}",
+                    page, response.StatusCode, errorBody);
                 break;
             }
 
@@ -910,7 +914,8 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Pazarama GetCategories failed: {Status}", response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Pazarama GetCategories failed: {Status} {Error}", response.StatusCode, errorBody);
             return Array.Empty<CategoryDto>();
         }
 

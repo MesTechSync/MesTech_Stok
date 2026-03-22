@@ -198,8 +198,9 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
             }
             else
             {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 result.IsSuccess = false;
-                result.ErrorMessage = $"Bitrix24 API returned {response.StatusCode}";
+                result.ErrorMessage = $"Bitrix24 API returned {response.StatusCode}: {errorBody}";
             }
         }
         catch (Exception ex)
@@ -241,7 +242,8 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 return true;
             }
 
-            _logger.LogWarning("Bitrix24 PushProduct failed: {Status}", response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Bitrix24 PushProduct failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -277,7 +279,11 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                     () => new HttpRequestMessage(HttpMethod.Post, "crm.product.list") { Content = content },
                     ct).ConfigureAwait(false);
 
-                if (!response.IsSuccessStatusCode) break;
+                if (!response.IsSuccessStatusCode)
+                {
+                    await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    break;
+                }
 
                 var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(json);
@@ -335,7 +341,14 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.product.update") { Content = content },
                 ct).ConfigureAwait(false);
 
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Bitrix24 PushPriceUpdate failed: {Status} {Error}", response.StatusCode, errorBody);
+                return false;
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -357,7 +370,11 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 () => new HttpRequestMessage(HttpMethod.Post, "catalog.section.list"),
                 ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return categories;
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return categories;
+            }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
@@ -417,7 +434,8 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Bitrix24 PushDeal failed: {Status}", response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Bitrix24 PushDeal failed: {Status} {Error}", response.StatusCode, errorBody);
                 return null;
             }
 
@@ -458,7 +476,11 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.list"),
                 ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return 0;
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return 0;
+            }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
@@ -506,7 +528,8 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 return true;
             }
 
-            _logger.LogWarning("Bitrix24 UpdateDealStage failed: {Status}", response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Bitrix24 UpdateDealStage failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
         catch (Exception ex)
@@ -549,7 +572,8 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Bitrix24 batch request failed: {Status}", response.StatusCode);
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Bitrix24 batch request failed: {Status} {Error}", response.StatusCode, errorBody);
                     // Add empty results for this chunk
                     allResults.AddRange(chunk.Select(_ => ""));
                     continue;
@@ -622,8 +646,9 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Bitrix24 webhook bind failed for {Event}: {Status}",
-                        eventName, response.StatusCode);
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Bitrix24 webhook bind failed for {Event}: {Status} {Error}",
+                        eventName, response.StatusCode, errorBody);
                 }
             }
 
@@ -734,7 +759,11 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.add") { Content = content },
                 ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return null;
+            }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
@@ -783,7 +812,14 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.update") { Content = content },
                 ct).ConfigureAwait(false);
 
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Bitrix24 UpdateContact failed: {Status} {Error}", response.StatusCode, errorBody);
+                return false;
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -818,8 +854,9 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Bitrix24 SetDealProductRows failed for deal {DealId}: {Status}",
-                dealId, response.StatusCode);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Bitrix24 SetDealProductRows failed for deal {DealId}: {Status} {Error}",
+                dealId, response.StatusCode, errorBody);
         }
     }
 
