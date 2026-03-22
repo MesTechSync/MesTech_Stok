@@ -119,7 +119,7 @@ public static class IntegrationHttpClientRegistry
         RegisterDefault(services, ClientNames.ProductScraper);
         services.AddHttpClient(ClientNames.ParasutAccounting, client =>
         {
-            client.BaseAddress = new Uri("https://api.parasut.com/v4/");
+            client.BaseAddress = new Uri(ParasutApiBaseUrl);
         });
         RegisterDefault(services, ClientNames.FeedHealthCheck);
         RegisterDefault(services, ClientNames.PayTRDirect);
@@ -133,6 +133,8 @@ public static class IntegrationHttpClientRegistry
     /// Default timeout for named HttpClients.
     /// </summary>
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
+
+    private const string ParasutApiBaseUrl = "https://api.parasut.com/v4/";
 
     /// <summary>
     /// DNS refresh interval — prevents stale DNS cache in long-running services.
