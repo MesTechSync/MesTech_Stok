@@ -313,6 +313,9 @@ public static class InfrastructureServiceRegistration
         services.Configure<Email.SmtpSettings>(configuration.GetSection("Smtp"));
         services.AddTransient<IEmailService, Email.MailKitEmailService>();
 
+        // Barcode Generation (S06f — Code128 + EAN-13)
+        services.AddSingleton<IBarcodeGenerationService, BarcodeGenerationService>();
+
         // XML Import / Export
         services.AddScoped<IXmlImportService, XmlImportService>();
         services.AddScoped<IXmlExportService, XmlExportService>();
@@ -501,6 +504,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<IBankStatementParser, OFXParser>();
         services.AddSingleton<IBankStatementParser, MT940Parser>();
         services.AddSingleton<IBankStatementParser, Camt053Parser>();
+        services.AddSingleton<IBankStatementParser, CsvStatementParser>();
         services.AddSingleton<IBankStatementParserFactory, BankStatementParserFactory>();
 
         // ── Bank Statement Import Service ──
