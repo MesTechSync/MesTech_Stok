@@ -94,13 +94,10 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,40"
-                               Opacity="0.5"
-                               FontSize="16"
-                               IsVisible="{Binding !TimeEntries.Count}" />
+                    <!-- Empty State -->
+                    <TextBlock Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0,40" Opacity="0.5" FontSize="14"
+                               IsVisible="{Binding !IsLoading}" />
                 </Grid>
                     </Grid>
                 </Border>

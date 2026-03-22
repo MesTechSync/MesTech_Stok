@@ -176,7 +176,10 @@
                                 <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
                             </DataGrid.Columns>
                         </DataGrid>
-<!-- Empty State -->        <TextBlock Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !ScheduledReports.Count}" />
+                        <!-- Empty State -->
+                        <TextBlock Text="Rapor verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="0,40" Opacity="0.5" FontSize="14"
+                                   IsVisible="{Binding !IsLoading}" />
                     </StackPanel>
                 </Border>
 
@@ -206,6 +209,10 @@
                                 <DataGridTextColumn Header="Boyut" Binding="{Binding Size}" Width="100" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        <!-- Empty State -->
+                        <TextBlock Text="Rapor verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="0,40" Opacity="0.5" FontSize="14"
+                                   IsVisible="{Binding !IsLoading}" />
                     </StackPanel>
                 </Border>
 

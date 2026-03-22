@@ -53,7 +53,10 @@
                 <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding LastSync}" Width="160" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Stores.Count}" />
+        <!-- Empty State -->
+        <TextBlock Grid.Row="2" Text="Magaza bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   IsVisible="{Binding !IsLoading}" />
 
         <!-- Empty State -->
         <Border Grid.Row="2"

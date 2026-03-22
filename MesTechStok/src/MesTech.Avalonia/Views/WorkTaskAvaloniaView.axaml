@@ -58,7 +58,10 @@
                 <DataGridTextColumn Header="Termin" Binding="{Binding DueDate}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="16"                   IsVisible="{Binding !Tasks.Count}" />
+        <!-- Empty State -->
+        <TextBlock Grid.Row="2" Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Margin="0,40" Opacity="0.5" FontSize="14"
+                   IsVisible="{Binding !IsLoading}" />
 
         <!-- Empty State -->
         <Border Grid.Row="2"
