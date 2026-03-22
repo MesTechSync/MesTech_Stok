@@ -58,7 +58,7 @@ public class DijitalPlanetProvider : IInvoiceProvider
         _logger.LogInformation("DijitalPlanet CreateEFatura for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildInvoicePayload(invoice, "EFATURA");
-        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/efatura", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/efatura", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -67,7 +67,7 @@ public class DijitalPlanetProvider : IInvoiceProvider
         _logger.LogInformation("DijitalPlanet CreateEArsiv for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildInvoicePayload(invoice, "EARSIV");
-        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/earsiv", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/earsiv", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -76,7 +76,7 @@ public class DijitalPlanetProvider : IInvoiceProvider
         _logger.LogInformation("DijitalPlanet CreateEIrsaliye for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildDispatchPayload(invoice);
-        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/eirsaliye", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/eirsaliye", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceStatusResult> CheckStatusAsync(string gibInvoiceId, CancellationToken ct = default)
@@ -87,17 +87,17 @@ public class DijitalPlanetProvider : IInvoiceProvider
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("DijitalPlanet CheckStatus failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceStatusResult(gibInvoiceId, "Error", null, errorBody);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -122,10 +122,10 @@ public class DijitalPlanetProvider : IInvoiceProvider
         _logger.LogInformation("DijitalPlanet GetPdf for {GibInvoiceId}", gibInvoiceId);
 
         var response = await _httpClient.GetAsync(
-            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct);
+            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsByteArrayAsync(ct);
+        return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
@@ -136,7 +136,7 @@ public class DijitalPlanetProvider : IInvoiceProvider
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct);
+                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -145,7 +145,7 @@ public class DijitalPlanetProvider : IInvoiceProvider
                 return false;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
@@ -166,11 +166,11 @@ public class DijitalPlanetProvider : IInvoiceProvider
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("DijitalPlanet CancelInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceResult(false, gibInvoiceId, null, errorBody);
@@ -255,17 +255,17 @@ public class DijitalPlanetProvider : IInvoiceProvider
         {
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct);
+            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("DijitalPlanet POST {Url} failed: {Status} — {Error}",
                     url, response.StatusCode, errorBody);
                 return new InvoiceResult(false, null, null, errorBody);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 

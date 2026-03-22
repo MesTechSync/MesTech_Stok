@@ -69,7 +69,7 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
                 BuildInvoiceLines(invoice.Lines));
 
-            var response = await SendSoapAsync("createInvoice", bodyContent, ct);
+            var response = await SendSoapAsync("createInvoice", bodyContent, ct).ConfigureAwait(false);
 
             var gibId = response.Descendants()
                 .FirstOrDefault(e => e.Name.LocalName == "gibInvoiceId")?.Value;
@@ -110,7 +110,7 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "grandTotal", invoice.GrandTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
                 BuildInvoiceLines(invoice.Lines));
 
-            var response = await SendSoapAsync("createInvoice", bodyContent, ct);
+            var response = await SendSoapAsync("createInvoice", bodyContent, ct).ConfigureAwait(false);
 
             var gibId = response.Descendants()
                 .FirstOrDefault(e => e.Name.LocalName == "gibInvoiceId")?.Value;
@@ -148,7 +148,7 @@ public class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "receiverAddress", invoice.CustomerAddress),
                 BuildDispatchLines(invoice.Lines));
 
-            var response = await SendSoapAsync("createDispatch", bodyContent, ct);
+            var response = await SendSoapAsync("createDispatch", bodyContent, ct).ConfigureAwait(false);
 
             var gibId = response.Descendants()
                 .FirstOrDefault(e => e.Name.LocalName == "gibInvoiceId")?.Value;
@@ -180,7 +180,7 @@ public class GibPortalProvider : IInvoiceProvider
             var bodyContent = new XElement(EarNs + "getInvoiceStatusRequest",
                 new XElement(EarNs + "gibInvoiceId", gibInvoiceId));
 
-            var response = await SendSoapAsync("getInvoiceStatus", bodyContent, ct);
+            var response = await SendSoapAsync("getInvoiceStatus", bodyContent, ct).ConfigureAwait(false);
 
             var status = response.Descendants()
                              .FirstOrDefault(e => e.Name.LocalName == "status")?.Value
@@ -216,7 +216,7 @@ public class GibPortalProvider : IInvoiceProvider
         var bodyContent = new XElement(EarNs + "getInvoicePdfRequest",
             new XElement(EarNs + "gibInvoiceId", gibInvoiceId));
 
-        var response = await SendSoapAsync("getInvoicePdf", bodyContent, ct);
+        var response = await SendSoapAsync("getInvoicePdf", bodyContent, ct).ConfigureAwait(false);
 
         var pdfBase64 = response.Descendants()
             .FirstOrDefault(e => e.Name.LocalName == "pdfBase64")?.Value;
@@ -240,7 +240,7 @@ public class GibPortalProvider : IInvoiceProvider
             var bodyContent = new XElement(EarNs + "checkTaxpayerRequest",
                 new XElement(EarNs + "taxNumber", taxNumber));
 
-            var response = await SendSoapAsync("checkTaxpayer", bodyContent, ct);
+            var response = await SendSoapAsync("checkTaxpayer", bodyContent, ct).ConfigureAwait(false);
 
             var isRegistered = response.Descendants()
                 .FirstOrDefault(e => e.Name.LocalName == "isRegistered")?.Value;
@@ -264,7 +264,7 @@ public class GibPortalProvider : IInvoiceProvider
             var bodyContent = new XElement(EarNs + "cancelInvoiceRequest",
                 new XElement(EarNs + "gibInvoiceId", gibInvoiceId));
 
-            var response = await SendSoapAsync("cancelInvoice", bodyContent, ct);
+            var response = await SendSoapAsync("cancelInvoice", bodyContent, ct).ConfigureAwait(false);
 
             var success = response.Descendants()
                 .FirstOrDefault(e => e.Name.LocalName == "success")?.Value;

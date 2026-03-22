@@ -71,7 +71,7 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
                 GeneratedContent = msg.GeneratedContent,
                 AiProvider = msg.AiProvider,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -101,14 +101,14 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
         // I-13 S-02: Product description update
         try
         {
-            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            var product = await _productRepository.GetBySKUAsync(msg.SKU).ConfigureAwait(false);
             if (product is not null)
             {
                 product.Description = msg.GeneratedContent;
                 product.UpdatedAt = DateTime.UtcNow;
                 product.UpdatedBy = "mesa-ai";
-                await _productRepository.UpdateAsync(product);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogInformation("[MESA Consumer] Product description updated: SKU={SKU}", msg.SKU);
             }
             else
@@ -178,7 +178,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
                 MaxPrice = msg.MaxPrice,
                 Reasoning = msg.Reasoning,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -207,7 +207,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
         // I-13 S-02: Save PriceRecommendation
         try
         {
-            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            var product = await _productRepository.GetBySKUAsync(msg.SKU).ConfigureAwait(false);
             if (product is not null)
             {
                 var recommendation = new PriceRecommendation
@@ -220,8 +220,8 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
                     Reasoning = msg.Reasoning ?? string.Empty,
                     Source = "ai.price.recommended"
                 };
-                await _priceRecommendationRepository.AddAsync(recommendation);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _priceRecommendationRepository.AddAsync(recommendation).ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogInformation("[MESA Consumer] PriceRecommendation saved: SKU={SKU}, Id={Id}", msg.SKU, recommendation.Id);
             }
         }
@@ -282,7 +282,7 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
                 Success = msg.Success,
                 ErrorMessage = msg.ErrorMessage,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -315,8 +315,8 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
                 $"Bot Notification: {msg.Channel}",
                 msg.Success ? $"Bildirim başarılı: {msg.Channel}" : $"Bildirim hatası: {msg.ErrorMessage}");
             if (msg.Success) notification.MarkAsSent(); else notification.MarkAsFailed(msg.ErrorMessage ?? "Unknown error");
-            await _notificationLogRepository.AddAsync(notification, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _notificationLogRepository.AddAsync(notification, ct).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -382,7 +382,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
                 Confidence = msg.Confidence,
                 Reasoning = msg.Reasoning,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -403,7 +403,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
         // I-13 S-02: Save PriceRecommendation + alert check
         try
         {
-            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            var product = await _productRepository.GetBySKUAsync(msg.SKU).ConfigureAwait(false);
             if (product is not null)
             {
                 var recommendation = new PriceRecommendation
@@ -417,8 +417,8 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
                     Reasoning = msg.Reasoning ?? string.Empty,
                     Source = "ai.price.optimized"
                 };
-                await _priceRecommendationRepository.AddAsync(recommendation);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _priceRecommendationRepository.AddAsync(recommendation).ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogInformation("[MESA Consumer] PriceRecommendation saved: SKU={SKU}, Id={Id}", msg.SKU, recommendation.Id);
             }
 
@@ -498,7 +498,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
                 Confidence = msg.Confidence,
                 Reasoning = msg.Reasoning,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -524,7 +524,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
         // I-13 S-02: Save StockPrediction
         try
         {
-            var product = await _productRepository.GetBySKUAsync(msg.SKU);
+            var product = await _productRepository.GetBySKUAsync(msg.SKU).ConfigureAwait(false);
             if (product is not null)
             {
                 var prediction = new StockPrediction
@@ -539,8 +539,8 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
                     Confidence = msg.Confidence,
                     Reasoning = msg.Reasoning ?? string.Empty
                 };
-                await _stockPredictionRepository.AddAsync(prediction);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _stockPredictionRepository.AddAsync(prediction).ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogInformation("[MESA Consumer] StockPrediction saved: SKU={SKU}, Id={Id}", msg.SKU, prediction.Id);
             }
         }
@@ -603,7 +603,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
                 OrderNumber = msg.OrderNumber,
                 RequestChannel = msg.RequestChannel,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -624,13 +624,13 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
         // I-13 S-02: Order+Invoice lookup
         try
         {
-            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber);
+            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning("[MESA Consumer] Order not found: OrderNumber={OrderNumber}", msg.OrderNumber);
                 return;
             }
-            var invoice = await _invoiceRepository.GetByOrderIdAsync(order.Id);
+            var invoice = await _invoiceRepository.GetByOrderIdAsync(order.Id).ConfigureAwait(false);
             if (invoice is not null)
             {
                 _logger.LogInformation(
@@ -705,7 +705,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
                 ReturnReason = msg.ReturnReason,
                 RequestChannel = msg.RequestChannel,
                 TenantId = tenantId
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -727,7 +727,7 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
         // I-13 S-02: Create ReturnRequest
         try
         {
-            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber);
+            var order = await _orderRepository.GetByOrderNumberAsync(msg.OrderNumber).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning("[MESA Consumer] Order not found for return: OrderNumber={OrderNumber}", msg.OrderNumber);
@@ -744,8 +744,8 @@ public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEven
                 RequestDate = DateTime.UtcNow,
                 Notes = $"Bot return request — channel: {msg.RequestChannel}"
             };
-            await _returnRequestRepository.AddAsync(returnRequest);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _returnRequestRepository.AddAsync(returnRequest).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
             _logger.LogInformation(
                 "[MESA Consumer] ReturnRequest created: OrderNumber={OrderNumber}, ReturnId={ReturnId}",
                 msg.OrderNumber, returnRequest.Id);

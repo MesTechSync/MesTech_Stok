@@ -55,7 +55,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         _logger.LogInformation("Parasut CreateEFatura for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildEInvoicePayload(invoice, "e_invoice");
-        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct);
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -64,7 +64,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         _logger.LogInformation("Parasut CreateEArsiv for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildEArchivePayload(invoice);
-        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_archives", payload, ct);
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_archives", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -73,7 +73,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         _logger.LogInformation("Parasut CreateEIrsaliye for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildEInvoicePayload(invoice, "e_dispatch");
-        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct);
+        return await PostJsonApiAsync($"{_baseUrl}/v4/{_companyId}/e_invoices", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceStatusResult> CheckStatusAsync(string gibInvoiceId, CancellationToken ct = default)
@@ -83,20 +83,20 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut CheckStatus failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceStatusResult(gibInvoiceId, "Error", null, errorBody);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API format: { data: { attributes: { status, ... } } }
@@ -125,13 +125,13 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         EnsureConfigured();
         _logger.LogInformation("Parasut GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        await SetAuthHeaderAsync(ct);
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var response = await _httpClient.GetAsync(
             $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct);
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsByteArrayAsync(ct);
+        return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
@@ -141,7 +141,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct);
@@ -153,7 +153,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 return false;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API: { data: [...] } — non-empty data means taxpayer is registered
@@ -174,16 +174,16 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var request = new HttpRequestMessage(HttpMethod.Delete,
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}");
 
-            var response = await _httpClient.SendAsync(request, ct);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut CancelInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceResult(false, gibInvoiceId, null, errorBody);
@@ -210,7 +210,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var dataArray = requestList.Select(req => new
             {
@@ -244,11 +244,11 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             content.Headers.ContentType = JsonApiMediaType;
 
             var url = $"{_baseUrl}/v4/{_companyId}/e_invoices/bulk";
-            var response = await _httpClient.PostAsync(url, content, ct);
+            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut bulk POST failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
 
@@ -258,7 +258,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
 
             var dataElement = doc.RootElement.GetProperty("data");
@@ -304,7 +304,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
     private async Task SetAuthHeaderAsync(CancellationToken ct)
     {
-        var token = await _authProvider!.GetTokenAsync(ct);
+        var token = await _authProvider!.GetTokenAsync(ct).ConfigureAwait(false);
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue(token.TokenType, token.AccessToken);
     }
@@ -377,7 +377,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     {
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
             {
@@ -386,17 +386,17 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = JsonApiMediaType;
 
-            var response = await _httpClient.PostAsync(url, content, ct);
+            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Parasut POST {Url} failed: {Status} — {Error}",
                     url, response.StatusCode, errorBody);
                 return new InvoiceResult(false, null, null, errorBody);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
 
             // JSON:API: { data: { id, attributes: { gib_invoice_id, pdf_url } } }

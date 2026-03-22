@@ -66,7 +66,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("e-Logo CreateEFatura for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var body = BuildUblInvoiceBody(invoice, "SATIS");
-        return await SendSoapInvoiceAsync("createInvoice", body, ct);
+        return await SendSoapInvoiceAsync("createInvoice", body, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -75,7 +75,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("e-Logo CreateEArsiv for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var body = BuildUblInvoiceBody(invoice, "EARSIV");
-        return await SendSoapInvoiceAsync("createInvoice", body, ct);
+        return await SendSoapInvoiceAsync("createInvoice", body, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -84,7 +84,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("e-Logo CreateEIrsaliye for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var body = BuildUblDispatchBody(invoice);
-        return await SendSoapInvoiceAsync("createDispatch", body, ct);
+        return await SendSoapInvoiceAsync("createDispatch", body, ct).ConfigureAwait(false);
     }
 
     // ── IInvoiceProvider — REST methods ──────────────────────────────────
@@ -97,17 +97,17 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("e-Logo CheckStatus failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceStatusResult(gibInvoiceId, "Error", null, errorBody);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -132,10 +132,10 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("e-Logo GetPdf for {GibInvoiceId}", gibInvoiceId);
 
         var response = await _httpClient.GetAsync(
-            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct);
+            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsByteArrayAsync(ct);
+        return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
@@ -146,7 +146,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct);
+                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -155,7 +155,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return false;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
@@ -176,11 +176,11 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("e-Logo CancelInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceResult(false, gibInvoiceId, null, errorBody);
@@ -234,11 +234,11 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct);
+                $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("e-Logo CreateBulkInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 var failResults = requestList.Select(r =>
@@ -246,7 +246,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var results = new List<BulkInvoiceItemResult>();
 
@@ -291,7 +291,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             var fromStr = startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct);
+                $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -299,7 +299,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return Array.Empty<IncomingInvoiceDto>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var list = new List<IncomingInvoiceDto>();
 
@@ -342,7 +342,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/incoming/{invoiceId}/accept", content, ct);
+                $"{_baseUrl}/api/invoices/incoming/{invoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -369,7 +369,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/incoming/{invoiceId}/reject", content, ct);
+                $"{_baseUrl}/api/invoices/incoming/{invoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -395,7 +395,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/account/kontor", ct);
+                $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -403,7 +403,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return new KontorBalanceDto(0, 0, null, ProviderName);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -495,7 +495,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var soapUrl = $"{_baseUrl}/soap/invoice";
-            var response = await _soapClient.SendAsync(soapUrl, soapAction, body, ct);
+            var response = await _soapClient.SendAsync(soapUrl, soapAction, body, ct).ConfigureAwait(false);
 
             // Parse gibInvoiceId from response using namespace-agnostic local name matching
             var gibId = response.Descendants().FirstOrDefault(e => e.Name.LocalName == "gibInvoiceId")?.Value;

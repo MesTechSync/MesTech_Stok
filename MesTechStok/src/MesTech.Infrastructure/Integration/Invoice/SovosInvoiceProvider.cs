@@ -61,7 +61,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("Sovos CreateEFatura for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildInvoicePayload(invoice, "SATIS");
-        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/outgoing", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/outgoing", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEArsivAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -70,7 +70,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("Sovos CreateEArsiv for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildInvoicePayload(invoice, "EARSIV");
-        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/outgoing", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/invoices/outgoing", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceResult> CreateEIrsaliyeAsync(InvoiceDto invoice, CancellationToken ct = default)
@@ -79,7 +79,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("Sovos CreateEIrsaliye for invoice {InvoiceNumber}", invoice.InvoiceNumber);
 
         var payload = BuildDispatchPayload(invoice);
-        return await PostInvoiceAsync($"{_baseUrl}/api/dispatches/outgoing", payload, ct);
+        return await PostInvoiceAsync($"{_baseUrl}/api/dispatches/outgoing", payload, ct).ConfigureAwait(false);
     }
 
     public async Task<InvoiceStatusResult> CheckStatusAsync(string gibInvoiceId, CancellationToken ct = default)
@@ -94,13 +94,13 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos CheckStatus failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceStatusResult(gibInvoiceId, "Error", null, errorBody);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -128,7 +128,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct);
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsByteArrayAsync(ct);
+        return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
@@ -148,7 +148,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return false;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
 
             // Sovos returns isRegistered flag
@@ -174,7 +174,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos CancelInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new InvoiceResult(false, gibInvoiceId, null, errorBody);
@@ -235,7 +235,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos CreateBulkInvoice failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 var failResults = requestList.Select(r =>
@@ -243,7 +243,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failResults);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var results = new List<BulkInvoiceItemResult>();
 
@@ -296,7 +296,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return Array.Empty<IncomingInvoiceDto>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var list = new List<IncomingInvoiceDto>();
 
@@ -400,7 +400,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return new KontorBalanceDto(0, 0, null, ProviderName);
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -474,7 +474,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
         try
         {
-            var xmlBytes = await _ublBuilder.BuildAsync(document, ct);
+            var xmlBytes = await _ublBuilder.BuildAsync(document, ct).ConfigureAwait(false);
             var xmlBase64 = Convert.ToBase64String(xmlBytes);
 
             var payload = new
@@ -489,17 +489,17 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct);
+            var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos SendAsync failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return new EInvoiceSendResult(false, null, errorBody, 0);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 
@@ -531,7 +531,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return null;
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("pdfUrl", out var url) ? url.GetString() : null;
         }
@@ -589,7 +589,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return new VknMukellefResult(vkn, false, false, null, null);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 
@@ -615,7 +615,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
 
         try
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct);
+            var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -623,7 +623,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 return 0;
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("balance", out var b) ? b.GetInt32() : 0;
         }
@@ -707,17 +707,17 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct);
+            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos POST {Url} failed: {Status} — {Error}",
                     url, response.StatusCode, errorBody);
                 return new InvoiceResult(false, null, null, errorBody);
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 
