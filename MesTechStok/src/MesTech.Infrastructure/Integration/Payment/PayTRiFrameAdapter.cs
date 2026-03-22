@@ -33,6 +33,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
     private const string TokenEndpoint = "/odeme/api/get-token";
     private const string StatusEndpoint = "/odeme/durum";
     private const string RefundEndpoint = "/odeme/iade";
+    private const int CurrencySubunitMultiplier = 100; // TL → kuruş
     private const string BinEndpoint = "/odeme/taksit";
     private const string IFrameEmbedPath = "/odeme/iframe";
 
@@ -80,7 +81,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
         try
         {
             var merchantOid = request.OrderId.ToString("N");
-            var paymentAmount = (long)(request.Amount * 100);
+            var paymentAmount = (long)(request.Amount * CurrencySubunitMultiplier);
             var basketJson = BuildBasketJson(request.BasketItems);
 
             // iFrame token hash: HMAC-SHA256(merchant_id + user_ip + merchant_oid +
@@ -217,14 +218,14 @@ public class PayTRiFrameAdapter : IPaymentProvider
 
         try
         {
-            var hashInput = $"{_options.MerchantId}{binNumber}{(long)(amount * 100)}{_options.MerchantSalt}";
+            var hashInput = $"{_options.MerchantId}{binNumber}{(long)(amount * CurrencySubunitMultiplier)}{_options.MerchantSalt}";
             var token = ComputeHmacSha256Base64(hashInput, _options.MerchantKey);
 
             var payload = new Dictionary<string, string>
             {
                 ["merchant_id"] = _options.MerchantId,
                 ["card_type"] = binNumber?.Length >= 6 ? binNumber[..6] : string.Empty,
-                ["amount"] = ((long)(amount * 100)).ToString(),
+                ["amount"] = ((long)(amount * CurrencySubunitMultiplier)).ToString(),
                 ["paytr_token"] = token
             };
 
@@ -271,7 +272,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
 
         try
         {
-            var refundAmount = (long)(amount * 100);
+            var refundAmount = (long)(amount * CurrencySubunitMultiplier);
             var hashInput = $"{_options.MerchantId}{transactionId}{refundAmount}{_options.MerchantSalt}";
             var token = ComputeHmacSha256Base64(hashInput, _options.MerchantKey);
 
