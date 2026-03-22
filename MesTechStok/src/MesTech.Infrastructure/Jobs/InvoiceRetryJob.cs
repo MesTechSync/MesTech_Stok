@@ -36,7 +36,7 @@ public class InvoiceRetryJob : ISyncJob
                 "[{JobId}] Fatura retry tamamlandi — provider aktif: {Provider}",
                 JobId, _invoiceProvider.ProviderName);
 
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
         catch (Exception ex)
         {

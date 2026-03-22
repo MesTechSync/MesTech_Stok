@@ -35,7 +35,7 @@ public class CrmHangfireJobs
         {
             // Future: Lead.LastContactedAt threshold kontrolü
             ct.ThrowIfCancellationRequested();
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -53,7 +53,7 @@ public class CrmHangfireJobs
         {
             // Future: ITenantProvider.GetAllTenantIds() ile overdue task tarama
             ct.ThrowIfCancellationRequested();
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -76,7 +76,7 @@ public class CrmHangfireJobs
 
             // Future: await _crmBridgeService.CreateLeadsFromRecentOrdersAsync(tenantId, since, ct);
             ct.ThrowIfCancellationRequested();
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             _logger.LogInformation("CRM: Sipariş → Lead tarama tamamlandı");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
