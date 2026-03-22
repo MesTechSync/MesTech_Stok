@@ -113,20 +113,3 @@ public class TenantSubscription : BaseEntity, ITenantEntity
     public bool IsExpired => Status == SubscriptionStatus.Expired ||
         (TrialEndsAt.HasValue && TrialEndsAt.Value < DateTime.UtcNow && Status == SubscriptionStatus.Trial);
 }
-
-/// <summary>Abonelik durumu.</summary>
-public enum SubscriptionStatus
-{
-    Trial = 0,
-    Active = 1,
-    PastDue = 2,
-    Cancelled = 3,
-    Expired = 4
-}
-
-/// <summary>Faturalama donemi.</summary>
-public enum BillingPeriod
-{
-    Monthly = 0,
-    Annual = 1
-}
