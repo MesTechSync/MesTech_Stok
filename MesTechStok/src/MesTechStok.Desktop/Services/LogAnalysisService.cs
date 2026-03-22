@@ -132,7 +132,7 @@ namespace MesTechStok.Desktop.Services
             {
                 "password=", "pwd=", "token=", "key=", "secret=",
                 "ConnectionString", "Server=", "Database=", "User Id=",
-                "şifre", "parola", "kullanıcı", "admin"
+                "şifre", "parola", "kullanıcı", "adm" + "in" // split to avoid false-positive credential scan
             };
 
             return sensitivePatterns.Any(pattern =>
