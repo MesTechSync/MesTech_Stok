@@ -5,6 +5,7 @@ namespace MesTech.Domain.Events;
 
 public record OrderShippedEvent(
     Guid OrderId,
+    Guid TenantId,
     string TrackingNumber,
     CargoProvider CargoProvider,
     DateTime OccurredAt

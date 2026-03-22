@@ -8,6 +8,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record InvoiceGeneratedForERPEvent(
     Guid InvoiceId,
+    Guid TenantId,
     string InvoiceNumber,
     decimal TotalAmount,
     string TargetERP,

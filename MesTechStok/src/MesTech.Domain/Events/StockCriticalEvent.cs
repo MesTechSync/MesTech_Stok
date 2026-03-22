@@ -10,6 +10,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record StockCriticalEvent(
     Guid ProductId,
+    Guid TenantId,
     string ProductName,
     string SKU,
     int CurrentStock,

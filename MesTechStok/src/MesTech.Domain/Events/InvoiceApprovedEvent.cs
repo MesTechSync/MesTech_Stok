@@ -9,6 +9,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record InvoiceApprovedEvent(
     Guid InvoiceId,
+    Guid TenantId,
     string InvoiceNumber,
     decimal GrandTotal,
     InvoiceType Type,
