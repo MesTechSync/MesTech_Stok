@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities;
 /// Hepsiburada listing bilgisi.
 /// Listing durumlari: Active, Passive, Banned.
 /// </summary>
-public class HepsiburadaListing : BaseEntity
+public class HepsiburadaListing : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string HepsiburadaSKU { get; set; } = string.Empty;
     public string MerchantSKU { get; set; } = string.Empty;
     public string ListingStatus { get; set; } = "Passive";
