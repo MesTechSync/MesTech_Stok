@@ -31,6 +31,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
     private string _sellerId = string.Empty;
     private string _accessToken = string.Empty;
     private DateTime _tokenExpiry = DateTime.MinValue;
+    private const int TokenRefreshBufferSeconds = 60;
 
     private const string TurkeyMarketplaceId = "A33AVAJ2PDY3EV";
     private const string SpApiBaseUrl = "https://sellingpartnerapi-eu.amazon.com";
@@ -135,7 +136,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
 
         _accessToken = json.RootElement.GetProperty("access_token").GetString()!;
         var expiresIn = json.RootElement.GetProperty("expires_in").GetInt32();
-        _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn - 60);
+        _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn - TokenRefreshBufferSeconds);
     }
 
     private async Task<HttpRequestMessage> CreateAuthRequestAsync(
