@@ -27,10 +27,10 @@ public class ExpenseTests
         {
             TenantId = _tenantId,
             Description = "Kargo Gideri",
-            Amount = 150m,
             ExpenseType = ExpenseType.Kargo,
             Date = DateTime.Today
         };
+        expense.SetAmount(150m);
 
         expense.Description.Should().Be("Kargo Gideri");
         expense.Amount.Should().Be(150m);
