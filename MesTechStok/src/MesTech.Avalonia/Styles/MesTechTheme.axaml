@@ -95,6 +95,13 @@
   <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}"/>
   <SolidColorBrush x:Key="InfoBrush" Color="{DynamicResource InfoColor}"/>
   <SolidColorBrush x:Key="DisabledBrush" Color="{DynamicResource DisabledColor}"/>
+
+  <!-- Status Brushes (V4 — zincir UI) -->
+  <SolidColorBrush x:Key="StatusDangerBrush" Color="{DynamicResource ErrorRedColor}"/>
+  <SolidColorBrush x:Key="StatusSuccessBrush" Color="{DynamicResource SuccessColor}"/>
+  <SolidColorBrush x:Key="StatusWarningBrush" Color="{DynamicResource WarningOrangeColor}"/>
+  <SolidColorBrush x:Key="StatusCriticalBrush" Color="#B71C1C"/>
+  <SolidColorBrush x:Key="SurfaceCardBrush" Color="{DynamicResource SurfaceColor}"/>
   <SolidColorBrush x:Key="DisabledTextBrush" Color="{DynamicResource DisabledTextColor}"/>
   <SolidColorBrush x:Key="HoverOverlayBrush" Color="{DynamicResource HoverOverlayColor}"/>
   <SolidColorBrush x:Key="PressedOverlayBrush" Color="{DynamicResource PressedOverlayColor}"/>
