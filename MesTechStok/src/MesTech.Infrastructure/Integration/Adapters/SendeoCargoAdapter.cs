@@ -113,8 +113,9 @@ public class SendeoCargoAdapter : ICargoAdapter
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "[SendeoCargoAdapter] IsAvailableAsync health check failed");
             return false;
         }
     }

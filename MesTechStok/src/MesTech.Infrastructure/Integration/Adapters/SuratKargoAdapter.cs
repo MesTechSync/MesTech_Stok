@@ -115,8 +115,9 @@ public class SuratKargoAdapter : ICargoAdapter
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "[SuratKargoAdapter] IsAvailableAsync health check failed");
             return false;
         }
     }

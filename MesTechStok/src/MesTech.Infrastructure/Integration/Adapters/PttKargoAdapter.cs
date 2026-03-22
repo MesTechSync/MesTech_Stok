@@ -141,8 +141,9 @@ public class PttKargoAdapter : ICargoAdapter
                 body, ct);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "[PttKargoAdapter] IsAvailableAsync health check failed");
             return false;
         }
     }

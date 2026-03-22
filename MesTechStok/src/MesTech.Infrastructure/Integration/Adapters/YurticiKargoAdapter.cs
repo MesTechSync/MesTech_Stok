@@ -148,8 +148,9 @@ public class YurticiKargoAdapter : ICargoAdapter
             await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "[YurticiKargoAdapter] IsAvailableAsync health check failed");
             return false;
         }
     }

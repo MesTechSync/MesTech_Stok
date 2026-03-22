@@ -180,8 +180,9 @@ public class HepsiJetCargoAdapter : ICargoAdapter
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "[HepsiJetCargoAdapter] IsAvailableAsync health check failed");
             return false;
         }
     }
