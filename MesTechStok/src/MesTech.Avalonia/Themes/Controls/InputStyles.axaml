@@ -17,6 +17,11 @@
     <Setter Property="Padding" Value="12,8"/>
     <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
     <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="TextBox.mestech:focus">
     <Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>

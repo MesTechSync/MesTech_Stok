@@ -51,6 +51,12 @@
     <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
     <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
     <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+        <BrushTransition Property="Foreground" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.sidebar-item:pointerover">
     <Setter Property="Background" Value="{DynamicResource SidebarHoverBrush}"/>
@@ -70,6 +76,11 @@
     <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
     <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.sidebar-item-active:pointerover">
     <Setter Property="Background" Value="{DynamicResource SecondaryBlueBrush}"/>

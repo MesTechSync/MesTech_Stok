@@ -31,6 +31,13 @@
     <Setter Property="Padding" Value="12,8"/>
     <Setter Property="MinHeight" Value="40"/>
   </Style>
+  <Style Selector="DataGrid.mestech DataGridColumnHeader">
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
+  </Style>
   <Style Selector="DataGrid.mestech DataGridColumnHeader:pointerover">
     <Setter Property="Background" Value="{DynamicResource MesBgTertiary}"/>
   </Style>
