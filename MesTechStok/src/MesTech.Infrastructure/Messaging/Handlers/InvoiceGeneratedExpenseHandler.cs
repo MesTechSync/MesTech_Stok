@@ -50,8 +50,8 @@ public class InvoiceGeneratedExpenseHandler
             Note = $"Otomatik olusturuldu. InvoiceId: {e.InvoiceId}, OrderId: {e.OrderId}"
         };
 
-        await _expenseRepo.AddAsync(expense);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _expenseRepo.AddAsync(expense).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "InvoiceCreated -> Expense: Expense record {ExpenseId} created for invoice {InvoiceId}",

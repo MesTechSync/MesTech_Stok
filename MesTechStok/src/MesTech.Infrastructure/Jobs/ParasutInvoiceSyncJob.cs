@@ -50,7 +50,7 @@ public class ParasutInvoiceSyncJob
                      && i.Status != InvoiceStatus.Cancelled)
             .OrderBy(i => i.CreatedAt)
             .Take(BatchSize)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation("Paraşüt sync: {Count} pending invoices", pendingInvoices.Count);
 
@@ -67,7 +67,7 @@ public class ParasutInvoiceSyncJob
                     invoice.IsEInvoiceTaxpayer,
                     new List<ParasutInvoiceLineRequest>());
 
-                var salesId = await _syncService.CreateSalesInvoiceAsync(request, ct);
+                var salesId = await _syncService.CreateSalesInvoiceAsync(request, ct).ConfigureAwait(false);
                 if (salesId == null)
                 {
                     invoice.MarkParasutFailed("Sales invoice creation failed");
@@ -76,8 +76,8 @@ public class ParasutInvoiceSyncJob
 
                 // e-Fatura mükellefi → e-Fatura, değilse → e-Arşiv
                 var eId = invoice.IsEInvoiceTaxpayer
-                    ? await _syncService.CreateEInvoiceAsync(salesId, ct)
-                    : await _syncService.CreateEArchiveAsync(salesId, ct);
+                    ? await _syncService.CreateEInvoiceAsync(salesId, ct).ConfigureAwait(false)
+                    : await _syncService.CreateEArchiveAsync(salesId, ct).ConfigureAwait(false);
 
                 invoice.MarkParasutSynced(salesId, eId);
 
@@ -91,6 +91,6 @@ public class ParasutInvoiceSyncJob
         }
 
         if (pendingInvoices.Count > 0)
-            await _db.SaveChangesAsync(ct);
+            await _db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

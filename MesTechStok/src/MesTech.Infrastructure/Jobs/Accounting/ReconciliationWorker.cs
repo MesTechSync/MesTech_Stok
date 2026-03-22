@@ -62,10 +62,10 @@ public class ReconciliationWorker : IAccountingJob
         try
         {
             // 1. Eslestirilmemis SettlementBatch'leri al
-            var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(tenantId, ct);
+            var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(tenantId, ct).ConfigureAwait(false);
 
             // 2. Eslesmemis BankTransaction'lari al
-            var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(tenantId, ct);
+            var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(tenantId, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] {BatchCount} eslestirilmemis batch, {TxCount} eslenmemis banka hareketi bulundu",
@@ -122,13 +122,13 @@ public class ReconciliationWorker : IAccountingJob
                         batch.Id,
                         bestTx.Id);
 
-                    await _matchRepo.AddAsync(match, ct);
+                    await _matchRepo.AddAsync(match, ct).ConfigureAwait(false);
 
                     bestTx.MarkReconciled();
-                    await _bankTxRepo.UpdateAsync(bestTx, ct);
+                    await _bankTxRepo.UpdateAsync(bestTx, ct).ConfigureAwait(false);
 
                     batch.MarkReconciled();
-                    await _settlementRepo.UpdateAsync(batch, ct);
+                    await _settlementRepo.UpdateAsync(batch, ct).ConfigureAwait(false);
 
                     matchedTxIds.Add(bestTx.Id);
                     autoMatched++;
@@ -144,7 +144,7 @@ public class ReconciliationWorker : IAccountingJob
                         batch.Id,
                         bestTx.Id);
 
-                    await _matchRepo.AddAsync(match, ct);
+                    await _matchRepo.AddAsync(match, ct).ConfigureAwait(false);
                     matchedTxIds.Add(bestTx.Id);
                     needsReview++;
 
@@ -157,7 +157,7 @@ public class ReconciliationWorker : IAccountingJob
                         SettlementAmount: batch.TotalNet,
                         BankTxAmount: bestTx.Amount,
                         TenantId: tenantId,
-                        OccurredAt: DateTime.UtcNow), ct);
+                        OccurredAt: DateTime.UtcNow), ct).ConfigureAwait(false);
                 }
                 else
                 {
@@ -166,7 +166,7 @@ public class ReconciliationWorker : IAccountingJob
                 }
             }
 
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             // 7. Ozet log
             _logger.LogInformation(

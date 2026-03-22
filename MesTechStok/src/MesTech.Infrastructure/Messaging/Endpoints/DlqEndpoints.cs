@@ -18,7 +18,7 @@ public static class DlqEndpoints
         // GET /api/internal/dlq/status
         group.MapGet("/status", async (DlqReprocessService service, CancellationToken ct) =>
         {
-            var status = await service.GetDlqStatusAsync(ct);
+            var status = await service.GetDlqStatusAsync(ct).ConfigureAwait(false);
             return Results.Ok(new
             {
                 queues = status,
@@ -33,7 +33,7 @@ public static class DlqEndpoints
             DlqReprocessService service,
             CancellationToken ct) =>
         {
-            var result = await service.ReprocessAsync(queueName, maxMessages: 10, ct);
+            var result = await service.ReprocessAsync(queueName, maxMessages: 10, ct).ConfigureAwait(false);
             return Results.Ok(result);
         });
 

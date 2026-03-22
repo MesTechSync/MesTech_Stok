@@ -57,10 +57,10 @@ public class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         };
 
         var response = await _httpClient.PostAsJsonAsync(
-            $"/v4/{_options.CompanyId}/sales_invoices", body, ct);
+            $"/v4/{_options.CompanyId}/sales_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
         var id = result.GetProperty("data").GetProperty("id").GetString();
         _logger.LogInformation("Paraşüt sales invoice created: {Id}", id);
         return id;
@@ -81,10 +81,10 @@ public class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         };
 
         var response = await _httpClient.PostAsJsonAsync(
-            $"/v4/{_options.CompanyId}/e_invoices", body, ct);
+            $"/v4/{_options.CompanyId}/e_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
         return result.GetProperty("data").GetProperty("id").GetString();
     }
 
@@ -103,19 +103,19 @@ public class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         };
 
         var response = await _httpClient.PostAsJsonAsync(
-            $"/v4/{_options.CompanyId}/e_archives", body, ct);
+            $"/v4/{_options.CompanyId}/e_archives", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
         return result.GetProperty("data").GetProperty("id").GetString();
     }
 
     public async Task<byte[]?> GetInvoicePdfAsync(string eInvoiceId, CancellationToken ct = default)
     {
         var response = await _httpClient.GetAsync(
-            $"/v4/{_options.CompanyId}/e_invoices/{eInvoiceId}/pdf", ct);
+            $"/v4/{_options.CompanyId}/e_invoices/{eInvoiceId}/pdf", ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return null;
-        return await response.Content.ReadAsByteArrayAsync(ct);
+        return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
     }
 }
 

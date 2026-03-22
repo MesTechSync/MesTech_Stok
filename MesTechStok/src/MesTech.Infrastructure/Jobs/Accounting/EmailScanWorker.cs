@@ -32,7 +32,7 @@ public class EmailScanWorker : IAccountingJob
 
         try
         {
-            var count = await _emailScanner.ScanAndProcessAsync(ct);
+            var count = await _emailScanner.ScanAndProcessAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Email scan complete: {Count} attachments processed",

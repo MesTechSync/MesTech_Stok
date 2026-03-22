@@ -64,7 +64,7 @@ public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendati
                 ActionUrl = msg.ActionUrl,
                 Priority = msg.Priority,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -98,8 +98,8 @@ public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendati
                 $"{msg.Title}: {msg.Description}");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
+            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AI onerisi NotificationLog olarak kaydedildi: NotificationId={NotificationId}",

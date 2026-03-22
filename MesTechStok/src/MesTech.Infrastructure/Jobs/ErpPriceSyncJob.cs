@@ -42,7 +42,7 @@ public class ErpPriceSyncJob : ISyncJob
                 var adapter = _factory.GetAdapter(provider);
 
                 // Ping to verify connectivity before price sync
-                var isAlive = await adapter.PingAsync(ct);
+                var isAlive = await adapter.PingAsync(ct).ConfigureAwait(false);
                 if (!isAlive)
                 {
                     _logger.LogWarning(
@@ -76,6 +76,6 @@ public class ErpPriceSyncJob : ISyncJob
             "[{JobId}] ERP fiyat sync tamamlandi: {Processed} providers processed, {Failed} failed",
             JobId, totalProcessed, totalFailed);
 
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

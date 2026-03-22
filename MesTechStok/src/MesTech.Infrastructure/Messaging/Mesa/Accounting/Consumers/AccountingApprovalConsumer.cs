@@ -86,7 +86,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
                 ApprovalSource = msg.ApprovalSource,
                 JournalEntryId = msg.JournalEntryId,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -99,7 +99,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
             msg.DocumentId, msg.ApprovedBy, msg.ApprovalSource);
 
         // Belgeyi bul ve cikarilmis veriyi oku
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
@@ -125,7 +125,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
             if (amount > 0)
             {
                 journalEntryId = await CreateExpenseAndJournalEntryAsync(
-                    tenantId, document, amount, msg.ApprovedBy, context.CancellationToken);
+                    tenantId, document, amount, msg.ApprovedBy, context.CancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -149,7 +149,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
         var existingData = document.ExtractedData ?? "{}";
         var combinedData = $"{{\"extraction\":{existingData},\"approval\":{approvalJson}}}";
         document.UpdateExtractedData(combinedData);
-        await _documentRepository.UpdateAsync(document);
+        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] Belge onay bilgisi kaydedildi: DocId={DocumentId}", msg.DocumentId);
@@ -179,7 +179,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
                 category: document.DocumentType.ToString());
 
             expense.Approve(approvedBy);
-            await _expenseRepository.AddAsync(expense, ct);
+            await _expenseRepository.AddAsync(expense, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] PersonalExpense olusturuldu: ExpenseId={ExpenseId}, tutar={Amount:N2}",
@@ -187,9 +187,9 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
 
             // 2. Hesap planından gider ve kasa hesaplarini bul
             var expenseAccount = await _chartOfAccountsRepository.GetByCodeAsync(
-                tenantId, DefaultExpenseAccountCode, ct);
+                tenantId, DefaultExpenseAccountCode, ct).ConfigureAwait(false);
             var cashAccount = await _chartOfAccountsRepository.GetByCodeAsync(
-                tenantId, DefaultCashAccountCode, ct);
+                tenantId, DefaultCashAccountCode, ct).ConfigureAwait(false);
 
             if (expenseAccount is null || cashAccount is null)
             {
@@ -197,7 +197,7 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
                     "[MESA Consumer] Hesap plani eksik (770 veya 100 bulunamadi). " +
                     "JournalEntry olusturulmadi — sadece Expense kaydedildi. DocId={DocumentId}",
                     document.Id);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 return null;
             }
 
@@ -217,10 +217,10 @@ public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
             journalEntry.Validate();
             journalEntry.Post(); // LedgerPostedEvent tetiklenir → AnomalyCheckHandler
 
-            await _journalEntryRepository.AddAsync(journalEntry, ct);
+            await _journalEntryRepository.AddAsync(journalEntry, ct).ConfigureAwait(false);
 
             // 5. UnitOfWork ile tum degisiklikleri kaydet
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] JournalEntry olusturuldu ve deftere islendi: " +

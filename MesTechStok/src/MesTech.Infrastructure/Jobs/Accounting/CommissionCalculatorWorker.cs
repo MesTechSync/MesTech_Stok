@@ -53,7 +53,7 @@ public class CommissionCalculatorWorker : IAccountingJob
             // Son 24 saatin siparislerini al
             var from = DateTime.UtcNow.AddDays(-1);
             var to = DateTime.UtcNow;
-            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to);
+            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] {Count} siparis bulundu ({From:g} - {To:g})",
@@ -67,7 +67,7 @@ public class CommissionCalculatorWorker : IAccountingJob
                 {
                     // Mevcut komisyon kaydi var mi kontrol et
                     var existingRecords = await _commissionRepository
-                        .GetByPlatformAsync(tenantId, order.SourcePlatform?.ToString() ?? "Unknown", from, to, ct);
+                        .GetByPlatformAsync(tenantId, order.SourcePlatform?.ToString() ?? "Unknown", from, to, ct).ConfigureAwait(false);
 
                     var alreadyProcessed = existingRecords
                         .Any(r => r.OrderId == order.OrderNumber);
@@ -95,7 +95,7 @@ public class CommissionCalculatorWorker : IAccountingJob
                         orderId: order.OrderNumber,
                         category: null);
 
-                    await _commissionRepository.AddAsync(record, ct);
+                    await _commissionRepository.AddAsync(record, ct).ConfigureAwait(false);
                     processedCount++;
                 }
                 catch (Exception ex)
@@ -108,7 +108,7 @@ public class CommissionCalculatorWorker : IAccountingJob
 
             if (processedCount > 0)
             {
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
             }
 
             _logger.LogInformation(
@@ -151,8 +151,8 @@ public class CommissionCalculatorWorker : IAccountingJob
             orderId: orderId,
             category: category);
 
-        await _commissionRepository.AddAsync(record, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _commissionRepository.AddAsync(record, ct).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[{JobId}] Komisyon kaydedildi: OrderId={OrderId}, Commission={Commission:F2}",

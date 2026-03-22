@@ -51,7 +51,7 @@ public class SupplierFeedSyncJob
         _logger.LogInformation("[SupplierFeedSync] Starting sync for feed {FeedId}", feedId);
 
         var feed = await _dbContext.SupplierFeeds
-            .FirstOrDefaultAsync(f => f.Id == feedId && !f.IsDeleted, ct);
+            .FirstOrDefaultAsync(f => f.Id == feedId && !f.IsDeleted, ct).ConfigureAwait(false);
 
         if (feed == null)
         {
@@ -67,7 +67,7 @@ public class SupplierFeedSyncJob
         }
 
         feed.LastSyncStatus = FeedSyncStatus.InProgress;
-        await _dbContext.SaveChangesAsync(ct);
+        await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
 
         int totalProducts = 0;
         int updatedProducts = 0;
@@ -81,10 +81,10 @@ public class SupplierFeedSyncJob
                 feed.FeedUrl, feed.Name);
 
             var httpClient = _httpClientFactory.CreateClient();
-            using var response = await httpClient.GetAsync(feed.FeedUrl, ct);
+            using var response = await httpClient.GetAsync(feed.FeedUrl, ct).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            await using var feedStream = await response.Content.ReadAsStreamAsync(ct);
+            await using var feedStream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
 
             // 2. Resolve IFeedParserService based on feed format (via IFeedParserFactory — proper DI)
             var parser = _feedParserFactory.GetParser(feed.Format);
@@ -93,13 +93,13 @@ public class SupplierFeedSyncJob
                 var error = $"No IFeedParserService registered for format {feed.Format}";
                 _logger.LogError("[SupplierFeedSync] {Error}", error);
                 feed.RecordSyncResult(0, 0, 0, error);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 return;
             }
 
             // 3. Parse the feed with default field mapping
             var mapping = new FeedFieldMapping(null, null, null, null, null, null, null, null);
-            var parseResult = await parser.ParseAsync(feedStream, mapping, ct);
+            var parseResult = await parser.ParseAsync(feedStream, mapping, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[SupplierFeedSync] Parsed {TotalParsed} products ({SkippedCount} skipped, {ErrorCount} errors) for {FeedName}",
@@ -116,7 +116,7 @@ public class SupplierFeedSyncJob
 
             var existingBySku = await _dbContext.Products
                 .Where(p => feedSkus.Contains(p.SKU) && !p.IsDeleted)
-                .ToDictionaryAsync(p => p.SKU, StringComparer.OrdinalIgnoreCase, ct);
+                .ToDictionaryAsync(p => p.SKU, StringComparer.OrdinalIgnoreCase, ct).ConfigureAwait(false);
 
             var changedProducts = FeedDeltaDetector
                 .GetChangedProducts(parseResult.Products, existingBySku, feed.ApplyMarkup)
@@ -134,7 +134,7 @@ public class SupplierFeedSyncJob
                 try
                 {
                     var (product, wasUpdated, wasDeactivated) = await ProcessParsedProductAsync(
-                        feed, parsedProduct, ct);
+                        feed, parsedProduct, ct).ConfigureAwait(false);
 
                     if (wasUpdated)
                     {
@@ -155,14 +155,14 @@ public class SupplierFeedSyncJob
 
             // 5. Record sync result (raises SupplierFeedSyncedEvent)
             feed.RecordSyncResult(totalProducts, updatedProducts, deactivatedProducts);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[SupplierFeedSync] Sync completed for {FeedName}: {Total} total, {Updated} updated, {Deactivated} deactivated",
                 feed.Name, totalProducts, updatedProducts, deactivatedProducts);
 
             // 6. Push updates to target platforms
-            await PushToTargetPlatformsAsync(feed, updatedProductEntities, ct);
+            await PushToTargetPlatformsAsync(feed, updatedProductEntities, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -176,7 +176,7 @@ public class SupplierFeedSyncJob
                 feedId, feed.Name);
 
             feed.RecordSyncResult(totalProducts, updatedProducts, deactivatedProducts, ex.Message);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             throw;
         }
@@ -189,10 +189,10 @@ public class SupplierFeedSyncJob
         Product? existing = null;
 
         if (!string.IsNullOrWhiteSpace(parsed.SKU))
-            existing = await _productRepository.GetBySKUAsync(parsed.SKU);
+            existing = await _productRepository.GetBySKUAsync(parsed.SKU).ConfigureAwait(false);
 
         if (existing == null && !string.IsNullOrWhiteSpace(parsed.Barcode))
-            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode);
+            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode).ConfigureAwait(false);
 
         bool wasUpdated = false;
         bool wasDeactivated = false;
@@ -242,7 +242,7 @@ public class SupplierFeedSyncJob
             {
                 existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = "supplier-feed-sync";
-                await _productRepository.UpdateAsync(existing);
+                await _productRepository.UpdateAsync(existing).ConfigureAwait(false);
             }
 
             return (existing, wasUpdated, wasDeactivated);
@@ -269,7 +269,7 @@ public class SupplierFeedSyncJob
                 UpdatedBy = "supplier-feed-sync"
             };
 
-            await _productRepository.AddAsync(newProduct);
+            await _productRepository.AddAsync(newProduct).ConfigureAwait(false);
 
             _logger.LogDebug(
                 "[SupplierFeedSync] Created new product {SKU} from feed {FeedName}",
@@ -318,7 +318,7 @@ public class SupplierFeedSyncJob
 
                 try
                 {
-                    var ok = await adapter.PushProductAsync(product, ct);
+                    var ok = await adapter.PushProductAsync(product, ct).ConfigureAwait(false);
                     if (ok) pushed++;
                 }
                 catch (Exception ex)

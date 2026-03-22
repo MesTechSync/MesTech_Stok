@@ -64,7 +64,7 @@ public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSugge
                 Confidence = msg.Confidence,
                 Rationale = msg.Rationale,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -86,8 +86,8 @@ public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSugge
             settlementBatchId: msg.SettlementBatchId,
             bankTransactionId: msg.BankTransactionId);
 
-        await _matchRepository.AddAsync(match);
-        await _unitOfWork.SaveChangesAsync();
+        await _matchRepository.AddAsync(match).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AI oneri eslestirmesi kaydedildi (NeedsReview): " +

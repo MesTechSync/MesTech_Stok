@@ -35,13 +35,13 @@ public class TrendyolPriceSyncJob : ISyncJob
                 return;
             }
 
-            var products = await adapter.PullProductsAsync(ct);
+            var products = await adapter.PullProductsAsync(ct).ConfigureAwait(false);
             var pushed = 0;
 
             foreach (var product in products)
             {
                 ct.ThrowIfCancellationRequested();
-                var ok = await adapter.PushPriceUpdateAsync(product.Id, product.SalePrice, ct);
+                var ok = await adapter.PushPriceUpdateAsync(product.Id, product.SalePrice, ct).ConfigureAwait(false);
                 if (ok) pushed++;
             }
 

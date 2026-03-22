@@ -42,7 +42,7 @@ public class MesaStatusEndpoint : BackgroundService
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var context = await _listener.GetContextAsync();
+                var context = await _listener.GetContextAsync().ConfigureAwait(false);
                 _ = HandleRequestAsync(context);
             }
         }

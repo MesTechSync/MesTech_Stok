@@ -45,7 +45,7 @@ public class TrendyolEFaturamAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IKo
         {
             if (!string.IsNullOrEmpty(request.Customer.TaxNumber))
             {
-                var isMukellef = await _provider.IsEInvoiceTaxpayerAsync(request.Customer.TaxNumber, ct);
+                var isMukellef = await _provider.IsEInvoiceTaxpayerAsync(request.Customer.TaxNumber, ct).ConfigureAwait(false);
                 type = isMukellef ? InvoiceType.EFatura : InvoiceType.EArsiv;
                 _logger.LogInformation("TrendyolEFaturam auto type detection: VKN={VKN} -> {Type}",
                     request.Customer.TaxNumber, type);
@@ -58,9 +58,9 @@ public class TrendyolEFaturamAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IKo
 
         return type switch
         {
-            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct),
-            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct),
-            _ => await _provider.CreateEFaturaAsync(dto, ct)
+            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct).ConfigureAwait(false),
+            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct).ConfigureAwait(false),
+            _ => await _provider.CreateEFaturaAsync(dto, ct).ConfigureAwait(false)
         };
     }
 
@@ -69,7 +69,7 @@ public class TrendyolEFaturamAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IKo
 
     public async Task<InvoiceStatusInfo> GetInvoiceStatusAsync(string invoiceId, CancellationToken ct = default)
     {
-        var result = await _provider.CheckStatusAsync(invoiceId, ct);
+        var result = await _provider.CheckStatusAsync(invoiceId, ct).ConfigureAwait(false);
         var status = result.Status switch
         {
             "Accepted" => InvoiceStatus.Accepted,

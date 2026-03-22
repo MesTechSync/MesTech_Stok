@@ -50,7 +50,7 @@ public sealed class BizimHesapApiClient
         var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}/{endpoint}");
         SetApiKeyHeader(request);
 
-        return await _httpClient.SendAsync(request, ct);
+        return await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed class BizimHesapApiClient
         };
         SetApiKeyHeader(request);
 
-        return await _httpClient.SendAsync(request, ct);
+        return await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public sealed class BizimHesapApiClient
         };
         SetApiKeyHeader(request);
 
-        return await _httpClient.SendAsync(request, ct);
+        return await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public sealed class BizimHesapApiClient
     {
         try
         {
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return JsonSerializer.Deserialize<T>(json, JsonOptions);
         }
         catch (JsonException ex)
@@ -106,7 +106,7 @@ public sealed class BizimHesapApiClient
     /// </summary>
     public static async Task<string> ReadErrorBodyAsync(HttpResponseMessage response, CancellationToken ct = default)
     {
-        return await response.Content.ReadAsStringAsync(ct);
+        return await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
     }
 
     private void SetApiKeyHeader(HttpRequestMessage request)

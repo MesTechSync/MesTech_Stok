@@ -46,11 +46,11 @@ public sealed class ErpReconciliationService
         }
 
         // 1. Get MesTech stock levels from DB
-        var mestechProducts = await _productRepository.GetAllAsync();
+        var mestechProducts = await _productRepository.GetAllAsync().ConfigureAwait(false);
         report.TotalMesTechRecords = mestechProducts.Count;
 
         // 2. Get ERP stock levels via adapter
-        var erpStockLevels = await stockCapable.GetStockLevelsAsync(ct);
+        var erpStockLevels = await stockCapable.GetStockLevelsAsync(ct).ConfigureAwait(false);
         report.TotalErpRecords = erpStockLevels.Count;
 
         // 3. Build ERP lookup by product code

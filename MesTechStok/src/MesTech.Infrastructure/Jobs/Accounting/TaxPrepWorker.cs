@@ -50,7 +50,7 @@ public class TaxPrepWorker : IAccountingJob
 
         try
         {
-            var report = await _taxPrepAgent.PrepareMonthlyTaxAsync(tenantId, year, month, ct);
+            var report = await _taxPrepAgent.PrepareMonthlyTaxAsync(tenantId, year, month, ct).ConfigureAwait(false);
 
             // RabbitMQ uzerinden bot bildirim publish
             await _publishEndpoint.Publish(new FinanceTaxPrepReadyEvent(
@@ -65,7 +65,7 @@ public class TaxPrepWorker : IAccountingJob
                 TotalStopaj: report.TotalStopaj,
                 Disclaimer: report.Disclaimer,
                 TenantId: tenantId,
-                OccurredAt: DateTime.UtcNow), ct);
+                OccurredAt: DateTime.UtcNow), ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Vergi taslagi yayinlandi — Donem: {Year}-{Month:D2}, " +

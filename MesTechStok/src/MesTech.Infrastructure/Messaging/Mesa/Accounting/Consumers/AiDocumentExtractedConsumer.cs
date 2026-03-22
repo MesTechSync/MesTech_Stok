@@ -69,7 +69,7 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
                 ExtractedVKN = msg.ExtractedVKN,
                 ExtractedCategory = msg.ExtractedCategory,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -82,7 +82,7 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
             msg.DocumentId, msg.Confidence);
 
         // Belgeyi bul
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
@@ -104,7 +104,7 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
         });
 
         document.UpdateExtractedData(extractedJson);
-        await _documentRepository.UpdateAsync(document);
+        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AccountingDocument guncellendi (Extracted): DocId={DocumentId}", msg.DocumentId);
@@ -120,8 +120,8 @@ public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
                 source: Domain.Accounting.Enums.ExpenseSource.AI,
                 category: msg.ExtractedCategory ?? "Genel");
 
-            await _expenseRepository.AddAsync(expense);
-            await _unitOfWork.SaveChangesAsync();
+            await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Otomatik gider kaydı olusturuldu (PendingApproval): " +

@@ -56,7 +56,7 @@ public class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
                 Content = msg.Content,
                 Success = msg.Success,
                 ErrorMessage = msg.ErrorMessage
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -93,8 +93,8 @@ public class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
                 msg.Channel, msg.Recipient, errorMessage);
         }
 
-        await _notificationLogRepository.AddAsync(log, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _notificationLogRepository.AddAsync(log, ct).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _monitor.RecordConsume("bot.notification.sent");
 

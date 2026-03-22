@@ -10,8 +10,8 @@ public class MesaEventHub : Hub
         {
             ConnectionId = Context.ConnectionId,
             Timestamp = DateTimeOffset.UtcNow
-        });
-        await base.OnConnectedAsync();
+        }).ConfigureAwait(false);
+        await base.OnConnectedAsync().ConfigureAwait(false);
     }
 }
 

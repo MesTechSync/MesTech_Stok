@@ -36,7 +36,7 @@ public class OpenCartStockSyncJob : ISyncJob
             }
 
             // Pull current products from OpenCart
-            var products = await adapter.PullProductsAsync(ct);
+            var products = await adapter.PullProductsAsync(ct).ConfigureAwait(false);
             _logger.LogInformation("[{JobId}] OpenCart'tan {Count} urun cekildi", JobId, products.Count);
 
             // Push stock updates for reconciliation
@@ -44,7 +44,7 @@ public class OpenCartStockSyncJob : ISyncJob
             foreach (var product in products)
             {
                 ct.ThrowIfCancellationRequested();
-                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct);
+                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct).ConfigureAwait(false);
                 if (ok) pushed++;
             }
 

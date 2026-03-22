@@ -45,7 +45,7 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
         {
             if (!string.IsNullOrEmpty(request.Customer.TaxNumber))
             {
-                var isMukellef = await _gibService.IsEFaturaMukellefAsync(request.Customer.TaxNumber, ct);
+                var isMukellef = await _gibService.IsEFaturaMukellefAsync(request.Customer.TaxNumber, ct).ConfigureAwait(false);
                 type = isMukellef ? InvoiceType.EFatura : InvoiceType.EArsiv;
                 _logger.LogInformation("Auto type detection via GibService: VKN={VKN} -> {Type}", request.Customer.TaxNumber, type);
             }
@@ -57,9 +57,9 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
 
         return type switch
         {
-            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct),
-            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct),
-            _ => await _provider.CreateEFaturaAsync(dto, ct)
+            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct).ConfigureAwait(false),
+            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct).ConfigureAwait(false),
+            _ => await _provider.CreateEFaturaAsync(dto, ct).ConfigureAwait(false)
         };
     }
 
@@ -68,7 +68,7 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
 
     public async Task<InvoiceStatusInfo> GetInvoiceStatusAsync(string invoiceId, CancellationToken ct = default)
     {
-        var result = await _provider.CheckStatusAsync(invoiceId, ct);
+        var result = await _provider.CheckStatusAsync(invoiceId, ct).ConfigureAwait(false);
         return new InvoiceStatusInfo(result.GibInvoiceId, InvoiceStatus.Sent, result.Status, result.AcceptedAt, null);
     }
 
@@ -93,7 +93,7 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
         {
             try
             {
-                var result = await CreateInvoiceAsync(request, ct);
+                var result = await CreateInvoiceAsync(request, ct).ConfigureAwait(false);
                 results.Add(new BulkInvoiceItemResult(request.OrderId, result.Success, result.GibInvoiceId, result.ErrorMessage));
             }
             catch (Exception ex)

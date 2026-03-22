@@ -47,7 +47,7 @@ public class DlqMonitorService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct);
+            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("[DLQ Monitor] RabbitMQ Management API unreachable: {StatusCode}",
@@ -55,7 +55,7 @@ public class DlqMonitorService
                 return;
             }
 
-            var content = await response.Content.ReadAsStringAsync(ct);
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
             var queues = doc.RootElement;
 
@@ -83,7 +83,7 @@ public class DlqMonitorService
                             "mestech-alerts",
                             $"⚠️ DLQ ALARM: {name} queue'sunda {messageCount} basarisiz mesaj var!",
                             TelegramAlertLevel.Warning,
-                            ct);
+                            ct).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {

@@ -49,8 +49,8 @@ public class OrderReceivedIncomeHandler
             Note = $"Otomatik olusturuldu. OrderId: {e.OrderId}"
         };
 
-        await _incomeRepo.AddAsync(income);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _incomeRepo.AddAsync(income).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "OrderReceived -> Income: Income record {IncomeId} created for order {OrderId}",

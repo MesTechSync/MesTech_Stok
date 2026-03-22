@@ -49,7 +49,7 @@ public class HealthCheckJob : ISyncJob
                 // TrendyolAdapter has CheckHealthAsync
                 if (adapter is TrendyolAdapter trendyol)
                 {
-                    var health = await trendyol.CheckHealthAsync(ct);
+                    var health = await trendyol.CheckHealthAsync(ct).ConfigureAwait(false);
                     healthResults[adapter.PlatformCode] = new { health.IsHealthy, health.LatencyMs };
                     if (!health.IsHealthy) allHealthy = false;
 
@@ -75,7 +75,7 @@ public class HealthCheckJob : ISyncJob
 
         healthResults["status"] = allHealthy ? "healthy" : "degraded";
 
-        await _cache.SetAsync(CacheKeys.Health("all"), healthResults, CacheKeys.HealthTTL, ct);
+        await _cache.SetAsync(CacheKeys.Health("all"), healthResults, CacheKeys.HealthTTL, ct).ConfigureAwait(false);
 
         _logger.LogDebug("[{JobId}] Health check tamamlandi: {Status}, {Count} adapter kontrol edildi",
             JobId, allHealthy ? "healthy" : "degraded", adapters.Count);

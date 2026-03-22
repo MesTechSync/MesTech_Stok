@@ -52,7 +52,7 @@ public class ErpStockSyncJob : ISyncJob
                 _logger.LogInformation(
                     "[{JobId}] Fetching stock levels from {Provider}...", JobId, provider);
 
-                var stockItems = await stockCapable.GetStockLevelsAsync(ct);
+                var stockItems = await stockCapable.GetStockLevelsAsync(ct).ConfigureAwait(false);
 
                 if (stockItems.Count == 0)
                 {

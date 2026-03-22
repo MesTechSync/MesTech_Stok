@@ -58,7 +58,7 @@ public class DlqReprocessService
 
             var getContent = new StringContent(getBody, System.Text.Encoding.UTF8, "application/json");
             var response = await client.PostAsync(
-                $"{baseUrl}/api/queues/%2f/{Uri.EscapeDataString(errorQueue)}/get", getContent, ct);
+                $"{baseUrl}/api/queues/%2f/{Uri.EscapeDataString(errorQueue)}/get", getContent, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -68,7 +68,7 @@ public class DlqReprocessService
                 return result;
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync(ct);
+            var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseContent);
             var messages = doc.RootElement;
 
@@ -113,7 +113,7 @@ public class DlqReprocessService
 
                 var publishContent = new StringContent(publishBody, System.Text.Encoding.UTF8, "application/json");
                 var publishResponse = await client.PostAsync(
-                    $"{baseUrl}/api/exchanges/%2f/amq.default/publish", publishContent, ct);
+                    $"{baseUrl}/api/exchanges/%2f/amq.default/publish", publishContent, ct).ConfigureAwait(false);
 
                 if (publishResponse.IsSuccessStatusCode)
                 {
@@ -159,10 +159,10 @@ public class DlqReprocessService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct);
+            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return result;
 
-            var content = await response.Content.ReadAsStringAsync(ct);
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
 
             foreach (var queue in doc.RootElement.EnumerateArray())

@@ -32,7 +32,7 @@ public class RealMesaEventPublisher : IMesaEventPublisher
             _httpClient.DefaultRequestHeaders.Remove("X-Api-Key");
             _httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
             var payload = new { type = eventType, data };
-            var resp = await _httpClient.PostAsJsonAsync($"{mesaEndpoint}/api/v1/events", payload, ct);
+            var resp = await _httpClient.PostAsJsonAsync($"{mesaEndpoint}/api/v1/events", payload, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
                 _logger.LogWarning("MESA {Type} HTTP {Status}", eventType, (int)resp.StatusCode);
             else

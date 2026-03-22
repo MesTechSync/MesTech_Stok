@@ -36,7 +36,7 @@ public class TrendyolClaimSyncJob : ISyncJob
             }
 
             var since = DateTime.UtcNow.AddMinutes(-20); // 15dk cron + 5dk overlap
-            var claims = await adapter.PullClaimsAsync(since, ct);
+            var claims = await adapter.PullClaimsAsync(since, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Trendyol iade sync tamamlandi: {Count} iade cekildi",

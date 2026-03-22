@@ -45,7 +45,7 @@ public class ErpAccountSyncJob : ISyncJob
                 _logger.LogInformation(
                     "[{JobId}] Fetching account balances from {Provider}...", JobId, provider);
 
-                var accounts = await adapter.GetAccountBalancesAsync(ct);
+                var accounts = await adapter.GetAccountBalancesAsync(ct).ConfigureAwait(false);
 
                 if (accounts.Count == 0)
                 {

@@ -60,7 +60,7 @@ public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
                 ExtractedAmount = msg.ExtractedAmount,
                 ExtractedVKN = msg.ExtractedVKN,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -80,7 +80,7 @@ public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
         }
 
         // AccountingDocument.ExtractedData guncelle
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
         if (document is not null)
         {
             var extractedJson = System.Text.Json.JsonSerializer.Serialize(new
@@ -93,7 +93,7 @@ public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
             });
 
             document.UpdateExtractedData(extractedJson);
-            await _documentRepository.UpdateAsync(document);
+            await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AccountingDocument guncellendi: DocId={DocumentId}", msg.DocumentId);

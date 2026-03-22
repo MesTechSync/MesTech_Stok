@@ -41,7 +41,7 @@ public class ReliabilityScoreRecalcJob
         // 1. Aktif feedleri al
         var activeFeeds = await _dbContext.SupplierFeeds
             .Where(f => f.IsActive && !f.IsDeleted)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         if (activeFeeds.Count == 0)
         {
@@ -73,7 +73,7 @@ public class ReliabilityScoreRecalcJob
                 var feedId = feed.Id;
                 var poolProducts = await _dbContext.DropshippingPoolProducts
                     .Where(pp => pp.AddedFromFeedId == feedId && pp.IsActive && !pp.IsDeleted)
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 if (poolProducts.Count > 0)
                 {
@@ -97,7 +97,7 @@ public class ReliabilityScoreRecalcJob
                             }
                         }
 
-                        await _unitOfWork.SaveChangesAsync(ct);
+                        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                     }
                 }
 

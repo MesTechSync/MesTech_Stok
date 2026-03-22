@@ -69,7 +69,7 @@ public class ScheduledBriefingWorker : IAccountingJob
         try
         {
             // 1. Dunkun ProfitReport'u al
-            var reports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct);
+            var reports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
             var report = reports.Count > 0 ? reports[0] : null;
 
             decimal totalRevenue = 0m;
@@ -91,19 +91,19 @@ public class ScheduledBriefingWorker : IAccountingJob
                     JobId, period);
 
                 // Fallback: ham verilerden hesapla
-                var orders = await _orderRepository.GetByDateRangeAsync(yesterday, today);
+                var orders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
                 totalRevenue = orders.Sum(o => o.TotalAmount);
-                totalCommission = await _commissionRepository.GetTotalCommissionAsync(tenantId, yesterday, today, ct);
-                totalCargo = await _cargoExpenseRepository.GetTotalCostAsync(tenantId, yesterday, today, ct);
+                totalCommission = await _commissionRepository.GetTotalCommissionAsync(tenantId, yesterday, today, ct).ConfigureAwait(false);
+                totalCargo = await _cargoExpenseRepository.GetTotalCostAsync(tenantId, yesterday, today, ct).ConfigureAwait(false);
                 netProfit = totalRevenue - totalCommission - totalCargo;
             }
 
             // 2. Siparis sayisi
-            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today);
+            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
             var orderCount = yesterdayOrders.Count;
 
             // 3. Dusuk stok uyarilari
-            var lowStockProducts = await _productRepository.GetLowStockAsync();
+            var lowStockProducts = await _productRepository.GetLowStockAsync().ConfigureAwait(false);
             var stockAlerts = lowStockProducts
                 .Take(10)
                 .Select(p => $"{p.Name} (SKU: {p.SKU}) — Stok: {p.Stock}")
@@ -125,10 +125,10 @@ public class ScheduledBriefingWorker : IAccountingJob
                 recommendations.Add("Dun siparis gelmedi — platform durumunu kontrol edin.");
 
             // 5. Advisory V2 — "Bugun ne sat" tavsiyeleri (MUH-03)
-            await EnrichWithSalesAdviceAsync(tenantId, recommendations, stockAlerts, ct);
+            await EnrichWithSalesAdviceAsync(tenantId, recommendations, stockAlerts, ct).ConfigureAwait(false);
 
             // 6. Ay sonu KDV tahmini (MUH-03) — ayin son 5 gununde otomatik hesapla
-            await EnrichWithTaxEstimateAsync(tenantId, today, recommendations, ct);
+            await EnrichWithTaxEstimateAsync(tenantId, today, recommendations, ct).ConfigureAwait(false);
 
             // 7. FinanceReportDailyEvent publish
             await _publishEndpoint.Publish(new FinanceReportDailyEvent(
@@ -141,7 +141,7 @@ public class ScheduledBriefingWorker : IAccountingJob
                 StockAlerts: stockAlerts,
                 Recommendations: recommendations,
                 TenantId: tenantId,
-                OccurredAt: DateTime.UtcNow), ct);
+                OccurredAt: DateTime.UtcNow), ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Gunluk brifing yayinlandi — Tarih: {Date:d}, " +
@@ -169,7 +169,7 @@ public class ScheduledBriefingWorker : IAccountingJob
     {
         try
         {
-            var salesAdvice = await _advisoryAgentV2.GenerateSalesAdviceAsync(tenantId, ct);
+            var salesAdvice = await _advisoryAgentV2.GenerateSalesAdviceAsync(tenantId, ct).ConfigureAwait(false);
 
             // Satis tavsiyeleri
             foreach (var rec in salesAdvice.TopRecommendations.Take(5))
@@ -229,7 +229,7 @@ public class ScheduledBriefingWorker : IAccountingJob
         try
         {
             var taxReport = await _taxPrepAgent.PrepareMonthlyTaxAsync(
-                tenantId, today.Year, today.Month, ct);
+                tenantId, today.Year, today.Month, ct).ConfigureAwait(false);
 
             recommendations.Add(
                 $"[KDV] {today.Year}-{today.Month:D2} ay sonu KDV tahmini — " +

@@ -35,9 +35,9 @@ public class MockInvoiceAdapter : IInvoiceAdapter
         var dto = MapToProviderDto(request);
         return request.Type switch
         {
-            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct),
-            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct),
-            _ => await _provider.CreateEFaturaAsync(dto, ct)
+            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct).ConfigureAwait(false),
+            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct).ConfigureAwait(false),
+            _ => await _provider.CreateEFaturaAsync(dto, ct).ConfigureAwait(false)
         };
     }
 
@@ -46,7 +46,7 @@ public class MockInvoiceAdapter : IInvoiceAdapter
 
     public async Task<InvoiceStatusInfo> GetInvoiceStatusAsync(string invoiceId, CancellationToken ct = default)
     {
-        var result = await _provider.CheckStatusAsync(invoiceId, ct);
+        var result = await _provider.CheckStatusAsync(invoiceId, ct).ConfigureAwait(false);
         return new InvoiceStatusInfo(result.GibInvoiceId, InvoiceStatus.Accepted, result.Status, result.AcceptedAt, null);
     }
 

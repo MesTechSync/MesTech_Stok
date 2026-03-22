@@ -39,7 +39,7 @@ public class ExpensePaidHandler : INotificationHandler<DomainEventNotification<E
     {
         var e = notification.DomainEvent;
 
-        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId);
+        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("ExpensePaid: Expense {ExpenseId} not found in DB", e.ExpenseId);
@@ -59,8 +59,8 @@ public class ExpensePaidHandler : INotificationHandler<DomainEventNotification<E
             bankAccountId: e.BankAccountId,
             expenseId: e.ExpenseId);
 
-        await _context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken).ConfigureAwait(false);
+        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "ExpensePaid GL kaydı oluşturuldu: ExpenseId={ExpenseId} Amount={Amount} TenantId={TenantId}",

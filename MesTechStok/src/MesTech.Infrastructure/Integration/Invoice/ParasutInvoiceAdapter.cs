@@ -37,9 +37,9 @@ public class ParasutInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable
         var dto = MapToProviderDto(request);
         return request.Type switch
         {
-            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct),
-            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct),
-            _ => await _provider.CreateEFaturaAsync(dto, ct)
+            InvoiceType.EArsiv => await _provider.CreateEArsivAsync(dto, ct).ConfigureAwait(false),
+            InvoiceType.EIrsaliye => await _provider.CreateEIrsaliyeAsync(dto, ct).ConfigureAwait(false),
+            _ => await _provider.CreateEFaturaAsync(dto, ct).ConfigureAwait(false)
         };
     }
 
@@ -48,7 +48,7 @@ public class ParasutInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable
 
     public async Task<InvoiceStatusInfo> GetInvoiceStatusAsync(string invoiceId, CancellationToken ct = default)
     {
-        var result = await _provider.CheckStatusAsync(invoiceId, ct);
+        var result = await _provider.CheckStatusAsync(invoiceId, ct).ConfigureAwait(false);
         return new InvoiceStatusInfo(result.GibInvoiceId, InvoiceStatus.Sent, result.Status, result.AcceptedAt, null);
     }
 
@@ -73,7 +73,7 @@ public class ParasutInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable
         {
             try
             {
-                var result = await CreateInvoiceAsync(request, ct);
+                var result = await CreateInvoiceAsync(request, ct).ConfigureAwait(false);
                 results.Add(new BulkInvoiceItemResult(request.OrderId, result.Success, result.GibInvoiceId, result.ErrorMessage));
             }
             catch (Exception ex)

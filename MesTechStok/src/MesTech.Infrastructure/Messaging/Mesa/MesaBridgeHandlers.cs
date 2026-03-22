@@ -43,7 +43,7 @@ public class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotif
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("product.created");
     }
 }
@@ -82,7 +82,7 @@ public class LowStockBridgeHandler : INotificationHandler<DomainEventNotificatio
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("stock.low");
     }
 }
@@ -119,7 +119,7 @@ public class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotifica
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("order.placed");
     }
 }
@@ -156,7 +156,7 @@ public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotific
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("price.changed");
     }
 }
@@ -193,7 +193,7 @@ public class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainEventNot
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("invoice.generated");
     }
 }
@@ -229,7 +229,7 @@ public class InvoiceCancelledBridgeHandler : INotificationHandler<DomainEventNot
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("invoice.cancelled");
     }
 }
@@ -267,7 +267,7 @@ public class ReturnCreatedBridgeHandler : INotificationHandler<DomainEventNotifi
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("return.created");
     }
 }
@@ -304,7 +304,7 @@ public class ReturnResolvedBridgeHandler : INotificationHandler<DomainEventNotif
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("return.resolved");
     }
 }
@@ -343,7 +343,7 @@ public class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNotificat
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("buybox.lost");
     }
 }
@@ -380,7 +380,7 @@ public class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventN
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);
 
-        await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("supplier.feed.synced");
     }
 }
@@ -416,7 +416,7 @@ public class DailySummaryBridgeHandler : INotificationHandler<DomainEventNotific
             e.Date, e.OrderCount, e.Revenue, e.StockAlerts, e.InvoiceCount,
             e.OccurredAt);
 
-        await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("daily.summary");
     }
 }
@@ -452,7 +452,7 @@ public class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotificati
             e.Platform, e.ErrorType, e.Message,
             e.OccurredAt);
 
-        await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct);
+        await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("sync.error");
     }
 }

@@ -32,7 +32,7 @@ public class MesaEventBroadcastService
 
         try
         {
-            await _hubContext.Clients.All.SendAsync("MesaEvent", message);
+            await _hubContext.Clients.All.SendAsync("MesaEvent", message).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

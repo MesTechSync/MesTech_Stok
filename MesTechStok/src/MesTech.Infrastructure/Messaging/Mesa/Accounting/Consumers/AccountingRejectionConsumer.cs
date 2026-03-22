@@ -59,7 +59,7 @@ public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
                 RejectionSource = msg.RejectionSource,
                 Reason = msg.Reason,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -72,7 +72,7 @@ public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
             msg.DocumentId, msg.RejectedBy, msg.Reason);
 
         // Belgeyi bul
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
@@ -94,7 +94,7 @@ public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
         var existingData = document.ExtractedData ?? "{}";
         var combinedData = $"{{\"extraction\":{existingData},\"rejection\":{rejectionJson}}}";
         document.UpdateExtractedData(combinedData);
-        await _documentRepository.UpdateAsync(document);
+        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] Belge red bilgisi kaydedildi: DocId={DocumentId}, sebep={Reason}",

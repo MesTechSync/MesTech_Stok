@@ -62,7 +62,7 @@ public class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedIntegrat
                 OrderId = msg.OrderId,
                 BuyerVkn = msg.BuyerVkn,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -90,8 +90,8 @@ public class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedIntegrat
                 $"Muhasebe islemi bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
+            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Bot e-fatura talebi NotificationLog olarak kaydedildi: " +

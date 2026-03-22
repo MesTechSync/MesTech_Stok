@@ -42,7 +42,7 @@ public class GibMukellefService : IGibMukellefService
             return cached;
         }
 
-        var result = await QueryProvidersAsync(normalized, ct);
+        var result = await QueryProvidersAsync(normalized, ct).ConfigureAwait(false);
 
         _cache.Set(cacheKey, result, CacheTtl);
         _logger.LogInformation("GIB mukellef sorgu: {VKN} -> {Result} (cached 24h)", normalized, result);
@@ -65,7 +65,7 @@ public class GibMukellefService : IGibMukellefService
         {
             try
             {
-                var result = await provider.IsEInvoiceTaxpayerAsync(vkn, ct);
+                var result = await provider.IsEInvoiceTaxpayerAsync(vkn, ct).ConfigureAwait(false);
                 _logger.LogDebug("GIB sorgu via {Provider}: {VKN} -> {Result}",
                     provider.ProviderName, vkn, result);
                 return result;

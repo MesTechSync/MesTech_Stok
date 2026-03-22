@@ -57,7 +57,7 @@ public class SettlementSyncWorker : IAccountingJob
                     continue;
                 }
 
-                var settlement = await adapter.GetSettlementAsync(yesterday, today, ct);
+                var settlement = await adapter.GetSettlementAsync(yesterday, today, ct).ConfigureAwait(false);
                 if (settlement != null)
                 {
                     totalSettlements++;
@@ -66,7 +66,7 @@ public class SettlementSyncWorker : IAccountingJob
                         JobId, platform, yesterday, today);
                 }
 
-                var cargoInvoices = await adapter.GetCargoInvoicesAsync(yesterday, ct);
+                var cargoInvoices = await adapter.GetCargoInvoicesAsync(yesterday, ct).ConfigureAwait(false);
                 _logger.LogInformation(
                     "[{JobId}] {Platform} — {CargoCount} kargo faturasi cekildi",
                     JobId, platform, cargoInvoices.Count);

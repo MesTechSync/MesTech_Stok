@@ -36,13 +36,13 @@ public class TrendyolStockSyncJob : ISyncJob
             }
 
             // Pull current product list, then push stock for each
-            var products = await adapter.PullProductsAsync(ct);
+            var products = await adapter.PullProductsAsync(ct).ConfigureAwait(false);
             var pushed = 0;
 
             foreach (var product in products)
             {
                 ct.ThrowIfCancellationRequested();
-                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct);
+                var ok = await adapter.PushStockUpdateAsync(product.Id, product.Stock, ct).ConfigureAwait(false);
                 if (ok) pushed++;
             }
 

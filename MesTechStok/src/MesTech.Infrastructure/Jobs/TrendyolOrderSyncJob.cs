@@ -36,7 +36,7 @@ public class TrendyolOrderSyncJob : ISyncJob
             }
 
             var since = DateTime.UtcNow.AddHours(-1);
-            var orders = await adapter.PullOrdersAsync(since, ct);
+            var orders = await adapter.PullOrdersAsync(since, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Trendyol siparis sync tamamlandi: {Count} siparis cekildi (son 1 saat)",

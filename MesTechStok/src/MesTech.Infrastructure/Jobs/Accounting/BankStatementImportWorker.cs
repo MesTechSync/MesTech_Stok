@@ -84,7 +84,7 @@ public class BankStatementImportWorker : IAccountingJob
                 try
                 {
                     await using var stream = File.OpenRead(filePath);
-                    var result = await _importService.ImportAsync(stream, bankAccountId, ct: ct);
+                    var result = await _importService.ImportAsync(stream, bankAccountId, ct: ct).ConfigureAwait(false);
 
                     totalImported += result.NewTransactions;
                     totalDuplicates += result.DuplicateCount;

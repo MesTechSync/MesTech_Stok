@@ -62,7 +62,7 @@ public class DailyProfitWorker : IAccountingJob
         {
             // Mevcut rapor var mi kontrol et (idempotency)
             var existingReports = await _profitReportRepository
-                .GetByPeriodAsync(tenantId, period, ct: ct);
+                .GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
 
             if (existingReports.Count > 0)
             {
@@ -73,7 +73,7 @@ public class DailyProfitWorker : IAccountingJob
             }
 
             // Bugunku siparisleri al
-            var orders = await _orderRepository.GetByDateRangeAsync(today, tomorrow);
+            var orders = await _orderRepository.GetByDateRangeAsync(today, tomorrow).ConfigureAwait(false);
 
             if (orders.Count == 0)
             {
@@ -91,15 +91,15 @@ public class DailyProfitWorker : IAccountingJob
 
             // Komisyon toplami
             var totalCommission = await _commissionRepository
-                .GetTotalCommissionAsync(tenantId, today, tomorrow, ct);
+                .GetTotalCommissionAsync(tenantId, today, tomorrow, ct).ConfigureAwait(false);
 
             // Kargo gideri
             var totalCargo = await _cargoExpenseRepository
-                .GetTotalCostAsync(tenantId, today, tomorrow, ct);
+                .GetTotalCostAsync(tenantId, today, tomorrow, ct).ConfigureAwait(false);
 
             // Vergi toplami
             var totalTax = await _taxRecordRepository
-                .GetTotalTaxByPeriodAsync(tenantId, period, ct);
+                .GetTotalTaxByPeriodAsync(tenantId, period, ct).ConfigureAwait(false);
 
             // Kar hesapla
             var netProfit = _profitCalculationService.CalculateNetProfit(
@@ -119,8 +119,8 @@ public class DailyProfitWorker : IAccountingJob
                 totalCargo: totalCargo,
                 totalTax: totalTax);
 
-            await _profitReportRepository.AddAsync(report, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _profitReportRepository.AddAsync(report, ct).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Gunluk kar/zarar raporu olusturuldu — Period: {Period}, " +

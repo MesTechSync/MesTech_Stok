@@ -63,7 +63,7 @@ public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDone
                 ReconciledCount = msg.ReconciledCount,
                 MismatchCount = msg.MismatchCount,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -87,7 +87,7 @@ public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDone
                     confidence: 0.0m, // AI ERP mismatch — no confidence, needs human review
                     status: ReconciliationStatus.NeedsReview);
 
-                await _matchRepository.AddAsync(match);
+                await _matchRepository.AddAsync(match).ConfigureAwait(false);
 
                 _logger.LogDebug(
                     "[MESA Consumer] ERP mismatch ReconciliationMatch olusturuldu: " +
@@ -97,7 +97,7 @@ public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDone
 
             if (msg.MismatchCount > 0)
             {
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             }
 
             _logger.LogInformation(

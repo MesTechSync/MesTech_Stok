@@ -38,7 +38,7 @@ public class SettlementSyncJob : ISyncJob
             var yesterday = DateTime.UtcNow.Date.AddDays(-1);
             var today = DateTime.UtcNow.Date;
 
-            var settlement = await adapter.GetSettlementAsync(yesterday, today, ct);
+            var settlement = await adapter.GetSettlementAsync(yesterday, today, ct).ConfigureAwait(false);
             if (settlement != null)
             {
                 _logger.LogInformation(
@@ -46,7 +46,7 @@ public class SettlementSyncJob : ISyncJob
                     JobId, yesterday, today);
             }
 
-            var cargoInvoices = await adapter.GetCargoInvoicesAsync(yesterday, ct);
+            var cargoInvoices = await adapter.GetCargoInvoicesAsync(yesterday, ct).ConfigureAwait(false);
             _logger.LogInformation(
                 "[{JobId}] Settlement sync tamamlandi: {CargoCount} kargo faturasi cekildi",
                 JobId, cargoInvoices.Count);

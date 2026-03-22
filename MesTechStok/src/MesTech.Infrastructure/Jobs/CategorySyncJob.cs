@@ -32,13 +32,13 @@ public class CategorySyncJob : ISyncJob
 
         try
         {
-            var categories = await _trendyolAdapter.GetCategoriesAsync(ct);
+            var categories = await _trendyolAdapter.GetCategoriesAsync(ct).ConfigureAwait(false);
 
             await _cache.SetAsync(
                 CacheKeys.Categories("trendyol"),
                 categories,
                 CacheKeys.CategoryTTL,
-                ct);
+                ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Kategori sync tamamlandi: {Count} kategori cache'e yazildi (TTL: 24h)",

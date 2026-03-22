@@ -103,8 +103,8 @@ public class ScheduledReportGenerationJob : IAccountingJob
                 category: definition.Category,
                 actionUrl: definition.ActionUrl);
 
-            await _notificationRepository.AddAsync(notification, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _notificationRepository.AddAsync(notification, ct).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Rapor bildirimi olusturuldu — Baslik: {Title}, NotificationId: {NotificationId}",
@@ -131,7 +131,7 @@ public class ScheduledReportGenerationJob : IAccountingJob
     {
         var job = new ScheduledReportGenerationJob(
             tenantProvider, notificationRepository, unitOfWork, logger, "daily-sales");
-        await job.ExecuteAsync(ct);
+        await job.ExecuteAsync(ct).ConfigureAwait(false);
     }
 
     public static async Task ExecuteWeeklyPerformanceAsync(
@@ -143,7 +143,7 @@ public class ScheduledReportGenerationJob : IAccountingJob
     {
         var job = new ScheduledReportGenerationJob(
             tenantProvider, notificationRepository, unitOfWork, logger, "weekly-performance");
-        await job.ExecuteAsync(ct);
+        await job.ExecuteAsync(ct).ConfigureAwait(false);
     }
 
     public static async Task ExecuteMonthlyFinancialAsync(
@@ -155,7 +155,7 @@ public class ScheduledReportGenerationJob : IAccountingJob
     {
         var job = new ScheduledReportGenerationJob(
             tenantProvider, notificationRepository, unitOfWork, logger, "monthly-financial");
-        await job.ExecuteAsync(ct);
+        await job.ExecuteAsync(ct).ConfigureAwait(false);
     }
 
     private record ReportDefinition(

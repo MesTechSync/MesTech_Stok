@@ -60,7 +60,7 @@ public sealed class LogoTokenService
         }
 
         // Double-check locking: only one thread fetches a new token
-        await _tokenLock.WaitAsync(ct);
+        await _tokenLock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             // Re-check after acquiring lock — another thread may have already fetched
@@ -80,11 +80,11 @@ public sealed class LogoTokenService
 
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogError(
                     "[LogoTokenService] Token request failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
@@ -93,7 +93,7 @@ public sealed class LogoTokenService
                     $"Logo token request failed: {response.StatusCode} — {errorBody}");
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))

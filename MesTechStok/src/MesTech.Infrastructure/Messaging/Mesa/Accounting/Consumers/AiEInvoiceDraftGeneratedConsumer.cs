@@ -62,7 +62,7 @@ public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGenerat
                 SuggestedEttnNo = msg.SuggestedEttnNo,
                 SuggestedTotal = msg.SuggestedTotal,
                 TenantId = tenantId
-            }, context.CancellationToken);
+            }, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -88,8 +88,8 @@ public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGenerat
                 $"Muhasebe onay bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
+            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AI e-fatura taslagi NotificationLog olarak kaydedildi: " +

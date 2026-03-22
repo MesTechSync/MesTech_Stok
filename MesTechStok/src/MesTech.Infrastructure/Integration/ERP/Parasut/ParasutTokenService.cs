@@ -68,7 +68,7 @@ public sealed class ParasutTokenService
         }
 
         // Double-check locking: only one thread fetches a new token
-        await _tokenLock.WaitAsync(ct);
+        await _tokenLock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             // Re-check after acquiring lock — another thread may have already fetched
@@ -87,11 +87,11 @@ public sealed class ParasutTokenService
             };
 
             var content = new FormUrlEncodedContent(formData);
-            var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct);
+            var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogError(
                     "[ParasutTokenService] Token request failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
@@ -100,7 +100,7 @@ public sealed class ParasutTokenService
                     $"Parasut OAuth2 token request failed: {response.StatusCode} — {errorBody}");
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
