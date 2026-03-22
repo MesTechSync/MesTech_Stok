@@ -301,7 +301,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                     async token => await _httpClient.GetAsync(
                         new Uri($"/integration/product/sellers/{_supplierId}/products?page={page}&size={pageSize}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
-                if (!response.IsSuccessStatusCode) break;
+                if (!response.IsSuccessStatusCode)
+                {
+                    await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    break;
+                }
 
                 var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(content);
@@ -453,7 +457,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var response = await _retryPipeline.ExecuteAsync(
                     async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
-                if (!response.IsSuccessStatusCode) break;
+                if (!response.IsSuccessStatusCode)
+                {
+                    await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    break;
+                }
 
                 var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(content);
@@ -667,7 +675,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 var response = await _retryPipeline.ExecuteAsync(
                     async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
-                if (!response.IsSuccessStatusCode) break;
+                if (!response.IsSuccessStatusCode)
+                {
+                    await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    break;
+                }
 
                 var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(content);
@@ -896,7 +908,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 async token => await _httpClient.GetAsync(
                     new Uri("/integration/product/product-categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return Array.Empty<CategoryDto>();
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return Array.Empty<CategoryDto>();
+            }
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
@@ -1071,7 +1087,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                 async token => await _httpClient.GetAsync(
                     new Uri($"/integration/product/brands?name={Uri.EscapeDataString(namePrefix)}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return Array.Empty<BrandDto>();
+            if (!response.IsSuccessStatusCode)
+            {
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return Array.Empty<BrandDto>();
+            }
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(content);
@@ -1150,6 +1170,8 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
                         new Uri($"/integration/order/sellers/{_supplierId}/webhooks", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
+            if (!response.IsSuccessStatusCode)
+                await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
