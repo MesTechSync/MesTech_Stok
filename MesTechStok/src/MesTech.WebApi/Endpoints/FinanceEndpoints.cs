@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Finance.Commands.ApproveExpense;
+using MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 using MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
 using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
 using MesTech.Application.Features.Finance.Queries.GetCashFlow;
@@ -72,5 +73,20 @@ public static class FinanceEndpoints
         })
         .WithName("MarkExpensePaid")
         .WithSummary("Masrafı ödenmiş olarak işaretle");
+
+        // POST /api/v1/finance/cash-registers/{id}/close — gün sonu kasa kapama
+        group.MapPost("/cash-registers/{id:guid}/close", async (
+            Guid id, CloseCashRegisterCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(command with { CashRegisterId = id }, ct);
+            return Results.Ok(new
+            {
+                message = "Kasa gun sonu kapatildi",
+                closedAt = DateTime.UtcNow
+            });
+        })
+        .WithName("CloseCashRegister")
+        .WithSummary("Kasa gun sonu — bakiye dogrulama + rapor");
     }
 }

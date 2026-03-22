@@ -322,6 +322,9 @@ SettingsEndpoints.Map(app);
 BulkProductEndpoints.Map(app);
 NotificationSettingEndpoints.Map(app);
 UserNotificationEndpoints.Map(app);
+CampaignEndpoints.Map(app);
+LoyaltyEndpoints.Map(app);
+ReturnEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
