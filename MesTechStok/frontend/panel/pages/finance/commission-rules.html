@@ -222,7 +222,19 @@
     }
 
     function showAddDialog() {
-      alert('Yeni komisyon kurali ekleme dialogi henuz entegre edilmedi.');
+      // TODO: Connect to API when backend ready
+      const toast = document.createElement('div');
+      toast.className = 'alert alert-info alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
+      toast.setAttribute('role', 'alert');
+      toast.style.zIndex = '9999';
+      toast.textContent = 'Komisyon kurali ekleme modulu yakin zamanda aktif olacaktir.';
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'btn-close';
+      closeBtn.setAttribute('data-bs-dismiss', 'alert');
+      toast.appendChild(closeBtn);
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
     }
 
     function getDemoRules() {
