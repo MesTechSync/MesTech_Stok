@@ -13,12 +13,12 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Trendyol Entegrasyonu" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="10" Padding="8,2"
+                    <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
                             IsVisible="{Binding IsConnected}">
                         <TextBlock Text="Bagli" Foreground="{DynamicResource MesBgPrimary}" FontSize="12"
                                    VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="10" Padding="8,2"
+                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
                             IsVisible="{Binding !IsConnected}">
                         <TextBlock Text="Bagli Degil" Foreground="{DynamicResource MesRedBright}" FontSize="12"
                                    VerticalAlignment="Center" />
@@ -27,10 +27,10 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et" Command="{Binding SyncCommand}"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                            Padding="16,8" CornerRadius="6" />
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                             Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="16,8" CornerRadius="6" />
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
             </Grid>
         </Border>

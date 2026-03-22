@@ -17,7 +17,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -41,7 +41,7 @@
                                     <Button Grid.Column="1" Content="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                            FontWeight="SemiBold" Padding="16,8" CornerRadius="6"
+                                            FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                             Margin="8,0,0,0" />
                                 </Grid>
                                 <TextBlock Text="{Binding ImportFileInfo}" FontSize="12" Foreground="{DynamicResource MesSlateGray}"
@@ -130,13 +130,13 @@
                                             Command="{Binding CancelCommand}"
                                             IsVisible="{Binding IsImporting}"
                                             Background="{DynamicResource MesDanger}" Foreground="{DynamicResource MesBgPrimary}"
-                                            FontWeight="SemiBold" Padding="16,8" CornerRadius="6"
+                                            FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                             Margin="12,0,8,0" />
                                     <Button Grid.Column="2" Content="Import Baslat"
                                             Command="{Binding ImportCommand}"
                                             IsEnabled="{Binding CanImport}"
                                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}"
-                                            FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
+                                            FontWeight="SemiBold" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}" />
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -194,7 +194,7 @@
                                 <Button Grid.Column="4" Content="Indir"
                                         Command="{Binding ExportCommand}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                        FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
+                                        FontWeight="SemiBold" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}" />
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -275,7 +275,7 @@
                                         Command="{Binding BulkUpdateCommand}"
                                         IsEnabled="{Binding CanBulkUpdate}"
                                         Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"
-                                        FontWeight="SemiBold" Padding="20,8" CornerRadius="6" />
+                                        FontWeight="SemiBold" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}" />
                             </Grid>
                         </Border>
                     </StackPanel>

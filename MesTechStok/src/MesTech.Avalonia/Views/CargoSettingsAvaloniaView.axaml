@@ -15,7 +15,7 @@
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 

@@ -13,18 +13,18 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Pipeline" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} firsat'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalValue}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="14,8" CornerRadius="6" />
+                        Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -52,7 +52,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:PipelineStageVm">
                             <Border Margin="0,0,0,12" Padding="20" Background="{DynamicResource MesBgPrimary}"
-                                    CornerRadius="10" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                                    CornerRadius="{StaticResource MesRadiusMdLg}" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                                     <!-- Color indicator -->
                                     <Border Grid.Column="0" Width="6" CornerRadius="3" Margin="0,0,16,0">

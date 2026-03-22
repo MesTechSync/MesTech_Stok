@@ -13,7 +13,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Komisyon Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -21,18 +21,18 @@
                 <Button Grid.Column="1" Content="Yeni Komisyon"
                         Command="{Binding AddCommissionCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
         <!-- Platform KPI Row -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
             <Grid ColumnDefinitions="*,*,*,*">
-                <Border Grid.Column="0" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="0" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Trendyol" FontSize="12" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />
@@ -40,7 +40,7 @@
                                    Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="1" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Hepsiburada" FontSize="12" Foreground="{DynamicResource MesBrandHepsiburada}" FontWeight="SemiBold" />
@@ -48,7 +48,7 @@
                                    Foreground="{DynamicResource MesBrandHepsiburada}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Ciceksepeti" FontSize="12" Foreground="{DynamicResource MesBrandCiceksepetiAlt}" FontWeight="SemiBold" />
@@ -56,7 +56,7 @@
                                    Foreground="{DynamicResource MesBrandCiceksepetiAlt}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="10" Padding="16" Margin="4"
+                <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
                         BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="N11" FontSize="12" Foreground="{DynamicResource MesBrandN11Alt}" FontWeight="SemiBold" />

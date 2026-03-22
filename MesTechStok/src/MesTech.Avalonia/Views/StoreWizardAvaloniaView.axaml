@@ -13,7 +13,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Yeni Mağaza Ekle" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                     <TextBlock Text="{Binding CurrentStep, StringFormat='Adım {0}/3'}"
                                Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                 </Border>
@@ -114,10 +114,10 @@
 
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
-                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="İleri" Command="{Binding GoNextCommand}"
                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="16,8" CornerRadius="6" />
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
             </StackPanel>
 
@@ -133,17 +133,17 @@
 
                         <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                Padding="16,8" CornerRadius="6"
+                                Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                 IsEnabled="{Binding !IsTesting}" />
 
                         <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsTesting}" Height="4" />
 
-                        <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12"
+                        <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusBase}" Padding="12"
                                 IsVisible="{Binding TestPassed}">
                             <TextBlock Text="{Binding TestResultMessage}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                         </Border>
 
-                        <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="6" Padding="12"
+                        <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusBase}" Padding="12"
                                 IsVisible="{Binding TestFailed}">
                             <TextBlock Text="{Binding TestResultMessage}" Foreground="{DynamicResource MesRedAlert}" />
                         </Border>
@@ -152,10 +152,10 @@
 
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
-                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveStoreCommand}"
                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="16,8" CornerRadius="6"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                             IsEnabled="{Binding TestPassed}" />
                 </StackPanel>
 
@@ -165,7 +165,7 @@
                         <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="16" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesGreen}" />
                         <Button Content="Yeni Mağaza Ekle" Command="{Binding ResetCommand}"
-                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="6" />
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -19,7 +19,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -54,27 +54,27 @@
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Stok Degerleme"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Platform Performans"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Platform Performans"
                                     Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Musteri Yasam Boyu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="CLV Analizi"
                                     Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Gonderim Raporu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Gonderim Raporu"
                                     Background="{DynamicResource MesWarning}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Vergi Ozeti"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Vergi Ozeti"
                                     Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="6" Margin="0,0,8,8" />
+                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                         </WrapPanel>
                     </StackPanel>
                 </Border>
@@ -142,7 +142,7 @@
                                 <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                         Command="{Binding GenerateReportCommand}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                        Padding="24,12" CornerRadius="6"
+                                        Padding="24,12" CornerRadius="{StaticResource MesRadiusBase}"
                                         HorizontalAlignment="Left" />
                             </StackPanel>
                         </Grid>

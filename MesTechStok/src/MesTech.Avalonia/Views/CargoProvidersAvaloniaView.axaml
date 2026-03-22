@@ -16,11 +16,11 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Kargo Firmalari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding ConnectedProviders, StringFormat='{}{0} bagli'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalProviders, StringFormat='{}{0} toplam'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -28,7 +28,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -42,7 +42,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="controls:CargoProviderCardViewModel">
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="8" Padding="20"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="8" Padding="20"
                                 Width="280" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                             <StackPanel Spacing="12">
                                 <!-- Provider Name + Status -->

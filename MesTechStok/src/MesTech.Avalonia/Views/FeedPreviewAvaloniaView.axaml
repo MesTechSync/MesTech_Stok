@@ -24,7 +24,7 @@
                           SelectedItem="{Binding FeedFormat}" Width="100" />
                 <Button Content="Çek" Command="{Binding PreviewFeedCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 

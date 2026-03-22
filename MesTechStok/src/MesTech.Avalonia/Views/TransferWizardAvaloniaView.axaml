@@ -16,7 +16,7 @@
                 <Button Grid.Column="1" Content="Sifirla"
                         Command="{Binding ResetCommand}"
                         Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="12,8" CornerRadius="6" />
+                        Padding="12,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -64,7 +64,7 @@
                                      Text="{Binding ProductSearchText}" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddProductCommand}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,8" CornerRadius="6" Margin="8,0,0,0" />
+                                    Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="8,0,0,0" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -137,11 +137,11 @@
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Iptal"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
-                        Padding="20,10" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="24,10" CornerRadius="6" />
+                        Padding="24,10" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 

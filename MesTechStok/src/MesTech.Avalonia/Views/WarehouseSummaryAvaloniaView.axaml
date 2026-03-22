@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Depo Ozet Paneli" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalWarehouses, StringFormat='{}{0} depo'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -23,7 +23,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -37,7 +37,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:WarehouseSummaryCardDto">
-                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20" Margin="0,0,12,12"
+                        <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20" Margin="0,0,12,12"
                                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Width="320">
                             <StackPanel Spacing="12">
                                 <!-- Warehouse Name -->
@@ -85,7 +85,7 @@
                                 <!-- Detail Button -->
                                 <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
                                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
-                                        Padding="12,6" CornerRadius="6" FontSize="12" />
+                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" FontSize="12" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

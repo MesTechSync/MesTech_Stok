@@ -17,7 +17,7 @@
                            Grid.Column="0" />
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveSettingsCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="14,8" CornerRadius="6"
+                        Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}"
                         IsEnabled="{Binding !IsSaving}" />
             </Grid>
         </Border>
@@ -27,7 +27,7 @@
             <StackPanel Margin="22" Spacing="20" MaxWidth="700" HorizontalAlignment="Left">
 
                 <!-- MESA AI Settings -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="15" />
@@ -45,7 +45,7 @@
                 </Border>
 
                 <!-- Message Check Interval -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="15" />
@@ -62,7 +62,7 @@
                 </Border>
 
                 <!-- Quick Reply Templates -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="20"
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="15" />
@@ -71,7 +71,7 @@
                                  SelectedItem="{Binding SelectedTemplate}"
                                  MinHeight="120" MaxHeight="280"
                                  Background="{DynamicResource MesBgPage}"
-                                 CornerRadius="6">
+                                 CornerRadius="{StaticResource MesRadiusBase}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}" TextWrapping="Wrap"
@@ -87,13 +87,13 @@
                                      Margin="0,0,8,0" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddTemplateCommand}"
                                     Background="{DynamicResource MesEmerald}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
-                                    CornerRadius="6" FontWeight="SemiBold" />
+                                    CornerRadius="{StaticResource MesRadiusBase}" FontWeight="SemiBold" />
                         </Grid>
 
                         <!-- Remove selected -->
                         <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
                                 Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
-                                CornerRadius="6" FontSize="12"
+                                CornerRadius="{StaticResource MesRadiusBase}" FontSize="12"
                                 HorizontalAlignment="Left"
                                 IsEnabled="{Binding SelectedTemplate, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     </StackPanel>

@@ -22,10 +22,10 @@
                          Text="{Binding ProductUrl}" Padding="10,8" />
                 <Button Content="Çek" Command="{Binding FetchProductCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Temizle" Command="{Binding ResetCommand}"
                         Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 
@@ -68,7 +68,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
                             <Button Content="Ürün Olarak Kaydet" Command="{Binding SaveProductCommand}"
                                     Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="20,10" CornerRadius="6"
+                                    Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                                     IsEnabled="{Binding !IsSaving}" />
                         </StackPanel>
                     </StackPanel>

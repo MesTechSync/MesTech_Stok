@@ -17,7 +17,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -81,7 +81,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveCommand}"
                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="20,10" CornerRadius="6"
+                            Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                             IsEnabled="{Binding !IsSaving}" />
                     <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSaving}" Width="120" Height="4"
                                  VerticalAlignment="Center" />

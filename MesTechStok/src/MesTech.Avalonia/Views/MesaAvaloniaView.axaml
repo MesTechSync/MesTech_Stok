@@ -13,14 +13,14 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="MESA OS — AI Dashboard" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesMesaGlow}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesMesaGlow}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding AiStatus}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="14,8" CornerRadius="6" />
+                        Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -40,28 +40,28 @@
 
                 <!-- KPI Cards -->
                 <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Model" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding ModelVersion}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Tahmin Sayisi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding PredictionCount}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Dogruluk" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding Accuracy}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}" />
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Durum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -73,7 +73,7 @@
                 <!-- AI Tools + Recent Predictions -->
                 <Grid ColumnDefinitions="*,*" IsVisible="{Binding !IsLoading}">
                     <!-- AI Tools -->
-                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
                             <TextBlock Text="AI Araclari" FontWeight="SemiBold" FontSize="15" />
@@ -81,9 +81,9 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:MesaToolVm">
                                         <Border Margin="0,0,0,8" Padding="12" Background="{DynamicResource MesBgPage}"
-                                                CornerRadius="6" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                                                CornerRadius="{StaticResource MesRadiusBase}" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                             <Grid ColumnDefinitions="Auto,*,Auto">
-                                                <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="6"
+                                                <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="{StaticResource MesRadiusBase}"
                                                         Width="36" Height="36" Margin="0,0,12,0">
                                                     <TextBlock Text="{Binding Icon}" Foreground="{DynamicResource MesBgPrimary}"
                                                                FontSize="16" FontWeight="Bold"
@@ -110,7 +110,7 @@
                     </Border>
 
                     <!-- Recent Predictions -->
-                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Margin="4" Padding="16"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Son Tahminler" FontWeight="SemiBold" FontSize="15" />
@@ -118,7 +118,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:MesaPredictionVm">
                                         <Border Margin="0,0,0,8" Padding="12" Background="{DynamicResource MesBgPage}"
-                                                CornerRadius="6" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                                                CornerRadius="{StaticResource MesRadiusBase}" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                             <StackPanel Spacing="4">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <TextBlock Grid.Column="0" Text="{Binding Tool}"

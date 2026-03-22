@@ -17,7 +17,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -84,7 +84,7 @@
                     </StackPanel>
 
                     <!-- Stok Bilgisi -->
-                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="6" Padding="12,8">
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusBase}" Padding="12,8">
                         <Grid ColumnDefinitions="*,*">
                             <StackPanel Grid.Column="0" Spacing="2">
                                 <TextBlock Text="Kaynak Stok" FontSize="11" Foreground="{DynamicResource MesSlateGray}" />
@@ -102,7 +102,7 @@
                     <!-- Transfer Butonu -->
                     <Button Content="Transfer Et" Command="{Binding TransferCommand}"
                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="16,10" CornerRadius="6"
+                            Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,4,0,0" />
 

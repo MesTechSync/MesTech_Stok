@@ -17,7 +17,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -97,7 +97,7 @@
                     <!-- Kaydet -->
                     <Button Content="Lot Kaydet" Command="{Binding SaveLotCommand}"
                             Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="16,10" CornerRadius="6"
+                            Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,8,0,0" />
 

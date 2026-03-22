@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="İçe Aktarma Şablonları" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} şablon'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -23,11 +23,11 @@
                 <Button Grid.Column="1" Content="+ Yeni Şablon"
                         Command="{Binding CreateTemplateCommand}"
                         Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -110,9 +110,9 @@
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveTemplateCommand}"
                                 Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
+                                Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" IsEnabled="{Binding !IsSaving}" />
                         <Button Content="İptal" Command="{Binding CancelEditCommand}"
-                                Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="6" />
+                                Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" />
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

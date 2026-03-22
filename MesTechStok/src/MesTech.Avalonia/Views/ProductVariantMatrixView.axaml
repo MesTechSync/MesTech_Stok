@@ -17,11 +17,11 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Varyant Matrisi" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding ProductName}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding ProductSKU}" Foreground="{DynamicResource MesBgPrimary}"
                                    FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
                     </Border>
@@ -29,15 +29,15 @@
                 <Button Grid.Column="1" Content="Toplu Fiyat Guncelle"
                         Command="{Binding BulkUpdatePriceCommand}"
                         Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Platformlara Gonder"
                         Command="{Binding SendToPlatformCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Tumu Kaydet"
                         Command="{Binding SaveAllCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -120,7 +120,7 @@
                 <!-- Generate Button -->
                 <Button Content="Varyantlari Olustur" Command="{Binding GenerateVariantsCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" HorizontalAlignment="Left"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Left"
                         IsEnabled="{Binding CanGenerate}" />
             </StackPanel>
         </Border>

@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Urun Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="10,4">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -51,7 +51,7 @@
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -65,7 +65,7 @@
                     <!-- Barcode quick-search button -->
                     <Button Command="{Binding BarcodeSearchCommand}"
                             ToolTip.Tip="Barkod ile Hizli Ara"
-                            Padding="10,8" CornerRadius="6"
+                            Padding="10,8" CornerRadius="{StaticResource MesRadiusBase}"
                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesPrimaryBlue}">
                         <TextBlock Text="&#x2B1C;" FontSize="14" />
                     </Button>
@@ -205,7 +205,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:ProductItemDto">
                         <Border Width="220" Height="280" Margin="8"
-                                Background="{DynamicResource MesBgPrimary}" CornerRadius="10"
+                                Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                 BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">

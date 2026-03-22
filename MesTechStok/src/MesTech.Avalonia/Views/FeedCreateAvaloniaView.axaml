@@ -101,9 +101,9 @@
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveFeedCommand}"
                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                            Padding="20,10" CornerRadius="6" IsEnabled="{Binding !IsSaving}" />
+                            Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" IsEnabled="{Binding !IsSaving}" />
                     <Button Content="Temizle" Command="{Binding ResetCommand}"
-                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="6" />
+                            Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
 
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12" IsVisible="{Binding SaveCompleted}">

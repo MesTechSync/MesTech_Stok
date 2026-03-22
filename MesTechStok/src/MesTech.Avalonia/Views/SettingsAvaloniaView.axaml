@@ -21,7 +21,7 @@
                 <Button Grid.Column="1" Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet"
                         Command="{Binding SaveCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="2" Text="{Binding AppVersion}"
                            Foreground="{DynamicResource MesOverlayLight}" FontSize="12"
                            VerticalAlignment="Center" />
@@ -73,7 +73,7 @@
                                     Command="{Binding TestConnectionCommand}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold"
-                                    Padding="16,8" CornerRadius="6" />
+                                    Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
 
                             <!-- Connection Result -->
                             <TextBlock Text="{Binding ConnectionMessage}"

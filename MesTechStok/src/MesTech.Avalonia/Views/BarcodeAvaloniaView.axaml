@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Barkod Islemleri" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} sorgu'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -23,7 +23,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -39,7 +39,7 @@
                          Name="BarcodeInput" />
                 <Button Content="Sorgula" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 
@@ -126,19 +126,19 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="-5" Command="{Binding QuickUpdateCommand}" CommandParameter="-5"
                                     Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
-                                    Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
+                                    Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="-1" Command="{Binding QuickUpdateCommand}" CommandParameter="-1"
                                     Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
-                                    Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
+                                    Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+1" Command="{Binding QuickUpdateCommand}" CommandParameter="1"
                                     Background="{DynamicResource MesEmerald}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
-                                    Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
+                                    Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+5" Command="{Binding QuickUpdateCommand}" CommandParameter="5"
                                     Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
-                                    Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
+                                    Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Width="56" HorizontalContentAlignment="Center" />
                             <Button Content="+10" Command="{Binding QuickUpdateCommand}" CommandParameter="10"
                                     Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
-                                    Padding="14,8" CornerRadius="6" Width="56" HorizontalContentAlignment="Center" />
+                                    Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Width="56" HorizontalContentAlignment="Center" />
                         </StackPanel>
                         <TextBlock Text="{Binding QuickUpdateStatus}" FontSize="13"
                                    Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />

@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Stok Uyarilari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding AlertSummary}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
@@ -23,7 +23,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesRedAlert}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -32,13 +32,13 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
-                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Tukendi" Command="{Binding FilterOutOfStockCommand}"
-                        Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Kritik" Command="{Binding FilterCriticalCommand}"
-                        Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Dusuk" Command="{Binding FilterLowCommand}"
-                        Background="{DynamicResource MesBorderAmberLight}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="6" />
+                        Background="{DynamicResource MesBorderAmberLight}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 

@@ -18,7 +18,7 @@
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="6" />
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
@@ -65,7 +65,7 @@
                 <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,8">
 
                     <!-- Satis Ozeti -->
-                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,6,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Satis" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -75,7 +75,7 @@
                     </Border>
 
                     <!-- Stok Ozeti -->
-                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="3,0,3,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Toplam Urun" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -85,7 +85,7 @@
                     </Border>
 
                     <!-- Gelir Ozeti -->
-                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="10" Padding="16"
+                    <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="6,0,0,0">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
@@ -118,7 +118,7 @@
                                     CommandParameter="Satis Raporu"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold" Padding="16,10"
-                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -143,7 +143,7 @@
                                     CommandParameter="Stok Raporu"
                                     Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold" Padding="16,10"
-                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -168,7 +168,7 @@
                                     CommandParameter="Finansal Rapor"
                                     Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold" Padding="16,10"
-                                    CornerRadius="6" HorizontalAlignment="Stretch"
+                                    CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center" />
                         </StackPanel>
                     </Border>

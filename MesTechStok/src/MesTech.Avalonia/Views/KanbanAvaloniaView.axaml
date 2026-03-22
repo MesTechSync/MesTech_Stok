@@ -25,11 +25,11 @@
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                            Padding="14,8" CornerRadius="6" />
+                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderBrush="White" BorderThickness="1" Padding="12,8"
-                            CornerRadius="6" />
+                            CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -62,7 +62,7 @@
                                                    FontWeight="SemiBold" FontSize="13"
                                                    Grid.Column="0" />
                                         <Border Grid.Column="1" Background="{DynamicResource MesBadgeOverlay}"
-                                                CornerRadius="10" Padding="6,2">
+                                                CornerRadius="{StaticResource MesRadiusMdLg}" Padding="6,2">
                                             <TextBlock Text="{Binding DealCount}" Foreground="{DynamicResource MesBgPrimary}"
                                                        FontSize="11" FontWeight="Bold" />
                                         </Border>
@@ -75,7 +75,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:DealCardVm">
                                                 <Border Margin="0,0,0,8" Padding="12"
-                                                        Background="{DynamicResource MesBgPage}" CornerRadius="6"
+                                                        Background="{DynamicResource MesBgPage}" CornerRadius="{StaticResource MesRadiusBase}"
                                                         BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1"
                                                         Cursor="Hand">
                                                     <StackPanel Spacing="4">
