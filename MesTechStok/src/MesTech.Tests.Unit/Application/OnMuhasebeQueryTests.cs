@@ -25,8 +25,12 @@ public class OnMuhasebeQueryTests
                    Description = "test", Date = DateTime.UtcNow };
 
     private static Expense MakeExpense(Guid tenantId, decimal amount, ExpenseType type = ExpenseType.Diger)
-        => new() { TenantId = tenantId, Amount = amount, ExpenseType = type,
+    {
+        var e = new Expense { TenantId = tenantId, ExpenseType = type,
                    Description = "test", Date = DateTime.UtcNow };
+        e.SetAmount(amount);
+        return e;
+    }
 
     // ── GetIncomes ──
 
