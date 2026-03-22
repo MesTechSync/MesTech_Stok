@@ -8,7 +8,7 @@ public class Quotation : BaseEntity, ITenantEntity
     public Guid TenantId { get; set; }
 
     public string QuotationNumber { get; set; } = string.Empty;
-    public QuotationStatus Status { get; set; } = QuotationStatus.Draft;
+    public QuotationStatus Status { get; private set; } = QuotationStatus.Draft;
     public DateTime QuotationDate { get; set; } = DateTime.UtcNow;
     public DateTime? ValidUntil { get; set; }
 
@@ -21,9 +21,9 @@ public class Quotation : BaseEntity, ITenantEntity
     public string? CustomerEmail { get; set; }
 
     // Amounts
-    public decimal SubTotal { get; set; }
-    public decimal TaxTotal { get; set; }
-    public decimal GrandTotal { get; set; }
+    public decimal SubTotal { get; private set; }
+    public decimal TaxTotal { get; private set; }
+    public decimal GrandTotal { get; private set; }
     public string Currency { get; set; } = "TRY";
 
     // Notes / Terms
@@ -31,7 +31,7 @@ public class Quotation : BaseEntity, ITenantEntity
     public string? Terms { get; set; }
 
     // Conversion
-    public Guid? ConvertedInvoiceId { get; set; }
+    public Guid? ConvertedInvoiceId { get; private set; }
 
     // Lines
     private readonly List<QuotationLine> _lines = new();

@@ -191,10 +191,12 @@ public class QuotationNullGuardTests
     {
         var quotationRepo = new Mock<IQuotationRepository>();
         quotationRepo.Setup(r => r.GetByStatusAsync(QuotationStatus.Accepted))
-            .ReturnsAsync(new List<Quotation>
+            .ReturnsAsync(() =>
             {
-                new() { QuotationNumber = "QT-ACC-001", CustomerName = "Accepted Co", Currency = "TRY",
-                        Status = QuotationStatus.Accepted }
+                var q = new Quotation { QuotationNumber = "QT-ACC-001", CustomerName = "Accepted Co", Currency = "TRY" };
+                q.Send();
+                q.Accept();
+                return new List<Quotation> { q };
             });
 
         var handler = new ListQuotationsHandler(quotationRepo.Object);

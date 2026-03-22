@@ -353,6 +353,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Customer>(e =>
         {
             e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Customers_TenantId");
+            e.Property(c => c.RowVersion).IsRowVersion();
         });
 
         modelBuilder.Entity<Warehouse>(e =>
