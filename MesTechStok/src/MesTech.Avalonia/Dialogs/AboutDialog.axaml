@@ -12,7 +12,7 @@
 
       <!-- Logo -->
       <Border Width="80" Height="80"
-              CornerRadius="12"
+              CornerRadius="{StaticResource MesRadiusLg}"
               Background="{DynamicResource PrimaryBlueBrush}"
               HorizontalAlignment="Center">
         <TextBlock Text="MT"
