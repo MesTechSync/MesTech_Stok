@@ -75,7 +75,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 #pragma warning disable CA1031 // Intentional: ERP sync failure must be returned, not propagated
         try
         {
-            var order = await _orderRepository.GetByIdAsync(orderId);
+            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning(
@@ -109,11 +109,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(
-                $"{BaseUrl}/siparisler", content, ct);
+                $"{BaseUrl}/siparisler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body);
                 var erpRef = json.RootElement.TryGetProperty("belgeNo", out var bn)
                     ? bn.GetString() ?? "OK" : "OK";
@@ -124,7 +124,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpSyncResult.Ok(erpRef);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[NetsisERPAdapter] Order sync failed — OrderId:{OrderId} HTTP {Status}: {Error}",
                 orderId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
@@ -169,7 +169,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(
-                $"{BaseUrl}/faturalar", content, ct);
+                $"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -180,7 +180,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpSyncResult.Ok(erpRef);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[NetsisERPAdapter] Invoice sync failed — InvoiceId:{InvoiceId} HTTP {Status}: {Error}",
                 invoiceId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
@@ -209,18 +209,18 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             SetBasicAuthHeader();
 
             var response = await _httpClient.GetAsync(
-                $"{BaseUrl}/cariler?limit=200", ct);
+                $"{BaseUrl}/cariler?limit=200", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning(
                     "[NetsisERPAdapter] GetAccountBalances failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return Array.Empty<ErpAccountDto>();
             }
 
-            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             var accounts = new List<ErpAccountDto>();
 
             foreach (var item in json.RootElement.EnumerateArray())
@@ -259,7 +259,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -320,11 +320,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body);
 
                 var invoiceNumber = json.RootElement.TryGetProperty("faturaNo", out var fn)
@@ -342,7 +342,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpInvoiceResult.Ok(invoiceNumber, erpRef, DateTime.Today, grandTotal, pdfUrl);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[NetsisERPAdapter] CreateInvoice failed — HTTP {Status}: {Error}",
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
@@ -366,7 +366,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -374,7 +374,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return null;
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body).RootElement;
 
             var number = json.TryGetProperty("faturaNo", out var fn) ? fn.GetString() ?? invoiceNumber : invoiceNumber;
@@ -406,7 +406,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
             var response = await _httpClient.GetAsync(
-                $"{BaseUrl}/faturalar?baslangic={fromStr}&bitis={toStr}", ct);
+                $"{BaseUrl}/faturalar?baslangic={fromStr}&bitis={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -414,7 +414,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return [];
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body);
             var results = new List<ErpInvoiceResult>();
 
@@ -461,7 +461,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             {
                 Content = content
             };
-            var response = await _httpClient.SendAsync(request, ct);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -511,11 +511,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body).RootElement;
 
                 var code = json.TryGetProperty("cariKod", out var ck) ? ck.GetString() ?? request.AccountCode : request.AccountCode;
@@ -526,7 +526,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpAccountResult.Ok(code, name, balance);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning("[NetsisERPAdapter] CreateAccount failed — HTTP {Status}: {Error}",
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
@@ -549,7 +549,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -557,7 +557,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return null;
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body).RootElement;
 
             var code = json.TryGetProperty("cariKod", out var ck) ? ck.GetString() ?? accountCode : accountCode;
@@ -602,11 +602,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct);
+            var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body).RootElement;
 
                 var code = json.TryGetProperty("cariKod", out var ck) ? ck.GetString() ?? request.AccountCode : request.AccountCode;
@@ -617,7 +617,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpAccountResult.Ok(code, name, balance);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning("[NetsisERPAdapter] UpdateAccount failed — HTTP {Status}: {Error}",
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
@@ -641,7 +641,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         {
             SetBasicAuthHeader();
             var response = await _httpClient.GetAsync(
-                $"{BaseUrl}/cariler?arama={Uri.EscapeDataString(query)}", ct);
+                $"{BaseUrl}/cariler?arama={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -649,7 +649,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return [];
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body);
             var results = new List<ErpAccountResult>();
 
@@ -683,7 +683,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 #pragma warning disable CA1031
         try
         {
-            var account = await GetAccountAsync(accountCode, ct);
+            var account = await GetAccountAsync(accountCode, ct).ConfigureAwait(false);
             return account?.Balance ?? 0m;
         }
         catch (Exception ex)
@@ -707,7 +707,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -715,7 +715,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return [];
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body);
             var items = new List<ErpStockItem>();
 
@@ -752,7 +752,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -760,7 +760,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return null;
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body).RootElement;
 
             var code = json.TryGetProperty("stokKod", out var sk) ? sk.GetString() ?? productCode : productCode;
@@ -807,7 +807,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(
-                $"{BaseUrl}/stoklar/{productCode}/hareket", content, ct);
+                $"{BaseUrl}/stoklar/{productCode}/hareket", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -861,11 +861,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisWaybill, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body).RootElement;
 
                 var waybillNumber = json.TryGetProperty("irsaliyeNo", out var wn)
@@ -877,7 +877,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpWaybillResult.Ok(waybillNumber, waybillDate);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning("[NetsisERPAdapter] CreateWaybill failed — HTTP {Status}: {Error}",
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
@@ -900,7 +900,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -908,7 +908,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return null;
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body).RootElement;
 
             var number = json.TryGetProperty("irsaliyeNo", out var wn)
@@ -943,7 +943,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
             var response = await _httpClient.GetAsync(
-                $"{BaseUrl}/api/bankTransaction?startDate={fromStr}&endDate={toStr}", ct);
+                $"{BaseUrl}/api/bankTransaction?startDate={fromStr}&endDate={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -951,7 +951,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return [];
             }
 
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var json = JsonDocument.Parse(body);
             var transactions = new List<ErpBankTransaction>();
 
@@ -1003,11 +1003,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisPayment, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync(ct);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 var json = JsonDocument.Parse(body).RootElement;
 
                 var reference = json.TryGetProperty("referans", out var r)
@@ -1017,7 +1017,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 return ErpPaymentResult.Ok(reference);
             }
 
-            var err = await response.Content.ReadAsStringAsync(ct);
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning("[NetsisERPAdapter] RecordPayment failed — HTTP {Status}: {Error}",
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");

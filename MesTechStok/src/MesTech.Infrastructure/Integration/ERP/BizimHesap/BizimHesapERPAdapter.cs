@@ -37,7 +37,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync("companies/me", ct);
+            var response = await _apiClient.GetAsync("companies/me", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -45,7 +45,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 return true;
             }
 
-            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[BizimHesapERPAdapter] Connection test failed: {Status} — {Error}",
                 response.StatusCode, errorBody);
@@ -75,7 +75,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
             try
             {
                 var payload = BizimHesapMappingProfile.MapInvoice(invoice);
-                var response = await _apiClient.PostJsonAsync("invoices", payload, ct);
+                var response = await _apiClient.PostJsonAsync("invoices", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -87,7 +87,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 else
                 {
                     failCount++;
-                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                     _logger.LogWarning(
                         "[BizimHesapERPAdapter] Invoice {InvoiceNumber} sync failed: {Status} — {Error}",
                         invoice.InvoiceNumber, response.StatusCode, errorBody);
@@ -124,7 +124,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
             try
             {
                 var payload = BizimHesapMappingProfile.MapExpense(expense);
-                var response = await _apiClient.PostJsonAsync("expenses", payload, ct);
+                var response = await _apiClient.PostJsonAsync("expenses", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -136,7 +136,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 else
                 {
                     failCount++;
-                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                     _logger.LogWarning(
                         "[BizimHesapERPAdapter] Expense '{Title}' sync failed: {Status} — {Error}",
                         expense.Title, response.StatusCode, errorBody);
@@ -173,7 +173,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
             try
             {
                 var payload = BizimHesapMappingProfile.MapCounterparty(party);
-                var response = await _apiClient.PostJsonAsync("contacts", payload, ct);
+                var response = await _apiClient.PostJsonAsync("contacts", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -185,7 +185,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 else
                 {
                     failCount++;
-                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                    var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                     _logger.LogWarning(
                         "[BizimHesapERPAdapter] Counterparty '{Name}' (VKN: {VKN}) sync failed: {Status} — {Error}",
                         party.Name, party.VKN, response.StatusCode, errorBody);
@@ -214,18 +214,18 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"accounts/{Uri.EscapeDataString(accountCode)}", ct);
+            var response = await _apiClient.GetAsync($"accounts/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning(
                     "[BizimHesapERPAdapter] GetBalance failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return 0m;
             }
 
-            var accountResponse = await _apiClient.DeserializeResponseAsync<BizimHesapAccountResponse>(response, ct);
+            var accountResponse = await _apiClient.DeserializeResponseAsync<BizimHesapAccountResponse>(response, ct).ConfigureAwait(false);
 
             if (accountResponse?.Balance is not null &&
                 decimal.TryParse(accountResponse.Balance, NumberStyles.Any,
@@ -275,16 +275,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 }).ToList()
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct);
+            var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] CreateInvoice failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {errorBody}");
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapInvoiceResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapInvoiceResponse>(response, ct).ConfigureAwait(false);
             return ErpInvoiceResult.Ok(
                 result?.InvoiceNumber ?? string.Empty,
                 result?.Id ?? string.Empty,
@@ -307,16 +307,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct);
+            var response = await _apiClient.GetAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetInvoice failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return null;
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapInvoiceResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapInvoiceResponse>(response, ct).ConfigureAwait(false);
             if (result is null) return null;
 
             return ErpInvoiceResult.Ok(
@@ -342,16 +342,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
         {
             var startDate = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var endDate = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _apiClient.GetAsync($"api/v1/invoices?startDate={startDate}&endDate={endDate}", ct);
+            var response = await _apiClient.GetAsync($"api/v1/invoices?startDate={startDate}&endDate={endDate}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetInvoices failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return [];
             }
 
-            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapInvoiceResponse>>(response, ct);
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapInvoiceResponse>>(response, ct).ConfigureAwait(false);
             if (items is null) return [];
 
             return items.Select(r => ErpInvoiceResult.Ok(
@@ -377,7 +377,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
         try
         {
             var payload = new { reason };
-            var response = await _apiClient.PutJsonAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel", payload, ct);
+            var response = await _apiClient.PutJsonAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -385,7 +385,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 return true;
             }
 
-            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
             _logger.LogWarning("[BizimHesapERPAdapter] CancelInvoice failed: {Status} — {Error}", response.StatusCode, errorBody);
             return false;
         }
@@ -417,16 +417,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 email = request.Email
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/contacts", payload, ct);
+            var response = await _apiClient.PostJsonAsync("api/v1/contacts", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] CreateAccount failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {errorBody}");
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct).ConfigureAwait(false);
             return ErpAccountResult.Ok(
                 result?.Code ?? request.AccountCode,
                 result?.Name ?? request.CompanyName,
@@ -447,16 +447,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts?taxNumber={Uri.EscapeDataString(accountCode)}", ct);
+            var response = await _apiClient.GetAsync($"api/v1/contacts?taxNumber={Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetAccount failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return null;
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct).ConfigureAwait(false);
             if (result is null) return null;
 
             return ErpAccountResult.Ok(
@@ -490,16 +490,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 email = request.Email
             };
 
-            var response = await _apiClient.PutJsonAsync($"api/v1/contacts/{Uri.EscapeDataString(request.AccountCode)}", payload, ct);
+            var response = await _apiClient.PutJsonAsync($"api/v1/contacts/{Uri.EscapeDataString(request.AccountCode)}", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] UpdateAccount failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {errorBody}");
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct).ConfigureAwait(false);
             return ErpAccountResult.Ok(
                 result?.Code ?? request.AccountCode,
                 result?.Name ?? request.CompanyName,
@@ -520,16 +520,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts?search={Uri.EscapeDataString(query)}", ct);
+            var response = await _apiClient.GetAsync($"api/v1/contacts?search={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] SearchAccounts failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return [];
             }
 
-            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapContactResponse>>(response, ct);
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapContactResponse>>(response, ct).ConfigureAwait(false);
             if (items is null) return [];
 
             return items.Select(c => ErpAccountResult.Ok(
@@ -552,16 +552,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts/{Uri.EscapeDataString(accountCode)}/balance", ct);
+            var response = await _apiClient.GetAsync($"api/v1/contacts/{Uri.EscapeDataString(accountCode)}/balance", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetAccountBalance failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return 0m;
             }
 
-            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct);
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapContactResponse>(response, ct).ConfigureAwait(false);
             if (result?.Balance is not null &&
                 decimal.TryParse(result.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var balance))
             {
@@ -586,16 +586,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync("api/v1/stock-items", ct);
+            var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetStockLevels failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return [];
             }
 
-            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapStockItemResponse>>(response, ct);
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapStockItemResponse>>(response, ct).ConfigureAwait(false);
             if (items is null) return [];
 
             return items.Select(s => new ErpStockItem(
@@ -621,16 +621,16 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct);
+            var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
                 _logger.LogWarning("[BizimHesapERPAdapter] GetStockByCode failed: {Status} — {Error}", response.StatusCode, errorBody);
                 return null;
             }
 
-            var item = await _apiClient.DeserializeResponseAsync<BizimHesapStockItemResponse>(response, ct);
+            var item = await _apiClient.DeserializeResponseAsync<BizimHesapStockItemResponse>(response, ct).ConfigureAwait(false);
             if (item is null) return null;
 
             return new ErpStockItem(
@@ -657,7 +657,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
         try
         {
             var payload = new { quantity, warehouseCode };
-            var response = await _apiClient.PutJsonAsync($"api/v1/stock-items/{Uri.EscapeDataString(productCode)}/quantity", payload, ct);
+            var response = await _apiClient.PutJsonAsync($"api/v1/stock-items/{Uri.EscapeDataString(productCode)}/quantity", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -665,7 +665,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
                 return true;
             }
 
-            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct);
+            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
             _logger.LogWarning("[BizimHesapERPAdapter] UpdateStock failed: {Status} — {Error}", response.StatusCode, errorBody);
             return false;
         }

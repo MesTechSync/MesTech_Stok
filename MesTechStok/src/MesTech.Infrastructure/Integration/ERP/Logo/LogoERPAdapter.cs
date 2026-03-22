@@ -85,8 +85,8 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
-            var response = await _httpClient.GetAsync($"{BaseUrl}/api/v1/companies", ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/api/v1/companies", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -94,7 +94,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return true;
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[LogoERPAdapter] Connection test failed: {Status} — {Error}",
                 response.StatusCode, errorBody);
@@ -114,7 +114,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         _logger.LogInformation("[LogoERPAdapter] Syncing {Count} invoices", invoices.Count);
 
-        await SetAuthHeaderAsync(ct);
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var successCount = 0;
         var failCount = 0;
@@ -126,7 +126,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             try
             {
                 var payload = LogoMappingProfile.MapInvoice(invoice);
-                var result = await PostJsonAsync("salesInvoices", payload, ct);
+                var result = await PostJsonAsync("salesInvoices", payload, ct).ConfigureAwait(false);
 
                 if (result)
                     successCount++;
@@ -154,7 +154,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         _logger.LogInformation("[LogoERPAdapter] Syncing {Count} expenses", expenses.Count);
 
-        await SetAuthHeaderAsync(ct);
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var successCount = 0;
         var failCount = 0;
@@ -166,7 +166,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             try
             {
                 var payload = LogoMappingProfile.MapExpense(expense);
-                var result = await PostJsonAsync("purchaseInvoices", payload, ct);
+                var result = await PostJsonAsync("purchaseInvoices", payload, ct).ConfigureAwait(false);
 
                 if (result)
                     successCount++;
@@ -194,7 +194,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         _logger.LogInformation("[LogoERPAdapter] Syncing {Count} counterparties", parties.Count);
 
-        await SetAuthHeaderAsync(ct);
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var successCount = 0;
         var failCount = 0;
@@ -206,7 +206,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             try
             {
                 var payload = LogoMappingProfile.MapCounterparty(party);
-                var result = await PostJsonAsync("currentAccounts", payload, ct);
+                var result = await PostJsonAsync("currentAccounts", payload, ct).ConfigureAwait(false);
 
                 if (result)
                     successCount++;
@@ -236,21 +236,21 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(accountCode)}/balance";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning(
                     "[LogoERPAdapter] GetBalance failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return 0m;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var balanceResponse = JsonSerializer.Deserialize<LogoBalanceResponse>(json, JsonOptions);
 
             if (balanceResponse?.Balance is not null &&
@@ -289,7 +289,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            var order = await _orderRepository.GetByIdAsync(orderId);
+            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning(
@@ -297,10 +297,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return ErpSyncResult.Fail($"Order not found: {orderId}");
             }
 
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = LogoMappingProfile.MapOrder(order);
-            var (success, erpId, error) = await PostJsonWithRefAsync("salesOrders", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("salesOrders", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -340,7 +340,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId);
+            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
             if (invoice is null)
             {
                 _logger.LogWarning(
@@ -348,10 +348,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return ErpSyncResult.Fail($"Invoice not found: {invoiceId}");
             }
 
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = LogoMappingProfile.MapInvoice(invoice);
-            var (success, erpId, error) = await PostJsonWithRefAsync("salesInvoices", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("salesInvoices", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -387,21 +387,21 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/balances";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning(
                     "[LogoERPAdapter] GetAccountBalances failed: {Status} — {Error}",
                     response.StatusCode, errorBody);
                 return Array.Empty<ErpAccountDto>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var balancesResponse = JsonSerializer.Deserialize<LogoAccountBalancesResponse>(json, JsonOptions);
 
             if (balancesResponse?.Accounts is null || balancesResponse.Accounts.Count == 0)
@@ -468,7 +468,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoSalesInvoiceRequest
             {
@@ -484,7 +484,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 CustomerTaxNumber = request.TaxId
             };
 
-            var (success, erpId, error) = await PostJsonWithRefAsync("salesInvoices", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("salesInvoices", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -518,10 +518,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/salesInvoices/{Uri.EscapeDataString(invoiceNumber)}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -530,7 +530,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return null;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var detail = JsonSerializer.Deserialize<LogoInvoiceDetailResponse>(json, JsonOptions);
 
             if (detail is null)
@@ -568,12 +568,12 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/salesInvoices?filter=DATE_ ge '{fromStr}' and DATE_ le '{toStr}'";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -582,7 +582,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return new List<ErpInvoiceResult>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var listResponse = JsonSerializer.Deserialize<LogoInvoiceListResponse>(json, JsonOptions);
 
             if (listResponse?.Items is null || listResponse.Items.Count == 0)
@@ -626,13 +626,13 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/salesInvoices/{Uri.EscapeDataString(invoiceNumber)}";
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Headers.Add("X-Cancel-Reason", reason ?? "Cancelled");
 
-            var response = await _httpClient.SendAsync(request, ct);
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -641,7 +641,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return true;
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[LogoERPAdapter] CancelInvoice failed: {Status} — {Error}",
                 response.StatusCode, errorBody);
@@ -670,7 +670,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoCurrentAccountRequest
             {
@@ -683,7 +683,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 Address = request.Address
             };
 
-            var (success, erpId, error) = await PostJsonWithRefAsync("currentAccounts", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("currentAccounts", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -713,10 +713,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(accountCode)}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -725,7 +725,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return null;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var detail = JsonSerializer.Deserialize<LogoAccountDetailResponse>(json, JsonOptions);
 
             if (detail is null)
@@ -755,7 +755,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoCurrentAccountRequest
             {
@@ -772,7 +772,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(request.AccountCode)}";
 
-            var response = await _httpClient.PutAsync(url, content, ct);
+            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -781,7 +781,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[LogoERPAdapter] UpdateAccount failed: {Status} — {Error}",
                 response.StatusCode, errorBody);
@@ -806,10 +806,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts?filter=TITLE_ contains '{Uri.EscapeDataString(query)}'";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -818,7 +818,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return new List<ErpAccountResult>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var searchResponse = JsonSerializer.Deserialize<LogoAccountSearchResponse>(json, JsonOptions);
 
             if (searchResponse?.Items is null || searchResponse.Items.Count == 0)
@@ -847,7 +847,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
     public async Task<decimal> GetAccountBalanceAsync(string accountCode, CancellationToken ct = default)
     {
         // Delegate to existing legacy method
-        return await GetBalanceAsync(accountCode, ct);
+        return await GetBalanceAsync(accountCode, ct).ConfigureAwait(false);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -861,10 +861,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items?filter=ACTIVE eq 1";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -873,7 +873,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return new List<ErpStockItem>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var listResponse = JsonSerializer.Deserialize<LogoStockListResponse>(json, JsonOptions);
 
             if (listResponse?.Items is null || listResponse.Items.Count == 0)
@@ -922,10 +922,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items/{Uri.EscapeDataString(productCode)}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -934,7 +934,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return null;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var item = JsonSerializer.Deserialize<LogoStockItemResponse>(json, JsonOptions);
 
             if (item is null)
@@ -977,7 +977,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoStockUpdateRequest
             {
@@ -986,7 +986,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             };
 
             var url = $"items/{Uri.EscapeDataString(productCode)}/inventory";
-            return await PostJsonAsync(url, payload, ct);
+            return await PostJsonAsync(url, payload, ct).ConfigureAwait(false);
         }
 #pragma warning disable CA1031
         catch (Exception ex)
@@ -1011,7 +1011,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoSalesDispatchRequest
             {
@@ -1031,7 +1031,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 });
             }
 
-            var (success, erpId, error) = await PostJsonWithRefAsync("salesDispatches", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("salesDispatches", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -1061,10 +1061,10 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/salesDispatches/{Uri.EscapeDataString(waybillNumber)}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1073,7 +1073,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return null;
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var detail = JsonSerializer.Deserialize<LogoWaybillDetailResponse>(json, JsonOptions);
 
             if (detail is null)
@@ -1107,12 +1107,12 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/bankSlips?filter=DATE_ ge '{fromStr}' and DATE_ le '{toStr}'";
-            var response = await _httpClient.GetAsync(url, ct);
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1121,7 +1121,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return new List<ErpBankTransaction>();
             }
 
-            var json = await response.Content.ReadAsStringAsync(ct);
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var listResponse = JsonSerializer.Deserialize<LogoBankTransactionListResponse>(json, JsonOptions);
 
             if (listResponse?.Items is null || listResponse.Items.Count == 0)
@@ -1167,7 +1167,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            await SetAuthHeaderAsync(ct);
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var payload = new LogoBankPaymentRequest
             {
@@ -1178,7 +1178,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 Description = request.Description
             };
 
-            var (success, erpId, error) = await PostJsonWithRefAsync("bankSlips", payload, ct);
+            var (success, erpId, error) = await PostJsonWithRefAsync("bankSlips", payload, ct).ConfigureAwait(false);
 
             if (success)
             {
@@ -1202,31 +1202,31 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
     private async Task SetAuthHeaderAsync(CancellationToken ct)
     {
-        var token = await _tokenService.GetAccessTokenAsync(ct);
+        var token = await _tokenService.GetAccessTokenAsync(ct).ConfigureAwait(false);
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
     }
 
     private async Task<bool> PostJsonAsync<T>(string endpoint, T payload, CancellationToken ct)
     {
-        await RateLimiter.WaitAsync(ct);
+        await RateLimiter.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             var json = JsonSerializer.Serialize(payload, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var responseJson = await response.Content.ReadAsStringAsync(ct);
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogDebug(
                     "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
                     endpoint, responseJson);
                 return true;
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
                 endpoint, response.StatusCode, errorBody);
@@ -1253,17 +1253,17 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
     private async Task<(bool Success, string? ErpId, string? Error)> PostJsonWithRefAsync<T>(
         string endpoint, T payload, CancellationToken ct)
     {
-        await RateLimiter.WaitAsync(ct);
+        await RateLimiter.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             var json = JsonSerializer.Serialize(payload, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct);
+            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var responseJson = await response.Content.ReadAsStringAsync(ct);
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogDebug(
                     "[LogoERPAdapter] POST {Endpoint} succeeded: {Response}",
                     endpoint, responseJson);
@@ -1280,7 +1280,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 return (true, erpId, null);
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogWarning(
                 "[LogoERPAdapter] POST {Endpoint} failed: {Status} — {Error}",
                 endpoint, response.StatusCode, errorBody);
