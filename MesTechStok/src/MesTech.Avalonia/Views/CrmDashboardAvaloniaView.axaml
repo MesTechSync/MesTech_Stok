@@ -115,7 +115,7 @@
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Pipeline Ozeti" FontWeight="SemiBold" FontSize="15" />
+                            <TextBlock Text="Pipeline Ozeti" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                             <ItemsControl ItemsSource="{Binding PipelineSummary}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CrmPipelineSummaryVm">
@@ -147,14 +147,14 @@
                     <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Son Aktiviteler" FontWeight="SemiBold" FontSize="15" />
+                            <TextBlock Text="Son Aktiviteler" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                             <ItemsControl ItemsSource="{Binding RecentActivities}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CrmRecentActivityVm">
                                         <Border Margin="0,0,0,8" Padding="12" Background="{DynamicResource MesBgPage}"
                                                 CornerRadius="{StaticResource MesRadiusBase}" BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
                                             <Grid ColumnDefinitions="Auto,*">
-                                                <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="14"
+                                                <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="{StaticResource MesRadiusLgXl}"
                                                         Width="28" Height="28" Margin="0,0,10,0">
                                                     <TextBlock Text="{Binding Type}"
                                                                Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCaption2}" FontWeight="Bold"

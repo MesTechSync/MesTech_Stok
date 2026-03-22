@@ -67,7 +67,7 @@
                                         <TextBlock Text="{Binding Sku, StringFormat='SKU: {0}'}" FontSize="{StaticResource FontSizeSmall}"
                                                    Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
-                                    <TextBlock Text="{Binding ProductName}" FontSize="15" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding ProductName}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                                Foreground="{DynamicResource MesDarkSlate}" />
                                     <StackPanel Orientation="Horizontal" Spacing="12">
                                         <TextBlock Text="{Binding StockInfo}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />

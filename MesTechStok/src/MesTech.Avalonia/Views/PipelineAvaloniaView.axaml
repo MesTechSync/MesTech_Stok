@@ -62,7 +62,7 @@
                                     </Border>
                                     <!-- Stage info -->
                                     <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" />
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                                         <TextBlock Text="{Binding DealCount, StringFormat='{}{0} firsat'}"
                                                    FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>

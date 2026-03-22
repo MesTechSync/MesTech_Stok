@@ -12,7 +12,7 @@
 
         <!-- Login Form (visible when NOT authenticated) -->
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="{DynamicResource MesBgPrimary}" CornerRadius="16"
+                Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusXl}"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="{DynamicResource MesElevation3}"
@@ -21,7 +21,7 @@
 
                 <!-- Logo Area -->
                 <StackPanel HorizontalAlignment="Center" Spacing="8" Margin="0,0,0,8">
-                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="50" Width="72" Height="72"
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusFull}" Width="72" Height="72"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"
@@ -67,7 +67,7 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontSize="15" FontWeight="SemiBold"
+                        FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                         Padding="16,12" CornerRadius="{StaticResource MesRadiusMd}" />
 
                 <!-- Version Info -->
@@ -79,15 +79,15 @@
 
         <!-- Welcome State (visible when authenticated) -->
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="{DynamicResource MesBgPrimary}" CornerRadius="16"
+                Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusXl}"
                 Padding="48,40" Width="420"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
                 BoxShadow="{DynamicResource MesElevation3}"
                 IsVisible="{Binding IsAuthenticated}">
             <StackPanel Spacing="16" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusFull}" Width="72" Height="72"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="&#x2713;" FontSize="36" FontWeight="Bold"
+                    <TextBlock Text="&#x2713;" FontSize="{StaticResource FontSizeXL}" FontWeight="Bold"
                                Foreground="{DynamicResource MesTeal}"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>

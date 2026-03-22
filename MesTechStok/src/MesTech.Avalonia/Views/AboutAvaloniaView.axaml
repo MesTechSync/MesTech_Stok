@@ -18,7 +18,7 @@
 
                 <!-- Logo / App Name -->
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
-                    <Border Background="{DynamicResource MesPrimaryBlue}" CornerRadius="16" Width="80" Height="80"
+                    <Border Background="{DynamicResource MesPrimaryBlue}" CornerRadius="{StaticResource MesRadiusXl}" Width="80" Height="80"
                             HorizontalAlignment="Center">
                         <TextBlock Text="MT" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />

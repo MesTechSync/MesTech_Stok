@@ -21,7 +21,7 @@
                 <!-- Basic Info -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Feed Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Feed Bilgileri" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Feed Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
@@ -51,7 +51,7 @@
                 <!-- Pricing -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Fiyatlandırma" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Fiyatlandırma" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
                             <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
@@ -70,7 +70,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Kolon Eşleştirme" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="Kolon Eşleştirme" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddMappingCommand}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                         </Grid>

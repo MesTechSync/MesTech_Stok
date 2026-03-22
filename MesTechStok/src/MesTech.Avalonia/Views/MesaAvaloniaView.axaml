@@ -76,7 +76,7 @@
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="AI Araclari" FontWeight="SemiBold" FontSize="15" />
+                            <TextBlock Text="AI Araclari" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                             <ItemsControl ItemsSource="{Binding AiTools}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:MesaToolVm">
@@ -113,7 +113,7 @@
                     <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Son Tahminler" FontWeight="SemiBold" FontSize="15" />
+                            <TextBlock Text="Son Tahminler" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                             <ItemsControl ItemsSource="{Binding RecentPredictions}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:MesaPredictionVm">

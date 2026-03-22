@@ -78,7 +78,7 @@
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="0,0,8,0"
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="15" FontWeight="SemiBold"
+                    <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding Suppliers}"
                               AutoGenerateColumns="False" IsReadOnly="True"
@@ -100,7 +100,7 @@
             <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="8,0,0,0"
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="15" FontWeight="SemiBold"
+                    <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding TopProfitableProducts}"
                               AutoGenerateColumns="False" IsReadOnly="True"

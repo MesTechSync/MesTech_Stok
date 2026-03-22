@@ -24,7 +24,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
                 <!-- Step 1 -->
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{DynamicResource PrimaryBlueBrush}">
                         <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeSmall}"
@@ -37,7 +37,7 @@
                 <TextBlock Text="—" Foreground="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
                 <!-- Step 2 -->
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{DynamicResource BorderBrush}">
                         <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeSmall}"
@@ -50,7 +50,7 @@
                 <TextBlock Text="—" Foreground="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
                 <!-- Step 3 -->
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{DynamicResource BorderBrush}">
                         <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeSmall}"

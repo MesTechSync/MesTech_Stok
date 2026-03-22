@@ -25,7 +25,7 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesPrimaryBlue}">
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}" Background="{DynamicResource MesPrimaryBlue}">
                         <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -33,7 +33,7 @@
                 </StackPanel>
                 <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -41,7 +41,7 @@
                 </StackPanel>
                 <TextBlock Text="—" Foreground="{DynamicResource MesBorderMuted}" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource MesMutedGray}">
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}" Background="{DynamicResource MesMutedGray}">
                         <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCallout}" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -74,7 +74,7 @@
                                     <Border Height="6" CornerRadius="8,8,0,0" Background="{Binding Color}" />
                                     <Border Padding="16,12">
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource MesDarkSlate}" />
                                             <TextBlock Text="Seç" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" />
                                         </StackPanel>

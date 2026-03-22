@@ -27,7 +27,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="E-Fatura Entegrasyonu" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="E-Fatura Entegrasyonu" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
                             <TextBlock Text="E-Fatura Saglayici" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
@@ -53,7 +53,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Firma Bilgileri" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Firma Bilgileri" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
                             <TextBlock Text="Firma Unvani" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
@@ -81,7 +81,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Fatura Numaralama" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Fatura Numaralama" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Seri Oneki:"
@@ -103,7 +103,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="KDV Ayarlari" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="KDV Ayarlari" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Varsayilan KDV Orani (%):"

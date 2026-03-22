@@ -13,7 +13,7 @@
 
                 <!-- Logo Area -->
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
-                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="50" Width="96" Height="96"
+                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusFull}" Width="96" Height="96"
                             HorizontalAlignment="Center">
                         <TextBlock Text="M" FontSize="44" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"
@@ -21,7 +21,7 @@
                     </Border>
                     <TextBlock Text="MesTech Stok" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding WelcomeText}" FontSize="15"
+                    <TextBlock Text="{Binding WelcomeText}" FontSize="{StaticResource FontSizeBodyLg}"
                                Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                 </StackPanel>
 
@@ -62,7 +62,7 @@
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Son Aktiviteler" FontSize="15" FontWeight="SemiBold"
+                            <TextBlock Text="Son Aktiviteler" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                         <ItemsControl Grid.Row="1" ItemsSource="{Binding RecentActivities}" Margin="0,0,0,8">

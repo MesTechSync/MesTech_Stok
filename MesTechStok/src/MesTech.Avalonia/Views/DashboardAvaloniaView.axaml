@@ -96,7 +96,7 @@
                                       Width="18" Height="18" Foreground="{DynamicResource MesPrimaryBlue}"
                                       Margin="0,0,8,0" />
                             <TextBlock Grid.Column="1" Text="Son Siparisler"
-                                       FontSize="15" FontWeight="SemiBold"
+                                       FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="10 kayit"
@@ -158,7 +158,7 @@
                                       Width="18" Height="18" Foreground="{DynamicResource MesAmber}"
                                       Margin="0,0,8,0" />
                             <TextBlock Grid.Column="1" Text="Stok Uyarilari"
-                                       FontSize="15" FontWeight="SemiBold"
+                                       FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}"
                                        VerticalAlignment="Center" />
                             <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}"

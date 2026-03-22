@@ -71,21 +71,21 @@
                     <StackPanel>
                         <TextBlock Text="Toplam Borc" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesPrimaryBlue}" />
                         <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N2} TL'}"
-                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                   FontSize="{StaticResource FontSizeBodyLg}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Toplam Alacak" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesGreen}" />
                         <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N2} TL'}"
-                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
+                                   FontSize="{StaticResource FontSizeBodyLg}" FontWeight="Bold" Foreground="{DynamicResource MesGreen}" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="14,8" Margin="8,0">
                     <StackPanel>
                         <TextBlock Text="Net Bakiye" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesAmber}" />
                         <TextBlock Text="{Binding NetBalance, StringFormat='{}{0:N2} TL'}"
-                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
+                                   FontSize="{StaticResource FontSizeBodyLg}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}" />
                     </StackPanel>
                 </Border>
             </Grid>

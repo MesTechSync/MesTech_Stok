@@ -46,7 +46,7 @@
 
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         IsVisible="{Binding !IsLoading}" Spacing="12">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusFull}" Width="72" Height="72"
                         HorizontalAlignment="Center">
                     <TextBlock Text="&#x1F4D6;" FontSize="{StaticResource FontSizeDisplay}"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />

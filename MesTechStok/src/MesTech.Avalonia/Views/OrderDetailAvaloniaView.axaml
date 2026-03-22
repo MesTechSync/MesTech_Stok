@@ -42,28 +42,28 @@
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                         <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
                             <TextBlock Text="Musteri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding CustomerName}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding CustomerName}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
                             <TextBlock Text="Siparis Tarihi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding OrderDate}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding OrderDate}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4" Margin="0,0,0,12">
                             <TextBlock Text="Toplam Tutar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" FontSize="15"
+                            <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" FontSize="{StaticResource FontSizeBodyLg}"
                                        FontWeight="SemiBold" Foreground="{DynamicResource MesTeal}" />
                         </StackPanel>
                         <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
                             <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding Platform}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding Platform}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
                             <TextBlock Text="Kargo Firmasi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding CargoCompany}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding CargoCompany}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Grid.Row="1" Spacing="4">
                             <TextBlock Text="Takip No" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBlock Text="{Binding TrackingNumber}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding TrackingNumber}" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -74,7 +74,7 @@
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Siparis Kalemleri" FontSize="15" FontWeight="SemiBold"
+                            <TextBlock Text="Siparis Kalemleri" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                 <Grid>

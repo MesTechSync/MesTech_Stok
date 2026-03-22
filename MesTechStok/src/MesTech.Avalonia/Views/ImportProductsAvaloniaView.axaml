@@ -29,7 +29,7 @@
             <Grid ColumnDefinitions="*,*,*,*" HorizontalAlignment="Stretch">
                 <!-- Step 1 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{Binding Step1Color}">
                         <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeCallout}" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -39,7 +39,7 @@
                 </StackPanel>
                 <!-- Step 2 -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{Binding Step2Color}">
                         <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeCallout}" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -49,7 +49,7 @@
                 </StackPanel>
                 <!-- Step 3 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{Binding Step3Color}">
                         <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeCallout}" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -59,7 +59,7 @@
                 </StackPanel>
                 <!-- Step 4 -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <Border Width="28" Height="28" CornerRadius="14"
+                    <Border Width="28" Height="28" CornerRadius="{StaticResource MesRadiusLgXl}"
                             Background="{Binding Step4Color}">
                         <TextBlock Text="4" Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold"
                                    FontSize="{StaticResource FontSizeCallout}" HorizontalAlignment="Center" VerticalAlignment="Center" />

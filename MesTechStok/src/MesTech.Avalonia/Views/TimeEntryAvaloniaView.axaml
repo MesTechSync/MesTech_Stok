@@ -35,7 +35,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Yeni Zaman Kaydi" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Yeni Zaman Kaydi" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
@@ -71,7 +71,7 @@
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Zaman Kayitlari" FontSize="15" FontWeight="SemiBold"
+                            <TextBlock Text="Zaman Kayitlari" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                 <Grid>

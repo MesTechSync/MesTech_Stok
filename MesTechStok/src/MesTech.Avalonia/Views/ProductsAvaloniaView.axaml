@@ -214,7 +214,7 @@
                                 <Border Grid.Row="0" Background="{DynamicResource MesBgMist}" CornerRadius="10,10,0,0">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                            <TextBlock Text="&#x1F4E6;" FontSize="36"
+                                            <TextBlock Text="&#x1F4E6;" FontSize="{StaticResource FontSizeXL}"
                                                        HorizontalAlignment="Center" Opacity="0.4" />
                                             <TextBlock Text="{Binding SKU}" FontSize="{StaticResource FontSizeCaption1}"
                                                        Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"

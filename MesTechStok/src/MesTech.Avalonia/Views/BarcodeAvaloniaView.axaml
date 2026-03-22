@@ -35,7 +35,7 @@
                            Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold" />
                 <TextBox Width="360" Watermark="Barkod okutun veya manuel girin (Enter ile sorgula)..." AutomationProperties.Name="Barkod okutun veya manuel girin (Enter ile sorgula)..."
                          Text="{Binding SearchText}"
-                         FontSize="15" Padding="10,8"
+                         FontSize="{StaticResource FontSizeBodyLg}" Padding="10,8"
                          Name="BarcodeInput" />
                 <Button Content="Sorgula" Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -62,7 +62,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding ProductPrice, StringFormat='Fiyat: {0:N2} TL'}"
-                                           FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                           FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="8,2"
                                         Background="{Binding StokDurumRenk}">
                                     <TextBlock Text="{Binding StokDurum}" FontSize="{StaticResource FontSizeCaption}"
@@ -85,7 +85,7 @@
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Depo Bazli Stok Dagilimi" FontSize="15" FontWeight="SemiBold"
+                            <TextBlock Text="Depo Bazli Stok Dagilimi" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
                         <DataGrid Grid.Row="1"
@@ -121,7 +121,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="10">
-                        <TextBlock Text="Hizli Stok Guncelleme" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Hizli Stok Guncelleme" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="-5" Command="{Binding QuickUpdateCommand}" CommandParameter="-5"

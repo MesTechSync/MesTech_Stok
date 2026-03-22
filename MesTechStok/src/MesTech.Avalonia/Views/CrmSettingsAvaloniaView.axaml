@@ -30,7 +30,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="MESA AI Ayarlari" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
 
                         <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Grid.Column="0">
@@ -48,7 +48,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="Mesaj Kontrol Araligi" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <NumericUpDown Value="{Binding MessageCheckIntervalMinutes}"
                                            Minimum="1" Maximum="60" Increment="1"
@@ -65,7 +65,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="20"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
 
                         <ListBox ItemsSource="{Binding QuickReplyTemplates}"
                                  SelectedItem="{Binding SelectedTemplate}"

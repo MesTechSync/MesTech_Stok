@@ -27,7 +27,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Varsayilan Kargo Firmasi" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Varsayilan Kargo Firmasi" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <ComboBox ItemsSource="{Binding CargoProviders}"
                                   SelectedItem="{Binding SelectedCargoProvider}"
@@ -39,7 +39,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Desi Hesaplama" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Desi Hesaplama" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Desi Katsayisi:"
@@ -69,7 +69,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Otomasyon" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="Otomasyon" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Siparis onayinda otomatik kargo olustur"
@@ -90,7 +90,7 @@
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="API Baglanti Bilgileri" FontSize="15" FontWeight="SemiBold"
+                        <TextBlock Text="API Baglanti Bilgileri" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Anahtari" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />

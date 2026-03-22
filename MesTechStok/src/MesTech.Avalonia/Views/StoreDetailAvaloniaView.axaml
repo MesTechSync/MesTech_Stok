@@ -48,7 +48,7 @@
         <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="{StaticResource MesRadiusMd}"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Senkronizasyon Geçmişi (Son 10)" FontSize="15" FontWeight="SemiBold"
+                <TextBlock DockPanel.Dock="Top" Text="Senkronizasyon Geçmişi (Son 10)" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                 <DataGrid ItemsSource="{Binding SyncHistory}"
                           AutoGenerateColumns="False" IsReadOnly="True"

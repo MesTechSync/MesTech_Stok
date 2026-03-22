@@ -27,7 +27,7 @@
 
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Mağaza Bilgileri" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Mağaza Bilgileri" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Mağaza Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
@@ -58,7 +58,7 @@
 
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                     <StackPanel Spacing="14">
-                        <TextBlock Text="Senkronizasyon Ayarları" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Senkronizasyon Ayarları" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="{Binding SyncIntervalMinutes, StringFormat='Sync Aralığı: {0} dakika'}"
