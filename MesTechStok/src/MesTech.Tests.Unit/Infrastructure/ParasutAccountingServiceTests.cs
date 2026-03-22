@@ -57,14 +57,17 @@ public class ParasutAccountingServiceTests
         };
 
     private static Expense MakeExpense(Guid id)
-        => new()
+    {
+        var expense = new Expense
         {
             TenantId = Guid.NewGuid(),
             Description = "Test Expense",
-            Amount = 800m,
             ExpenseType = ExpenseType.Kargo,
             Date = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc)
         };
+        expense.SetAmount(800m);
+        return expense;
+    }
 
     // ── Constructor Guards ────────────────────────────────────────────────
 
