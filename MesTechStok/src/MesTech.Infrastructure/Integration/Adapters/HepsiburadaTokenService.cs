@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -88,6 +89,7 @@ public sealed class HepsiburadaTokenService
             }
 
             _logger.LogInformation("[HepsiburadaTokenService] Requesting new OAuth token");
+            var sw = Stopwatch.StartNew();
 
             var formData = new Dictionary<string, string>
             {
@@ -123,9 +125,10 @@ public sealed class HepsiburadaTokenService
 
             _cache.Set(CacheKey, tokenResponse.AccessToken, TokenTtl);
 
+            sw.Stop();
             _logger.LogInformation(
-                "[HepsiburadaTokenService] Token acquired, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
-                tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
+                "[HepsiburadaTokenService] Token acquired in {ElapsedMs}ms, expires_in={ExpiresIn}s, cached for {CacheTtl}min",
+                sw.ElapsedMilliseconds, tokenResponse.ExpiresIn, TokenTtl.TotalMinutes);
 
             return tokenResponse.AccessToken;
         }

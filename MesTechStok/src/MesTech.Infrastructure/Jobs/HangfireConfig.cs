@@ -138,13 +138,13 @@ public static class HangfireConfig
         // Her gece 02:00 — lead süresi kontrolü
         RecurringJob.AddOrUpdate<CrmHangfireJobs>(
             "crm-overdue-leads",
-            job => job.CheckOverdueLeadsAsync(),
+            job => job.CheckOverdueLeadsAsync(CancellationToken.None),
             "0 2 * * *");
 
         // Her gece 03:00 — görev süresi kontrolü
         RecurringJob.AddOrUpdate<CrmHangfireJobs>(
             "crm-overdue-tasks",
-            job => job.CheckOverdueTasksAsync(),
+            job => job.CheckOverdueTasksAsync(CancellationToken.None),
             "0 3 * * *");
 
         // === MUH-01 DEV 4 — Muhasebe Accounting Workers ===
