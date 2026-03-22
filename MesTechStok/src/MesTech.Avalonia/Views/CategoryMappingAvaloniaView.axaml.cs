@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class CategoryMappingAvaloniaView : UserControl
+public partial class CategoryMappingAvaloniaView : BaseView
 {
     public CategoryMappingAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is CategoryMappingAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

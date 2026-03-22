@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class DropshipProfitAvaloniaView : UserControl
+public partial class DropshipProfitAvaloniaView : BaseView
 {
     public DropshipProfitAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is DropshipProfitAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

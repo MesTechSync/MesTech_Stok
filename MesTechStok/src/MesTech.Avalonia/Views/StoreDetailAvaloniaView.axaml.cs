@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class StoreDetailAvaloniaView : UserControl
+public partial class StoreDetailAvaloniaView : BaseView
 {
     public StoreDetailAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is StoreDetailAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

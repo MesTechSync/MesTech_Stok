@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class InvoiceManagementAvaloniaView : UserControl
+public partial class InvoiceManagementAvaloniaView : BaseView
 {
     public InvoiceManagementAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is InvoiceManagementAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

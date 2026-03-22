@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class KanbanBoardAvaloniaView : UserControl
+public partial class KanbanBoardAvaloniaView : BaseView
 {
     public KanbanBoardAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is KanbanBoardAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ReturnListAvaloniaView : UserControl
+public partial class ReturnListAvaloniaView : BaseView
 {
     public ReturnListAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is ReturnListAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

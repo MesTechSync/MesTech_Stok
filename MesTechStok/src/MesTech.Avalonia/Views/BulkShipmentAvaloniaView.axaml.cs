@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class BulkShipmentAvaloniaView : UserControl
+public partial class BulkShipmentAvaloniaView : BaseView
 {
     public BulkShipmentAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is BulkShipmentAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

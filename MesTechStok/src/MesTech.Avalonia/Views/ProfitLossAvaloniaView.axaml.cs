@@ -1,18 +1,11 @@
-using Avalonia.Controls;
-using MesTechStok.Desktop.ViewModels.Finance;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ProfitLossAvaloniaView : UserControl
+public partial class ProfitLossAvaloniaView : BaseView
 {
     public ProfitLossAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            // ProfitLossViewModel is compile-linked from WPF Desktop — ZERO CHANGES
-            if (DataContext is ProfitLossViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class KarlilikAnaliziAvaloniaView : UserControl
+public partial class KarlilikAnaliziAvaloniaView : BaseView
 {
     public KarlilikAnaliziAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is KarlilikAnaliziAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

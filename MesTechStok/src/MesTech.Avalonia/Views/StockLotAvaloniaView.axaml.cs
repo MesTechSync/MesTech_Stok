@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class StockLotAvaloniaView : UserControl
+public partial class StockLotAvaloniaView : BaseView
 {
     public StockLotAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is StockLotAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class CargoTrackingAvaloniaView : UserControl
+public partial class CargoTrackingAvaloniaView : BaseView
 {
     public CargoTrackingAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is CargoTrackingAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

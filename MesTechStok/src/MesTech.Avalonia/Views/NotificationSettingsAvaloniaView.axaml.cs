@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class NotificationSettingsAvaloniaView : UserControl
+public partial class NotificationSettingsAvaloniaView : BaseView
 {
     public NotificationSettingsAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is NotificationSettingsAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

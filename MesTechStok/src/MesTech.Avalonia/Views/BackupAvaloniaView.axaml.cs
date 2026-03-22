@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class BackupAvaloniaView : UserControl
+public partial class BackupAvaloniaView : BaseView
 {
     public BackupAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is BackupAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

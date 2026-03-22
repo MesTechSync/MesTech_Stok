@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class KdvRaporAvaloniaView : UserControl
+public partial class KdvRaporAvaloniaView : BaseView
 {
     public KdvRaporAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is KdvRaporAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

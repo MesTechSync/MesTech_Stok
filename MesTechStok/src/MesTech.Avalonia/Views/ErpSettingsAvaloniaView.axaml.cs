@@ -1,8 +1,8 @@
-using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ErpSettingsAvaloniaView : UserControl
+public partial class ErpSettingsAvaloniaView : BaseView
 {
     public ErpSettingsAvaloniaView()
     {

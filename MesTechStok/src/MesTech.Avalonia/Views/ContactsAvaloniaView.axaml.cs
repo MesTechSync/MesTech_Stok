@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class ContactsAvaloniaView : UserControl
+public partial class ContactsAvaloniaView : BaseView
 {
     public ContactsAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is ContactsAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

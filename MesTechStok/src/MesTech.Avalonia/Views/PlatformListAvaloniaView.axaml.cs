@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class PlatformListAvaloniaView : UserControl
+public partial class PlatformListAvaloniaView : BaseView
 {
     public PlatformListAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is PlatformListAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }

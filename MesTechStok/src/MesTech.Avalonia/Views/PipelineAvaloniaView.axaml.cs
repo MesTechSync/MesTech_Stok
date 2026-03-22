@@ -1,17 +1,11 @@
-using Avalonia.Controls;
-using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class PipelineAvaloniaView : UserControl
+public partial class PipelineAvaloniaView : BaseView
 {
     public PipelineAvaloniaView()
     {
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (DataContext is PipelineAvaloniaViewModel vm)
-                await vm.LoadAsync();
-        };
     }
 }
