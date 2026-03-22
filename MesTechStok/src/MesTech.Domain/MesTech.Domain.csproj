@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="MesTech.Application" />
     <InternalsVisibleTo Include="MesTech.Infrastructure" />
     <InternalsVisibleTo Include="MesTech.Tests.Unit" />
     <InternalsVisibleTo Include="MesTech.Tests.Integration" />
