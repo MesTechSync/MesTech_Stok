@@ -18,7 +18,7 @@ public record IBAN
         if (normalized.Length < 15 || normalized.Length > 34)
             throw new ArgumentException("IBAN uzunlugu 15-34 karakter olmali.", nameof(value));
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(normalized, @"^[A-Z]{2}\d{2}[A-Z0-9]+$"))
+        if (!System.Text.RegularExpressions.Regex.IsMatch(normalized, @"^[A-Z]{2}\d{2}[A-Z0-9]+$", System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(1)))
             throw new ArgumentException("IBAN formati gecersiz.", nameof(value));
 
         if (!ValidateChecksum(normalized))
@@ -28,7 +28,7 @@ public record IBAN
     }
 
     /// <summary>TR IBAN olustur (TR + 24 rakam = 26 karakter).</summary>
-    public bool IsTurkish => Value.StartsWith("TR") && Value.Length == 26;
+    public bool IsTurkish => Value.StartsWith("TR", StringComparison.Ordinal) && Value.Length == 26;
 
     /// <summary>Banka kodu (TR IBAN icin 5 haneli).</summary>
     public string? BankCode => IsTurkish ? Value.Substring(4, 5) : null;
@@ -53,7 +53,7 @@ public record IBAN
 
         // Harfleri sayiya cevir (A=10, B=11, ..., Z=35)
         var numeric = string.Concat(rearranged.Select(c =>
-            char.IsLetter(c) ? (c - 'A' + 10).ToString() : c.ToString()));
+            char.IsLetter(c) ? (c - 'A' + 10).ToString(System.Globalization.CultureInfo.InvariantCulture) : c.ToString(System.Globalization.CultureInfo.InvariantCulture)));
 
         // Mod 97 hesapla
         var number = BigInteger.Parse(numeric, System.Globalization.CultureInfo.InvariantCulture);

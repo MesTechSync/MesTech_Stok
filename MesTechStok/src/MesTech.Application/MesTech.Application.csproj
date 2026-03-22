@@ -16,6 +16,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UserSecretsId>mestech-application-b2c3d4e5-f6a7-8901-bcde-f12345678901</UserSecretsId>
   </PropertyGroup>
 
