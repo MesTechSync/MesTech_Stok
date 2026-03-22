@@ -314,7 +314,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         // Bitrix24 CRM does not have native stock management
         // SupportsStockUpdate = false — this method returns false
         _logger.LogWarning("Bitrix24 does not support stock updates (CRM-focused)");
-        return await Task.FromResult(false);
+        return await Task.FromResult(false).ConfigureAwait(false);
     }
 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
