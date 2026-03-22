@@ -2,6 +2,7 @@
 using Hangfire.PostgreSql;
 using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
+using MesTech.Infrastructure.Jobs.Billing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -67,6 +68,10 @@ public static class HangfireConfig
 
         // I-11 GOREV 3 — Zamanlanmis rapor uretimi job
         services.AddScoped<ScheduledReportGenerationJob>();
+
+        // Billing — Abonelik yenileme ve dunning job'lari
+        services.AddScoped<SubscriptionRenewalWorker>();
+        services.AddScoped<DunningWorker>();
 
         return services;
     }
@@ -255,5 +260,19 @@ public static class HangfireConfig
 
         // Her 6 saatte bir — aktif SocialFeedConfiguration'lar icin feed uretimi
         SocialFeedRefreshJob.Register();
+
+        // === Billing — Abonelik Yenileme & Dunning ===
+
+        // Her gun 03:00 — vadesi gelen abonelikleri otomatik yenile
+        RecurringJob.AddOrUpdate<SubscriptionRenewalWorker>(
+            "subscription-renewal",
+            x => x.ProcessRenewalsAsync(CancellationToken.None),
+            "0 3 * * *");
+
+        // Her gun 04:00 — PastDue aboneliklere kademeli tahsilat escalation
+        RecurringJob.AddOrUpdate<DunningWorker>(
+            "dunning-escalation",
+            x => x.ProcessDunningAsync(CancellationToken.None),
+            "0 4 * * *");
     }
 }
