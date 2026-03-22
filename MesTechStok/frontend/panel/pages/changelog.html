@@ -187,6 +187,13 @@
       .timeline { padding-left: 32px; }
       .timeline-dot { left: -25px; width: 12px; height: 12px; }
     }
+    @media print {
+      .sidebar, .navbar, .btn, .no-print, nav, footer { display: none !important; }
+      .content, .main-content, main { width: 100% !important; margin: 0 !important; }
+      body { background: white !important; color: black !important; font-size: 12pt !important; }
+      .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+      table { font-size: 10pt; }
+    }
   </style>
 </head>
 <body>
