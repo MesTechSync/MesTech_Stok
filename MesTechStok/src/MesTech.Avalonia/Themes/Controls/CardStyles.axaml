@@ -14,6 +14,11 @@
     <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}"/>
     <Setter Property="Padding" Value="{StaticResource PaddingLarge}"/>
     <Setter Property="BoxShadow" Value="{DynamicResource MesElevation1}"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Border.mestech-card:pointerover">
     <Setter Property="BoxShadow" Value="0 2 8 0 #26000000"/>

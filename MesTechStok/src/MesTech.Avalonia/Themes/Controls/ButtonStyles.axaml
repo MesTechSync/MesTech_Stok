@@ -19,6 +19,12 @@
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-raised:pointerover">
     <Setter Property="Background" Value="{DynamicResource SecondaryBlueBrush}"/>
@@ -45,6 +51,11 @@
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-accent:pointerover">
     <Setter Property="Background" Value="{DynamicResource MesGreenMaterial}"/>
@@ -68,6 +79,11 @@
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-outline:pointerover">
     <Setter Property="Background" Value="{DynamicResource HoverOverlayBrush}"/>
@@ -85,6 +101,11 @@
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-flat:pointerover">
     <Setter Property="Background" Value="{DynamicResource HoverOverlayBrush}"/>
@@ -103,6 +124,11 @@
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-danger:pointerover">
     <Setter Property="Background" Value="{DynamicResource MesDanger}"/>
@@ -123,6 +149,12 @@
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.15" />
+        <BrushTransition Property="Foreground" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="Button.mestech-icon-btn:pointerover">
     <Setter Property="Background" Value="{DynamicResource HoverOverlayBrush}"/>
