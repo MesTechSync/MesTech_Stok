@@ -62,6 +62,9 @@ builder.Services.AddCascadingAuthenticationState();
 // ── Onboarding ──
 builder.Services.AddScoped<OnboardingService>();
 
+// ── Health Checks (Docker + Kubernetes + Prometheus /health endpoint) ──
+builder.Services.AddHealthChecks();
+
 // ── Response Compression (Blazor Server JS bundles + SignalR) ──
 builder.Services.AddResponseCompression(options =>
 {
@@ -92,6 +95,9 @@ app.UseResponseCompression();
 app.UseStaticFiles();
 app.UseRequestLocalization();
 app.UseAntiforgery();
+
+// Health endpoint — Docker healthcheck + Prometheus + load balancer
+app.MapHealthChecks("/health");
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
