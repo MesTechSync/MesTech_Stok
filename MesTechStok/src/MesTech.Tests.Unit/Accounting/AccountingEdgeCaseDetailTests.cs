@@ -1311,15 +1311,16 @@ public class AccountingEdgeCaseDetailTests
         string customerName,
         Guid? tenantId = null)
     {
-        return new CustomerAccount
+        var account = new CustomerAccount
         {
             TenantId = tenantId ?? TenantA,
             CustomerId = Guid.NewGuid(),
             AccountCode = accountCode,
             CustomerName = customerName,
-            Currency = "TRY",
-            IsActive = true
+            Currency = "TRY"
         };
+        account.Activate();
+        return account;
     }
 
     private static SupplierAccount CreateSupplierAccount(
@@ -1327,15 +1328,16 @@ public class AccountingEdgeCaseDetailTests
         string supplierName,
         Guid? tenantId = null)
     {
-        return new SupplierAccount
+        var account = new SupplierAccount
         {
             TenantId = tenantId ?? TenantA,
             SupplierId = Guid.NewGuid(),
             AccountCode = accountCode,
             SupplierName = supplierName,
-            Currency = "TRY",
-            IsActive = true
+            Currency = "TRY"
         };
+        account.Activate();
+        return account;
     }
 
     private static PlatformPayment CreatePlatformPayment(

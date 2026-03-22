@@ -9,15 +9,19 @@ namespace MesTech.Tests.Unit.Domain;
 [Trait("Phase", "Dalga5")]
 public class SupplierAccountTests
 {
-    private static SupplierAccount MakeAccount() => new()
+    private static SupplierAccount MakeAccount()
     {
-        TenantId = Guid.NewGuid(),
-        SupplierId = Guid.NewGuid(),
-        AccountCode = "SUP-001",
-        SupplierName = "Test Tedarikçi",
-        Currency = "TRY",
-        IsActive = true,
-    };
+        var account = new SupplierAccount
+        {
+            TenantId = Guid.NewGuid(),
+            SupplierId = Guid.NewGuid(),
+            AccountCode = "SUP-001",
+            SupplierName = "Test Tedarikçi",
+            Currency = "TRY",
+        };
+        account.Activate();
+        return account;
+    }
 
     [Fact]
     public void Balance_NoTransactions_ReturnsZero()

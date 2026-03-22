@@ -561,9 +561,9 @@ public class FullFlowE2ETests
             TenantId = tenantId,
             CustomerId = Guid.NewGuid(),
             AccountCode = "MES-CUST-001",
-            CustomerName = "Cari Hesap Test Musteri",
-            CreditLimit = 10000m
+            CustomerName = "Cari Hesap Test Musteri"
         };
+        account.SetCreditLimit(10000m);
 
         var orderId = Guid.NewGuid();
         var invoiceId = Guid.NewGuid();
