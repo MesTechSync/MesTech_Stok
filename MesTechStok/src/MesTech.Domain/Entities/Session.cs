@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class Session : BaseEntity
+public class Session : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid UserId { get; set; }
     public DateTime ExpiresAt { get; set; }
     public bool IsActive { get; set; } = true;
