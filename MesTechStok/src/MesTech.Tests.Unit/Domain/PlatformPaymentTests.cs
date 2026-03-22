@@ -12,21 +12,23 @@ public class PlatformPaymentTests
     private static PlatformPayment MakePayment(
         PaymentStatus status = PaymentStatus.Pending,
         DateTime? scheduledDate = null)
-        => new()
+    {
+        var payment = new PlatformPayment
         {
             TenantId = Guid.NewGuid(),
             Platform = PlatformType.Trendyol,
-            Status = status,
             PeriodStart = DateTime.UtcNow.AddDays(-7),
             PeriodEnd = DateTime.UtcNow,
-            GrossSales = 1000m,
-            TotalCommission = 100m,
-            TotalShippingCost = 20m,
-            TotalReturnDeduction = 50m,
-            OtherDeductions = 10m,
             ScheduledPaymentDate = scheduledDate,
             Currency = "TRY"
         };
+        payment.SetAmounts(1000m, 100m, 20m, 50m, 10m);
+        if (status == PaymentStatus.Completed)
+            payment.MarkAsCompleted();
+        else if (status == PaymentStatus.Failed)
+            payment.MarkAsFailed();
+        return payment;
+    }
 
     [Fact]
     public void CalculateNetAmount_SubtractsAllDeductions_Correctly()
@@ -43,13 +45,8 @@ public class PlatformPaymentTests
         var payment = new PlatformPayment
         {
             TenantId = Guid.NewGuid(),
-            GrossSales = 500m,
-            TotalCommission = 0m,
-            TotalShippingCost = 0m,
-            TotalReturnDeduction = 0m,
-            OtherDeductions = 0m
         };
-        payment.CalculateNetAmount();
+        payment.SetAmounts(500m, 0m, 0m, 0m, 0m);
         payment.NetAmount.Should().Be(500m);
     }
 

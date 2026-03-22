@@ -15,21 +15,21 @@ public class PlatformPayment : BaseEntity, ITenantEntity
     public Guid? StoreId { get; set; }
 
     public PlatformType Platform { get; set; }
-    public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+    public PaymentStatus Status { get; private set; } = PaymentStatus.Pending;
 
     // Dönem bilgisi
     public DateTime PeriodStart { get; set; }
     public DateTime PeriodEnd { get; set; }
     public DateTime? ScheduledPaymentDate { get; set; }
-    public DateTime? ActualPaymentDate { get; set; }
+    public DateTime? ActualPaymentDate { get; private set; }
 
     // Tutarlar
-    public decimal GrossSales { get; set; }
-    public decimal TotalCommission { get; set; }
-    public decimal TotalShippingCost { get; set; }
-    public decimal TotalReturnDeduction { get; set; }
-    public decimal OtherDeductions { get; set; }
-    public decimal NetAmount { get; set; }
+    public decimal GrossSales { get; private set; }
+    public decimal TotalCommission { get; private set; }
+    public decimal TotalShippingCost { get; private set; }
+    public decimal TotalReturnDeduction { get; private set; }
+    public decimal OtherDeductions { get; private set; }
+    public decimal NetAmount { get; private set; }
     public string Currency { get; set; } = "TRY";
 
     // Sipariş sayıları
@@ -37,13 +37,24 @@ public class PlatformPayment : BaseEntity, ITenantEntity
     public int ReturnCount { get; set; }
 
     // Banka bilgisi
-    public string? BankReference { get; set; }
+    public string? BankReference { get; private set; }
     public string? PlatformPaymentId { get; set; }
 
     public string? Notes { get; set; }
 
     // Navigation
     public Store? Store { get; set; }
+
+    public void SetAmounts(decimal grossSales, decimal commission, decimal shippingCost,
+        decimal returnDeduction, decimal otherDeductions)
+    {
+        GrossSales = grossSales;
+        TotalCommission = commission;
+        TotalShippingCost = shippingCost;
+        TotalReturnDeduction = returnDeduction;
+        OtherDeductions = otherDeductions;
+        CalculateNetAmount();
+    }
 
     public void CalculateNetAmount()
     {

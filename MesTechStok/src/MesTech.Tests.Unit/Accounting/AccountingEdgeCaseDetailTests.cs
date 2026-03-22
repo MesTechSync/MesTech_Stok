@@ -900,9 +900,7 @@ public class AccountingEdgeCaseDetailTests
         payment.MarkAsCompleted("BANK-REF-001");
 
         // Act — reversal scenario
-        var refundPayment = CreatePlatformPayment(grossSales: 0m, commission: 0m);
-        refundPayment.TotalReturnDeduction = 1000m;
-        refundPayment.CalculateNetAmount();
+        var refundPayment = CreatePlatformPayment(grossSales: 0m, commission: 0m, returns: 1000m);
 
         // Assert
         payment.Status.Should().Be(PaymentStatus.Completed);
@@ -1224,11 +1222,10 @@ public class AccountingEdgeCaseDetailTests
         {
             TenantId = TenantA,
             Platform = PlatformType.Trendyol,
-            GrossSales = -100m,
         };
 
         // Act
-        var act = () => payment.CalculateNetAmount();
+        var act = () => payment.SetAmounts(-100m, 0m, 0m, 0m, 0m);
 
         // Assert
         act.Should().Throw<InvalidOperationException>()
@@ -1348,19 +1345,16 @@ public class AccountingEdgeCaseDetailTests
         decimal returns = 0m,
         decimal otherDeductions = 0m)
     {
-        return new PlatformPayment
+        var payment = new PlatformPayment
         {
             TenantId = TenantA,
             Platform = PlatformType.Trendyol,
-            GrossSales = grossSales,
-            TotalCommission = commission,
-            TotalShippingCost = shipping,
-            TotalReturnDeduction = returns,
-            OtherDeductions = otherDeductions,
             Currency = "TRY",
             PeriodStart = DateTime.UtcNow.AddDays(-7),
             PeriodEnd = DateTime.UtcNow
         };
+        payment.SetAmounts(grossSales, commission, shipping, returns, otherDeductions);
+        return payment;
     }
 
     #endregion
