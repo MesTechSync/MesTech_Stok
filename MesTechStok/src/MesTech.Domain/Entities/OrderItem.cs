@@ -12,15 +12,27 @@ public class OrderItem : BaseEntity, ITenantEntity
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string ProductSKU { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal TotalPrice { get; set; }
+    public int Quantity { get; internal set; }
+    public decimal UnitPrice { get; internal set; }
+    public decimal TotalPrice { get; internal set; }
     public decimal TaxRate { get; set; }
-    public decimal TaxAmount { get; set; }
+    public decimal TaxAmount { get; internal set; }
 
     // ── Domain Logic ──
 
     public decimal SubTotal => Quantity * UnitPrice;
+
+    public void SetQuantityAndPrice(int quantity, decimal unitPrice)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Miktar pozitif olmalı.", nameof(quantity));
+        if (unitPrice < 0)
+            throw new ArgumentException("Birim fiyat negatif olamaz.", nameof(unitPrice));
+
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+        CalculateAmounts();
+    }
 
     public void CalculateAmounts()
     {

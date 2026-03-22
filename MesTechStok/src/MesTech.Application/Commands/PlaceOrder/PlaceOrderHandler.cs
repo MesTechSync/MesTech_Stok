@@ -47,15 +47,15 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, PlaceOrderRe
 
             _stockCalculation.ValidateStockSufficiency(product, item.Quantity);
 
-            order.AddItem(new OrderItem
+            var orderItem = new OrderItem
             {
                 ProductId = product.Id,
                 ProductName = product.Name,
                 ProductSKU = product.SKU,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
                 TaxRate = item.TaxRate
-            });
+            };
+            orderItem.SetQuantityAndPrice(item.Quantity, item.UnitPrice);
+            order.AddItem(orderItem);
             product.AdjustStock(-item.Quantity, StockMovementType.Sale);
         }
 
