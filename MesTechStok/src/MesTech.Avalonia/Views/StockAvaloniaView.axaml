@@ -31,32 +31,46 @@
         </Border>
 
         <!-- Content -->
-        <Grid Grid.Row="2" Margin="16">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+        <Grid Grid.Row="2">
+            <!-- Stock DataGrid -->
+            <DataGrid ItemsSource="{Binding StockItems}"
+                      SelectedItem="{Binding SelectedStockItem}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="{DynamicResource MesBgPrimary}"
+                      IsVisible="{Binding !IsLoading}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="140" />
+                    <DataGridTextColumn Header="Urun Adi" Binding="{Binding ProductName}" Width="250" />
+                    <DataGridTextColumn Header="Depo" Binding="{Binding Warehouse}" Width="120" />
+                    <DataGridTextColumn Header="Mevcut Stok" Binding="{Binding CurrentStock}" Width="110" />
+                    <DataGridTextColumn Header="Min Stok" Binding="{Binding MinStock}" Width="90" />
+                    <DataGridTextColumn Header="Durum" Binding="{Binding StockStatus}" Width="100" />
+                    <DataGridTextColumn Header="Son Hareket" Binding="{Binding LastMovementDisplay}" Width="160" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding !IsLoading}" Spacing="12">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4E6;" FontSize="32"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Stok Yonetimi" FontSize="20" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Depo secimi | Stok hareketi | Envanter sayimi | Kritik stok alarmlari"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
-                           Margin="0,4,0,0" />
-                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"
-                        Margin="0,8,0,0" />
-            </StackPanel>
+            <!-- Empty State -->
+            <TextBlock Text="Stok verisi bulunamadi"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Margin="0,40" Opacity="0.5" FontSize="16"
+                       IsVisible="{Binding !StockItems.Count}" />
+
+            <!-- Loading Overlay -->
+            <Border Background="{DynamicResource MesOverlayLight}"
+                    IsVisible="{Binding IsLoading}" ZIndex="100">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                    <TextBlock Text="Stok verileri yukleniyor..."
+                               FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
