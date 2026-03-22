@@ -25,7 +25,7 @@
 
                 <!-- E-Fatura Entegrasyonu -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="E-Fatura Entegrasyonu" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -51,7 +51,7 @@
 
                 <!-- Firma Bilgileri -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Firma Bilgileri" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -79,7 +79,7 @@
 
                 <!-- Fatura Numaralama -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Fatura Numaralama" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -101,7 +101,7 @@
 
                 <!-- KDV Ayarlari -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="KDV Ayarlari" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />

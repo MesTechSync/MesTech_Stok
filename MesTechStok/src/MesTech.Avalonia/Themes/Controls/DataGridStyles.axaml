@@ -32,7 +32,7 @@
     <Setter Property="MinHeight" Value="40"/>
   </Style>
   <Style Selector="DataGrid.mestech DataGridColumnHeader:pointerover">
-    <Setter Property="Background" Value="#ECEFF1"/>
+    <Setter Property="Background" Value="{DynamicResource MesBgTertiary}"/>
   </Style>
 
   <!-- Row Styles -->

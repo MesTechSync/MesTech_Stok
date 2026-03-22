@@ -47,7 +47,7 @@
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
   <Style Selector="Button.mestech-accent:pointerover">
-    <Setter Property="Background" Value="#43A047"/>
+    <Setter Property="Background" Value="{DynamicResource MesGreenMaterial}"/>
   </Style>
   <Style Selector="Button.mestech-accent:pressed">
     <Setter Property="Background" Value="{DynamicResource MesGreenMaterial}"/>
@@ -105,7 +105,7 @@
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
   <Style Selector="Button.mestech-danger:pointerover">
-    <Setter Property="Background" Value="#E53935"/>
+    <Setter Property="Background" Value="{DynamicResource MesDanger}"/>
   </Style>
   <Style Selector="Button.mestech-danger:pressed">
     <Setter Property="Background" Value="{DynamicResource MesRedAlert}"/>

@@ -25,7 +25,7 @@
 
                 <!-- Varsayilan Kargo Firmasi -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Varsayilan Kargo Firmasi" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -37,7 +37,7 @@
 
                 <!-- Kargo Desi Ayarlari -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Desi Hesaplama" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -67,7 +67,7 @@
 
                 <!-- Otomatik Kargo Olusturma -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="Otomasyon" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
@@ -88,7 +88,7 @@
 
                 <!-- API Bilgileri -->
                 <Border Background="White" CornerRadius="12" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="0 2 8 0 #14000000">
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <TextBlock Text="API Baglanti Bilgileri" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />

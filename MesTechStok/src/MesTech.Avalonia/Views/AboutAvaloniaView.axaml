@@ -32,7 +32,7 @@
                 <!-- Info Card -->
                 <Border Background="White" CornerRadius="12" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
-                        BoxShadow="0 2 8 0 #14000000">
+                        BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel Spacing="16">
                         <Grid ColumnDefinitions="140,*">
                             <TextBlock Grid.Column="0" Text="Uygulama:" FontSize="13"

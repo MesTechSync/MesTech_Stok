@@ -208,7 +208,7 @@
                         <Border Width="220" Height="280" Margin="8"
                                 Background="White" CornerRadius="10"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
-                                BoxShadow="0 2 8 0 #14000000"
+                                BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
                                 <!-- Product Image Placeholder -->

@@ -97,7 +97,7 @@
                                                 <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
                                                         VerticalAlignment="Top">
                                                     <Border.Background>
-                                                        <SolidColorBrush Color="#10B981" Opacity="0.15" />
+                                                        <SolidColorBrush Color="{DynamicResource MesEmerald}" Opacity="0.15" />
                                                     </Border.Background>
                                                     <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource MesEmerald}" />
                                                 </Border>

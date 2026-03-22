@@ -8,7 +8,7 @@
 
   <!-- Dialog Overlay (full-screen dimmed background) -->
   <Style Selector="Border.mestech-dialog-overlay">
-    <Setter Property="Background" Value="#80000000"/>
+    <Setter Property="Background" Value="{DynamicResource MesOverlayMedium}"/>
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
     <Setter Property="VerticalAlignment" Value="Stretch"/>
     <Setter Property="IsVisible" Value="False"/>

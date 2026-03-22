@@ -29,7 +29,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
             <Grid ColumnDefinitions="*,*,*">
                 <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16" Margin="4"
-                        BoxShadow="0 2 8 0 #14000000">
+                        BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Satis KDV" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding SalesVat}" FontSize="20" FontWeight="Bold"
@@ -37,7 +37,7 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="16" Margin="4"
-                        BoxShadow="0 2 8 0 #14000000">
+                        BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Alis KDV" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding PurchaseVat}" FontSize="20" FontWeight="Bold"
@@ -45,7 +45,7 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16" Margin="4"
-                        BoxShadow="0 2 8 0 #14000000">
+                        BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Odenecek / Devreden KDV" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetVat}" FontSize="20" FontWeight="Bold"

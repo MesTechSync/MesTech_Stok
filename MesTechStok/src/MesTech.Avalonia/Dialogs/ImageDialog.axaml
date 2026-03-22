@@ -26,7 +26,7 @@
                      Orientation="Horizontal">
             <!-- Images added programmatically -->
             <Border Width="100" Height="100"
-                    Background="#F0F0F0"
+                    Background="{DynamicResource MesBgTertiary}"
                     CornerRadius="{StaticResource CornerRadiusMedium}"
                     Margin="4"
                     HorizontalAlignment="Center"

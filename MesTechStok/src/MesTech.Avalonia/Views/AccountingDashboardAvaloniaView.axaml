@@ -31,7 +31,7 @@
 
                 <!-- Toplam Gelir -->
                 <Border Grid.Column="0" Background="White" CornerRadius="12"
-                        Padding="20" Margin="6" BoxShadow="0 2 8 0 #14000000">
+                        Padding="20" Margin="6" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Toplam Gelir" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalRevenue}" FontSize="22" FontWeight="Bold"
@@ -41,7 +41,7 @@
 
                 <!-- Toplam Gider -->
                 <Border Grid.Column="1" Background="White" CornerRadius="12"
-                        Padding="20" Margin="6" BoxShadow="0 2 8 0 #14000000">
+                        Padding="20" Margin="6" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Toplam Gider" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding TotalExpense}" FontSize="22" FontWeight="Bold"
@@ -51,7 +51,7 @@
 
                 <!-- Net Kar -->
                 <Border Grid.Column="2" Background="White" CornerRadius="12"
-                        Padding="20" Margin="6" BoxShadow="0 2 8 0 #14000000">
+                        Padding="20" Margin="6" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Net Kar" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding NetProfit}" FontSize="22" FontWeight="Bold"
@@ -61,7 +61,7 @@
 
                 <!-- Bakiye -->
                 <Border Grid.Column="3" Background="White" CornerRadius="12"
-                        Padding="20" Margin="6" BoxShadow="0 2 8 0 #14000000">
+                        Padding="20" Margin="6" BoxShadow="{DynamicResource MesElevationCard}">
                     <StackPanel>
                         <TextBlock Text="Bakiye" FontSize="12" Foreground="{DynamicResource MesCoolGray}" />
                         <TextBlock Text="{Binding Balance}" FontSize="22" FontWeight="Bold"
