@@ -36,32 +36,45 @@
         </Border>
 
         <!-- Content -->
-        <Grid Grid.Row="2" Margin="16">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+        <Grid Grid.Row="2">
+            <!-- Platform DataGrid -->
+            <DataGrid ItemsSource="{Binding Platforms}"
+                      SelectedItem="{Binding SelectedPlatform}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="{DynamicResource MesBgPrimary}"
+                      IsVisible="{Binding !IsLoading}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Name}" Width="180" />
+                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100" />
+                    <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding ProductCount}" Width="110" />
+                    <DataGridTextColumn Header="Siparis" Binding="{Binding OrderCount}" Width="100" />
+                    <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding LastSyncDisplay}" Width="180" />
+                    <DataGridTextColumn Header="API Durumu" Binding="{Binding ApiStatus}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding !IsLoading}" Spacing="12">
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="50" Width="72" Height="72"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F30D;" FontSize="32"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Pazaryeri Yonetimi" FontSize="20" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Platform API ayarlari | Senkronizasyon | Hata loglari | Toplu islem"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
-                           Margin="0,4,0,0" />
-                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"
-                        Margin="0,8,0,0" />
-            </StackPanel>
+            <!-- Empty State -->
+            <TextBlock Text="Platform bulunamadi"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Margin="0,40" Opacity="0.5" FontSize="16"
+                       IsVisible="{Binding !Platforms.Count}" />
+
+            <!-- Loading Overlay -->
+            <Border Background="{DynamicResource MesOverlayLight}"
+                    IsVisible="{Binding IsLoading}" ZIndex="100">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                    <TextBlock Text="Platformlar yukleniyor..."
+                               FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
