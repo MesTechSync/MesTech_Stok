@@ -106,6 +106,21 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     // ─────────────────────────────────────────────
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
@@ -175,7 +190,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             // System status endpoint — lightweight connectivity check
             var url = $"{ApiBase}/system_status";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -202,7 +217,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             // Product count
             var countUrl = $"{ApiBase}/products?per_page=1&page=1&status=publish";
-            var countResponse = await _retryPipeline.ExecuteAsync(
+            var countResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(countUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
             if (countResponse.IsSuccessStatusCode &&
                 countResponse.Headers.TryGetValues("X-WP-Total", out var totalValues))
@@ -251,7 +266,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             do
             {
                 var url = $"{ApiBase}/products?per_page={PageSize}&page={page}&status=publish";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -323,7 +338,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             // Search by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
-            var searchResponse = await _retryPipeline.ExecuteAsync(
+            var searchResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(searchUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!searchResponse.IsSuccessStatusCode)
@@ -352,7 +367,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
             var putUrl = $"{ApiBase}/products/{wooId}";
-            var putResponse = await _retryPipeline.ExecuteAsync(
+            var putResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
@@ -389,7 +404,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             // 1. Find product by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
-            var searchResponse = await _retryPipeline.ExecuteAsync(
+            var searchResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(searchUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!searchResponse.IsSuccessStatusCode)
@@ -418,7 +433,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
             var putUrl = $"{ApiBase}/products/{wooId}";
-            var putResponse = await _retryPipeline.ExecuteAsync(
+            var putResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
@@ -470,7 +485,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             do
             {
                 var url = $"{ApiBase}/orders?status=processing&per_page={PageSize}&page={page}{after}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -574,7 +589,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var payload = JsonSerializer.Serialize(new { status }, _jsonOptions);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(packageId)}";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -654,7 +669,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(platformOrderId)}";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -733,7 +748,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
                 var url = $"{ApiBase}/products/batch";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -791,7 +806,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             do
             {
                 var url = $"{ApiBase}/products/{Uri.EscapeDataString(productId)}/variations?per_page={PageSize}&page={page}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)

@@ -78,6 +78,20 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         _logger.LogInformation("N11Adapter konfigure edildi — BaseUrl={BaseUrl}", _soapBaseUrl);
     }
 
+    private async Task<XElement> ThrottledSoapAsync(
+        string url, string soapAction, XElement body, CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _soapClient!.SendAsync(url, soapAction, body, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     private void EnsureConfigured()
     {
         if (!_isConfigured || _soapClient is null)
@@ -161,7 +175,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 description: product.Description);
 
             var url = _soapBaseUrl + ProductServicePath;
-            var response = await _soapClient!.SendAsync(url, "SaveProduct", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "SaveProduct", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -192,7 +206,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 {
                     var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize);
                     var url = _soapBaseUrl + ProductServicePath;
-                    var response = await _soapClient!.SendAsync(url, "GetProductList", body, ct).ConfigureAwait(false);
+                    var response = await ThrottledSoapAsync(url, "GetProductList", body, ct).ConfigureAwait(false);
 
                     ThrowIfSoapFault(response);
 
@@ -223,7 +237,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var n11ProductId = Math.Abs(productId.GetHashCode());
             var body = N11SoapRequestBuilder.BuildUpdateStock(_appKey!, _appSecret!, n11ProductId, newStock);
             var url = _soapBaseUrl + ProductServicePath;
-            var response = await _soapClient!.SendAsync(url, "UpdateStockByStockId", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "UpdateStockByStockId", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -254,7 +268,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var n11ProductId = Math.Abs(productId.GetHashCode());
             var body = N11SoapRequestBuilder.BuildUpdatePrice(_appKey!, _appSecret!, n11ProductId, newPrice);
             var url = _soapBaseUrl + ProductServicePath;
-            var response = await _soapClient!.SendAsync(url, "UpdateProductPriceById", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "UpdateProductPriceById", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -306,7 +320,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             // Test: fetch top-level categories
             var body = N11SoapRequestBuilder.BuildGetCategories(_appKey!, _appSecret!);
             var url = _soapBaseUrl + CategoryServicePath;
-            var response = await _soapClient!.SendAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -339,7 +353,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildGetCategories(_appKey!, _appSecret!);
             var url = _soapBaseUrl + CategoryServicePath;
-            var response = await _soapClient!.SendAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "GetTopLevelCategories", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -375,7 +389,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                     var body = N11SoapRequestBuilder.BuildGetOrders(
                         _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize);
                     var url = _soapBaseUrl + OrderServicePath;
-                    var response = await _soapClient!.SendAsync(url, "DetailedOrderList", body, ct).ConfigureAwait(false);
+                    var response = await ThrottledSoapAsync(url, "DetailedOrderList", body, ct).ConfigureAwait(false);
 
                     ThrowIfSoapFault(response);
 
@@ -416,7 +430,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
             var body = N11SoapRequestBuilder.BuildUpdateOrderStatus(_appKey!, _appSecret!, orderItemId, status);
             var url = _soapBaseUrl + OrderServicePath;
-            var response = await _soapClient!.SendAsync(url, "OrderItemAccept", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "OrderItemAccept", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -469,7 +483,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 _appKey!, _appSecret!, orderItemId, shipmentCompany, trackingNumber);
 
             var url = _soapBaseUrl + ShipmentServicePath;
-            var response = await _soapClient!.SendAsync(url, "MakeOrderItemShipment", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "MakeOrderItemShipment", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -522,7 +536,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildActivateProductSelling(_appKey!, _appSecret!, productId);
             var url = _soapBaseUrl + ProductSellingServicePath;
-            var response = await _soapClient!.SendAsync(url, "ActivateProductSelling", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "ActivateProductSelling", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -554,7 +568,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildDeactivateProductSelling(_appKey!, _appSecret!, productId);
             var url = _soapBaseUrl + ProductSellingServicePath;
-            var response = await _soapClient!.SendAsync(url, "DeactivateProductSelling", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "DeactivateProductSelling", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -610,7 +624,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildSendInvoice(_appKey!, _appSecret!, orderId, invoiceNo, invoiceDate);
             var url = _soapBaseUrl + InvoiceServicePath;
-            var response = await _soapClient!.SendAsync(url, "SendInvoice", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "SendInvoice", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -649,7 +663,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 {
                     var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize);
                     var url = _soapBaseUrl + ClaimServicePath;
-                    var response = await _soapClient!.SendAsync(url, "GetClaims", body, ct).ConfigureAwait(false);
+                    var response = await ThrottledSoapAsync(url, "GetClaims", body, ct).ConfigureAwait(false);
 
                     ThrowIfSoapFault(response);
 
@@ -692,7 +706,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
             var body = N11SoapRequestBuilder.BuildApproveClaim(_appKey!, _appSecret!, claimIdLong);
             var url = _soapBaseUrl + ClaimServicePath;
-            var response = await _soapClient!.SendAsync(url, "ApproveClaim", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "ApproveClaim", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -736,7 +750,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildGetSettlements(_appKey!, _appSecret!, startDate, endDate);
             var url = _soapBaseUrl + SettlementServicePath;
-            var response = await _soapClient!.SendAsync(url, "GetSettlements", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "GetSettlements", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -777,7 +791,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildGetCategoryAttributes(_appKey!, _appSecret!, categoryId);
             var url = _soapBaseUrl + CategoryServicePath;
-            var response = await _soapClient!.SendAsync(url, "GetCategoryAttributes", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "GetCategoryAttributes", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 
@@ -824,7 +838,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         {
             var body = N11SoapRequestBuilder.BuildGetBrands(_appKey!, _appSecret!, page, pageSize);
             var url = _soapBaseUrl + BrandServicePath;
-            var response = await _soapClient!.SendAsync(url, "GetBrands", body, ct).ConfigureAwait(false);
+            var response = await ThrottledSoapAsync(url, "GetBrands", body, ct).ConfigureAwait(false);
 
             ThrowIfSoapFault(response);
 

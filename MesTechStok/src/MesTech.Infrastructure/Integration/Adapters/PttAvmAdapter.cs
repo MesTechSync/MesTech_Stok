@@ -92,6 +92,21 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     public string PlatformCode => nameof(PlatformType.PttAVM);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
@@ -235,7 +250,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/product/list?page={page}&size={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -321,7 +336,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/stock";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -366,7 +381,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/price";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -402,7 +417,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var url = $"{_baseUrl}/api/category/list";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -496,7 +511,7 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/orders?startDate={sinceStr}&page={page}&size={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)

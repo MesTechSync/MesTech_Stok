@@ -94,6 +94,21 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     public string PlatformCode => nameof(PlatformType.Amazon);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
@@ -192,7 +207,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=summaries&pageSize=1",
                 ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     // We need to clone the request on retry since HttpRequestMessage can only be sent once
@@ -268,7 +283,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=summaries",
                 ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -370,7 +385,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var sku = Uri.EscapeDataString(product.SKU);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -423,7 +438,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
 
             var url = $"/orders/v0/orders?MarketplaceIds={TurkeyMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -497,7 +512,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     {
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -656,7 +671,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
         // Step 1: Create feed document
         var createDocPayload = JsonSerializer.Serialize(new { contentType = "text/xml; charset=UTF-8" }, _jsonOptions);
 
-        var createDocResponse = await _retryPipeline.ExecuteAsync(
+        var createDocResponse = await ThrottledExecuteAsync(
             async token =>
             {
                 var request = await CreateAuthenticatedRequestAsync(
@@ -701,7 +716,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
             inputFeedDocumentId = feedDocumentId
         }, _jsonOptions);
 
-        var createFeedResponse = await _retryPipeline.ExecuteAsync(
+        var createFeedResponse = await ThrottledExecuteAsync(
             async token =>
             {
                 var request = await CreateAuthenticatedRequestAsync(
@@ -750,7 +765,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 }
             }, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -786,7 +801,7 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
                 destinationId = "default"
             }, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(

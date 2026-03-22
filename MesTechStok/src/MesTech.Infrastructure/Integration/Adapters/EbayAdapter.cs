@@ -100,6 +100,21 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     public string PlatformCode => nameof(PlatformType.eBay);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
@@ -245,7 +260,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             while (hasMore)
             {
                 var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item?limit={pageSize}&offset={offset}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -341,7 +356,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}";
 
             // We need the current inventory_item first to do a proper PUT (partial update not supported)
-            var getResponse = await _retryPipeline.ExecuteAsync(
+            var getResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
             string existingProductTitle = string.Empty;
 
@@ -373,7 +388,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var putResponse = await _retryPipeline.ExecuteAsync(
+            var putResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
@@ -410,7 +425,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
 
             // Step 1: Find offerId for the SKU
             var getOffersUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer?sku={sku}";
-            var getResponse = await _retryPipeline.ExecuteAsync(
+            var getResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(getOffersUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!getResponse.IsSuccessStatusCode)
@@ -463,7 +478,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var putUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer/{offerId}";
             using var putContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var putResponse = await _retryPipeline.ExecuteAsync(
+            var putResponse = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
@@ -502,7 +517,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             // category_tree_id=3 is Turkey; override via CategoryTreeId config if needed
             const int categoryTreeId = 3;
             var url = $"{_ebayBaseUrl}/commerce/taxonomy/v1/category_tree/{categoryTreeId}";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -619,7 +634,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             while (hasMore)
             {
                 var url = $"{_ebayBaseUrl}/sell/fulfillment/v1/order?filter={filter}&limit={pageSize}&offset={offset}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -852,7 +867,7 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

@@ -110,6 +110,20 @@ public class PttKargoAdapter : ICargoAdapter
             throw new InvalidOperationException("PttKargoAdapter henuz konfigure edilmedi.");
     }
 
+    private async Task<XElement> ThrottledSoapAsync(
+        string url, string soapAction, XElement body, CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _soapClient.SendAsync(url, soapAction, body, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     // ── ICargoAdapter.IsAvailableAsync ──────────────────
     public async Task<bool> IsAvailableAsync(CancellationToken ct = default)
     {
@@ -121,7 +135,7 @@ public class PttKargoAdapter : ICargoAdapter
                 AuthElement(),
                 new XElement(PttNs + "barkodNo", "PING-TEST"));
 
-            await _soapClient.SendAsync(
+            await ThrottledSoapAsync(
                 _trackingServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiSorgula",
                 body, ct);
@@ -160,7 +174,7 @@ public class PttKargoAdapter : ICargoAdapter
                     El("kapidaOdeme", request.CodAmount.HasValue ? "E" : "H"),
                     El("kapidaOdemeTutar", request.CodAmount?.ToString("F2") ?? "0.00")));
 
-            var result = await _soapClient.SendAsync(
+            var result = await ThrottledSoapAsync(
                 _shipmentServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiKaydet",
                 body, ct);
@@ -198,7 +212,7 @@ public class PttKargoAdapter : ICargoAdapter
                 AuthElement(),
                 new XElement(PttNs + "barkodNo", SecurityElement.Escape(trackingNumber)));
 
-            var result = await _soapClient.SendAsync(
+            var result = await ThrottledSoapAsync(
                 _trackingServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiSorgula",
                 body, ct);
@@ -245,7 +259,7 @@ public class PttKargoAdapter : ICargoAdapter
                 AuthElement(),
                 new XElement(PttNs + "gonderiNo", SecurityElement.Escape(shipmentId)));
 
-            var result = await _soapClient.SendAsync(
+            var result = await ThrottledSoapAsync(
                 _shipmentServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiIptal",
                 body, ct);
@@ -280,7 +294,7 @@ public class PttKargoAdapter : ICargoAdapter
             AuthElement(),
             new XElement(PttNs + "gonderiNo", SecurityElement.Escape(shipmentId)));
 
-        var result = await _soapClient.SendAsync(
+        var result = await ThrottledSoapAsync(
             _shipmentServiceUrl,
             "http://ws.ptt.gov.tr/etiketAl",
             body, ct);

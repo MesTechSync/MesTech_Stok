@@ -87,6 +87,21 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     public string PlatformCode => nameof(PlatformType.Ozon);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
@@ -162,7 +177,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
             // Probe call to verify credentials — POST /v1/seller/info
             using var probe = BuildPostRequest("/v1/seller/info", new { });
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(probe, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -245,7 +260,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var listRequest = BuildPostRequest("/v2/product/list", listPayload);
-                var listResponse = await _retryPipeline.ExecuteAsync(
+                var listResponse = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(listRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!listResponse.IsSuccessStatusCode)
@@ -279,7 +294,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var infoRequest = BuildPostRequest("/v2/product/info/list", infoPayload);
-                var infoResponse = await _retryPipeline.ExecuteAsync(
+                var infoResponse = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(infoRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!infoResponse.IsSuccessStatusCode)
@@ -392,7 +407,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             };
 
             using var request = BuildPostRequest("/v2/products/stocks", payload);
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -466,7 +481,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
             };
 
             using var request = BuildPostRequest("/v1/product/import/prices", payload);
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -546,7 +561,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
                 };
 
                 using var request = BuildPostRequest("/v3/posting/fbs/list", payload);
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -699,7 +714,7 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
         {
             var payload = new { language = "DEFAULT" };
             using var request = BuildPostRequest("/v1/description-category/tree", payload);
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

@@ -107,6 +107,21 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             .Build();
     }
 
+    private async Task<HttpResponseMessage> ThrottledExecuteAsync(
+        Func<CancellationToken, ValueTask<HttpResponseMessage>> action,
+        CancellationToken ct)
+    {
+        await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await _retryPipeline.ExecuteAsync(action, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _rateLimitSemaphore.Release();
+        }
+    }
+
     // ─────────────────────────────────────────────
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
@@ -203,7 +218,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
             // Probe: fetch a single article to confirm API access
             var url = $"{ApiBase}/partner/articles?page=0&pageSize=1";
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -259,7 +274,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             while (hasMore)
             {
                 var url = $"{ApiBase}/partner/articles?page={page}&pageSize={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -358,7 +373,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PostAsync($"{ApiBase}/partner/inventory", content, token)
                     .ConfigureAwait(false), ct).ConfigureAwait(false);
 
@@ -407,7 +422,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PostAsync($"{ApiBase}/partner/prices", content, token)
                     .ConfigureAwait(false), ct).ConfigureAwait(false);
 
@@ -470,7 +485,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             {
                 var url = $"{ApiBase}/partner/orders?createdAfter={Uri.EscapeDataString(sinceStr)}" +
                           $"&page={page}&pageSize={pageSize}";
-                var response = await _retryPipeline.ExecuteAsync(
+                var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -669,7 +684,7 @@ public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingabl
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _retryPipeline.ExecuteAsync(
+            var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
