@@ -32,7 +32,7 @@
                         Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Platformlara Gonder"
                         Command="{Binding SendToPlatformCommand}"
-                        Background="#8B5CF6" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPurple}" Foreground="White" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Tumu Kaydet"
                         Command="{Binding SaveAllCommand}"
@@ -66,7 +66,7 @@
                                     <!-- Attribute Name -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
-                                                   Foreground="#334155" VerticalAlignment="Center" />
+                                                   Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                                         <TextBlock Text=":" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                                     </StackPanel>
 
@@ -127,7 +127,7 @@
 
         <!-- Row 2: Summary Bar -->
         <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" Padding="16,10"
-                BorderBrush="#BFDBFE" BorderThickness="0,0,0,1">
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="Toplam Varyant:" FontSize="13" Foreground="{DynamicResource MesTextSlate}" />
@@ -206,7 +206,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="5"
-                Background="#99FFFFFF" IsVisible="{Binding IsLoading}" ZIndex="100">
+                Background="{DynamicResource MesOverlayLight}" IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
                 <TextBlock Text="Varyantlar yukleniyor..." FontSize="14" Foreground="{DynamicResource MesTextMuted}"

@@ -77,7 +77,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4">
                                         <Ellipse Width="12" Height="12" VerticalAlignment="Center">
                                             <Ellipse.Fill>
-                                                <SolidColorBrush Color="#4CAF50" />
+                                                <SolidColorBrush Color="{DynamicResource MesEmerald}" />
                                             </Ellipse.Fill>
                                         </Ellipse>
                                         <StackPanel Spacing="2">
@@ -104,7 +104,7 @@
                                       ItemsSource="{Binding RejectReasons}"
                                       SelectedItem="{Binding SelectedRejectReason}" />
                             <Button Content="Reddet" Command="{Binding RejectCommand}"
-                                    Background="#F44336" Foreground="White" FontWeight="SemiBold"
+                                    Background="{DynamicResource MesRedBright}" Foreground="White" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="6" />
                         </StackPanel>
                     </StackPanel>
@@ -114,7 +114,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

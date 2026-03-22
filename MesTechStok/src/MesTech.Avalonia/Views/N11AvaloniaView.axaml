@@ -13,14 +13,14 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="N11 Entegrasyonu" Foreground="White"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2"
+                    <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="10" Padding="8,2"
                             IsVisible="{Binding IsConnected}">
                         <TextBlock Text="Bagli" Foreground="White" FontSize="12"
                                    VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="#FF634722" CornerRadius="10" Padding="8,2"
+                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="10" Padding="8,2"
                             IsVisible="{Binding !IsConnected}">
-                        <TextBlock Text="Bagli Degil" Foreground="#FFCDD2" FontSize="12"
+                        <TextBlock Text="Bagli Degil" Foreground="{DynamicResource MesRedBright}" FontSize="12"
                                    VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -29,7 +29,7 @@
                             Background="White" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                            Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                            Background="{DynamicResource MesOverlayLight}" Foreground="White" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="6" />
                 </StackPanel>
             </Grid>
@@ -142,7 +142,7 @@
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="#99FFFFFF"
+                Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
