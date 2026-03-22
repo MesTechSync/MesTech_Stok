@@ -546,6 +546,16 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<PayTRiFrameAdapter>>()));
         services.AddScoped<IPaymentProvider>(sp => sp.GetRequiredService<PayTRiFrameAdapter>());
 
+        // Payment gateways — IPaymentGateway (iyzico, Stripe)
+        if (configuration is not null)
+        {
+            services.Configure<IyzicoOptions>(configuration.GetSection("Iyzico"));
+            services.Configure<StripeOptions>(configuration.GetSection("Stripe"));
+        }
+        services.AddScoped<IyzicoPaymentGateway>();
+        services.AddScoped<StripePaymentGateway>();
+        services.AddScoped<IPaymentGateway>(sp => sp.GetRequiredService<IyzicoPaymentGateway>());
+
         // Dalga 10 C-01: Shopify — X-Shopify-Access-Token, cursor pagination, HMAC-SHA256 webhooks
         if (configuration is not null)
             services.Configure<ShopifyOptions>(configuration.GetSection(ShopifyOptions.Section));
