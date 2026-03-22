@@ -16,12 +16,20 @@
 
   <ItemGroup>
     <!-- GHSA-5crp fix: pin Newtonsoft.Json 13.0.3 via CPM to override transitive 11.0.1 from MassTransit -->
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Newtonsoft.Json" />
     <!-- JWT token parsing for JwtAuthenticationStateProvider -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <!-- Structured logging — Console + Seq (production observability) -->
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Seq" />
+    <!-- Health Checks — PostgreSQL + Redis + RabbitMQ monitoring -->
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" />
+    <!-- Polly resilience — retry + circuit breaker for API calls -->
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Polly.Extensions.Http" />
   </ItemGroup>
 
 </Project>
