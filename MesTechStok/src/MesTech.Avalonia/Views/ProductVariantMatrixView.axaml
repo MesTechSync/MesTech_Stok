@@ -17,11 +17,11 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Varyant Matrisi" Foreground="White"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
                         <TextBlock Text="{Binding ProductName}" Foreground="White"
                                    FontSize="12" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
                         <TextBlock Text="{Binding ProductSKU}" Foreground="White"
                                    FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
                     </Border>

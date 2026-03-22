@@ -51,7 +51,7 @@
 
                 <!-- Generating Overlay Message -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
-                        BorderBrush="#FDBA74" BorderThickness="1"
+                        BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsGenerating}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <ProgressBar IsIndeterminate="True" Width="120" Height="4"

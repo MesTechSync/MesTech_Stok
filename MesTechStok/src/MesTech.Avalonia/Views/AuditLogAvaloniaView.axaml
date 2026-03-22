@@ -19,7 +19,7 @@
                 </StackPanel>
                 <Button Grid.Column="1" Content="CSV Disari Aktar"
                         Command="{Binding ExportCsvCommand}"
-                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"

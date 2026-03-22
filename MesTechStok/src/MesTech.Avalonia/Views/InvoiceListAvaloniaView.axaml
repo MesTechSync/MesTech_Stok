@@ -17,7 +17,7 @@
                     <TextBlock Text="Faturalar" Foreground="White"
                                FontSize="{StaticResource FontSizeHeader}" FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="8,2">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
                                    Foreground="White" FontSize="{StaticResource FontSizeSmall}"
                                    VerticalAlignment="Center"/>

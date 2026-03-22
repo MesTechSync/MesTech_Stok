@@ -22,7 +22,7 @@
                         Padding="16,8" CornerRadius="6" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="6" />
             </Grid>
         </Border>
@@ -33,7 +33,7 @@
 
                 <!-- Backup Progress -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
-                        BorderBrush="#FDBA74" BorderThickness="1"
+                        BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsBackingUp}">
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="12">

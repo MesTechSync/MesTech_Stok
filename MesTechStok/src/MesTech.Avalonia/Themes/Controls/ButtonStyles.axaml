@@ -50,7 +50,7 @@
     <Setter Property="Background" Value="#43A047"/>
   </Style>
   <Style Selector="Button.mestech-accent:pressed">
-    <Setter Property="Background" Value="#388E3C"/>
+    <Setter Property="Background" Value="{DynamicResource MesGreenMaterial}"/>
   </Style>
 
   <!-- Outline Button -->

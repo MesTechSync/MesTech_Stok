@@ -15,7 +15,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Siparis Yonetimi" Foreground="White"
                                FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
-                    <Border Background="#FFFFFF22" CornerRadius="10" Padding="10,4">
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="10,4">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} siparis'}"
                                    Foreground="White" FontSize="12" VerticalAlignment="Center" />
                     </Border>

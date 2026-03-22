@@ -65,7 +65,11 @@
     <Color x:Key="MesBorderSuccess">#A7F3D0</Color>
     <Color x:Key="MesBorderMuted">#CBD5E1</Color>
 
+    <!-- ═══ BORDER AMBER ═══ -->
+    <Color x:Key="MesBorderAmberLight">#FDBA74</Color>
+
     <!-- ═══ OVERLAY ═══ -->
+    <Color x:Key="MesBadgeOverlay">#FFFFFF22</Color>
     <Color x:Key="MesOverlayLight">#99FFFFFF</Color>
     <Color x:Key="MesOverlayMedium">#80FFFFFF</Color>
 

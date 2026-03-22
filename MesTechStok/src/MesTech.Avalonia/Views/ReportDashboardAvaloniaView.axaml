@@ -29,7 +29,7 @@
 
                 <!-- Generating Overlay -->
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="8" Padding="16"
-                        BorderBrush="#FDBA74" BorderThickness="1"
+                        BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
                         IsVisible="{Binding IsGenerating}">
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="12">

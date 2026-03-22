@@ -15,7 +15,7 @@
                            FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Sifirla"
                         Command="{Binding ResetCommand}"
-                        Background="#FFFFFF33" Foreground="White" FontWeight="SemiBold"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="White" FontWeight="SemiBold"
                         Padding="12,8" CornerRadius="6" />
             </Grid>
         </Border>
