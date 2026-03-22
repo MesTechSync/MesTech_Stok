@@ -22,9 +22,18 @@ public class SupplierAccount : BaseEntity, ITenantEntity
     public string? SupplierEmail { get; set; }
     public string? SupplierPhone { get; set; }
 
-    public int PaymentTermDays { get; set; }
+    public int PaymentTermDays { get; private set; }
     public string Currency { get; set; } = "TRY";
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; private set; } = true;
+
+    public void SetPaymentTerms(int days)
+    {
+        if (days < 0) throw new ArgumentException("Ödeme vadesi negatif olamaz.", nameof(days));
+        PaymentTermDays = days;
+    }
+
+    public void Activate() => IsActive = true;
+    public void Deactivate() => IsActive = false;
 
     // Navigation
     public Supplier? Supplier { get; set; }

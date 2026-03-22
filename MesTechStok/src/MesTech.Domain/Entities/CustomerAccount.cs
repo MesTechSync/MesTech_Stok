@@ -22,9 +22,18 @@ public class CustomerAccount : BaseEntity, ITenantEntity
     public string? CustomerEmail { get; set; }
     public string? CustomerPhone { get; set; }
 
-    public decimal CreditLimit { get; set; }
+    public decimal CreditLimit { get; private set; }
     public string Currency { get; set; } = "TRY";
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; private set; } = true;
+
+    public void SetCreditLimit(decimal limit)
+    {
+        if (limit < 0) throw new ArgumentException("Kredi limiti negatif olamaz.", nameof(limit));
+        CreditLimit = limit;
+    }
+
+    public void Activate() => IsActive = true;
+    public void Deactivate() => IsActive = false;
 
     // Navigation
     public Customer? Customer { get; set; }
