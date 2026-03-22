@@ -32,7 +32,7 @@ public class FeedReliabilityScoreTests
         // var result = await service.CalculateAsync(feedId, CancellationToken.None);
         // result.Score.Should().BeGreaterOrEqualTo(90);
         // result.Color.Should().Be(ReliabilityColor.Green);
-        Assert.True(true, "Placeholder — activate when DEV 1 completes");
+        // TODO: Implement when DEV 1 completes FeedReliabilityScoreService
     }
 
     [Fact(Skip = SkipReason)]
@@ -47,7 +47,7 @@ public class FeedReliabilityScoreTests
         // var result = await service.CalculateAsync(feedId, CancellationToken.None);
         // result.Score.Should().BeInRange(75, 89);
         // result.Color.Should().Be(ReliabilityColor.Yellow);
-        Assert.True(true, "Placeholder — activate when DEV 1 completes");
+        // TODO: Implement when DEV 1 completes FeedReliabilityScoreService
     }
 
     [Fact(Skip = SkipReason)]
@@ -62,7 +62,7 @@ public class FeedReliabilityScoreTests
         // var result = await service.CalculateAsync(feedId, CancellationToken.None);
         // result.Score.Should().BeInRange(50, 74);
         // result.Color.Should().Be(ReliabilityColor.Orange);
-        Assert.True(true, "Placeholder — activate when DEV 1 completes");
+        // TODO: Implement when DEV 1 completes FeedReliabilityScoreService
     }
 
     [Fact(Skip = SkipReason)]
@@ -77,7 +77,7 @@ public class FeedReliabilityScoreTests
         // var result = await service.CalculateAsync(feedId, CancellationToken.None);
         // result.Score.Should().BeLessThan(50);
         // result.Color.Should().Be(ReliabilityColor.Red);
-        Assert.True(true, "Placeholder — activate when DEV 1 completes");
+        // TODO: Implement when DEV 1 completes FeedReliabilityScoreService
     }
 
     [Fact(Skip = SkipReason)]
@@ -89,7 +89,7 @@ public class FeedReliabilityScoreTests
         // var result2 = await service.CalculateAsync(feedId, CancellationToken.None);
         // result1.Score.Should().Be(result2.Score);
         // result1.Color.Should().Be(result2.Color);
-        Assert.True(true, "Placeholder — activate when DEV 1 completes");
+        // TODO: Implement when DEV 1 completes FeedReliabilityScoreService
     }
 
     /// <summary>

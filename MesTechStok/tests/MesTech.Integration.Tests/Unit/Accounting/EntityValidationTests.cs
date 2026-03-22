@@ -25,23 +25,21 @@ public class EntityValidationTests
     // ═══════════════════════════════════════════════════════════════════
 
     [Fact]
-    public void Expense_NegativeAmount_SetsValue()
+    public void Expense_NegativeAmount_ThrowsArgumentException()
     {
-        // Arrange & Act — Expense entity basit setter kullanir, validation yok
-        // Bu test entity'nin davranisini belgeler
+        // Arrange
         var expense = new Expense
         {
             TenantId = _tenantId,
             Description = "Test gider",
-            Amount = -500m,
             ExpenseType = ExpenseType.Diger,
             Date = DateTime.UtcNow
         };
 
-        // Assert — Setter bazli entity'de validation yok, deger aynen set edilir
-        // Not: Validation Application layer'da yapilir
-        expense.Amount.Should().Be(-500m,
-            "basit setter entity'de field-level validation yok — Application layer kontrol etmeli");
+        // Act & Assert — SetAmount validates amount > 0 at domain level
+        var act = () => expense.SetAmount(-500m);
+        act.Should().Throw<ArgumentException>(
+            "domain entity SetAmount rejects negative amounts");
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -56,14 +54,15 @@ public class EntityValidationTests
         {
             TenantId = _tenantId,
             Description = "",
-            Amount = 100m,
             ExpenseType = ExpenseType.Kira,
             Date = DateTime.UtcNow
         };
+        expense.SetAmount(100m);
 
         // Assert — Setter bazli entity, bos string kabul eder
         expense.Description.Should().BeEmpty(
             "basit setter entity bos description'i kabul eder");
+        expense.Amount.Should().Be(100m);
     }
 
     // ═══════════════════════════════════════════════════════════════════

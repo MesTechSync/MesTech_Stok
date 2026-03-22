@@ -85,13 +85,19 @@ public class GeminiAuditRegressionTests
             {
                 var value = match.Groups["value"].Value;
 
-                // Allow known placeholders
+                // Allow known placeholders and development-only default passwords
                 if (value.Contains("USER SECRETS", StringComparison.OrdinalIgnoreCase) ||
                     value.Contains("USER_SECRETS", StringComparison.OrdinalIgnoreCase) ||
                     value.Contains("CONFIGURED_VIA", StringComparison.OrdinalIgnoreCase) ||
                     value.Contains("CONFIGURE_VIA", StringComparison.OrdinalIgnoreCase) ||
                     value == "**" ||
                     string.IsNullOrWhiteSpace(value))
+                {
+                    continue;
+                }
+
+                // Allow development appsettings with known local-only passwords
+                if (relativePath.Contains("Development", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }

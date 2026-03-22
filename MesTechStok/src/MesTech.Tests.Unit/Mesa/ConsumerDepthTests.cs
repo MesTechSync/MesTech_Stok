@@ -284,7 +284,7 @@ public class ConsumerDepthTests
         var context = new Mock<ConsumeContext<MesaBotNotificationSentEvent>>();
         context.SetupGet(c => c.Message).Returns(new MesaBotNotificationSentEvent(
             "",
-            "",
+            "+905550000000",
             false,
             "Connection timeout",
             TestTenantId,

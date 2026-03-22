@@ -1,5 +1,7 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -25,19 +27,20 @@ public class ViewModelNavigationTests
     [Fact]
     public void NavigateTo_Dashboard_SetsTitleToKontrolPaneli()
     {
-        // Arrange — register a mock DashboardAvaloniaViewModel
-        var mockDashVm = new Mock<DashboardAvaloniaViewModel>(
-            Mock.Of<MediatR.IMediator>()).Object;
+        // Arrange — use a simple ObservableObject stub instead of mocking
+        // DashboardAvaloniaViewModel (which creates KpiCardViewModel/AvaloniaObject
+        // instances that require the Avalonia dispatcher thread).
+        var stubVm = new StubViewModel();
         _mockFactory
             .Setup(f => f.Create("Dashboard"))
-            .Returns(mockDashVm);
+            .Returns(stubVm);
 
         // Act
         _sut.NavigateToCommand.Execute("Dashboard");
 
         // Assert
         _sut.CurrentViewTitle.Should().Be("Kontrol Paneli");
-        _sut.CurrentView.Should().BeSameAs(mockDashVm);
+        _sut.CurrentView.Should().BeSameAs(stubVm);
     }
 
     [Theory]
@@ -86,3 +89,9 @@ public class ViewModelNavigationTests
         _sut.CurrentView.Should().BeNull();
     }
 }
+
+/// <summary>
+/// Lightweight ObservableObject stub for navigation tests.
+/// Avoids creating DashboardAvaloniaViewModel (which depends on Avalonia dispatcher).
+/// </summary>
+internal sealed class StubViewModel : ObservableObject { }

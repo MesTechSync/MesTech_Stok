@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.Domain;
@@ -150,34 +151,19 @@ public class StockMovementTests
     // ── Negative Stock Control (User-requested: documents domain behavior) ──
 
     [Fact]
-    public void NegativeStockControl_WhenWithdrawingMoreThanAvailable_StockGoesNegative()
+    public void NegativeStockControl_WhenWithdrawingMoreThanAvailable_ThrowsInsufficientStockException()
     {
         // ARRANGE: Product with 10 units in stock
         var product = FakeData.CreateProduct(sku: "NEG-001", stock: 10);
         product.Stock.Should().Be(10);
 
         // ACT: Withdraw 25 units (more than available)
-        // Product.AdjustStock does Stock += quantity with no guard clause.
-        // Passing -25 means stock becomes 10 + (-25) = -15.
-        product.AdjustStock(-25, StockMovementType.Sale, "Test excess withdrawal");
+        // Product.AdjustStock guards against negative stock and throws InsufficientStockException.
+        var act = () => product.AdjustStock(-25, StockMovementType.Sale, "Test excess withdrawal");
 
-        // ASSERT: Stock goes negative — this is the current domain behavior.
-        // No exception is thrown. This documents that the domain ALLOWS negative stock.
-        // If a business rule change requires preventing negative stock,
-        // this test must be updated to expect an exception or validation error.
-        product.Stock.Should().Be(-15);
-        product.IsOutOfStock().Should().BeTrue();
-
-        // Domain events: StockChangedEvent + LowStockDetectedEvent (stock crossed threshold)
-        product.DomainEvents.Should().HaveCount(2);
-        var stockEvent = product.DomainEvents[0] as MesTech.Domain.Events.StockChangedEvent;
-        stockEvent.Should().NotBeNull();
-        stockEvent!.PreviousQuantity.Should().Be(10);
-        stockEvent.NewQuantity.Should().Be(-15);
-
-        var lowStockEvent = product.DomainEvents[1] as MesTech.Domain.Events.LowStockDetectedEvent;
-        lowStockEvent.Should().NotBeNull();
-        lowStockEvent!.CurrentStock.Should().Be(-15);
-        lowStockEvent.MinimumStock.Should().Be(5);
+        // ASSERT: InsufficientStockException is thrown — domain prevents negative stock.
+        act.Should().Throw<InsufficientStockException>();
+        product.Stock.Should().Be(10); // Stock unchanged
+        product.DomainEvents.Should().BeEmpty(); // No events raised
     }
 }

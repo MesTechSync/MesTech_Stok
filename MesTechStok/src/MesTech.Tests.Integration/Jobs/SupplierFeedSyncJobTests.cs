@@ -29,7 +29,7 @@ public class SupplierFeedSyncJobTests
         // - Products created in DB with correct SKU, name, price
         // - SupplierFeed.LastSyncStatus == Completed
         // - SupplierFeed.LastSyncProductCount == 3
-        Assert.True(true, "Placeholder — activate when DEV 1 + DEV 3 complete");
+        // TODO: Implement when DEV 1 + DEV 3 complete implementations
     }
 
     [Fact(Skip = SkipReason)]
@@ -43,7 +43,7 @@ public class SupplierFeedSyncJobTests
         // Assert:
         // - Product.IsActive == false
         // - SupplierFeed.LastSyncDeactivatedCount >= 1
-        Assert.True(true, "Placeholder — activate when DEV 1 + DEV 3 complete");
+        // TODO: Implement when DEV 1 + DEV 3 complete implementations
     }
 
     [Fact(Skip = SkipReason)]
@@ -57,7 +57,7 @@ public class SupplierFeedSyncJobTests
         // Assert:
         // - Product.IsActive == true
         // - Product.Stock == feed quantity
-        Assert.True(true, "Placeholder — activate when DEV 1 + DEV 3 complete");
+        // TODO: Implement when DEV 1 + DEV 3 complete implementations
     }
 
     [Fact(Skip = SkipReason)]
@@ -73,7 +73,7 @@ public class SupplierFeedSyncJobTests
         // Also test fixed markup:
         // - UsePercentMarkup = false, PriceMarkupFixed = 25
         // - Product.SalePrice == 125.00 (100 + 25)
-        Assert.True(true, "Placeholder — activate when DEV 1 + DEV 3 complete");
+        // TODO: Implement when DEV 1 + DEV 3 complete implementations
     }
 
     [Fact(Skip = SkipReason)]
@@ -87,7 +87,7 @@ public class SupplierFeedSyncJobTests
         // - SupplierFeedSyncedEvent published via MediatR
         // - Event contains correct SupplierId, ProductCount, UpdatedCount
         // Use MediatR Verify or capture published events
-        Assert.True(true, "Placeholder — activate when DEV 1 + DEV 3 complete");
+        // TODO: Implement when DEV 1 + DEV 3 complete implementations
     }
 
     /// <summary>

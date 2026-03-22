@@ -78,13 +78,13 @@ public class PollyAuditTests
         field.Should().NotBeNull("OpenCartAdapter must have _retryPipeline field");
     }
 
-    // ── YurticiKargoAdapter uses SOAP — no Polly pipeline expected ──
+    // ── YurticiKargoAdapter now also uses Polly pipeline (via SimpleSoapClient resilience) ──
 
     [Fact]
-    public void YurticiKargoAdapter_Has_No_RetryPipeline()
+    public void YurticiKargoAdapter_Has_RetryPipeline()
     {
         var field = typeof(YurticiKargoAdapter).GetField("_retryPipeline",
             BindingFlags.NonPublic | BindingFlags.Instance);
-        field.Should().BeNull("YurticiKargoAdapter uses SOAP/SimpleSoapClient — no Polly pipeline");
+        field.Should().NotBeNull("YurticiKargoAdapter now has _retryPipeline field for resilience");
     }
 }

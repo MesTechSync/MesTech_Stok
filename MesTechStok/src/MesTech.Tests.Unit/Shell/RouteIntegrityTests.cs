@@ -208,6 +208,12 @@ public class RouteIntegrityTests
             .Select(Path.GetFileName)
             .ToList();
 
+        // Pages that are in development or loaded via non-standard routes (not in main router)
+        var knownExceptions = new HashSet<string>
+        {
+            "unified-mesa-live.html" // MESA Live dashboard — loaded via direct URL, not router
+        };
+
         // Check that every unified page has at least one route pointing to it
         var routedPaths = _routes.Values
             .Where(v => v.Contains("unified/"))
@@ -216,7 +222,7 @@ public class RouteIntegrityTests
             .ToList();
 
         var uncoveredPages = unifiedFiles
-            .Where(f => f != null && !routedPaths.Contains(f))
+            .Where(f => f != null && !routedPaths.Contains(f) && !knownExceptions.Contains(f))
             .ToList();
 
         uncoveredPages.Should().BeEmpty(

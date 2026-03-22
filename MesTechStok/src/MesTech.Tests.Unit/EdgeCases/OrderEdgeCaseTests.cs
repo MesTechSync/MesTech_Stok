@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.EdgeCases;
@@ -82,7 +83,7 @@ public class OrderEdgeCaseTests
 
         var act = () => order.MarkAsShipped("TRK-001", CargoProvider.SuratKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Cancelled status*");
     }
 
@@ -93,7 +94,7 @@ public class OrderEdgeCaseTests
 
         var act = () => order.MarkAsShipped("TRK-002", CargoProvider.MngKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Shipped status*");
     }
 

@@ -21,15 +21,15 @@ public class EdgeCaseTests
     public class NegativeAmountTests
     {
         [Fact]
-        public void Product_NegativeStock_AdjustStock_AllowsGoingBelowZero()
+        public void Product_NegativeStock_AdjustStock_ThrowsInsufficientStockException()
         {
-            // Product.AdjustStock does not guard against negative results
+            // Product.AdjustStock guards against negative stock results
             var product = FakeData.CreateProduct(stock: 5);
 
-            product.AdjustStock(-10, StockMovementType.StockOut);
+            var act = () => product.AdjustStock(-10, StockMovementType.StockOut);
 
-            product.Stock.Should().Be(-5);
-            product.IsOutOfStock().Should().BeTrue();
+            act.Should().Throw<InsufficientStockException>();
+            product.Stock.Should().Be(5); // Stock unchanged
         }
 
         [Fact]

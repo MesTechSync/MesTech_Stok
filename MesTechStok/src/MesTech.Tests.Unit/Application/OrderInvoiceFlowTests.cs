@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 
 namespace MesTech.Tests.Unit.Application;
 
@@ -227,7 +228,7 @@ public class OrderInvoiceFlowTests
         acceptedInvoice.MarkAsAccepted();
 
         var act = () => acceptedInvoice.Cancel();
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*iptal*");
     }
 }

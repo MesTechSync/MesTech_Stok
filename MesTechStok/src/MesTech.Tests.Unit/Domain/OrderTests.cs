@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 
 namespace MesTech.Tests.Unit.Domain;
 
@@ -117,7 +118,7 @@ public class OrderTests
 
         var act = () => order.MarkAsShipped("YK123", MesTech.Domain.Enums.CargoProvider.YurticiKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Pending status*");
     }
 
@@ -128,7 +129,7 @@ public class OrderTests
 
         var act = () => order.MarkAsShipped("YK123", MesTech.Domain.Enums.CargoProvider.YurticiKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Delivered status*");
     }
 

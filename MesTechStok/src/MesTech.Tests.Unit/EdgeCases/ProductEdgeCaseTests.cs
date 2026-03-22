@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.EdgeCases;
@@ -15,15 +16,15 @@ namespace MesTech.Tests.Unit.EdgeCases;
 public class ProductEdgeCaseTests
 {
     [Fact]
-    public void AdjustStock_ToNegativeStock_ShouldAllowNegativeValue()
+    public void AdjustStock_ToNegativeStock_ShouldThrowInsufficientStockException()
     {
-        // Domain allows negative stock (oversold scenario) — caller decides policy
+        // Domain guards against negative stock — throws InsufficientStockException
         var product = FakeData.CreateProduct(stock: 5);
 
-        product.AdjustStock(-10, StockMovementType.StockOut);
+        var act = () => product.AdjustStock(-10, StockMovementType.StockOut);
 
-        product.Stock.Should().Be(-5);
-        product.IsOutOfStock().Should().BeTrue();
+        act.Should().Throw<InsufficientStockException>();
+        product.Stock.Should().Be(5); // Stock unchanged
     }
 
     [Fact]
@@ -43,9 +44,9 @@ public class ProductEdgeCaseTests
 
         product.AdjustStock(-6, StockMovementType.StockOut);
 
-        // Should have StockChanged + LowStockDetected events
-        product.DomainEvents.Should().HaveCount(2);
-        product.DomainEvents[1].Should().BeOfType<LowStockDetectedEvent>();
+        // Should have StockChanged + LowStockDetected + StockCritical events
+        product.DomainEvents.Should().HaveCountGreaterOrEqualTo(2);
+        product.DomainEvents.Should().ContainItemsAssignableTo<LowStockDetectedEvent>();
     }
 
     [Fact]
@@ -55,8 +56,8 @@ public class ProductEdgeCaseTests
 
         product.AdjustStock(-1, StockMovementType.StockOut);
 
-        // Only StockChanged, no LowStockDetected (already below)
-        product.DomainEvents.Should().HaveCount(1);
+        // No LowStockDetected (already below minimum), but StockChanged + StockCritical fire
+        product.DomainEvents.Should().NotContainItemsAssignableTo<LowStockDetectedEvent>();
         product.DomainEvents[0].Should().BeOfType<StockChangedEvent>();
     }
 

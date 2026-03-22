@@ -106,19 +106,32 @@ public class BulkProductImportTests
                 decimal price = 0;
                 if (headers.ContainsKey("Price"))
                 {
-                    var priceStr = worksheet.Cell(row, headers["Price"]).GetString().Trim();
-                    if (decimal.TryParse(priceStr, System.Globalization.NumberStyles.Any,
-                        System.Globalization.CultureInfo.InvariantCulture, out var parsedPrice))
+                    var cell = worksheet.Cell(row, headers["Price"]);
+                    if (cell.DataType == XLDataType.Number)
                     {
-                        price = parsedPrice;
+                        price = (decimal)cell.GetDouble();
+                    }
+                    else
+                    {
+                        var priceStr = cell.GetString().Trim();
+                        decimal.TryParse(priceStr, System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture, out price);
                     }
                 }
 
                 int stock = 0;
                 if (headers.ContainsKey("Stock"))
                 {
-                    var stockStr = worksheet.Cell(row, headers["Stock"]).GetString().Trim();
-                    int.TryParse(stockStr, out stock);
+                    var cell = worksheet.Cell(row, headers["Stock"]);
+                    if (cell.DataType == XLDataType.Number)
+                    {
+                        stock = (int)cell.GetDouble();
+                    }
+                    else
+                    {
+                        var stockStr = cell.GetString().Trim();
+                        int.TryParse(stockStr, out stock);
+                    }
                 }
 
                 // Validation: negative price

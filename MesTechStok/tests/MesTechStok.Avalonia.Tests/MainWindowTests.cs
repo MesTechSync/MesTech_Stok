@@ -24,9 +24,9 @@ public class MainWindowTests
 
         // Assert — window should instantiate without errors
         window.Should().NotBeNull();
-        window.Title.Should().Be("MesTech Stok — Avalonia PoC");
-        window.Width.Should().Be(1280);
-        window.Height.Should().Be(800);
+        window.Title.Should().Be("MesTech Entegratör");
+        window.Width.Should().Be(1400);
+        window.Height.Should().Be(900);
     }
 
     [AvaloniaFact]

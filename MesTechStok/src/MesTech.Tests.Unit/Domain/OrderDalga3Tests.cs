@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.Domain;
@@ -17,24 +18,24 @@ public class OrderDalga3Tests
     // ── MarkAsShipped from invalid statuses ──
 
     [Fact]
-    public void MarkAsShipped_FromShipped_ThrowsInvalidOperationException()
+    public void MarkAsShipped_FromShipped_ThrowsBusinessRuleException()
     {
         var order = FakeData.CreateOrder(status: OrderStatus.Shipped);
 
         var act = () => order.MarkAsShipped("TR123", CargoProvider.MngKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Shipped status*");
     }
 
     [Fact]
-    public void MarkAsShipped_FromCancelled_ThrowsInvalidOperationException()
+    public void MarkAsShipped_FromCancelled_ThrowsBusinessRuleException()
     {
         var order = FakeData.CreateOrder(status: OrderStatus.Cancelled);
 
         var act = () => order.MarkAsShipped("TR456", CargoProvider.PttKargo);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<BusinessRuleException>()
             .WithMessage("*Cannot ship order in Cancelled status*");
     }
 

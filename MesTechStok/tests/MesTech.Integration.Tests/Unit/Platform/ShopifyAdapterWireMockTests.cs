@@ -11,6 +11,41 @@ using Xunit;
 namespace MesTech.Integration.Tests.Unit.Platform;
 
 /// <summary>
+/// Redirects all outgoing HTTP requests to the WireMock server,
+/// regardless of the original scheme/host/port. This allows the
+/// ShopifyAdapter (which constructs absolute https:// URLs) to
+/// hit the local WireMock HTTP server.
+/// </summary>
+internal sealed class WireMockRedirectHandler : DelegatingHandler
+{
+    private readonly Uri _wireMockBaseUri;
+
+    public WireMockRedirectHandler(string wireMockUrl)
+        : base(new HttpClientHandler())
+    {
+        _wireMockBaseUri = new Uri(wireMockUrl.TrimEnd('/'));
+    }
+
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (request.RequestUri != null)
+        {
+            // Rewrite the request URI to point at WireMock, preserving path+query
+            var builder = new UriBuilder(request.RequestUri)
+            {
+                Scheme = _wireMockBaseUri.Scheme,
+                Host = _wireMockBaseUri.Host,
+                Port = _wireMockBaseUri.Port
+            };
+            request.RequestUri = builder.Uri;
+        }
+
+        return base.SendAsync(request, cancellationToken);
+    }
+}
+
+/// <summary>
 /// ShopifyAdapter WireMock contract tests.
 /// Validates HTTP behavior: product sync, pagination, stock updates,
 /// rate limiting, and fulfillment creation.
@@ -29,7 +64,8 @@ public class ShopifyAdapterWireMockTests : IClassFixture<WireMockFixture>
 
     private ShopifyAdapter CreateAdapter()
     {
-        var httpClient = new HttpClient
+        var handler = new WireMockRedirectHandler(_fixture.ServerUrl);
+        var httpClient = new HttpClient(handler)
         {
             BaseAddress = new Uri(_fixture.ServerUrl + "/")
         };
@@ -38,7 +74,7 @@ public class ShopifyAdapterWireMockTests : IClassFixture<WireMockFixture>
 
     private Dictionary<string, string> ValidCredentials() => new()
     {
-        ["ShopDomain"] = new Uri(_fixture.ServerUrl).Host,
+        ["ShopDomain"] = "test-store.myshopify.com",
         ["AccessToken"] = "shpat_test_token_wiremock",
         ["LocationId"] = "98765",
         ["WebhookSecret"] = "whsec_test_wiremock"
@@ -321,12 +357,11 @@ public class ShopifyAdapterWireMockTests : IClassFixture<WireMockFixture>
                 }
                 """));
 
-        // Assert — SupportsShipment is currently false for Shopify adapter
-        // This test validates that the adapter correctly reports its capabilities
-        adapter.SupportsShipment.Should().BeFalse(
-            "current Shopify adapter does not implement shipment/fulfillment push");
+        // Assert — SupportsShipment is true for the Shopify adapter (Dalga 10 TAM impl)
+        adapter.SupportsShipment.Should().BeTrue(
+            "Shopify adapter implements shipment/fulfillment push (IShipmentCapableAdapter)");
 
-        // Verify the WireMock server was set up correctly for future implementation
+        // Verify the WireMock server was set up correctly
         _fixture.Server.LogEntries.Should().NotBeNull();
     }
 }

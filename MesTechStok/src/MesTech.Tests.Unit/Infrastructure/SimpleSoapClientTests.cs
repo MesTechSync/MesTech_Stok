@@ -85,9 +85,10 @@ public class SimpleSoapClientTests
     [Fact]
     public async Task SendAsync_Non2xxStatus_ThrowsHttpRequestException()
     {
-        var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+        // Use 400 BadRequest to avoid Polly retry delays (Polly only retries >= 500 and 429)
+        var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.BadRequest)
         {
-            Content = new StringContent("Server error")
+            Content = new StringContent("Bad request")
         });
         var client = new SimpleSoapClient(httpClient, _logger);
         var body = new XElement("TestRequest");

@@ -75,13 +75,36 @@ public class DashboardViewTests
         refreshButton.Should().NotBeNull("dashboard should have a Yenile (Refresh) button");
     }
 
-    [Fact]
+    [AvaloniaFact]
     [Trait("Category", "Avalonia")]
     public async Task DashboardViewModel_LoadAsync_PopulatesKpiData()
     {
         // Arrange
         var mockMediator = new Mock<MediatR.IMediator>();
         var mockTenant = new Mock<ITenantProvider>();
+        var tenantId = Guid.NewGuid();
+        mockTenant.Setup(t => t.GetCurrentTenantId()).Returns(tenantId);
+
+        var summaryDto = new MesTech.Application.DTOs.Dashboard.DashboardSummaryDto
+        {
+            ActiveProductCount = 42,
+            TodayOrderCount = 7,
+            TodaySalesAmount = 1250.50m,
+            CriticalStockCount = 3,
+            ActivePlatformCount = 5,
+            PendingShipmentCount = 2,
+            MonthlySalesAmount = 15000m,
+            ReturnRate = 1.5m,
+            RecentOrders = new List<MesTech.Application.DTOs.Dashboard.RecentOrderItemDto>(),
+            CriticalStockItems = new List<MesTech.Application.DTOs.Dashboard.CriticalStockItemDto>()
+        };
+
+        mockMediator
+            .Setup(m => m.Send(
+                It.IsAny<MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary.GetDashboardSummaryQuery>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(summaryDto);
+
         var vm = new DashboardAvaloniaViewModel(mockMediator.Object, mockTenant.Object);
 
         // Assert initial state
