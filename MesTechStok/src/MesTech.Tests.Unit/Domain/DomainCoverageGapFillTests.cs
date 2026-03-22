@@ -379,9 +379,9 @@ public class DomainCoverageGapFillTests
         var income = new Income
         {
             Description = "Product sale",
-            Amount = 500m,
             Note = "Online order"
         };
+        income.SetAmount(500m);
 
         income.Description.Should().Be("Product sale");
         income.Amount.Should().Be(500m);

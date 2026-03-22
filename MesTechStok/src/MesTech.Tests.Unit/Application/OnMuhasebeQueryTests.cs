@@ -21,8 +21,12 @@ public class OnMuhasebeQueryTests
         new(_incomeRepo.Object, _expenseRepo.Object);
 
     private static Income MakeIncome(Guid tenantId, decimal amount, IncomeType type = IncomeType.Satis)
-        => new() { TenantId = tenantId, Amount = amount, IncomeType = type,
+    {
+        var income = new Income { TenantId = tenantId, IncomeType = type,
                    Description = "test", Date = DateTime.UtcNow };
+        income.SetAmount(amount);
+        return income;
+    }
 
     private static Expense MakeExpense(Guid tenantId, decimal amount, ExpenseType type = ExpenseType.Diger)
     {

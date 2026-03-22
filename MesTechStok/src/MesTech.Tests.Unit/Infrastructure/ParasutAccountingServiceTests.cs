@@ -47,14 +47,17 @@ public class ParasutAccountingServiceTests
         => new(httpClient, _incomeRepoMock.Object, _expenseRepoMock.Object, _logger);
 
     private static Income MakeIncome(Guid id)
-        => new()
+    {
+        var income = new Income
         {
             TenantId = Guid.NewGuid(),
             Description = "Test Income",
-            Amount = 1500m,
             IncomeType = IncomeType.Satis,
             Date = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc)
         };
+        income.SetAmount(1500m);
+        return income;
+    }
 
     private static Expense MakeExpense(Guid id)
     {
