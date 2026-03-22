@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class UserRole : BaseEntity
+public class UserRole : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid UserId { get; set; }
     public Guid RoleId { get; set; }
     public DateTime AssignedDate { get; set; } = DateTime.UtcNow;
