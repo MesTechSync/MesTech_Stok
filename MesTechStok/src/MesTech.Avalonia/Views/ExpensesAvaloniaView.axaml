@@ -11,11 +11,11 @@
         <Border Grid.Row="0" Background="{DynamicResource MesRedAlert}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Giderler" Foreground="White"
+                    <TextBlock Text="Giderler" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="10" Padding="8,2">
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -30,38 +30,83 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Gider ara..." AutomationProperties.Name="Gider ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Kategori" Width="140" Margin="8,0" />
-                <Button Grid.Column="2" Content="+ Gider Ekle" Background="{DynamicResource MesRedAlert}" Foreground="White"
+                <Button Grid.Column="2" Content="+ Gider Ekle" Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="4" />
             </Grid>
         </Border>
 
         <!-- Content -->
         <Grid Grid.Row="2" Margin="16">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding IsLoading}" Spacing="8">
-                <TextBlock Text="Yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <!-- Loading Overlay -->
+            <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsLoading}"
+                    CornerRadius="8" ZIndex="10">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
+                    <TextBlock Text="Gider verileri yukleniyor..." FontSize="14" Foreground="{DynamicResource MesSlateGray}"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
 
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                        IsVisible="{Binding !IsLoading}" Spacing="12">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="50" Width="72" Height="72"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4B8;" FontSize="32"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Gider Yonetimi" FontSize="20" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"
-                           TextAlignment="Center" />
-                <TextBlock Text="Gider kaydi | Kategori takibi | Fatura eslestirme | Onay sureci"
-                           FontSize="11" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
-                           Margin="0,4,0,0" />
-                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
-                        HorizontalAlignment="Center" Padding="16,6" CornerRadius="4"
-                        Margin="0,8,0,0" />
-            </StackPanel>
+            <!-- Main Content -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding !IsLoading}">
+                <StackPanel Spacing="16">
+
+                    <!-- Summary Card -->
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Gider Yonetimi" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="{Binding Summary}" FontSize="13" Foreground="{DynamicResource MesSlateGray}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Expense Category Cards -->
+                    <Grid ColumnDefinitions="*,*,*,*" Margin="0,4,0,0">
+                        <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="0,0,8,0"
+                                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="GIDER KAYDI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesRedAlert}" />
+                                <TextBlock Text="Gider girisi ve belgeleme" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0"
+                                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="KATEGORI TAKIBI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                <TextBlock Text="Kategori bazli gider analizi" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="4,0,4,0"
+                                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="FATURA ESLESTIRME" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesTeal}" />
+                                <TextBlock Text="Gider-fatura eslesme kontrolu" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="16" Margin="8,0,0,0"
+                                BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="ONAY SURECI" FontSize="11" FontWeight="DemiBold" Foreground="{DynamicResource MesAmber}" />
+                                <TextBlock Text="Gider onay adimlari ve durum" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Empty Table Placeholder -->
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="24"
+                            BorderBrush="{DynamicResource MesBorderSoft}" BorderThickness="1" MinHeight="200">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                            <TextBlock Text="Gider listesi bos" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                            <TextBlock Text="Gider verileri yuklendiginde burada listelenecek" FontSize="13"
+                                       Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>
