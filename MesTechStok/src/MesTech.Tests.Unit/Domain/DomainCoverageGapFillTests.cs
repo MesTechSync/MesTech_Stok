@@ -412,9 +412,9 @@ public class DomainCoverageGapFillTests
         var expense = new Expense
         {
             IsRecurring = true,
-            RecurrencePeriod = "Monthly",
-            Amount = 250m
+            RecurrencePeriod = "Monthly"
         };
+        expense.SetAmount(250m);
 
         expense.IsRecurring.Should().BeTrue();
         expense.RecurrencePeriod.Should().Be("Monthly");
