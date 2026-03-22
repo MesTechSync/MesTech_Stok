@@ -1,6 +1,9 @@
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateFixedAsset;
+using MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
+using MesTech.Application.Features.Accounting.Commands.UpdateFixedAsset;
 using MesTech.Application.Features.Accounting.Queries.CalculateDepreciation;
+using MesTech.Application.Features.Accounting.Queries.ListFixedAssets;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -13,18 +16,16 @@ public static class FixedAssetEndpoints
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/accounting/fixed-assets — sabit kiymet listesi
-        // Awaiting DEV-1 ListFixedAssetsQuery handler
         group.MapGet("/", async (
             Guid tenantId, bool? isActive,
             ISender mediator, CancellationToken ct) =>
         {
-            // var result = await mediator.Send(
-            //     new ListFixedAssetsQuery(tenantId, isActive ?? true), ct);
-            // return Results.Ok(result);
-            return Results.StatusCode(StatusCodes.Status501NotImplemented);
+            var result = await mediator.Send(
+                new ListFixedAssetsQuery(tenantId, isActive), ct);
+            return Results.Ok(result);
         })
         .WithName("ListFixedAssets")
-        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi — DEV-1 handler bekleniyor)");
+        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)");
 
         // GET /api/v1/accounting/fixed-assets/{id}/schedule — amortisman tablosu
         group.MapGet("/{id:guid}/schedule", async (
@@ -49,31 +50,27 @@ public static class FixedAssetEndpoints
         .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)");
 
         // PUT /api/v1/accounting/fixed-assets/{id} — sabit kiymet guncelle
-        // Awaiting DEV-1 UpdateFixedAssetCommand handler
         group.MapPut("/{id:guid}", async (
             Guid id,
-            // UpdateFixedAssetCommand command,
+            UpdateFixedAssetCommand command,
             ISender mediator, CancellationToken ct) =>
         {
-            // var updated = command with { Id = id };
-            // await mediator.Send(updated, ct);
-            // return Results.NoContent();
-            return Results.StatusCode(StatusCodes.Status501NotImplemented);
+            var updated = command with { Id = id };
+            await mediator.Send(updated, ct);
+            return Results.NoContent();
         })
         .WithName("UpdateFixedAsset")
-        .WithSummary("Sabit kiymet bilgilerini guncelle (DEV-1 handler bekleniyor)");
+        .WithSummary("Sabit kiymet bilgilerini guncelle");
 
         // DELETE /api/v1/accounting/fixed-assets/{id} — sabit kiymet pasife al (soft delete)
-        // Awaiting DEV-1 DeactivateFixedAssetCommand handler
         group.MapDelete("/{id:guid}", async (
-            Guid id,
+            Guid id, Guid tenantId,
             ISender mediator, CancellationToken ct) =>
         {
-            // await mediator.Send(new DeactivateFixedAssetCommand(id), ct);
-            // return Results.NoContent();
-            return Results.StatusCode(StatusCodes.Status501NotImplemented);
+            await mediator.Send(new DeactivateFixedAssetCommand(id, tenantId), ct);
+            return Results.NoContent();
         })
         .WithName("DeactivateFixedAsset")
-        .WithSummary("Sabit kiymeti pasife al — soft delete (DEV-1 handler bekleniyor)");
+        .WithSummary("Sabit kiymeti pasife al — soft delete");
     }
 }
