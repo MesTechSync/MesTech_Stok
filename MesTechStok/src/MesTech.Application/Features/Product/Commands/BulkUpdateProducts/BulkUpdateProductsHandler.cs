@@ -81,26 +81,29 @@ public class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProductsComma
         {
             case BulkUpdateAction.PriceIncreasePercent:
                 var increasePercent = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                product.SalePrice = Math.Round(product.SalePrice * (1 + increasePercent / 100m), 2);
+                product.UpdatePrice(Math.Round(product.SalePrice * (1 + increasePercent / 100m), 2));
                 break;
 
             case BulkUpdateAction.PriceDecreasePercent:
                 var decreasePercent = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                product.SalePrice = Math.Round(product.SalePrice * (1 - decreasePercent / 100m), 2);
+                product.UpdatePrice(Math.Round(product.SalePrice * (1 - decreasePercent / 100m), 2));
                 break;
 
             case BulkUpdateAction.PriceSetFixed:
-                product.SalePrice = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
+                product.UpdatePrice(Convert.ToDecimal(value, CultureInfo.InvariantCulture));
                 break;
 
             case BulkUpdateAction.StockSet:
-                product.Stock = Convert.ToInt32(value, CultureInfo.InvariantCulture);
-                product.LastStockUpdate = DateTime.UtcNow;
+                var newStock = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                var setDelta = newStock - product.Stock;
+                if (setDelta != 0)
+                    product.AdjustStock(setDelta, Domain.Enums.StockMovementType.Adjustment, "Bulk stock set");
                 break;
 
             case BulkUpdateAction.StockAdd:
-                product.Stock += Convert.ToInt32(value, CultureInfo.InvariantCulture);
-                product.LastStockUpdate = DateTime.UtcNow;
+                var addQty = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                if (addQty != 0)
+                    product.AdjustStock(addQty, Domain.Enums.StockMovementType.Adjustment, "Bulk stock add");
                 break;
 
             case BulkUpdateAction.StatusActivate:

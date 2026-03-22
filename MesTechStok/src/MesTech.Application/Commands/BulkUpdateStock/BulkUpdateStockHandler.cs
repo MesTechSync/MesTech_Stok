@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.BulkUpdateStock;
@@ -45,8 +46,9 @@ public class BulkUpdateStockHandler : IRequestHandler<BulkUpdateStockCommand, Bu
                 continue;
             }
 
-            product.Stock = item.NewStock;
-            product.LastStockUpdate = DateTime.UtcNow;
+            var delta = item.NewStock - product.Stock;
+            if (delta != 0)
+                product.AdjustStock(delta, StockMovementType.Adjustment, "Bulk stock update");
             await _productRepository.UpdateAsync(product).ConfigureAwait(false);
             successCount++;
         }

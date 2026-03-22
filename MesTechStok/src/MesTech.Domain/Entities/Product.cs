@@ -62,7 +62,7 @@ public class Product : BaseEntity, ITenantEntity
 
     // Tarihler
     public DateTime? ExpiryDate { get; set; }
-    public DateTime? LastStockUpdate { get; set; }
+    public DateTime? LastStockUpdate { get; private set; }
 
     // Marka/Model/Varyant
     public Guid? BrandId { get; set; }
@@ -96,11 +96,11 @@ public class Product : BaseEntity, ITenantEntity
     public string? Code { get; set; }
 
     // AI Snapshot (JOIN'siz dashboard gosterim)
-    public decimal? RecommendedPrice { get; set; }
-    public DateTime? LastAiPriceAt { get; set; }
-    public int? PredictedDemand7d { get; set; }
-    public int? DaysUntilStockout { get; set; }
-    public DateTime? LastAiStockAt { get; set; }
+    public decimal? RecommendedPrice { get; private set; }
+    public DateTime? LastAiPriceAt { get; private set; }
+    public int? PredictedDemand7d { get; private set; }
+    public int? DaysUntilStockout { get; private set; }
+    public DateTime? LastAiStockAt { get; private set; }
 
     // Concurrency
     public byte[]? RowVersion { get; set; }
@@ -211,6 +211,19 @@ public class Product : BaseEntity, ITenantEntity
     public void ReportBuyboxLost(decimal competitorPrice, string competitorName)
     {
         RaiseDomainEvent(new BuyboxLostEvent(Id, SKU, SalePrice, competitorPrice, competitorName, DateTime.UtcNow));
+    }
+
+    public void UpdateAiPriceSnapshot(decimal recommendedPrice)
+    {
+        RecommendedPrice = recommendedPrice;
+        LastAiPriceAt = DateTime.UtcNow;
+    }
+
+    public void UpdateAiStockSnapshot(int predictedDemand7d, int daysUntilStockout)
+    {
+        PredictedDemand7d = predictedDemand7d;
+        DaysUntilStockout = daysUntilStockout;
+        LastAiStockAt = DateTime.UtcNow;
     }
 
     public decimal? Volume => Length.HasValue && Width.HasValue && Height.HasValue

@@ -391,7 +391,6 @@ public class AhmetBeyDemoSeeder
                 Weight = p.Weight,
                 WeightUnit = WeightUnit.Kilogram,
                 IsActive = true,
-                LastStockUpdate = DateTime.UtcNow,
                 CreatedBy = "AhmetBeyDemoSeeder"
             };
             SetEntityId(product, p.Id);

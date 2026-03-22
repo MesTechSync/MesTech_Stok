@@ -178,7 +178,6 @@ public class DemoDataSeeder
                 TaxRate = 0.20m,
                 CurrencyCode = "TRY",
                 IsActive = true,
-                LastStockUpdate = DateTime.UtcNow,
                 CreatedBy = "DemoDataSeeder"
             };
 

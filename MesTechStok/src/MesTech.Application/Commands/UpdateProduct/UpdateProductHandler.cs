@@ -26,7 +26,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Update
         if (request.Name != null) product.Name = request.Name;
         if (request.Description != null) product.Description = request.Description;
         if (request.PurchasePrice.HasValue) product.PurchasePrice = request.PurchasePrice.Value;
-        if (request.SalePrice.HasValue) product.SalePrice = request.SalePrice.Value;
+        if (request.SalePrice.HasValue) product.UpdatePrice(request.SalePrice.Value);
         if (request.ListPrice.HasValue) product.ListPrice = request.ListPrice.Value;
         if (request.TaxRate.HasValue) product.TaxRate = request.TaxRate.Value;
         if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;

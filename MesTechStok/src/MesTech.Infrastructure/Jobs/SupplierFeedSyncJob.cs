@@ -206,14 +206,14 @@ public class SupplierFeedSyncJob
 
             if (stockChanged)
             {
-                existing.Stock = parsed.Quantity!.Value;
-                existing.LastStockUpdate = DateTime.UtcNow;
+                var delta = parsed.Quantity!.Value - existing.Stock;
+                existing.AdjustStock(delta, Domain.Enums.StockMovementType.PlatformSync, $"Supplier feed: {feed.Name}");
                 wasUpdated = true;
             }
 
             if (priceChanged)
             {
-                existing.SalePrice = markedPrice;
+                existing.UpdatePrice(markedPrice);
                 wasUpdated = true;
             }
 
@@ -266,8 +266,7 @@ public class SupplierFeedSyncJob
                 SupplierId = feed.SupplierId,
                 TenantId = feed.TenantId,
                 CreatedBy = "supplier-feed-sync",
-                UpdatedBy = "supplier-feed-sync",
-                LastStockUpdate = DateTime.UtcNow
+                UpdatedBy = "supplier-feed-sync"
             };
 
             await _productRepository.AddAsync(newProduct);

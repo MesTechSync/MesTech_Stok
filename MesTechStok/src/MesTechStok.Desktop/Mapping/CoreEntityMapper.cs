@@ -49,7 +49,6 @@ public class CoreEntityMapper : ICoreEntityMapper
             IsBatchTracked = core.IsBatchTracked,
             IsPerishable = core.IsPerishable,
             ExpiryDate = core.ExpiryDate,
-            LastStockUpdate = core.LastStockUpdate,
             Brand = core.Brand,
             Model = core.Model,
             Color = core.Color,
@@ -106,7 +105,7 @@ public class CoreEntityMapper : ICoreEntityMapper
             IsBatchTracked = domain.IsBatchTracked,
             IsPerishable = domain.IsPerishable,
             ExpiryDate = domain.ExpiryDate,
-            LastStockUpdate = domain.LastStockUpdate,
+            // LastStockUpdate is private set — managed by domain.UpdateStock()
             Brand = domain.Brand,
             Model = domain.Model,
             Color = domain.Color,

@@ -185,7 +185,6 @@ public class ProductEdgeCaseTests
     public void AdjustStock_ShouldUpdateLastStockUpdateTimestamp()
     {
         var product = FakeData.CreateProduct(stock: 50);
-        product.LastStockUpdate = null;
 
         product.AdjustStock(10, StockMovementType.StockIn);
 
