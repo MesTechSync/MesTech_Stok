@@ -1,0 +1,93 @@
+# MesTech Stok - Production Override
+# Kullanim: docker compose -f docker-compose.yml -f docker-compose.production.yml up -d
+#
+# KURALLAR:
+#   1. Veritabani portlari host'a ACILMAZ (container-arasi network kullanilir)
+#   2. RabbitMQ management sadece localhost'tan erisilebilir
+#   3. CHANGE_ME default'lari KALDIRILDI — tum credential .env'den gelmeli
+#   4. MinIO console disariya ACILMAZ
+#   5. Seq UI sadece localhost'tan erisilebilir
+
+services:
+  postgres:
+    ports: !override
+      # Host'a port ACMA — sadece Docker network uzerinden erisim
+      []
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER zorunlu — .env dosyasini kontrol edin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu — .env dosyasini kontrol edin}
+      POSTGRES_DB: ${PG_DATABASE:?PG_DATABASE zorunlu — .env dosyasini kontrol edin}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "10"
+
+  redis:
+    ports: !override
+      []
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu — .env dosyasini kontrol edin}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+      --loglevel warning
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  rabbitmq:
+    ports: !override
+      - "5672"
+      - "127.0.0.1:15672:15672"
+      - "15692"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER zorunlu — .env dosyasini kontrol edin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu — .env dosyasini kontrol edin}
+      RABBITMQ_PLUGINS: "rabbitmq_management,rabbitmq_prometheus"
+    restart: always
+
+  mysql:
+    ports: !override
+      []
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD zorunlu — .env dosyasini kontrol edin}
+      MYSQL_DATABASE: opencart_stok
+    restart: always
+
+  seq:
+    ports: !override
+      - "5341"
+      - "127.0.0.1:3580:80"
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:?SEQ_ADMIN_PASSWORD zorunlu — .env dosyasini kontrol edin}"
+    restart: always
+
+  webapi:
+    ports:
+      - "5100:5100"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${PG_DATABASE:?PG_DATABASE zorunlu};Username=${POSTGRES_USER:?POSTGRES_USER zorunlu};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Username: "${RABBITMQ_USER:?RABBITMQ_USER zorunlu}"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu}"
+      Seq__ServerUrl: "http://seq:5341"
+    restart: always
+
+  minio:
+    ports: !override
+      - "9000"
+      - "127.0.0.1:9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER zorunlu — .env dosyasini kontrol edin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD zorunlu — .env dosyasini kontrol edin}
+    restart: always

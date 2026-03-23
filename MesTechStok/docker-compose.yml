@@ -17,7 +17,7 @@ services:
     image: pgvector/pgvector:pg17
     container_name: mestech-postgres
     restart: unless-stopped
-    mem_limit: 1g
+    mem_limit: 2g
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -28,26 +28,33 @@ services:
       - FOWNER
       - SETUID
       - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "50m"
+        max-file: "5"
     environment:
-      POSTGRES_USER: mestech_user
+      POSTGRES_USER: ${PG_USER:-mestech_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu - .env dosyasini olusturun}
-      POSTGRES_DB: mestech_stok
+      POSTGRES_DB: ${PG_DATABASE:-mestech_stok}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "3432:5432"
+      - "${PG_PORT:-3432}:5432"
     volumes:
       - mestech_pgdata:/var/lib/postgresql/data
       - ./Scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mestech_user -d mestech_stok"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-mestech_user} -d ${PG_DATABASE:-mestech_stok}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    networks:
+      - default
 
   redis:
     image: redis:7.4-alpine
@@ -61,10 +68,13 @@ services:
     cap_add:
       - SETUID
       - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: "20m"
         max-file: "3"
     command: >
       redis-server
@@ -73,15 +83,18 @@ services:
       --maxmemory-policy allkeys-lru
       --appendonly yes
       --appendfsync everysec
+      --loglevel warning
     ports:
-      - "3679:6379"
+      - "${REDIS_PORT:-3679}:6379"
     volumes:
       - mestech_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-mestech_redis_dev}", "ping"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 3s
+      retries: 3
+    networks:
+      - default
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
