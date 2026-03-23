@@ -1,0 +1,110 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.Accounting.IncomeExpenseEntryDialog"
+        Title="Gelir / Gider Kaydi"
+        Width="500" Height="520"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}">
+
+    <Border Padding="24">
+        <StackPanel Spacing="14">
+
+            <TextBlock x:Name="TitleText"
+                       Classes="dialog-title"
+                       Text="Gelir / Gider Kaydi" />
+
+            <!-- Type: RadioButton Gelir / Gider -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Tur" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <RadioButton x:Name="RadioIncome" Content="Gelir" IsChecked="True" GroupName="EntryType" />
+                    <RadioButton x:Name="RadioExpense" Content="Gider" GroupName="EntryType" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Category + Amount -->
+            <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Kategori" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <ComboBox x:Name="CategoryCombo" HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="Satis" />
+                        <ComboBoxItem Content="Hizmet" />
+                        <ComboBoxItem Content="Kargo" />
+                        <ComboBoxItem Content="Komisyon" />
+                        <ComboBoxItem Content="Genel Gider" />
+                        <ComboBoxItem Content="Iade" />
+                        <ComboBoxItem Content="Faiz" />
+                        <ComboBoxItem Content="Diger" />
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Tutar" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <TextBox x:Name="AmountBox" Classes="mestech" Watermark="0.00" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Date + Platform -->
+            <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Tarih" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <DatePicker x:Name="EntryDatePicker" HorizontalAlignment="Stretch" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Platform (opsiyonel)" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <ComboBox x:Name="PlatformCombo" HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="-" />
+                        <ComboBoxItem Content="Trendyol" />
+                        <ComboBoxItem Content="Hepsiburada" />
+                        <ComboBoxItem Content="N11" />
+                        <ComboBoxItem Content="Ciceksepeti" />
+                        <ComboBoxItem Content="Amazon" />
+                        <ComboBoxItem Content="eBay" />
+                        <ComboBoxItem Content="Pazarama" />
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <!-- Description -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Aciklama" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <TextBox x:Name="DescriptionBox" Classes="mestech"
+                         Watermark="Aciklama giriniz"
+                         AcceptsReturn="True" TextWrapping="Wrap"
+                         Height="60" />
+            </StackPanel>
+
+            <!-- Recurring -->
+            <StackPanel Spacing="8">
+                <CheckBox x:Name="IsRecurringCheck" Content="Tekrarlayan kayit" />
+                <ComboBox x:Name="RecurrenceCombo" HorizontalAlignment="Stretch"
+                          IsVisible="{Binding #IsRecurringCheck.IsChecked}"
+                          SelectedIndex="0" Width="200">
+                    <ComboBoxItem Content="Aylik" />
+                    <ComboBoxItem Content="Haftalik" />
+                    <ComboBoxItem Content="Yillik" />
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Actions -->
+            <StackPanel Classes="dialog-actions">
+                <Button Classes="mestech-outline"
+                        Content="Iptal"
+                        ToolTip.Tip="Kaydi iptal et"
+                        Click="OnCancel" />
+                <Button Classes="mestech-raised"
+                        Content="Kaydet"
+                        ToolTip.Tip="Kaydi kaydet"
+                        Click="OnSave" />
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+
+</Window>
