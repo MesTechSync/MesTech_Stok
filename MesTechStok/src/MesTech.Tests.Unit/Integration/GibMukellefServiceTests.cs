@@ -1,3 +1,4 @@
+using FluentAssertions;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Invoice;
 using Microsoft.Extensions.Caching.Memory;
@@ -96,7 +97,9 @@ public class GibMukellefServiceTests
             cache,
             NullLogger<GibMukellefService>.Instance);
 
-        service.ClearCache();
+        var act = () => service.ClearCache();
+
+        act.Should().NotThrow();
     }
 
     [Fact]
