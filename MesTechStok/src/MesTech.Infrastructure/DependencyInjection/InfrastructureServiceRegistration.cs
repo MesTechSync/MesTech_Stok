@@ -225,6 +225,18 @@ public static class InfrastructureServiceRegistration
         });
         services.AddSingleton<ICacheService, RedisCacheService>();
 
+        // Distributed Lock — Redis if available, InProcess fallback for dev/test
+        var redisConfig = configuration.GetConnectionString("Redis")
+            ?? configuration["Redis:Configuration"];
+        if (!string.IsNullOrEmpty(redisConfig))
+        {
+            services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
+        }
+        else
+        {
+            services.AddSingleton<IDistributedLockService, InProcessDistributedLockService>();
+        }
+
         // Exchange Rate Service — TCMB XML API, IMemoryCache 1h TTL (Dalga 11 — Multi-currency)
         services.AddMemoryCache();
         services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
@@ -491,6 +503,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IBaBsRecordRepository,
             MesTech.Infrastructure.Persistence.Repositories.Accounting.BaBsRecordRepository>();
         services.AddSingleton<MesTech.Domain.Accounting.Services.DepreciationCalculationService>();
+
+        // ── ShipmentCost + AccountingPeriod Repositories (DEV 1 V4) ──
+        services.AddScoped<MesTech.Domain.Interfaces.IShipmentCostRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ShipmentCostRepository>();
+        services.AddScoped<MesTech.Domain.Interfaces.IAccountingPeriodRepository,
+            MesTech.Infrastructure.Persistence.Repositories.AccountingPeriodRepository>();
 
         // ── StockSplit / Fulfillment Stock Service ──
         services.AddScoped<MesTech.Application.Interfaces.IStockSplitService,
