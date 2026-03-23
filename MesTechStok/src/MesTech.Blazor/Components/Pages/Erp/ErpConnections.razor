@@ -1,0 +1,117 @@
+@page "/erp/connections"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<ErpConnections> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #6f42c1;">
+            <i class="fas fa-plug text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #6f42c1;">ERP Baglantilari</h3>
+            <small class="text-muted">Parasut, BizimHesap, Logo, Netsis entegrasyon durumu</small>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-link" Value="@_totalConnections.ToString()" Label="Toplam Baglanti" TextColor="text-primary" />
+        <KpiCard Icon="fa-check-circle" Value="@_active.ToString()" Label="Aktif" TextColor="text-success" />
+        <KpiCard Icon="fa-times-circle" Value="@_inactive.ToString()" Label="Pasif" TextColor="text-secondary" />
+        <KpiCard Icon="fa-exclamation-circle" Value="@_error.ToString()" Label="Hatali" TextColor="text-danger" />
+    </div>
+
+    <div class="row g-3">
+        @foreach (var conn in _connections ?? Enumerable.Empty<ErpConnectionItem>())
+        {
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 64px; height: 64px; background-color: @conn.Color;">
+                            <i class="fas @conn.Icon text-white fa-2x"></i>
+                        </div>
+                        <h5>@conn.Name</h5>
+                        <p class="text-muted small mb-2">@conn.Description</p>
+                        <span class="badge bg-@GetStatusColor(conn.Status) mb-2">@conn.Status</span>
+                        @if (conn.LastSync.HasValue)
+                        {
+                            <p class="text-muted small mb-0">Son sync: @conn.LastSync.Value.ToString("dd.MM.yyyy HH:mm")</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _totalConnections, _active, _inactive, _error;
+    private List<ErpConnectionItem>? _connections;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<ErpConnectionItem>>("api/v1/erp/connections");
+            if (result.IsSuccess && result.Data != null)
+                _connections = result.Data;
+            else
+            {
+                _isDemoMode = true;
+                _connections = GetDemoData();
+            }
+            _totalConnections = _connections.Count;
+            _active = _connections.Count(c => c.Status == "Aktif");
+            _inactive = _connections.Count(c => c.Status == "Pasif");
+            _error = _connections.Count(c => c.Status == "Hata");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "ERP baglantilari yuklenirken hata");
+            errorMessage = "ERP baglanti verileri yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private static string GetStatusColor(string s) => s switch { "Aktif" => "success", "Pasif" => "secondary", "Hata" => "danger", _ => "info" };
+
+    private static List<ErpConnectionItem> GetDemoData() => new()
+    {
+        new("Parasut", "Bulut muhasebe ve e-fatura", "fa-cloud", "#1abc9c", "Aktif", DateTime.Now.AddHours(-2)),
+        new("BizimHesap", "Muhasebe ve finans yonetimi", "fa-calculator", "#3498db", "Pasif", null),
+        new("Logo Tiger", "Kurumsal ERP cozumu", "fa-building", "#e67e22", "Hata", DateTime.Now.AddDays(-1)),
+        new("Netsis", "SQL tabanli ERP", "fa-database", "#9b59b6", "Pasif", null),
+    };
+
+    private record ErpConnectionItem(string Name, string Description, string Icon, string Color, string Status, DateTime? LastSync);
+}
