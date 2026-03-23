@@ -1,0 +1,164 @@
+@page "/fulfillment/fba-shipments"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<FbaShipments> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #FF9900;">
+            <i class="fas fa-boxes-packing text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #FF9900;">FBA Gonderiler</h3>
+            <small class="text-muted">Amazon FBA gonderi takibi ve envanter yonetimi</small>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-box" Value="@_totalShipments.ToString()" Label="Toplam Gonderi" TextColor="text-primary" />
+        <KpiCard Icon="fa-truck-loading" Value="@_inTransit.ToString()" Label="Yolda" TextColor="text-warning" />
+        <KpiCard Icon="fa-warehouse" Value="@_delivered.ToString()" Label="FBA Depoda" TextColor="text-success" />
+        <KpiCard Icon="fa-exclamation-circle" Value="@_problems.ToString()" Label="Sorunlu" TextColor="text-danger" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Gonderi Listesi</h5>
+            <div>
+                <select class="form-select form-select-sm d-inline-block w-auto" @bind="_statusFilter">
+                    <option value="">Tum Durumlar</option>
+                    <option value="WORKING">Hazirlaniyor</option>
+                    <option value="SHIPPED">Gonderildi</option>
+                    <option value="IN_TRANSIT">Yolda</option>
+                    <option value="DELIVERED">Teslim Edildi</option>
+                    <option value="PROBLEM">Sorunlu</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Gonderi ID</th>
+                            <th>Olusturma</th>
+                            <th>Urun Sayisi</th>
+                            <th>Durum</th>
+                            <th>Kargo Takip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (_shipments?.Count > 0)
+                        {
+                            @foreach (var s in _shipments)
+                            {
+                                <tr>
+                                    <td><code>@s.ShipmentId</code></td>
+                                    <td>@s.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                    <td>@s.ItemCount</td>
+                                    <td><span class="badge bg-@GetStatusColor(s.Status)">@s.Status</span></td>
+                                    <td>@(s.TrackingNumber ?? "—")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">Henuz gonderi bulunmuyor.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string _statusFilter = "";
+
+    private int _totalShipments, _inTransit, _delivered, _problems;
+    private List<FbaShipmentItem>? _shipments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<FbaShipmentItem>>("api/v1/fulfillment/fba/shipments");
+            if (result.IsSuccess && result.Data != null)
+            {
+                _shipments = result.Data;
+                _totalShipments = _shipments.Count;
+                _inTransit = _shipments.Count(s => s.Status == "IN_TRANSIT");
+                _delivered = _shipments.Count(s => s.Status == "DELIVERED");
+                _problems = _shipments.Count(s => s.Status == "PROBLEM");
+            }
+            else
+            {
+                _isDemoMode = true;
+                _shipments = GetDemoData();
+                _totalShipments = _shipments.Count;
+                _inTransit = 2; _delivered = 5; _problems = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "FBA gonderileri yuklenirken hata");
+            errorMessage = "FBA gonderi verileri yuklenirken bir hata olustu.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string GetStatusColor(string status) => status switch
+    {
+        "WORKING" => "secondary",
+        "SHIPPED" => "info",
+        "IN_TRANSIT" => "warning",
+        "DELIVERED" => "success",
+        "PROBLEM" => "danger",
+        _ => "light"
+    };
+
+    private static List<FbaShipmentItem> GetDemoData() => new()
+    {
+        new("FBA16X8K3P", DateTime.Now.AddDays(-5), 24, "DELIVERED", "TBA123456789"),
+        new("FBA16X8K4Q", DateTime.Now.AddDays(-3), 12, "IN_TRANSIT", "TBA987654321"),
+        new("FBA16X8K5R", DateTime.Now.AddDays(-1), 48, "WORKING", null),
+        new("FBA16X8K6S", DateTime.Now.AddDays(-7), 6, "PROBLEM", "TBA111222333"),
+    };
+
+    private record FbaShipmentItem(string ShipmentId, DateTime CreatedAt, int ItemCount, string Status, string? TrackingNumber);
+}
