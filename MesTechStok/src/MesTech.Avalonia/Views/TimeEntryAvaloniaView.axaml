@@ -94,10 +94,10 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     <!-- Empty State -->
-                    <!-- Empty State -->
-                    <TextBlock Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                               IsVisible="{Binding !IsLoading}" />
+                    <TextBlock Text="Kayit bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeTitle}"
+                               Foreground="{DynamicResource MesMutedGray}"
+                               IsVisible="{Binding !TimeEntries.Count}" />
                 </Grid>
                     </Grid>
                 </Border>
