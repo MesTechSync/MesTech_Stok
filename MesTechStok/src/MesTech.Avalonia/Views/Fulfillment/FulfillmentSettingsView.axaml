@@ -1,0 +1,168 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentSettingsView"
+             x:DataType="vm:FulfillmentSettingsViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <!-- F-04: Fulfillment Settings — Amazon FBA + Hepsilojistik -->
+
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Fulfillment Ayarlari" Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Kaydet" ToolTip.Tip="Ayarlari kaydet"
+                            Command="{Binding SaveCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Ayarlari yenile (F5)"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Settings Content -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel Spacing="24" MaxWidth="700">
+
+                <!-- Amazon FBA Section -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Amazon FBA" FontSize="{StaticResource FontSizeH4}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding FbaApiKey}" Watermark="Amazon FBA API Key"
+                                     AutomationProperties.Name="Amazon FBA API Key" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Secret" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding FbaApiSecret}" Watermark="Amazon FBA API Secret"
+                                     PasswordChar="*"
+                                     AutomationProperties.Name="Amazon FBA API Secret" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Seller ID" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding FbaSellerId}" Watermark="Amazon Seller ID"
+                                     AutomationProperties.Name="Amazon Seller ID" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Marketplace ID" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding FbaMarketplaceId}" Watermark="Marketplace ID (ornek: A33AVAJ2PDY3EV)"
+                                     AutomationProperties.Name="Amazon Marketplace ID" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ToggleSwitch IsChecked="{Binding FbaAutoReplenish}"
+                                          OnContent="Otomatik Stok Yenileme: ACIK"
+                                          OffContent="Otomatik Stok Yenileme: KAPALI" />
+                        </StackPanel>
+
+                        <Button Content="Baglanti Test Et" ToolTip.Tip="Amazon FBA baglantisini test et"
+                                Command="{Binding TestFbaConnectionCommand}"
+                                Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+
+                        <TextBlock Text="{Binding FbaConnectionStatus}"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}"
+                                   IsVisible="{Binding FbaConnectionStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Hepsilojistik Section -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Hepsilojistik" FontSize="{StaticResource FontSizeH4}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding HepsiApiKey}" Watermark="Hepsilojistik API Key"
+                                     AutomationProperties.Name="Hepsilojistik API Key" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="API Secret" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding HepsiApiSecret}" Watermark="Hepsilojistik API Secret"
+                                     PasswordChar="*"
+                                     AutomationProperties.Name="Hepsilojistik API Secret" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Magaza ID" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBox Text="{Binding HepsiStoreId}" Watermark="Hepsilojistik Magaza ID"
+                                     AutomationProperties.Name="Hepsilojistik Magaza ID" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ToggleSwitch IsChecked="{Binding HepsiAutoReplenish}"
+                                          OnContent="Otomatik Stok Yenileme: ACIK"
+                                          OffContent="Otomatik Stok Yenileme: KAPALI" />
+                        </StackPanel>
+
+                        <Button Content="Baglanti Test Et" ToolTip.Tip="Hepsilojistik baglantisini test et"
+                                Command="{Binding TestHepsiConnectionCommand}"
+                                Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+
+                        <TextBlock Text="{Binding HepsiConnectionStatus}"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}"
+                                   IsVisible="{Binding HepsiConnectionStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Ayarlar yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
