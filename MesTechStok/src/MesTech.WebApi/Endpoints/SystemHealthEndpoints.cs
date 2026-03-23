@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
+using MediatR;
+using MesTech.Application.Features.System.LaunchReadiness;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -65,5 +67,18 @@ public static class SystemHealthEndpoints
             }))
         .WithName("GetBackgroundJobs")
         .WithSummary("Arka plan iş listesi — Hangfire (DEV4-DEPENDENCY)");
+
+        // GET /api/v1/admin/system/launch-readiness — canliya cikis hazirlik raporu
+        group.MapGet("/launch-readiness", async (
+            Guid tenantId,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetLaunchReadinessQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLaunchReadiness")
+        .WithSummary("Production launch hazirlik raporu — 26 kriter");
     }
 }

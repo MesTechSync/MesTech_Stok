@@ -237,5 +237,44 @@ public static class AccountingEndpoints
         })
         .WithName("UpdatePlatformCommissionRate")
         .WithSummary("Platform komisyon oranı güncelle");
+
+        // GET /api/v1/accounting/shipment-costs — kargo maliyet listesi
+        group.MapGet("/shipment-costs", async (
+            Guid tenantId,
+            DateTime? from, DateTime? to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Accounting.Queries.GetShipmentCosts.GetShipmentCostsQuery(
+                    tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetShipmentCosts")
+        .WithSummary("Kargo maliyet listesi");
+
+        // GET /api/v1/accounting/periods — muhasebe dönemleri
+        group.MapGet("/periods", async (
+            Guid tenantId,
+            int? year,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Accounting.Queries.GetAccountingPeriods.GetAccountingPeriodsQuery(
+                    tenantId, year), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetAccountingPeriods")
+        .WithSummary("Muhasebe dönemleri listesi");
+
+        // POST /api/v1/accounting/periods/close — dönem kapat
+        group.MapPost("/periods/close", async (
+            MesTech.Application.Features.Accounting.Commands.CloseAccountingPeriod.CloseAccountingPeriodCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Ok(new { id, closed = true });
+        })
+        .WithName("CloseAccountingPeriod")
+        .WithSummary("Muhasebe dönemini kapat");
     }
 }
