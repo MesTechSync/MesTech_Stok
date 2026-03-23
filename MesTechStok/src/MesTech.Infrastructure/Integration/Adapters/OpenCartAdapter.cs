@@ -800,6 +800,60 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         _ => 2
     };
 
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.GetCategoriesAsync");
+
+        try
+        {
+            var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.GetAsync(
+                    new Uri("/api/rest/categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("OpenCart GetCategories failed {Status}: {Error}",
+                    response.StatusCode, error);
+                return Array.Empty<CategoryDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var flat = new List<CategoryDto>();
+            var dataEl = doc.RootElement.TryGetProperty("data", out var d) ? d : doc.RootElement;
+
+            if (dataEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var el in dataEl.EnumerateArray())
+                {
+                    flat.Add(new CategoryDto
+                    {
+                        PlatformCategoryId = el.TryGetProperty("category_id", out var id)
+                            && int.TryParse(id.GetString() ?? id.GetRawText(), out var idVal) ? idVal : 0,
+                        Name = el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
+                        ParentId = el.TryGetProperty("parent_id", out var pid)
+                            && int.TryParse(pid.GetString() ?? pid.GetRawText(), out var pidVal) && pidVal > 0
+                            ? pidVal : null
+                    });
+                }
+            }
+
+            // Build tree from flat list
+            var lookup = flat.ToLookup(c => c.ParentId);
+            foreach (var cat in flat)
+                cat.SubCategories.AddRange(lookup[cat.PlatformCategoryId]);
+
+            var roots = flat.Where(c => c.ParentId is null).ToList();
+            _logger.LogInformation("OpenCart GetCategories: {Count} top-level categories", roots.Count);
+            return roots.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart GetCategories exception");
+            return Array.Empty<CategoryDto>();
+        }
+    }
 }
