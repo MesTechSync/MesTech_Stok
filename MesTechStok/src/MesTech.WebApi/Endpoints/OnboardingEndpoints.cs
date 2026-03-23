@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
 using MesTech.Application.Features.Onboarding.Commands.StartOnboarding;
 using MesTech.Application.Features.Onboarding.Queries.GetOnboardingProgress;
+using MesTech.Application.Features.Onboarding.Queries.GetV5ReadinessCheck;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -48,5 +49,17 @@ public static class OnboardingEndpoints
         })
         .WithName("CompleteOnboardingStep")
         .WithSummary("Kurulum adımını tamamla");
+
+        // GET /api/v1/onboarding/v5-readiness — V5 özellik hazırlık kontrolü
+        group.MapGet("/v5-readiness", async (
+            ISender mediator,
+            Guid tenantId,
+            CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(new GetV5ReadinessCheckQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetV5ReadinessCheck")
+        .WithSummary("V5 özellik hazırlık kontrolü — ERP, Fulfillment, Komisyon, Cari, Raporlama");
     }
 }
