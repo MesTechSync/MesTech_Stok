@@ -305,4 +305,35 @@ public class JournalEntryTests
 
         entry.TenantId.Should().Be(_tenantId);
     }
+
+    [Fact]
+    public void Create_WithEmptyTenantId_ShouldThrow()
+    {
+        var act = () => JournalEntry.Create(Guid.Empty, DateTime.UtcNow, "Test");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Tenant ID*");
+    }
+
+    [Fact]
+    public void AddLine_WithEmptyAccountId_ShouldThrow()
+    {
+        var entry = JournalEntry.Create(_tenantId, DateTime.UtcNow, "Test");
+
+        var act = () => entry.AddLine(Guid.Empty, 100m, 0m);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Account ID*");
+    }
+
+    [Fact]
+    public void AddLine_WithBothDebitAndCredit_ShouldThrow()
+    {
+        var entry = JournalEntry.Create(_tenantId, DateTime.UtcNow, "Test");
+
+        var act = () => entry.AddLine(Guid.NewGuid(), 100m, 50m);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*both debit and credit*");
+    }
 }
