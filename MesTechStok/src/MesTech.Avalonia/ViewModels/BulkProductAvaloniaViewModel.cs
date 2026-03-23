@@ -76,8 +76,8 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            await Task.Delay(200);
-            ExportProductCount = 1_284;
+            var status = await _mediator.Send(new Application.Queries.GetProductDbStatus.GetProductDbStatusQuery());
+            ExportProductCount = status.TotalCount;
             SelectedProductCount = 0;
         }
         catch (Exception ex)
@@ -162,8 +162,14 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            await Task.Delay(500);
-            // File save dialog integration pending
+            var format = IsXlsxFormat ? "xlsx" : "csv";
+            await _mediator.Send(new Application.Features.Product.Commands.ExportProducts.ExportProductsCommand(Format: format));
+            ImportStatusText = $"Export tamamlandi ({format.ToUpperInvariant()})";
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Export hatasi: {ex.Message}";
         }
         finally
         {
@@ -186,8 +192,9 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
 
         try
         {
-            await Task.Delay(500);
-            BulkUpdateStatusText = $"{SelectedProductCount} urun basariyla guncellendi";
+            // DEV1-DEPENDENCY: BulkUpdateProductsCommand needs BulkUpdateAction enum + product ID selection
+            await Task.CompletedTask;
+            BulkUpdateStatusText = $"{SelectedProductCount} urun guncelleme icin DEV 1 handler bekleniyor";
         }
         catch (Exception ex)
         {
