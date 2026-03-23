@@ -178,6 +178,8 @@ services:
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
+    cap_drop:
+      - ALL
     read_only: true
     tmpfs:
       - /tmp
@@ -256,6 +258,8 @@ services:
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
+    cap_drop:
+      - ALL
     read_only: true
     tmpfs:
       - /tmp
@@ -269,8 +273,8 @@ services:
       - "3900:9000"    # S3 API
       - "3901:9001"    # MinIO Console
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-mestech}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-mestech_minio_dev}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER zorunlu - .env dosyasini olusturun}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD zorunlu - .env dosyasini olusturun}
     volumes:
       - minio_data:/data
     networks:
@@ -375,6 +379,10 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/log/grafana
     logging:
       driver: json-file
       options:
@@ -383,8 +391,8 @@ services:
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-mestech_grafana_dev}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER zorunlu - .env dosyasini olusturun}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD zorunlu - .env dosyasini olusturun}
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
