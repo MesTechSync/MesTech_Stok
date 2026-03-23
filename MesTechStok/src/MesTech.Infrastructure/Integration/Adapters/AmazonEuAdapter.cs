@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -46,15 +47,16 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
     private string _sellerId = string.Empty;
     private string _accessToken = string.Empty;
     private DateTime _tokenExpiry = DateTime.MinValue;
-    private string _lwaEndpoint = "https://api.amazon.com/auth/o2/token";
-    private string _baseUrl = EuEndpoint;
+    private string _lwaEndpoint;
+    private string _baseUrl;
     private bool _isConfigured;
 
     // Active marketplace — configurable, defaults to DE
     private string _activeMarketplaceId = MarketplaceDE;
 
     // Constants
-    private const string EuEndpoint = "https://sellingpartnerapi-eu.amazon.com";
+    private const string DefaultEuEndpoint = "https://sellingpartnerapi-eu.amazon.com";
+    private const string DefaultLwaEndpoint = "https://api.amazon.com/auth/o2/token";
     private const string UnauthorizedStatusCode = "401";
 
     // EU Marketplace IDs
@@ -91,10 +93,15 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
             ["PL"] = MarketplacePL
         };
 
-    public AmazonEuAdapter(HttpClient httpClient, ILogger<AmazonEuAdapter> logger)
+    public AmazonEuAdapter(HttpClient httpClient, ILogger<AmazonEuAdapter> logger,
+        IOptions<AmazonOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        var opts = options?.Value;
+        _lwaEndpoint = opts?.LwaEndpoint ?? DefaultLwaEndpoint;
+        _baseUrl = opts?.EuEndpoint ?? DefaultEuEndpoint;
 
         _jsonOptions = new JsonSerializerOptions
         {
