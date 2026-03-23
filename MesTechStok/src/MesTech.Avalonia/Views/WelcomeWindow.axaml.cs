@@ -65,4 +65,14 @@ public partial class WelcomeWindow : Window
         mainWindow.Show();
         Close();
     }
+
+    /// <summary>Window kapanırken event + timer temizliği [EL-01]</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        _clockTimer.Stop();
+        _blinkTimer.Stop();
+        PointerPressed -= OnInteraction;
+        KeyDown -= OnInteraction;
+        base.OnClosed(e);
+    }
 }
