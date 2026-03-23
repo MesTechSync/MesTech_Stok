@@ -15,7 +15,7 @@ namespace MesTech.Tests.Integration.Jobs;
 [Trait("Category", "SyncJob")]
 public class SupplierFeedSyncJobTests
 {
-    private const string SkipReason = "DEV 1 SupplierFeedSyncJob + DEV 3 parser implementasyonu bekleniyor (Görev 1.02 + 3.01)";
+    private const string SkipReason = "Integration setup gerekli: Testcontainers (PostgreSQL) + WireMock (feed URL) + IFeedParserFactory. Job implementasyonu mevcut — test altyapısı bekliyor.";
 
     [Fact(Skip = SkipReason)]
     public async Task SyncJob_WithValidFeed_CreatesProducts()
