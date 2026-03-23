@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
+using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -34,5 +35,63 @@ public static class BaBsEndpoints
         })
         .WithName("CreateBaBsRecord")
         .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)");
+
+        // ─── V5 YENİ BA/BS ENDPOINT'LERİ [ENT-DEV6] ───
+
+        // GET /api/v1/accounting/babs-report/{year}/{month}/export/xml — GİB XML export
+        group.MapGet("/{year:int}/{month:int}/export/xml", async (
+            int year, int month, Guid tenantId,
+            string formType,
+            string tenantVKN,
+            string tenantName,
+            ISender mediator,
+            IBaBsXmlExportService xmlExport,
+            CancellationToken ct) =>
+        {
+            if (formType is not ("Ba" or "Bs"))
+                return Results.BadRequest(new { error = "formType 'Ba' veya 'Bs' olmalı" });
+
+            if (month < 1 || month > 12)
+                return Results.BadRequest(new { error = "month 1-12 arasında olmalı" });
+
+            var report = await mediator.Send(
+                new GenerateBaBsReportQuery(tenantId, year, month), ct);
+
+            var xmlBytes = await xmlExport.ExportToXmlAsync(
+                report, formType, year, month, tenantVKN, tenantName);
+
+            var fileName = $"{formType}_Form_{year}_{month:D2}.xml";
+            return Results.File(xmlBytes, "application/xml", fileName);
+        })
+        .WithName("ExportBaBsXml")
+        .WithSummary("Ba/Bs GİB XML dosyası export — VUK 396 formatında");
+
+        // GET /api/v1/accounting/babs-report/deadline — sonraki beyanname son tarihi
+        group.MapGet("/deadline", (int? year, int? month) =>
+        {
+            var now = DateTime.UtcNow;
+            var targetYear = year ?? now.Year;
+            var targetMonth = month ?? now.Month;
+
+            // VUK 396: Ba/Bs beyanname son günü = takip eden ayın son günü
+            var nextMonth = new DateTime(targetYear, targetMonth, 1).AddMonths(1);
+            var deadline = new DateTime(nextMonth.Year, nextMonth.Month,
+                DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month), 23, 59, 59);
+
+            var remaining = deadline - now;
+            var isOverdue = remaining.TotalSeconds < 0;
+
+            return Results.Ok(new
+            {
+                period = $"{targetYear}-{targetMonth:D2}",
+                deadline = deadline.ToString("yyyy-MM-dd HH:mm:ss"),
+                remainingDays = isOverdue ? 0 : (int)remaining.TotalDays,
+                isOverdue,
+                threshold = 5000m,
+                description = "VUK 396 — Ba/Bs beyanname son günü: takip eden ayın son günü"
+            });
+        })
+        .WithName("GetBaBsDeadline")
+        .WithSummary("Ba/Bs beyanname son tarihi hesapla (VUK 396)");
     }
 }
