@@ -117,6 +117,10 @@
       <div class="col-xl-7">
         <div class="card-panel">
           <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Yaklasan Deadlinelar</h6>
+          <div id="loadingSpinner" style="display:none;justify-content:center;padding:2rem;">
+            <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Yukleniyor...</span></div>
+          </div>
+          <div id="errorAlert" class="alert alert-danger" style="display:none;" role="alert"></div>
           <div id="deadlinesList"></div>
         </div>
       </div>
@@ -151,12 +155,20 @@
     const monthNames = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylul','Ekim','Kasim','Aralik'];
 
     async function loadData() {
+      const spinner = document.getElementById('loadingSpinner');
+      const errorEl = document.getElementById('errorAlert');
+      if (spinner) spinner.style.display = 'flex';
+      if (errorEl) errorEl.style.display = 'none';
+
       try {
         const res = await fetch(API_BASE + '/upcoming?days=90');
-        if (!res.ok) throw new Error(res.status);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         deadlines = await res.json();
-      } catch {
-        deadlines = getDemoDeadlines();
+      } catch (err) {
+        if (errorEl) { errorEl.textContent = 'Vergi takvimi yuklenemedi: ' + err.message; errorEl.style.display = 'block'; }
+        deadlines = [];
+      } finally {
+        if (spinner) spinner.style.display = 'none';
       }
       renderDeadlines();
       renderCalendar();
@@ -272,15 +284,7 @@
       renderCalendar();
     }
 
-    function getDemoDeadlines() {
-      return [
-        { taxName: 'KDV Beyannamesi', dueDate: '2026-03-26', dueDateFormatted: '26 Mart 2026', amount: 8450, isFiled: false },
-        { taxName: 'Muhtasar Beyanname', dueDate: '2026-03-26', dueDateFormatted: '26 Mart 2026', amount: 3200, isFiled: false },
-        { taxName: 'SGK Prim Bildirge', dueDate: '2026-03-31', dueDateFormatted: '31 Mart 2026', amount: 12680, isFiled: false },
-        { taxName: 'Gecici Vergi (1. Donem)', dueDate: '2026-05-17', dueDateFormatted: '17 Mayis 2026', amount: null, isFiled: false },
-        { taxName: 'Kurumlar Vergisi', dueDate: '2026-04-30', dueDateFormatted: '30 Nisan 2026', amount: null, isFiled: false }
-      ];
-    }
+    /* getDemoDeadlines removed — real API only (HA-01) */
 
     loadData();
   </script>

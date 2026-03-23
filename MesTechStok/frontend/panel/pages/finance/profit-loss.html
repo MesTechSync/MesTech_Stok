@@ -153,6 +153,7 @@
       <div class="loading-overlay" id="tableLoading">
         <div class="spinner-border text-primary" role="status"></div>
       </div>
+      <div id="errorAlert" class="alert alert-danger mx-3" style="display:none;" role="alert"></div>
       <div id="tableContainer">
         <div class="api-waiting" id="apiWaiting">
           <i class="fas fa-plug fa-2x mb-2"></i>
@@ -215,8 +216,8 @@
         renderTable(data.platforms || []);
         renderChart(data.monthly || []);
       } catch (err) {
-        console.warn('API baglantisi bekleniyor:', err.message);
-        renderDemoData();
+        const el = document.getElementById('errorAlert');
+        if (el) { el.textContent = 'Kar/zarar verileri yuklenemedi: ' + err.message; el.style.display = 'block'; }
       } finally {
         loading.classList.remove('active');
       }
@@ -288,24 +289,7 @@
       });
     }
 
-    function renderDemoData() {
-      const demo = {
-        totalRevenue: 150000, totalExpenses: 95000, netProfit: 55000, profitMargin: 36.7,
-        platforms: [
-          { platform: 'Trendyol', revenue: 80000, cost: 50000, commission: 9600, shipping: 5000, netProfit: 15400, margin: 19.3 },
-          { platform: 'Hepsiburada', revenue: 45000, cost: 28000, commission: 6800, shipping: 3000, netProfit: 7200, margin: 16.0 },
-          { platform: 'N11', revenue: 25000, cost: 17000, commission: 3000, shipping: 2000, netProfit: 3000, margin: 12.0 }
-        ],
-        monthly: [
-          { month: 'Oca', revenue: 120000, expenses: 82000, netProfit: 38000 },
-          { month: 'Sub', revenue: 135000, expenses: 88000, netProfit: 47000 },
-          { month: 'Mar', revenue: 150000, expenses: 95000, netProfit: 55000 }
-        ]
-      };
-      renderKPIs(demo);
-      renderTable(demo.platforms);
-      renderChart(demo.monthly);
-    }
+    /* renderDemoData removed — real API only (HA-01) */
 
     function setText(id, text) {
       const el = document.getElementById(id);

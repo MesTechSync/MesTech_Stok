@@ -101,6 +101,12 @@
       </div>
     </div>
 
+    <!-- Loading + Error -->
+    <div id="loadingSpinner" style="display:none;justify-content:center;padding:2rem;">
+      <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Yukleniyor...</span></div>
+    </div>
+    <div id="errorAlert" class="alert alert-danger" style="display:none;" role="alert"></div>
+
     <!-- Filters -->
     <div class="card-panel">
       <div class="filter-bar">
@@ -141,6 +147,16 @@
     function fmt(n) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n); }
     function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
 
+    function showLoading(show) {
+      document.getElementById('loadingSpinner').style.display = show ? 'flex' : 'none';
+      document.getElementById('errorAlert').style.display = 'none';
+    }
+    function showError(msg) {
+      const el = document.getElementById('errorAlert');
+      el.textContent = msg || 'Veri yuklenemedi. Lutfen tekrar deneyin.';
+      el.style.display = 'block';
+    }
+
     async function loadData() {
       const from = document.getElementById('filterFrom').value;
       const to = document.getElementById('filterTo').value;
@@ -151,13 +167,16 @@
       if (to) url += 'to=' + encodeURIComponent(to) + '&';
       if (bank) url += 'bankAccountId=' + encodeURIComponent(bank) + '&';
 
+      showLoading(true);
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error(res.status);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         render(data);
-      } catch {
-        renderDemo();
+      } catch (err) {
+        showError('Nakit akis verileri yuklenemedi: ' + err.message);
+      } finally {
+        showLoading(false);
       }
     }
 
@@ -219,26 +238,7 @@
       }
     }
 
-    function renderDemo() {
-      render({
-        totalInflows: 200000, totalOutflows: 150000, closingBalance: 50000,
-        dailyBreakdown: [
-          { date: '15.03', inflows: 12000, outflows: 8000, balance: 42000 },
-          { date: '16.03', inflows: 8500, outflows: 6500, balance: 44000 },
-          { date: '17.03', inflows: 15000, outflows: 12000, balance: 47000 },
-          { date: '18.03', inflows: 9200, outflows: 7800, balance: 48400 },
-          { date: '19.03', inflows: 11000, outflows: 9500, balance: 49900 },
-          { date: '20.03', inflows: 13000, outflows: 12900, balance: 50000 }
-        ],
-        items: [
-          { date: '20.03.2026', description: 'Trendyol hakedis', amount: 12480, isInflow: true, runningBalance: 50000 },
-          { date: '19.03.2026', description: 'Kargo fatura odemesi', amount: 1240, isInflow: false, runningBalance: 37520 },
-          { date: '19.03.2026', description: 'HB hakedis', amount: 8920, isInflow: true, runningBalance: 38760 },
-          { date: '18.03.2026', description: 'Ofis kirasi', amount: 6500, isInflow: false, runningBalance: 29840 },
-          { date: '18.03.2026', description: 'N11 hakedis', amount: 3150, isInflow: true, runningBalance: 36340 }
-        ]
-      });
-    }
+    /* renderDemo removed — real API only (HA-01) */
 
     const now = new Date();
     document.getElementById('filterTo').value = now.toISOString().split('T')[0];

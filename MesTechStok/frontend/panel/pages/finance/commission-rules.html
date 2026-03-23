@@ -144,6 +144,11 @@
     </div>
   </div>
 
+  <div id="loadingSpinner" style="display:none;justify-content:center;padding:2rem;">
+    <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Yukleniyor...</span></div>
+  </div>
+  <div id="errorAlert" class="alert alert-danger mx-4" style="display:none;" role="alert"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     'use strict';
@@ -155,6 +160,16 @@
 
     const platformBadgeClass = { Trendyol: 'badge-trendyol', Hepsiburada: 'badge-hb', N11: 'badge-n11', Ciceksepeti: 'badge-cicek' };
 
+    function showLoading(show) {
+      document.getElementById('loadingSpinner').style.display = show ? 'flex' : 'none';
+      document.getElementById('errorAlert').style.display = 'none';
+    }
+    function showError(msg) {
+      const el = document.getElementById('errorAlert');
+      el.textContent = msg || 'Veri yuklenemedi.';
+      el.style.display = 'block';
+    }
+
     async function loadData() {
       const platform = document.getElementById('filterPlatform').value;
       const active = document.getElementById('filterActive').value;
@@ -162,14 +177,16 @@
       if (platform) url += 'platform=' + encodeURIComponent(platform) + '&';
       if (active) url += 'active=' + encodeURIComponent(active) + '&';
 
+      showLoading(true);
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error(res.status);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         rules = await res.json();
         renderTable(Array.isArray(rules) ? rules : rules.items || []);
-      } catch {
-        rules = getDemoRules();
-        renderTable(rules);
+      } catch (err) {
+        showError('Komisyon kurallari yuklenemedi: ' + err.message);
+      } finally {
+        showLoading(false);
       }
     }
 
@@ -247,15 +264,7 @@
       setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
     }
 
-    function getDemoRules() {
-      return [
-        { platform: 'Trendyol', categoryName: 'Giyim', rate: 0.12, minAmount: null, maxAmount: null, effectiveFrom: '01.01.2026', effectiveTo: null },
-        { platform: 'Trendyol', categoryName: 'Elektronik', rate: 0.095, minAmount: null, maxAmount: null, effectiveFrom: '01.01.2026', effectiveTo: null },
-        { platform: 'Hepsiburada', categoryName: 'Giyim', rate: 0.15, minAmount: 3, maxAmount: 50, effectiveFrom: '01.01.2026', effectiveTo: null },
-        { platform: 'N11', categoryName: null, rate: 0.11, minAmount: 2.5, maxAmount: null, effectiveFrom: '01.03.2026', effectiveTo: null },
-        { platform: 'Ciceksepeti', categoryName: 'Kozmetik', rate: 0.18, minAmount: 5, maxAmount: null, effectiveFrom: '15.02.2026', effectiveTo: null }
-      ];
-    }
+    /* getDemoRules removed — real API only (HA-01) */
 
     loadData();
     simulate();
