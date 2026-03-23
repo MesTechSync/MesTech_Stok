@@ -25,6 +25,14 @@
             <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
+        <!-- Empty state -->
+        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="Gorev bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Henuz gorev bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
             <!-- Error -->
             <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
                     CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"

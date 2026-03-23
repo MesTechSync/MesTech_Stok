@@ -111,6 +111,14 @@
             </ItemsControl>
         </ScrollViewer>
     
+<!-- Empty state -->
+        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="Gorev bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Henuz gorev bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
             <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">

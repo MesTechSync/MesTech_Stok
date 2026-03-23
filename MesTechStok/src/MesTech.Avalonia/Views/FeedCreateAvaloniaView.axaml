@@ -120,6 +120,14 @@
                     <TextBlock Text="Feed başarıyla kaydedildi!" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold" />
                 </Border>
 
+                <!-- Empty state -->
+                <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+                  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="Feed bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Henuz feed bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                  </StackPanel>
+                </Border>
+
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12" IsVisible="{Binding HasError}">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
                 </Border>
