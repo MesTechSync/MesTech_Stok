@@ -385,6 +385,52 @@
                                 </StackPanel>
                             </Button>
 
+                            <!-- 8b. MUHASEBE (V4 — Zincir 2/3/6/14) -->
+                            <TextBlock Classes="sidebar-section" Text="MUHASEBE"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="JournalEntries">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
+                                    <TextBlock Text="Yevmiye Defteri"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="TrialBalance">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Mizan"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CommissionRates">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Komisyon Oranları"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 8c. İZLEME (V4 — Zincir 10/11) -->
+                            <TextBlock Classes="sidebar-section" Text="İZLEME"/>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="StaleOrders">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconNotification}" Width="16" Height="16"/>
+                                    <TextBlock Text="Gecikmiş Siparişler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="OrderKanban">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Sipariş Kanban"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- 9. CRM -->
                             <TextBlock Classes="sidebar-section" Text="CRM"/>
                             <Button Classes="sidebar-btn"

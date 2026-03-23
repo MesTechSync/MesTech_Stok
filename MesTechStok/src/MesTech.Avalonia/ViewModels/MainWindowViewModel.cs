@@ -123,6 +123,12 @@ public partial class MainWindowViewModel : ObservableObject
             "Welcome" => "Hos Geldiniz",
             "WorkSchedule" => "Calisma Takvimi",
             "WorkTask" => "Gorevler",
+            // V4 — Muhasebe + İzleme + Kanban
+            "JournalEntries" => "Yevmiye Defteri",
+            "TrialBalance" => "Mizan",
+            "CommissionRates" => "Komisyon Oranlari",
+            "StaleOrders" => "Gecikmis Siparisler",
+            "OrderKanban" => "Siparis Kanban",
             _ => CurrentViewTitle
         };
     }

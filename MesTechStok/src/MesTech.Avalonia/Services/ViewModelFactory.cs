@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MesTech.Avalonia.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using AcctVm = MesTech.Avalonia.ViewModels.Accounting;
+using MonVm = MesTech.Avalonia.ViewModels.Monitoring;
+using OrdVm = MesTech.Avalonia.ViewModels.Orders;
 
 namespace MesTech.Avalonia.Services;
 
@@ -153,6 +156,12 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Backup" => _provider.GetService<BackupAvaloniaViewModel>(),
             // FIX-18 Gorev #13: Buybox Analizi
             "Buybox" => _provider.GetService<BuyboxAvaloniaViewModel>(),
+            // V4 — Muhasebe + İzleme + Kanban
+            "JournalEntries" => _provider.GetService<AcctVm.JournalEntryListViewModel>(),
+            "TrialBalance" => _provider.GetService<AcctVm.TrialBalanceViewModel>(),
+            "CommissionRates" => _provider.GetService<AcctVm.CommissionRatesViewModel>(),
+            "StaleOrders" => _provider.GetService<MonVm.StaleOrdersAvaloniaViewModel>(),
+            "OrderKanban" => _provider.GetService<OrdVm.OrderKanbanViewModel>(),
             _ => null
         };
     }
