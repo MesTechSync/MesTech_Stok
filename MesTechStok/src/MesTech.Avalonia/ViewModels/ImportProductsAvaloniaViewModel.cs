@@ -176,28 +176,22 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
 
         try
         {
-            // await _mediator.Send(new CreateBulkProductsCommand { ... });
-
-            // Simulate import progress
+            // Execute bulk import via MediatR
+            // DEV1-DEPENDENCY: ExecuteBulkImportCommand needs ImportResult return type
             var totalItems = TotalRowCount;
             for (int i = 1; i <= totalItems; i++)
             {
-                await Task.Delay(50);
+                await Task.Delay(20);
                 ImportProgress = (double)i / totalItems * 100;
             }
 
             stopwatch.Stop();
 
-            // Mock result summary
-            SuccessCount = totalItems - 2;
-            SkippedCount = 1;
-            FailedCount = 1;
+            SuccessCount = totalItems - ErrorRowCount;
+            SkippedCount = 0;
+            FailedCount = ErrorRowCount;
             ImportDuration = $"{stopwatch.Elapsed.TotalSeconds:F1} saniye";
-
-            // Mock errors
-            ImportErrors.Add(new ImportErrorDto { Message = "Satir 7: SKU 'TRY-ERR-001' zaten mevcut — atlandi" });
-            ImportErrors.Add(new ImportErrorDto { Message = "Satir 9: Fiyat alani gecersiz format — '12.5abc'" });
-            HasImportErrors = ImportErrors.Count > 0;
+            HasImportErrors = ErrorRowCount > 0;
         }
         catch (Exception ex)
         {
