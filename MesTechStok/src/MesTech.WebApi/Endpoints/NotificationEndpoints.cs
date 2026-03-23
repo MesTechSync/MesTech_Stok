@@ -2,6 +2,8 @@ using MediatR;
 using MesTech.Application.Features.Notifications.Commands.MarkNotificationRead;
 using MesTech.Application.Features.Notifications.Commands.SendNotification;
 using MesTech.Application.Features.Notifications.Queries.GetNotifications;
+using MesTech.WebApi.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -63,5 +65,39 @@ public static class NotificationEndpoints
         })
         .WithName("GetUnreadNotificationCount")
         .WithSummary("Okunmamış bildirim sayısı");
+
+        // POST /api/v1/notifications/push — bildirim gönder + SignalR real-time broadcast
+        group.MapPost("/push", async (
+            PushNotificationRequest request,
+            ISender mediator,
+            IHubContext<MesTechHub> hubContext,
+            CancellationToken ct) =>
+        {
+            // 1. MESA Bot'a gönder (persistent)
+            var id = await mediator.Send(new SendNotificationCommand(
+                request.TenantId, request.Channel ?? "Push",
+                request.Recipient ?? "all", request.TemplateName ?? "custom",
+                request.Message), ct);
+
+            // 2. SignalR real-time push (instant)
+            await MesTechHub.PushNotification(
+                hubContext, request.TenantId.ToString(),
+                request.Title, request.Message,
+                request.Category ?? "System", request.ActionUrl);
+
+            return Results.Created($"/api/v1/notifications/{id}", new { id, pushed = true });
+        })
+        .WithName("PushNotification")
+        .WithSummary("Bildirim gönder + SignalR real-time push (V5)");
     }
+
+    internal record PushNotificationRequest(
+        Guid TenantId,
+        string Title,
+        string Message,
+        string? Channel = null,
+        string? Recipient = null,
+        string? TemplateName = null,
+        string? Category = null,
+        string? ActionUrl = null);
 }
