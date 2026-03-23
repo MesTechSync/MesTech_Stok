@@ -25,7 +25,14 @@ public class PlatformCommissionRateProvider : ICommissionRateProvider
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    public Task<CommissionRateInfo?> GetRateAsync(
+        string platform,
+        string? categoryId,
+        CancellationToken cancellationToken = default)
+        => GetRateAsync(Guid.Empty, platform, categoryId, cancellationToken);
+
     public async Task<CommissionRateInfo?> GetRateAsync(
+        Guid tenantId,
         string platform,
         string? categoryId,
         CancellationToken cancellationToken = default)
@@ -35,9 +42,8 @@ public class PlatformCommissionRateProvider : ICommissionRateProvider
         try
         {
             // Tenant ID: settlement repo tenant-filtered query kullanir.
-            // Simdilik Guid.Empty — multi-tenant entegrasyonda doldurulacak.
             var batches = await _settlementRepo
-                .GetByPlatformAsync(Guid.Empty, platform, cancellationToken)
+                .GetByPlatformAsync(tenantId, platform, cancellationToken)
                 .ConfigureAwait(false);
 
             if (batches is null || batches.Count == 0)
