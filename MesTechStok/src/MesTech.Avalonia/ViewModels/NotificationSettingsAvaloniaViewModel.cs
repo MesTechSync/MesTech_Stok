@@ -1,15 +1,24 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Notifications.Commands.SendNotification;
+using MesTech.Application.Features.Notifications.Commands.UpdateNotificationSettings;
+using MesTech.Application.Features.Notifications.Queries.GetNotificationSettings;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Notification Settings ViewModel — channel selection, category matrix, quiet hours, digest mode.
-/// İ-11 Görev 4A: Dedicated notification settings screen with mock data.
+/// MediatR ile gerçek bildirim ayarları yönetimi.
 /// </summary>
 public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
 {
+    private readonly ISender _mediator;
+    private Guid _tenantId;
+    private Guid _userId;
+
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
@@ -39,6 +48,17 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
     // Category notification matrix
     public ObservableCollection<NotificationCategoryItem> Categories { get; } = new();
 
+    public NotificationSettingsAvaloniaViewModel(ISender mediator)
+    {
+        _mediator = mediator;
+    }
+
+    public void SetContext(Guid tenantId, Guid userId)
+    {
+        _tenantId = tenantId;
+        _userId = userId;
+    }
+
     public async Task LoadAsync()
     {
         IsLoading = true;
@@ -46,19 +66,38 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Simulate loading
+            var settings = await _mediator.Send(new GetNotificationSettingsQuery(_tenantId, _userId));
 
             Categories.Clear();
-            Categories.Add(new NotificationCategoryItem("Siparis Olusturuldu", true, true, false, false));
-            Categories.Add(new NotificationCategoryItem("Siparis Iptal", true, true, true, false));
-            Categories.Add(new NotificationCategoryItem("Dusuk Stok Uyarisi", true, true, true, true));
-            Categories.Add(new NotificationCategoryItem("Stok Tukendi", true, true, true, true));
+
+            if (settings.Count > 0)
+            {
+                foreach (var setting in settings)
+                {
+                    var isEmail = setting.Channel == NotificationChannel.Email;
+                    var isTelegram = setting.Channel == NotificationChannel.Telegram;
+                    var isWhatsApp = setting.Channel == NotificationChannel.WhatsApp;
+
+                    if (isEmail) IsEmailEnabled = setting.IsEnabled;
+                    if (isTelegram) IsTelegramEnabled = setting.IsEnabled;
+                    if (isWhatsApp) IsWhatsAppEnabled = setting.IsEnabled;
+
+                    if (!string.IsNullOrWhiteSpace(setting.ChannelAddress) && isEmail)
+                        EmailAddress = setting.ChannelAddress;
+                }
+            }
+
+            // Default categories
+            Categories.Add(new NotificationCategoryItem("Siparis Olusturuldu", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
+            Categories.Add(new NotificationCategoryItem("Siparis Iptal", true, IsEmailEnabled, IsTelegramEnabled, false));
+            Categories.Add(new NotificationCategoryItem("Dusuk Stok Uyarisi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
+            Categories.Add(new NotificationCategoryItem("Stok Tukendi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
             Categories.Add(new NotificationCategoryItem("Fiyat Degisikligi", true, false, false, false));
-            Categories.Add(new NotificationCategoryItem("Kargo Guncelleme", true, true, false, false));
-            Categories.Add(new NotificationCategoryItem("Iade Talebi", true, true, true, false));
-            Categories.Add(new NotificationCategoryItem("Platform Senkron Hatasi", true, true, true, true));
+            Categories.Add(new NotificationCategoryItem("Kargo Guncelleme", true, IsEmailEnabled, false, false));
+            Categories.Add(new NotificationCategoryItem("Iade Talebi", true, IsEmailEnabled, IsTelegramEnabled, false));
+            Categories.Add(new NotificationCategoryItem("Platform Senkron Hatasi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
             Categories.Add(new NotificationCategoryItem("Fatura Olusturuldu", true, false, false, false));
-            Categories.Add(new NotificationCategoryItem("Sistem Bakimi", true, true, true, true));
+            Categories.Add(new NotificationCategoryItem("Sistem Bakimi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
         }
         catch (Exception ex)
         {
@@ -79,7 +118,17 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
         HasError = false;
         try
         {
-            await Task.Delay(400); // Simulate save
+            if (IsEmailEnabled)
+            {
+                await _mediator.Send(new UpdateNotificationSettingsCommand(
+                    _tenantId, _userId, NotificationChannel.Email, EmailAddress,
+                    true, true, true, 10, true, true, true, false, false, true, true, true,
+                    IsQuietHoursEnabled ? QuietStart.ToString(@"hh\:mm") : null,
+                    IsQuietHoursEnabled ? QuietEnd.ToString(@"hh\:mm") : null,
+                    "tr", !IsInstantMode,
+                    !IsInstantMode ? DigestTime.ToString(@"hh\:mm") : null));
+            }
+
             IsSaved = true;
         }
         catch (Exception ex)
@@ -101,7 +150,9 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            await Task.Delay(800); // Simulate sending
+            await _mediator.Send(new SendNotificationCommand(
+                _tenantId, "Push", "test", "test_notification",
+                "Bu bir test bildirimidir — MesTech bildirim sistemi calisiyor."));
             TestResult = "Test bildirimi basariyla gonderildi!";
             IsTestSent = true;
         }
