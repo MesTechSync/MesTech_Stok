@@ -57,4 +57,13 @@ public class ErpSyncLogRepository : IErpSyncLogRepository
             .OrderByDescending(e => e.CreatedAt)
             .Take(limit)
             .AsNoTracking().ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ErpSyncLog>> GetByTenantPagedAsync(
+        Guid tenantId, int page, int pageSize, CancellationToken ct = default)
+        => await _context.ErpSyncLogs
+            .Where(e => e.TenantId == tenantId)
+            .OrderByDescending(e => e.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking().ToListAsync(ct);
 }

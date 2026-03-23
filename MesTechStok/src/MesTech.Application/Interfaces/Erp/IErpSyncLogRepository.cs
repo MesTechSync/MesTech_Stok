@@ -37,4 +37,11 @@ public interface IErpSyncLogRepository
         ErpProvider provider,
         int limit = 50,
         CancellationToken ct = default);
+
+    /// <summary>Tenant bazli sayfalanmis sync log getirir (en yeni ilk).</summary>
+    Task<IReadOnlyList<ErpSyncLog>> GetByTenantPagedAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken ct = default);
 }
