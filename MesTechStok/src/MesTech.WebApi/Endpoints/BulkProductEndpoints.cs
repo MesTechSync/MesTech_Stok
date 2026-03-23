@@ -78,7 +78,7 @@ public static class BulkProductEndpoints
             await file.CopyToAsync(memoryStream, ct);
             var fileBytes = memoryStream.ToArray();
 
-            // [Phase-2] Dosya parser (CSV/Excel) ile CreateBulkProductsCommand entegrasyonu
+            // DEV1-DEPENDENCY: ExecuteBulkImportCommand handler ile parser entegrasyonu bekleniyor
             return Results.Ok(new
             {
                 fileName = file.FileName,
@@ -100,7 +100,7 @@ public static class BulkProductEndpoints
         {
             var format = request.Format?.ToLowerInvariant() ?? "csv";
 
-            // Tüm ürünleri getir — ileride filtre parametreleri eklenecek
+            // Tüm ürünleri getir
             var products = await productRepository.GetAllAsync();
 
             if (products.Count == 0)

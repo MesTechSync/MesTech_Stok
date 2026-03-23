@@ -197,18 +197,19 @@ public static class ErpEndpoints
             return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
         });
 
-        // GET /api/v1/erp/sync/history — sync history placeholder
+        // GET /api/v1/erp/sync/history — DEV1-DEPENDENCY: GetErpSyncHistoryQuery handler gerekli
         group.MapGet("/sync/history", (int? limit) =>
         {
-            // [Phase-2] Read from sync history table
             var maxItems = limit ?? 50;
             return Results.Ok(new
             {
                 history = Array.Empty<object>(),
-                message = "Sync history will be available after Phase 2 implementation",
+                message = "DEV1-DEPENDENCY: GetErpSyncHistoryQuery handler not yet created",
                 limit = maxItems
             });
-        });
+        })
+        .WithName("GetErpSyncHistory")
+        .WithSummary("ERP senkronizasyon geçmişi (DEV1-DEPENDENCY)");
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────
