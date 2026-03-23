@@ -399,6 +399,7 @@ services:
     volumes:
       - mestech_grafana_data:/var/lib/grafana
       - ../../monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ../../monitoring/grafana-alerts.yml:/etc/grafana/provisioning/alerting/alerts.yml:ro
     depends_on:
       prometheus:
         condition: service_healthy
