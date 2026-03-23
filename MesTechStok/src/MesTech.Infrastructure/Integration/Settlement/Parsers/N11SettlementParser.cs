@@ -28,7 +28,10 @@ public sealed class N11SettlementParser : ISettlementParser
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+    public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+        => ParseAsync(Guid.Empty, rawData, format, ct);
+
+    public async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(rawData);
 
@@ -47,7 +50,7 @@ public sealed class N11SettlementParser : ISettlementParser
             _logger.LogWarning("[N11SettlementParser] No settlement items found in XML response");
 
             return SettlementBatch.Create(
-                tenantId: Guid.Empty,
+                tenantId: tenantId,
                 platform: Platform,
                 periodStart: DateTime.UtcNow.Date,
                 periodEnd: DateTime.UtcNow.Date,
@@ -72,7 +75,7 @@ public sealed class N11SettlementParser : ISettlementParser
         var periodEnd = dates.Count > 0 ? dates.Max() : DateTime.UtcNow.Date;
 
         var batch = SettlementBatch.Create(
-            tenantId: Guid.Empty, // Will be set by the caller/command handler
+            tenantId: tenantId,
             platform: Platform,
             periodStart: periodStart,
             periodEnd: periodEnd,

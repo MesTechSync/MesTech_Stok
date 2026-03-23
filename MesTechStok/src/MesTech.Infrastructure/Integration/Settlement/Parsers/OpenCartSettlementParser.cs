@@ -36,7 +36,10 @@ public sealed class OpenCartSettlementParser : ISettlementParser
         };
     }
 
-    public async Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+    public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+        => ParseAsync(Guid.Empty, rawData, format, ct);
+
+    public async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(rawData);
 
@@ -56,7 +59,7 @@ public sealed class OpenCartSettlementParser : ISettlementParser
             _cachedItems = new List<OpenCartSettlementItem>();
 
             return SettlementBatch.Create(
-                tenantId: Guid.Empty,
+                tenantId: tenantId,
                 platform: Platform,
                 periodStart: DateTime.UtcNow.Date,
                 periodEnd: DateTime.UtcNow.Date,
@@ -89,7 +92,7 @@ public sealed class OpenCartSettlementParser : ISettlementParser
         }
 
         var batch = SettlementBatch.Create(
-            tenantId: Guid.Empty, // Will be set by the caller/command handler
+            tenantId: tenantId,
             platform: Platform,
             periodStart: periodStart.Value,
             periodEnd: periodEnd.Value,
