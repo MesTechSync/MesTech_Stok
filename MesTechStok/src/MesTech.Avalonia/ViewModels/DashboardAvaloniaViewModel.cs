@@ -43,6 +43,19 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string lastUpdated = "--:--";
 
+    // Zarar uyarı (Chain 10 — PriceLossDetectedEvent)
+    [ObservableProperty] private int priceLossCount;
+    [ObservableProperty] private string priceLossAlertText = string.Empty;
+    public bool HasPriceLossAlerts => PriceLossCount > 0;
+
+    partial void OnPriceLossCountChanged(int value)
+    {
+        PriceLossAlertText = value > 0
+            ? $"{value} urunde satis fiyati alis fiyatinin altinda"
+            : string.Empty;
+        OnPropertyChanged(nameof(HasPriceLossAlerts));
+    }
+
     // ── Auto-refresh toggle ───────────────────────────────────────────────
     [ObservableProperty] private bool _isAutoRefreshEnabled = true;
     [ObservableProperty] private string _lastRefreshText = "";
@@ -214,6 +227,14 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void ShowPriceLossDetails()
+    {
+        // Zarar detay sayfasına navigate — MainWindow sidebar ile entegre
+        System.Diagnostics.Debug.WriteLine(
+            $"[Dashboard] Zarar uyarı detay: {PriceLossCount} ürün");
+    }
 
     [RelayCommand]
     private void OpenAIInsight()

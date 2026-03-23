@@ -78,6 +78,34 @@
                                      Width="180" Margin="0,0,12,12" />
         </WrapPanel>
 
+        <!-- Zarar Uyari Karti (fiyat kaybi tespit edildiyse gorunur) -->
+        <Border Grid.Row="1" Margin="20,0,20,8"
+                Background="{DynamicResource StatusDangerBrush}"
+                CornerRadius="{StaticResource MesRadiusMd}"
+                Padding="16"
+                IsVisible="{Binding HasPriceLossAlerts}">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="!" FontSize="{StaticResource FontSizeLargeTitle}"
+                           FontWeight="Bold" Foreground="{DynamicResource MesBgPrimary}"
+                           VerticalAlignment="Center" Margin="0,0,16,0" />
+                <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="ZARAR UYARISI" FontWeight="Bold"
+                               Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeSubtitle}" />
+                    <TextBlock Text="{Binding PriceLossAlertText}"
+                               Foreground="{DynamicResource MesBgPrimary}" Opacity="0.9"
+                               FontSize="{StaticResource FontSizeSmall}" />
+                </StackPanel>
+                <Button Grid.Column="2" Content="Detay Gor"
+                        Command="{Binding ShowPriceLossDetailsCommand}"
+                        Foreground="{DynamicResource MesBgPrimary}"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource MesBgPrimary}" BorderThickness="1"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 2: Tables — Son Siparisler + Stok Uyarilari            -->
         <!-- ════════════════════════════════════════════════════════════ -->
