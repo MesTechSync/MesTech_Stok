@@ -733,8 +733,69 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     }
 
     // ── Categories ──────────────────────────────────────
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("HepsiburadaAdapter.GetCategoriesAsync");
+
+        try
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, "/product/api/categories/get-all-categories"),
+                ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Hepsiburada GetCategories failed {Status}: {Error}",
+                    response.StatusCode, error);
+                return Array.Empty<CategoryDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var categories = new List<CategoryDto>();
+            if (doc.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var el in doc.RootElement.EnumerateArray())
+                    categories.Add(ParseHbCategory(el));
+            }
+            else if (doc.RootElement.TryGetProperty("data", out var dataEl)
+                     && dataEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var el in dataEl.EnumerateArray())
+                    categories.Add(ParseHbCategory(el));
+            }
+
+            _logger.LogInformation("Hepsiburada GetCategories: {Count} top-level categories", categories.Count);
+            return categories.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Hepsiburada GetCategories exception");
+            return Array.Empty<CategoryDto>();
+        }
+    }
+
+    private static CategoryDto ParseHbCategory(JsonElement el)
+    {
+        var cat = new CategoryDto
+        {
+            PlatformCategoryId = el.TryGetProperty("categoryId", out var id) ? id.GetInt32() : 0,
+            Name = el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
+            ParentId = el.TryGetProperty("parentCategoryId", out var pid) && pid.ValueKind != JsonValueKind.Null
+                ? pid.GetInt32() : null
+        };
+
+        if (el.TryGetProperty("subCategories", out var subs) && subs.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var sub in subs.EnumerateArray())
+                cat.SubCategories.Add(ParseHbCategory(sub));
+        }
+
+        return cat;
+    }
 
     // ── HTTP helper ─────────────────────────────────────
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
