@@ -15,11 +15,32 @@ public interface ISettlementParser
 
     /// <summary>
     /// Parses raw settlement data into a <see cref="SettlementBatch"/> aggregate.
+    /// DEV3: tenantId overload'u kullanın — eski signature Guid.Empty ile yönlendirir.
     /// </summary>
     /// <param name="rawData">Raw stream (JSON, TSV, etc.) from platform API or file upload.</param>
     /// <param name="format">Data format hint (e.g. "json", "tsv").</param>
     /// <param name="ct">Cancellation token.</param>
     Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default);
+
+    /// <summary>
+    /// Multi-tenant overload — parser tenantId'yi batch ve line entity'lerine atar.
+    /// Yeni caller'lar bu overload'u kullanmalıdır.
+    /// </summary>
+    /// <param name="tenantId">Tenant identifier for multi-tenant isolation.</param>
+    /// <param name="rawData">Raw stream (JSON, TSV, etc.) from platform API or file upload.</param>
+    /// <param name="format">Data format hint (e.g. "json", "tsv").</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
+    {
+        // Default implementation: delegate to legacy overload, set tenantId on result.
+        // DEV3 parsers can override this with native tenantId support.
+        return ParseAsync(rawData, format, ct).ContinueWith(t =>
+        {
+            var batch = t.Result;
+            batch.TenantId = tenantId;
+            return batch;
+        }, ct, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+    }
 
     /// <summary>
     /// Parses individual settlement lines from a batch — called after <see cref="ParseAsync"/>.
