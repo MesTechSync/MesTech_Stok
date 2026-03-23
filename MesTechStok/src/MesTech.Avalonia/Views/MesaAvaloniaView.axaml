@@ -32,6 +32,14 @@
                 <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
                            Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,20" />
 
+                <!-- Empty state -->
+                <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+                  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="MESA verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Henuz MESA kaydi bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                  </StackPanel>
+                </Border>
+
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                         CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">

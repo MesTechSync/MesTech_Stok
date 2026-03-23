@@ -83,6 +83,14 @@
                     <TextBlock Text="Ürün başarıyla kaydedildi!" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesGreen}" />
                 </Border>
 
+                <!-- Empty state -->
+                <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+                  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="Urun bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Henuz urun bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+                  </StackPanel>
+                </Border>
+
                 <!-- Error -->
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12"
                         IsVisible="{Binding HasError}">

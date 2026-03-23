@@ -121,6 +121,14 @@
             </StackPanel>
         </Border>
 
+<!-- Empty state -->
+        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="Siparis bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Henuz siparis bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border Grid.Row="0" Grid.RowSpan="2"
                 Background="{DynamicResource MesBgSurface}"
