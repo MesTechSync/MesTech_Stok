@@ -20,6 +20,8 @@ public static class OrderEndpoints
             var result = await mediator.Send(
                 new ListOrdersQuery(from, to, status), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("ListOrders")
+        .WithSummary("Sipariş listesi (tarih + durum filtresi)");
     }
 }

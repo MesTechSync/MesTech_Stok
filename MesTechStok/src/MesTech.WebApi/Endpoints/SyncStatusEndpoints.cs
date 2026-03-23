@@ -18,6 +18,8 @@ public static class SyncStatusEndpoints
             var result = await mediator.Send(
                 new GetSyncStatusQuery(platformCode), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetSyncStatus")
+        .WithSummary("Platform senkronizasyon durumu");
     }
 }

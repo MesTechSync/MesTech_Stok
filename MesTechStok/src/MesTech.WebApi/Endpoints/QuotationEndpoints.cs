@@ -30,14 +30,18 @@ public static class QuotationEndpoints
 
             var result = await mediator.Send(new ListQuotationsQuery(parsedStatus), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("ListQuotations")
+        .WithSummary("Teklif listesi (durum filtresi)");
 
         // GET /api/v1/quotations/{id} — get single quotation with lines
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetQuotationByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
-        });
+        })
+        .WithName("GetQuotationById")
+        .WithSummary("Tekil teklif detayı");
 
         // POST /api/v1/quotations — create a new quotation
         group.MapPost("/", async (CreateQuotationCommand command, ISender mediator, CancellationToken ct) =>
@@ -46,7 +50,9 @@ public static class QuotationEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/v1/quotations/{result.QuotationId}", result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("CreateQuotation")
+        .WithSummary("Yeni teklif oluştur");
 
         // POST /api/v1/quotations/{id}/accept — accept a quotation
         group.MapPost("/{id:guid}/accept", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -55,7 +61,9 @@ public static class QuotationEndpoints
             return result.IsSuccess
                 ? Results.Ok(result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("AcceptQuotation")
+        .WithSummary("Teklifi kabul et");
 
         // POST /api/v1/quotations/{id}/reject — reject a quotation
         group.MapPost("/{id:guid}/reject", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -64,7 +72,9 @@ public static class QuotationEndpoints
             return result.IsSuccess
                 ? Results.Ok(result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("RejectQuotation")
+        .WithSummary("Teklifi reddet");
 
         // POST /api/v1/quotations/{id}/convert — convert accepted quotation to invoice
         group.MapPost("/{id:guid}/convert", async (Guid id, [FromBody] ConvertRequest body, ISender mediator, CancellationToken ct) =>
@@ -74,6 +84,8 @@ public static class QuotationEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/v1/invoices/{result.InvoiceId}", result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("ConvertQuotationToInvoice")
+        .WithSummary("Kabul edilen teklifi faturaya dönüştür");
     }
 }

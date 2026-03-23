@@ -19,21 +19,27 @@ public static class ProductEndpoints
         {
             var result = await mediator.Send(new GetProductDbStatusQuery(), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetProductStatus")
+        .WithSummary("Ürün DB bağlantı durumu ve sayılar");
 
         // GET /api/v1/products/low-stock — products below minimum stock
         group.MapGet("/low-stock", async (ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetLowStockProductsQuery(), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetLowStockProducts")
+        .WithSummary("Minimum stok altı ürünler");
 
         // GET /api/v1/products/{id} — get single product by ID
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetProductByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
-        });
+        })
+        .WithName("GetProductById")
+        .WithSummary("Tekil ürün detayı");
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -42,7 +48,9 @@ public static class ProductEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/v1/products/{result.ProductId}", result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("CreateProduct")
+        .WithSummary("Yeni ürün oluştur");
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -53,7 +61,9 @@ public static class ProductEndpoints
             return result.IsSuccess
                 ? Results.Ok(result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("UpdateProduct")
+        .WithSummary("Ürün güncelle");
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -62,6 +72,8 @@ public static class ProductEndpoints
             return result.IsSuccess
                 ? Results.NoContent()
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("DeleteProduct")
+        .WithSummary("Ürün sil (soft-delete)");
     }
 }

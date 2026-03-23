@@ -18,6 +18,8 @@ public static class CategoryEndpoints
             var result = await mediator.Send(
                 new GetCategoriesQuery(activeOnly), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetCategories")
+        .WithSummary("Kategori listesi (aktif/tümü filtresi)");
     }
 }

@@ -42,7 +42,9 @@ public static class DashboardEndpoints
                 totalInventoryValue = inventoryStats.TotalInventoryValue,
                 lowStockAlerts = inventoryStats.LowStockCount
             });
-        });
+        })
+        .WithName("GetDashboardKpi")
+        .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)");
 
         // GET /api/v1/dashboard/sales-trend?days=7 — daily order counts per platform (Chart.js format)
         group.MapGet("/sales-trend", async (int? days, ISender mediator, CancellationToken ct) =>
@@ -86,14 +88,18 @@ public static class DashboardEndpoints
             }).ToArray();
 
             return Results.Ok(new { labels = labelStrings, datasets });
-        });
+        })
+        .WithName("GetSalesTrend")
+        .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)");
 
         // GET /api/v1/dashboard/inventory-stats — full inventory statistics
         group.MapGet("/inventory-stats", async (ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetInventoryStatisticsQuery(), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetInventoryStats")
+        .WithSummary("Envanter istatistikleri");
 
         // GET /api/v1/dashboard/recent-orders — orders from last 7 days
         group.MapGet("/recent-orders", async (ISender mediator, CancellationToken ct) =>
@@ -101,7 +107,9 @@ public static class DashboardEndpoints
             var result = await mediator.Send(
                 new ListOrdersQuery(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow, null), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetRecentOrders")
+        .WithSummary("Son 7 gün siparişleri");
 
         // GET /api/v1/dashboard/accounting-kpi — muhasebe KPI (gelir, gider, kar, siparis metrikleri)
         group.MapGet("/accounting-kpi", async (
