@@ -266,25 +266,25 @@ else if (invoice is not null)
             if (apiResult is not null)
             {
                 _isDemoMode = false;
+                invoice = apiResult;
             }
             else
             {
                 _isDemoMode = true;
+                // Demo data — sadece API başarısız olduğunda
+                var kalemler = new List<InvoiceLineDto>
+                {
+                    new("Laptop Bilgisayar (i7, 16GB RAM)", 2, 25_000m, 20),
+                    new("USB-C Dock Istasyonu", 5, 2_500m, 20),
+                    new("Teknik Destek Hizmeti (Aylik)", 1, 3_000m, 20),
+                };
+
+                invoice = new InvoiceDetailDto(
+                    Id, "MES2026000001", new DateTime(2026, 3, 1), "e-Fatura", "Gonderildi",
+                    "1234567890", "ABC Ticaret A.S.", "Besiktas", "Levent Mah. Buyukdere Cad. No:185 Istanbul",
+                    kalemler.Sum(k => k.AraTutar), kalemler.Sum(k => k.KdvTutar), kalemler.Sum(k => k.ToplamTutar),
+                    kalemler);
             }
-
-            // Use demo data for display until typed DTO mapping is available
-            var kalemler = new List<InvoiceLineDto>
-            {
-                new("Laptop Bilgisayar (i7, 16GB RAM)", 2, 25_000m, 20),
-                new("USB-C Dock Istasyonu", 5, 2_500m, 20),
-                new("Teknik Destek Hizmeti (Aylik)", 1, 3_000m, 20),
-            };
-
-            invoice = new InvoiceDetailDto(
-                Id, "MES2026000001", new DateTime(2026, 3, 1), "e-Fatura", "Gonderildi",
-                "1234567890", "ABC Ticaret A.S.", "Besiktas", "Levent Mah. Buyukdere Cad. No:185 Istanbul",
-                kalemler.Sum(k => k.AraTutar), kalemler.Sum(k => k.KdvTutar), kalemler.Sum(k => k.ToplamTutar),
-                kalemler);
 
             timeline =
             [

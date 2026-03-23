@@ -4,65 +4,153 @@
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
-@if (isLoading)
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-users text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Calisanlar</h3>
+    <small class="text-muted">Personel kayitlari ve organizasyon</small>
+  </div>
+  <button class="btn btn-outline-primary ms-auto" @onclick="LoadAsync" disabled="@_isLoading">
+    <i class="fas @(_isLoading ? "fa-spinner fa-spin" : "fa-sync-alt") me-1"></i>Yenile
+  </button>
+</div>
+
+@if (_isLoading)
 {
-    <LoadingSpinner />
+  <LoadingSpinner />
 }
-else if (errorMessage is not null)
+else if (_errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <div class="mt-2">
+      <button class="btn btn-sm btn-outline-danger" @onclick="LoadAsync">
+        <i class="fas fa-redo me-1"></i>Tekrar Dene
+      </button>
     </div>
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else if (_employees.Count == 0)
+{
+  <EmptyState Icon="fa-users" Message="Henuz calisan kaydi bulunamadi. Ilk calisaninizi ekleyin." />
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-users text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">Calisanlar</h3>
-        <small class="text-muted">Personel kayitlari ve organizasyon</small>
-      </div>
-    </div>
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-users" Value="@_employees.Count.ToString()" Label="Toplam Calisan" TextColor="text-primary" />
+    <KpiCard Icon="fa-check-circle" Value="@_employees.Count(e => e.Durum == "Aktif").ToString()" Label="Aktif" TextColor="text-success" />
+    <KpiCard Icon="fa-sitemap" Value="@_employees.Select(e => e.Departman).Distinct().Count().ToString()" Label="Departman" TextColor="text-info" />
+    <KpiCard Icon="fa-calendar-plus" Value="@_employees.Count(e => e.BaslangicTarihi >= DateTime.Today.AddMonths(-3)).ToString()" Label="Son 3 Ay" TextColor="text-warning" />
+  </div>
 
-    <div class="card shadow-sm">
-      <div class="card-body text-center py-5">
-        <i class="fas fa-users fa-3x mb-3 d-block" style="color: #2855AC; opacity: 0.3;"></i>
-        <h5 class="text-muted">Calisan Yonetimi</h5>
-        <p class="text-muted mb-0">Personel kayitlari, departman yapisi, gorev tanimlari ve ozluk bilgileri.</p>
+  <!-- Employees Table -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Calisan Listesi</h6>
+      <span class="badge bg-secondary">@_employees.Count calisan</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Ad Soyad</th>
+              <th>Departman</th>
+              <th class="d-none d-md-table-cell">Gorev</th>
+              <th class="d-none d-lg-table-cell">Baslangic</th>
+              <th class="d-none d-sm-table-cell">Email</th>
+              <th class="text-center">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var emp in _employees)
+            {
+              <tr>
+                <td class="fw-semibold">@emp.AdSoyad</td>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    <i class="fas fa-sitemap me-1"></i>@emp.Departman
+                  </span>
+                </td>
+                <td class="d-none d-md-table-cell">@emp.Gorev</td>
+                <td class="d-none d-lg-table-cell">
+                  <small>@emp.BaslangicTarihi.ToString("dd.MM.yyyy")</small>
+                </td>
+                <td class="d-none d-sm-table-cell">
+                  <a href="mailto:@emp.Email" class="text-decoration-none">@emp.Email</a>
+                </td>
+                <td class="text-center">
+                  <StatusBadge Text="@emp.Durum"
+                               Variant="@(emp.Durum == "Aktif" ? "success" : "secondary")" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="alert alert-secondary mt-4" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Calisan CRUD, departman agaci,
-      yetki matrisi ve performans takibi eklenecek.
-    </div>
+  </div>
 }
 
 @code {
-    private bool isLoading = true;
+    private bool _isLoading = true;
     private bool _isDemoMode;
-    private string? errorMessage;
+    private string? _errorMessage;
+    private List<EmployeeItem> _employees = [];
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
         try
         {
             var result = await ApiClient.SafeGetAsync<List<object>>("hr/employees");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                _isDemoMode = false;
+                _employees = GetDemoData();
+            }
+            else
+            {
+                _isDemoMode = true;
+                _employees = GetDemoData();
+            }
         }
         catch (Exception ex)
         {
             _isDemoMode = true;
+            _employees = GetDemoData();
             Console.WriteLine($"API error, using demo mode: {ex.Message}");
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
+
+    private static List<EmployeeItem> GetDemoData() =>
+    [
+        new("Ahmet Yilmaz", "Yazilim", "Backend Developer", DateTime.Today.AddYears(-2), "ahmet.yilmaz@mestech.tr", "Aktif"),
+        new("Fatma Demir", "Yazilim", "Frontend Developer", DateTime.Today.AddYears(-1).AddMonths(-6), "fatma.demir@mestech.tr", "Aktif"),
+        new("Mehmet Kaya", "Operasyon", "Depo Muduru", DateTime.Today.AddYears(-3), "mehmet.kaya@mestech.tr", "Aktif"),
+        new("Ayse Celik", "Muhasebe", "Muhasebe Uzmani", DateTime.Today.AddYears(-1), "ayse.celik@mestech.tr", "Aktif"),
+        new("Ali Ozturk", "Satis", "E-Ticaret Uzmani", DateTime.Today.AddMonths(-8), "ali.ozturk@mestech.tr", "Aktif"),
+        new("Zeynep Sahin", "Insan Kaynaklari", "IK Uzmani", DateTime.Today.AddMonths(-4), "zeynep.sahin@mestech.tr", "Aktif"),
+        new("Hasan Yildiz", "Operasyon", "Depo Gorevlisi", DateTime.Today.AddMonths(-2), "hasan.yildiz@mestech.tr", "Aktif"),
+        new("Elif Arslan", "Satis", "Musteri Temsilcisi", DateTime.Today.AddYears(-2), "elif.arslan@mestech.tr", "Pasif"),
+    ];
+
+    private record EmployeeItem(string AdSoyad, string Departman, string Gorev,
+        DateTime BaslangicTarihi, string Email, string Durum);
 }

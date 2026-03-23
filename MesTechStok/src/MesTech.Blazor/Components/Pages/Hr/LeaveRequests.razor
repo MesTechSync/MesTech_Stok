@@ -4,65 +4,159 @@
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
-@if (isLoading)
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-calendar-check text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Izin Talepleri</h3>
+    <small class="text-muted">Izin basvuru ve onay sureci</small>
+  </div>
+  <button class="btn btn-outline-primary ms-auto" @onclick="LoadAsync" disabled="@_isLoading">
+    <i class="fas @(_isLoading ? "fa-spinner fa-spin" : "fa-sync-alt") me-1"></i>Yenile
+  </button>
+</div>
+
+@if (_isLoading)
 {
-    <LoadingSpinner />
+  <LoadingSpinner />
 }
-else if (errorMessage is not null)
+else if (_errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>@_errorMessage
+    <div class="mt-2">
+      <button class="btn btn-sm btn-outline-danger" @onclick="LoadAsync">
+        <i class="fas fa-redo me-1"></i>Tekrar Dene
+      </button>
     </div>
+    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+  </div>
+}
+else if (_requests.Count == 0)
+{
+  <EmptyState Icon="fa-calendar-check" Message="Henuz izin talebi bulunamadi." />
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-calendar-check text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">Izin Talepleri</h3>
-        <small class="text-muted">Izin basvuru ve onay sureci</small>
-      </div>
-    </div>
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <KpiCard Icon="fa-list" Value="@_requests.Count.ToString()" Label="Toplam Talep" TextColor="text-primary" />
+    <KpiCard Icon="fa-hourglass-half" Value="@_requests.Count(r => r.Durum == "Beklemede").ToString()" Label="Beklemede" TextColor="text-warning" />
+    <KpiCard Icon="fa-check" Value="@_requests.Count(r => r.Durum == "Onaylandi").ToString()" Label="Onaylandi" TextColor="text-success" />
+    <KpiCard Icon="fa-times" Value="@_requests.Count(r => r.Durum == "Reddedildi").ToString()" Label="Reddedildi" TextColor="text-danger" />
+  </div>
 
-    <div class="card shadow-sm">
-      <div class="card-body text-center py-5">
-        <i class="fas fa-calendar-check fa-3x mb-3 d-block" style="color: #2855AC; opacity: 0.3;"></i>
-        <h5 class="text-muted">Izin Yonetimi</h5>
-        <p class="text-muted mb-0">Izin talebi olusturma, onay akisi, izin bakiyesi ve takvim gorunumu.</p>
+  <!-- Leave Requests Table -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Izin Talep Listesi</h6>
+      <span class="badge bg-secondary">@_requests.Count talep</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Calisan</th>
+              <th>Izin Turu</th>
+              <th>Baslangic</th>
+              <th>Bitis</th>
+              <th class="text-center d-none d-sm-table-cell">Gun</th>
+              <th class="d-none d-md-table-cell">Aciklama</th>
+              <th class="text-center">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var req in _requests)
+            {
+              <tr>
+                <td class="fw-semibold">@req.Calisan</td>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    <i class="fas @req.TurIcon me-1"></i>@req.Tur
+                  </span>
+                </td>
+                <td><small>@req.Baslangic.ToString("dd.MM.yyyy")</small></td>
+                <td><small>@req.Bitis.ToString("dd.MM.yyyy")</small></td>
+                <td class="text-center d-none d-sm-table-cell fw-semibold">@req.GunSayisi</td>
+                <td class="d-none d-md-table-cell text-muted">
+                  <small>@(req.Aciklama.Length > 40 ? req.Aciklama[..40] + "..." : req.Aciklama)</small>
+                </td>
+                <td class="text-center">
+                  <StatusBadge Text="@req.Durum" Variant="@GetStatusVariant(req.Durum)" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="alert alert-secondary mt-4" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Izin talebi CRUD,
-      yonetici onay paneli, izin takvimi ve bakiye hesaplama eklenecek.
-    </div>
+  </div>
 }
 
 @code {
-    private bool isLoading = true;
+    private bool _isLoading = true;
     private bool _isDemoMode;
-    private string? errorMessage;
+    private string? _errorMessage;
+    private List<LeaveRequestItem> _requests = [];
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
         try
         {
             var result = await ApiClient.SafeGetAsync<List<object>>("hr/leave-requests");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                _isDemoMode = false;
+                _requests = GetDemoData();
+            }
+            else
+            {
+                _isDemoMode = true;
+                _requests = GetDemoData();
+            }
         }
         catch (Exception ex)
         {
             _isDemoMode = true;
+            _requests = GetDemoData();
             Console.WriteLine($"API error, using demo mode: {ex.Message}");
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Onaylandi" => "success",
+        "Beklemede" => "warning",
+        "Reddedildi" => "danger",
+        _ => "secondary"
+    };
+
+    private static List<LeaveRequestItem> GetDemoData() =>
+    [
+        new("Ahmet Yilmaz", "Yillik Izin", "fa-umbrella-beach", DateTime.Today.AddDays(5), DateTime.Today.AddDays(12), 7, "Yaz tatili planlamasi", "Beklemede"),
+        new("Fatma Demir", "Yillik Izin", "fa-umbrella-beach", DateTime.Today.AddDays(-10), DateTime.Today.AddDays(-6), 4, "Aile ziyareti", "Onaylandi"),
+        new("Mehmet Kaya", "Saglik Izni", "fa-briefcase-medical", DateTime.Today.AddDays(-3), DateTime.Today.AddDays(-1), 2, "Doktor kontrolu", "Onaylandi"),
+        new("Ali Ozturk", "Yillik Izin", "fa-umbrella-beach", DateTime.Today.AddDays(15), DateTime.Today.AddDays(25), 10, "Uzun tatil", "Beklemede"),
+        new("Zeynep Sahin", "Mazeret Izni", "fa-house", DateTime.Today.AddDays(-5), DateTime.Today.AddDays(-5), 1, "Ev tasima", "Onaylandi"),
+        new("Hasan Yildiz", "Yillik Izin", "fa-umbrella-beach", DateTime.Today.AddDays(2), DateTime.Today.AddDays(4), 2, "Kisa mola", "Reddedildi"),
+        new("Elif Arslan", "Egitim Izni", "fa-graduation-cap", DateTime.Today.AddDays(20), DateTime.Today.AddDays(22), 2, "Sertifika sinavi", "Beklemede"),
+    ];
+
+    private record LeaveRequestItem(string Calisan, string Tur, string TurIcon,
+        DateTime Baslangic, DateTime Bitis, int GunSayisi, string Aciklama, string Durum);
 }

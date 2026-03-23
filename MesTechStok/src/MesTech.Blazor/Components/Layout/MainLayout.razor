@@ -1,6 +1,7 @@
 @inherits LayoutComponentBase
 @inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment
 
 <a class="visually-hidden-focusable" href="#main-content">Ana icerige atla</a>
 
@@ -49,12 +50,50 @@
           @Body
         </ChildContent>
         <ErrorContent Context="ex">
-          <div class="alert alert-danger" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            Beklenmeyen bir hata olustu.
-            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="RecoverError">
-              <i class="fas fa-redo me-1"></i>Tekrar Dene
-            </button>
+          <div class="container py-5">
+            <div class="row justify-content-center">
+              <div class="col-md-8 col-lg-6">
+                <div class="card border-danger shadow-sm">
+                  <div class="card-body text-center p-4 p-md-5">
+                    <div class="mb-3">
+                      <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="card-title text-danger mb-3">Beklenmeyen Bir Hata Olustu</h4>
+                    <p class="text-muted mb-4">
+                      Sayfa yuklenirken bir sorun meydana geldi. Lutfen sayfayi yenilemeyi deneyin veya ana sayfaya donun.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                      <button class="btn btn-danger" @onclick="RecoverError">
+                        <i class="fas fa-redo me-2"></i>Sayfayi Yenile
+                      </button>
+                      <button class="btn btn-outline-secondary" @onclick="GoHome">
+                        <i class="fas fa-home me-2"></i>Ana Sayfa
+                      </button>
+                    </div>
+                    @if (IsDevelopment)
+                    {
+                      <div class="mt-4 text-start">
+                        <hr />
+                        <details>
+                          <summary class="text-muted fw-semibold mb-2" style="cursor: pointer;">
+                            <i class="fas fa-bug me-1"></i> Hata Detaylari (Gelistirici)
+                          </summary>
+                          <div class="bg-dark text-light rounded p-3 mt-2" style="font-size: 0.8rem; max-height: 300px; overflow-y: auto;">
+                            <p class="mb-1"><strong>Hata:</strong> @ex.Message</p>
+                            @if (ex.InnerException != null)
+                            {
+                              <p class="mb-1"><strong>Ic Hata:</strong> @ex.InnerException.Message</p>
+                            }
+                            <p class="mb-0"><strong>Stack Trace:</strong></p>
+                            <pre class="text-warning mb-0" style="white-space: pre-wrap; word-break: break-all;">@ex.StackTrace</pre>
+                          </div>
+                        </details>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </ErrorContent>
       </ErrorBoundary>
@@ -70,10 +109,18 @@
 @code {
   private ErrorBoundary? errorBoundary;
   private bool sidebarOpen;
+  private bool IsDevelopment => Environment.IsDevelopment();
 
   private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
   private void CloseSidebar() => sidebarOpen = false;
+
   private void RecoverError() => errorBoundary?.Recover();
+
+  private void GoHome()
+  {
+    errorBoundary?.Recover();
+    Navigation.NavigateTo("/", forceLoad: false);
+  }
 
   private void HandleLogout()
   {

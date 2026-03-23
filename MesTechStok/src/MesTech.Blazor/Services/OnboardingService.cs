@@ -1,37 +1,64 @@
 namespace MesTech.Blazor.Services;
 
+/// <summary>
+/// Onboarding service — API entegrasyonlu, fallback destekli.
+/// API erişilemezse varsayılan adımlar gösterilir.
+/// </summary>
 public class OnboardingService
 {
-    // Simple cookie/localStorage based approach for SSR
-    // In production, this would check a DB flag
+    private readonly MesTechApiClient _apiClient;
+    private readonly ILogger<OnboardingService> _logger;
+
+    public OnboardingService(MesTechApiClient apiClient, ILogger<OnboardingService> logger)
+    {
+        _apiClient = apiClient;
+        _logger = logger;
+    }
 
     public async Task<bool> IsOnboardingCompletedAsync(Guid userId)
     {
-        // Check if user has completed onboarding
-        // For now, return false for demo purposes
-        // Production: query UserSettings table
-        await Task.CompletedTask;
-        return true; // Default to true so existing users aren't bothered
+        var result = await _apiClient.SafeGetAsync<OnboardingStatusDto>(
+            $"system/onboarding/status?userId={userId}");
+
+        if (result.IsSuccess && result.Data is not null)
+            return result.Data.IsCompleted;
+
+        // API erişilemez → mevcut kullanıcıları rahatsız etme
+        _logger.LogDebug("Onboarding status API erişilemedi — varsayılan: tamamlanmış");
+        return true;
     }
 
     public async Task MarkOnboardingCompletedAsync(Guid userId)
     {
-        // Mark onboarding as completed
-        // Production: update UserSettings table
-        await Task.CompletedTask;
+        var result = await _apiClient.SafePostAsync<object>(
+            $"system/onboarding/complete?userId={userId}", new { UserId = userId });
+
+        if (!result.IsSuccess)
+            _logger.LogWarning("Onboarding tamamlama API'ye iletilemedi — userId={UserId}", userId);
     }
 
     public async Task SaveOnboardingStepAsync(Guid userId, int step, Dictionary<string, string>? data = null)
     {
-        // Save progress for each step
-        // Production: persist to DB so user can resume
-        await Task.CompletedTask;
+        var result = await _apiClient.SafePostAsync<object>(
+            "system/onboarding/step",
+            new { UserId = userId, Step = step, Data = data });
+
+        if (!result.IsSuccess)
+            _logger.LogWarning("Onboarding adım {Step} kaydedilemedi — userId={UserId}", step, userId);
     }
 
     public async Task<int> GetLastCompletedStepAsync(Guid userId)
     {
-        // Get last completed step for resume
-        await Task.CompletedTask;
-        return 0;
+        var result = await _apiClient.SafeGetAsync<OnboardingProgressDto>(
+            $"system/onboarding/progress?userId={userId}");
+
+        if (result.IsSuccess && result.Data is not null)
+            return result.Data.LastCompletedStep;
+
+        return 0; // Fallback: baştan başla
     }
 }
+
+// ── DTOs ──
+public record OnboardingStatusDto(bool IsCompleted, int CompletedSteps, int TotalSteps);
+public record OnboardingProgressDto(int LastCompletedStep, int TotalSteps);
