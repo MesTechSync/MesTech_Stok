@@ -1,15 +1,23 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Reporting.Queries.GetSavedReports;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Report Dashboard ViewModel — quick reports, parameters, scheduled/recent reports.
-/// İ-11 Görev 4B: Central report dashboard with mock data.
+/// Report Dashboard ViewModel — MediatR ile gerçek rapor yönetimi.
 /// </summary>
 public partial class ReportDashboardAvaloniaViewModel : ObservableObject
 {
+    private readonly ISender _mediator;
+
+    public ReportDashboardAvaloniaViewModel(ISender mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
@@ -50,22 +58,20 @@ public partial class ReportDashboardAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate loading
+            // GetSavedReportsQuery requires TenantId — use default for now
+            var savedReports = await _mediator.Send(new GetSavedReportsQuery(Guid.Empty));
 
             ScheduledReports.Clear();
-            ScheduledReports.Add(new ScheduledReportItem("Haftalik Stok Raporu", "Haftalik", "Excel", "17.03.2026", "Aktif"));
-            ScheduledReports.Add(new ScheduledReportItem("Aylik Platform Performans", "Aylik", "PDF", "01.03.2026", "Aktif"));
-            ScheduledReports.Add(new ScheduledReportItem("Gunluk Siparis Ozeti", "Gunluk", "CSV", "20.03.2026", "Aktif"));
-            ScheduledReports.Add(new ScheduledReportItem("Ceyreklik Vergi Raporu", "3 Aylik", "PDF", "01.01.2026", "Duraklatildi"));
-            ScheduledReports.Add(new ScheduledReportItem("Haftalik CLV Analizi", "Haftalik", "Excel", "14.03.2026", "Aktif"));
-
             RecentReports.Clear();
-            RecentReports.Add(new RecentReportItem("20.03.2026", "Stok Degerleme Raporu", "Excel", "2.4 MB"));
-            RecentReports.Add(new RecentReportItem("19.03.2026", "Platform Performans", "PDF", "1.8 MB"));
-            RecentReports.Add(new RecentReportItem("18.03.2026", "Gonderim Raporu", "CSV", "890 KB"));
-            RecentReports.Add(new RecentReportItem("17.03.2026", "Haftalik Stok Raporu", "Excel", "3.1 MB"));
-            RecentReports.Add(new RecentReportItem("15.03.2026", "CLV Analizi", "Excel", "1.2 MB"));
-            RecentReports.Add(new RecentReportItem("14.03.2026", "Vergi Ozeti", "PDF", "540 KB"));
+
+            foreach (var report in savedReports)
+            {
+                RecentReports.Add(new RecentReportItem(
+                    report.CreatedAt.ToString("dd.MM.yyyy"),
+                    report.Name,
+                    report.ReportType,
+                    "—"));
+            }
         }
         catch (Exception ex)
         {
