@@ -84,5 +84,20 @@
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
-    </Grid>
+    
+        <!-- Error State -->
+        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
+            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
+                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
+                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
+                           TextWrapping="Wrap" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri tekrar yukle"
+                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+</Grid>
 </UserControl>
