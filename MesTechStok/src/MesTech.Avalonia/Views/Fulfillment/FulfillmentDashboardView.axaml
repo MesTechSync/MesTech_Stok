@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentDashboardView"
+             x:DataType="vm:FulfillmentDashboardViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Fulfillment Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri yenile (F5)"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Row 1: KPI Cards -->
+        <Border Grid.Row="1" Padding="20,16" IsVisible="{Binding !IsLoading}">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <!-- FBA Stok -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20,16" MinWidth="160" BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="FBA Stok" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding FbaStockTotal}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource MesBrandAmazon}" />
+                    </StackPanel>
+                </Border>
+                <!-- HepsiL Stok -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20,16" MinWidth="160" BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Hepsilojistik Stok" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding HlStockTotal}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource MesBrandHB}" />
+                    </StackPanel>
+                </Border>
+                <!-- Aktif Gonderim -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20,16" MinWidth="140" BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Aktif Gonderim" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding ActiveShipments}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}" />
+                    </StackPanel>
+                </Border>
+                <!-- Transit -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20,16" MinWidth="140" BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Transit" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding TransitShipments}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusWarningBrush}" />
+                    </StackPanel>
+                </Border>
+                <!-- Sorunlu -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20,16" MinWidth="140" BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Sorunlu" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding ProblemShipments}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusDangerBrush}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Content Area -->
+        <Grid Grid.Row="2" Margin="20,0,20,20">
+
+            <!-- DataGrid: Envanter -->
+            <DataGrid ItemsSource="{Binding InventoryItems}" AutoGenerateColumns="False"
+                      IsReadOnly="True" GridLinesVisibility="Horizontal"
+                      Background="{DynamicResource MesBgPrimary}"
+                      BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1"
+                      IsVisible="{Binding !IsLoading}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="180" />
+                    <DataGridTextColumn Header="Mevcut" Binding="{Binding AvailableQuantity}" Width="100" />
+                    <DataGridTextColumn Header="Rezerve" Binding="{Binding ReservedQuantity}" Width="100" />
+                    <DataGridTextColumn Header="Yolda (Inbound)" Binding="{Binding InboundQuantity}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Empty State -->
+            <Border IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="Henuz fulfillment entegrasyonu yapilandirilmamis"
+                               FontSize="{StaticResource FontSizeTitle}" Foreground="{DynamicResource MesMutedGray}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Amazon FBA veya Hepsilojistik baglantisinizi ayarlayin"
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" Opacity="0.7" />
+                </StackPanel>
+            </Border>
+
+            <!-- Loading -->
+            <Border IsVisible="{Binding IsLoading}" Background="{DynamicResource MesOverlayLight}" ZIndex="100">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
+                    <TextBlock Text="Fulfillment verileri yukleniyor..."
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Error -->
+            <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
+                               Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
+                               TextWrapping="Wrap" MaxWidth="400" />
+                    <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                            ToolTip.Tip="Verileri tekrar yukle"
+                            Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>
