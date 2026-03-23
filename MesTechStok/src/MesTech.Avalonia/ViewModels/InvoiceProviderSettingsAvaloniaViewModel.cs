@@ -1,20 +1,27 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Invoice.Queries;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// e-Fatura provider ayarlari ViewModel.
-/// 9 provider karti: durum, tip, test sonucu, baglanti testi.
-/// P0 XAdES uyarisi.
+/// e-Fatura provider ayarlari ViewModel — MediatR ile gerçek provider durumu.
 /// </summary>
 public partial class InvoiceProviderSettingsAvaloniaViewModel : ObservableObject
 {
+    private readonly ISender _mediator;
+
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private string testingProvider = string.Empty;
+
+    public InvoiceProviderSettingsAvaloniaViewModel(ISender mediator)
+    {
+        _mediator = mediator;
+    }
 
     public ObservableCollection<ProviderCardItem> Providers { get; } = [];
 
@@ -24,99 +31,24 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ObservableObject
         HasError = false;
         try
         {
-            await Task.Delay(300);
+            var providerStatuses = await _mediator.Send(new GetInvoiceProvidersQuery());
 
             Providers.Clear();
-            Providers.Add(new()
+            foreach (var p in providerStatuses)
             {
-                Name = "Sovos (Foriba)",
-                Status = "Aktif",
-                StatusColor = "#388E3C",
-                IntegrationType = "Gercek entegrasyon",
-                SupportedTypes = "e-Fatura, e-Arsiv",
-                LastTestResult = "Basarili",
-                LastTestDate = new DateTime(2026, 3, 18, 14, 30, 0)
-            });
-            Providers.Add(new()
-            {
-                Name = "GIB Portal",
-                Status = "Aktif",
-                StatusColor = "#388E3C",
-                IntegrationType = "Gercek entegrasyon",
-                SupportedTypes = "e-Fatura, e-Arsiv, e-Ihracat",
-                LastTestResult = "Basarili",
-                LastTestDate = new DateTime(2026, 3, 17, 10, 15, 0)
-            });
-            Providers.Add(new()
-            {
-                Name = "Logo e-Fatura",
-                Status = "Yapilandirilmadi",
-                StatusColor = "#F57C00",
-                IntegrationType = "Stub",
-                SupportedTypes = "e-Fatura, e-Arsiv",
-                LastTestResult = "—",
-                LastTestDate = null
-            });
-            Providers.Add(new()
-            {
-                Name = "Parasoft e-Fatura",
-                Status = "Yapilandirilmadi",
-                StatusColor = "#F57C00",
-                IntegrationType = "Stub",
-                SupportedTypes = "e-Fatura",
-                LastTestResult = "—",
-                LastTestDate = null
-            });
-            Providers.Add(new()
-            {
-                Name = "QNB e-Fatura",
-                Status = "Hata",
-                StatusColor = "#D32F2F",
-                IntegrationType = "Mock",
-                SupportedTypes = "e-Fatura, e-Arsiv",
-                LastTestResult = "Baglanti hatasi",
-                LastTestDate = new DateTime(2026, 3, 15, 9, 0, 0)
-            });
-            Providers.Add(new()
-            {
-                Name = "Uyumsoft",
-                Status = "Aktif",
-                StatusColor = "#388E3C",
-                IntegrationType = "Gercek entegrasyon",
-                SupportedTypes = "e-Fatura, e-Arsiv",
-                LastTestResult = "Basarili",
-                LastTestDate = new DateTime(2026, 3, 16, 16, 45, 0)
-            });
-            Providers.Add(new()
-            {
-                Name = "Mikro e-Fatura",
-                Status = "Yapilandirilmadi",
-                StatusColor = "#F57C00",
-                IntegrationType = "Stub",
-                SupportedTypes = "e-Fatura",
-                LastTestResult = "—",
-                LastTestDate = null
-            });
-            Providers.Add(new()
-            {
-                Name = "Netsis e-Fatura",
-                Status = "Yapilandirilmadi",
-                StatusColor = "#F57C00",
-                IntegrationType = "Mock",
-                SupportedTypes = "e-Fatura, e-Arsiv",
-                LastTestResult = "—",
-                LastTestDate = null
-            });
-            Providers.Add(new()
-            {
-                Name = "Edm e-Fatura",
-                Status = "Yapilandirilmadi",
-                StatusColor = "#F57C00",
-                IntegrationType = "Stub",
-                SupportedTypes = "e-Fatura",
-                LastTestResult = "—",
-                LastTestDate = null
-            });
+                var statusColor = p.IsAvailable ? "#388E3C" : p.IsConfigured ? "#D32F2F" : "#F57C00";
+                var statusText = p.IsAvailable ? "Aktif" : p.IsConfigured ? "Hata" : "Yapilandirilmadi";
+                Providers.Add(new()
+                {
+                    Name = p.ProviderName,
+                    Status = statusText,
+                    StatusColor = statusColor,
+                    IntegrationType = p.IsAvailable ? "Gercek entegrasyon" : "Bekliyor",
+                    SupportedTypes = "e-Fatura, e-Arsiv",
+                    LastTestResult = p.IsAvailable ? "Basarili" : "—",
+                    LastTestDate = p.IsAvailable ? DateTime.UtcNow : null
+                });
+            }
         }
         catch (Exception ex)
         {
