@@ -34,6 +34,13 @@
       --sidebar-dark: #1a1a2e;
       --header-dark: #16213e;
     }
+    [data-theme="dark"] {
+      --mestech-bg: #0f172a;
+      --mestech-card-bg: #1e293b;
+      --mestech-text: #f1f5f9;
+      --mestech-text-secondary: #94a3b8;
+      --mestech-border: #334155;
+    }
     * { box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
     #root { display: flex; flex-direction: column; min-height: 100vh; }
@@ -206,5 +213,6 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 </body>
 </html>
