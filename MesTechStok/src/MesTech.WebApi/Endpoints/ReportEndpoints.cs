@@ -4,6 +4,7 @@ using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 using MesTech.Application.Features.Reports.PlatformSalesReport;
+using MesTech.Application.Features.Reports.ProfitabilityReport;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -88,5 +89,17 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformComparison")
         .WithSummary("Platform bazli satis karsilastirma raporu (tarih araligi + platform filtresi)");
+
+        // GET /api/v1/reports/profitability — karlilik raporu (Net Kar formulu)
+        group.MapGet("/profitability", async (
+            Guid tenantId, DateTime from, DateTime to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ProfitabilityReportQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetProfitabilityReport")
+        .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - KDV");
     }
 }
