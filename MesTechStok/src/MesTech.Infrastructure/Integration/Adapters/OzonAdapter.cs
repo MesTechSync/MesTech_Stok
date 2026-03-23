@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -32,16 +33,20 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
     // Ozon uses header-based auth — no token exchange
     private string _clientId = string.Empty;
     private string _apiKey = string.Empty;
-    private string _baseUrl = "https://api-seller.ozon.ru";
+    private string _baseUrl;
     private bool _isConfigured;
 
+    private const string DefaultBaseUrl = "https://api-seller.ozon.ru";
     private const string ClientIdHeader = "Client-Id";
     private const string ApiKeyHeader = "Api-Key";
 
-    public OzonAdapter(HttpClient httpClient, ILogger<OzonAdapter> logger)
+    public OzonAdapter(HttpClient httpClient, ILogger<OzonAdapter> logger,
+        IOptions<OzonOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _baseUrl = options?.Value.BaseUrl ?? DefaultBaseUrl;
 
         _jsonOptions = new JsonSerializerOptions
         {
