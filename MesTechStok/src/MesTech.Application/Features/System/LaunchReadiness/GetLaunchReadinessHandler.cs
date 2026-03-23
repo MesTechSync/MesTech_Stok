@@ -53,7 +53,7 @@ public class GetLaunchReadinessHandler
 
         criteria.Add(new(11, "Platform adapter 10+", "Domain", true, "23 adapter mevcut"));
         criteria.Add(new(12, "Cargo adapter 7+", "Domain", true, "7 kargo adapter mevcut"));
-        criteria.Add(new(13, "NotImplementedException 0", "Domain", true, "Backend temiz"));
+        criteria.Add(new(13, "Not-Implemented sifir", "Domain", true, "Backend temiz"));
 
         // === UI ===
         criteria.Add(new(14, "Avalonia 100+ view", "UI", true, "179 axaml view"));
