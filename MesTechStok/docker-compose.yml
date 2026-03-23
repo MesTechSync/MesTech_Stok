@@ -60,14 +60,12 @@ services:
     image: redis:7.4-alpine
     container_name: mestech-redis
     restart: unless-stopped
+    user: "999:999"
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    cap_add:
-      - SETUID
-      - SETGID
     read_only: true
     tmpfs:
       - /tmp
@@ -255,6 +253,7 @@ services:
   minio:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     container_name: mestech-minio
+    user: "1000:1000"
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
@@ -337,6 +336,7 @@ services:
     image: prom/prometheus:v2.51.0
     container_name: mestech-prometheus
     restart: unless-stopped
+    user: "65534:65534"
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
@@ -374,6 +374,7 @@ services:
     image: grafana/grafana:10.4.1
     container_name: mestech-grafana
     restart: unless-stopped
+    user: "472:0"
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
