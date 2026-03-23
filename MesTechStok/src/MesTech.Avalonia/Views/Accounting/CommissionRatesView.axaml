@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.CommissionRatesView"
+             x:DataType="vm:CommissionRatesViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Aciklama -->
+        <Border Grid.Row="0" Padding="12" Background="{DynamicResource MesBgSecondary}"
+                CornerRadius="{StaticResource MesRadiusMd}" Margin="12,12,12,0">
+            <TextBlock TextWrapping="Wrap" FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{DynamicResource MesSlateGray}">
+                Platform komisyon oranlari burada yonetilir. Siparis tamamlandiginda
+                komisyon otomatik olarak gider kaydi (GL 760.02) olusturur.
+            </TextBlock>
+        </Border>
+
+        <!-- Komisyon tablosu -->
+        <DataGrid Grid.Row="1" Margin="12" ItemsSource="{Binding CommissionRates}"
+                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                  IsReadOnly="True" GridLinesVisibility="Horizontal"
+                  BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Platform" Binding="{Binding PlatformName}" Width="140" />
+                <DataGridTextColumn Header="Komisyon %" Binding="{Binding RateText}" Width="100" />
+                <DataGridTextColumn Header="Sabit Tutar" Binding="{Binding FixedAmountText}" Width="120" />
+                <DataGridTextColumn Header="Gecerlilik" Binding="{Binding EffectivePeriod}" Width="180" />
+                <DataGridTextColumn Header="Ornek Hesaplama" Binding="{Binding ExampleCalculation}" Width="200" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

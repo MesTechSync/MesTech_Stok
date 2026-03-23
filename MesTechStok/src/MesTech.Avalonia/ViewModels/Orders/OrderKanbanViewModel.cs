@@ -39,9 +39,13 @@ public partial class OrderKanbanViewModel : ObservableObject
     private static ISolidColorBrush GetBrush(string key, string fallback = "#888888")
     {
         var app = global::Avalonia.Application.Current;
-        if (app?.TryFindResource(key, app.ActualThemeVariant, out var res) == true
+        if (app != null && app.Resources.TryGetResource(key, app.ActualThemeVariant, out var res)
             && res is ISolidColorBrush brush)
             return brush;
+        // Color token'dan brush oluştur
+        if (app != null && app.Resources.TryGetResource(key, app.ActualThemeVariant, out var colorRes)
+            && colorRes is Color color)
+            return new SolidColorBrush(color);
         return SolidColorBrush.Parse(fallback);
     }
 
