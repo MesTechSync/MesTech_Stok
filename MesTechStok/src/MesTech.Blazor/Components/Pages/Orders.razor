@@ -11,8 +11,11 @@
 }
 else if (errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-warning" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
     </div>
 }
 else
@@ -50,8 +53,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
         try
         {
+            isLoading = true;
+            errorMessage = null;
             var result = await ApiClient.SafeGetAsync<List<object>>("orders");
             if (result.IsSuccess) { }
             else { _isDemoMode = true; }
