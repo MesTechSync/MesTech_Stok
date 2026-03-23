@@ -91,3 +91,22 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER zorunlu — .env dosyasini kontrol edin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD zorunlu — .env dosyasini kontrol edin}
     restart: always
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+
+  prometheus:
+    ports: !override
+      - "127.0.0.1:3090:9090"
+    restart: always
+
+  grafana:
+    ports: !override
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER zorunlu — .env dosyasini kontrol edin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD zorunlu — .env dosyasini kontrol edin}
+    restart: always
