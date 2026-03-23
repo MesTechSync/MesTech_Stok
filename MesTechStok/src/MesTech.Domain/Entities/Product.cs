@@ -154,7 +154,7 @@ public class Product : BaseEntity, ITenantEntity
                 : IsCriticalStock ? StockAlertLevel.Critical
                 : StockAlertLevel.Low;
             RaiseDomainEvent(new StockCriticalEvent(
-                Id, Name, SKU, Stock, MinimumStock, level, null, null, DateTime.UtcNow));
+                Id, TenantId, Name, SKU, Stock, MinimumStock, level, null, null, DateTime.UtcNow));
         }
     }
 

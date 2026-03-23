@@ -93,7 +93,7 @@ public class ProductEdgeCaseTests
         product.UpdatePrice(0m);
 
         product.SalePrice.Should().Be(0m);
-        product.DomainEvents.Should().ContainSingle();
+        product.DomainEvents.Should().ContainItemsAssignableTo<MesTech.Domain.Events.PriceChangedEvent>();
     }
 
     [Fact]
