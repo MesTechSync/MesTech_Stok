@@ -765,8 +765,32 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     }
 
     // ── Categories (Interface) ──────────────────────────
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
-        => Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        var csCategories = await GetCsCategoriesAsync(ct).ConfigureAwait(false);
+        if (csCategories.Count == 0)
+            return Array.Empty<CategoryDto>();
+
+        var lookup = csCategories.ToLookup(c => c.ParentId);
+        var roots = csCategories.Where(c => c.ParentId is null).ToList();
+
+        CategoryDto Map(CsCategoryDto cs)
+        {
+            var dto = new CategoryDto
+            {
+                PlatformCategoryId = (int)cs.Id,
+                Name = cs.Name,
+                ParentId = cs.ParentId.HasValue ? (int)cs.ParentId.Value : null
+            };
+            foreach (var child in lookup[cs.Id])
+                dto.SubCategories.Add(Map(child));
+            return dto;
+        }
+
+        var result = roots.Select(Map).ToList();
+        _logger.LogInformation("Ciceksepeti GetCategoriesAsync: {Count} top-level categories mapped", result.Count);
+        return result.AsReadOnly();
+    }
 
     // ── HTTP helper ─────────────────────────────────────
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
