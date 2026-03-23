@@ -97,7 +97,14 @@ else
       if (apiData?.Count > 0)
       {
         _isDemoMode = false;
-        _providers = GetDemoProviders();
+        try
+        {
+          var json = System.Text.Json.JsonSerializer.Serialize(apiData);
+          _providers = System.Text.Json.JsonSerializer.Deserialize<List<ProviderItem>>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? GetDemoProviders();
+        }
+        catch { _providers = GetDemoProviders(); _isDemoMode = true; }
       }
       else
       {
