@@ -1,5 +1,5 @@
-// DEV1-DEPENDENCY: Application CRM Customers CQRS handler not yet created.
-// When DEV 1 creates GetCustomersCrmQuery, restore ISender dispatch.
+using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetCustomersCrm;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -15,29 +15,20 @@ public static class CrmCustomersEndpoint
             .WithTags("CRM")
             .RequireRateLimiting("PerApiKey");
 
-        // GET /api/v1/crm/customers — customer list with search & segment filter
-        group.MapGet("/customers", (
+        // GET /api/v1/crm/customers — customer list with search & filter
+        group.MapGet("/customers", async (
+            ISender mediator,
             Guid tenantId,
-            string? search,
-            string? segment,
+            string? search = null,
+            bool? isVip = null,
+            bool? isActive = null,
             int page = 1,
             int pageSize = 50,
             CancellationToken ct = default) =>
         {
-            // DEV1-DEPENDENCY: GetCustomersCrmQuery not yet available
-            // Final: var result = await mediator.Send(
-            //   new GetCustomersCrmQuery(tenantId, search, segment, page, pageSize), ct);
-            return Results.Ok(new
-            {
-                TenantId = tenantId,
-                Search = search,
-                Segment = segment,
-                Page = page,
-                PageSize = pageSize,
-                Items = Array.Empty<object>(),
-                TotalCount = 0,
-                Message = "CRM Customers endpoint stub — DEV1 Application handler pending"
-            });
+            var result = await mediator.Send(
+                new GetCustomersCrmQuery(tenantId, isVip, isActive, search, page, pageSize), ct);
+            return Results.Ok(result);
         })
         .WithName("GetCrmCustomers")
         .WithSummary("CRM müşteri listesi — arama ve segment filtresi (EMR-09)");
