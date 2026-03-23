@@ -1,0 +1,124 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentInboundView"
+             x:DataType="vm:FulfillmentInboundViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <!-- F-02: Fulfillment Inbound Shipment List -->
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Fulfillment Inbound" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} gonderi'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Yeni Inbound" ToolTip.Tip="Yeni inbound gonderi olustur"
+                            Command="{Binding CreateInboundCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <ComboBox ItemsSource="{Binding Providers}"
+                          SelectedItem="{Binding SelectedProvider}"
+                          MinWidth="180" />
+                <ComboBox ItemsSource="{Binding Statuses}"
+                          SelectedItem="{Binding SelectedStatus}"
+                          MinWidth="160" />
+                <DatePicker SelectedDate="{Binding DateFrom}" MinWidth="140" />
+                <DatePicker SelectedDate="{Binding DateTo}" MinWidth="140" />
+                <TextBox Width="220" Watermark="Shipment ID ara..."
+                         AutomationProperties.Name="Shipment ID ara..."
+                         Text="{Binding SearchText}" HorizontalAlignment="Left" />
+            </StackPanel>
+        </Border>
+
+        <!-- Inbound DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Shipments}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Shipment ID" Binding="{Binding ShipmentId}" Width="180" />
+                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="160" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="140" />
+                <DataGridTextColumn Header="Urun Adedi" Binding="{Binding ItemCount}" Width="100" />
+                <DataGridTextColumn Header="Olusturma Tarihi" Binding="{Binding CreatedDate}" Width="160" />
+                <DataGridTextColumn Header="Takip No" Binding="{Binding TrackingNumber}" Width="160" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Inbound gonderiler yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Inbound gonderi bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                <TextBlock Text="Filtrelere uygun inbound gonderi kaydi yok"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
