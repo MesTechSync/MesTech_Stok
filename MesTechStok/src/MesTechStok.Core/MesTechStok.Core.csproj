@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <!-- Sqlite + SqlServer kaldýrýldý: Dalga 2 4.D2-01 — sadece PostgreSQL kullanýlýyor -->
+    <!-- Sqlite + SqlServer kaldï¿½rï¿½ldï¿½: Dalga 2 4.D2-01 ï¿½ sadece PostgreSQL kullanï¿½lï¿½yor -->
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
@@ -22,10 +22,11 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
     <PackageReference Include="System.IO.Ports" />
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="QRCoder" />
   </ItemGroup>
 
   <!-- Migration'lar yeniden etkin -->
-  <!-- Eski migration klasörü derleme dýþý býrakýldý (yeni SqlServer baseline için) -->
+  <!-- Eski migration klasï¿½rï¿½ derleme dï¿½ï¿½ï¿½ bï¿½rakï¿½ldï¿½ (yeni SqlServer baseline iï¿½in) -->
   <ItemGroup>
     <Compile Remove="Migrations\**\*.cs" />
     <Compile Remove="Migrations\*.cs" />

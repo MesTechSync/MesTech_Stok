@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MesTechStok.Core.Services.Abstract;
+using QRCoder;
 
 namespace MesTechStok.Core.Services.Concrete
 {
     /// <summary>
-    /// QR kod entegrasyonu servisi — şu an JSON içerik baytları döndürüyor.
-    /// Gerçek QR görüntü üretimi için QRCoder NuGet paketi gerekli (Dalga 3).
-    /// Desktop bu servisi aktif kullanıyor, dolayısıyla NotImplementedException atılmıyor.
+    /// Gercek QR kod PNG uretimi — QRCoder (PngByteQRCode) kullanir.
+    /// System.Drawing bagimliligi YOK — Linux/Docker uyumlu.
     /// </summary>
     public class QRCodeService : IQRCodeService
     {
@@ -22,316 +23,227 @@ namespace MesTechStok.Core.Services.Concrete
             _logger = logger;
         }
 
-        #region QR Kod Oluşturma
+        #region Core QR Generation
 
-        public async Task<byte[]> GenerateLocationQRCodeAsync(string binCode)
+        private static byte[] GenerateQRPng(string content, int pixelPerModule = 10)
         {
-            try
-            {
-                _logger.LogInformation($"Generating location QR code for bin: {binCode}");
-
-                // Placeholder: returns JSON bytes — real QR image generation needs QRCoder NuGet
-                var qrContent = await GetQRCodeContentAsync(binCode);
-                var qrBytes = Encoding.UTF8.GetBytes(qrContent);
-
-                _logger.LogInformation($"Location QR code generated successfully for bin: {binCode}");
-                return qrBytes;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error generating location QR code for bin: {binCode}");
-                throw;
-            }
+            using var generator = new QRCodeGenerator();
+            var data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M);
+            using var qrCode = new PngByteQRCode(data);
+            return qrCode.GetGraphic(pixelPerModule);
         }
 
-        public async Task<byte[]> GenerateProductQRCodeAsync(Guid productId)
+        #endregion
+
+        #region QR Kod Olusturma
+
+        public Task<byte[]> GenerateLocationQRCodeAsync(string binCode)
         {
-            try
-            {
-                _logger.LogInformation($"Generating product QR code for product: {productId}");
+            _logger.LogInformation("Generating location QR code for bin: {BinCode}", binCode);
 
-                // Placeholder — real QR generation needs QRCoder NuGet
-                var qrContent = $"PRODUCT:{productId}:{DateTime.Now:yyyyMMddHHmmss}";
-                var qrBytes = Encoding.UTF8.GetBytes(qrContent);
+            var content = $"MESTECH:LOC|BIN:{binCode}|T:{DateTime.UtcNow:yyyyMMddHHmm}";
+            var png = GenerateQRPng(content, 8);
 
-                _logger.LogInformation($"Product QR code generated successfully for product: {productId}");
-                return qrBytes;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error generating product QR code for product: {productId}");
-                throw;
-            }
+            _logger.LogInformation("Location QR PNG generated: {Bytes} bytes for {BinCode}", png.Length, binCode);
+            return Task.FromResult(png);
         }
 
-        public async Task<byte[]> GenerateMovementQRCodeAsync(int movementId)
+        public Task<byte[]> GenerateProductQRCodeAsync(Guid productId)
         {
-            try
-            {
-                _logger.LogInformation($"Generating movement QR code for movement: {movementId}");
+            _logger.LogInformation("Generating product QR code for product: {ProductId}", productId);
 
-                // Placeholder — real QR generation needs QRCoder NuGet
-                var qrContent = $"MOVEMENT:{movementId}:{DateTime.Now:yyyyMMddHHmmss}";
-                var qrBytes = Encoding.UTF8.GetBytes(qrContent);
+            var content = $"MESTECH:PRD|ID:{productId}|T:{DateTime.UtcNow:yyyyMMddHHmm}";
+            var png = GenerateQRPng(content, 8);
 
-                _logger.LogInformation($"Movement QR code generated successfully for movement: {movementId}");
-                return qrBytes;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error generating movement QR code for movement: {movementId}");
-                throw;
-            }
+            _logger.LogInformation("Product QR PNG generated: {Bytes} bytes", png.Length);
+            return Task.FromResult(png);
+        }
+
+        public Task<byte[]> GenerateMovementQRCodeAsync(int movementId)
+        {
+            _logger.LogInformation("Generating movement QR code for movement: {MovementId}", movementId);
+
+            var content = $"MESTECH:MOV|ID:{movementId}|T:{DateTime.UtcNow:yyyyMMddHHmm}";
+            var png = GenerateQRPng(content, 8);
+
+            _logger.LogInformation("Movement QR PNG generated: {Bytes} bytes", png.Length);
+            return Task.FromResult(png);
         }
 
         #endregion
 
         #region QR Kod Okuma
 
-        public async Task<LocationInfo> ReadLocationQRCodeAsync(byte[] qrCodeImage)
+        public Task<LocationInfo> ReadLocationQRCodeAsync(byte[] qrCodeImage)
         {
-            try
+            _logger.LogInformation("Reading location QR code ({Bytes} bytes)", qrCodeImage?.Length ?? 0);
+
+            // QR okuma: ZXing.Net ile yapilabilir — su an content parse
+            var content = qrCodeImage is not null ? Encoding.UTF8.GetString(qrCodeImage) : string.Empty;
+
+            var locationInfo = new LocationInfo
             {
-                _logger.LogInformation("Reading location QR code");
+                Type = "LOCATION",
+                BinCode = ExtractField(content, "BIN:"),
+                QRCodeVersion = "2.0",
+                GeneratedDate = DateTime.UtcNow
+            };
 
-                // Placeholder — real QR reading needs QRCoder/ZXing NuGet
-                var qrContent = Encoding.UTF8.GetString(qrCodeImage);
-
-                var locationInfo = new LocationInfo
-                {
-                    Type = "LOCATION",
-                    BinCode = "A-01-01-01", // Placeholder
-                    ZoneName = "A Bölümü",
-                    RackName = "A-01",
-                    ShelfName = "A-01-01",
-                    Coordinates = "X:120,Y:80,Z:150",
-                    QRCodeVersion = "1.0",
-                    GeneratedDate = DateTime.Now
-                };
-
-                _logger.LogInformation($"Location QR code read successfully: {locationInfo.BinCode}");
-                return locationInfo;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reading location QR code");
-                throw;
-            }
+            return Task.FromResult(locationInfo);
         }
 
-        public async Task<ProductInfo> ReadProductQRCodeAsync(byte[] qrCodeImage)
+        public Task<ProductInfo> ReadProductQRCodeAsync(byte[] qrCodeImage)
         {
-            try
+            _logger.LogInformation("Reading product QR code ({Bytes} bytes)", qrCodeImage?.Length ?? 0);
+
+            var content = qrCodeImage is not null ? Encoding.UTF8.GetString(qrCodeImage) : string.Empty;
+
+            var productInfo = new ProductInfo
             {
-                _logger.LogInformation("Reading product QR code");
+                Type = "PRODUCT",
+                QRCodeVersion = "2.0",
+                GeneratedDate = DateTime.UtcNow
+            };
 
-                // Placeholder — real QR reading needs QRCoder/ZXing NuGet
-                var qrContent = Encoding.UTF8.GetString(qrCodeImage);
-
-                var productInfo = new ProductInfo
-                {
-                    Type = "PRODUCT",
-                    ProductId = 1, // Placeholder
-                    ProductName = "Örnek Ürün",
-                    SKU = "SKU001",
-                    Barcode = "1234567890123",
-                    QRCodeVersion = "1.0",
-                    GeneratedDate = DateTime.Now
-                };
-
-                _logger.LogInformation($"Product QR code read successfully: {productInfo.ProductName}");
-                return productInfo;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reading product QR code");
-                throw;
-            }
+            return Task.FromResult(productInfo);
         }
 
         #endregion
 
-        #region QR Kod Yönetimi
+        #region QR Kod Yonetimi
 
-        public async Task<string> GetQRCodeContentAsync(string binCode)
+        public Task<string> GetQRCodeContentAsync(string binCode)
         {
-            try
+            var qrContent = new LocationInfo
             {
-                _logger.LogInformation($"Getting QR code content for bin: {binCode}");
+                Type = "LOCATION",
+                BinCode = binCode,
+                QRCodeVersion = "2.0",
+                GeneratedDate = DateTime.UtcNow
+            };
 
-                // Placeholder location data — real data from database needed
-                var qrContent = new LocationInfo
-                {
-                    Type = "LOCATION",
-                    BinCode = binCode,
-                    ZoneName = "A Bölümü", // Placeholder
-                    RackName = "A-01", // Placeholder
-                    ShelfName = "A-01-01", // Placeholder
-                    Coordinates = "X:120,Y:80,Z:150", // Placeholder
-                    QRCodeVersion = "1.0",
-                    GeneratedDate = DateTime.Now
-                };
-
-                // JSON formatında serialize et
-                var jsonContent = System.Text.Json.JsonSerializer.Serialize(qrContent);
-
-                _logger.LogInformation($"QR code content generated for bin: {binCode}");
-                return jsonContent;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting QR code content for bin: {binCode}");
-                throw;
-            }
+            var json = JsonSerializer.Serialize(qrContent);
+            return Task.FromResult(json);
         }
 
-        public async Task<bool> ValidateQRCodeAsync(string qrCodeContent)
+        public Task<bool> ValidateQRCodeAsync(string qrCodeContent)
         {
-            try
-            {
-                _logger.LogInformation("Validating QR code content");
+            if (string.IsNullOrEmpty(qrCodeContent))
+                return Task.FromResult(false);
 
-                if (string.IsNullOrEmpty(qrCodeContent))
-                {
-                    _logger.LogWarning("QR code content is null or empty");
-                    return false;
-                }
+            var isValid = qrCodeContent.Contains("MESTECH:", StringComparison.Ordinal) ||
+                         qrCodeContent.Contains("LOCATION", StringComparison.Ordinal) ||
+                         qrCodeContent.Contains("PRODUCT", StringComparison.Ordinal) ||
+                         qrCodeContent.Contains("MOVEMENT", StringComparison.Ordinal);
 
-                // Basic type check — extend with schema validation as needed
-                var isValid = qrCodeContent.Contains("LOCATION") ||
-                             qrCodeContent.Contains("PRODUCT") ||
-                             qrCodeContent.Contains("MOVEMENT");
-
-                _logger.LogInformation($"QR code validation result: {isValid}");
-                return isValid;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error validating QR code content");
-                return false;
-            }
+            return Task.FromResult(isValid);
         }
 
         #endregion
 
-        #region Gelişmiş QR Kod Özellikleri — stub implementations
+        #region Gelismis QR Kod Ozellikleri
 
-        public async Task<byte[]> GenerateBulkQRCodeAsync(List<string> binCodes)
+        public Task<byte[]> GenerateBulkQRCodeAsync(List<string> binCodes)
         {
-            try
-            {
-                // Stub: returns first bin code only — batch generation needs QRCoder
-                if (binCodes?.Any() == true)
-                {
-                    return await GenerateLocationQRCodeAsync(binCodes.First());
-                }
-                return Array.Empty<byte>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating bulk QR codes");
-                throw;
-            }
+            if (binCodes is null || binCodes.Count == 0)
+                return Task.FromResult(Array.Empty<byte>());
+
+            // Tek PDF/ZIP icinde birden fazla QR — su an ilk kodu uret
+            // Gercek bulk: her bin icin ayri QR, ZIP'le
+            return GenerateLocationQRCodeAsync(binCodes.First());
         }
 
-        public async Task<byte[]> GenerateDynamicQRCodeAsync(DynamicQRCodeRequest request)
+        public Task<byte[]> GenerateDynamicQRCodeAsync(DynamicQRCodeRequest request)
         {
-            try
-            {
-                // Stub: delegates to location QR — real dynamic QR needs QRCoder
-                return await GenerateLocationQRCodeAsync(request?.Content ?? "DYNAMIC");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating dynamic QR code");
-                throw;
-            }
+            var content = request?.Content ?? "MESTECH:DYNAMIC";
+            var size = request?.Size ?? 10;
+            var pixelPerModule = Math.Clamp(size / 25, 3, 20);
+
+            var png = GenerateQRPng(content, pixelPerModule);
+            return Task.FromResult(png);
         }
 
         public async Task<QRCodeValidationResult> ValidateQRCodeWithDetailsAsync(string qrCodeContent)
         {
-            try
+            var isValid = await ValidateQRCodeAsync(qrCodeContent).ConfigureAwait(false);
+
+            var result = new QRCodeValidationResult
             {
-                var isValid = await ValidateQRCodeAsync(qrCodeContent);
-                return new QRCodeValidationResult
-                {
-                    IsValid = isValid,
-                    Content = qrCodeContent,
-                    ErrorMessage = isValid ? "QR code is valid" : "QR code is invalid"
-                };
-            }
-            catch (Exception ex)
+                IsValid = isValid,
+                Content = qrCodeContent ?? string.Empty,
+                Type = DetectContentType(qrCodeContent),
+                ErrorMessage = isValid ? string.Empty : "Gecersiz QR kod formati"
+            };
+
+            if (isValid && qrCodeContent is not null)
             {
-                _logger.LogError(ex, "Error validating QR code with details");
-                throw;
+                result.ParsedData["raw"] = qrCodeContent;
             }
+
+            return result;
         }
 
-        public async Task<byte[]> GenerateQRCodeWithTemplateAsync(string content, QRCodeTemplate template)
+        public Task<byte[]> GenerateQRCodeWithTemplateAsync(string content, QRCodeTemplate template)
         {
-            try
-            {
-                // Stub: ignores template, delegates to location QR
-                return await GenerateLocationQRCodeAsync(content ?? "TEMPLATE");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating QR code with template");
-                throw;
-            }
+            var pixelPerModule = Math.Clamp((template?.Size ?? 256) / 25, 3, 20);
+            var png = GenerateQRPng(content ?? "MESTECH:TPL", pixelPerModule);
+            return Task.FromResult(png);
         }
 
-        public async Task<List<QRCodeTemplate>> GetAvailableTemplatesAsync()
+        public Task<List<QRCodeTemplate>> GetAvailableTemplatesAsync()
         {
-            try
+            var templates = new List<QRCodeTemplate>
             {
-                // Stub: hardcoded templates — load from config/database when needed
-                return new List<QRCodeTemplate>
-                {
-                    new QRCodeTemplate { Name = "Default", Description = "Default template" },
-                    new QRCodeTemplate { Name = "Location", Description = "Location template" }
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting available templates");
-                throw;
-            }
+                new() { Name = "Default", Description = "Standart QR kod (256px)", Size = 256, ErrorCorrectionLevel = "M" },
+                new() { Name = "Location", Description = "Depo lokasyon QR (200px)", Size = 200, ErrorCorrectionLevel = "H" },
+                new() { Name = "Product", Description = "Urun etiketi QR (150px)", Size = 150, ErrorCorrectionLevel = "M" },
+                new() { Name = "Cargo", Description = "Kargo takip QR (180px)", Size = 180, ErrorCorrectionLevel = "Q" },
+                new() { Name = "Invoice", Description = "e-Fatura QR (120px)", Size = 120, ErrorCorrectionLevel = "H" }
+            };
+
+            return Task.FromResult(templates);
         }
 
-        public async Task<QRCodeAnalytics> GetQRCodeAnalyticsAsync(string binCode, DateTime? fromDate = null, DateTime? toDate = null)
+        public Task<QRCodeAnalytics> GetQRCodeAnalyticsAsync(string binCode, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            try
+            // Gercek analitik: scan tracking tablosundan cekilecek
+            return Task.FromResult(new QRCodeAnalytics
             {
-                // Stub: returns zeroed analytics — real data from scan tracking table
-                return new QRCodeAnalytics
-                {
-                    BinCode = binCode,
-                    TotalScans = 0,
-                    UniqueScanners = 0,
-                    FirstScan = DateTime.Now,
-                    LastScan = DateTime.Now
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting QR code analytics");
-                throw;
-            }
+                BinCode = binCode,
+                TotalScans = 0,
+                UniqueScanners = 0,
+                FirstScan = DateTime.UtcNow,
+                LastScan = DateTime.UtcNow
+            });
         }
 
-        public async Task<List<QRCodeScanHistory>> GetQRCodeScanHistoryAsync(string binCode, int limit = 100)
+        public Task<List<QRCodeScanHistory>> GetQRCodeScanHistoryAsync(string binCode, int limit = 100)
         {
-            try
-            {
-                // Stub: returns empty list — real data from scan tracking table
-                return new List<QRCodeScanHistory>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting QR code scan history");
-                throw;
-            }
+            // Gercek gecmis: scan tracking tablosundan cekilecek
+            return Task.FromResult(new List<QRCodeScanHistory>());
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private static string ExtractField(string content, string fieldPrefix)
+        {
+            if (string.IsNullOrEmpty(content) || !content.Contains(fieldPrefix, StringComparison.Ordinal))
+                return string.Empty;
+
+            var start = content.IndexOf(fieldPrefix, StringComparison.Ordinal) + fieldPrefix.Length;
+            var end = content.IndexOf('|', start);
+            return end > start ? content[start..end] : content[start..];
+        }
+
+        private static string DetectContentType(string? content)
+        {
+            if (string.IsNullOrEmpty(content)) return "UNKNOWN";
+            if (content.Contains("LOC", StringComparison.Ordinal)) return "LOCATION";
+            if (content.Contains("PRD", StringComparison.Ordinal)) return "PRODUCT";
+            if (content.Contains("MOV", StringComparison.Ordinal)) return "MOVEMENT";
+            return "CUSTOM";
         }
 
         #endregion
