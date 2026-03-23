@@ -1,0 +1,173 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.Reports.CashFlowReportView"
+             x:DataType="vm:CashFlowReportViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <!-- R-01: Nakit Akis Raporu -->
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Nakit Akis Raporu" Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Baslangic:" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+                <DatePicker SelectedDate="{Binding DateFrom}" />
+                <TextBlock Text="Bitis:" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+                <DatePicker SelectedDate="{Binding DateTo}" />
+                <Button Content="Hesapla" ToolTip.Tip="Nakit akis hesapla"
+                        Command="{Binding CalculateCommand}"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
+                <Button Content="Excel" ToolTip.Tip="Excel olarak disari aktar"
+                        Command="{Binding ExportExcelCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        BorderBrush="{DynamicResource MesPrimaryBlue}" BorderThickness="1"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
+                <Button Content="PDF" ToolTip.Tip="PDF olarak disari aktar"
+                        Command="{Binding ExportPdfCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        BorderBrush="{DynamicResource MesPrimaryBlue}" BorderThickness="1"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Summary Cards -->
+        <Border Grid.Row="2" Padding="16,12" Background="{DynamicResource MesBgSurface}">
+            <Grid ColumnDefinitions="*,*,*" Margin="0">
+                <!-- Toplam Giris -->
+                <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="16,12" Margin="0,0,8,0"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Giris" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalInflowText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <!-- Toplam Cikis -->
+                <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="16,12" Margin="4,0"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Cikis" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalOutflowText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusDangerBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <!-- Net Akis -->
+                <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="16,12" Margin="8,0,0,0"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Net Akis" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding NetFlowText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Monthly Breakdown DataGrid -->
+        <DataGrid Grid.Row="3" Margin="12"
+                  ItemsSource="{Binding MonthlyFlows}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Ay" Binding="{Binding Month}" Width="140" />
+                <DataGridTextColumn Header="Giris" Binding="{Binding InflowText}" Width="150" />
+                <DataGridTextColumn Header="Cikis" Binding="{Binding OutflowText}" Width="150" />
+                <DataGridTextColumn Header="Net" Binding="{Binding NetText}" Width="150" />
+                <DataGridTextColumn Header="Kumulatif" Binding="{Binding CumulativeText}" Width="150" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Footer Totals -->
+        <Border Grid.Row="4" Padding="12" Background="{DynamicResource SurfaceCardBrush}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="140,150,150,150,*" Margin="12,0">
+                <TextBlock Text="TOPLAM" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding TotalInflowText}" FontWeight="Bold"
+                           Foreground="{DynamicResource StatusSuccessBrush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding TotalOutflowText}" FontWeight="Bold"
+                           Foreground="{DynamicResource StatusDangerBrush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="{Binding NetFlowText}" FontWeight="Bold"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Nakit akis verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Nakit akis verisi bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                <TextBlock Text="Tarih araligini secip Hesapla butonuna basin"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
