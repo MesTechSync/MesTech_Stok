@@ -73,10 +73,28 @@ public class LabelPrintService : ILabelPrintService
     {
         _logger.LogInformation("PNG etiket olusturuluyor: {TrackingNumber}", label.TrackingNumber);
 
-        // Placeholder PNG — gercek implementasyon SkiaSharp ile yapilacak
-        var content = BuildLabelText(label);
-        var pngBytes = Encoding.UTF8.GetBytes(content);
-        return Task.FromResult(pngBytes);
+        return Task.Run(() =>
+        {
+            // QuestPDF ile PDF olustur, sonra PNG'ye cevir (300 DPI)
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    ConfigureLabelPage(page);
+                    page.Content().Element(c => ComposeLabelContent(c, label));
+                });
+            });
+
+            // GenerateImages: her sayfa icin PNG byte array uretir
+            var images = document.GenerateImages(new ImageGenerationSettings
+            {
+                ImageFormat = ImageFormat.Png,
+                RasterDpi = 300
+            });
+
+            // Tek sayfalik etiket — ilk resmi don
+            return images.FirstOrDefault() ?? Array.Empty<byte>();
+        }, ct);
     }
 
     /// <inheritdoc />
