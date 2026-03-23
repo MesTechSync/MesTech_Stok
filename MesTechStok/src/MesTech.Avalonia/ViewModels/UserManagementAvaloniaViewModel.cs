@@ -2,12 +2,12 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.System.Users;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Kullanici Yonetimi ViewModel — kullanici listesi + rol yonetimi.
-/// EMR-12: Enhanced from placeholder to functional view.
+/// Kullanici Yonetimi ViewModel — veritabanindan gercek kullanici listesi.
 /// </summary>
 public partial class UserManagementAvaloniaViewModel : ObservableObject
 {
@@ -36,13 +36,21 @@ public partial class UserManagementAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetUsersQuery());
 
             Users.Clear();
-            Users.Add(new UserItemDto { Username = "admin", FullName = "Sistem Yoneticisi", Email = "admin@mestech.com", Role = "Admin", Status = "Aktif", LastLogin = "19.03.2026 14:30" });
-            Users.Add(new UserItemDto { Username = "operator1", FullName = "Ali Veli", Email = "ali@mestech.com", Role = "Operator", Status = "Aktif", LastLogin = "19.03.2026 09:15" });
-            Users.Add(new UserItemDto { Username = "depocu1", FullName = "Mehmet Demir", Email = "mehmet@mestech.com", Role = "Depo", Status = "Aktif", LastLogin = "18.03.2026 17:00" });
-            Users.Add(new UserItemDto { Username = "muhasebe1", FullName = "Fatma Ozturk", Email = "fatma@mestech.com", Role = "Muhasebe", Status = "Pasif", LastLogin = "15.03.2026 10:00" });
+            foreach (var user in result)
+            {
+                Users.Add(new UserItemDto
+                {
+                    Username = user.Username,
+                    FullName = user.FullName,
+                    Email = user.Email ?? string.Empty,
+                    Role = user.Role,
+                    Status = user.IsActive ? "Aktif" : "Pasif",
+                    LastLogin = user.LastLoginDate?.ToString("dd.MM.yyyy HH:mm") ?? "-"
+                });
+            }
 
             TotalCount = Users.Count;
             IsEmpty = TotalCount == 0;
