@@ -16,6 +16,27 @@ using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
 using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 using MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
 using MesTech.Application.Features.Accounting.Commands.UpdatePlatformCommissionRate;
+using MesTech.Application.Features.Accounting.Commands.ApproveReconciliation;
+using MesTech.Application.Features.Accounting.Commands.CreateAccountingBankAccount;
+using MesTech.Application.Features.Accounting.Commands.CreateFinancialGoal;
+using MesTech.Application.Features.Accounting.Commands.ImportBankStatement;
+using MesTech.Application.Features.Accounting.Commands.ImportSettlement;
+using MesTech.Application.Features.Accounting.Commands.RecordCargoExpense;
+using MesTech.Application.Features.Accounting.Commands.RecordCommission;
+using MesTech.Application.Features.Accounting.Commands.RejectReconciliation;
+using MesTech.Application.Features.Accounting.Commands.UploadAccountingDocument;
+using MesTech.Application.Features.Accounting.Queries.GetAccountBalance;
+using MesTech.Application.Features.Accounting.Queries.GetCargoComparison;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
+using MesTech.Application.Features.Accounting.Queries.GetCounterparties;
+using MesTech.Application.Features.Accounting.Queries.GetFifoCOGS;
+using MesTech.Application.Features.Accounting.Queries.GetKdvDeclarationDraft;
+using MesTech.Application.Features.Accounting.Queries.GetPendingReviews;
+using MesTech.Application.Features.Accounting.Queries.GetReconciliationMatches;
+using MesTech.Application.Features.Accounting.Queries.GetTaxSummary;
+using MesTech.Application.Features.Accounting.Queries.ValidateBalanceSheet;
+using MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 using MesTech.Application.Queries.GetExpenseById;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Enums;
@@ -276,5 +297,251 @@ public static class AccountingEndpoints
         })
         .WithName("CloseAccountingPeriod")
         .WithSummary("Muhasebe dönemini kapat");
+
+        // ─── DEFTER KAPATMA: Eksik 21 endpoint eklendi [ENT-DEV6] ───
+
+        // POST /api/v1/accounting/reconciliation/approve — mutabakat onayla
+        group.MapPost("/reconciliation/approve", async (
+            ApproveReconciliationCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(command, ct);
+            return Results.NoContent();
+        })
+        .WithName("ApproveReconciliation")
+        .WithSummary("Mutabakat eşleşmesini onayla");
+
+        // POST /api/v1/accounting/reconciliation/reject — mutabakat reddet
+        group.MapPost("/reconciliation/reject", async (
+            RejectReconciliationCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(command, ct);
+            return Results.NoContent();
+        })
+        .WithName("RejectReconciliation")
+        .WithSummary("Mutabakat eşleşmesini reddet");
+
+        // GET /api/v1/accounting/reconciliation/matches — mutabakat eşleşmeleri
+        group.MapGet("/reconciliation/matches", async (
+            Guid tenantId, int? status,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetReconciliationMatchesQuery(tenantId, status.HasValue ? (ReconciliationStatus)status.Value : null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetReconciliationMatches")
+        .WithSummary("Mutabakat eşleşme listesi (durum filtresi)");
+
+        // GET /api/v1/accounting/reconciliation/pending-reviews — bekleyen incelemeler
+        group.MapGet("/reconciliation/pending-reviews", async (
+            Guid tenantId, int page = 1, int pageSize = 20,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(
+                new GetPendingReviewsQuery(tenantId, pageSize, page), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPendingReviews")
+        .WithSummary("Bekleyen mutabakat incelemeleri");
+
+        // POST /api/v1/accounting/bank-accounts — banka hesabı oluştur
+        group.MapPost("/bank-accounts", async (
+            CreateAccountingBankAccountCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/bank-accounts/{id}", new { id });
+        })
+        .WithName("CreateAccountingBankAccount")
+        .WithSummary("Yeni banka hesabı tanımla");
+
+        // GET /api/v1/accounting/account-balance — hesap bakiyesi
+        group.MapGet("/account-balance", async (
+            Guid tenantId, Guid accountId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetAccountBalanceQuery(tenantId, accountId), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetAccountBalance")
+        .WithSummary("Hesap bakiyesi sorgula");
+
+        // POST /api/v1/accounting/financial-goals — mali hedef oluştur
+        group.MapPost("/financial-goals", async (
+            CreateFinancialGoalCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/financial-goals/{id}", new { id });
+        })
+        .WithName("CreateFinancialGoal")
+        .WithSummary("Mali hedef oluştur");
+
+        // POST /api/v1/accounting/bank-statements/import — banka ekstresi içe aktar
+        group.MapPost("/bank-statements/import", async (
+            ImportBankStatementCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var count = await mediator.Send(command, ct);
+            return Results.Ok(new { importedCount = count });
+        })
+        .WithName("ImportBankStatement")
+        .WithSummary("Banka ekstresi içe aktar");
+
+        // POST /api/v1/accounting/settlements/import — hakediş içe aktar
+        group.MapPost("/settlements/import", async (
+            ImportSettlementCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/settlements/{id}", new { id });
+        })
+        .WithName("ImportSettlement")
+        .WithSummary("Hakediş dosyası içe aktar");
+
+        // POST /api/v1/accounting/cargo-expenses — kargo gideri kaydet
+        group.MapPost("/cargo-expenses", async (
+            RecordCargoExpenseCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/cargo-expenses/{id}", new { id });
+        })
+        .WithName("RecordCargoExpense")
+        .WithSummary("Kargo gideri kaydı oluştur");
+
+        // POST /api/v1/accounting/commissions — komisyon kaydı oluştur
+        group.MapPost("/commissions", async (
+            RecordCommissionCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/commissions/{id}", new { id });
+        })
+        .WithName("RecordCommission")
+        .WithSummary("Platform komisyon kaydı oluştur");
+
+        // POST /api/v1/accounting/documents/upload — muhasebe belgesi yükle
+        group.MapPost("/documents/upload", async (
+            UploadAccountingDocumentCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/documents/{id}", new { id });
+        })
+        .WithName("UploadAccountingDocument")
+        .WithSummary("Muhasebe belgesi yükle");
+
+        // GET /api/v1/accounting/cash-flow — nakit akış raporu
+        group.MapGet("/cash-flow", async (
+            Guid tenantId, DateTime from, DateTime to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCashFlowReportQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCashFlowReport")
+        .WithSummary("Nakit akış raporu (tarih aralığı)");
+
+        // GET /api/v1/accounting/commission-summary — komisyon özet raporu
+        group.MapGet("/commission-summary", async (
+            Guid tenantId, DateTime from, DateTime to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCommissionSummaryQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCommissionSummary")
+        .WithSummary("Komisyon özet raporu (tarih aralığı)");
+
+        // GET /api/v1/accounting/counterparties — cari hesap listesi (detaylı)
+        group.MapGet("/counterparties", async (
+            Guid tenantId, int? type, bool? isActive,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCounterpartiesQuery(tenantId,
+                    type.HasValue ? (CounterpartyType)type.Value : null,
+                    isActive ?? true), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCounterparties")
+        .WithSummary("Cari hesap listesi (tip + aktif filtresi)");
+
+        // GET /api/v1/accounting/fifo-cogs — FIFO maliyet hesabı
+        group.MapGet("/fifo-cogs", async (
+            Guid tenantId, Guid? productId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetFifoCOGSQuery(tenantId, productId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFifoCOGS")
+        .WithSummary("FIFO satılan malın maliyeti hesabı");
+
+        // GET /api/v1/accounting/kdv-declaration-draft — KDV beyanname taslağı
+        group.MapGet("/kdv-declaration-draft", async (
+            Guid tenantId, string period,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetKdvDeclarationDraftQuery(tenantId, period), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetKdvDeclarationDraft")
+        .WithSummary("KDV beyannamesi taslağı (dönem: 2026-03 formatında)");
+
+        // GET /api/v1/accounting/tax-summary — vergi özet raporu
+        group.MapGet("/tax-summary", async (
+            Guid tenantId, string period,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetTaxSummaryQuery(tenantId, period), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetTaxSummary")
+        .WithSummary("Vergi özet raporu (dönem bazlı)");
+
+        // POST /api/v1/accounting/cargo-comparison — kargo karşılaştırma
+        group.MapPost("/cargo-comparison", async (
+            GetCargoComparisonQuery query,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(query, ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCargoComparison")
+        .WithSummary("Kargo firma karşılaştırma (fiyat/süre)");
+
+        // GET /api/v1/accounting/validate-balance-sheet — bilanço doğrulama
+        group.MapGet("/validate-balance-sheet", async (
+            Guid tenantId, DateTime asOfDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ValidateBalanceSheetQuery(tenantId, asOfDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("ValidateBalanceSheet")
+        .WithSummary("Bilanço doğrulama (aktif = pasif kontrolü)");
+
+        // GET /api/v1/accounting/validate-trial-balance — mizan doğrulama
+        group.MapGet("/validate-trial-balance", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ValidateTrialBalanceQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("ValidateTrialBalance")
+        .WithSummary("Mizan doğrulama (borç = alacak kontrolü)");
     }
 }
