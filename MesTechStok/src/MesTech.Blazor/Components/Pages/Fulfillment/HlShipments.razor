@@ -1,0 +1,138 @@
+@page "/fulfillment/hl-shipments"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<HlShipments> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #FF6000;">
+            <i class="fas fa-truck-fast text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #FF6000;">Hepsilojistik Gonderiler</h3>
+            <small class="text-muted">Hepsiburada lojistik gonderi takibi</small>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-truck" Value="@_totalShipments.ToString()" Label="Toplam Gonderi" TextColor="text-primary" />
+        <KpiCard Icon="fa-hourglass-half" Value="@_pending.ToString()" Label="Bekleyen" TextColor="text-warning" />
+        <KpiCard Icon="fa-check-double" Value="@_completed.ToString()" Label="Tamamlanan" TextColor="text-success" />
+        <KpiCard Icon="fa-undo-alt" Value="@_returned.ToString()" Label="Iade" TextColor="text-danger" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>HL Gonderi Listesi</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Siparis No</th>
+                            <th>Tarih</th>
+                            <th>Alici</th>
+                            <th>Durum</th>
+                            <th>Kargo Firma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (_shipments?.Count > 0)
+                        {
+                            @foreach (var s in _shipments)
+                            {
+                                <tr>
+                                    <td><code>@s.OrderNumber</code></td>
+                                    <td>@s.Date.ToString("dd.MM.yyyy")</td>
+                                    <td>@s.RecipientName</td>
+                                    <td><span class="badge bg-@GetColor(s.Status)">@s.Status</span></td>
+                                    <td>@s.CarrierName</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">Henuz HL gonderisi bulunmuyor.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _totalShipments, _pending, _completed, _returned;
+    private List<HlShipmentItem>? _shipments;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<HlShipmentItem>>("api/v1/fulfillment/hl/shipments");
+            if (result.IsSuccess && result.Data != null)
+            {
+                _shipments = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                _shipments = GetDemoData();
+            }
+            _totalShipments = _shipments.Count;
+            _pending = _shipments.Count(s => s.Status == "Bekliyor");
+            _completed = _shipments.Count(s => s.Status == "Teslim Edildi");
+            _returned = _shipments.Count(s => s.Status == "Iade");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "HL gonderileri yuklenirken hata");
+            errorMessage = "Hepsilojistik gonderi verileri yuklenirken bir hata olustu.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string GetColor(string s) => s switch { "Teslim Edildi" => "success", "Bekliyor" => "warning", "Iade" => "danger", _ => "info" };
+
+    private static List<HlShipmentItem> GetDemoData() => new()
+    {
+        new("HB-10001", DateTime.Now.AddDays(-2), "Ahmet Yilmaz", "Teslim Edildi", "Aras Kargo"),
+        new("HB-10002", DateTime.Now.AddDays(-1), "Mehmet Demir", "Bekliyor", "Yurtici Kargo"),
+        new("HB-10003", DateTime.Now, "Ayse Kaya", "Iade", "Surat Kargo"),
+    };
+
+    private record HlShipmentItem(string OrderNumber, DateTime Date, string RecipientName, string Status, string CarrierName);
+}
