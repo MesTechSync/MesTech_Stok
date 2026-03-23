@@ -1,0 +1,129 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.IncomeExpenseListView"
+             x:DataType="vm:IncomeExpenseListViewModel">
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Gelir / Gider Listesi" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yeni Kayit" ToolTip.Tip="Yeni gelir/gider kaydi ekle"
+                        Command="{Binding AddEntryCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Excel Export" ToolTip.Tip="Listeyi Excel olarak indir"
+                        Command="{Binding ExportExcelCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding TypeFilters}" SelectedItem="{Binding SelectedTypeFilter}"
+                          Width="130" ToolTip.Tip="Tur filtresi" />
+                <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
+                          Width="160" ToolTip.Tip="Kategori filtresi" />
+                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi" />
+                <DatePicker SelectedDate="{Binding DateTo}" Width="140" ToolTip.Tip="Bitis tarihi" />
+                <TextBox Width="220" Watermark="Arama..." AutomationProperties.Name="Arama"
+                         Text="{Binding SearchText}" ToolTip.Tip="Aciklama veya platform ara" />
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                        Command="{Binding RefreshCommand}" Padding="12,6" />
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="{StaticResource MesRadiusLg}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid>
+                <DataGrid ItemsSource="{Binding Items}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" BorderThickness="0"
+                          CanUserSortColumns="True" CanUserResizeColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
+                        <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="80" />
+                        <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="130" />
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120" />
+                        <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsVisible="{Binding IsEmpty}">
+                    <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                               HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                    <TextBlock Text="Secilen filtreler icin gelir/gider kaydi bulunamadi"
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                               HorizontalAlignment="Center" Opacity="0.7" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Pagination -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="Sayfa {0} / {1}">
+                            <Binding Path="CurrentPage" />
+                            <Binding Path="TotalPages" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Onceki" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PreviousPageCommand}" Padding="12,6" />
+                    <Button Content="Sonraki" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="12,6" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Gelir/gider kayitlari yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
