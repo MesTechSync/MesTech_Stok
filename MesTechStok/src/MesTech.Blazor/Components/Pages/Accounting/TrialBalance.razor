@@ -1,0 +1,147 @@
+@page "/accounting/trial-balance"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<TrialBalance> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #198754;">
+            <i class="fas fa-table text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #198754;">Mizan</h3>
+            <small class="text-muted">Hesap bazli borc-alacak mizan raporu</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm w-auto" @bind="_selectedYear">
+            @for (int y = 2024; y <= 2027; y++) { <option value="@y">@y</option> }
+        </select>
+        <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+            <i class="fas fa-sync-alt me-1"></i>Yenile
+        </button>
+        <button class="btn btn-sm btn-outline-success" @onclick="ExportExcel" disabled="@isLoading">
+            <i class="fas fa-file-excel me-1"></i>Excel
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-book" Value="@_totalAccounts.ToString()" Label="Hesap Sayisi" TextColor="text-primary" />
+        <KpiCard Icon="fa-arrow-right" Value="@_totalDebit.ToString("C0", _trCulture)" Label="Toplam Borc" TextColor="text-info" />
+        <KpiCard Icon="fa-arrow-left" Value="@_totalCredit.ToString("C0", _trCulture)" Label="Toplam Alacak" TextColor="text-warning" />
+        <KpiCard Icon="fa-balance-scale" Value="@_balanceDiff.ToString("C0", _trCulture)" Label="Fark" TextColor="@(_balanceDiff == 0 ? "text-success" : "text-danger")" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Hesap Kodu</th>
+                            <th>Hesap Adi</th>
+                            <th class="text-end">Borc</th>
+                            <th class="text-end">Alacak</th>
+                            <th class="text-end">Bakiye</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in _rows ?? Enumerable.Empty<TrialBalanceRow>())
+                        {
+                            <tr class="@(row.IsGroup ? "table-light fw-bold" : "")">
+                                <td><code>@row.AccountCode</code></td>
+                                <td>@row.AccountName</td>
+                                <td class="text-end">@row.Debit.ToString("N2")</td>
+                                <td class="text-end">@row.Credit.ToString("N2")</td>
+                                <td class="text-end fw-bold @(row.Balance >= 0 ? "text-success" : "text-danger")">@row.Balance.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-dark">
+                        <tr>
+                            <td colspan="2" class="fw-bold">TOPLAM</td>
+                            <td class="text-end fw-bold">@_totalDebit.ToString("N2")</td>
+                            <td class="text-end fw-bold">@_totalCredit.ToString("N2")</td>
+                            <td class="text-end fw-bold">@_balanceDiff.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _selectedYear = DateTime.Now.Year;
+    private int _totalAccounts;
+    private decimal _totalDebit, _totalCredit, _balanceDiff;
+    private List<TrialBalanceRow>? _rows;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<TrialBalanceRow>>($"api/v1/accounting/trial-balance?year={_selectedYear}");
+            if (result.IsSuccess && result.Data != null)
+                _rows = result.Data;
+            else { _isDemoMode = true; _rows = GetDemoData(); }
+            _totalAccounts = _rows.Count(r => !r.IsGroup);
+            _totalDebit = _rows.Where(r => !r.IsGroup).Sum(r => r.Debit);
+            _totalCredit = _rows.Where(r => !r.IsGroup).Sum(r => r.Credit);
+            _balanceDiff = _totalDebit - _totalCredit;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Mizan verileri yuklenirken hata");
+            errorMessage = "Mizan verileri yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private void ExportExcel()
+    {
+        // TODO: /api/v1/accounting/trial-balance/export?format=xlsx
+    }
+
+    private static List<TrialBalanceRow> GetDemoData() => new()
+    {
+        new("100", "KASA", true, 0, 0, 0),
+        new("100.01", "TL Kasa", false, 45000, 32000, 13000),
+        new("102", "BANKALAR", true, 0, 0, 0),
+        new("102.01", "Garanti Bankasi", false, 285000, 198000, 87000),
+        new("102.02", "Is Bankasi", false, 156000, 142000, 14000),
+        new("320", "SATICILAR", true, 0, 0, 0),
+        new("320.01", "Trendyol Hesaplasma", false, 0, 125000, -125000),
+        new("600", "SATIS GELIRLERI", true, 0, 0, 0),
+        new("600.01", "Yurt Ici Satislar", false, 0, 485000, -485000),
+    };
+
+    private record TrialBalanceRow(string AccountCode, string AccountName, bool IsGroup, decimal Debit, decimal Credit, decimal Balance);
+}
