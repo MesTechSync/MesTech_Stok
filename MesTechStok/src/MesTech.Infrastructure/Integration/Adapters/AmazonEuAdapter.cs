@@ -465,10 +465,64 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
         }
     }
 
-    public Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("AmazonEuAdapter.GetCategoriesAsync — returning empty (complex tree, stub)");
-        return Task.FromResult<IReadOnlyList<CategoryDto>>(Array.Empty<CategoryDto>());
+        EnsureConfigured();
+        _logger.LogInformation("AmazonEuAdapter.GetCategoriesAsync — extracting classification nodes from catalog items for marketplace {Marketplace}", _activeMarketplaceId);
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = await CreateAuthenticatedRequestAsync(
+                        HttpMethod.Get,
+                        $"/catalog/2022-04-01/items?marketplaceIds={_activeMarketplaceId}&includedData=classifications&pageSize=20",
+                        token).ConfigureAwait(false);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Amazon EU GetCategories failed {Status}", response.StatusCode);
+                return Array.Empty<CategoryDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var seen = new HashSet<string>();
+            var categories = new List<CategoryDto>();
+
+            if (doc.RootElement.TryGetProperty("items", out var items))
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    if (!item.TryGetProperty("classifications", out var classifs)) continue;
+                    foreach (var c in classifs.EnumerateArray())
+                    {
+                        var displayName = c.TryGetProperty("displayName", out var dn) ? dn.GetString() ?? "" : "";
+                        var classId = c.TryGetProperty("classificationId", out var cid) ? cid.GetString() ?? "" : "";
+                        if (string.IsNullOrEmpty(classId) || !seen.Add(classId)) continue;
+
+                        categories.Add(new CategoryDto
+                        {
+                            PlatformCategoryId = int.TryParse(classId, out var idVal) ? idVal : classId.GetHashCode(),
+                            Name = displayName
+                        });
+                    }
+                }
+            }
+
+            _logger.LogInformation("AmazonEu GetCategories: {Count} unique classification nodes for {Marketplace}",
+                categories.Count, _activeMarketplaceId);
+            return categories.AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AmazonEu GetCategories exception");
+            return Array.Empty<CategoryDto>();
+        }
     }
 
     // ===============================================
