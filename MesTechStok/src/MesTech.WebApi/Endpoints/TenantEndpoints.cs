@@ -1,9 +1,12 @@
+using MediatR;
+using MesTech.Application.Features.Tenant.Commands.CreateTenant;
+using MesTech.Application.Features.Tenant.Commands.UpdateTenant;
+using MesTech.Application.Features.Tenant.Queries.GetTenant;
+
 namespace MesTech.WebApi.Endpoints;
 
 /// <summary>
 /// Admin-only tenant management endpoints.
-/// DEV1-DEPENDENCY: Tenant CQRS handlers (GetTenantsQuery, CreateTenantCommand, GetTenantByIdQuery)
-/// not yet available. Endpoints are stubbed until Application handlers are created by DEV 1.
 /// </summary>
 public static class TenantEndpoints
 {
@@ -14,11 +17,11 @@ public static class TenantEndpoints
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/admin/tenants — kiracı listesi (admin)
-        // DEV1-DEPENDENCY: GetTenantsQuery not yet available
+        // TODO: GetTenantsQuery (list all) handler not yet available — only GetTenantQuery (by ID) exists
         group.MapGet("/", (int page = 1, int pageSize = 50) =>
             Results.Ok(new
             {
-                Message = "Tenant list endpoint — DEV1 GetTenantsQuery pending",
+                Message = "Tenant list endpoint — GetTenantsQuery (list) handler not yet available",
                 Page = page,
                 PageSize = pageSize,
                 Items = Array.Empty<object>(),
@@ -26,29 +29,33 @@ public static class TenantEndpoints
                 Status = "not_implemented"
             }))
         .WithName("GetTenants")
-        .WithSummary("Kiracı listesi — admin only (DEV1-DEPENDENCY)");
+        .WithSummary("Kiracı listesi — admin only (TODO: GetTenantsQuery handler gerekli)");
 
         // POST /api/v1/admin/tenants — yeni kiracı oluştur
-        // DEV1-DEPENDENCY: CreateTenantCommand not yet available
-        group.MapPost("/", () =>
-            Results.Accepted("/api/v1/admin/tenants", new
-            {
-                Message = "Create tenant endpoint — DEV1 CreateTenantCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/", async (
+            CreateTenantRequest request,
+            ISender sender, CancellationToken ct) =>
+        {
+            var tenantId = await sender.Send(
+                new CreateTenantCommand(request.Name, request.TaxNumber), ct);
+            return Results.Created($"/api/v1/admin/tenants/{tenantId}", new { id = tenantId });
+        })
         .WithName("CreateTenant")
-        .WithSummary("Yeni kiracı oluştur — admin only (DEV1-DEPENDENCY)");
+        .WithSummary("Yeni kiracı oluştur — admin only");
 
         // GET /api/v1/admin/tenants/{id} — kiracı detayı
-        // DEV1-DEPENDENCY: GetTenantByIdQuery not yet available
-        group.MapGet("/{id:guid}", (Guid id) =>
-            Results.Ok(new
-            {
-                Message = "Tenant detail endpoint — DEV1 GetTenantByIdQuery pending",
-                TenantId = id,
-                Status = "not_implemented"
-            }))
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            ISender sender, CancellationToken ct) =>
+        {
+            var tenant = await sender.Send(new GetTenantQuery(id), ct);
+            return tenant is not null
+                ? Results.Ok(tenant)
+                : Results.NotFound(new { error = $"Tenant {id} not found" });
+        })
         .WithName("GetTenantById")
-        .WithSummary("Kiracı detayı — admin only (DEV1-DEPENDENCY)");
+        .WithSummary("Kiracı detayı — admin only");
     }
+
+    private record CreateTenantRequest(string Name, string? TaxNumber);
 }

@@ -1,4 +1,7 @@
 using MediatR;
+using MesTech.Application.Commands.CreateWarehouse;
+using MesTech.Application.Commands.DeleteWarehouse;
+using MesTech.Application.Commands.UpdateWarehouse;
 using MesTech.Application.Queries.GetWarehouses;
 
 namespace MesTech.WebApi.Endpoints;
@@ -14,9 +17,9 @@ public static class WarehouseEndpoints
         // GET /api/v1/warehouses — depo listesi
         group.MapGet("/", async (
             bool? activeOnly,
-            ISender mediator, CancellationToken ct) =>
+            ISender sender, CancellationToken ct) =>
         {
-            var result = await mediator.Send(
+            var result = await sender.Send(
                 new GetWarehousesQuery(activeOnly ?? true), ct);
             return Results.Ok(result);
         })
@@ -24,50 +27,64 @@ public static class WarehouseEndpoints
         .WithSummary("Depo listesi (aktif/tümü filtresi)");
 
         // GET /api/v1/warehouses/{id} — depo detayı
-        // DEV1-DEPENDENCY: GetWarehouseByIdQuery not yet available
+        // TODO: GetWarehouseByIdQuery handler not yet available
         group.MapGet("/{id:guid}", (Guid id, CancellationToken ct) =>
             Results.Ok(new
             {
-                Message = "Warehouse detail endpoint — DEV1 GetWarehouseByIdQuery pending",
+                Message = "Warehouse detail endpoint — GetWarehouseByIdQuery handler not yet available",
                 WarehouseId = id,
                 Status = "not_implemented"
             }))
         .WithName("GetWarehouseById")
-        .WithSummary("Depo detayı (DEV1-DEPENDENCY)");
+        .WithSummary("Depo detayı (TODO: GetWarehouseByIdQuery handler gerekli)");
 
         // POST /api/v1/warehouses — yeni depo oluştur
-        // DEV1-DEPENDENCY: CreateWarehouseCommand not yet available
-        group.MapPost("/", (HttpRequest request, CancellationToken ct) =>
-            Results.Accepted("/api/v1/warehouses", new
-            {
-                Message = "Create warehouse endpoint — DEV1 CreateWarehouseCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/", async (
+            CreateWarehouseCommand command,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/warehouses/{result.WarehouseId}", new { id = result.WarehouseId })
+                : Results.BadRequest(new { error = result.ErrorMessage });
+        })
         .WithName("CreateWarehouse")
-        .WithSummary("Yeni depo oluştur (DEV1-DEPENDENCY)");
+        .WithSummary("Yeni depo oluştur");
 
         // PUT /api/v1/warehouses/{id} — depo güncelle
-        // DEV1-DEPENDENCY: UpdateWarehouseCommand not yet available
-        group.MapPut("/{id:guid}", (Guid id, HttpRequest request, CancellationToken ct) =>
-            Results.Ok(new
-            {
-                Message = "Update warehouse endpoint — DEV1 UpdateWarehouseCommand pending",
-                WarehouseId = id,
-                Status = "not_implemented"
-            }))
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            UpdateWarehouseRequest request,
+            ISender sender, CancellationToken ct) =>
+        {
+            var success = await sender.Send(
+                new UpdateWarehouseCommand(
+                    request.TenantId, id, request.Name, request.Code,
+                    request.Description, request.Type, request.IsActive), ct);
+            return success
+                ? Results.NoContent()
+                : Results.NotFound(new { error = $"Warehouse {id} not found or update failed" });
+        })
         .WithName("UpdateWarehouse")
-        .WithSummary("Depo bilgilerini güncelle (DEV1-DEPENDENCY)");
+        .WithSummary("Depo bilgilerini güncelle");
 
         // DELETE /api/v1/warehouses/{id} — depo sil (soft-delete)
-        // DEV1-DEPENDENCY: DeleteWarehouseCommand not yet available
-        group.MapDelete("/{id:guid}", (Guid id, CancellationToken ct) =>
-            Results.Ok(new
-            {
-                Message = "Delete warehouse endpoint — DEV1 DeleteWarehouseCommand pending",
-                WarehouseId = id,
-                Status = "not_implemented"
-            }))
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var success = await sender.Send(
+                new DeleteWarehouseCommand(tenantId, id), ct);
+            return success
+                ? Results.NoContent()
+                : Results.NotFound(new { error = $"Warehouse {id} not found or delete failed" });
+        })
         .WithName("DeleteWarehouse")
-        .WithSummary("Depo sil / pasife al (DEV1-DEPENDENCY)");
+        .WithSummary("Depo sil / pasife al");
     }
+
+    private record UpdateWarehouseRequest(
+        Guid TenantId, string Name, string Code,
+        string? Description, string Type, bool IsActive);
 }

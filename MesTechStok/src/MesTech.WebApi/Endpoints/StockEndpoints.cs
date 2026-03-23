@@ -1,6 +1,9 @@
 using MediatR;
 using MesTech.Application.Commands.AddStock;
+using MesTech.Application.Commands.AddStockLot;
+using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
+using MesTech.Application.Commands.TransferStock;
 using MesTech.Application.Queries.GetInventoryPaged;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetInventoryValue;
@@ -94,36 +97,42 @@ public static class StockEndpoints
         .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
-        // DEV1-DEPENDENCY: TransferStockCommand not yet implemented (empty directory exists)
-        group.MapPost("/transfer", (HttpRequest request) =>
-            Results.Ok(new
-            {
-                Message = "Stock transfer endpoint — DEV1 TransferStockCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/transfer", async (
+            TransferStockCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { result.ErrorMessage });
+        })
         .WithName("TransferStock")
-        .WithSummary("Depolar arası stok transferi (DEV1-DEPENDENCY)");
+        .WithSummary("Depolar arası stok transferi");
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
-        // DEV1-DEPENDENCY: AdjustStockCommand not yet implemented (empty directory exists)
-        group.MapPost("/adjust", (HttpRequest request) =>
-            Results.Ok(new
-            {
-                Message = "Stock adjustment endpoint — DEV1 AdjustStockCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/adjust", async (
+            AdjustStockCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { result.ErrorMessage });
+        })
         .WithName("AdjustStock")
-        .WithSummary("Stok düzeltme / sayım farkı girişi (DEV1-DEPENDENCY)");
+        .WithSummary("Stok düzeltme / sayım farkı girişi");
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
-        // DEV1-DEPENDENCY: AddStockLotCommand does not exist yet
-        group.MapPost("/lot", (HttpRequest request) =>
-            Results.Ok(new
-            {
-                Message = "Stock lot endpoint — DEV1 AddStockLotCommand pending",
-                Status = "not_implemented"
-            }))
+        group.MapPost("/lot", async (
+            AddStockLotCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { result.ErrorMessage });
+        })
         .WithName("AddStockLot")
-        .WithSummary("Lot/parti bazlı stok girişi (DEV1-DEPENDENCY)");
+        .WithSummary("Lot/parti bazlı stok girişi");
     }
 }

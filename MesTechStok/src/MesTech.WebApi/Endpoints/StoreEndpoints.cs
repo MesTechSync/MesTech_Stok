@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
+using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Queries.GetStoresByTenant;
 
 namespace MesTech.WebApi.Endpoints;
@@ -43,15 +44,16 @@ public static class StoreEndpoints
         .WithSummary("Yeni mağaza oluştur — admin only");
 
         // POST /api/v1/admin/stores/{id}/test-connection — mağaza API bağlantı testi
-        // DEV1-DEPENDENCY: TestStoreConnectionCommand not yet available
-        group.MapPost("/{id:guid}/test-connection", (Guid id) =>
-            Results.Ok(new
-            {
-                Message = "Store connection test endpoint — DEV1 TestStoreConnectionCommand pending",
-                StoreId = id,
-                Status = "not_implemented"
-            }))
+        group.MapPost("/{id:guid}/test-connection", async (
+            Guid id,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new TestStoreConnectionCommand(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { result.ErrorMessage });
+        })
         .WithName("TestStoreConnection")
-        .WithSummary("Mağaza API bağlantı testi (DEV1-DEPENDENCY)");
+        .WithSummary("Mağaza API bağlantı testi");
     }
 }

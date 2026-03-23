@@ -1,3 +1,5 @@
+using MediatR;
+using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Enums;
 
@@ -197,19 +199,19 @@ public static class ErpEndpoints
             return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
         });
 
-        // GET /api/v1/erp/sync/history — DEV1-DEPENDENCY: GetErpSyncHistoryQuery handler gerekli
-        group.MapGet("/sync/history", (int? limit) =>
+        // GET /api/v1/erp/sync/history — ERP senkronizasyon geçmişi
+        group.MapGet("/sync/history", async (
+            Guid tenantId,
+            int? page,
+            int? pageSize,
+            ISender sender, CancellationToken ct) =>
         {
-            var maxItems = limit ?? 50;
-            return Results.Ok(new
-            {
-                history = Array.Empty<object>(),
-                message = "DEV1-DEPENDENCY: GetErpSyncHistoryQuery handler not yet created",
-                limit = maxItems
-            });
+            var result = await sender.Send(
+                new GetErpSyncHistoryQuery(tenantId, page ?? 1, pageSize ?? 20), ct);
+            return Results.Ok(result);
         })
         .WithName("GetErpSyncHistory")
-        .WithSummary("ERP senkronizasyon geçmişi (DEV1-DEPENDENCY)");
+        .WithSummary("ERP senkronizasyon geçmişi");
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────

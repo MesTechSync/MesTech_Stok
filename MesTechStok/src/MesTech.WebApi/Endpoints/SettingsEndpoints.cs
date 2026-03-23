@@ -1,3 +1,8 @@
+using MediatR;
+using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
+using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
+using MesTech.Application.Features.Settings.Queries.GetProfileSettings;
+
 namespace MesTech.WebApi.Endpoints;
 
 public static class SettingsEndpoints
@@ -9,42 +14,51 @@ public static class SettingsEndpoints
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/settings/profile
-        group.MapGet("/profile", () => Results.Ok(new
+        group.MapGet("/profile", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
         {
-            username = "current_user",
-            email = "user@mestech.com",
-            language = "tr",
-            timezone = "Europe/Istanbul",
-            dateFormat = "dd.MM.yyyy",
-            currency = "TRY"
-        }))
+            var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.NotFound(new { error = "Profile settings not found" });
+        })
         .WithName("GetSettingsProfile")
         .WithSummary("Kullanici profil ayarlari");
 
         // PUT /api/v1/settings/profile
+        // TODO: UpdateProfileSettingsCommand handler not yet available
         group.MapPut("/profile", (object profile) => Results.Ok(new
         {
-            success = true,
-            message = "Profil guncellendi"
+            success = false,
+            message = "UpdateProfileSettingsCommand handler not yet available",
+            status = "not_implemented"
         }))
         .WithName("UpdateSettingsProfile")
-        .WithSummary("Kullanici profil ayarlarini guncelle");
+        .WithSummary("Kullanici profil ayarlarini guncelle (TODO: handler gerekli)");
 
         // GET /api/v1/settings/credentials
-        group.MapGet("/credentials", () => Results.Ok(new List<object>()))
+        group.MapGet("/credentials", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetCredentialsSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
         .WithName("GetSettingsCredentials")
         .WithSummary("API kimlik bilgileri listesi");
 
         // GET /api/v1/settings/notifications
-        group.MapGet("/notifications", () => Results.Ok(new
+        group.MapGet("/notifications", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
         {
-            emailNotifications = true,
-            pushNotifications = true,
-            orderAlerts = true,
-            stockAlerts = true,
-            syncAlerts = false
-        }))
+            var result = await sender.Send(new GetGeneralSettingsQuery(tenantId), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.NotFound(new { error = "General settings not found" });
+        })
         .WithName("GetSettingsNotifications")
-        .WithSummary("Bildirim tercihleri");
+        .WithSummary("Bildirim tercihleri (general settings)");
     }
 }
