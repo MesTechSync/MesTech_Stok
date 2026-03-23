@@ -1,0 +1,129 @@
+@page "/notifications/history"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<NotificationHistory> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #0d6efd;">
+            <i class="fas fa-bell text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #0d6efd;">Bildirim Gecmisi</h3>
+            <small class="text-muted">Tum platform bildirimleri ve sistem uyarilari</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm w-auto" @bind="_typeFilter">
+            <option value="">Tum Tipler</option>
+            <option value="order">Siparis</option>
+            <option value="stock">Stok</option>
+            <option value="system">Sistem</option>
+            <option value="payment">Odeme</option>
+        </select>
+        <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+            <i class="fas fa-sync-alt me-1"></i>Yenile
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-bell" Value="@_total.ToString()" Label="Toplam Bildirim" TextColor="text-primary" />
+        <KpiCard Icon="fa-eye-slash" Value="@_unread.ToString()" Label="Okunmamis" TextColor="text-warning" />
+        <KpiCard Icon="fa-exclamation-circle" Value="@_critical.ToString()" Label="Kritik" TextColor="text-danger" />
+        <KpiCard Icon="fa-clock" Value="@_today.ToString()" Label="Bugun" TextColor="text-info" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                @foreach (var n in _notifications ?? Enumerable.Empty<NotificationItem>())
+                {
+                    <div class="list-group-item list-group-item-action @(n.IsRead ? "" : "bg-light")">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div class="d-flex align-items-start">
+                                <i class="fas @GetIcon(n.Type) me-3 mt-1 text-@GetColor(n.Severity)"></i>
+                                <div>
+                                    <h6 class="mb-1 @(n.IsRead ? "" : "fw-bold")">@n.Title</h6>
+                                    <p class="mb-1 text-muted small">@n.Message</p>
+                                    <span class="badge bg-@GetColor(n.Severity) me-1">@n.Severity</span>
+                                    <span class="badge bg-secondary">@n.Type</span>
+                                </div>
+                            </div>
+                            <small class="text-muted text-nowrap">@n.CreatedAt.ToString("dd.MM HH:mm")</small>
+                        </div>
+                    </div>
+                }
+                @if (_notifications?.Count == 0)
+                {
+                    <div class="list-group-item text-center text-muted py-4">Bildirim bulunmuyor.</div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string _typeFilter = "";
+    private int _total, _unread, _critical, _today;
+    private List<NotificationItem>? _notifications;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<NotificationItem>>("api/v1/notifications");
+            if (result.IsSuccess && result.Data != null)
+                _notifications = result.Data;
+            else { _isDemoMode = true; _notifications = GetDemoData(); }
+            _total = _notifications.Count;
+            _unread = _notifications.Count(n => !n.IsRead);
+            _critical = _notifications.Count(n => n.Severity == "Kritik");
+            _today = _notifications.Count(n => n.CreatedAt.Date == DateTime.Today);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Bildirimler yuklenirken hata");
+            errorMessage = "Bildirim gecmisi yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private static string GetIcon(string type) => type switch { "Siparis" => "fa-shopping-bag", "Stok" => "fa-boxes", "Sistem" => "fa-server", "Odeme" => "fa-credit-card", _ => "fa-bell" };
+    private static string GetColor(string sev) => sev switch { "Kritik" => "danger", "Uyari" => "warning", "Bilgi" => "info", _ => "secondary" };
+
+    private static List<NotificationItem> GetDemoData() => new()
+    {
+        new("Dusuk Stok Uyarisi", "MT-002 USB-C Hub stok seviyesi 8 birime dustu", "Stok", "Uyari", false, DateTime.Now.AddHours(-1)),
+        new("Yeni Siparis", "Trendyol'dan 3 yeni siparis alindi", "Siparis", "Bilgi", false, DateTime.Now.AddHours(-2)),
+        new("Odeme Onaylandi", "Hepsiburada hesaplasma 12.500 TL aktarildi", "Odeme", "Bilgi", true, DateTime.Now.AddHours(-5)),
+        new("Sistem Bakimi", "Redis baglantisi gecici olarak kesildi", "Sistem", "Kritik", true, DateTime.Now.AddDays(-1)),
+    };
+
+    private record NotificationItem(string Title, string Message, string Type, string Severity, bool IsRead, DateTime CreatedAt);
+}

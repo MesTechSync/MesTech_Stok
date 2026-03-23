@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.Fulfillment.CreateInboundDialog"
+        Title="Yeni Inbound Gonderi Olustur"
+        Width="600" Height="550"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MesBgSurface}">
+
+    <!-- F-05: 3-Step Wizard — Provider select, Add products, Summary + confirm -->
+
+    <Border Padding="24">
+        <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- Step Indicator -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <Border x:Name="Step1Indicator" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="14" Width="28" Height="28">
+                    <TextBlock Text="1" Foreground="{DynamicResource MesBgPrimary}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                </Border>
+                <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesSlateGray}" />
+                <Border x:Name="Step2Indicator" Background="{DynamicResource MesBorderMedium}" CornerRadius="14" Width="28" Height="28">
+                    <TextBlock Text="2" Foreground="{DynamicResource MesBgPrimary}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                </Border>
+                <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesSlateGray}" />
+                <Border x:Name="Step3Indicator" Background="{DynamicResource MesBorderMedium}" CornerRadius="14" Width="28" Height="28">
+                    <TextBlock Text="3" Foreground="{DynamicResource MesBgPrimary}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                </Border>
+            </StackPanel>
+
+            <!-- Step Content -->
+            <Grid Grid.Row="1">
+
+                <!-- Step 1: Provider Select -->
+                <StackPanel x:Name="Step1Panel" Spacing="16" IsVisible="True">
+                    <TextBlock Text="Fulfillment Merkezi Secin" FontSize="{StaticResource FontSizeH4}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <TextBlock Text="Inbound gonderi olusturulacak fulfillment merkezini secin."
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+
+                    <ComboBox x:Name="ProviderCombo" MinWidth="300"
+                              SelectedIndex="0" Margin="0,8,0,0">
+                        <ComboBoxItem Content="Amazon FBA" />
+                        <ComboBoxItem Content="Hepsilojistik" />
+                        <ComboBoxItem Content="Trendyol Fulfillment" />
+                    </ComboBox>
+
+                    <StackPanel Spacing="4" Margin="0,8,0,0">
+                        <TextBlock Text="Gonderi Notu (opsiyonel)" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBox x:Name="ShipmentNoteBox" Watermark="Gonderi ile ilgili not girebilirsiniz"
+                                 AutomationProperties.Name="Gonderi notu" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Step 2: Add Products -->
+                <StackPanel x:Name="Step2Panel" Spacing="16" IsVisible="False">
+                    <TextBlock Text="Urun Ekle" FontSize="{StaticResource FontSizeH4}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <TextBlock Text="Gonderiye eklenecek urunlerin SKU ve miktarlarini girin."
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+
+                    <Grid ColumnDefinitions="*,80,Auto" Margin="0,8,0,0">
+                        <TextBox Grid.Column="0" x:Name="SkuInput" Watermark="SKU girin"
+                                 AutomationProperties.Name="SKU" Margin="0,0,8,0" />
+                        <NumericUpDown Grid.Column="1" x:Name="QtyInput" Minimum="1" Maximum="99999" Value="1"
+                                       Margin="0,0,8,0" />
+                        <Button Grid.Column="2" Content="Ekle" ToolTip.Tip="Urunu listeye ekle"
+                                Click="OnAddProduct" Padding="12,6" />
+                    </Grid>
+
+                    <DataGrid x:Name="ProductGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              MaxHeight="200"
+                              Background="{DynamicResource MesBgPrimary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="*" />
+                            <DataGridTextColumn Header="Miktar" Binding="{Binding Quantity}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock x:Name="ProductCountText" Text="0 urun eklendi"
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                </StackPanel>
+
+                <!-- Step 3: Summary + Confirm -->
+                <StackPanel x:Name="Step3Panel" Spacing="16" IsVisible="False">
+                    <TextBlock Text="Ozet" FontSize="{StaticResource FontSizeH4}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+
+                    <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Merkez:" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock x:Name="SummaryProvider" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Urun Sayisi:" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock x:Name="SummaryProductCount" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Toplam Miktar:" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock x:Name="SummaryTotalQty" Foreground="{DynamicResource MesSlateGray}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Not:" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock x:Name="SummaryNote" Foreground="{DynamicResource MesSlateGray}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Gonderiyi onaylamak icin 'Olustur' butonuna basin."
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Navigation Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
+                <Button x:Name="BackButton" Content="Geri" ToolTip.Tip="Onceki adima don"
+                        Click="OnBack" Padding="16,8" IsVisible="False" />
+                <Button Content="Iptal" ToolTip.Tip="Islemi iptal et"
+                        Click="OnCancel" Padding="16,8" />
+                <Button x:Name="NextButton" Content="Ileri" ToolTip.Tip="Sonraki adima gec"
+                        Click="OnNext" Padding="16,8"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
