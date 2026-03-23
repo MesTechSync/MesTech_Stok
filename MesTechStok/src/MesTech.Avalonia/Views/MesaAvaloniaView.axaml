@@ -106,6 +106,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <TextBlock Text="Kayit bulunamadi"
+                                       FontSize="{StaticResource FontSizeTitle}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource MesMutedGray}"
+                                       IsVisible="{Binding !AiTools.Count}"
+                                       Opacity="0.5" />
                         </StackPanel>
                     </Border>
 
@@ -135,6 +141,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <TextBlock Text="Kayit bulunamadi"
+                                       FontSize="{StaticResource FontSizeTitle}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource MesMutedGray}"
+                                       IsVisible="{Binding !RecentPredictions.Count}"
+                                       Opacity="0.5" />
                         </StackPanel>
                     </Border>
                 </Grid>

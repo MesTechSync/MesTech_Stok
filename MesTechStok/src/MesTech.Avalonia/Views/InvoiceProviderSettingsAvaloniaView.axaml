@@ -112,6 +112,15 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Empty State -->
+        <TextBlock Grid.Row="1"
+                   Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !Providers.Count}"
+                   Opacity="0.5" />
+
         <!-- Row 2: P0 XAdES Warning Banner -->
         <Border Grid.Row="2" Background="{DynamicResource MesBgDangerLight}" Padding="16,12"
                 BorderBrush="{DynamicResource ErrorRedBrush}" BorderThickness="0,2,0,0">

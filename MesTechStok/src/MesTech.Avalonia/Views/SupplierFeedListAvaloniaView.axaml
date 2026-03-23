@@ -46,9 +46,12 @@
             </DataGrid.Columns>
         </DataGrid>
         <!-- Empty State -->
-        <TextBlock Grid.Row="1" Text="Tedarikci bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                   IsVisible="{Binding !IsLoading}" />
+        <TextBlock Grid.Row="1" Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !Feeds.Count}"
+                   Opacity="0.5" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"

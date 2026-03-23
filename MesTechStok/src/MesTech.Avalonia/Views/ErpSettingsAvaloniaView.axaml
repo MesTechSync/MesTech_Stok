@@ -272,6 +272,13 @@
                         <TextBlock Text="Son Senkronizasyon Gecmisi"
                                    FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Kayit bulunamadi"
+                                   FontSize="{StaticResource FontSizeTitle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource MesMutedGray}"
+                                   IsVisible="{Binding !SyncHistory.Count}"
+                                   Opacity="0.5" Margin="0,12" />
+
                         <ItemsControl ItemsSource="{Binding SyncHistory}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ErpSyncHistoryItem">

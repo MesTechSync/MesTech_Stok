@@ -28,6 +28,12 @@
         </Border>
 
         <!-- Warehouse Cards Grid -->
+        <TextBlock Grid.Row="1" Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !WarehouseCards.Count}"
+                   Opacity="0.5" />
         <ScrollViewer Grid.Row="1" Padding="16">
             <ItemsControl ItemsSource="{Binding WarehouseCards}">
                 <ItemsControl.ItemsPanel>

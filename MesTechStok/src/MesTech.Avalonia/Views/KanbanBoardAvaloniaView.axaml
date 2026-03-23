@@ -32,6 +32,14 @@
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
             </Border>
 
+            <!-- Empty State -->
+            <TextBlock Text="Kayit bulunamadi"
+                       FontSize="{StaticResource FontSizeTitle}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource MesMutedGray}"
+                       IsVisible="{Binding !Columns.Count}"
+                       Opacity="0.5" />
+
             <!-- Kanban Columns -->
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Disabled"

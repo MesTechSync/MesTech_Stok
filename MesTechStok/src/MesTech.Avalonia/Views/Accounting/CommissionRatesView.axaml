@@ -15,6 +15,15 @@
             </TextBlock>
         </Border>
 
+        <!-- Empty State -->
+        <TextBlock Grid.Row="1"
+                   Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !CommissionRates.Count}"
+                   Opacity="0.5" />
+
         <!-- Komisyon tablosu -->
         <DataGrid Grid.Row="1" Margin="12" ItemsSource="{Binding CommissionRates}"
                   AutoGenerateColumns="False" CanUserSortColumns="True"

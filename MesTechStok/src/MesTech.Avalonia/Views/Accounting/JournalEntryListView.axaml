@@ -21,6 +21,15 @@
             </StackPanel>
         </Border>
 
+        <!-- Empty State -->
+        <TextBlock Grid.Row="1"
+                   Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !JournalEntries.Count}"
+                   Opacity="0.5" />
+
         <!-- Yevmiye DataGrid -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding JournalEntries}"
                   AutoGenerateColumns="False" CanUserSortColumns="True"

@@ -67,6 +67,13 @@
                     <StackPanel Spacing="12">
                         <TextBlock Text="Hizli Yanit Sablonlari" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBodyLg}" />
 
+                        <TextBlock Text="Kayit bulunamadi"
+                                   FontSize="{StaticResource FontSizeTitle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource MesMutedGray}"
+                                   IsVisible="{Binding !QuickReplyTemplates.Count}"
+                                   Opacity="0.5" Margin="0,12" />
+
                         <ListBox ItemsSource="{Binding QuickReplyTemplates}"
                                  SelectedItem="{Binding SelectedTemplate}"
                                  MinHeight="120" MaxHeight="280"

@@ -75,6 +75,13 @@
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                         </Grid>
 
+                        <TextBlock Text="Kayit bulunamadi"
+                                   FontSize="{StaticResource FontSizeTitle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource MesMutedGray}"
+                                   IsVisible="{Binding !ColumnMappings.Count}"
+                                   Opacity="0.5" Margin="0,12" />
+
                         <ItemsControl ItemsSource="{Binding ColumnMappings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:FeedColumnMappingDto">

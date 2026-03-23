@@ -29,6 +29,12 @@
         </Border>
 
         <!-- Hesap tablosu -->
+        <TextBlock Grid.Row="2" Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !TrialBalanceLines.Count}"
+                   Opacity="0.5" />
         <DataGrid Grid.Row="2" Margin="12" ItemsSource="{Binding TrialBalanceLines}"
                   AutoGenerateColumns="False" CanUserSortColumns="True" IsReadOnly="True"
                   GridLinesVisibility="Horizontal" BorderThickness="0"

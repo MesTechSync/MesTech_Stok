@@ -88,6 +88,15 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Empty State -->
+        <TextBlock Grid.Row="1"
+                   Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !Providers.Count}"
+                   Opacity="0.5" />
+
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"
                 Background="{DynamicResource MesOverlayLight}"

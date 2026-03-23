@@ -65,6 +65,12 @@
                             <TextBlock Text="Son Aktiviteler" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
+                        <TextBlock Grid.Row="1" Text="Kayit bulunamadi"
+                                   FontSize="{StaticResource FontSizeTitle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource MesMutedGray}"
+                                   IsVisible="{Binding !RecentActivities.Count}"
+                                   Opacity="0.5" Margin="0,16" />
                         <ItemsControl Grid.Row="1" ItemsSource="{Binding RecentActivities}" Margin="0,0,0,8">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

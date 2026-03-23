@@ -58,6 +58,12 @@
             <StackPanel IsVisible="{Binding IsStep1Visible}">
                 <TextBlock Text="Platform Seçin" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Margin="0,0,0,16"
                            Foreground="{DynamicResource MesDarkSlate}" />
+                <TextBlock Text="Kayit bulunamadi"
+                           FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="{DynamicResource MesMutedGray}"
+                           IsVisible="{Binding !AvailablePlatforms.Count}"
+                           Opacity="0.5" />
                 <ItemsControl ItemsSource="{Binding AvailablePlatforms}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

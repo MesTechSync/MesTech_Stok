@@ -60,6 +60,12 @@
         </Border>
 
         <!-- Timeline List -->
+        <TextBlock Grid.Row="2" Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !Movements.Count}"
+                   Opacity="0.5" />
         <ScrollViewer Grid.Row="2" Padding="16">
             <ItemsControl ItemsSource="{Binding Movements}">
                 <ItemsControl.ItemTemplate>

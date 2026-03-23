@@ -60,6 +60,12 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+        <TextBlock Grid.Row="1" Text="Kayit bulunamadi"
+                   FontSize="{StaticResource FontSizeTitle}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource MesMutedGray}"
+                   IsVisible="{Binding !Platforms.Count}"
+                   Opacity="0.5" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"
