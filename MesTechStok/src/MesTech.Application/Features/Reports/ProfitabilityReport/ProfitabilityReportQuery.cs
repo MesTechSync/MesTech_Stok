@@ -4,7 +4,7 @@ namespace MesTech.Application.Features.Reports.ProfitabilityReport;
 
 /// <summary>
 /// Karlılık raporu sorgusu.
-/// Net Kar = Satis Fiyati - Alis Maliyeti(WAC) - Komisyon - Kargo - KDV
+/// Net Kar = Satis Fiyati - Alis Maliyeti(WAC) - Komisyon - Kargo Gideri - KDV
 /// Turkiye KDV: Satis fiyati KDV DAHIL → KDV = Fiyat * KDVOrani / (1 + KDVOrani)
 /// </summary>
 public record ProfitabilityReportQuery(
@@ -21,6 +21,7 @@ public record ProfitabilityReportDto
     public decimal TotalRevenue { get; init; }
     public decimal TotalCost { get; init; }
     public decimal TotalCommission { get; init; }
+    public decimal TotalShipping { get; init; }
     public decimal TotalTax { get; init; }
     public decimal NetProfit { get; init; }
     public decimal ProfitMargin { get; init; }
@@ -42,6 +43,7 @@ public record PlatformProfitDto(
     decimal Revenue,
     decimal Cost,
     decimal Commission,
+    decimal Shipping,
     decimal Tax,
     decimal NetProfit,
     decimal ProfitMargin);
