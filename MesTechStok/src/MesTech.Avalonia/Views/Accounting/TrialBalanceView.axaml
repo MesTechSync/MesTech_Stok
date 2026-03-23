@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.TrialBalanceView"
+             x:DataType="vm:TrialBalanceViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Filtre -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="12">
+            <TextBlock Text="Donem:" VerticalAlignment="Center"
+                       FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
+            <DatePicker SelectedDate="{Binding AsOfDate}" />
+            <Button Content="Hesapla" Command="{Binding CalculateCommand}"
+                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                    Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
+            <Button Content="PDF" Command="{Binding ExportPdfCommand}"
+                    Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                    BorderBrush="{DynamicResource MesPrimaryBlue}" BorderThickness="1"
+                    Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
+        </StackPanel>
+
+        <!-- Denge durumu banner -->
+        <Border Grid.Row="1" Padding="12" Margin="12,4"
+                CornerRadius="{StaticResource MesRadiusMd}"
+                Background="{DynamicResource StatusSuccessBrush}">
+            <TextBlock Text="{Binding BalanceStatusText}" FontWeight="Bold"
+                       FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{DynamicResource MesBgPrimary}" HorizontalAlignment="Center" />
+        </Border>
+
+        <!-- Hesap tablosu -->
+        <DataGrid Grid.Row="2" Margin="12" ItemsSource="{Binding TrialBalanceLines}"
+                  AutoGenerateColumns="False" CanUserSortColumns="True" IsReadOnly="True"
+                  GridLinesVisibility="Horizontal" BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Hesap Kodu" Binding="{Binding AccountCode}" Width="100" />
+                <DataGridTextColumn Header="Hesap Adi" Binding="{Binding AccountName}" Width="*" />
+                <DataGridTextColumn Header="Borc Toplami" Binding="{Binding TotalDebitText}" Width="130" />
+                <DataGridTextColumn Header="Alacak Toplami" Binding="{Binding TotalCreditText}" Width="130" />
+                <DataGridTextColumn Header="Bakiye" Binding="{Binding BalanceText}" Width="130" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Toplam -->
+        <Border Grid.Row="3" Padding="12" Background="{DynamicResource SurfaceCardBrush}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,130,130,130" Margin="12,0">
+                <TextBlock Text="TOPLAM" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding TotalDebitSumText}" FontWeight="Bold"
+                           Foreground="{DynamicResource StatusDangerBrush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding TotalCreditSumText}" FontWeight="Bold"
+                           Foreground="{DynamicResource StatusSuccessBrush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="{Binding DifferenceText}" FontWeight="Bold"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.JournalEntryListView"
+             x:DataType="vm:JournalEntryListViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Filtre bar -->
+        <Border Grid.Row="0" Padding="12" Background="{DynamicResource SurfaceCardBrush}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <DatePicker SelectedDate="{Binding FromDate}" />
+                <TextBlock Text="-" VerticalAlignment="Center" Foreground="{DynamicResource MesSlateGray}" />
+                <DatePicker SelectedDate="{Binding ToDate}" />
+                <ComboBox ItemsSource="{Binding SourceTypes}"
+                          SelectedItem="{Binding SelectedSourceType}"
+                          PlaceholderText="Kaynak Tipi" Width="140" />
+                <Button Content="Filtrele" Command="{Binding FilterCommand}"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
+            </StackPanel>
+        </Border>
+
+        <!-- Yevmiye DataGrid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding JournalEntries}"
+                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                  CanUserResizeColumns="True" IsReadOnly="True"
+                  GridLinesVisibility="Horizontal" BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Yevmiye No" Binding="{Binding EntryNumber}" Width="120" />
+                <DataGridTextColumn Header="Tarih" Binding="{Binding EntryDateText}" Width="100" />
+                <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                <DataGridTextColumn Header="Kaynak" Binding="{Binding SourceTypeText}" Width="100" />
+                <DataGridTextColumn Header="Borc" Binding="{Binding TotalDebitText}" Width="120" />
+                <DataGridTextColumn Header="Alacak" Binding="{Binding TotalCreditText}" Width="120" />
+                <DataGridTextColumn Header="Denge" Binding="{Binding BalanceIcon}" Width="60" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
