@@ -107,7 +107,14 @@ else
       if (apiData?.Count > 0)
       {
         _isDemoMode = false;
-        _settlements = GetDemoData();
+        try
+        {
+          var json = System.Text.Json.JsonSerializer.Serialize(apiData);
+          _settlements = System.Text.Json.JsonSerializer.Deserialize<List<SettlementItem>>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? GetDemoData();
+        }
+        catch { _settlements = GetDemoData(); _isDemoMode = true; }
       }
       else
       {
