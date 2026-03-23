@@ -59,6 +59,15 @@ public class ReturnRequest : BaseEntity, ITenantEntity
             throw new InvalidOperationException("Sadece bekleyen iade onaylanabilir.");
         Status = ReturnStatus.Approved;
         ApprovedAt = DateTime.UtcNow;
+
+        var lineInfos = _lines
+            .Where(l => l.ProductId.HasValue)
+            .Select(l => new ReturnApprovedEvent.ReturnLineInfo(
+                l.ProductId!.Value, l.SKU ?? "", l.Quantity, l.UnitPrice))
+            .ToList();
+
+        RaiseDomainEvent(new ReturnApprovedEvent(
+            Id, OrderId, TenantId, lineInfos, DateTime.UtcNow));
     }
 
     public void Reject(string? reason = null)
