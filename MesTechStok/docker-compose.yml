@@ -6,7 +6,7 @@
 #   Redis      → 3679:6379  (Yerel Redis PID 3920 @ 6379, AI Asistan: 5379)
 #   RabbitMQ   → 3672:5672, 3692:15672, 3693:15692  (AI Asistan: 5672, 15672)
 #   MySQL      → 3306:3306  (çakışma yok)
-#   Seq        → 3341:5341, 3080:80  (5341 boş ama tutarlılık için 3xxx, 8080 potansiyel çakışma)
+#   Seq        → 3341:5341, 3580:80  (5341 boş ama tutarlılık için 3xxx, 8080 potansiyel çakışma)
 #   MinIO      → 3900:9000, 3901:9001  (çakışma yok ama tutarlılık)
 #
 # DEMİR KURAL: Container-arası iletişim Docker network üzerinden standart portlarla yapılır.
@@ -210,7 +210,7 @@ services:
         max-size: "10m"
         max-file: "3"
     ports:
-      - "5100:5100"
+      - "${WEBAPI_PORT:-3100}:5100"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=mestech_stok;Username=mestech_user;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"

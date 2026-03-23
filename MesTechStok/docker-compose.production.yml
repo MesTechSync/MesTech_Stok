@@ -72,7 +72,7 @@ services:
 
   webapi:
     ports:
-      - "5100:5100"
+      - "${WEBAPI_PORT:-3100}:5100"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${PG_DATABASE:?PG_DATABASE zorunlu};Username=${POSTGRES_USER:?POSTGRES_USER zorunlu};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
