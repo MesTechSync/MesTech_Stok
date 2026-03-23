@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Reports.ProfitabilityReport;
 
 /// <summary>
 /// Karlılık raporu handler'i.
-/// Net Kar = Satis Fiyati - Alis Maliyeti - Komisyon - KDV
+/// Net Kar = Satis Fiyati - Alis Maliyeti - Komisyon - Kargo Gideri - KDV
 /// Her siparisteki her urunun PurchasePrice'ini Product entity'den cekerçek gercek maliyet hesaplar.
 /// </summary>
 public class ProfitabilityReportHandler
@@ -68,7 +68,7 @@ public class ProfitabilityReportHandler
         }
 
         // Her siparis icin kar hesapla
-        decimal totalRevenue = 0, totalCost = 0, totalCommission = 0, totalTax = 0;
+        decimal totalRevenue = 0, totalCost = 0, totalCommission = 0, totalShipping = 0, totalTax = 0;
         var platformAccum = new Dictionary<string, PlatformAccum>(StringComparer.Ordinal);
         var productAccum = new Dictionary<Guid, ProductAccum>();
 
@@ -76,6 +76,7 @@ public class ProfitabilityReportHandler
         {
             var orderRevenue = order.TotalAmount;
             var orderCommission = order.CommissionAmount ?? 0;
+            var orderShipping = order.CargoExpenseAmount ?? 0;
             var orderTax = order.OrderItems.Sum(i => i.TaxAmount);
             decimal orderCost = 0;
 
@@ -94,16 +95,17 @@ public class ProfitabilityReportHandler
             totalRevenue += orderRevenue;
             totalCost += orderCost;
             totalCommission += orderCommission;
+            totalShipping += orderShipping;
             totalTax += orderTax;
 
             // Platform bazli
             var platform = order.SourcePlatform?.ToString() ?? "Direct";
             if (!platformAccum.ContainsKey(platform))
                 platformAccum[platform] = new PlatformAccum();
-            platformAccum[platform].Add(orderRevenue, orderCost, orderCommission, orderTax);
+            platformAccum[platform].Add(orderRevenue, orderCost, orderCommission, orderShipping, orderTax);
         }
 
-        var netProfit = totalRevenue - totalCost - totalCommission - totalTax;
+        var netProfit = totalRevenue - totalCost - totalCommission - totalShipping - totalTax;
         var profitMargin = totalRevenue > 0 ? Math.Round(netProfit / totalRevenue * 100, 2) : 0;
 
         // En karli ve en zararli urunler
@@ -124,18 +126,20 @@ public class ProfitabilityReportHandler
             TotalRevenue = Math.Round(totalRevenue, 2),
             TotalCost = Math.Round(totalCost, 2),
             TotalCommission = Math.Round(totalCommission, 2),
+            TotalShipping = Math.Round(totalShipping, 2),
             TotalTax = Math.Round(totalTax, 2),
             NetProfit = Math.Round(netProfit, 2),
             ProfitMargin = profitMargin,
             TotalOrders = completedOrders.Count,
             ByPlatform = platformAccum.Select(kv =>
             {
-                var np = kv.Value.Revenue - kv.Value.Cost - kv.Value.Commission - kv.Value.Tax;
+                var np = kv.Value.Revenue - kv.Value.Cost - kv.Value.Commission - kv.Value.Shipping - kv.Value.Tax;
                 var pm = kv.Value.Revenue > 0 ? Math.Round(np / kv.Value.Revenue * 100, 2) : 0;
                 return new PlatformProfitDto(
                     kv.Key, kv.Value.Count,
                     Math.Round(kv.Value.Revenue, 2), Math.Round(kv.Value.Cost, 2),
-                    Math.Round(kv.Value.Commission, 2), Math.Round(kv.Value.Tax, 2),
+                    Math.Round(kv.Value.Commission, 2), Math.Round(kv.Value.Shipping, 2),
+                    Math.Round(kv.Value.Tax, 2),
                     Math.Round(np, 2), pm);
             }).OrderByDescending(p => p.NetProfit).ToList(),
             TopProfitableProducts = allProducts
@@ -152,10 +156,11 @@ public class ProfitabilityReportHandler
         public decimal Revenue { get; private set; }
         public decimal Cost { get; private set; }
         public decimal Commission { get; private set; }
+        public decimal Shipping { get; private set; }
         public decimal Tax { get; private set; }
-        public void Add(decimal rev, decimal cost, decimal comm, decimal tax)
+        public void Add(decimal rev, decimal cost, decimal comm, decimal shipping, decimal tax)
         {
-            Count++; Revenue += rev; Cost += cost; Commission += comm; Tax += tax;
+            Count++; Revenue += rev; Cost += cost; Commission += comm; Shipping += shipping; Tax += tax;
         }
     }
 
