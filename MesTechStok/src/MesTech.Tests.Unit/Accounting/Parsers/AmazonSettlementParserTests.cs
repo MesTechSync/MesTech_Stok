@@ -93,10 +93,17 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(stream, "tsv");
 
-        // Verifying that the parser processes without exception
-        // (multi-currency warning is logged)
+        batch.Should().NotBeNull();
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => true),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.AtLeastOnce);
     }
 
     [Fact]
