@@ -1,0 +1,189 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Erp"
+             x:Class="MesTech.Avalonia.Views.Erp.ErpAccountMappingView"
+             x:DataType="vm:ErpAccountMappingViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+
+    <!-- E-02 ERP Hesap Eslestirme — Split panel + mapping grid -->
+    <!-- Brand color #0078D4 -->
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="ERP Hesap Eslestirme" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding MappedCount, StringFormat='{}{0} eslesmis'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Split Panel: MesTech Accounts | Map Button | ERP Accounts -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" Margin="16,12,16,0">
+
+            <!-- Left: MesTech Cari Hesaplar -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*">
+                <TextBlock Grid.Row="0" Text="MesTech Cari Hesaplar"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesTextPrimary}" Margin="0,0,0,8" />
+                <TextBox Grid.Row="1" Watermark="MesTech hesap ara..."
+                         AutomationProperties.Name="MesTech hesap ara..."
+                         Text="{Binding MesTechSearchText}" Margin="0,0,0,8" />
+                <DataGrid Grid.Row="2"
+                          ItemsSource="{Binding MesTechAccounts}"
+                          SelectedItem="{Binding SelectedMesTechAccount}"
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="1"
+                          BorderBrush="{DynamicResource MesBorderMedium}"
+                          Background="{DynamicResource MesBgPrimary}"
+                          SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Hesap Kodu" Binding="{Binding Code}" Width="120" />
+                        <DataGridTextColumn Header="Hesap Adi" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Tip" Binding="{Binding AccountType}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <!-- Empty state -->
+                <TextBlock Grid.Row="2" Text="Hesap bulunamadi"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Opacity="0.5" FontSize="{StaticResource FontSizeSmall}"
+                           IsVisible="{Binding !MesTechAccounts.Count}" />
+            </Grid>
+
+            <!-- Middle: Map Button -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0" Spacing="8">
+                <Button Content="Esle" ToolTip.Tip="Secili hesaplari eslestir"
+                        Command="{Binding MapAccountsCommand}"
+                        Padding="20,10" FontWeight="SemiBold"
+                        Background="{DynamicResource MesPrimaryBlue}"
+                        Foreground="{DynamicResource MesBgPrimary}"
+                        CornerRadius="{StaticResource MesRadiusBase}" />
+                <Button Content="Kaldir" ToolTip.Tip="Secili eslestirmeyi kaldir"
+                        Command="{Binding RemoveMappingCommand}"
+                        Padding="20,10" FontWeight="SemiBold"
+                        Background="{DynamicResource MesErrorRed}"
+                        Foreground="{DynamicResource MesBgPrimary}"
+                        CornerRadius="{StaticResource MesRadiusBase}" />
+            </StackPanel>
+
+            <!-- Right: ERP Cari Hesaplar -->
+            <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
+                <TextBlock Grid.Row="0" Text="ERP Cari Hesaplar"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesTextPrimary}" Margin="0,0,0,8" />
+                <TextBox Grid.Row="1" Watermark="ERP hesap ara..."
+                         AutomationProperties.Name="ERP hesap ara..."
+                         Text="{Binding ErpSearchText}" Margin="0,0,0,8" />
+                <DataGrid Grid.Row="2"
+                          ItemsSource="{Binding ErpAccounts}"
+                          SelectedItem="{Binding SelectedErpAccount}"
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="1"
+                          BorderBrush="{DynamicResource MesBorderMedium}"
+                          Background="{DynamicResource MesBgPrimary}"
+                          SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ERP Kodu" Binding="{Binding Code}" Width="120" />
+                        <DataGridTextColumn Header="ERP Hesap Adi" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Tip" Binding="{Binding AccountType}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <!-- Empty state -->
+                <TextBlock Grid.Row="2" Text="Hesap bulunamadi"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Opacity="0.5" FontSize="{StaticResource FontSizeSmall}"
+                           IsVisible="{Binding !ErpAccounts.Count}" />
+            </Grid>
+        </Grid>
+
+        <!-- Separator -->
+        <Border Grid.Row="2" Height="1" Background="{DynamicResource MesBorderMedium}" Margin="16,12,16,0" />
+
+        <!-- Bottom: Mapped Pairs DataGrid -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,*" Margin="16,8,16,16" MinHeight="200">
+            <TextBlock Grid.Row="0" Text="Eslesmis Hesaplar"
+                       FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource MesTextPrimary}" Margin="0,0,0,8" />
+
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding MappedPairs}"
+                      SelectedItem="{Binding SelectedMappedPair}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="{DynamicResource MesBgPrimary}"
+                      SelectionMode="Single">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="MesTech Kodu" Binding="{Binding MesTechCode}" Width="140" />
+                    <DataGridTextColumn Header="MesTech Hesap" Binding="{Binding MesTechName}" Width="*" />
+                    <DataGridTextColumn Header="ERP Kodu" Binding="{Binding ErpCode}" Width="140" />
+                    <DataGridTextColumn Header="ERP Hesap" Binding="{Binding ErpName}" Width="*" />
+                    <DataGridTextColumn Header="Eslestirme Tarihi" Binding="{Binding MappedDate}" Width="160" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Empty state for mapped pairs -->
+            <TextBlock Grid.Row="1" Text="Henuz eslestirme yapilmadi"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Margin="0,40" Opacity="0.5"
+                       FontSize="{StaticResource FontSizeSubtitle}"
+                       IsVisible="{Binding !MappedPairs.Count}" />
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Hesap verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeTitle}"
+                           Foreground="{DynamicResource MesErrorRed}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
+                           MaxWidth="400" HorizontalAlignment="Center" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Verileri tekrar yukle"
+                        Command="{Binding RefreshCommand}"
+                        HorizontalAlignment="Center"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>
