@@ -40,15 +40,17 @@ public partial class MainWindow : Window
         _idleTimer.Start();
 
         // Mouse/klavye hareketlerini izle
-        PointerMoved += (_, _) => RecordActivity();
+        PointerMoved += OnPointerActivity;
         KeyDown += OnGlobalKeyDown;
-        PointerPressed += (_, _) => RecordActivity();
+        PointerPressed += OnPointerActivity;
     }
 
     public void SetCurrentUser(string username)
     {
         _session.SetSession(username, Guid.Empty);
     }
+
+    private void OnPointerActivity(object? sender, EventArgs e) => RecordActivity();
 
     private void RecordActivity()
     {
@@ -246,6 +248,8 @@ public partial class MainWindow : Window
     {
         _clockTimer.Stop();
         _idleTimer.Stop();
+        PointerMoved -= OnPointerActivity;
+        PointerPressed -= OnPointerActivity;
         KeyDown -= OnGlobalKeyDown;
         base.OnClosed(e);
     }
