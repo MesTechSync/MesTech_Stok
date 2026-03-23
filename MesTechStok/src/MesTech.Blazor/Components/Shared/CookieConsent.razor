@@ -1,0 +1,56 @@
+@inject IJSRuntime JS
+
+@if (!_consentGiven)
+{
+    <div class="fixed-bottom bg-dark text-white p-3" style="z-index: 9999;" role="alert" aria-label="Cerez onay bildirimi">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <p class="mb-0 me-3">
+                <i class="fas fa-cookie-bite me-1"></i>
+                Bu platform cerezleri kullanmaktadir. Detaylar icin
+                <a href="/gizlilik" class="text-info text-decoration-underline">Gizlilik Politikasi</a>'ni inceleyiniz.
+            </p>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success btn-sm" @onclick="AcceptAll">
+                    <i class="fas fa-check me-1"></i>Tumunu Kabul Et
+                </button>
+                <button class="btn btn-outline-light btn-sm" @onclick="AcceptNecessary">
+                    Sadece Zorunlu
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _consentGiven = true; // Default true — JS kontrolu sonra yapar
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var consent = await JS.InvokeAsync<string>("localStorage.getItem", "cookie-consent");
+                _consentGiven = !string.IsNullOrEmpty(consent);
+                StateHasChanged();
+            }
+            catch
+            {
+                // SSR veya JS hata durumunda banner gosterme
+                _consentGiven = true;
+            }
+        }
+    }
+
+    private async Task AcceptAll()
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "cookie-consent", "all");
+        _consentGiven = true;
+    }
+
+    private async Task AcceptNecessary()
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "cookie-consent", "necessary");
+        _consentGiven = true;
+    }
+}

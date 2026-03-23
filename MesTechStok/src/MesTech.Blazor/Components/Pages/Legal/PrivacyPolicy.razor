@@ -1,0 +1,131 @@
+@page "/privacy"
+@page "/gizlilik"
+
+<PageTitle>Gizlilik Politikasi — MesTech</PageTitle>
+
+<div class="container py-4">
+    <h1><i class="fas fa-shield-alt me-2"></i>Kisisel Verilerin Korunmasi ve Gizlilik Politikasi</h1>
+    <p class="text-muted">Son guncelleme: @DateTime.Now.ToString("dd.MM.yyyy")</p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>1. Veri Sorumlusu</h2>
+            <p>MesTech Yazilim olarak, 6698 sayili Kisisel Verilerin Korunmasi Kanunu (KVKK)
+               kapsaminda veri sorumlusu sifatiyla kisisel verilerinizi islemekteyiz.</p>
+
+            <h2>2. Islenen Kisisel Veriler</h2>
+            <ul>
+                <li><strong>Kimlik bilgileri:</strong> Ad, soyad, T.C. kimlik numarasi, vergi numarasi</li>
+                <li><strong>Iletisim bilgileri:</strong> E-posta, telefon, adres</li>
+                <li><strong>Ticari bilgiler:</strong> Siparis detaylari, fatura bilgileri, odeme kayitlari</li>
+                <li><strong>Teknik veriler:</strong> IP adresi, tarayici bilgisi, oturum verileri</li>
+            </ul>
+
+            <h2>3. Isleme Amaclari</h2>
+            <ul>
+                <li>E-ticaret entegrasyon hizmetlerinin saglanmasi</li>
+                <li>Fatura ve muhasebe islemlerinin yurutulmesi</li>
+                <li>Kargo takibi ve teslimat yonetimi</li>
+                <li>Yasal yukumluluklerin yerine getirilmesi (VUK, TTK, 5651)</li>
+                <li>Pazaryeri platform entegrasyonlarinin isletilmesi</li>
+            </ul>
+
+            <h2>4. Veri Saklama Suresi</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Veri Turu</th>
+                        <th>Saklama Suresi</th>
+                        <th>Yasal Dayanak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Ticari kayitlar (fatura, siparis)</td>
+                        <td>10 yil</td>
+                        <td>VUK m.253</td>
+                    </tr>
+                    <tr>
+                        <td>Oturum verileri</td>
+                        <td>30 gun</td>
+                        <td>KVKK m.4</td>
+                    </tr>
+                    <tr>
+                        <td>Log kayitlari (IP, erisim)</td>
+                        <td>2 yil</td>
+                        <td>5651 sayili kanun</td>
+                    </tr>
+                    <tr>
+                        <td>Pazaryeri API verileri</td>
+                        <td>Platform sozlesmesi suresi</td>
+                        <td>Platform kullanim sartlari</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>5. Haklariniz (KVKK m.11)</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul>
+                        <li>Kisisel verilerinizin islenip islenmedigini ogrenme</li>
+                        <li>Islenmisse buna iliskin bilgi talep etme</li>
+                        <li>Isleme amacini ve amacina uygun kullanilip kullanilmadigini ogrenme</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul>
+                        <li>Eksik veya yanlis islenmisse duzeltilmesini isteme</li>
+                        <li>KVKK m.7 kapsaminda silinmesini veya yok edilmesini isteme</li>
+                        <li>Islenen verilerin ucuncu kisilere bildirilmesini isteme</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>6. Veri Silme Talebi</h2>
+            <p>Hesap ayarlarindan <strong>"Verilerimi Sil"</strong> butonu ile veya
+               <a href="mailto:kvkk@mestech.tr">kvkk@mestech.tr</a> adresine yazili basvuru
+               ile veri silme talebinde bulunabilirsiniz.</p>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Silme talebi 30 gun icinde islenecektir. Yasal zorunluluk geregi saklanan
+                veriler (VUK kapsamindaki fatura kayitlari) silme kapsaminda DEGILDIR.
+            </div>
+
+            <h2>7. Cerez Kullanimi</h2>
+            <p>Platform, oturum yonetimi ve kullanici deneyimi iyilestirmesi icin cerezler kullanmaktadir.</p>
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Cerez</th>
+                        <th>Amac</th>
+                        <th>Sure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>.MesTech.Culture</td>
+                        <td>Dil tercihi</td>
+                        <td>1 yil</td>
+                    </tr>
+                    <tr>
+                        <td>.AspNetCore.Antiforgery</td>
+                        <td>CSRF korumasi</td>
+                        <td>Oturum</td>
+                    </tr>
+                    <tr>
+                        <td>cookie-consent</td>
+                        <td>Cerez onay durumu</td>
+                        <td>1 yil</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>8. Iletisim</h2>
+            <p>
+                <strong>Veri Sorumlusu:</strong> MesTech Yazilim<br />
+                <strong>E-posta:</strong> <a href="mailto:kvkk@mestech.tr">kvkk@mestech.tr</a><br />
+                <strong>Web:</strong> <a href="https://mestech.tr">mestech.tr</a>
+            </p>
+        </div>
+    </div>
+</div>
