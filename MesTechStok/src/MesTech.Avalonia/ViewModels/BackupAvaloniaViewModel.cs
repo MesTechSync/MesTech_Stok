@@ -1,15 +1,22 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Backup management ViewModel — manual backup, history, restore test status.
-/// İ-11 Görev 4D: Backup & restore UI with mock data.
+/// Backup management ViewModel — MediatR hazır, handler oluşturulunca gerçek veriye geçecek.
 /// </summary>
 public partial class BackupAvaloniaViewModel : ObservableObject
 {
+    private readonly ISender _mediator;
+
+    public BackupAvaloniaViewModel(ISender mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
@@ -37,17 +44,10 @@ public partial class BackupAvaloniaViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate loading
-
+            // DEV1-DEPENDENCY: GetBackupHistoryQuery handler oluşturulunca gerçek veriye geçecek
+            // var history = await _mediator.Send(new GetBackupHistoryQuery(tenantId));
             BackupHistory.Clear();
-            BackupHistory.Add(new BackupHistoryItem("20.03.2026 03:00", "Full", "1.2 GB", "45 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("19.03.2026 03:00", "Incremental", "180 MB", "8 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("18.03.2026 03:00", "Incremental", "210 MB", "9 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("17.03.2026 03:00", "Incremental", "95 MB", "5 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("16.03.2026 03:00", "Incremental", "320 MB", "12 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("15.03.2026 03:00", "Full", "1.1 GB", "42 dk", "Basarili"));
-            BackupHistory.Add(new BackupHistoryItem("14.03.2026 03:00", "Incremental", "150 MB", "7 dk", "Basarisiz"));
-            BackupHistory.Add(new BackupHistoryItem("13.03.2026 03:00", "Full", "1.1 GB", "44 dk", "Basarili"));
+            // Handler hazır olana kadar boş liste — mock data kaldırıldı
         }
         catch (Exception ex)
         {
