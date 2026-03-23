@@ -307,6 +307,7 @@ EInvoiceEndpoints.Map(app);
 SandboxEndpoints.Map(app);
 DashboardWidgetEndpoints.Map(app);
 ReportEndpoints.Map(app);
+SavedReportEndpoints.Map(app);
 WebhookEndpoints.Map(app);
 IncomeEndpoints.Map(app);
 SalaryEndpoints.Map(app);

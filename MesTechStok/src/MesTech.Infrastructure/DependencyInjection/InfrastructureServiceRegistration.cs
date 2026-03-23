@@ -179,6 +179,10 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
         services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
 
+        // Reporting Repositories
+        services.AddScoped<MesTech.Application.Interfaces.ISavedReportRepository,
+            MesTech.Infrastructure.Persistence.Repositories.SavedReportRepository>();
+
         // Notification + ERP Repositories
         services.AddScoped<MesTech.Application.Interfaces.INotificationLogRepository,
             MesTech.Infrastructure.Persistence.Repositories.NotificationLogRepository>();

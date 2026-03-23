@@ -13,6 +13,7 @@ using MesTech.Domain.Entities.Finance;
 using MesTech.Domain.Entities.Onboarding;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Entities.Hr;
+using MesTech.Domain.Entities.Reporting;
 using MesTech.Domain.Entities.Tasks;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Security;
@@ -264,6 +265,11 @@ public class AppDbContext : DbContext
     // ═══════════════════════════════════════
     public DbSet<FixedAsset> FixedAssets => Set<FixedAsset>();
     public DbSet<BaBsRecord> BaBsRecords => Set<BaBsRecord>();
+
+    // ═══════════════════════════════════════
+    // DALGA 15 — RAPORLAMA
+    // ═══════════════════════════════════════
+    public DbSet<SavedReport> SavedReports => Set<SavedReport>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
