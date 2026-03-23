@@ -75,6 +75,8 @@
     <PackageVersion Include="MailKit" Version="4.15.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.7.0" />
+    <!-- DEV 3 Netsis ERP icin SQL Server erisimi (V5 P0) -->
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>
   <ItemGroup Label="Avalonia">
     <PackageVersion Include="Avalonia" Version="11.2.7" />
