@@ -91,3 +91,45 @@ public record DealLostIntegrationEvent(
     Guid TenantId,
     DateTime OccurredAt
 );
+
+// ════════════════════════════════════════
+// DALGA V4 — Zincir Integration Events (ENT-DEV3-V4-B15)
+// ════════════════════════════════════════
+
+/// <summary>Zincir 7: Kargo maliyeti kaydedildi — gider yevmiye kaydı tetikler.</summary>
+public record ShipmentCostRecordedIntegrationEvent(
+    Guid OrderId,
+    string TrackingNumber,
+    string CargoProvider,
+    decimal ShippingCost,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+/// <summary>Zincir 8: Stok sıfıra düştü — platformlarda deaktivasyon bilgisi.</summary>
+public record ZeroStockIntegrationEvent(
+    Guid ProductId,
+    string SKU,
+    int PreviousStock,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+/// <summary>Zincir 11: Sipariş 48+ saat gecikmiş — uyarı bildirimi.</summary>
+public record StaleOrderDetectedIntegrationEvent(
+    Guid OrderId,
+    string OrderNumber,
+    string? PlatformCode,
+    double HoursElapsed,
+    Guid TenantId,
+    DateTime OccurredAt
+);
+
+/// <summary>Platform ürün deaktivasyon bildirimi (stok 0 sonrası).</summary>
+public record PlatformDeactivatedIntegrationEvent(
+    Guid ProductId,
+    string SKU,
+    string PlatformCode,
+    Guid TenantId,
+    DateTime OccurredAt
+);

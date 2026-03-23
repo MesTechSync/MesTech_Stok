@@ -71,6 +71,16 @@ public static class MassTransitConfig
                 cfg.Message<InvoiceCreatedIntegrationEvent>(x =>
                     x.SetEntityName("mestech.invoice.created"));
 
+                // Dalga V4: Zincir event exchange'leri (ENT-DEV3-V4-B15)
+                cfg.Message<ShipmentCostRecordedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.shipment.cost.recorded"));
+                cfg.Message<ZeroStockIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.stock.zero"));
+                cfg.Message<StaleOrderDetectedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.order.stale"));
+                cfg.Message<PlatformDeactivatedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.platform.product.deactivated"));
+
                 // MESA OS exchange'ler — MesTech -> MESA
                 cfg.Message<MesaProductCreatedEvent>(x =>
                     x.SetEntityName("mestech.mesa.product.created"));
