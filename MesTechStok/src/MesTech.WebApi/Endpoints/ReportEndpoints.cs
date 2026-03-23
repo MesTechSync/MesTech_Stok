@@ -11,7 +11,12 @@ using MesTech.Application.Features.Reports.InventoryValuationReport;
 using MesTech.Application.Features.Reports.OrderFulfillmentReport;
 using MesTech.Application.Features.Reports.ProfitabilityReport;
 using MesTech.Application.Features.Reports.StockTurnoverReport;
+using MesTech.Application.Features.Reports.CommissionReport;
+using MesTech.Application.Features.Reports.ErpReconciliationReport;
+using MesTech.Application.Features.Reports.FulfillmentCostReport;
+using MesTech.Application.Features.Reports.PlatformPerformanceReport;
 using MesTech.Application.Features.Reports.TaxSummaryReport;
+using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -194,5 +199,60 @@ public static class ReportEndpoints
         })
         .WithName("GetTaxSummaryReport")
         .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)");
+
+        // ─── V5 YENİ RAPOR ENDPOINT'LERİ [ENT-DEV6] ───
+
+        // GET /api/v1/reports/commission — platform bazlı komisyon raporu
+        group.MapGet("/commission", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            PlatformType? platform = null,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(
+                new CommissionReportQuery(tenantId, startDate, endDate, platform), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCommissionReport")
+        .WithSummary("Platform bazlı komisyon raporu — dönem karşılaştırmalı");
+
+        // GET /api/v1/reports/fulfillment-cost — fulfillment maliyet raporu
+        group.MapGet("/fulfillment-cost", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            int? center = null,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var centerFilter = center.HasValue
+                ? (MesTech.Application.DTOs.Fulfillment.FulfillmentCenter?)center.Value
+                : null;
+            var result = await mediator.Send(
+                new FulfillmentCostReportQuery(tenantId, startDate, endDate, centerFilter), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFulfillmentCostReport")
+        .WithSummary("FBA + Hepsilojistik maliyet analizi raporu");
+
+        // GET /api/v1/reports/erp-reconciliation — ERP cari mutabakat raporu
+        group.MapGet("/erp-reconciliation", async (
+            Guid tenantId, ErpProvider erpProvider,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ErpReconciliationReportQuery(tenantId, erpProvider), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetErpReconciliationReport")
+        .WithSummary("ERP cari hesap mutabakat raporu (MesTech vs ERP eşleştirme)");
+
+        // GET /api/v1/reports/platform-performance — platform performans raporu
+        group.MapGet("/platform-performance", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new PlatformPerformanceReportQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPlatformPerformanceReport")
+        .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor");
     }
 }
