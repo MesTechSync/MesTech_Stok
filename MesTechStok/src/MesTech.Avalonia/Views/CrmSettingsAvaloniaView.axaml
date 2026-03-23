@@ -93,12 +93,14 @@
                                      Watermark="Yeni sablon metni..." AutomationProperties.Name="Yeni sablon metni..."
                                      Margin="0,0,8,0" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddTemplateCommand}"
+                                    ToolTip.Tip="Ekle"
                                     Background="{DynamicResource MesEmerald}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
                                     CornerRadius="{StaticResource MesRadiusBase}" FontWeight="SemiBold" />
                         </Grid>
 
                         <!-- Remove selected -->
                         <Button Content="Secili Sablonu Kaldir" Command="{Binding RemoveTemplateCommand}"
+                                ToolTip.Tip="Secili Sablonu Kaldir"
                                 Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" Padding="14,8"
                                 CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}"
                                 HorizontalAlignment="Left"

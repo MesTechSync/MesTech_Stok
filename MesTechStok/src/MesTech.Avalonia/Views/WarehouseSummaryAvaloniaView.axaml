@@ -90,6 +90,7 @@
 
                                 <!-- Detail Button -->
                                 <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
+                                        ToolTip.Tip="Detay &#x2192;"
                                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}" />
                             </StackPanel>

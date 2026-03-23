@@ -32,12 +32,16 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
+                        ToolTip.Tip="Tumunu Goster"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Tukendi" Command="{Binding FilterOutOfStockCommand}"
+                        ToolTip.Tip="Tukendi"
                         Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Kritik" Command="{Binding FilterCriticalCommand}"
+                        ToolTip.Tip="Kritik"
                         Background="{DynamicResource MesBgSurface}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
                 <Button Content="Dusuk" Command="{Binding FilterLowCommand}"
+                        ToolTip.Tip="Dusuk"
                         Background="{DynamicResource MesBorderAmberLight}" Foreground="{DynamicResource MesAmber}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
@@ -84,8 +88,10 @@
                                 <!-- Action Buttons -->
                                 <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
                                     <Button Content="Siparis Ver" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
+                                            ToolTip.Tip="Siparis Ver"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />
                                     <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
+                                            ToolTip.Tip="{Binding SecondaryAction}"
                                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" FontSize="{StaticResource FontSizeCaption}" />
                                 </StackPanel>
                             </Grid>

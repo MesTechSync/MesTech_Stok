@@ -24,9 +24,11 @@
                            Grid.Column="0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
                     <Button Content="+ Yeni Firsat" Command="{Binding CreateDealCommand}"
+                            ToolTip.Tip="+ Yeni Firsat"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Liste" Command="{Binding SwitchToListCommand}"
+                            ToolTip.Tip="Liste"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderBrush="{DynamicResource MesBgPrimary}" BorderThickness="1" Padding="12,8"
                             CornerRadius="{StaticResource MesRadiusBase}" />

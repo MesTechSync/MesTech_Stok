@@ -21,6 +21,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Tümü Yenile"
+                        ToolTip.Tip="Tumu Yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -67,6 +68,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:PlatformSyncStatusItemDto">
                             <Button Content="Sync"
+                                    ToolTip.Tip="Sync"
                                     Command="{Binding $parent[DataGrid].((vm:PlatformSyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
                                     CommandParameter="{Binding}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"

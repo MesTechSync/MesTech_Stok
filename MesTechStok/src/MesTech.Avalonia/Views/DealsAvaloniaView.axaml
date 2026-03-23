@@ -22,6 +22,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Firsat"
+                        ToolTip.Tip="+ Yeni Firsat"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

@@ -20,6 +20,7 @@
                                FontSize="{StaticResource FontSizeSmall}" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Yenile"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesDanger}"
                         FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

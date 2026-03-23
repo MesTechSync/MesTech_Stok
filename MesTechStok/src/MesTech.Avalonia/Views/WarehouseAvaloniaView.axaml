@@ -21,6 +21,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Depo Ekle"
+                        ToolTip.Tip="Yeni Depo Ekle"
                         Command="{Binding AddWarehouseCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
@@ -133,6 +134,7 @@
                     </StackPanel>
                     <Grid ColumnDefinitions="*,8,*" Margin="0,8,0,0">
                         <Button Grid.Column="0" Content="Iptal" Command="{Binding CancelAddWarehouseCommand}"
+                                ToolTip.Tip="Iptal"
                                 Background="{DynamicResource MesBorderSoft}" Foreground="{DynamicResource MesTextSlate}" FontWeight="SemiBold"
                                 Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />

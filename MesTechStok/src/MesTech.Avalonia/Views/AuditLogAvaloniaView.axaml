@@ -18,6 +18,7 @@
                                FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="CSV Disari Aktar"
+                        ToolTip.Tip="CSV Disari Aktar"
                         Command="{Binding ExportCsvCommand}"
                         Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
@@ -109,6 +110,7 @@
                         <TextBlock Grid.Column="0" Text="Detay" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                         <Button Grid.Column="1" Content="X"
+                                ToolTip.Tip="X"
                                 Command="{Binding CloseDetailCommand}"
                                 Background="Transparent" Foreground="{DynamicResource MesMutedGray}"
                                 FontWeight="Bold" Padding="8,4" />

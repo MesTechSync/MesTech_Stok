@@ -97,6 +97,7 @@
                                FontSize="{StaticResource FontSizeSmall}" />
                 </StackPanel>
                 <Button Grid.Column="2" Content="Detay Gor"
+                        ToolTip.Tip="Detay Gor"
                         Command="{Binding ShowPriceLossDetailsCommand}"
                         Foreground="{DynamicResource MesBgPrimary}"
                         Background="Transparent"
@@ -238,6 +239,7 @@
 
                                             <!-- Order button -->
                                             <Button Grid.Column="3"
+                                                    ToolTip.Tip="Siparis &#x2192;"
                                                     Content="Siparis &#x2192;"
                                                     Command="{Binding OrderCommand}"
                                                     FontSize="{StaticResource FontSizeCaption}"
@@ -338,6 +340,7 @@
 
                 <!-- Action Button -->
                 <Button Grid.Column="2"
+                        ToolTip.Tip="Detaylar &#x2192;"
                         Content="Detaylar &#x2192;"
                         Command="{Binding OpenAIInsightCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"

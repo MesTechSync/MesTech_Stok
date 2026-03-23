@@ -72,6 +72,7 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="Kolon Eşleştirme" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddMappingCommand}"
+                                    ToolTip.Tip="+ Ekle"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                         </Grid>
 
@@ -93,6 +94,7 @@
                                         <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef alan" AutomationProperties.Name="Hedef alan"
                                                  Padding="8,6" Margin="0,0,8,0" />
                                         <Button Grid.Column="3" Content="X" FontSize="{StaticResource FontSizeCaption}"
+                                                ToolTip.Tip="X"
                                                 Command="{Binding $parent[ItemsControl].((vm:FeedCreateAvaloniaViewModel)DataContext).RemoveMappingCommand}"
                                                 CommandParameter="{Binding}"
                                                 Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -110,6 +112,7 @@
                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" IsEnabled="{Binding !IsSaving}" />
                     <Button Content="Temizle" Command="{Binding ResetCommand}"
+                            ToolTip.Tip="Temizle"
                             Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
 

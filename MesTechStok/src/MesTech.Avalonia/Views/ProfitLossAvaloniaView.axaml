@@ -14,14 +14,17 @@
                            FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
                     <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
+                            ToolTip.Tip="&#x25C0;"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <TextBlock Text="{Binding PeriodLabel}" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
+                            ToolTip.Tip="&#x25B6;"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <Button Content="Refresh" Command="{Binding RefreshCommand}"
+                            ToolTip.Tip="Refresh"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                             Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" Margin="12,0,0,0" />
                 </StackPanel>
@@ -133,6 +136,7 @@
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
                 <Button Content="Retry" Command="{Binding RefreshCommand}" Padding="16,6" />
+                        ToolTip.Tip="Retry"
             </StackPanel>
         </Border>
     </Grid>

@@ -80,6 +80,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="16,0">
                     <Button x:Name="SidebarToggleBtn" Classes="icon-btn"
+                            ToolTip.Tip="MesTech Entegrator"
                             Click="OnSidebarToggle">
                         <PathIcon Data="{StaticResource IconMenu}" Width="20" Height="20"/>
                     </Button>
@@ -104,9 +105,11 @@
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Classes="icon-btn">
+                            ToolTip.Tip="Admin"
                         <PathIcon Data="{StaticResource IconNotification}" Width="18" Height="18"/>
                     </Button>
                     <Button Classes="icon-btn">
+                            ToolTip.Tip="Admin"
                         <PathIcon Data="{StaticResource IconPerson}" Width="18" Height="18"/>
                     </Button>
                     <TextBlock Text="Admin"
@@ -183,6 +186,7 @@
                             <!-- 1. DASHBOARD -->
                             <TextBlock Classes="sidebar-section" Text="DASHBOARD"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kontrol Paneli"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Dashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -194,6 +198,7 @@
                             <!-- 2. URUNLER -->
                             <TextBlock Classes="sidebar-section" Text="ÜRÜNLER"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Urun Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Products">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -202,6 +207,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Toplu Ice Aktarma"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportProducts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -213,6 +219,7 @@
                             <!-- 3. SIPARISLER -->
                             <TextBlock Classes="sidebar-section" Text="SİPARİŞLER"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Orders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -224,6 +231,7 @@
                             <!-- 4. STOK -->
                             <TextBlock Classes="sidebar-section" Text="STOK"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Stok Takibi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Stock">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -232,6 +240,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Envanter"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Inventory">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -240,6 +249,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Stok Guncelleme"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StockMovement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -251,6 +261,7 @@
                             <!-- 5. KATEGORILER -->
                             <TextBlock Classes="sidebar-section" Text="KATEGORİLER"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kategoriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Category">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -262,6 +273,7 @@
                             <!-- 6. KARGO -->
                             <TextBlock Classes="sidebar-section" Text="KARGO"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kargo Takip"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CargoTracking">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -270,6 +282,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kargo Firmalari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CargoProviders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -278,6 +291,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Toplu Gonderim"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BulkShipment">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -286,6 +300,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Etiket Yazdir"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="LabelPreview">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -297,6 +312,7 @@
                             <!-- IADELER -->
                             <TextBlock Classes="sidebar-section" Text="IADELER"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Iade Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ReturnList">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -308,6 +324,7 @@
                             <!-- 7. E-FATURA -->
                             <TextBlock Classes="sidebar-section" Text="E-FATURA"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fatura Yonetimi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceManagement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -316,6 +333,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fatura Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceList">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -324,6 +342,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fatura Olustur"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceCreate">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -332,6 +351,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Toplu Fatura"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BulkInvoice">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -340,6 +360,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Provider Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceProviders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -348,6 +369,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fatura Raporlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceReport">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -359,6 +381,7 @@
                             <!-- 8. FINANS -->
                             <TextBlock Classes="sidebar-section" Text="FİNANS"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kar / Zarar Raporu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ProfitLoss">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -367,6 +390,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Giderler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Expenses">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -375,6 +399,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Banka Hesaplari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BankAccounts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -383,6 +408,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Cari Hesaplar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CariHesaplar">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -394,6 +420,7 @@
                             <!-- 8b. MUHASEBE (V4 — Zincir 2/3/6/14) -->
                             <TextBlock Classes="sidebar-section" Text="MUHASEBE"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Yevmiye Defteri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="JournalEntries">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -402,6 +429,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Mizan"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="TrialBalance">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -410,6 +438,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Komisyon Oranlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CommissionRates">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -421,6 +450,7 @@
                             <!-- 8c. İZLEME (V4 — Zincir 10/11) -->
                             <TextBlock Classes="sidebar-section" Text="İZLEME"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Gecikmis Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StaleOrders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -429,6 +459,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Siparis Kanban"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="OrderKanban">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -440,6 +471,7 @@
                             <!-- 9. CRM -->
                             <TextBlock Classes="sidebar-section" Text="CRM"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Potansiyel Musteriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Leads">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -448,6 +480,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kisiler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Contacts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -456,6 +489,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Firsatlar — Kanban"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Kanban">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -464,6 +498,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Musteriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Customers">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -475,6 +510,7 @@
                             <!-- 10. PLATFORM -->
                             <TextBlock Classes="sidebar-section" Text="PLATFORM"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Platformlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformList">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -483,6 +519,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Magaza Ekle"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StoreWizard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -491,6 +528,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Magaza Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StoreSettings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -499,6 +537,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kategori Eslestirme"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CategoryMapping">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -507,6 +546,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Sync Durumu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformSyncStatus">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -518,6 +558,7 @@
                             <!-- 10b. DROPSHIPPING -->
                             <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Dropship Paneli"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipDashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -526,6 +567,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Dropship Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipOrders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -534,6 +576,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Karlilik Analizi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipProfit">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -542,6 +585,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Tedarikci Feed'leri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SupplierFeeds">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -550,6 +594,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Yeni Feed"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FeedCreate">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -558,6 +603,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Ice Aktarma Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportSettings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -569,6 +615,7 @@
                             <!-- MARKETPLACE -->
                             <TextBlock Classes="sidebar-section" Text="MARKETPLACE"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Buybox Analizi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Buybox">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -580,6 +627,7 @@
                             <!-- 11. RAPORLAR -->
                             <TextBlock Classes="sidebar-section" Text="RAPORLAR"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Belgeler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Documents">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -588,6 +636,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Raporlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Reports">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -599,6 +648,7 @@
                             <!-- 12. AYARLAR -->
                             <TextBlock Classes="sidebar-section" Text="AYARLAR"/>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Ayarlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Settings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -607,6 +657,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="ERP Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ErpSettings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -615,6 +666,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Pazaryerleri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Marketplaces">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -623,6 +675,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Platform Senkronizasyon"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SyncStatus">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -631,6 +684,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Calisanlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Employees">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -639,6 +693,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Izin Talepleri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="LeaveRequests">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -650,6 +705,7 @@
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
                             <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout">
+                                    ToolTip.Tip="Cikis"
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
                                     <TextBlock Text="Çıkış"/>

@@ -153,9 +153,11 @@
                                            TextWrapping="Wrap" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPurpleDark}" />
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Button Content="Kullan" Command="{Binding UseAiSuggestionCommand}"
+                                            ToolTip.Tip="Kullan"
                                             Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" Padding="12,6"
                                             CornerRadius="{StaticResource MesRadiusBase}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}" />
                                     <Button Content="Yoksay" Command="{Binding DismissAiSuggestionCommand}"
+                                            ToolTip.Tip="Yoksay"
                                             Background="{DynamicResource MesBorderLight}" Foreground="{DynamicResource MesDarkSlate}" Padding="12,6"
                                             CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}" />
                                 </StackPanel>
@@ -173,6 +175,7 @@
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap" />
                                 <Button Content="Yanitla" Command="{Binding SendReplyCommand}"
+                                        ToolTip.Tip="Yanitla"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8"
                                         CornerRadius="{StaticResource MesRadiusBase}" FontWeight="SemiBold"
                                         HorizontalAlignment="Right"

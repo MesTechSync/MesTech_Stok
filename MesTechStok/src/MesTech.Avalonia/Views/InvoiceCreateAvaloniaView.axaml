@@ -219,18 +219,21 @@
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri"
+                        ToolTip.Tip="Geri"
                         Command="{Binding GoBackCommand}"
                         IsVisible="{Binding CanGoBack}"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                         FontSize="{StaticResource FontSizeBody}"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
                     <Button Content="Ileri"
+                            ToolTip.Tip="Ileri"
                             Command="{Binding GoNextCommand}"
                             IsVisible="{Binding CanGoNext}"
                             Background="{DynamicResource PrimaryBlueBrush}" Foreground="{DynamicResource MesBgPrimary}"
                             Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"
                             FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"/>
                     <Button Content="Fatura Olustur"
+                            ToolTip.Tip="Fatura Olustur"
                             Command="{Binding ConfirmCommand}"
                             IsVisible="{Binding IsConfirmStep}"
                             Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}"

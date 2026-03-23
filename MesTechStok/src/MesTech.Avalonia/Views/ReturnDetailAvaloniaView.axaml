@@ -104,12 +104,14 @@
                         <TextBlock Text="Islemler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Onayla" Command="{Binding ApproveCommand}"
+                                    ToolTip.Tip="Onayla"
                                     Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" />
                             <ComboBox Width="200"
                                       ItemsSource="{Binding RejectReasons}"
                                       SelectedItem="{Binding SelectedRejectReason}" />
                             <Button Content="Reddet" Command="{Binding RejectCommand}"
+                                    ToolTip.Tip="Reddet"
                                     Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" />
                         </StackPanel>

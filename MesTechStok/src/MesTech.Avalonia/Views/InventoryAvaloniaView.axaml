@@ -138,12 +138,14 @@
                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                     <Button Content="Onceki" Command="{Binding PreviousPageCommand}"
+                            ToolTip.Tip="Onceki"
                             IsEnabled="{Binding CanGoPrevious}"
                             Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                     <TextBlock Text="{Binding CurrentPage, StringFormat='Sayfa {0}'}"
                                FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="8,0" />
                     <Button Content="Sonraki" Command="{Binding NextPageCommand}"
+                            ToolTip.Tip="Sonraki"
                             IsEnabled="{Binding CanGoNext}"
                             Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                 </StackPanel>

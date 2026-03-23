@@ -11,9 +11,11 @@
                        FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
             <DatePicker SelectedDate="{Binding AsOfDate}" />
             <Button Content="Hesapla" Command="{Binding CalculateCommand}"
+                    ToolTip.Tip="Hesapla"
                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                     Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
             <Button Content="PDF" Command="{Binding ExportPdfCommand}"
+                    ToolTip.Tip="PDF"
                     Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
                     BorderBrush="{DynamicResource MesPrimaryBlue}" BorderThickness="1"
                     Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />

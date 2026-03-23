@@ -18,6 +18,7 @@
                           SelectedItem="{Binding SelectedPlatform}"
                           PlaceholderText="Tum Platformlar" Width="160" Margin="8,0" />
                 <Button Grid.Column="2" Content="Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Yenile"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
                         FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

@@ -60,6 +60,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:DropshipOrderItemDto">
                             <Button Content="Tedarikçiye İlet"
+                                    ToolTip.Tip="Tedarikciye Ilet"
                                     Command="{Binding $parent[DataGrid].((vm:DropshipOrdersAvaloniaViewModel)DataContext).ForwardToSupplierCommand}"
                                     CommandParameter="{Binding}"
                                     Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"

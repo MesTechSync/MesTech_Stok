@@ -31,6 +31,7 @@
                 <TextBox Grid.Column="0" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Belge Tipi" Width="140" Margin="8,0" />
                 <Button Grid.Column="2" Content="+ Belge Yukle" Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="+ Belge Yukle"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

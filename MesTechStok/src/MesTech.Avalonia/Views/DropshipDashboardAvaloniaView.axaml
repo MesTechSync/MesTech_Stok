@@ -133,6 +133,7 @@
                                Minimum="1" Maximum="999" Width="120"
                                VerticalAlignment="Center" Margin="0,0,16,0" />
                 <Button Grid.Column="5" Content="Ayarlari Kaydet"
+                        ToolTip.Tip="Ayarlari Kaydet"
                         Command="{Binding SaveAutoOrderSettingsCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />

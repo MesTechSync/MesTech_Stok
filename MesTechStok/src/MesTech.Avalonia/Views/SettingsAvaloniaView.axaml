@@ -70,6 +70,7 @@
 
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Test Baglanti"
+                                    ToolTip.Tip="Test Baglanti"
                                     Command="{Binding TestConnectionCommand}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold"

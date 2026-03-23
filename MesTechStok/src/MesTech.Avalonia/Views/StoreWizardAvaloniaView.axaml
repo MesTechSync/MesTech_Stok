@@ -73,6 +73,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:WizardPlatformDto">
                             <Button Margin="6" Padding="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                                    ToolTip.Tip="{Binding Name}"
                                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1"
                                     Command="{Binding $parent[ItemsControl].((vm:StoreWizardAvaloniaViewModel)DataContext).SelectPlatformCommand}"
                                     CommandParameter="{Binding}">
@@ -120,8 +121,10 @@
 
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
+                            ToolTip.Tip="Geri"
                             Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="İleri" Command="{Binding GoNextCommand}"
+                            ToolTip.Tip="Ileri"
                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                 </StackPanel>
@@ -138,6 +141,7 @@
                         <TextBlock Text="{Binding StoreName, StringFormat='Mağaza: {0}'}" FontSize="{StaticResource FontSizeBody}" />
 
                         <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
+                                ToolTip.Tip="Baglanti Test"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                 Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                 IsEnabled="{Binding !IsTesting}" />
@@ -158,6 +162,7 @@
 
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Geri" Command="{Binding GoBackCommand}"
+                            ToolTip.Tip="Geri"
                             Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Kaydet" ToolTip.Tip="Degisiklikleri kaydet" Command="{Binding SaveStoreCommand}"
                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -171,6 +176,7 @@
                         <TextBlock Text="Mağaza başarıyla kaydedildi!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesGreen}" />
                         <Button Content="Yeni Mağaza Ekle" Command="{Binding ResetCommand}"
+                                ToolTip.Tip="Yeni Magaza Ekle"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     </StackPanel>
                 </Border>

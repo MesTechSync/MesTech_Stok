@@ -18,6 +18,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Klasor"
+                        ToolTip.Tip="+ Yeni Klasor"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

@@ -16,6 +16,7 @@
                           SelectedItem="{Binding SelectedSourceType}"
                           PlaceholderText="Kaynak Tipi" Width="140" />
                 <Button Content="Filtrele" Command="{Binding FilterCommand}"
+                        ToolTip.Tip="Filtrele"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
             </StackPanel>

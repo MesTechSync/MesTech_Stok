@@ -20,10 +20,12 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Excel" Command="{Binding ExportExcelCommand}"
+                            ToolTip.Tip="Excel"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
+                            ToolTip.Tip="PDF"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource ErrorRedBrush}" FontWeight="SemiBold"
                             Padding="14,8" CornerRadius="{StaticResource CornerRadiusMedium}">
                     </Button>

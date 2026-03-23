@@ -28,6 +28,7 @@
                           ItemsSource="{Binding Providers}"
                           SelectedItem="{Binding SelectedProvider}" />
                 <Button Grid.Column="2" Content="Gonder"
+                        ToolTip.Tip="Gonder"
                         Command="{Binding SendBulkCommand}"
                         IsEnabled="{Binding !IsSending}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"

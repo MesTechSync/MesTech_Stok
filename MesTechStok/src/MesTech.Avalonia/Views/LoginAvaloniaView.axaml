@@ -63,6 +63,7 @@
 
                 <!-- Login Button -->
                 <Button Content="Giris Yap"
+                        ToolTip.Tip="Giris Yap"
                         Command="{Binding LoginCommand}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"

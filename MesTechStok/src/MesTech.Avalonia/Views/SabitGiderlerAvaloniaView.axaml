@@ -19,6 +19,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yeni Sabit Gider"
+                        ToolTip.Tip="Yeni Sabit Gider"
                         Command="{Binding AddRecurringExpenseCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />

@@ -74,10 +74,12 @@
                                 <!-- Actions -->
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Button Content="Gonderim Olustur"
+                                            ToolTip.Tip="Gonderim Olustur"
                                             Command="{Binding CreateShipmentCommand}"
                                             Padding="10,6" FontSize="{StaticResource FontSizeSmall}" CornerRadius="{StaticResource MesRadiusSm}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
                                     <Button Content="Takip"
+                                            ToolTip.Tip="Takip"
                                             Command="{Binding TrackCommand}"
                                             Padding="10,6" FontSize="{StaticResource FontSizeSmall}" CornerRadius="{StaticResource MesRadiusSm}" />
                                 </StackPanel>

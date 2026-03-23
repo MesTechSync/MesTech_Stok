@@ -101,6 +101,7 @@
 
                     <!-- Transfer Butonu -->
                     <Button Content="Transfer Et" Command="{Binding TransferCommand}"
+                            ToolTip.Tip="Transfer Et"
                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"

@@ -27,14 +27,17 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Toplu Fiyat Guncelle"
+                        ToolTip.Tip="Toplu Fiyat Guncelle"
                         Command="{Binding BulkUpdatePriceCommand}"
                         Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Platformlara Gonder"
+                        ToolTip.Tip="Platformlara Gonder"
                         Command="{Binding SendToPlatformCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Tumu Kaydet"
+                        ToolTip.Tip="Tumu Kaydet"
                         Command="{Binding SaveAllCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -52,6 +55,7 @@
                         <TextBox Width="160" Text="{Binding NewAttributeName}"
                                  Watermark="Ozellik adi (orn: Renk)" AutomationProperties.Name="Ozellik adi (orn: Renk)" Padding="8,6" />
                         <Button Content="+ Ozellik Ekle" Command="{Binding AddAttributeCommand}"
+                                ToolTip.Tip="+ Ozellik Ekle"
                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                 Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                     </StackPanel>
@@ -84,6 +88,7 @@
                                                         <TextBlock Text="{Binding Value}" FontSize="{StaticResource FontSizeSmall}"
                                                                    Foreground="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />
                                                         <Button Content="x" FontSize="{StaticResource FontSizeCaption2}"
+                                                                ToolTip.Tip="x"
                                                                 Command="{Binding $parent[ItemsControl].((vm:AttributeGroupDto)DataContext).RemoveValueCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 Background="Transparent" Foreground="{DynamicResource MesCoolGray}"
@@ -100,12 +105,14 @@
                                         <TextBox Width="100" Text="{Binding NewValue}"
                                                  Watermark="Deger ekle" AutomationProperties.Name="Deger ekle" Padding="6,4" FontSize="{StaticResource FontSizeSmall}" />
                                         <Button Content="+" Command="{Binding AddValueCommand}"
+                                                ToolTip.Tip="+"
                                                 Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                                 Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                                     </StackPanel>
 
                                     <!-- Remove Attribute -->
                                     <Button Grid.Column="3" Content="Sil"
+                                            ToolTip.Tip="Sil"
                                             Command="{Binding $parent[ItemsControl].((vm:ProductVariantMatrixViewModel)DataContext).RemoveAttributeCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -119,6 +126,7 @@
 
                 <!-- Generate Button -->
                 <Button Content="Varyantlari Olustur" Command="{Binding GenerateVariantsCommand}"
+                        ToolTip.Tip="Varyantlari Olustur"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Left"
                         IsEnabled="{Binding CanGenerate}" />
@@ -202,9 +210,11 @@
                 <TextBox Width="120" Text="{Binding PriceUpdateValue}"
                          Watermark="Deger" AutomationProperties.Name="Deger" Padding="8,6" />
                 <Button Content="Uygula" Command="{Binding ApplyBulkPriceCommand}"
+                        ToolTip.Tip="Uygula"
                         Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,6" CornerRadius="{StaticResource MesRadiusSm}" />
                 <Button Content="Iptal" Command="{Binding CancelBulkPriceCommand}"
+                        ToolTip.Tip="Iptal"
                         Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </StackPanel>

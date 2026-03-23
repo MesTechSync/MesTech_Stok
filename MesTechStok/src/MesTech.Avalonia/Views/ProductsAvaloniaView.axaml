@@ -28,6 +28,7 @@
                             Padding="8,6" CornerRadius="4,0,0,4"
                             ToolTip.Tip="Liste Gorunumu">
                         <Button.Styles>
+                                ToolTip.Tip="&#x2630;"
                             <Style Selector="Button">
                                 <Setter Property="Background" Value="{DynamicResource MesBadgeOverlay}" />
                                 <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
@@ -39,6 +40,7 @@
                             Padding="8,6" CornerRadius="0,4,4,0"
                             ToolTip.Tip="Kart Gorunumu">
                         <Button.Styles>
+                                ToolTip.Tip="&#x25A6;"
                             <Style Selector="Button">
                                 <Setter Property="Background" Value="{DynamicResource MesBadgeOverlay}" />
                                 <Setter Property="Foreground" Value="{DynamicResource MesBgPrimary}" />
@@ -145,6 +147,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Content="{Binding}"
+                                            ToolTip.Tip="{Binding}"
                                             Command="{Binding $parent[UserControl].((vm:ProductsAvaloniaViewModel)DataContext).ApplyRecentSearchCommand}"
                                             CommandParameter="{Binding}"
                                             FontSize="{StaticResource FontSizeCaption}" Padding="6,2" CornerRadius="{StaticResource MesRadiusMd}"

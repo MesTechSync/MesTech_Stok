@@ -24,10 +24,12 @@
                           ItemsSource="{Binding Formats}"
                           SelectedItem="{Binding SelectedFormat}" />
                 <Button Grid.Column="2" Content="Yazdir"
+                        ToolTip.Tip="Yazdir"
                         Command="{Binding PrintCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="Indir"
+                        ToolTip.Tip="Indir"
                         Command="{Binding DownloadCommand}"
                         Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />

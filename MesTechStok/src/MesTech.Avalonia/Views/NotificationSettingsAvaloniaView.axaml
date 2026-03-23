@@ -17,6 +17,7 @@
                            Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Test Gonder"
+                        ToolTip.Tip="Test Gonder"
                         Command="{Binding SendTestNotificationCommand}"
                         Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />

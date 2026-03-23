@@ -73,6 +73,7 @@
                                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                         VerticalAlignment="Bottom" />
                                 <Button Content="Excel'e Aktar"
+                                        ToolTip.Tip="Excel'e Aktar"
                                         Command="{Binding ExportExcelCommand}"
                                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"

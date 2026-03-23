@@ -14,11 +14,13 @@
                            FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
                     <Button Content="&#x25C0;" Command="{Binding PrevMonthCommand}"
+                            ToolTip.Tip="&#x25C0;"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <TextBlock Text="{Binding PeriodLabel}" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
+                            ToolTip.Tip="&#x25B6;"
                             Background="Transparent" Foreground="{DynamicResource MesBgPrimary}"
                             BorderThickness="0" FontSize="{StaticResource FontSizeSubtitle}" Padding="8,4" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"

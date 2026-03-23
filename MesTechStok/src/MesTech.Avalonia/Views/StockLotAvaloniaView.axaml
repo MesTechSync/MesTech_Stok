@@ -96,6 +96,7 @@
 
                     <!-- Kaydet -->
                     <Button Content="Lot Kaydet" Command="{Binding SaveLotCommand}"
+                            ToolTip.Tip="Lot Kaydet"
                             Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"

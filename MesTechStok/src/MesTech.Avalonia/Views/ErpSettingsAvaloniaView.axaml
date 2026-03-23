@@ -19,6 +19,7 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Baglanti Test"
+                        ToolTip.Tip="Baglanti Test"
                         Command="{Binding TestConnectionCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource PrimaryBlueBrush}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"

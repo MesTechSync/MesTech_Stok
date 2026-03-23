@@ -35,6 +35,7 @@
                           ItemsSource="{Binding Providers}"
                           SelectedItem="{Binding SelectedProvider}"/>
                 <Button Grid.Column="4" Content="Toplu Fatura Olustur"
+                        ToolTip.Tip="Toplu Fatura Olustur"
                         Command="{Binding ProcessBulkCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"

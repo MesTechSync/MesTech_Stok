@@ -35,6 +35,7 @@
                          Text="{Binding SearchText}"
                          FontSize="{StaticResource FontSizeBody}" Padding="10,8" />
                 <Button Content="Ara" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Ara"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>

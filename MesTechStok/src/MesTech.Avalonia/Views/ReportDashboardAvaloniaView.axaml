@@ -51,26 +51,31 @@
                                    Foreground="{DynamicResource MesDarkSlate}" />
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Stok Degerleme"
+                                    ToolTip.Tip="Stok Degerleme"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Stok Degerleme"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Platform Performans"
+                                    ToolTip.Tip="Platform Performans"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Platform Performans"
                                     Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Musteri Yasam Boyu"
+                                    ToolTip.Tip="Musteri Yasam Boyu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="CLV Analizi"
                                     Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Gonderim Raporu"
+                                    ToolTip.Tip="Gonderim Raporu"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Gonderim Raporu"
                                     Background="{DynamicResource MesWarning}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
                             <Button Content="Vergi Ozeti"
+                                    ToolTip.Tip="Vergi Ozeti"
                                     Command="{Binding GenerateQuickReportCommand}"
                                     CommandParameter="Vergi Ozeti"
                                     Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"

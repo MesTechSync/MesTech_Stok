@@ -23,10 +23,12 @@
                 <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}" Width="160" Margin="0,0,12,0" />
                 <Button Grid.Column="2" Content="Sync"
+                        ToolTip.Tip="Sync"
                         Command="{Binding SyncPlatformCategoriesCommand}"
                         Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="3" Content="AI Otomatik Eslestir"
+                        ToolTip.Tip="AI Otomatik Eslestir"
                         Command="{Binding AiAutoMapCommand}"
                         Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
@@ -83,9 +85,11 @@
             <!-- Map Buttons -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12" Spacing="8">
                 <Button Content="Esle >" Command="{Binding MapCategoryCommand}"
+                        ToolTip.Tip="Esle >"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Stretch" />
                 <Button Content="&lt; Kaldir" Command="{Binding UnmapCategoryCommand}"
+                        ToolTip.Tip="&lt; Kaldir"
                         Background="{DynamicResource MesDanger}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" HorizontalAlignment="Stretch" />
             </StackPanel>

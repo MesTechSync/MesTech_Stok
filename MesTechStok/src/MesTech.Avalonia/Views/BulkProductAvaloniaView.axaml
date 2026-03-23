@@ -39,6 +39,7 @@
                                              Watermark="Excel dosya sec..." AutomationProperties.Name="Excel dosya sec..." IsReadOnly="True"
                                              Height="36" FontSize="{StaticResource FontSizeCallout}" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Grid.Column="1" Content="Dosya Sec..."
+                                            ToolTip.Tip="Dosya Sec..."
                                             Command="{Binding SelectFileCommand}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
@@ -127,12 +128,14 @@
                                                    Foreground="{DynamicResource MesSlateGray}" />
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Iptal"
+                                            ToolTip.Tip="Iptal"
                                             Command="{Binding CancelCommand}"
                                             IsVisible="{Binding IsImporting}"
                                             Background="{DynamicResource MesDanger}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontWeight="SemiBold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
                                             Margin="12,0,8,0" />
                                     <Button Grid.Column="2" Content="Import Baslat"
+                                            ToolTip.Tip="Import Baslat"
                                             Command="{Binding ImportCommand}"
                                             IsEnabled="{Binding CanImport}"
                                             Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}"
@@ -192,6 +195,7 @@
                                            FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
                                            VerticalAlignment="Center" Margin="0,0,16,0" />
                                 <Button Grid.Column="4" Content="Indir"
+                                        ToolTip.Tip="Indir"
                                         Command="{Binding ExportCommand}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                         FontWeight="SemiBold" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -217,6 +221,7 @@
                                                    FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
                                     </Border>
                                     <Button Content="Tum Urunleri Sec"
+                                            ToolTip.Tip="Tum Urunleri Sec"
                                             Command="{Binding SelectAllProductsCommand}"
                                             Background="Transparent" Foreground="{DynamicResource MesPrimaryBlue}"
                                             FontSize="{StaticResource FontSizeSmall}" Padding="8,4" />
@@ -272,6 +277,7 @@
                                 <TextBlock Grid.Column="0" Text="{Binding BulkUpdateStatusText}"
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                                 <Button Grid.Column="1" Content="Uygula"
+                                        ToolTip.Tip="Uygula"
                                         Command="{Binding BulkUpdateCommand}"
                                         IsEnabled="{Binding CanBulkUpdate}"
                                         Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"

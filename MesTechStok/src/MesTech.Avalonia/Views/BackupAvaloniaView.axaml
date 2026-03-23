@@ -17,6 +17,7 @@
                            Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Manuel Yedekle"
+                        ToolTip.Tip="Manuel Yedekle"
                         Command="{Binding ManualBackupCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />

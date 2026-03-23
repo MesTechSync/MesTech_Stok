@@ -14,6 +14,7 @@
                 <TextBlock Grid.Column="0" Text="Depo Arasi Transfer Wizard" Foreground="{DynamicResource MesBgPrimary}"
                            FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Sifirla"
+                        ToolTip.Tip="Sifirla"
                         Command="{Binding ResetCommand}"
                         Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="12,8" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -63,6 +64,7 @@
                             <TextBox Grid.Column="0" Watermark="Barkod / SKU / Urun adi..." AutomationProperties.Name="Barkod / SKU / Urun adi..."
                                      Text="{Binding ProductSearchText}" />
                             <Button Grid.Column="1" Content="Ekle" Command="{Binding AddProductCommand}"
+                                    ToolTip.Tip="Ekle"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                     Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="8,0,0,0" />
                         </Grid>
@@ -138,9 +140,11 @@
                            FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Iptal"
+                        ToolTip.Tip="Iptal"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                         Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"
+                        ToolTip.Tip="Transferi Baslat"
                         Command="{Binding ExecuteTransferCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="24,10" CornerRadius="{StaticResource MesRadiusBase}" />

@@ -21,6 +21,7 @@
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="+ Yeni Şablon"
+                        ToolTip.Tip="+ Yeni Sablon"
                         Command="{Binding CreateTemplateCommand}"
                         Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
@@ -54,11 +55,13 @@
                             <DataTemplate x:DataType="vm:ImportTemplateDto">
                                 <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
                                     <Button Content="Düzenle"
+                                            ToolTip.Tip="Duzenle"
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).EditTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                             FontSize="{StaticResource FontSizeCaption}" Padding="8,3" CornerRadius="{StaticResource MesRadiusSm}" />
                                     <Button Content="Sil"
+                                            ToolTip.Tip="Sil"
                                             Command="{Binding $parent[DataGrid].((vm:ImportSettingsAvaloniaViewModel)DataContext).DeleteTemplateCommand}"
                                             CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -85,6 +88,7 @@
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Text="Alan Eşleştirmeleri" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="+ Ekle" Command="{Binding AddFieldMappingCommand}"
+                                        ToolTip.Tip="+ Ekle"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" Padding="8,4" CornerRadius="{StaticResource MesRadiusSm}" FontSize="{StaticResource FontSizeSmall}" />
                             </Grid>
 
@@ -96,6 +100,7 @@
                                             <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="4,0" />
                                             <TextBox Grid.Column="2" Text="{Binding TargetField}" Watermark="Hedef" AutomationProperties.Name="Hedef" Padding="8,6" Margin="0,0,6,0" />
                                             <Button Grid.Column="3" Content="X" FontSize="{StaticResource FontSizeCaption}"
+                                                    ToolTip.Tip="X"
                                                     Command="{Binding $parent[ItemsControl].((vm:ImportSettingsAvaloniaViewModel)DataContext).RemoveFieldMappingCommand}"
                                                     CommandParameter="{Binding}"
                                                     Background="{DynamicResource MesBgDangerLight}" Foreground="{DynamicResource MesRedAlert}"
@@ -112,6 +117,7 @@
                                 Background="{DynamicResource MesGreenMaterial}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                                 Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" IsEnabled="{Binding !IsSaving}" />
                         <Button Content="İptal" Command="{Binding CancelEditCommand}"
+                                ToolTip.Tip="Iptal"
                                 Background="{DynamicResource MesMutedGray}" Foreground="{DynamicResource MesBgPrimary}" Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" />
                     </StackPanel>
                 </StackPanel>

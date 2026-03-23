@@ -68,6 +68,7 @@
 
       <!-- Giris butonu -->
       <Button x:Name="LoginButton"
+              ToolTip.Tip="GIRIS YAP"
               Content="GİRİŞ YAP"
               HorizontalAlignment="Stretch"
               HorizontalContentAlignment="Center"
