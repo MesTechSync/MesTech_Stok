@@ -69,7 +69,7 @@ public class SimpleSoapClient
 
         var response = await _resiliencePipeline.ExecuteAsync(async token =>
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            using var request = new HttpRequestMessage(HttpMethod.Post, url).ConfigureAwait(false);
             request.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
             request.Headers.Add("SOAPAction", soapAction);
             return await _httpClient.SendAsync(request, token).ConfigureAwait(false);

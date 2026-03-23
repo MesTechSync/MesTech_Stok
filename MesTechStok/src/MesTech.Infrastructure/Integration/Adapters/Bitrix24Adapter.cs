@@ -888,7 +888,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

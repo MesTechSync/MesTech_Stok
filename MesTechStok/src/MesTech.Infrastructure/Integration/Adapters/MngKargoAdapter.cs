@@ -118,7 +118,7 @@ public class MngKargoAdapter : ICargoAdapter
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -159,7 +159,7 @@ public class MngKargoAdapter : ICargoAdapter
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var response = await ExecuteWithRetryAsync(() =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct);
@@ -205,7 +205,7 @@ public class MngKargoAdapter : ICargoAdapter
         {
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/api/v1/tracking/{trackingNumber}"), ct);
+                    $"/api/v1/tracking/{trackingNumber}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -259,7 +259,7 @@ public class MngKargoAdapter : ICargoAdapter
 
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete,
-                $"/api/v1/shipments/{shipmentId}"), ct);
+                $"/api/v1/shipments/{shipmentId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -278,7 +278,7 @@ public class MngKargoAdapter : ICargoAdapter
 
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
-                $"/api/v1/shipments/{shipmentId}/label"), ct);
+                $"/api/v1/shipments/{shipmentId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -313,7 +313,7 @@ public class MngKargoAdapter : ICargoAdapter
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

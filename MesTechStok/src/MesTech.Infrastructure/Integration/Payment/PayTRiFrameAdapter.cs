@@ -121,7 +121,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
             };
 
             var response = await ExecuteWithRetryAsync(
-                () => BuildFormRequest(TokenEndpoint, payload), ct);
+                () => BuildFormRequest(TokenEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -176,7 +176,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
             };
 
             var response = await ExecuteWithRetryAsync(
-                () => BuildFormRequest(StatusEndpoint, payload), ct);
+                () => BuildFormRequest(StatusEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return new PaymentStatusResult(transactionId, PaymentTransactionStatus.Failed, 0m, null);
@@ -230,7 +230,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
             };
 
             var response = await ExecuteWithRetryAsync(
-                () => BuildFormRequest(BinEndpoint, payload), ct);
+                () => BuildFormRequest(BinEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return new InstallmentOptions(Array.Empty<InstallmentOption>());
@@ -285,7 +285,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
             };
 
             var response = await ExecuteWithRetryAsync(
-                () => BuildFormRequest(RefundEndpoint, payload), ct);
+                () => BuildFormRequest(RefundEndpoint, payload), ct).ConfigureAwait(false);
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(body);
@@ -373,7 +373,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

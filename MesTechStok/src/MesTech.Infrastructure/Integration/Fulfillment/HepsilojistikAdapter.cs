@@ -131,7 +131,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             var response = await ExecuteWithRetryAsync(
                 () =>
                 {
-                    var req = new HttpRequestMessage(HttpMethod.Post, "/shipments");
+                    var req = new HttpRequestMessage(HttpMethod.Post, "/shipments").ConfigureAwait(false);
                     req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     return req;
                 }, ct).ConfigureAwait(false);
@@ -462,7 +462,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

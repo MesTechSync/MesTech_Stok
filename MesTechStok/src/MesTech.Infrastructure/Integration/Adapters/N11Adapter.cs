@@ -205,7 +205,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var products = await FetchAllPagesAsync<Product>(
                 async (page, pageSize) =>
                 {
-                    var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize);
+                    var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize).ConfigureAwait(false);
                     var url = _soapBaseUrl + ProductServicePath;
                     var response = await ThrottledSoapAsync(url, "GetProductList", body, ct).ConfigureAwait(false);
 
@@ -388,7 +388,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 async (page, pageSize) =>
                 {
                     var body = N11SoapRequestBuilder.BuildGetOrders(
-                        _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize);
+                        _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize).ConfigureAwait(false);
                     var url = _soapBaseUrl + OrderServicePath;
                     var response = await ThrottledSoapAsync(url, "DetailedOrderList", body, ct).ConfigureAwait(false);
 
@@ -662,7 +662,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var claims = await FetchAllPagesAsync<ExternalClaimDto>(
                 async (page, pageSize) =>
                 {
-                    var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize);
+                    var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize).ConfigureAwait(false);
                     var url = _soapBaseUrl + ClaimServicePath;
                     var response = await ThrottledSoapAsync(url, "GetClaims", body, ct).ConfigureAwait(false);
 

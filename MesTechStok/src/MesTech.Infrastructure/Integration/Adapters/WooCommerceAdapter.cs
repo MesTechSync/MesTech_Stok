@@ -464,7 +464,7 @@ public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             var response = await ThrottledExecuteAsync(async (token) =>
             {
-                ApplyBasicAuthHeader();
+                ApplyBasicAuthHeader().ConfigureAwait(false);
                 return await _httpClient.GetAsync(
                     $"{ApiBase}/products/categories?per_page={perPage}&page={page}", token)
                     .ConfigureAwait(false);

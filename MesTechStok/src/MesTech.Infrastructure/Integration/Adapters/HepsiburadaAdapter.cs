@@ -282,7 +282,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -311,7 +311,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -406,7 +406,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, $"/packages/{packageId}/status");
+                var req = new HttpRequestMessage(HttpMethod.Put, $"/packages/{packageId}/status").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -450,7 +450,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, $"/packages/{platformOrderId}/shipment");
+                var req = new HttpRequestMessage(HttpMethod.Post, $"/packages/{platformOrderId}/shipment").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -527,7 +527,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/reject");
+                var req = new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/reject").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -663,7 +663,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/invoices");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/invoices").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -806,7 +806,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             var response = await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 await ApplyAuthHeaderAsync(request, token).ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
@@ -819,7 +819,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
                 response = await _retryPipeline.ExecuteAsync(async token =>
                 {
-                    using var retryRequest = requestFactory();
+                    using var retryRequest = requestFactory().ConfigureAwait(false);
                     await ApplyAuthHeaderAsync(retryRequest, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(retryRequest, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);

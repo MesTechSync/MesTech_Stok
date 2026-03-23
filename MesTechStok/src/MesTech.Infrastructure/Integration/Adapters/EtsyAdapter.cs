@@ -163,7 +163,7 @@ public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
                 async token =>
                 {
                     // Clone the request for retry (HttpRequestMessage can only be sent once)
-                    using var clone = new HttpRequestMessage(request.Method, request.RequestUri);
+                    using var clone = new HttpRequestMessage(request.Method, request.RequestUri).ConfigureAwait(false);
                     clone.Version = request.Version;
 
                     if (request.Content != null)

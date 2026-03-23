@@ -112,7 +112,7 @@ public class SuratKargoAdapter : ICargoAdapter
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -153,7 +153,7 @@ public class SuratKargoAdapter : ICargoAdapter
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var response = await ExecuteWithRetryAsync(() =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct);
@@ -197,7 +197,7 @@ public class SuratKargoAdapter : ICargoAdapter
         {
             var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
-                    $"/api/v2/cargo/{trackingNumber}/status"), ct);
+                    $"/api/v2/cargo/{trackingNumber}/status"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -251,7 +251,7 @@ public class SuratKargoAdapter : ICargoAdapter
 
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete,
-                $"/api/v2/cargo/{shipmentId}"), ct);
+                $"/api/v2/cargo/{shipmentId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -270,7 +270,7 @@ public class SuratKargoAdapter : ICargoAdapter
 
         var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
-                $"/api/v2/cargo/{shipmentId}/label"), ct);
+                $"/api/v2/cargo/{shipmentId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -302,7 +302,7 @@ public class SuratKargoAdapter : ICargoAdapter
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

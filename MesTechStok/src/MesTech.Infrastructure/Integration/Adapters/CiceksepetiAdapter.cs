@@ -189,7 +189,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -264,7 +264,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -290,7 +290,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -390,7 +390,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -449,7 +449,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping");
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -524,7 +524,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -553,7 +553,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -585,7 +585,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -691,7 +691,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -721,7 +721,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch");
+                var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch").ConfigureAwait(false);
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -801,7 +801,7 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory();
+                using var request = requestFactory().ConfigureAwait(false);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

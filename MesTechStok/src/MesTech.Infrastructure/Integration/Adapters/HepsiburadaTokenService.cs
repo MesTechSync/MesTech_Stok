@@ -100,7 +100,7 @@ public sealed class HepsiburadaTokenService
 
             var response = await _retryPipeline.ExecuteAsync(async token =>
             {
-                var reqContent = new FormUrlEncodedContent(formData);
+                var reqContent = new FormUrlEncodedContent(formData).ConfigureAwait(false);
                 return await _httpClient.PostAsync(_authUrl, reqContent, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
 

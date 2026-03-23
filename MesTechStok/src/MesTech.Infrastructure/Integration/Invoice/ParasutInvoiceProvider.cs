@@ -86,7 +86,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct);
+                $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -128,7 +128,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var response = await _httpClient.GetAsync(
-            $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct);
+            $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
@@ -144,7 +144,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct);
+                $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

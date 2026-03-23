@@ -138,7 +138,7 @@ public class PttKargoAdapter : ICargoAdapter
             await ThrottledSoapAsync(
                 _trackingServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiSorgula",
-                body, ct);
+                body, ct).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)
@@ -178,7 +178,7 @@ public class PttKargoAdapter : ICargoAdapter
             var result = await ThrottledSoapAsync(
                 _shipmentServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiKaydet",
-                body, ct);
+                body, ct).ConfigureAwait(false);
 
             SimpleSoapClient.ThrowIfFault(result);
 
@@ -216,7 +216,7 @@ public class PttKargoAdapter : ICargoAdapter
             var result = await ThrottledSoapAsync(
                 _trackingServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiSorgula",
-                body, ct);
+                body, ct).ConfigureAwait(false);
 
             SimpleSoapClient.ThrowIfFault(result);
 
@@ -263,7 +263,7 @@ public class PttKargoAdapter : ICargoAdapter
             var result = await ThrottledSoapAsync(
                 _shipmentServiceUrl,
                 "http://ws.ptt.gov.tr/gonderiIptal",
-                body, ct);
+                body, ct).ConfigureAwait(false);
 
             SimpleSoapClient.ThrowIfFault(result);
 
@@ -298,7 +298,7 @@ public class PttKargoAdapter : ICargoAdapter
         var result = await ThrottledSoapAsync(
             _shipmentServiceUrl,
             "http://ws.ptt.gov.tr/etiketAl",
-            body, ct);
+            body, ct).ConfigureAwait(false);
 
         SimpleSoapClient.ThrowIfFault(result);
 

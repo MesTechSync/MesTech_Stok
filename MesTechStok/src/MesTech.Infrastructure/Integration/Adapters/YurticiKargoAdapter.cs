@@ -145,7 +145,7 @@ public class YurticiKargoAdapter : ICargoAdapter
                 AuthElement(),
                 new XElement(YkNs + "keys", "PING-TEST"));
 
-            await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct);
+            await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)
@@ -183,7 +183,7 @@ public class YurticiKargoAdapter : ICargoAdapter
                     El("dcCreditRule", request.CodAmount.HasValue ? "1" : "0")));
 
             var result = await ThrottledSoapAsync(
-                _serviceUrl, "http://yurticikargo.com/createShipment", body, ct);
+                _serviceUrl, "http://yurticikargo.com/createShipment", body, ct).ConfigureAwait(false);
 
             SimpleSoapClient.ThrowIfFault(result);
 
@@ -219,7 +219,7 @@ public class YurticiKargoAdapter : ICargoAdapter
                 new XElement(YkNs + "keys", SecurityElement.Escape(trackingNumber)));
 
             var result = await ThrottledSoapAsync(
-                _serviceUrl, "http://yurticikargo.com/queryShipment", body, ct);
+                _serviceUrl, "http://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
 
             SimpleSoapClient.ThrowIfFault(result);
 
@@ -268,7 +268,7 @@ public class YurticiKargoAdapter : ICargoAdapter
             new XElement(YkNs + "keys", SecurityElement.Escape(shipmentId)));
 
         var result = await ThrottledSoapAsync(
-            _serviceUrl, "http://yurticikargo.com/createShipmentLabel", body, ct);
+            _serviceUrl, "http://yurticikargo.com/createShipmentLabel", body, ct).ConfigureAwait(false);
 
         SimpleSoapClient.ThrowIfFault(result);
 

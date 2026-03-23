@@ -90,7 +90,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -125,7 +125,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         _logger.LogInformation("Sovos GetPdf for {GibInvoiceId}", gibInvoiceId);
 
         var response = await _httpClient.GetAsync(
-            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct);
+            $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
@@ -139,7 +139,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct);
+                $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -171,7 +171,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct);
+                $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -232,7 +232,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct);
+                $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -289,7 +289,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct);
+                $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -342,7 +342,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/accept", content, ct);
+                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -371,7 +371,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/reject", content, ct);
+                $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -399,7 +399,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/api/account/kontor", ct);
+                $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -455,7 +455,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync(
-                $"{_baseUrl}/api/invoices/template", content, ct);
+                $"{_baseUrl}/api/invoices/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -534,7 +534,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/einvoice/{providerRef}/pdf-url", ct);
+                $"{_baseUrl}/einvoice/{providerRef}/pdf-url", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -569,7 +569,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
-                $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct);
+                $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -595,7 +595,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         try
         {
             var response = await _httpClient.GetAsync(
-                $"{_baseUrl}/einvoice/taxpayer/{vkn}", ct);
+                $"{_baseUrl}/einvoice/taxpayer/{vkn}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

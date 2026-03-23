@@ -259,7 +259,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/product/sellers/{_supplierId}/v2/products", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -364,7 +364,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -406,7 +406,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -545,7 +545,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PutAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -591,7 +591,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/orders/invoiceLinks", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -746,7 +746,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    using var content = new StringContent("{}", Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -782,7 +782,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/issue", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1168,7 +1168,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/webhooks", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1229,7 +1229,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/product/sellers/{_supplierId}/v2/products/archive", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1271,7 +1271,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/product/sellers/{_supplierId}/v2/products/unlock", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1370,7 +1370,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/product/sellers/{_supplierId}/questions/{questionId}/answers", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1476,7 +1476,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    using var content = new StringContent("{}", Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PutAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1517,7 +1517,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PutAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/reject", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1567,7 +1567,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/invoices", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1674,7 +1674,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PostAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/split", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -1715,7 +1715,7 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
                     return await _httpClient.PutAsync(
                         new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/box-info", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
