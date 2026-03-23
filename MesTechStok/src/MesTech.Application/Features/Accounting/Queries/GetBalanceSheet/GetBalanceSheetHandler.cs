@@ -105,11 +105,14 @@ public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, Bala
         var netIncome = totalRevenue - totalExpenses;
         if (netIncome != 0)
         {
+            var netIncomeAccount = accounts.FirstOrDefault(a =>
+                a.Code.StartsWith("590", StringComparison.Ordinal));
+
             equityLines.Add(new BalanceSheetLineDto
             {
-                AccountId = Guid.Empty,
-                AccountCode = "590",
-                AccountName = "Donem Net Kari (Zarari)",
+                AccountId = netIncomeAccount?.Id ?? Guid.NewGuid(),
+                AccountCode = netIncomeAccount?.Code ?? "590",
+                AccountName = netIncomeAccount?.Name ?? "Donem Net Kari (Zarari)",
                 Balance = netIncome
             });
         }

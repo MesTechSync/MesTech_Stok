@@ -12,5 +12,5 @@ public record EarnPointsCommand(
 public class EarnPointsResult
 {
     public int EarnedPoints { get; set; }
-    public Guid TransactionId { get; set; }
+    public Guid? TransactionId { get; set; }
 }

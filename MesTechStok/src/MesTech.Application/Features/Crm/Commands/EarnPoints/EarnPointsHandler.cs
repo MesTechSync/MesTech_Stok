@@ -35,7 +35,7 @@ public class EarnPointsHandler : IRequestHandler<EarnPointsCommand, EarnPointsRe
 
         if (earnedPoints <= 0)
         {
-            return new EarnPointsResult { EarnedPoints = 0, TransactionId = Guid.Empty };
+            return new EarnPointsResult { EarnedPoints = 0, TransactionId = null };
         }
 
         // 3. Create LoyaltyTransaction(type: Earn)

@@ -49,7 +49,7 @@ public class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCom
         }
 
         // Save new encrypted credentials
-        Guid firstId = Guid.Empty;
+        Guid? firstId = null;
         foreach (var field in request.Fields)
         {
             var credential = new StoreCredential
@@ -64,8 +64,7 @@ public class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCom
 
             await _credentialRepository.AddAsync(credential, cancellationToken);
 
-            if (firstId == Guid.Empty)
-                firstId = credential.Id;
+            firstId ??= credential.Id;
         }
 
         await _uow.SaveChangesAsync(cancellationToken);
@@ -74,6 +73,6 @@ public class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCom
             "Saved {FieldCount} credential fields for Store {StoreId} (Platform: {Platform}, Type: {Type})",
             request.Fields.Count, request.StoreId, request.Platform, request.CredentialType);
 
-        return firstId;
+        return firstId ?? throw new InvalidOperationException("No credential fields were provided.");
     }
 }
