@@ -256,7 +256,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
                     var success = item.TryGetProperty("success", out var s) && s.GetBoolean();
                     var gibId = item.TryGetProperty("gibInvoiceId", out var g) ? g.GetString() : null;
                     var error = item.TryGetProperty("errorMessage", out var e) ? e.GetString() : null;
-                    var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.Empty;
+                    var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.NewGuid();
                     results.Add(new BulkInvoiceItemResult(orderId, success, gibId, error));
                     i++;
                 }

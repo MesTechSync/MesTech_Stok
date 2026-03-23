@@ -273,7 +273,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                     ? gib.GetString() : null;
 
                 var success = !string.IsNullOrEmpty(gibId);
-                var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.Empty;
+                var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.NewGuid();
                 results.Add(new BulkInvoiceItemResult(orderId, success, gibId,
                     success ? null : "Missing gib_invoice_id in response"));
                 i++;

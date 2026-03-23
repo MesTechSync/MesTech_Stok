@@ -255,7 +255,7 @@ public class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoice
                     var success = item.TryGetProperty("success", out var sv) && sv.GetBoolean();
                     var gibId = item.TryGetProperty("gibInvoiceId", out var g) ? g.GetString() : null;
                     var error = item.TryGetProperty("errorMessage", out var ev) ? ev.GetString() : null;
-                    var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.Empty;
+                    var orderId = i < requestList.Count ? requestList[i].OrderId : Guid.NewGuid();
                     results.Add(new BulkInvoiceItemResult(orderId, success, gibId, error));
                     i++;
                 }
