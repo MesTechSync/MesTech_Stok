@@ -624,7 +624,97 @@
                                 </StackPanel>
                             </Button>
 
-                            <!-- 11. RAPORLAR -->
+                            <!-- 11. FULFILLMENT -->
+                            <TextBlock Classes="sidebar-section" Text="FULFILLMENT"/>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fulfillment Dashboard"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="FulfillmentDashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Dashboard"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Inbound Gonderimler"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="FulfillmentInbound">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
+                                    <TextBlock Text="Inbound Gonderimler"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fulfillment Envanter"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="FulfillmentInventory">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Envanter"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Fulfillment Ayarlari"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="FulfillmentSettings">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
+                                    <TextBlock Text="Ayarlar"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 12. ERP & MUHASEBE -->
+                            <TextBlock Classes="sidebar-section" Text="ERP &amp; MUHASEBE"/>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="ERP Dashboard"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ErpDashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="ERP Dashboard"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Cari Esleme"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ErpAccountMapping">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconCopy}" Width="16" Height="16"/>
+                                    <TextBlock Text="Cari Esleme"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 13. GELIR / GIDER -->
+                            <TextBlock Classes="sidebar-section" Text="GEL&#x0130;R / G&#x0130;DER"/>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Gelir Gider Dashboard"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="IncomeExpenseDashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <TextBlock Text="Dashboard"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Gelir Gider Kayitlari"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="IncomeExpenseList">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kayitlar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Karlilik Raporu"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="ProfitabilityReport">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Karlilik Raporu"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 14. RAPORLAR -->
                             <TextBlock Classes="sidebar-section" Text="RAPORLAR"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Belgeler"
@@ -642,6 +732,33 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Raporlar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Nakit Akis Raporu"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CashFlowReport">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Nakit Akis"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Satis Analizi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="SalesAnalytics">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Satis Analizi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Stok Deger Raporu"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="StockValueReport">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Deger"/>
                                 </StackPanel>
                             </Button>
 
