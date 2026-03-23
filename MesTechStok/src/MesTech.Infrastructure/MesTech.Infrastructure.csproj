@@ -33,6 +33,7 @@
     <PackageReference Include="Polly.RateLimiting" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="MassTransit.RabbitMQ" />
     <!-- GHSA-5crp fix: MassTransit pulls Newtonsoft.Json 11.0.1 transitively; pin to 13.0.3 via CPM -->
     <PackageReference Include="Newtonsoft.Json" />
