@@ -271,6 +271,15 @@ public class AppDbContext : DbContext
     // ═══════════════════════════════════════
     public DbSet<SavedReport> SavedReports => Set<SavedReport>();
 
+    // ═══════════════════════════════════════
+    // CONFIGURATION COVERAGE — EK ENTITY'LER
+    // ═══════════════════════════════════════
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<LoginAttempt> LoginAttempts => Set<LoginAttempt>();
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<StockAlert> StockAlerts => Set<StockAlert>();
+    public DbSet<PriceHistory> PriceHistories => Set<PriceHistory>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
