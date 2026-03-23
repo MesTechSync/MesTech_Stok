@@ -456,3 +456,57 @@ public class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotificati
         _monitor.RecordPublish("sync.error");
     }
 }
+
+// ── V4 Bridge Handlers ──────────────────────────────────────────
+
+public class ZeroStockBridgeHandler : INotificationHandler<DomainEventNotification<ZeroStockDetectedEvent>>
+{
+    private readonly ILogger<ZeroStockBridgeHandler> _logger;
+    public ZeroStockBridgeHandler(ILogger<ZeroStockBridgeHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<ZeroStockDetectedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogWarning("[MESA Bridge] ZeroStock: SKU={SKU}, Previous={Prev}", e.SKU, e.PreviousStock);
+        return Task.CompletedTask;
+    }
+}
+
+public class PriceLossBridgeHandler : INotificationHandler<DomainEventNotification<PriceLossDetectedEvent>>
+{
+    private readonly ILogger<PriceLossBridgeHandler> _logger;
+    public PriceLossBridgeHandler(ILogger<PriceLossBridgeHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<PriceLossDetectedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogWarning("[MESA Bridge] PriceLoss: SKU={SKU}, Loss={Loss}/unit", e.SKU, e.LossPerUnit);
+        return Task.CompletedTask;
+    }
+}
+
+public class StaleOrderBridgeHandler : INotificationHandler<DomainEventNotification<StaleOrderDetectedEvent>>
+{
+    private readonly ILogger<StaleOrderBridgeHandler> _logger;
+    public StaleOrderBridgeHandler(ILogger<StaleOrderBridgeHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<StaleOrderDetectedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogWarning("[MESA Bridge] StaleOrder: {OrderNumber}, Elapsed={Hours}h", e.OrderNumber, e.ElapsedSince.TotalHours);
+        return Task.CompletedTask;
+    }
+}
+
+public class ReturnApprovedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnApprovedEvent>>
+{
+    private readonly ILogger<ReturnApprovedBridgeHandler> _logger;
+    public ReturnApprovedBridgeHandler(ILogger<ReturnApprovedBridgeHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<ReturnApprovedEvent> wrapper, CancellationToken ct)
+    {
+        var e = wrapper.DomainEvent;
+        _logger.LogInformation("[MESA Bridge] ReturnApproved: ReturnId={ReturnId}, Lines={Count}", e.ReturnRequestId, e.Lines.Count);
+        return Task.CompletedTask;
+    }
+}
