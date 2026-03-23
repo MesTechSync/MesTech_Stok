@@ -1,0 +1,120 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.OpenCartSiteDetailDialog"
+        Title="OpenCart Site Detay"
+        Width="640" Height="520"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- Header -->
+      <TextBlock Grid.Row="0" Classes="dialog-title" Text="OpenCart Site Detay" />
+
+      <!-- Content -->
+      <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+        <StackPanel Spacing="16">
+
+          <!-- Site Bilgileri -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Site Bilgileri" FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeSubtitle}"
+                         Foreground="{DynamicResource MesTextPrimary}" />
+
+              <StackPanel Spacing="4">
+                <TextBlock Text="Site Adi *" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <TextBox x:Name="SiteNameBox" Classes="mestech" Watermark="Site adi"
+                         ToolTip.Tip="OpenCart site adi" />
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <TextBlock Text="Site URL *" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <TextBox x:Name="SiteUrlBox" Classes="mestech" Watermark="https://example.com"
+                         ToolTip.Tip="OpenCart site URL adresi" />
+              </StackPanel>
+
+              <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="OpenCart Versiyon" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <ComboBox x:Name="VersionCombo" Classes="mestech" SelectedIndex="0"
+                            ToolTip.Tip="OpenCart versiyonu">
+                    <ComboBoxItem Content="OpenCart 3.x" Tag="3" />
+                    <ComboBoxItem Content="OpenCart 4.x" Tag="4" />
+                  </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Admin Panel URL" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="AdminUrlBox" Classes="mestech" Watermark="https://example.com/admin"
+                           ToolTip.Tip="Admin panel URL adresi" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- API Bilgileri -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="API Bilgileri" FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeSubtitle}"
+                         Foreground="{DynamicResource MesTextPrimary}" />
+
+              <StackPanel Spacing="4">
+                <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <TextBox x:Name="ApiKeyBox" Classes="mestech" Watermark="API anahtari"
+                         ToolTip.Tip="OpenCart REST API anahtari" />
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <TextBlock Text="API Secret" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <TextBox x:Name="ApiSecretBox" Classes="mestech" Watermark="API sifresi"
+                         PasswordChar="*"
+                         ToolTip.Tip="OpenCart REST API sifresi" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <!-- Senkronizasyon Ayarlari -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Senkronizasyon" FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeSubtitle}"
+                         Foreground="{DynamicResource MesTextPrimary}" />
+
+              <Grid ColumnDefinitions="*,16,*">
+                <CheckBox Grid.Column="0" x:Name="SyncProductsCheck" Content="Urunleri senkronize et"
+                          IsChecked="True" ToolTip.Tip="Urun verilerini otomatik senkronize et" />
+                <CheckBox Grid.Column="2" x:Name="SyncOrdersCheck" Content="Siparisleri senkronize et"
+                          IsChecked="True" ToolTip.Tip="Siparis verilerini otomatik senkronize et" />
+              </Grid>
+
+              <CheckBox x:Name="SyncStockCheck" Content="Stok bilgilerini senkronize et"
+                        IsChecked="True" ToolTip.Tip="Stok miktarlarini otomatik guncelle" />
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Actions -->
+      <StackPanel Grid.Row="2" Classes="dialog-actions" Margin="0,12,0,0">
+        <Button Classes="mestech-outline" Content="Iptal" Click="OnCancel"
+                ToolTip.Tip="Degisiklikleri iptal et" />
+        <Button Classes="mestech-outline" Content="Baglanti Test" Click="OnTestConnection"
+                ToolTip.Tip="API baglantisini test et" />
+        <Button Classes="mestech-raised" Content="Kaydet" Click="OnSave"
+                ToolTip.Tip="Site bilgilerini kaydet" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>
