@@ -65,5 +65,31 @@ public static class EInvoiceEndpoints
         })
         .WithName("SendEInvoice")
         .WithSummary("E-faturayı GİB'e gönder");
+
+        // POST /api/v1/e-invoices/{id}/cancel — e-fatura iptal
+        group.MapPost("/{id:guid}/cancel", async (
+            Guid id, string reason,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var success = await mediator.Send(
+                new CancelEInvoiceCommand(id, reason), ct);
+            return success
+                ? Results.Ok(new { EInvoiceId = id, Message = "E-Fatura iptal edildi" })
+                : Results.BadRequest(new { EInvoiceId = id, Message = "E-Fatura iptal edilemedi" });
+        })
+        .WithName("CancelEInvoice")
+        .WithSummary("E-fatura iptal et");
+
+        // GET /api/v1/e-invoices/check-vkn/{vkn} — VKN mükellef sorgusu
+        group.MapGet("/check-vkn/{vkn}", async (
+            string vkn,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new CheckVknMukellefQuery(vkn), ct);
+            return Results.Ok(result);
+        })
+        .WithName("CheckVknMukellef")
+        .WithSummary("VKN ile e-fatura mükellefi sorgula");
     }
 }

@@ -4,6 +4,10 @@ using MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 using MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
 using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
 using MesTech.Application.Features.Finance.Queries.GetCashFlow;
+using MesTech.Application.Features.Finance.Commands.CreateCashRegister;
+using MesTech.Application.Features.Finance.Commands.CreateExpense;
+using MesTech.Application.Features.Finance.Commands.RecordCashTransaction;
+using MesTech.Application.Features.Finance.Queries.GetCashRegisters;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 
 namespace MesTech.WebApi.Endpoints;
@@ -88,5 +92,52 @@ public static class FinanceEndpoints
         })
         .WithName("CloseCashRegister")
         .WithSummary("Kasa gun sonu — bakiye dogrulama + rapor");
+
+        // ─── DEFTER KAPATMA: 4 eksik finance endpoint [ENT-DEV6] ───
+
+        // GET /api/v1/finance/cash-registers — kasa listesi
+        group.MapGet("/cash-registers", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCashRegistersQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCashRegisters")
+        .WithSummary("Kasa listesi");
+
+        // POST /api/v1/finance/cash-registers — yeni kasa oluştur
+        group.MapPost("/cash-registers", async (
+            CreateCashRegisterCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/finance/cash-registers/{id}", new { id });
+        })
+        .WithName("CreateCashRegister")
+        .WithSummary("Yeni kasa tanımla");
+
+        // POST /api/v1/finance/expenses — yeni masraf kaydı
+        group.MapPost("/expenses", async (
+            CreateExpenseCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/finance/expenses/{id}", new { id });
+        })
+        .WithName("CreateExpense")
+        .WithSummary("Yeni masraf kaydı oluştur");
+
+        // POST /api/v1/finance/cash-transactions — kasa hareketi kaydet
+        group.MapPost("/cash-transactions", async (
+            RecordCashTransactionCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/finance/cash-transactions/{id}", new { id });
+        })
+        .WithName("RecordCashTransaction")
+        .WithSummary("Kasa hareketi kaydet (giriş/çıkış)");
     }
 }

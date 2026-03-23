@@ -4,7 +4,14 @@ using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 using MesTech.Application.Features.Reports.PlatformSalesReport;
+using MesTech.Application.Features.Reports.CargoPerformanceReport;
+using MesTech.Application.Features.Reports.CustomerLifetimeValueReport;
+using MesTech.Application.Features.Reports.CustomerSegmentReport;
+using MesTech.Application.Features.Reports.InventoryValuationReport;
+using MesTech.Application.Features.Reports.OrderFulfillmentReport;
 using MesTech.Application.Features.Reports.ProfitabilityReport;
+using MesTech.Application.Features.Reports.StockTurnoverReport;
+using MesTech.Application.Features.Reports.TaxSummaryReport;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -101,5 +108,91 @@ public static class ReportEndpoints
         })
         .WithName("GetProfitabilityReport")
         .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV");
+
+        // ─── DEFTER KAPATMA: 7 eksik rapor endpoint [ENT-DEV6] ───
+
+        // GET /api/v1/reports/cargo-performance — kargo performans raporu
+        group.MapGet("/cargo-performance", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new CargoPerformanceReportQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCargoPerformanceReport")
+        .WithSummary("Kargo performans raporu (firma bazlı teslimat süresi + maliyet)");
+
+        // GET /api/v1/reports/customer-lifetime-value — müşteri yaşam boyu değeri
+        group.MapGet("/customer-lifetime-value", async (
+            Guid tenantId, DateTime startDate, DateTime endDate, int minOrderCount = 1,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(
+                new CustomerLifetimeValueReportQuery(tenantId, startDate, endDate, minOrderCount), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCustomerLifetimeValueReport")
+        .WithSummary("Müşteri yaşam boyu değeri raporu (CLV)");
+
+        // GET /api/v1/reports/customer-segments — müşteri segment raporu
+        group.MapGet("/customer-segments", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new CustomerSegmentReportQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCustomerSegmentReport")
+        .WithSummary("Müşteri segment analizi (RFM bazlı)");
+
+        // GET /api/v1/reports/inventory-valuation — envanter değerleme raporu
+        group.MapGet("/inventory-valuation", async (
+            Guid tenantId, Guid? categoryFilter,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new InventoryValuationReportQuery(tenantId, categoryFilter), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetInventoryValuationReport")
+        .WithSummary("Envanter değerleme raporu (kategori filtresi)");
+
+        // GET /api/v1/reports/order-fulfillment — sipariş karşılama raporu
+        group.MapGet("/order-fulfillment", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new OrderFulfillmentReportQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetOrderFulfillmentReport")
+        .WithSummary("Sipariş karşılama performans raporu");
+
+        // GET /api/v1/reports/stock-turnover — stok devir hızı raporu
+        group.MapGet("/stock-turnover", async (
+            Guid tenantId, DateTime startDate, DateTime endDate, Guid? categoryFilter,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(
+                new StockTurnoverReportQuery(tenantId, startDate, endDate, categoryFilter), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockTurnoverReport")
+        .WithSummary("Stok devir hızı raporu (kategori filtresi)");
+
+        // GET /api/v1/reports/tax-summary — vergi özet raporu
+        group.MapGet("/tax-summary", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new TaxSummaryReportQuery(tenantId, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetTaxSummaryReport")
+        .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)");
     }
 }

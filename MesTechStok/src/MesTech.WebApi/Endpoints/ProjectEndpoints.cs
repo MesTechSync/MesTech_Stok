@@ -1,6 +1,8 @@
 using MediatR;
 using MesTech.Application.Features.Tasks.Commands.CreateProject;
 using MesTech.Application.Features.Tasks.Queries.GetProjects;
+using MesTech.Application.Features.Tasks.Commands.CompleteTask;
+using MesTech.Application.Features.Tasks.Commands.CreateWorkTask;
 using MesTech.Application.Features.Tasks.Queries.GetProjectTasks;
 using MesTech.Domain.Enums;
 
@@ -48,5 +50,27 @@ public static class ProjectEndpoints
         })
         .WithName("GetProjectTasks")
         .WithSummary("Projeye ait görev listesi (durum + atanan filtresi)");
+
+        // POST /api/v1/projects/tasks — yeni görev oluştur
+        group.MapPost("/tasks", async (
+            CreateWorkTaskCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/projects/tasks/{id}", new { id });
+        })
+        .WithName("CreateWorkTask")
+        .WithSummary("Yeni iş görevi oluştur");
+
+        // POST /api/v1/projects/tasks/{taskId}/complete — görevi tamamla
+        group.MapPost("/tasks/{taskId:guid}/complete", async (
+            Guid taskId, Guid userId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new CompleteTaskCommand(taskId, userId), ct);
+            return Results.NoContent();
+        })
+        .WithName("CompleteTask")
+        .WithSummary("Görevi tamamlandı olarak işaretle");
     }
 }

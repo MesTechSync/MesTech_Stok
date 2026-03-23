@@ -1,7 +1,10 @@
 using System.Diagnostics;
 using System.Reflection;
 using MediatR;
+using MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
+using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.LaunchReadiness;
+using MesTech.Application.Features.System.Users;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -80,5 +83,42 @@ public static class SystemHealthEndpoints
         })
         .WithName("GetLaunchReadiness")
         .WithSummary("Production launch hazirlik raporu — 26 kriter");
+
+        // ─── DEFTER KAPATMA: KVKK + Users endpoint [ENT-DEV6] ───
+
+        // POST /api/v1/admin/system/kvkk/delete — kişisel veri silme (KVKK hakkı)
+        group.MapPost("/kvkk/delete", async (
+            DeletePersonalDataCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("DeletePersonalData")
+        .WithSummary("KVKK — kişisel veri silme talebi");
+
+        // GET /api/v1/admin/system/kvkk/export — kişisel veri dışa aktarma (KVKK hakkı)
+        group.MapGet("/kvkk/export", async (
+            Guid tenantId, Guid requestedByUserId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ExportPersonalDataQuery(tenantId, requestedByUserId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("ExportPersonalData")
+        .WithSummary("KVKK — kişisel veri dışa aktarma");
+
+        // GET /api/v1/admin/system/users — kullanıcı listesi
+        group.MapGet("/users", async (
+            Guid? tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetUsersQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetUsers")
+        .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)");
     }
 }
