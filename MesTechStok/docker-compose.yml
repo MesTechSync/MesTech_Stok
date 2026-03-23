@@ -109,6 +109,10 @@ services:
       - CHOWN
       - SETUID
       - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/log/rabbitmq
     logging:
       driver: json-file
       options:
@@ -145,6 +149,10 @@ services:
       - FOWNER
       - SETUID
       - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/mysqld
     logging:
       driver: json-file
       options:
@@ -170,6 +178,9 @@ services:
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: json-file
       options:
@@ -204,6 +215,9 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: json-file
       options:
@@ -242,6 +256,9 @@ services:
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: json-file
       options:
