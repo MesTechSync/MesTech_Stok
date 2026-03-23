@@ -100,6 +100,6 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProfitabilityReport")
-        .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - KDV");
+        .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV");
     }
 }
