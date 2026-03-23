@@ -17,11 +17,15 @@ public static class WebhookServiceRegistration
 {
     public static IServiceCollection AddWebhookServices(this IServiceCollection services)
     {
-        // === Webhook Signature Validators ===
+        // === Webhook Signature Validators (8 platform) ===
         services.AddSingleton<IWebhookSignatureValidator, TrendyolSignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, ShopifySignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, WooCommerceSignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, HepsiburadaSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, AmazonSnsSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, CiceksepetiSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, EbaySignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, N11SignatureValidator>();
 
         // === Webhook Processing Pipeline ===
         services.AddScoped<WebhookEventRouter>();
