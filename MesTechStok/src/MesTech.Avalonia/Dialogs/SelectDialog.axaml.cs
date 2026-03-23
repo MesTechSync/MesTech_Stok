@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
@@ -58,5 +59,12 @@ public partial class SelectDialog : Window
     {
         Result = false;
         Close();
+    }
+
+    /// <summary>Dialog kapanırken event temizliği [EL-01]</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        SearchBox.TextChanged -= OnSearchChanged;
+        base.OnClosed(e);
     }
 }
