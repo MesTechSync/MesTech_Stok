@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,8 +12,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// Displays stock items with editable "Yeni Stok" column and bulk update action.
 /// Will be wired to BulkUpdateStockCommand via MediatR when full migration starts.
 /// </summary>
-public partial class StockMovementAvaloniaViewModel : ObservableObject
+public partial class StockMovementAvaloniaViewModel : ObservableObject, IDisposable
 {
+    private readonly PropertyChangedEventHandler _itemChangedHandler;
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
@@ -21,6 +24,11 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string updateStatus = string.Empty;
 
     public ObservableCollection<StockMovementItemDto> Items { get; } = [];
+
+    public StockMovementAvaloniaViewModel()
+    {
+        _itemChangedHandler = (_, _) => RecalculateChangedCount();
+    }
 
     public async Task LoadAsync()
     {
@@ -33,6 +41,7 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject
         {
             await Task.Delay(80); // Simulate async load
 
+            UnsubscribeItemEvents();
             Items.Clear();
             Items.Add(new StockMovementItemDto { Sku = "TRD-SAM-001", UrunAdi = "Samsung Galaxy S24 Ultra", MevcutStok = 45, YeniStok = 45, Platform = "Trendyol" });
             Items.Add(new StockMovementItemDto { Sku = "HB-APL-002", UrunAdi = "Apple iPhone 15 Pro", MevcutStok = 22, YeniStok = 22, Platform = "Hepsiburada" });
@@ -45,9 +54,9 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject
             Items.Add(new StockMovementItemDto { Sku = "PZR-ASU-009", UrunAdi = "Asus ROG Strix G16 Laptop", MevcutStok = 6, YeniStok = 6, Platform = "Pazarama" });
             Items.Add(new StockMovementItemDto { Sku = "PTT-ANK-010", UrunAdi = "Anker PowerCore 26800mAh", MevcutStok = 340, YeniStok = 340, Platform = "PttAVM" });
 
-            // Subscribe to changes
+            // Subscribe to changes (named handler — unsubscribe possible)
             foreach (var item in Items)
-                item.PropertyChanged += (_, _) => RecalculateChangedCount();
+                item.PropertyChanged += _itemChangedHandler;
 
             TotalCount = Items.Count;
             IsEmpty = Items.Count == 0;
@@ -71,6 +80,18 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    private void UnsubscribeItemEvents()
+    {
+        foreach (var item in Items)
+            item.PropertyChanged -= _itemChangedHandler;
+    }
+
+    public void Dispose()
+    {
+        UnsubscribeItemEvents();
+        Items.Clear();
+    }
 
     [RelayCommand]
     private async Task BulkUpdate()
