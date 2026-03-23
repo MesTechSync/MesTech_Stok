@@ -266,7 +266,13 @@ else if (invoice is not null)
             if (apiResult is not null)
             {
                 _isDemoMode = false;
-                invoice = apiResult;
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(apiResult);
+                    invoice = System.Text.Json.JsonSerializer.Deserialize<InvoiceDetailDto>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                catch { invoice = null; _isDemoMode = true; }
             }
             else
             {

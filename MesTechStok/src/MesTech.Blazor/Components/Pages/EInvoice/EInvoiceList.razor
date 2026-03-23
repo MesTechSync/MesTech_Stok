@@ -175,7 +175,14 @@ else
             if (apiData?.Count > 0)
             {
                 _isDemoMode = false;
-                invoices = apiData;
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(apiData);
+                    invoices = System.Text.Json.JsonSerializer.Deserialize<List<InvoiceRow>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoData();
+                }
+                catch { invoices = GetDemoData(); _isDemoMode = true; }
             }
             else
             {
