@@ -3,6 +3,12 @@
         xmlns:vm="using:MesTech.Avalonia.ViewModels"
         xmlns:views="using:MesTech.Avalonia.Views"
         xmlns:wpfvm="using:MesTechStok.Desktop.ViewModels.Finance"
+        xmlns:acctvm="using:MesTech.Avalonia.ViewModels.Accounting"
+        xmlns:monvm="using:MesTech.Avalonia.ViewModels.Monitoring"
+        xmlns:ordvm="using:MesTech.Avalonia.ViewModels.Orders"
+        xmlns:acctviews="using:MesTech.Avalonia.Views.Accounting"
+        xmlns:monviews="using:MesTech.Avalonia.Views.Monitoring"
+        xmlns:ordviews="using:MesTech.Avalonia.Views.Orders"
         x:Class="MesTech.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="MesTech Entegratör"
@@ -832,6 +838,22 @@
                         <!-- FIX-18 Gorev #13: Buybox Analizi -->
                         <DataTemplate DataType="vm:BuyboxAvaloniaViewModel">
                             <views:BuyboxAvaloniaView />
+                        </DataTemplate>
+                        <!-- V4 — Muhasebe + İzleme + Kanban -->
+                        <DataTemplate DataType="acctvm:JournalEntryListViewModel">
+                            <acctviews:JournalEntryListView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:TrialBalanceViewModel">
+                            <acctviews:TrialBalanceView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:CommissionRatesViewModel">
+                            <acctviews:CommissionRatesView />
+                        </DataTemplate>
+                        <DataTemplate DataType="monvm:StaleOrdersAvaloniaViewModel">
+                            <monviews:StaleOrdersAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="ordvm:OrderKanbanViewModel">
+                            <ordviews:OrderKanbanView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
