@@ -17,11 +17,20 @@ public partial class CommandPaletteDialog : Window
         _allCommands = BuildCommandRegistry();
         ResultsList.ItemsSource = _allCommands;
 
-        Opened += (_, _) =>
-        {
-            QueryBox.Focus();
-            QueryBox.SelectAll();
-        };
+        Opened += OnDialogOpened;
+    }
+
+    private void OnDialogOpened(object? sender, EventArgs e)
+    {
+        QueryBox.Focus();
+        QueryBox.SelectAll();
+    }
+
+    /// <summary>Dialog kapanırken event temizliği [EL-01]</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        Opened -= OnDialogOpened;
+        base.OnClosed(e);
     }
 
     private void OnQueryChanged(object? sender, TextChangedEventArgs e)
