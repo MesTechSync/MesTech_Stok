@@ -217,6 +217,12 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<BackupAvaloniaViewModel>();
                 // FIX-18 Gorev #13: Buybox Analizi
                 services.AddTransient<BuyboxAvaloniaViewModel>();
+                // V4 — Muhasebe + İzleme + Kanban
+                services.AddTransient<ViewModels.Accounting.JournalEntryListViewModel>();
+                services.AddTransient<ViewModels.Accounting.TrialBalanceViewModel>();
+                services.AddTransient<ViewModels.Accounting.CommissionRatesViewModel>();
+                services.AddTransient<ViewModels.Monitoring.StaleOrdersAvaloniaViewModel>();
+                services.AddTransient<ViewModels.Orders.OrderKanbanViewModel>();
             })
             .Build();
 
