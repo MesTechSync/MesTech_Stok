@@ -103,6 +103,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProductSetRepository, ProductSetRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
+        services.AddScoped<ILogEntryRepository, LogEntryRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IPriceRecommendationRepository, PriceRecommendationRepository>();
