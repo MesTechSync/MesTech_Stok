@@ -1,0 +1,123 @@
+@page "/erp/contact-sync"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<ErpContactSync> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #6f42c1;">
+            <i class="fas fa-users-cog text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #6f42c1;">Cari Hesap Sync</h3>
+            <small class="text-muted">ERP cari hesap senkronizasyon durumu</small>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-users" Value="@_totalContacts.ToString()" Label="Toplam Cari" TextColor="text-primary" />
+        <KpiCard Icon="fa-check" Value="@_synced.ToString()" Label="Senkron" TextColor="text-success" />
+        <KpiCard Icon="fa-clock" Value="@_pending.ToString()" Label="Bekleyen" TextColor="text-warning" />
+        <KpiCard Icon="fa-times" Value="@_failed.ToString()" Label="Basarisiz" TextColor="text-danger" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Son Senkronizasyonlar</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Cari Adi</th>
+                            <th>ERP Kaynak</th>
+                            <th>Son Sync</th>
+                            <th>Durum</th>
+                            <th>Hata</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in _contacts ?? Enumerable.Empty<ContactSyncItem>())
+                        {
+                            <tr>
+                                <td>@c.ContactName</td>
+                                <td><span class="badge bg-info">@c.ErpSource</span></td>
+                                <td>@c.LastSync.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td><span class="badge bg-@GetColor(c.Status)">@c.Status</span></td>
+                                <td class="text-muted small">@(c.ErrorMessage ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _totalContacts, _synced, _pending, _failed;
+    private List<ContactSyncItem>? _contacts;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<ContactSyncItem>>("api/v1/erp/contacts");
+            if (result.IsSuccess && result.Data != null)
+                _contacts = result.Data;
+            else { _isDemoMode = true; _contacts = GetDemoData(); }
+            _totalContacts = _contacts.Count;
+            _synced = _contacts.Count(c => c.Status == "Senkron");
+            _pending = _contacts.Count(c => c.Status == "Bekliyor");
+            _failed = _contacts.Count(c => c.Status == "Hata");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Cari hesap sync yuklenirken hata");
+            errorMessage = "Cari hesap senkronizasyon verileri yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private static string GetColor(string s) => s switch { "Senkron" => "success", "Bekliyor" => "warning", "Hata" => "danger", _ => "secondary" };
+
+    private static List<ContactSyncItem> GetDemoData() => new()
+    {
+        new("ABC Ticaret Ltd.", "Parasut", DateTime.Now.AddHours(-1), "Senkron", null),
+        new("XYZ Elektronik A.S.", "Parasut", DateTime.Now.AddHours(-3), "Senkron", null),
+        new("Demo Tedarikci", "Logo", DateTime.Now.AddDays(-1), "Hata", "Baglanti zaman asimi"),
+        new("Test Musteri", "Netsis", DateTime.Now, "Bekliyor", null),
+    };
+
+    private record ContactSyncItem(string ContactName, string ErpSource, DateTime LastSync, string Status, string? ErrorMessage);
+}
