@@ -1,0 +1,186 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MesTech.Avalonia.Dialogs.CustomerEditDialog"
+        Title="Musteri Duzenle"
+        Width="720" Height="620"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}">
+
+  <Border Padding="24">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- Header -->
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="dialog-title"
+                 Text="Musteri Duzenle" />
+
+      <!-- Content -->
+      <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+        <StackPanel Spacing="16">
+
+          <!-- Temel Bilgiler -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Temel Bilgiler" FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeSubtitle}"
+                         Foreground="{DynamicResource MesTextPrimary}" />
+
+              <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="Ad" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="NameBox" Classes="mestech" Watermark="Musteri adi"
+                           ToolTip.Tip="Musteri tam adi" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Kod" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="CodeBox" Classes="mestech" Watermark="Musteri kodu"
+                           ToolTip.Tip="Benzersiz musteri kodu" />
+                </StackPanel>
+              </Grid>
+
+              <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="E-posta" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="EmailBox" Classes="mestech" Watermark="ornek@firma.com"
+                           ToolTip.Tip="Musteri e-posta adresi" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Telefon" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="PhoneBox" Classes="mestech" Watermark="+90 5XX XXX XX XX"
+                           ToolTip.Tip="Musteri telefon numarasi" />
+                </StackPanel>
+              </Grid>
+
+              <Grid ColumnDefinitions="*,16,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="Tip" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <ComboBox x:Name="TypeCombo" Classes="mestech" SelectedIndex="0"
+                            ToolTip.Tip="Musteri tipi secimi">
+                    <ComboBoxItem Content="Bireysel" Tag="INDIVIDUAL" />
+                    <ComboBoxItem Content="Kurumsal" Tag="CORPORATE" />
+                    <ComboBoxItem Content="VIP" Tag="VIP" />
+                  </ComboBox>
+                </StackPanel>
+                <CheckBox Grid.Column="2" x:Name="VipCheck" Content="VIP Musteri"
+                          VerticalAlignment="Bottom" Margin="0,0,0,8"
+                          ToolTip.Tip="VIP musteri olarak isaretle" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- Adres Bilgileri -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Adres Bilgileri" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeSubtitle}"
+                           Foreground="{DynamicResource MesTextPrimary}" />
+                <Button Grid.Column="1" Classes="mestech-outline" Content="Fatura → Sevkiyat Kopyala"
+                        Click="OnCopyAddress" FontSize="{StaticResource FontSizeSmall}"
+                        ToolTip.Tip="Fatura adresini sevkiyat adresine kopyala" />
+              </Grid>
+
+              <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="Fatura Adresi" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="BillingBox" Classes="mestech" Watermark="Fatura adresi"
+                           AcceptsReturn="True" Height="60" TextWrapping="Wrap"
+                           ToolTip.Tip="Fatura adresi" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Sevkiyat Adresi" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="ShippingBox" Classes="mestech" Watermark="Sevkiyat adresi"
+                           AcceptsReturn="True" Height="60" TextWrapping="Wrap"
+                           ToolTip.Tip="Sevkiyat adresi" />
+                </StackPanel>
+              </Grid>
+
+              <Grid ColumnDefinitions="*,16,*,16,*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="Sehir" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="CityBox" Classes="mestech" Watermark="Sehir"
+                           ToolTip.Tip="Sehir" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Ilce" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="StateBox" Classes="mestech" Watermark="Ilce"
+                           ToolTip.Tip="Il / Ilce" />
+                </StackPanel>
+                <StackPanel Grid.Column="4" Spacing="4">
+                  <TextBlock Text="Posta Kodu" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="PostalCodeBox" Classes="mestech" Watermark="34000"
+                           ToolTip.Tip="Posta kodu" />
+                </StackPanel>
+                <StackPanel Grid.Column="6" Spacing="4">
+                  <TextBlock Text="Ulke" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="CountryBox" Classes="mestech" Text="Turkiye"
+                           ToolTip.Tip="Ulke" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- Finans ve Tercihler -->
+          <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Finans ve Tercihler" FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeSubtitle}"
+                         Foreground="{DynamicResource MesTextPrimary}" />
+
+              <Grid ColumnDefinitions="*,16,*,16,*,16,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="Kredi Limiti" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="CreditLimitBox" Classes="mestech" Watermark="0.00"
+                           ToolTip.Tip="Musteri kredi limiti (TL)" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                  <TextBlock Text="Iskonto (%)" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="DiscountBox" Classes="mestech" Watermark="0"
+                           ToolTip.Tip="Varsayilan iskonto orani (%)" />
+                </StackPanel>
+                <StackPanel Grid.Column="4" Spacing="4">
+                  <TextBlock Text="Odeme Vadesi (gun)" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="PaymentTermBox" Classes="mestech" Watermark="30"
+                           ToolTip.Tip="Odeme vadesi (gun olarak)" />
+                </StackPanel>
+                <StackPanel Grid.Column="6" Spacing="4">
+                  <TextBlock Text="Para Birimi" FontSize="{StaticResource FontSizeSmall}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBox x:Name="CurrencyBox" Classes="mestech" Text="TRY"
+                           ToolTip.Tip="Para birimi kodu" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer Actions -->
+      <StackPanel Grid.Row="2" Classes="dialog-actions" Margin="0,12,0,0">
+        <Button Classes="mestech-outline" Content="Iptal" Click="OnCancel"
+                ToolTip.Tip="Degisiklikleri iptal et ve kapat" />
+        <Button Classes="mestech-raised" Content="Kaydet" Click="OnSave"
+                ToolTip.Tip="Musteri bilgilerini kaydet" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</Window>
