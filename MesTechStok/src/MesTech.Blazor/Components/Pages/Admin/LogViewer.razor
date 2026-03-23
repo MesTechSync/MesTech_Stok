@@ -127,9 +127,14 @@ else
             if (result.IsSuccess && result.Data is not null && result.Data.Count > 0)
             {
                 _isDemoMode = false;
-                // Keep demo data for now — typed DTOs not yet available
-                // When API returns real data, it will be List<object>
-                allLogs = GetDemoLogs();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
+                    allLogs = System.Text.Json.JsonSerializer.Deserialize<List<LogEntry>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoLogs();
+                }
+                catch { allLogs = GetDemoLogs(); _isDemoMode = true; }
             }
             else
             {

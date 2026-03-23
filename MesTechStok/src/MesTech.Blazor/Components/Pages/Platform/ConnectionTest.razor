@@ -117,9 +117,14 @@ else
             if (healthData is not null)
             {
                 _isDemoMode = false;
-                // Keep demo data for now — typed DTOs not yet available
-                // When API returns real data, map healthData to platform statuses
-                platforms = GetDemoPlatforms();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(healthData);
+                    var parsed = System.Text.Json.JsonSerializer.Deserialize<List<PlatformInfo>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    platforms = parsed?.Count > 0 ? parsed : GetDemoPlatforms();
+                }
+                catch { platforms = GetDemoPlatforms(); _isDemoMode = true; }
             }
             else
             {

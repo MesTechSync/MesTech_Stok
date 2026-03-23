@@ -255,9 +255,14 @@ else
       if (apiData?.Count > 0)
       {
         _isDemoMode = false;
-        // Keep demo data for now — typed DTOs not yet available
-        // When API returns real data, it will be List<object>
-        stores = GetDemoStores();
+        try
+        {
+          var json = System.Text.Json.JsonSerializer.Serialize(apiData);
+          stores = System.Text.Json.JsonSerializer.Deserialize<List<StoreRow>>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? GetDemoStores();
+        }
+        catch { stores = GetDemoStores(); _isDemoMode = true; }
       }
       else
       {

@@ -222,9 +222,14 @@ else
       if (apiData?.Count > 0)
       {
         _isDemoMode = false;
-        // Keep demo data for now — typed DTOs not yet available
-        // When API returns real data, it will be List<object>
-        tenants = GetDemoTenants(); // Panel A: map apiData → TenantRow when typed DTOs finalized
+        try
+        {
+          var json = System.Text.Json.JsonSerializer.Serialize(apiData);
+          tenants = System.Text.Json.JsonSerializer.Deserialize<List<TenantRow>>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? GetDemoTenants();
+        }
+        catch { tenants = GetDemoTenants(); _isDemoMode = true; }
       }
       else
       {
