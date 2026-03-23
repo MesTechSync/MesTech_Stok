@@ -16,6 +16,7 @@ using MesTech.Application.Features.Reports.ErpReconciliationReport;
 using MesTech.Application.Features.Reports.FulfillmentCostReport;
 using MesTech.Application.Features.Reports.PlatformPerformanceReport;
 using MesTech.Application.Features.Reports.TaxSummaryReport;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
@@ -254,5 +255,79 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformPerformanceReport")
         .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor");
+
+        // ─── V5 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
+
+        // GET /api/v1/reports/commission/export — komisyon raporu export (PDF/Excel/CSV)
+        group.MapGet("/commission/export", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            string format = "pdf",
+            PlatformType? platform = null,
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new CommissionReportQuery(tenantId, startDate, endDate, platform), ct);
+            return await ExportResult(exportService, report.PlatformBreakdown, "Komisyon Raporu", format, ct);
+        })
+        .WithName("ExportCommissionReport")
+        .WithSummary("Komisyon raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/platform-performance/export — platform performans export
+        group.MapGet("/platform-performance/export", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            string format = "pdf",
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new PlatformPerformanceReportQuery(tenantId, startDate, endDate), ct);
+            return await ExportResult(exportService, report.Platforms, "Platform Performans Raporu", format, ct);
+        })
+        .WithName("ExportPlatformPerformanceReport")
+        .WithSummary("Platform performans raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/profitability/export — kârlılık raporu export
+        group.MapGet("/profitability/export", async (
+            Guid tenantId, DateTime from, DateTime to,
+            string format = "pdf",
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new ProfitabilityReportQuery(tenantId, from, to), ct);
+            return await ExportResult(exportService, report.ByPlatform, "Kârlılık Raporu", format, ct);
+        })
+        .WithName("ExportProfitabilityReport")
+        .WithSummary("Kârlılık raporu export — PDF, Excel veya CSV");
+    }
+
+    private static async Task<IResult> ExportResult<T>(
+        IReportExportService exportService,
+        IEnumerable<T> data,
+        string title,
+        string format,
+        CancellationToken ct)
+    {
+        var fmt = format.ToLowerInvariant();
+        return fmt switch
+        {
+            "pdf" => Results.File(
+                await exportService.ExportToPdfAsync(data, title, ct),
+                "application/pdf",
+                $"{title.Replace(' ', '_')}_{DateTime.UtcNow:yyyyMMdd}.pdf"),
+            "xlsx" or "excel" => Results.File(
+                await exportService.ExportToExcelAsync(data, title, ct),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"{title.Replace(' ', '_')}_{DateTime.UtcNow:yyyyMMdd}.xlsx"),
+            "csv" => Results.File(
+                await exportService.ExportToCsvAsync(data, ct),
+                "text/csv",
+                $"{title.Replace(' ', '_')}_{DateTime.UtcNow:yyyyMMdd}.csv"),
+            _ => Results.BadRequest(new { error = "Desteklenen formatlar: pdf, xlsx, csv" })
+        };
     }
 }
