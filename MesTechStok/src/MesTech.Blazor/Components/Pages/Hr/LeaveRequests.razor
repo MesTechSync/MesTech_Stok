@@ -118,7 +118,14 @@ else
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 _isDemoMode = false;
-                _requests = GetDemoData();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
+                    _requests = System.Text.Json.JsonSerializer.Deserialize<List<LeaveRequestItem>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoData();
+                }
+                catch { _requests = GetDemoData(); _isDemoMode = true; }
             }
             else
             {

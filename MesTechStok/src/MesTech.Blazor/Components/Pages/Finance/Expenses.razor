@@ -114,7 +114,14 @@ else
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 _isDemoMode = false;
-                _expenses = GetDemoData();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
+                    _expenses = System.Text.Json.JsonSerializer.Deserialize<List<ExpenseItem>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoData();
+                }
+                catch { _expenses = GetDemoData(); _isDemoMode = true; }
             }
             else
             {

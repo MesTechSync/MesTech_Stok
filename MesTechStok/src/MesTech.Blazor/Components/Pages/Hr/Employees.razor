@@ -119,7 +119,14 @@ else
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 _isDemoMode = false;
-                _employees = GetDemoData();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
+                    _employees = System.Text.Json.JsonSerializer.Deserialize<List<EmployeeItem>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoData();
+                }
+                catch { _employees = GetDemoData(); _isDemoMode = true; }
             }
             else
             {

@@ -125,7 +125,14 @@ else
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 _isDemoMode = false;
-                _documents = GetDemoData();
+                try
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
+                    _documents = System.Text.Json.JsonSerializer.Deserialize<List<DocumentItem>>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? GetDemoData();
+                }
+                catch { _documents = GetDemoData(); _isDemoMode = true; }
             }
             else
             {
