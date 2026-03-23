@@ -218,6 +218,8 @@ public class AppDbContext : DbContext
     public DbSet<SettlementLine> SettlementLines => Set<SettlementLine>();
     public DbSet<CommissionRecord> CommissionRecords => Set<CommissionRecord>();
     public DbSet<CargoExpense> CargoExpenses => Set<CargoExpense>();
+    public DbSet<Domain.Entities.ShipmentCost> ShipmentCosts => Set<Domain.Entities.ShipmentCost>();
+    public DbSet<Domain.Accounting.Entities.AccountingPeriod> AccountingPeriods => Set<Domain.Accounting.Entities.AccountingPeriod>();
     public DbSet<BankTransaction> AccountingBankTransactions => Set<BankTransaction>();
     public DbSet<ReconciliationMatch> ReconciliationMatches => Set<ReconciliationMatch>();
     public DbSet<AccountingDocument> AccountingDocuments => Set<AccountingDocument>();
