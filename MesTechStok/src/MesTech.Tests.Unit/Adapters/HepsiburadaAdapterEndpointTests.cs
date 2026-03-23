@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -29,10 +29,8 @@ public class HepsiburadaAdapterEndpointTests
     public HepsiburadaAdapterEndpointTests()
     {
         _mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
-        _httpClient = new HttpClient(_mockHandler.Object)
-        {
-            BaseAddress = new Uri("https://api.hepsiburada.com/")
-        };
+        _httpClient = new HttpClient(_mockHandler.Object);
+        _httpClient.BaseAddress = new Uri("https://api.hepsiburada.com/");
         _logger = NullLogger<HepsiburadaAdapter>.Instance;
         _sut = new HepsiburadaAdapter(_httpClient, _logger);
 

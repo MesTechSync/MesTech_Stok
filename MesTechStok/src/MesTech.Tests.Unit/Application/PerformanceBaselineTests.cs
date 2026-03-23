@@ -104,10 +104,10 @@ public class PerformanceBaselineTests
         var sw = Stopwatch.StartNew();
 
         // Act
-        var invoices = new List<Invoice>(1_000);
+        var invoices = new List<MesTech.Domain.Entities.Invoice>(1_000);
         for (int i = 0; i < 1_000; i++)
         {
-            var invoice = new Invoice
+            var invoice = new MesTech.Domain.Entities.Invoice
             {
                 TenantId = tenantId,
                 OrderId = Guid.NewGuid(),

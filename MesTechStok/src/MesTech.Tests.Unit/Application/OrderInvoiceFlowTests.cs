@@ -87,7 +87,7 @@ public class OrderInvoiceFlowTests
         order.Place();
 
         // Act
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-001");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-001");
 
         // Assert
         invoice.OrderId.Should().Be(order.Id);
@@ -107,7 +107,7 @@ public class OrderInvoiceFlowTests
         order.Place();
 
         // Act
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-002");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-002");
 
         // Assert
         invoice.SubTotal.Should().Be(order.SubTotal);
@@ -124,7 +124,7 @@ public class OrderInvoiceFlowTests
         order.Place();
 
         // Act
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-003");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-003");
 
         // Assert
         invoice.IsEInvoiceTaxpayer.Should().BeTrue();
@@ -139,7 +139,7 @@ public class OrderInvoiceFlowTests
         order.Place();
 
         // Act
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-004");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-004");
 
         // Assert
         invoice.IsEInvoiceTaxpayer.Should().BeFalse();
@@ -152,7 +152,7 @@ public class OrderInvoiceFlowTests
         // Arrange
         var order = CreateSampleOrder();
         order.Place();
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-005");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-005");
 
         invoice.Status.Should().Be(InvoiceStatus.Draft);
 
@@ -184,7 +184,7 @@ public class OrderInvoiceFlowTests
             .Which.Should().BeOfType<OrderPlacedEvent>();
 
         // Act & Assert: Step 2 — Create Invoice
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-FLOW-001");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-FLOW-001");
         invoice.Status.Should().Be(InvoiceStatus.Draft);
         invoice.GrandTotal.Should().Be(order.TotalAmount);
         invoice.DomainEvents.Should().ContainSingle()
@@ -213,7 +213,7 @@ public class OrderInvoiceFlowTests
         order.Status.Should().Be(OrderStatus.Confirmed);
 
         // Act: Create Invoice
-        var invoice = Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-CANCEL-001");
+        var invoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EArsiv, "INV-CANCEL-001");
         invoice.Status.Should().Be(InvoiceStatus.Draft);
 
         // Act: Cancel from Draft
@@ -223,7 +223,7 @@ public class OrderInvoiceFlowTests
         invoice.Status.Should().Be(InvoiceStatus.Cancelled);
 
         // Verify that cancelling an Accepted invoice throws
-        var acceptedInvoice = Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-CANCEL-002");
+        var acceptedInvoice = MesTech.Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EFatura, "INV-CANCEL-002");
         acceptedInvoice.MarkAsSent("GIB-X", null);
         acceptedInvoice.MarkAsAccepted();
 

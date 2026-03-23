@@ -301,7 +301,7 @@ public class ConvertQuotationToInvoiceHandlerTests
         result.InvoiceId.Should().NotBeEmpty();
         quotation.Status.Should().Be(QuotationStatus.Converted);
         quotation.ConvertedInvoiceId.Should().Be(result.InvoiceId);
-        _invoiceRepo.Verify(r => r.AddAsync(It.Is<Invoice>(inv =>
+        _invoiceRepo.Verify(r => r.AddAsync(It.Is<MesTech.Domain.Entities.Invoice>(inv =>
             inv.InvoiceNumber == "INV-2026-001" &&
             inv.CustomerName == "Convert Customer"
         )), Times.Once);
