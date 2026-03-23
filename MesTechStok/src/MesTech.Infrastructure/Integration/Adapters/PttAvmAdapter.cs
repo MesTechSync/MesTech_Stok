@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -36,17 +37,25 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
     private string _password = string.Empty;
     private string _accessToken = string.Empty;
     private DateTime _tokenExpiry = DateTime.MinValue;
-    private string _baseUrl = "https://apigw.pttavm.com";
-    private string _tokenEndpoint = "https://apigw.pttavm.com/api/auth/login";
+    private string _baseUrl;
+    private string _tokenEndpoint;
     private bool _isConfigured;
+
+    private const string DefaultBaseUrl = "https://apigw.pttavm.com";
+    private const string DefaultTokenEndpoint = "https://apigw.pttavm.com/api/auth/login";
 
     // 5-minute safety buffer before actual expiry
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
-    public PttAvmAdapter(HttpClient httpClient, ILogger<PttAvmAdapter> logger)
+    public PttAvmAdapter(HttpClient httpClient, ILogger<PttAvmAdapter> logger,
+        IOptions<PttAvmOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        var opts = options?.Value;
+        _baseUrl = opts?.BaseUrl ?? DefaultBaseUrl;
+        _tokenEndpoint = opts?.TokenEndpoint ?? DefaultTokenEndpoint;
 
         _jsonOptions = new JsonSerializerOptions
         {
