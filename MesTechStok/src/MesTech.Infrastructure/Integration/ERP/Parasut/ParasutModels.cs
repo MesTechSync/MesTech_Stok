@@ -190,6 +190,38 @@ internal sealed class ParasutResponseAttributes
 
     [JsonPropertyName("code")]
     public string? Code { get; set; }
+
+    // Invoice attributes (sales_invoices)
+    [JsonPropertyName("invoice_no")]
+    public string? InvoiceNo { get; set; }
+
+    [JsonPropertyName("issue_date")]
+    public string? IssueDate { get; set; }
+
+    [JsonPropertyName("gross_total")]
+    public string? GrossTotal { get; set; }
+
+    [JsonPropertyName("net_total")]
+    public string? NetTotal { get; set; }
+
+    [JsonPropertyName("printable_url")]
+    public string? PrintableUrl { get; set; }
+
+    // Product/inventory attributes
+    [JsonPropertyName("stock_count")]
+    public string? StockCount { get; set; }
+
+    [JsonPropertyName("unit")]
+    public string? Unit { get; set; }
+}
+
+/// <summary>
+/// JSON:API list response — { "data": [ { "id", "type", "attributes" } ] }.
+/// </summary>
+internal sealed class ParasutJsonApiListResponse
+{
+    [JsonPropertyName("data")]
+    public List<ParasutResponseData> Data { get; set; } = new();
 }
 
 internal sealed class ParasutAccountsResponse

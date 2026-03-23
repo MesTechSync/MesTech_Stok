@@ -431,8 +431,29 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
                 (int)response.StatusCode, errorBody);
             return new List<ErpInvoiceResult>();
         }
-        // Parse JSON:API response
-        return new List<ErpInvoiceResult>();
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(json, JsonOptions);
+        if (parsed?.Data is null || parsed.Data.Count == 0)
+            return new List<ErpInvoiceResult>();
+
+        var results = new List<ErpInvoiceResult>();
+        foreach (var item in parsed.Data)
+        {
+            var attr = item.Attributes;
+            _ = DateTime.TryParse(attr?.IssueDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var issueDate);
+            _ = decimal.TryParse(attr?.GrossTotal, NumberStyles.Number, CultureInfo.InvariantCulture, out var grandTotal);
+            results.Add(ErpInvoiceResult.Ok(
+                attr?.InvoiceNo ?? item.Id ?? "",
+                item.Id ?? "",
+                issueDate,
+                grandTotal,
+                attr?.PrintableUrl));
+        }
+
+        _logger.LogInformation("[ParasutERPAdapter] GetInvoices: {Count} invoices from {From} to {To}",
+            results.Count, from, to);
+        return results;
     }
 
     async Task<bool> IErpInvoiceCapable.CancelInvoiceAsync(string invoiceNumber, string reason, CancellationToken ct)
@@ -541,7 +562,26 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
                 (int)response.StatusCode, errorBody);
             return new List<ErpAccountResult>();
         }
-        return new List<ErpAccountResult>();
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(json, JsonOptions);
+        if (parsed?.Data is null || parsed.Data.Count == 0)
+            return new List<ErpAccountResult>();
+
+        var results = new List<ErpAccountResult>();
+        foreach (var item in parsed.Data)
+        {
+            var attr = item.Attributes;
+            _ = decimal.TryParse(attr?.Balance, NumberStyles.Number, CultureInfo.InvariantCulture, out var balance);
+            results.Add(ErpAccountResult.Ok(
+                attr?.Code ?? item.Id ?? "",
+                attr?.Name ?? "",
+                balance));
+        }
+
+        _logger.LogInformation("[ParasutERPAdapter] SearchAccounts: {Count} contacts matching '{Query}'",
+            results.Count, query);
+        return results;
     }
 
     async Task<decimal> IErpAccountCapable.GetAccountBalanceAsync(string accountCode, CancellationToken ct)
@@ -564,7 +604,28 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
                 (int)response.StatusCode, errorBody);
             return new List<ErpStockItem>();
         }
-        return new List<ErpStockItem>();
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(json, JsonOptions);
+        if (parsed?.Data is null || parsed.Data.Count == 0)
+            return new List<ErpStockItem>();
+
+        var results = new List<ErpStockItem>();
+        foreach (var item in parsed.Data)
+        {
+            var attr = item.Attributes;
+            _ = int.TryParse(attr?.StockCount, out var qty);
+            results.Add(new ErpStockItem(
+                ProductCode: attr?.Code ?? item.Id ?? "",
+                ProductName: attr?.Name ?? "",
+                Quantity: qty,
+                UnitCode: attr?.Unit ?? "Adet",
+                WarehouseCode: null,
+                UnitCost: null));
+        }
+
+        _logger.LogInformation("[ParasutERPAdapter] GetStockLevels: {Count} products", results.Count);
+        return results;
     }
 
     async Task<ErpStockItem?> IErpStockCapable.GetStockByCodeAsync(string productCode, CancellationToken ct)
