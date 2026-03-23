@@ -63,7 +63,7 @@ public class LoyaltyHandlerTests
 
         // Assert
         result.EarnedPoints.Should().Be(0);
-        result.TransactionId.Should().Be(Guid.Empty);
+        result.TransactionId.Should().BeNull();
         mockTxRepo.Verify(r => r.AddAsync(It.IsAny<LoyaltyTransaction>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
