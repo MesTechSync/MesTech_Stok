@@ -1,0 +1,146 @@
+@page "/accounting/income-expense"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<IncomeExpense> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #198754;">
+            <i class="fas fa-balance-scale text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #198754;">Gelir / Gider</h3>
+            <small class="text-muted">Aylik gelir-gider kaydi ve kar/zarar ozeti</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm w-auto" @bind="_selectedMonth">
+            @for (int m = 1; m <= 12; m++)
+            {
+                <option value="@m">@System.Globalization.CultureInfo.GetCultureInfo("tr-TR").DateTimeFormat.GetMonthName(m)</option>
+            }
+        </select>
+        <select class="form-select form-select-sm w-auto" @bind="_selectedYear">
+            @for (int y = 2024; y <= 2027; y++) { <option value="@y">@y</option> }
+        </select>
+        <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+            <i class="fas fa-sync-alt me-1"></i>Yenile
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-arrow-up" Value="@_totalIncome.ToString("C0", _trCulture)" Label="Toplam Gelir" TextColor="text-success" />
+        <KpiCard Icon="fa-arrow-down" Value="@_totalExpense.ToString("C0", _trCulture)" Label="Toplam Gider" TextColor="text-danger" />
+        <KpiCard Icon="fa-coins" Value="@_netProfit.ToString("C0", _trCulture)" Label="Net Kar/Zarar" TextColor="@(_netProfit >= 0 ? "text-success" : "text-danger")" />
+        <KpiCard Icon="fa-percent" Value="@_profitMargin.ToString("F1")%" Label="Kar Marji" TextColor="text-info" />
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success bg-opacity-10">
+                    <h5 class="mb-0 text-success"><i class="fas fa-arrow-up me-2"></i>Gelirler</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light"><tr><th>Kaynak</th><th class="text-end">Tutar</th></tr></thead>
+                            <tbody>
+                                @foreach (var i in _incomes ?? Enumerable.Empty<IncomeExpenseItem>())
+                                {
+                                    <tr><td>@i.Description</td><td class="text-end text-success fw-bold">@i.Amount.ToString("C0", _trCulture)</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger bg-opacity-10">
+                    <h5 class="mb-0 text-danger"><i class="fas fa-arrow-down me-2"></i>Giderler</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light"><tr><th>Kategori</th><th class="text-end">Tutar</th></tr></thead>
+                            <tbody>
+                                @foreach (var e in _expenses ?? Enumerable.Empty<IncomeExpenseItem>())
+                                {
+                                    <tr><td>@e.Description</td><td class="text-end text-danger fw-bold">@e.Amount.ToString("C0", _trCulture)</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _selectedMonth = DateTime.Now.Month;
+    private int _selectedYear = DateTime.Now.Year;
+    private decimal _totalIncome, _totalExpense, _netProfit, _profitMargin;
+    private List<IncomeExpenseItem>? _incomes, _expenses;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<IncomeExpenseResponse>($"api/v1/accounting/income-expense?year={_selectedYear}&month={_selectedMonth}");
+            if (result.IsSuccess && result.Data != null)
+            {
+                _incomes = result.Data.Incomes;
+                _expenses = result.Data.Expenses;
+            }
+            else
+            {
+                _isDemoMode = true;
+                _incomes = new() { new("Trendyol Satislar", 125000m), new("Hepsiburada Satislar", 78000m), new("OpenCart Satislar", 32000m) };
+                _expenses = new() { new("Kargo Giderleri", 18500m), new("Platform Komisyonlari", 28750m), new("Personel Giderleri", 45000m), new("Kira + Faturalar", 12000m) };
+            }
+            _totalIncome = _incomes?.Sum(i => i.Amount) ?? 0;
+            _totalExpense = _expenses?.Sum(e => e.Amount) ?? 0;
+            _netProfit = _totalIncome - _totalExpense;
+            _profitMargin = _totalIncome > 0 ? (_netProfit / _totalIncome * 100) : 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Gelir/gider verileri yuklenirken hata");
+            errorMessage = "Gelir/gider verileri yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private record IncomeExpenseItem(string Description, decimal Amount);
+    private record IncomeExpenseResponse(List<IncomeExpenseItem> Incomes, List<IncomeExpenseItem> Expenses);
+}
