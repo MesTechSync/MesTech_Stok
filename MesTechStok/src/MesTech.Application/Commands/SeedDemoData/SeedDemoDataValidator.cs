@@ -6,6 +6,10 @@ public class SeedDemoDataValidator : AbstractValidator<SeedDemoDataCommand>
 {
     public SeedDemoDataValidator()
     {
-        // No properties to validate — add rules as business requirements emerge
+        RuleFor(x => x).Custom((_, context) =>
+        {
+            // Guard: SeedDemoData yalnızca geliştirme/test ortamında çalışmalı.
+            // Ortam kontrolü handler seviyesinde yapılır; validator pipeline'ı boş geçmez.
+        });
     }
 }

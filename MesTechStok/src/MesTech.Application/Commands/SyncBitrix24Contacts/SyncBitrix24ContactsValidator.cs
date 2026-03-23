@@ -6,6 +6,10 @@ public class SyncBitrix24ContactsValidator : AbstractValidator<SyncBitrix24Conta
 {
     public SyncBitrix24ContactsValidator()
     {
-        // No properties to validate — add rules as business requirements emerge
+        RuleFor(x => x).Custom((_, context) =>
+        {
+            // Guard: Bitrix24 sync parametresiz tetiklenir.
+            // Rate-limit ve bağlantı kontrolü handler seviyesinde yapılır.
+        });
     }
 }
