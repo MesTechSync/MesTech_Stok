@@ -1,0 +1,157 @@
+@page "/reports/sales-by-platform"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<SalesByPlatform> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #fd7e14;">
+            <i class="fas fa-chart-bar text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #fd7e14;">Platform Satis Raporu</h3>
+            <small class="text-muted">Platform bazli satis performansi ve karsilastirma</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <input type="date" class="form-control form-control-sm" @bind="_startDate" />
+        <input type="date" class="form-control form-control-sm" @bind="_endDate" />
+        <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+            <i class="fas fa-sync-alt me-1"></i>Yenile
+        </button>
+        <button class="btn btn-sm btn-outline-success" @onclick="ExportReport">
+            <i class="fas fa-file-excel me-1"></i>Excel
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-shopping-cart" Value="@_totalOrders.ToString("N0")" Label="Toplam Siparis" TextColor="text-primary" />
+        <KpiCard Icon="fa-lira-sign" Value="@_totalRevenue.ToString("C0", _trCulture)" Label="Toplam Ciro" TextColor="text-success" />
+        <KpiCard Icon="fa-coins" Value="@_totalCommission.ToString("C0", _trCulture)" Label="Platform Komisyonu" TextColor="text-danger" />
+        <KpiCard Icon="fa-chart-line" Value="@_avgOrderValue.ToString("C0", _trCulture)" Label="Ort. Siparis Degeri" TextColor="text-info" />
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-store me-2"></i>Platform Bazli Satis Detayi</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Platform</th>
+                            <th class="text-end">Siparis</th>
+                            <th class="text-end">Ciro</th>
+                            <th class="text-end">Komisyon</th>
+                            <th class="text-end">Komisyon %</th>
+                            <th class="text-end">Net Gelir</th>
+                            <th>Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in _platforms ?? Enumerable.Empty<PlatformSalesRow>())
+                        {
+                            <tr>
+                                <td><span class="badge bg-@p.Color me-1">@p.PlatformName</span></td>
+                                <td class="text-end">@p.OrderCount.ToString("N0")</td>
+                                <td class="text-end fw-bold">@p.Revenue.ToString("C0", _trCulture)</td>
+                                <td class="text-end text-danger">@p.Commission.ToString("C0", _trCulture)</td>
+                                <td class="text-end">%@p.CommissionRate.ToString("F1")</td>
+                                <td class="text-end text-success fw-bold">@p.NetRevenue.ToString("C0", _trCulture)</td>
+                                <td>
+                                    <div class="progress" style="height: 8px; width: 80px;">
+                                        <div class="progress-bar bg-@p.Color" style="width: @p.SharePercent%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td>TOPLAM</td>
+                            <td class="text-end">@_totalOrders.ToString("N0")</td>
+                            <td class="text-end">@_totalRevenue.ToString("C0", _trCulture)</td>
+                            <td class="text-end text-danger">@_totalCommission.ToString("C0", _trCulture)</td>
+                            <td></td>
+                            <td class="text-end text-success">@(_totalRevenue - _totalCommission).ToString("C0", _trCulture)</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private DateTime _startDate = DateTime.Now.AddMonths(-1);
+    private DateTime _endDate = DateTime.Now;
+    private int _totalOrders;
+    private decimal _totalRevenue, _totalCommission, _avgOrderValue;
+    private List<PlatformSalesRow>? _platforms;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<PlatformSalesRow>>($"api/v1/reports/platform-performance?from={_startDate:yyyy-MM-dd}&to={_endDate:yyyy-MM-dd}");
+            if (result.IsSuccess && result.Data != null)
+                _platforms = result.Data;
+            else { _isDemoMode = true; _platforms = GetDemoData(); }
+            _totalOrders = _platforms.Sum(p => p.OrderCount);
+            _totalRevenue = _platforms.Sum(p => p.Revenue);
+            _totalCommission = _platforms.Sum(p => p.Commission);
+            _avgOrderValue = _totalOrders > 0 ? _totalRevenue / _totalOrders : 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Platform satis raporu yuklenirken hata");
+            errorMessage = "Platform satis raporu yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private void ExportReport()
+    {
+        // TODO: /api/v1/reports/platform-performance/export?format=xlsx
+    }
+
+    private static List<PlatformSalesRow> GetDemoData() => new()
+    {
+        new("Trendyol", "warning", 342, 185000m, 22200m, 12.0m, 162800m, 45),
+        new("Hepsiburada", "danger", 187, 98000m, 13720m, 14.0m, 84280m, 24),
+        new("Amazon TR", "dark", 89, 67000m, 10050m, 15.0m, 56950m, 16),
+        new("N11", "info", 56, 32000m, 3840m, 12.0m, 28160m, 8),
+        new("CicekSepeti", "success", 43, 28000m, 4480m, 16.0m, 23520m, 7),
+    };
+
+    private record PlatformSalesRow(string PlatformName, string Color, int OrderCount, decimal Revenue, decimal Commission, decimal CommissionRate, decimal NetRevenue, int SharePercent);
+}
