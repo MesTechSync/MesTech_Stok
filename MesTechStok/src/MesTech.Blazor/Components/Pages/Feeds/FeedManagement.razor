@@ -1,0 +1,112 @@
+@page "/feeds/management"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<FeedManagement> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #dc3545;">
+            <i class="fas fa-rss text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #dc3545;">Feed Yonetimi</h3>
+            <small class="text-muted">Google Merchant Center ve Facebook Shop feed'leri</small>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <KpiCard Icon="fa-rss" Value="@_totalFeeds.ToString()" Label="Toplam Feed" TextColor="text-primary" />
+        <KpiCard Icon="fa-check-circle" Value="@_activeFeeds.ToString()" Label="Aktif" TextColor="text-success" />
+        <KpiCard Icon="fa-box" Value="@_totalProducts.ToString("N0")" Label="Urun Sayisi" TextColor="text-info" />
+        <KpiCard Icon="fa-clock" Value="@_lastGenerated" Label="Son Uretim" TextColor="text-secondary" />
+    </div>
+
+    <div class="row g-3">
+        @foreach (var feed in _feeds ?? Enumerable.Empty<FeedItem>())
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="@feed.Icon me-2"></i>@feed.Name</h5>
+                        <span class="badge bg-@(feed.IsActive ? "success" : "secondary")">@(feed.IsActive ? "Aktif" : "Pasif")</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col"><strong>@feed.ProductCount</strong><br /><small class="text-muted">Urun</small></div>
+                            <div class="col"><strong>@feed.ErrorCount</strong><br /><small class="text-muted">Hata</small></div>
+                            <div class="col"><strong>@feed.FileSize</strong><br /><small class="text-muted">Boyut</small></div>
+                        </div>
+                        <p class="text-muted small mb-2">Format: <code>@feed.Format</code></p>
+                        <p class="text-muted small mb-2">URL: <code class="text-break">@feed.FeedUrl</code></p>
+                        <p class="text-muted small mb-0">Son uretim: @feed.LastGenerated.ToString("dd.MM.yyyy HH:mm")</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private int _totalFeeds, _activeFeeds, _totalProducts;
+    private string _lastGenerated = "—";
+    private List<FeedItem>? _feeds;
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<FeedItem>>("api/v1/feeds/status");
+            if (result.IsSuccess && result.Data != null)
+                _feeds = result.Data;
+            else { _isDemoMode = true; _feeds = GetDemoData(); }
+            _totalFeeds = _feeds.Count;
+            _activeFeeds = _feeds.Count(f => f.IsActive);
+            _totalProducts = _feeds.Sum(f => f.ProductCount);
+            _lastGenerated = _feeds.Max(f => f.LastGenerated).ToString("dd.MM HH:mm");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Feed verileri yuklenirken hata");
+            errorMessage = "Feed verileri yuklenirken bir hata olustu.";
+        }
+        finally { isLoading = false; }
+    }
+
+    private static List<FeedItem> GetDemoData() => new()
+    {
+        new("Google Merchant Center", "fab fa-google", "XML", true, 1250, 3, "2.4 MB", "/feeds/google-merchant.xml", DateTime.Now.AddHours(-6)),
+        new("Facebook Shop", "fab fa-facebook", "TSV", true, 1180, 12, "1.8 MB", "/feeds/facebook-catalog.tsv", DateTime.Now.AddHours(-6)),
+        new("Instagram Shopping", "fab fa-instagram", "TSV", false, 0, 0, "—", "/feeds/instagram-catalog.tsv", DateTime.Now.AddDays(-30)),
+    };
+
+    private record FeedItem(string Name, string Icon, string Format, bool IsActive, int ProductCount, int ErrorCount, string FileSize, string FeedUrl, DateTime LastGenerated);
+}
