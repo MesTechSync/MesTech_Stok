@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.ProfitabilityReportView"
+             x:DataType="vm:ProfitabilityReportViewModel">
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Karlilik Raporu" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Excel" ToolTip.Tip="Excel olarak indir"
+                        Command="{Binding ExportExcelCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="PDF" ToolTip.Tip="PDF olarak indir"
+                        Command="{Binding ExportPdfCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
+                <Button Grid.Column="3" Content="CSV" ToolTip.Tip="CSV olarak indir"
+                        Command="{Binding ExportCsvCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Date Range Filter -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Tarih Araligi:" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi" />
+                <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesCoolGray}" />
+                <DatePicker SelectedDate="{Binding DateTo}" Width="140" ToolTip.Tip="Bitis tarihi" />
+                <Button Content="Yenile" ToolTip.Tip="Raporu yenile (F5)"
+                        Command="{Binding RefreshCommand}" Padding="12,6" />
+            </StackPanel>
+        </Border>
+
+        <!-- Platform Profitability DataGrid -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="{StaticResource MesRadiusLg}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid>
+                <DataGrid ItemsSource="{Binding PlatformProfits}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" BorderThickness="0"
+                          CanUserSortColumns="True" CanUserResizeColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="160" />
+                        <DataGridTextColumn Header="Gelir" Binding="{Binding RevenueFormatted}" Width="140" />
+                        <DataGridTextColumn Header="Gider" Binding="{Binding ExpenseFormatted}" Width="140" />
+                        <DataGridTextColumn Header="Komisyon" Binding="{Binding CommissionFormatted}" Width="130" />
+                        <DataGridTextColumn Header="Net Kar" Binding="{Binding NetProfitFormatted}" Width="140" />
+                        <DataGridTextColumn Header="Marj (%)" Binding="{Binding MarginFormatted}" Width="100" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsVisible="{Binding IsEmpty}">
+                    <TextBlock Text="Veri bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                               HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                    <TextBlock Text="Secilen tarih araligi icin karlilik verisi bulunamadi"
+                               FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                               HorizontalAlignment="Center" Opacity="0.7" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Summary Row -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgSecondary}" Padding="16,12"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="160,140,140,130,140,100">
+                <TextBlock Grid.Column="0" Text="TOPLAM" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding TotalIncomeFormatted}" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesEmerald}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding TotalExpenseFormatted}" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="{Binding TotalCommissionFormatted}" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesWarning}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="4" Text="{Binding TotalNetProfitFormatted}" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesPrimaryBlue}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="5" Text="{Binding TotalMarginFormatted}" FontWeight="Bold"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesPurple}" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Karlilik raporu yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
