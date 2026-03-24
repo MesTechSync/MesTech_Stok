@@ -51,7 +51,7 @@ else
         <KpiCard Icon="fa-arrow-up" Value="@_totalIncome.ToString("C0", _trCulture)" Label="Toplam Gelir" TextColor="text-success" />
         <KpiCard Icon="fa-arrow-down" Value="@_totalExpense.ToString("C0", _trCulture)" Label="Toplam Gider" TextColor="text-danger" />
         <KpiCard Icon="fa-coins" Value="@_netProfit.ToString("C0", _trCulture)" Label="Net Kar/Zarar" TextColor="@(_netProfit >= 0 ? "text-success" : "text-danger")" />
-        <KpiCard Icon="fa-percent" Value="@_profitMargin.ToString("F1")%" Label="Kar Marji" TextColor="text-info" />
+        <KpiCard Icon="fa-percent" Value="@($"{_profitMargin:F1}%")" Label="Kar Marji" TextColor="text-info" />
     </div>
 
     <div class="row g-3">
