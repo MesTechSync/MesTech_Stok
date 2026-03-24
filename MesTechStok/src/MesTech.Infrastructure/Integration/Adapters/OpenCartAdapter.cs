@@ -58,6 +58,22 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                     return ValueTask.CompletedTask;
                 }
             })
+            .AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("OpenCart circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
+                    return default;
+                }
+            })
             .Build();
     }
 
@@ -168,7 +184,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return await _httpClient.PostAsync(
                         new Uri("/api/rest/products", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -263,7 +279,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return await _httpClient.PutAsync(
                         new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -330,7 +346,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return await _httpClient.PutAsync(
                         new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -464,7 +480,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return await _httpClient.PutAsync(
                         new Uri($"/api/rest/orders/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -585,7 +601,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return isUpdate
                         ? await _httpClient.PutAsync(
                             new Uri($"/api/rest/customers/{customer.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
@@ -710,7 +726,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json").ConfigureAwait(false);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
                     return isUpdate
                         ? await _httpClient.PutAsync(
                             new Uri($"/api/rest/categories/{category.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
