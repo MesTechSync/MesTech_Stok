@@ -6,8 +6,8 @@ namespace MesTech.WebApi.Hubs;
 /// <summary>
 /// MesTech real-time bildirim hub'i.
 /// Tenant bazli grup yonetimi ve event broadcast destegi.
-/// Events: OrderReceived, StockAlert, SyncComplete, InvoiceReady, WebhookReceived,
-///         ReportReady, ReconciliationDone, FulfillmentAlert, NotificationPush.
+/// Events: OrderReceived, StockAlert, SyncComplete, InvoiceReady, WebhookReceived, NotificationPush.
+/// Arsivlenen: ReportReady, ReconciliationDone, FulfillmentAlert (2026-03-24, dead code).
 /// </summary>
 [Authorize]
 public class MesTechHub : Hub
@@ -80,64 +80,8 @@ public class MesTechHub : Hub
     }
 
     // ─── V5 SERVER-TO-CLIENT EVENT METHODS ───
-
-    /// <summary>
-    /// Rapor hazır bildirimi — tenant grubuna broadcast.
-    /// Client event: "ReportReady" → { reportType, reportUrl, generatedAt }
-    /// </summary>
-    public static async Task NotifyReportReady(
-        IHubContext<MesTechHub> hubContext,
-        string tenantId,
-        string reportType,
-        string reportUrl)
-    {
-        await hubContext.Clients.Group($"tenant-{tenantId}").SendAsync("ReportReady", new
-        {
-            reportType,
-            reportUrl,
-            generatedAt = DateTime.UtcNow
-        });
-    }
-
-    /// <summary>
-    /// ERP mutabakat tamamlandı bildirimi.
-    /// Client event: "ReconciliationDone" → { erpProvider, matched, unmatched, generatedAt }
-    /// </summary>
-    public static async Task NotifyReconciliationDone(
-        IHubContext<MesTechHub> hubContext,
-        string tenantId,
-        string erpProvider,
-        int matchedCount,
-        int unmatchedCount)
-    {
-        await hubContext.Clients.Group($"tenant-{tenantId}").SendAsync("ReconciliationDone", new
-        {
-            erpProvider,
-            matchedCount,
-            unmatchedCount,
-            generatedAt = DateTime.UtcNow
-        });
-    }
-
-    /// <summary>
-    /// Fulfillment stok uyarısı bildirimi.
-    /// Client event: "FulfillmentAlert" → { center, alertType, message, timestamp }
-    /// </summary>
-    public static async Task NotifyFulfillmentAlert(
-        IHubContext<MesTechHub> hubContext,
-        string tenantId,
-        string center,
-        string alertType,
-        string message)
-    {
-        await hubContext.Clients.Group($"tenant-{tenantId}").SendAsync("FulfillmentAlert", new
-        {
-            center,
-            alertType,
-            message,
-            timestamp = DateTime.UtcNow
-        });
-    }
+    // Arsivlenen dead-code: NotifyReportReady, NotifyReconciliationDone, NotifyFulfillmentAlert
+    // Bkz: Docs/ARSIV/ARSIV_MesTechHub_DeadMethods_2026-03-24.md
 
     /// <summary>
     /// InApp bildirim push — tenant grubundaki tum client'lere.
