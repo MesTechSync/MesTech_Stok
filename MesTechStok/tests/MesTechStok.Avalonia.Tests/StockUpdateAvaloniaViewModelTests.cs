@@ -77,7 +77,7 @@ public class StockUpdateAvaloniaViewModelTests
         // CS-MNT-005 (8 vs 15) and OC-EV-007 (0 vs 50) and HB-KSA-009 (5 vs 20)
 
         // Act
-        await sut.BulkUpdateAsyncCommand.ExecuteAsync(null);
+        await sut.BulkUpdateCommand.ExecuteAsync(null);
 
         // Assert
         sut.UpdateStatus.Should().Contain("urun stoku guncellendi");
@@ -91,10 +91,10 @@ public class StockUpdateAvaloniaViewModelTests
         var sut = CreateSut();
         await sut.LoadAsync();
         // First bulk update to equalize all MevcutStok == YeniStok
-        await sut.BulkUpdateAsyncCommand.ExecuteAsync(null);
+        await sut.BulkUpdateCommand.ExecuteAsync(null);
 
         // Act — second bulk update with no remaining changes
-        await sut.BulkUpdateAsyncCommand.ExecuteAsync(null);
+        await sut.BulkUpdateCommand.ExecuteAsync(null);
 
         // Assert
         sut.UpdateStatus.Should().Be("Guncellenecek stok degisikligi bulunamadi.");

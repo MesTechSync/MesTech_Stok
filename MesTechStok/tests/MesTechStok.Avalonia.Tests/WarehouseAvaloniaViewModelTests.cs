@@ -87,7 +87,7 @@ public class WarehouseAvaloniaViewModelTests
         sut.NewWarehouseCapacity = 5000;
 
         // Act
-        await sut.SaveWarehouseAsyncCommand.ExecuteAsync(null);
+        await sut.SaveWarehouseCommand.ExecuteAsync(null);
 
         // Assert
         sut.Items.Should().HaveCount(4);

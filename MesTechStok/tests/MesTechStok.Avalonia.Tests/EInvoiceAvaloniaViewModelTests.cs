@@ -64,7 +64,7 @@ public class EInvoiceAvaloniaViewModelTests
         var initialCount = _sut.Invoices.Count;
 
         // Act
-        await _sut.CreateInvoiceAsyncCommand.ExecuteAsync(null);
+        await _sut.CreateInvoiceCommand.ExecuteAsync(null);
 
         // Assert
         _sut.Invoices.Should().HaveCount(initialCount + 1);

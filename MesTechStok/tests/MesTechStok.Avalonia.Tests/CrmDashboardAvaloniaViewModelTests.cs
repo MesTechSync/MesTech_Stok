@@ -37,7 +37,7 @@ public class CrmDashboardAvaloniaViewModelTests
         ],
         RecentActivities =
         [
-            new RecentActivityDto { ContactName = "Ahmet", Subject = "Teklif gonderildi", OccurredAt = DateTime.Now.AddMinutes(-30), Type = "Deal" }
+            new MesTech.Application.DTOs.Crm.RecentActivityDto { ContactName = "Ahmet", Subject = "Teklif gonderildi", OccurredAt = DateTime.Now.AddMinutes(-30), Type = "Deal" }
         ]
     };
 

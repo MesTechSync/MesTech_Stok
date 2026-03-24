@@ -1,5 +1,7 @@
 using FluentAssertions;
+using MediatR;
 using MesTech.Avalonia.ViewModels;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -7,7 +9,7 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class AuditLogAvaloniaViewModelTests
 {
-    private static AuditLogAvaloniaViewModel CreateSut() => new();
+    private static AuditLogAvaloniaViewModel CreateSut() => new(new Mock<ISender>().Object);
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
