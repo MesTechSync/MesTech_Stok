@@ -1,9 +1,10 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.EInvoice;
 
-public class EInvoiceLine : BaseEntity
+public class EInvoiceLine : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid EInvoiceDocumentId { get; private set; }
     public int LineNumber { get; private set; }
     public string Description { get; private set; } = string.Empty;

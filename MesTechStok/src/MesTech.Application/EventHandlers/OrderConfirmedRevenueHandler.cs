@@ -1,4 +1,4 @@
-﻿using MesTech.Domain.Enums;
+﻿using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -45,13 +45,13 @@ public class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
             StoreId = storeId,
             Description = $"Sipariş geliri — #{orderNumber}",
             IncomeType = Domain.Enums.IncomeType.Satis,
-            Source = Domain.Enums.IncomeSource.DirectSale,
+            Source = IncomeSource.DirectSale,
             OrderId = orderId,
             Date = DateTime.UtcNow
         };
         income.SetAmount(totalAmount);
 
-        await _incomeRepo.AddAsync(income, ct);
+        await _incomeRepo.AddAsync(income);
         await _uow.SaveChangesAsync(ct);
 
         _logger.LogInformation(

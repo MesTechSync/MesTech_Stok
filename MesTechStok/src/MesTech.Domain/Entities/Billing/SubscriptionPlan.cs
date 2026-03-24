@@ -1,4 +1,4 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Billing;
 
@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities.Billing;
 /// Abonelik plani — SaaS fiyatlandirma (Baslangic / Profesyonel / Kurumsal).
 /// Tenant'lar bir plana abone olur, plan limitleri tenant'in kullanim sinirlarini belirler.
 /// </summary>
-public class SubscriptionPlan : BaseEntity
+public class SubscriptionPlan : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public decimal MonthlyPrice { get; private set; }
