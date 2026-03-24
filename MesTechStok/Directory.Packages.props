@@ -68,13 +68,13 @@
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageVersion Include="Polly.RateLimiting" Version="8.6.6" />
     <PackageVersion Include="prometheus-net" Version="8.2.1" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.12.4" />
     <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
     <PackageVersion Include="System.IO.Ports" Version="9.0.6" />
     <PackageVersion Include="System.Text.Json" Version="9.0.6" />
     <PackageVersion Include="MailKit" Version="4.15.1" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
-    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.7.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.16.0" />
     <!-- DEV 3 Netsis ERP icin SQL Server erisimi (V5 P0) -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>
@@ -91,7 +91,7 @@
     <PackageVersion Include="AForge" Version="2.2.5" />
     <PackageVersion Include="AForge.Video" Version="2.2.5" />
     <PackageVersion Include="AForge.Video.DirectShow" Version="2.2.5" />
-    <PackageVersion Include="ClosedXML" Version="0.102.2" />
+    <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="QuestPDF" Version="2024.12.2" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.0" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
