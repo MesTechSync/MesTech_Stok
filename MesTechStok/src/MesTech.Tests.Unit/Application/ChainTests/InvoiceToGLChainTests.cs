@@ -9,8 +9,8 @@ namespace MesTech.Tests.Unit.Application.ChainTests;
 
 /// <summary>
 /// Zincir 3 E2E: ApproveInvoice -> InvoiceApprovedGLHandler -> JournalEntry dengeli (Borc = Alacak)
-/// Note: Handler uses Guid.Empty for accountId which triggers ArgumentException in JournalEntry.AddLine.
-/// This test verifies that the handler correctly attempts GL creation and validates behavior.
+/// Handler uses deterministic account GUIDs (e.g. 00000120-...) for GL entries.
+/// Tests verify successful JournalEntry creation and double-entry balance.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Feature", "ChainE2E")]
@@ -34,16 +34,14 @@ public class InvoiceToGLChainTests
 
         var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, _loggerMock.Object);
 
-        // Act & Assert
-        // JournalEntry.AddLine throws ArgumentException for Guid.Empty accountId (known design constraint).
-        // The handler passes Guid.Empty as accountId — this verifies the handler invokes GL creation.
-        var act = () => handler.HandleAsync(
+        // Act — handler creates JournalEntry with deterministic account GUIDs
+        await handler.HandleAsync(
             invoiceId, tenantId, invoiceNumber,
             grandTotal, taxAmount, netAmount,
             CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*Account ID*");
+        // Assert — SaveChanges called (GL entry persisted)
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -58,14 +56,16 @@ public class InvoiceToGLChainTests
 
         var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, _loggerMock.Object);
 
-        // Act & Assert — Guid.Empty accountId triggers guard before balance check
-        var act = () => handler.HandleAsync(
+        _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        // Act — zero-tax creates 2-line journal (no KDV line)
+        await handler.HandleAsync(
             invoiceId, tenantId, "INV-NOTAX",
             grandTotal, taxAmount, netAmount,
             CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*Account ID*");
+        // Assert — SaveChanges called
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
