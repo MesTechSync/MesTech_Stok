@@ -274,6 +274,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             _logger.LogInformation("Trendyol PushProduct success: {SKU}", product.SKU);
             return true;
         }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "Trendyol PushProduct: platform gecersiz yanit dondurdu — SKU={SKU}", product.SKU);
+            return false;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Trendyol PushProduct exception: {SKU}", product.SKU);
@@ -335,6 +340,10 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
 
             _logger.LogInformation("Trendyol PullProducts: {Count} products retrieved", products.Count);
         }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "Trendyol PullProducts: platform gecersiz yanit dondurdu — page={Page}", page);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Trendyol PullProducts failed at page {Page}", page);
@@ -377,6 +386,11 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
             }
 
             return true;
+        }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "Trendyol StockUpdate: platform gecersiz yanit dondurdu — ProductId={ProductId}", productId);
+            return false;
         }
         catch (Exception ex)
         {
