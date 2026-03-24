@@ -10,7 +10,7 @@ public class EventRecordTests
     public void DailySummaryGeneratedEvent_ImplementsIDomainEvent()
     {
         var evt = new DailySummaryGeneratedEvent(
-            DateTime.Today, 15, 12500.50m, 3, 10, DateTime.UtcNow);
+            Guid.NewGuid(), DateTime.Today, 15, 12500.50m, 3, 10, DateTime.UtcNow);
         Assert.IsAssignableFrom<IDomainEvent>(evt);
         Assert.Equal(15, evt.OrderCount);
         Assert.Equal(12500.50m, evt.Revenue);
@@ -20,7 +20,7 @@ public class EventRecordTests
     public void SyncErrorOccurredEvent_ImplementsIDomainEvent()
     {
         var evt = new SyncErrorOccurredEvent(
-            "Trendyol", "HttpTimeout", "Connection timed out", DateTime.UtcNow);
+            Guid.NewGuid(), "Trendyol", "HttpTimeout", "Connection timed out", DateTime.UtcNow);
         Assert.IsAssignableFrom<IDomainEvent>(evt);
         Assert.Equal("Trendyol", evt.Platform);
         Assert.Equal("HttpTimeout", evt.ErrorType);

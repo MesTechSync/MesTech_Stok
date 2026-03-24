@@ -54,7 +54,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task CalendarEventCreatedEventHandler_Completes()
     {
         var sut = new CalendarEventCreatedEventHandler(Mock.Of<ILogger<CalendarEventCreatedEventHandler>>());
-        var evt = new CalendarEventCreatedEvent(Guid.NewGuid(), DateTime.UtcNow.AddDays(1), DateTime.UtcNow);
+        var evt = new CalendarEventCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow.AddDays(1), DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 
@@ -72,7 +72,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task DealStageChangedEventHandler_Completes()
     {
         var sut = new DealStageChangedEventHandler(Mock.Of<ILogger<DealStageChangedEventHandler>>());
-        var evt = new DealStageChangedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
+        var evt = new DealStageChangedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 
@@ -251,7 +251,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task TaskCompletedEventHandler_Completes()
     {
         var sut = new TaskCompletedEventHandler(Mock.Of<ILogger<TaskCompletedEventHandler>>());
-        var evt = new TaskCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
+        var evt = new TaskCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 
@@ -259,7 +259,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task TaskOverdueEventHandler_Completes()
     {
         var sut = new TaskOverdueEventHandler(Mock.Of<ILogger<TaskOverdueEventHandler>>());
-        var evt = new TaskOverdueEvent(Guid.NewGuid(), DateTime.UtcNow.AddDays(-1), DateTime.UtcNow);
+        var evt = new TaskOverdueEvent(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow.AddDays(-1), DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 
@@ -279,7 +279,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task SyncRequestedEventHandler_Completes()
     {
         var sut = new SyncRequestedEventHandler(Mock.Of<ILogger<SyncRequestedEventHandler>>());
-        var evt = new SyncRequestedEvent("Trendyol", SyncDirection.Pull, "Stock", null, DateTime.UtcNow);
+        var evt = new SyncRequestedEvent(Guid.NewGuid(), "Trendyol", SyncDirection.Pull, "Stock", null, DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 }

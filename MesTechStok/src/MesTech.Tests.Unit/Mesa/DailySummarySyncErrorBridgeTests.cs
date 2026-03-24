@@ -42,7 +42,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<ILogger<DailySummaryBridgeHandler>>().Object);
 
         var domainEvent = new DailySummaryGeneratedEvent(
-            new DateTime(2026, 3, 10), 42, 15890.50m, 3, 18, DateTime.UtcNow);
+            Guid.NewGuid(), new DateTime(2026, 3, 10), 42, 15890.50m, 3, 18, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<DailySummaryGeneratedEvent>(domainEvent),
@@ -72,7 +72,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<ILogger<DailySummaryBridgeHandler>>().Object);
 
         var domainEvent = new DailySummaryGeneratedEvent(
-            DateTime.Today, 10, 5000m, 1, 5, DateTime.UtcNow);
+            Guid.NewGuid(), DateTime.Today, 10, 5000m, 1, 5, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<DailySummaryGeneratedEvent>(domainEvent),
@@ -98,7 +98,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<ILogger<DailySummaryBridgeHandler>>().Object);
 
         var domainEvent = new DailySummaryGeneratedEvent(
-            DateTime.Today, 5, 2500m, 0, 3, DateTime.UtcNow);
+            Guid.NewGuid(), DateTime.Today, 5, 2500m, 0, 3, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<DailySummaryGeneratedEvent>(domainEvent),
@@ -126,7 +126,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<ILogger<SyncErrorBridgeHandler>>().Object);
 
         var domainEvent = new SyncErrorOccurredEvent(
-            "Trendyol", "RateLimitExceeded", "429 Too Many Requests", DateTime.UtcNow);
+            Guid.NewGuid(), "Trendyol", "RateLimitExceeded", "429 Too Many Requests", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<SyncErrorOccurredEvent>(domainEvent),
@@ -154,7 +154,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<ILogger<SyncErrorBridgeHandler>>().Object);
 
         var domainEvent = new SyncErrorOccurredEvent(
-            "HepsiBurada", "Timeout", "Connection timed out", DateTime.UtcNow);
+            Guid.NewGuid(), "HepsiBurada", "Timeout", "Connection timed out", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<SyncErrorOccurredEvent>(domainEvent),
@@ -176,7 +176,7 @@ public class DailySummarySyncErrorBridgeTests
             loggerMock.Object);
 
         var domainEvent = new SyncErrorOccurredEvent(
-            "Ciceksepeti", "AuthFailed", "401 Unauthorized", DateTime.UtcNow);
+            Guid.NewGuid(), "Ciceksepeti", "AuthFailed", "401 Unauthorized", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<SyncErrorOccurredEvent>(domainEvent),

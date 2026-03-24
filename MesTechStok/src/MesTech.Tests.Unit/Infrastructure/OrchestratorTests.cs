@@ -193,7 +193,7 @@ public class OrchestratorTests
         var (orchestrator, _) = CreateOrchestrator(stockCapable, noStock);
 
         var evt = new StockChangedEvent(
-            Guid.NewGuid(), "SKU-001", 50, 45,
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-001", 50, 45,
             StockMovementType.Sale, DateTime.UtcNow);
 
         await orchestrator.HandleStockChangedAsync(evt);
@@ -214,7 +214,7 @@ public class OrchestratorTests
         var (orchestrator, _) = CreateOrchestrator(priceCapable, noPrice);
 
         var evt = new PriceChangedEvent(
-            Guid.NewGuid(), "SKU-002", 100m, 89.90m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-002", 100m, 89.90m, DateTime.UtcNow);
 
         await orchestrator.HandlePriceChangedAsync(evt);
 

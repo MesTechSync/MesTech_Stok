@@ -44,7 +44,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<ProductCreatedBridgeHandler>>().Object);
 
         var domainEvent = new ProductCreatedEvent(
-            Guid.NewGuid(), "SKU-TEST-001", "Test Urun", 199.99m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-TEST-001", "Test Urun", 199.99m, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<ProductCreatedEvent>(domainEvent),
@@ -76,7 +76,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<LowStockBridgeHandler>>().Object);
 
         var domainEvent = new LowStockDetectedEvent(
-            Guid.NewGuid(), "SKU-LOW-001", 3, 10, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-LOW-001", 3, 10, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<LowStockDetectedEvent>(domainEvent),
@@ -140,7 +140,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<PriceChangedBridgeHandler>>().Object);
 
         var domainEvent = new PriceChangedEvent(
-            Guid.NewGuid(), "SKU-PRICE-001", 100m, 89.90m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-PRICE-001", 100m, 89.90m, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<PriceChangedEvent>(domainEvent),
@@ -165,7 +165,7 @@ public class MesaBridgeHandlerTests
     public void DomainEventNotification_ShouldWrapAndExposeEvent()
     {
         var domainEvent = new ProductCreatedEvent(
-            Guid.NewGuid(), "SKU-WRAP", "Wrapper Test", 50m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-WRAP", "Wrapper Test", 50m, DateTime.UtcNow);
 
         var notification = new DomainEventNotification<ProductCreatedEvent>(domainEvent);
 
@@ -201,7 +201,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<ProductCreatedBridgeHandler>>().Object);
 
         var domainEvent = new ProductCreatedEvent(
-            Guid.NewGuid(), "SKU-TENANT", "Tenant Test", 10m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-TENANT", "Tenant Test", 10m, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<ProductCreatedEvent>(domainEvent),
@@ -359,7 +359,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<BuyboxLostBridgeHandler>>().Object);
 
         var domainEvent = new BuyboxLostEvent(
-            Guid.NewGuid(), "SKU-BB-001", 149.90m, 139.90m, "TeknoMarket", DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "SKU-BB-001", 149.90m, 139.90m, "TeknoMarket", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<BuyboxLostEvent>(domainEvent),
@@ -392,7 +392,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<SupplierFeedSyncedBridgeHandler>>().Object);
 
         var domainEvent = new SupplierFeedSyncedEvent(
-            Guid.NewGuid(), Guid.NewGuid(), 150, 30, 5,
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 150, 30, 5,
             FeedSyncStatus.Completed,
             DateTime.UtcNow);
 
