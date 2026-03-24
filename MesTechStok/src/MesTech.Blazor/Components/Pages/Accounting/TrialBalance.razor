@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
 @inject ILogger<TrialBalance> Logger
+@inject NavigationManager Navigation
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -127,7 +128,7 @@ else
 
     private void ExportExcel()
     {
-        // TODO: /api/v1/accounting/trial-balance/export?format=xlsx
+        Navigation.NavigateTo($"/api/v1/accounting/trial-balance/export?format=xlsx&year={_selectedYear}", forceLoad: true);
     }
 
     private static List<TrialBalanceRow> GetDemoData() => new()

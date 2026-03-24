@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
 @inject ILogger<SalesByPlatform> Logger
+@inject NavigationManager Navigation
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -141,7 +142,7 @@ else
 
     private void ExportReport()
     {
-        // TODO: /api/v1/reports/platform-performance/export?format=xlsx
+        Navigation.NavigateTo($"/api/v1/reports/platform-performance/export?format=xlsx&from={_startDate:yyyy-MM-dd}&to={_endDate:yyyy-MM-dd}", forceLoad: true);
     }
 
     private static List<PlatformSalesRow> GetDemoData() => new()

@@ -119,12 +119,11 @@ else
 
         try
         {
-            var result = await ApiClient.SafeGetAsync<List<object>>("finance/bank-accounts");
+            var result = await ApiClient.SafeGetAsync<List<BankAccountItem>>("api/v1/finance/bank-accounts");
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 _isDemoMode = false;
-                // TODO: Map real data when DTOs are available
-                _accounts = GetDemoData();
+                _accounts = result.Data;
             }
             else
             {
