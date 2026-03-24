@@ -108,7 +108,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<OrderPlacedBridgeHandler>>().Object);
 
         var domainEvent = new OrderPlacedEvent(
-            Guid.NewGuid(), "ORD-2026-001", Guid.NewGuid(), 549.90m, DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "ORD-2026-001", Guid.NewGuid(), 549.90m, DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<OrderPlacedEvent>(domainEvent),
@@ -229,7 +229,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<InvoiceGeneratedBridgeHandler>>().Object);
 
         var domainEvent = new InvoiceSentEvent(
-            Guid.NewGuid(), "GIB-2026-001", "https://example.com/invoice.pdf", DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), "GIB-2026-001", "https://example.com/invoice.pdf", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<InvoiceSentEvent>(domainEvent),
@@ -260,7 +260,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<InvoiceCancelledBridgeHandler>>().Object);
 
         var domainEvent = new InvoiceCancelledEvent(
-            Guid.NewGuid(), Guid.NewGuid(), "FTR-2026-001", "Musteri talebi", DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "FTR-2026-001", "Musteri talebi", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<InvoiceCancelledEvent>(domainEvent),
@@ -291,7 +291,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<ReturnCreatedBridgeHandler>>().Object);
 
         var domainEvent = new ReturnCreatedEvent(
-            Guid.NewGuid(), Guid.NewGuid(),
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
             PlatformType.Trendyol,
             ReturnReason.DefectiveProduct,
             DateTime.UtcNow);
@@ -326,7 +326,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<ReturnResolvedBridgeHandler>>().Object);
 
         var domainEvent = new ReturnResolvedEvent(
-            Guid.NewGuid(), Guid.NewGuid(),
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
             ReturnStatus.Refunded,
             149.90m, DateTime.UtcNow);
 

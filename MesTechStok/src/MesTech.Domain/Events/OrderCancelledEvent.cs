@@ -7,6 +7,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record OrderCancelledEvent(
     Guid OrderId,
+    Guid TenantId,
     string PlatformCode,
     string PlatformOrderId,
     string? Reason,

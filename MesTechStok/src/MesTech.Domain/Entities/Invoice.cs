@@ -114,7 +114,7 @@ public class Invoice : BaseEntity, ITenantEntity
         GibInvoiceId = gibInvoiceId;
         PdfUrl = pdfUrl;
         SentAt = DateTime.UtcNow;
-        RaiseDomainEvent(new InvoiceSentEvent(Id, gibInvoiceId, pdfUrl, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceSentEvent(Id, TenantId, gibInvoiceId, pdfUrl, DateTime.UtcNow));
     }
 
     public void MarkAsAccepted()
@@ -138,7 +138,7 @@ public class Invoice : BaseEntity, ITenantEntity
         Status = InvoiceStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
-        RaiseDomainEvent(new InvoiceCancelledEvent(Id, OrderId, InvoiceNumber, reason, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceCancelledEvent(Id, TenantId, OrderId, InvoiceNumber, reason, DateTime.UtcNow));
     }
 
     public void MarkAsPlatformSent(string platformInvoiceUrl)

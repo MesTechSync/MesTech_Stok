@@ -89,7 +89,7 @@ public class Order : BaseEntity, ITenantEntity
 
         Status = OrderStatus.Confirmed;
         ConfirmedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new OrderPlacedEvent(Id, OrderNumber, CustomerId, TotalAmount, DateTime.UtcNow));
+        RaiseDomainEvent(new OrderPlacedEvent(Id, TenantId, OrderNumber, CustomerId, TotalAmount, DateTime.UtcNow));
     }
 
     /// <summary>
@@ -122,6 +122,7 @@ public class Order : BaseEntity, ITenantEntity
 
         RaiseDomainEvent(new OrderCancelledEvent(
             Id,
+            TenantId,
             SourcePlatform?.ToString() ?? "Internal",
             ExternalOrderId ?? OrderNumber,
             reason,

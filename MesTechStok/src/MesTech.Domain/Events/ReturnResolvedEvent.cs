@@ -5,6 +5,7 @@ namespace MesTech.Domain.Events;
 
 public record ReturnResolvedEvent(
     Guid ReturnRequestId,
+    Guid TenantId,
     Guid OrderId,
     ReturnStatus FinalStatus,
     decimal RefundAmount,

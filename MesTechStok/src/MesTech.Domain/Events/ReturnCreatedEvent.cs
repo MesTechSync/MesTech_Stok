@@ -5,6 +5,7 @@ namespace MesTech.Domain.Events;
 
 public record ReturnCreatedEvent(
     Guid ReturnRequestId,
+    Guid TenantId,
     Guid OrderId,
     PlatformType Platform,
     ReturnReason Reason,

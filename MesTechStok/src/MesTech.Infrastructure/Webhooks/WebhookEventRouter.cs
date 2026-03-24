@@ -114,6 +114,7 @@ public class WebhookEventRouter
 
             case "order.cancelled":
                 var cancelOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
+                var cancelTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
                 var cancelPlatformOrderId = ExtractStringField(payload, "platformOrderId")
                     ?? ExtractStringField(payload, "id")
                     ?? "unknown";
@@ -121,7 +122,7 @@ public class WebhookEventRouter
                     ?? ExtractStringField(payload, "cancel_reason");
 
                 await PublishAsync(new OrderCancelledEvent(
-                    cancelOrderId, platform, cancelPlatformOrderId, reason, now), ct);
+                    cancelOrderId, cancelTenantId, platform, cancelPlatformOrderId, reason, now), ct);
                 break;
 
             case "product.created":
@@ -146,11 +147,12 @@ public class WebhookEventRouter
 
             case "return.created":
                 var returnId = ExtractGuidField(payload, "returnId") ?? Guid.NewGuid();
+                var returnTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
                 var returnOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
                 var returnPlatform = ResolvePlatformType(platform);
 
                 await PublishAsync(new ReturnCreatedEvent(
-                    returnId, returnOrderId, returnPlatform, ReturnReason.Other, now), ct);
+                    returnId, returnTenantId, returnOrderId, returnPlatform, ReturnReason.Other, now), ct);
                 break;
 
             default:

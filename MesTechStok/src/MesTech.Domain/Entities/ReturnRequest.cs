@@ -93,7 +93,7 @@ public class ReturnRequest : BaseEntity, ITenantEntity
             throw new InvalidOperationException("İade ürünü teslim alınmadan iade yapılamaz.");
         Status = ReturnStatus.Refunded;
         RefundedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new ReturnResolvedEvent(Id, OrderId, ReturnStatus.Refunded, RefundAmount, DateTime.UtcNow));
+        RaiseDomainEvent(new ReturnResolvedEvent(Id, TenantId, OrderId, ReturnStatus.Refunded, RefundAmount, DateTime.UtcNow));
     }
 
     public void MarkStockRestored()
@@ -126,7 +126,7 @@ public class ReturnRequest : BaseEntity, ITenantEntity
             ReasonDetail = reasonDetail
         };
         request.RaiseDomainEvent(new ReturnCreatedEvent(
-            request.Id, orderId, platform, reason, DateTime.UtcNow));
+            request.Id, tenantId, orderId, platform, reason, DateTime.UtcNow));
         return request;
     }
 
