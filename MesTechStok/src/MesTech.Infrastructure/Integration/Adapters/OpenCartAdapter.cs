@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using MesTech.Infrastructure.Security;
 using Polly;
 using Polly.Retry;
 
@@ -594,7 +595,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         ArgumentNullException.ThrowIfNull(customer);
 
         EnsureConfigured();
-        _logger.LogInformation("OpenCartAdapter.PushCustomerAsync: Email={Email}", customer.Email);
+        _logger.LogInformation("OpenCartAdapter.PushCustomerAsync: Email={Email}", PiiLogMaskHelper.MaskEmail(customer.Email));
 
         try
         {
@@ -634,7 +635,7 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "OpenCart PushCustomer exception: {Email}", customer.Email);
+            _logger.LogError(ex, "OpenCart PushCustomer exception: {Email}", PiiLogMaskHelper.MaskEmail(customer.Email));
             return false;
         }
     }
