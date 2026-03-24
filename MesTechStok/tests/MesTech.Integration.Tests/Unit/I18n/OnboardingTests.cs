@@ -1,5 +1,8 @@
 using FluentAssertions;
 using MesTech.Blazor.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.I18n;
@@ -13,6 +16,9 @@ namespace MesTech.Integration.Tests.Unit.I18n;
 [Trait("Layer", "Blazor")]
 public sealed class OnboardingTests
 {
+    private static readonly MesTechApiClient _apiClient = new(new HttpClient(), Mock.Of<IConfiguration>());
+    private static readonly ILogger<OnboardingService> _logger = Mock.Of<ILogger<OnboardingService>>();
+
     private static readonly string SolutionRoot = FindSolutionRoot();
 
     private static readonly string WizardPath = Path.Combine(
@@ -32,7 +38,7 @@ public sealed class OnboardingTests
     public async Task IsOnboardingCompleted_DefaultsToTrue_ForExistingUsers()
     {
         // Arrange
-        var service = new OnboardingService();
+        var service = new OnboardingService(_apiClient, _logger);
         var userId = Guid.NewGuid();
 
         // Act
@@ -48,7 +54,7 @@ public sealed class OnboardingTests
     public async Task MarkCompleted_DoesNotThrow()
     {
         // Arrange
-        var service = new OnboardingService();
+        var service = new OnboardingService(_apiClient, _logger);
         var userId = Guid.NewGuid();
 
         // Act
@@ -64,7 +70,7 @@ public sealed class OnboardingTests
     public async Task SaveStep_DoesNotThrow_ForValidSteps()
     {
         // Arrange
-        var service = new OnboardingService();
+        var service = new OnboardingService(_apiClient, _logger);
         var userId = Guid.NewGuid();
         var stepData = new Dictionary<string, string>
         {

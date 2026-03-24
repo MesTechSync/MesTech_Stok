@@ -83,10 +83,10 @@ public class EntityValidationTests
         {
             TenantId = _tenantId,
             Description = "Trendyol satis geliri",
-            Amount = netAmount,
             IncomeType = IncomeType.Satis,
             Date = DateTime.UtcNow
         };
+        income.SetAmount(netAmount);
 
         // Assert
         income.Amount.Should().Be(8_800m, "Net = 10.000 - 1.200 = 8.800 TL");
@@ -97,21 +97,21 @@ public class EntityValidationTests
     // ═══════════════════════════════════════════════════════════════════
 
     [Fact]
-    public void Income_NegativeCommission_AmountStillSets()
+    public void Income_NegativeAmount_ThrowsArgumentException()
     {
-        // Arrange & Act — Negatif tutar atanabilir (setter entity)
+        // Arrange
         var income = new Income
         {
             TenantId = _tenantId,
             Description = "Hata senaryosu",
-            Amount = -100m,
             IncomeType = IncomeType.Diger,
             Date = DateTime.UtcNow
         };
 
-        // Assert — Setter bazli entity, negatif tutari kabul eder
-        income.Amount.Should().BeNegative(
-            "basit setter entity negatif tutari kabul eder — Application layer kontrol etmeli");
+        // Act & Assert — SetAmount validates amount >= 0 at domain level
+        var act = () => income.SetAmount(-100m);
+        act.Should().Throw<ArgumentException>(
+            "domain entity SetAmount rejects negative amounts");
     }
 
     // ═══════════════════════════════════════════════════════════════════
