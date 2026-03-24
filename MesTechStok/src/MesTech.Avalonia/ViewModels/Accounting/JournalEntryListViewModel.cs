@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 /// Yevmiye Defteri ViewModel — Chain 3 GL kayıtları.
 /// DEV 1'in JournalEntry entity'sine bağlanacak.
 /// </summary>
-public partial class JournalEntryListViewModel : ObservableObject
+public partial class JournalEntryListViewModel : ViewModelBase
 {
     [ObservableProperty] private DateTimeOffset? fromDate = DateTimeOffset.Now.AddMonths(-1);
     [ObservableProperty] private DateTimeOffset? toDate = DateTimeOffset.Now;
@@ -19,7 +19,7 @@ public partial class JournalEntryListViewModel : ObservableObject
 
     public ObservableCollection<JournalEntryItem> JournalEntries { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         JournalEntries.Clear();
         await Task.Delay(150); // Simulate — MediatR Send kullanılacak
