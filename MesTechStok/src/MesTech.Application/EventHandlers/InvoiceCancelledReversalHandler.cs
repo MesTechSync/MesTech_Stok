@@ -51,14 +51,14 @@ public class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalHandler
         var taxAmount = grandTotal - netAmount;
 
         // TERS: BORC 600 Satislar (gelir iptali)
-        entry.AddLine(Guid.Empty, netAmount, 0, $"600 Satislar — IPTAL #{invoiceNumber}");
+        entry.AddLine(new Guid("00000600-0000-0000-0000-000000000000"), netAmount, 0, $"600 Satislar — IPTAL #{invoiceNumber}");
 
         // TERS: BORC 391 KDV (KDV iptali)
         if (taxAmount > 0)
-            entry.AddLine(Guid.Empty, taxAmount, 0, $"391 KDV — IPTAL #{invoiceNumber}");
+            entry.AddLine(new Guid("00000391-0000-0000-0000-000000000000"), taxAmount, 0, $"391 KDV — IPTAL #{invoiceNumber}");
 
         // TERS: ALACAK 120 Alicilar (musteri borcu silinir)
-        entry.AddLine(Guid.Empty, 0, grandTotal, $"120 Alicilar — IPTAL #{invoiceNumber}");
+        entry.AddLine(new Guid("00000120-0000-0000-0000-000000000000"), 0, grandTotal, $"120 Alicilar — IPTAL #{invoiceNumber}");
 
         entry.Validate();
         entry.Post();

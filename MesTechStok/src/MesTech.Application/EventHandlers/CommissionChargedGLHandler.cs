@@ -52,10 +52,10 @@ public class CommissionChargedGLHandler : ICommissionChargedGLHandler
             $"COM-{orderId.ToString()[..8]}");
 
         // BORC: 760.02 Komisyon Giderleri
-        entry.AddLine(Guid.Empty, commissionAmount, 0, $"760.02 Komisyon — {platform} %{commissionRate * 100:F1}");
+        entry.AddLine(new Guid("00000760-0000-0000-0000-000000000000"), commissionAmount, 0, $"760.02 Komisyon — {platform} %{commissionRate * 100:F1}");
 
         // ALACAK: 120 Alicilar (hakedisten kesilir)
-        entry.AddLine(Guid.Empty, 0, commissionAmount, $"120 Alicilar — {platform} komisyon kesintisi");
+        entry.AddLine(new Guid("00000120-0000-0000-0000-000000000000"), 0, commissionAmount, $"120 Alicilar — {platform} komisyon kesintisi");
 
         entry.Validate();
         entry.Post();

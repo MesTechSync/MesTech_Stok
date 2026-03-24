@@ -58,10 +58,10 @@ public class OrderShippedCostHandler : IOrderShippedCostHandler
             trackingNumber);
 
         // BORC: 760.01 Kargo Giderleri
-        entry.AddLine(Guid.Empty, shippingCost, 0, $"760.01 Kargo Giderleri — {provider}");
+        entry.AddLine(new Guid("00000760-0000-0000-0000-000000000000"), shippingCost, 0, $"760.01 Kargo Giderleri — {provider}");
 
         // ALACAK: 320 Saticilar (kargo firmasina borc)
-        entry.AddLine(Guid.Empty, 0, shippingCost, $"320 Saticilar — {provider}");
+        entry.AddLine(new Guid("00000320-0000-0000-0000-000000000000"), 0, shippingCost, $"320 Saticilar — {provider}");
 
         entry.Validate();
         entry.Post();

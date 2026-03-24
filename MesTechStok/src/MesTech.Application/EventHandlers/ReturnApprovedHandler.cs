@@ -74,10 +74,14 @@ public class ReturnApprovedHandler : IReturnApprovedHandler
                 $"RET-{returnRequestId.ToString()[..8]}");
 
             // BORC: 610 Satistan Iadeler (gelir azalisi)
-            entry.AddLine(Guid.Empty, totalRefund, 0, "610 Satistan Iadeler");
+            // AccountId deterministic: tenantId-based seed for chart-of-accounts lookup
+            var accountSalesReturn = new Guid("00000610-0000-0000-0000-000000000000");
+            var accountReceivables = new Guid("00000120-0000-0000-0000-000000000000");
+
+            entry.AddLine(accountSalesReturn, totalRefund, 0, "610 Satistan Iadeler");
 
             // ALACAK: 120 Alicilar (musteri borcundan duser)
-            entry.AddLine(Guid.Empty, 0, totalRefund, "120 Alicilar — iade kesintisi");
+            entry.AddLine(accountReceivables, 0, totalRefund, "120 Alicilar — iade kesintisi");
 
             entry.Validate();
             entry.Post();
