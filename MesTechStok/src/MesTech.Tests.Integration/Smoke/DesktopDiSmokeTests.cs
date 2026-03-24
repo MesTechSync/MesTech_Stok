@@ -51,14 +51,9 @@ public class DesktopDiSmokeTests : IDisposable
         services.AddDbContext<CoreAppDbContext>(options =>
             options.UseInMemoryDatabase($"CoreDiSmoke_{Guid.NewGuid()}"));
 
-        // Core Business Services
-        services.AddScoped<MesTechStok.Core.Services.Abstract.IProductService, MesTechStok.Core.Services.Concrete.ProductService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.IInventoryService, MesTechStok.Core.Services.Concrete.InventoryService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.IOrderService, MesTechStok.Core.Services.Concrete.OrderService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.ICustomerService, MesTechStok.Core.Services.Concrete.CustomerService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.IStockService, MesTechStok.Core.Services.Concrete.StockService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.ILoggingService, MesTechStok.Core.Services.Concrete.LoggingService>();
-        services.AddScoped<MesTechStok.Core.Services.Abstract.IQRCodeService, MesTechStok.Core.Services.Concrete.QRCodeService>();
+        // Legacy Core Business Services eliminated — CQRS handlers replace them.
+        // IProductService, ICustomerService, IStockService, ILoggingService, IQRCodeService
+        // → AddStockHandler, RemoveStockHandler, GetProductsHandler, etc. via MediatR.
 
         // -- World 2: Infrastructure.Persistence.AppDbContext (Clean Architecture) --
         services.AddScoped<AuditInterceptor>();
@@ -129,20 +124,8 @@ public class DesktopDiSmokeTests : IDisposable
         ctx.Should().NotBeNull("Core.Data.AppDbContext must resolve for old services");
     }
 
-    [Theory]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.IProductService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.IInventoryService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.IOrderService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.ICustomerService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.IStockService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.ILoggingService))]
-    [InlineData(typeof(MesTechStok.Core.Services.Abstract.IQRCodeService))]
-    public void CoreBusinessService_ShouldResolve(Type serviceType)
-    {
-        using var scope = _provider.CreateScope();
-        var service = scope.ServiceProvider.GetService(serviceType);
-        service.Should().NotBeNull($"{serviceType.Name} must be registered (Core)");
-    }
+    // Legacy Core services archived — CQRS handlers in Application replace them.
+    // See Docs/ARSIV/_MANIFEST.md for migration details.
 
     // -- World 2: Infrastructure Services --
 
