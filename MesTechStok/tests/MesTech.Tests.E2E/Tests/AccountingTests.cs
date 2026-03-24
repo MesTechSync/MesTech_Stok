@@ -8,7 +8,7 @@ namespace MesTech.Tests.E2E.Tests;
 /// Validates journal entry flow, accounting dashboard cards,
 /// report tabs, commission management, and full accounting flow.
 ///
-/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:5200)
+/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:3200)
 /// Shell uses hash-based routing: #accounting, #accounting/journal-entry, etc.
 /// </summary>
 [TestFixture]

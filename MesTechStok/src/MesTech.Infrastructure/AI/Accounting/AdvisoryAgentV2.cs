@@ -32,7 +32,7 @@ public record PlatformHealth(string Platform, string MarginTrend, decimal AvgMar
 
 /// <summary>
 /// MESA OS Advisory Agent V2 gercek HTTP istemcisi.
-/// POST localhost:5101/api/v1/accounting/advisory/sales
+/// POST localhost:3101/api/v1/accounting/advisory/sales
 /// Demir Kural #12: MESA kopunce kural tabanlı basit tavsiye uretir (AI'siz fallback).
 /// </summary>
 public class AdvisoryAgentV2 : IAdvisoryAgentV2

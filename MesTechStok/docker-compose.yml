@@ -227,7 +227,7 @@ services:
         max-size: "10m"
         max-file: "3"
     ports:
-      - "${WEBAPI_PORT:-3100}:5100"
+      - "${WEBAPI_PORT:-3100}:3100"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=mestech_stok;Username=mestech_user;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
@@ -244,7 +244,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5100/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

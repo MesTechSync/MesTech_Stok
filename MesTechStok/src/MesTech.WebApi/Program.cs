@@ -29,7 +29,7 @@ if (builder.Environment.IsDevelopment())
 builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration)
     .WriteTo.Console()
-    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:5341")
+    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:3343")
     .Enrich.WithProperty("Application", "MesTech.WebApi"));
 
 // JWT Options — bind from appsettings "Jwt" section (E01)

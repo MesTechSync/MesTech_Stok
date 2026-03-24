@@ -181,7 +181,7 @@ public sealed class ApiPerformanceBenchmarks : IAsyncLifetime
                 builder.UseSetting("ApiSecurity:BypassPaths:1", "/metrics");
                 builder.UseSetting("ApiSecurity:BypassPaths:2", "/api/v1/auth");
                 builder.UseSetting("ConnectionStrings:PostgreSQL", connectionString);
-                builder.UseSetting("ConnectionStrings:Redis", "localhost:6379");
+                builder.UseSetting("ConnectionStrings:Redis", "localhost:3679");
 
                 builder.ConfigureServices(services =>
                 {

@@ -5,7 +5,7 @@ namespace MesTech.Tests.Integration.E2E.Blazor;
 
 /// <summary>
 /// Playwright E2E tests for Blazor SaaS application.
-/// Requires: Blazor running on localhost:5200
+/// Requires: Blazor running on localhost:3200
 /// Skip in CI if Blazor not available.
 ///
 /// Routes tested (from actual Blazor pages):
@@ -28,7 +28,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task Dashboard_ShouldLoadWithSummaryCards()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/dashboard
+        // FUTURE: Playwright navigate to http://localhost:3200/dashboard
         // Assert: page title contains "Dashboard"
         // Assert: 4 summary cards visible (.stat-card elements)
         //   - "Bu Ay Gelir" (border-success)
@@ -47,7 +47,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task Login_ShouldRenderForm()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/login
+        // FUTURE: Playwright navigate to http://localhost:3200/login
         // Assert: "MesTech" brand text visible
         // Assert: "Kullanici Adi" label present
         // Assert: username input (InputText with placeholder "kullanici@mestech.com")
@@ -64,7 +64,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task Leads_ShouldDisplayList()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/crm/leads
+        // FUTURE: Playwright navigate to http://localhost:3200/crm/leads
         // Assert: page heading "CRM Leadler" visible
         // Assert: search input with placeholder "Lead ara..." present
         // Assert: status filter dropdown (Tum Durumlar, Yeni, Iletisime Gecildi, etc.)
@@ -81,7 +81,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task ProfitLoss_MonthNavigation_ShouldUpdateData()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/finans/kar-zarar
+        // FUTURE: Playwright navigate to http://localhost:3200/finans/kar-zarar
         // Assert: page heading "Kar / Zarar Raporu" visible
         // Assert: period-nav container with prev/next buttons
         // Step: record current periodLabel text
@@ -100,7 +100,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task Sidebar_NavigationLinks_ShouldWork()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/dashboard
+        // FUTURE: Playwright navigate to http://localhost:3200/dashboard
         // Assert: sidebar (nav.mestech-sidebar) visible with brand "MesTech"
         //
         // Verify navigation sections exist:
@@ -129,7 +129,7 @@ public class BlazorE2ETests
     [Fact(Skip = "Requires running Blazor on :5200")]
     public async Task Mobile_SidebarShouldCollapse()
     {
-        // FUTURE: Playwright navigate to http://localhost:5200/dashboard
+        // FUTURE: Playwright navigate to http://localhost:3200/dashboard
         // Step: set viewport to 375x812 (iPhone SE)
         // Assert: sidebar (nav.mestech-sidebar) is hidden or collapsed
         // Assert: hamburger menu / toggle button is visible (if implemented)

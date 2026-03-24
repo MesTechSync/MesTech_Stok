@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────
 # MesTech WebAPI — Multi-stage Docker build (Production)
-# Target: Coolify / Docker Compose deployment on port 5100
+# Target: Coolify / Docker Compose deployment on port 3100
 # Base: .NET 9.0 SDK Alpine (build) + ASP.NET 9.0 Runtime Alpine (run)
 # Image size target: <150MB
 #
@@ -67,10 +67,10 @@ COPY --from=publish --chown=mestech:mestech /app/publish .
 USER mestech
 
 # Expose WebAPI port
-EXPOSE 5100
+EXPOSE 3100
 
 # ASP.NET Core configuration
-ENV ASPNETCORE_URLS=http://+:5100 \
+ENV ASPNETCORE_URLS=http://+:3100 \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
@@ -83,6 +83,6 @@ LABEL org.opencontainers.image.source="https://github.com/MesTechSync/MesTech" \
 
 # Health check — /health endpoint (30s interval, 10s timeout, 3 retries, 40s startup grace)
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
-    CMD wget -qO- http://localhost:5100/health || exit 1
+    CMD wget -qO- http://localhost:3100/health || exit 1
 
 ENTRYPOINT ["dotnet", "MesTech.WebApi.dll"]

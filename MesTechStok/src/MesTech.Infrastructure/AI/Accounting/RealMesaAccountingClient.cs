@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.AI.Accounting;
 /// MESA OS Muhasebe AI servisi — gercek HTTP API cagrisi yapar.
 /// Feature flag: Mesa:Accounting:UseReal=true olunca Mock yerine bu kullanilir.
 /// Demir Kural #12: MESA kopunca MockMesaAccountingService'e fallback yapar.
-/// Endpoint: localhost:5101 (MESA Status port).
+/// Endpoint: localhost:3101 (MESA Status port).
 /// </summary>
 public class RealMesaAccountingClient : IMesaAccountingService
 {

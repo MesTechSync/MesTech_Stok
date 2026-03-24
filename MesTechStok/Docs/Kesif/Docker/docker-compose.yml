@@ -21,7 +21,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
       TZ: Europe/Istanbul
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-3432}:5432"
     volumes:
       - mestech_pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
@@ -50,7 +50,7 @@ services:
       --appendonly yes
       --appendfsync everysec
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-3679}:6379"
     volumes:
       - mestech_redis_data:/data
     healthcheck:
@@ -75,7 +75,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunludur - .env dosyasini kontrol edin}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-mestech}
     ports:
-      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_PORT:-3672}:5672"
       - "${RABBITMQ_MGMT_PORT:-15672}:15672"
     volumes:
       - mestech_rabbitmq_data:/var/lib/rabbitmq

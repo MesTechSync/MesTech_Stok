@@ -34,7 +34,7 @@ public record PendingExpense(string Title, decimal Amount, string Category, deci
 // ── Implementation ──
 
 /// <summary>
-/// MESA STT endpoint'ini (localhost:5101) kullanarak ses → metin → gider akisi.
+/// MESA STT endpoint'ini (localhost:3101) kullanarak ses → metin → gider akisi.
 /// MESA kapaninca bos liste doner (Demir Kural #12 — bagimsizlik).
 /// </summary>
 public class SpeechToExpenseService : ISpeechToExpenseService

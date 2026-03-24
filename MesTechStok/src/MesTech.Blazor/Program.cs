@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration)
     .WriteTo.Console()
-    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:5341")
+    .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? "http://localhost:3343")
     .Enrich.WithProperty("Application", "MesTech.Blazor"));
 
 // Development: skip DI validation (some repos not yet implemented)
@@ -77,7 +77,7 @@ var circuitBreakerPolicy = HttpPolicyExtensions
 
 builder.Services.AddHttpClient<MesTechApiClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5100");
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:3100");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
 .AddPolicyHandler(retryPolicy)
@@ -101,7 +101,7 @@ builder.Services.AddHealthChecks()
         name: "postgresql",
         tags: new[] { "db", "ready" })
     .AddRedis(
-        builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379",
+        builder.Configuration.GetConnectionString("Redis") ?? "localhost:3679",
         name: "redis",
         tags: new[] { "cache", "ready" })
     .AddRabbitMQ(

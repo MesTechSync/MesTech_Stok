@@ -8,7 +8,7 @@ namespace MesTech.Tests.E2E.Tests;
 /// Validates dashboard rendering, product list with filters,
 /// order management table, settings account form, and sidebar navigation.
 ///
-/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:5200)
+/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:3200)
 /// Shell uses hash-based routing: #dashboard, #products, #unified-orders, etc.
 /// </summary>
 [TestFixture]

@@ -52,7 +52,7 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
         builder.UseSetting("ApiSecurity:BypassPaths:1", "/metrics");
         builder.UseSetting("ApiSecurity:BypassPaths:2", "/api/v1/auth");
         builder.UseSetting("ConnectionStrings:PostgreSQL", "InMemory=true");
-        builder.UseSetting("ConnectionStrings:Redis", "localhost:6379");
+        builder.UseSetting("ConnectionStrings:Redis", "localhost:3679");
 
         builder.ConfigureServices(services =>
         {

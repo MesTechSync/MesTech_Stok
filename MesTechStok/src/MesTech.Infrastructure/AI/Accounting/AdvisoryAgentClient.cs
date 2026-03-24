@@ -25,7 +25,7 @@ public record DailyBriefing(
 
 /// <summary>
 /// MESA OS Advisory Agent gercek HTTP istemcisi.
-/// POST localhost:5101/api/v1/accounting/advisory/daily
+/// POST localhost:3101/api/v1/accounting/advisory/daily
 /// Demir Kural #12: MESA kopunca basit ozet uretir (AI'siz fallback).
 /// </summary>
 public class AdvisoryAgentClient : IAdvisoryAgentClient

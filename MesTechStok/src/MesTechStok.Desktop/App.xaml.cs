@@ -18,7 +18,7 @@ using System.Windows.Interop;
 
 // ALPHA TEAM FIX: Core services integration
 using MesTechStok.Core.Services.Abstract;
-using MesTechStok.Core.Services.Concrete;
+// using MesTechStok.Core.Services.Concrete; // Temporarily commented - namespace not found
 using MesTechStok.Core.Data;
 using MesTechStok.Core.Integrations.OpenCart;
 
@@ -174,7 +174,7 @@ public partial class App : Application
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (CorrId={CorrelationId}) {Message:lj} {Properties:j}{NewLine}{Exception}")
             // Dalga 2 4.D2-04: Seq log aggregation (UI: http://localhost:8080)
             // Seq URL hardcoded — IConfiguration not yet built at this point
-            .WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341")
+            .WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:3343")
             .CreateLogger();
 
         try

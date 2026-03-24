@@ -11,7 +11,7 @@ namespace MesTech.Tests.E2E.Tests;
 /// Checks sidebar visibility/collapse, hamburger menu, KPI grid layout,
 /// table scroll behavior, and navigation at each breakpoint.
 ///
-/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:5200)
+/// Target: mestech-shell.html served at BlazorBaseUrl (default http://localhost:3200)
 /// CSS breakpoints defined in mestech-shell.css (1024 / 768 / 480)
 /// and mds-responsive.css (1024 / 768 / 480).
 /// </summary>

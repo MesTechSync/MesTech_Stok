@@ -15,7 +15,7 @@ public sealed class MesTechApiClient
     public MesTechApiClient(HttpClient http, IConfiguration config)
     {
         _http = http;
-        _baseUrl = config["WebApi:BaseUrl"] ?? "http://localhost:5100";
+        _baseUrl = config["WebApi:BaseUrl"] ?? "http://localhost:3100";
     }
 
     // ── Public generic methods returning ApiResult<T> ──

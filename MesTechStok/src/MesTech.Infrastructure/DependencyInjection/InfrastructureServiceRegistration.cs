@@ -222,7 +222,7 @@ public static class InfrastructureServiceRegistration
         // Redis Cache
         var redisConnection = configuration.GetConnectionString("Redis")
             ?? configuration["Redis:Configuration"]
-            ?? "localhost:6379";
+            ?? "localhost:3679";
 
         services.AddStackExchangeRedisCache(options =>
         {
@@ -352,7 +352,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<IMinioClient>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var endpoint = config["MinIO:Endpoint"] ?? "localhost:9000";
+            var endpoint = config["MinIO:Endpoint"] ?? "localhost:3900";
             var accessKey = config["MinIO:AccessKey"]
                 ?? throw new InvalidOperationException("MinIO:AccessKey config required. Set in appsettings.json or env.");
             var secretKey = config["MinIO:SecretKey"]

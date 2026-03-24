@@ -60,7 +60,7 @@ public sealed class MesTechWebApplicationFactory : WebApplicationFactory<Program
         builder.UseSetting("ApiSecurity:BypassPaths:2", "/api/v1/auth");
         // Use InMemory marker (no "Host=" so Hangfire PostgreSQL is skipped)
         builder.UseSetting("ConnectionStrings:PostgreSQL", "InMemory=true");
-        builder.UseSetting("ConnectionStrings:Redis", "localhost:6379");
+        builder.UseSetting("ConnectionStrings:Redis", "localhost:3679");
 
         builder.ConfigureServices(services =>
         {

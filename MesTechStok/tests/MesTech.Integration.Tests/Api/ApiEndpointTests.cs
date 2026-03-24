@@ -286,7 +286,7 @@ public sealed class ApiEndpointTests : IClassFixture<MesTechWebApplicationFactor
     {
         // Arrange
         var request = new HttpRequestMessage(HttpMethod.Options, "/api/v1/products/status");
-        request.Headers.Add("Origin", "http://localhost:5173");
+        request.Headers.Add("Origin", "http://localhost:3173");
         request.Headers.Add("Access-Control-Request-Method", "GET");
         request.Headers.Add("Access-Control-Request-Headers", "X-API-Key");
 
@@ -298,7 +298,7 @@ public sealed class ApiEndpointTests : IClassFixture<MesTechWebApplicationFactor
             .Should().BeTrue("CORS should return Access-Control-Allow-Origin for allowed origins");
         // API may use wildcard CORS or specific origin — both are acceptable
         var originList = origins!.ToList();
-        (originList.Contains("http://localhost:5173") || originList.Contains("*"))
+        (originList.Contains("http://localhost:3173") || originList.Contains("*"))
             .Should().BeTrue("CORS should allow the requested origin or use wildcard");
     }
 

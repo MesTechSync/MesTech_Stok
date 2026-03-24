@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────
 # MesTech Blazor — Multi-stage Docker build (Production)
-# Target: Coolify / Docker Compose deployment on port 5200
+# Target: Coolify / Docker Compose deployment on port 3200
 # Base: .NET 9.0 SDK Alpine (build) + ASP.NET 9.0 Runtime Alpine (run)
 #
 # Build context: mono-repo root (e.g. docker build -f src/MesTech.Blazor/Dockerfile ../..)
@@ -60,10 +60,10 @@ COPY --from=publish --chown=mestech:mestech /app/publish .
 USER mestech
 
 # Expose Blazor port
-EXPOSE 5200
+EXPOSE 3200
 
 # ASP.NET Core configuration
-ENV ASPNETCORE_URLS=http://+:5200 \
+ENV ASPNETCORE_URLS=http://+:3200 \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
@@ -76,6 +76,6 @@ LABEL org.opencontainers.image.source="https://github.com/MesTechSync/MesTech" \
 
 # Health check — /health endpoint
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
-    CMD wget -qO- http://localhost:5200/health || exit 1
+    CMD wget -qO- http://localhost:3200/health || exit 1
 
 ENTRYPOINT ["dotnet", "MesTech.Blazor.dll"]

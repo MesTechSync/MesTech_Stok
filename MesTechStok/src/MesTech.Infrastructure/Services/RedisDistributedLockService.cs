@@ -39,7 +39,7 @@ public sealed class RedisDistributedLockService : IDistributedLockService, IDisp
 
         var connectionString = configuration.GetConnectionString("Redis")
             ?? configuration["Redis:Configuration"]
-            ?? "localhost:6379";
+            ?? "localhost:3679";
 
         try
         {
