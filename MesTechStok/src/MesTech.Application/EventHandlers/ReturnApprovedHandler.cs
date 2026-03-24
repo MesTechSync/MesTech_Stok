@@ -15,7 +15,7 @@ public interface IReturnApprovedHandler
 {
     Task HandleAsync(
         Guid returnRequestId, Guid orderId, Guid tenantId,
-        IReadOnlyList<ReturnApprovedEvent.ReturnLineInfo> lines,
+        IReadOnlyList<ReturnLineInfoEvent> lines,
         CancellationToken ct);
 }
 
@@ -37,7 +37,7 @@ public class ReturnApprovedHandler : IReturnApprovedHandler
 
     public async Task HandleAsync(
         Guid returnRequestId, Guid orderId, Guid tenantId,
-        IReadOnlyList<ReturnApprovedEvent.ReturnLineInfo> lines,
+        IReadOnlyList<ReturnLineInfoEvent> lines,
         CancellationToken ct)
     {
         _logger.LogInformation(

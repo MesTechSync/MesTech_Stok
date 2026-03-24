@@ -62,7 +62,7 @@ public class ReturnRequest : BaseEntity, ITenantEntity
 
         var lineInfos = _lines
             .Where(l => l.ProductId.HasValue)
-            .Select(l => new ReturnApprovedEvent.ReturnLineInfo(
+            .Select(l => new ReturnLineInfoEvent(
                 l.ProductId!.Value, l.SKU ?? "", l.Quantity, l.UnitPrice))
             .ToList();
 

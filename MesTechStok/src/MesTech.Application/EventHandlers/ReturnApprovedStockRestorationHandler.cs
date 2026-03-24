@@ -15,7 +15,7 @@ public interface IReturnApprovedStockRestorationHandler
 {
     Task HandleAsync(
         Guid returnRequestId, Guid tenantId,
-        IReadOnlyList<ReturnApprovedEvent.ReturnLineInfo> lines,
+        IReadOnlyList<ReturnLineInfoEvent> lines,
         CancellationToken ct);
 }
 
@@ -37,7 +37,7 @@ public class ReturnApprovedStockRestorationHandler : IReturnApprovedStockRestora
 
     public async Task HandleAsync(
         Guid returnRequestId, Guid tenantId,
-        IReadOnlyList<ReturnApprovedEvent.ReturnLineInfo> lines,
+        IReadOnlyList<ReturnLineInfoEvent> lines,
         CancellationToken ct)
     {
         foreach (var line in lines)

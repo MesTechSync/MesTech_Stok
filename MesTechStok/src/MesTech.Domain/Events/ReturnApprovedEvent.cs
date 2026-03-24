@@ -11,12 +11,14 @@ public record ReturnApprovedEvent(
     Guid ReturnRequestId,
     Guid OrderId,
     Guid TenantId,
-    IReadOnlyList<ReturnApprovedEvent.ReturnLineInfo> Lines,
-    DateTime OccurredAt) : IDomainEvent
-{
-    public record ReturnLineInfo(
-        Guid ProductId,
-        string SKU,
-        int Quantity,
-        decimal UnitPrice);
-}
+    IReadOnlyList<ReturnLineInfoEvent> Lines,
+    DateTime OccurredAt) : IDomainEvent;
+
+/// <summary>
+/// Iade kalem bilgisi — ReturnApprovedEvent icin yardimci record.
+/// </summary>
+public record ReturnLineInfoEvent(
+    Guid ProductId,
+    string SKU,
+    int Quantity,
+    decimal UnitPrice);

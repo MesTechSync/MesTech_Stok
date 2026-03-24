@@ -39,7 +39,7 @@ public class ReturnToStockReverseChainTests
             TenantId = tenantId
         };
 
-        var lines = new List<ReturnApprovedEvent.ReturnLineInfo>
+        var lines = new List<ReturnLineInfoEvent>
         {
             new(productId, "RET-001", 3, 100m)
         };
@@ -78,7 +78,7 @@ public class ReturnToStockReverseChainTests
             TenantId = tenantId
         };
 
-        var lines = new List<ReturnApprovedEvent.ReturnLineInfo>
+        var lines = new List<ReturnLineInfoEvent>
         {
             new(missingProductId, "MISSING-001", 2, 50m),
             new(existingProductId, "EXISTS-001", 5, 75m)
@@ -112,7 +112,7 @@ public class ReturnToStockReverseChainTests
         var product1 = new Product { SKU = "MR-01", Name = "Multi Return 1", Stock = 20, MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
         var product2 = new Product { SKU = "MR-02", Name = "Multi Return 2", Stock = 8, MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
 
-        var lines = new List<ReturnApprovedEvent.ReturnLineInfo>
+        var lines = new List<ReturnLineInfoEvent>
         {
             new(prod1Id, "MR-01", 10, 200m),
             new(prod2Id, "MR-02", 7, 150m)
