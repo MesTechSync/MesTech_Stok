@@ -56,7 +56,7 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - default
+      - mestech-backend
 
   redis:
     image: redis:7.4-alpine@sha256:4bfd9eca23339865dc14fe75f6d9ae643f714924623978dd2798f1a673b08f43
@@ -97,7 +97,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - default
+      - mestech-backend
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine@sha256:3c498e636fd64462480c5f9ff842eb224ab84160a8ada1ded5375e9569e9230c
@@ -139,6 +139,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - mestech-backend
 
   mysql:
     image: mysql:8.0@sha256:ce4d5c5f9df534fb059e6826805ad7dc3cb431589d4d99cc0869f5ee766e0f47
@@ -179,6 +181,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - mestech-backend
 
   seq:
     image: datalust/seq:2024.1@sha256:95b41ddda7bc31825bc9f7ba9331aab6daec13524c2992601c0ddd53129ad43c
@@ -213,6 +217,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    networks:
+      - mestech-backend
+      - mestech-monitoring
 
   # ─────────────────────────────────────────
   # MesTech WebAPI — .NET 9.0 (Dalga 14+)
@@ -261,6 +268,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - mestech-backend
+      - mestech-monitoring
 
   # ─────────────────────────────────────────
   # MinIO — Belge Depolama (Dalga 8)
@@ -294,7 +304,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - default
+      - mestech-backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -347,7 +357,8 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - default
+      - mestech-frontend
+      - mestech-backend
 
   # ─────────────────────────────────────────
   # Prometheus — Monitoring (Dalga 14+)
@@ -388,7 +399,8 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - default
+      - mestech-monitoring
+      - mestech-backend
 
   # ─────────────────────────────────────────
   # Grafana — Dashboard UI (Dalga 14+)
@@ -435,7 +447,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - default
+      - mestech-monitoring
 
 volumes:
   mestech_pgdata:
@@ -456,6 +468,12 @@ volumes:
     driver: local
 
 networks:
-  default:
-    name: mestech-network
+  mestech-frontend:
+    name: mestech-frontend
+    driver: bridge
+  mestech-backend:
+    name: mestech-backend
+    driver: bridge
+  mestech-monitoring:
+    name: mestech-monitoring
     driver: bridge
