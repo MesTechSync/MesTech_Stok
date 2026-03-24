@@ -198,6 +198,11 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "OpenCart PushProduct: platform gecersiz yanit dondurdu — SKU={SKU}", product.SKU);
+            return false;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "OpenCart PushProduct exception: {SKU}", product.SKU);
@@ -258,6 +263,10 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullProducts: {Count} products retrieved", products.Count);
         }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "OpenCart PullProducts: platform gecersiz yanit dondurdu");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "OpenCart PullProducts failed");
@@ -292,6 +301,11 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             }
 
             return true;
+        }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, "OpenCart StockUpdate: platform gecersiz yanit dondurdu — ProductId={ProductId}", productId);
+            return false;
         }
         catch (Exception ex)
         {
