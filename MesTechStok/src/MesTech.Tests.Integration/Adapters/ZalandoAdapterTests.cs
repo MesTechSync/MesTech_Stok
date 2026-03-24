@@ -69,8 +69,9 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     /// </summary>
     private HttpClient CreateHttpClient()
     {
-        var handler = new ZalandoHttpsToHttpHandler(new HttpClientHandler());
-        return new HttpClient(handler);
+        var wireMockPort = new Uri(_fixture.BaseUrl).Port;
+        var handler = new ZalandoHttpsToHttpHandler(new HttpClientHandler(), wireMockPort);
+        return new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
     }
 
     /// <summary>
@@ -776,7 +777,12 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 /// </summary>
 internal sealed class ZalandoHttpsToHttpHandler : DelegatingHandler
 {
-    public ZalandoHttpsToHttpHandler(HttpMessageHandler inner) : base(inner) { }
+    private readonly int _targetPort;
+
+    public ZalandoHttpsToHttpHandler(HttpMessageHandler inner, int targetPort = -1) : base(inner)
+    {
+        _targetPort = targetPort;
+    }
 
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, CancellationToken cancellationToken)
@@ -786,7 +792,7 @@ internal sealed class ZalandoHttpsToHttpHandler : DelegatingHandler
             var builder = new UriBuilder(request.RequestUri)
             {
                 Scheme = Uri.UriSchemeHttp,
-                Port = request.RequestUri.Port
+                Port = _targetPort > 0 ? _targetPort : request.RequestUri.Port
             };
             request.RequestUri = builder.Uri;
         }
