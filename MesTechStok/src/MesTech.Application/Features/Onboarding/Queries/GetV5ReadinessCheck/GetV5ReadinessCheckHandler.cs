@@ -3,6 +3,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Onboarding.Queries.GetV5ReadinessCheck;
 
@@ -14,19 +15,22 @@ public class GetV5ReadinessCheckHandler
     private readonly IFulfillmentProviderFactory _fulfillmentFactory;
     private readonly ICommissionRecordRepository _commissionRepo;
     private readonly ICounterpartyRepository _counterpartyRepo;
+    private readonly ILogger<GetV5ReadinessCheckHandler> _logger;
 
     public GetV5ReadinessCheckHandler(
         IOnboardingProgressRepository onboardingRepo,
         IErpAdapterFactory erpFactory,
         IFulfillmentProviderFactory fulfillmentFactory,
         ICommissionRecordRepository commissionRepo,
-        ICounterpartyRepository counterpartyRepo)
+        ICounterpartyRepository counterpartyRepo,
+        ILogger<GetV5ReadinessCheckHandler> logger)
     {
         _onboardingRepo = onboardingRepo;
         _erpFactory = erpFactory;
         _fulfillmentFactory = fulfillmentFactory;
         _commissionRepo = commissionRepo;
         _counterpartyRepo = counterpartyRepo;
+        _logger = logger;
     }
 
     public async Task<V5ReadinessCheckDto> Handle(
@@ -52,7 +56,7 @@ public class GetV5ReadinessCheckHandler
                     break;
                 }
             }
-            catch { /* provider not available */ }
+            catch (Exception ex) { _logger.LogDebug(ex, "ERP provider {Provider} not available", provider); }
         }
         features.Add(new V5FeatureCheckDto(
             "ERP Entegrasyonu",
@@ -75,7 +79,7 @@ public class GetV5ReadinessCheckHandler
                     centerNames.Add(center.ToString());
                 }
             }
-            catch { /* center not available */ }
+            catch (Exception ex) { _logger.LogDebug(ex, "Fulfillment center {Center} not available", center); }
         }
         features.Add(new V5FeatureCheckDto(
             "Fulfillment Merkezi",
