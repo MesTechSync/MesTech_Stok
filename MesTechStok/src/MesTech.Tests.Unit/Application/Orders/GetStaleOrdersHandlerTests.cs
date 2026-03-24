@@ -60,7 +60,7 @@ public class GetStaleOrdersHandlerTests
         var orders = new List<Order>
         {
             CreateOrder("ORD-001", DateTime.UtcNow.AddHours(-96), PlatformType.Trendyol),
-            CreateOrder("ORD-002", DateTime.UtcNow.AddHours(-72), PlatformType.HepsiBurada),
+            CreateOrder("ORD-002", DateTime.UtcNow.AddHours(-72), PlatformType.Hepsiburada),
             CreateOrder("ORD-003", DateTime.UtcNow.AddHours(-50), PlatformType.N11)
         };
         _orderRepoMock

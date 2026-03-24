@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -17,17 +17,15 @@ namespace MesTechStok.Desktop.ViewModels
     public partial class StockPlacementViewModel : ObservableObject
     {
         private readonly ILogger<StockPlacementViewModel> _logger;
-        private readonly ILocationService _locationService;
-        private readonly IWarehouseOptimizationService _warehouseOptimizationService;
+        // private readonly ILocationService _locationService;
+        // private readonly IWarehouseOptimizationService _warehouseOptimizationService;
 
         public StockPlacementViewModel(
-            ILogger<StockPlacementViewModel> logger,
-            ILocationService locationService,
-            IWarehouseOptimizationService warehouseOptimizationService)
+            ILogger<StockPlacementViewModel> logger)
         {
             _logger = logger;
-            _locationService = locationService;
-            _warehouseOptimizationService = warehouseOptimizationService;
+            // _locationService = locationService;
+            // _warehouseOptimizationService = warehouseOptimizationService;
 
             // Initialize collections
             RecentActivities = new ObservableCollection<ActivityItem>();
