@@ -34,6 +34,8 @@ public class FulfillmentCostReportHandler
             var provider = _factory.Resolve(center);
             if (provider is null) continue;
 
+            // Availability probe: any failure means center is unavailable for reporting
+#pragma warning disable CA1031 // Intentional broad catch — availability probe treats all failures as "unavailable"
             bool isAvailable;
             try
             {
@@ -44,6 +46,7 @@ public class FulfillmentCostReportHandler
                 _logger.LogWarning(ex, "Fulfillment center {Center} availability check failed", center);
                 isAvailable = false;
             }
+#pragma warning restore CA1031
 
             if (!isAvailable)
             {
@@ -51,6 +54,8 @@ public class FulfillmentCostReportHandler
                 continue;
             }
 
+            // Cost query can fail due to network/auth/data issues — report degrades gracefully per center
+#pragma warning disable CA1031 // Intentional broad catch — report returns zero-cost fallback on query failure
             try
             {
                 var orders = await provider.GetFulfillmentOrdersAsync(request.StartDate, cancellationToken);
@@ -77,6 +82,7 @@ public class FulfillmentCostReportHandler
                 _logger.LogWarning(ex, "Fulfillment cost query failed for {Center}", center);
                 centerCosts.Add(new CenterCostDto(center, center.ToString(), 0, 0, 0, 0, false));
             }
+#pragma warning restore CA1031
         }
 
         return new FulfillmentCostReportDto

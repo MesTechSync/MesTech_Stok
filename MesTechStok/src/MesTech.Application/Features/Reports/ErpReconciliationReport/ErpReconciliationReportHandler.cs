@@ -29,7 +29,8 @@ public class ErpReconciliationReportHandler
         var mesTechContacts = await _counterpartyRepo.GetAllAsync(
             request.TenantId, null, null, cancellationToken);
 
-        // ERP cari hesapları
+        // ERP cari hesapları — adapter resolution can throw various exceptions (config, DI, etc.)
+#pragma warning disable CA1031 // Intentional broad catch — report returns partial data on any adapter failure
         IErpAdapter adapter;
         try
         {
@@ -52,7 +53,10 @@ public class ErpReconciliationReportHandler
                 GeneratedAt = DateTime.UtcNow
             };
         }
+#pragma warning restore CA1031
 
+        // ERP query can fail due to network, auth, or data issues — report degrades gracefully
+#pragma warning disable CA1031 // Intentional broad catch — report returns empty ERP data on query failure
         DTOs.ERP.ErpAccountDto[] erpAccounts;
         try
         {
@@ -64,6 +68,7 @@ public class ErpReconciliationReportHandler
             _logger.LogWarning(ex, "ERP accounts query failed for {Provider}", request.ErpProvider);
             erpAccounts = [];
         }
+#pragma warning restore CA1031
 
         // İsim bazlı eşleştirme (ErpAccountDto'da VKN yok, AccountName ile eşleştir)
         var mesTechByName = mesTechContacts

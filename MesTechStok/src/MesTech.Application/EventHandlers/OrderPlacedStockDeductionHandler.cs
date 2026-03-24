@@ -50,6 +50,8 @@ public class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 
         foreach (var item in order.OrderItems)
         {
+            // Safety net: one failed item must not block remaining items in the order
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience in order processing loop
             try
             {
                 var product = await _productRepo.GetByIdAsync(item.ProductId);
@@ -81,6 +83,7 @@ public class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
                 _logger.LogError(ex, "Stok düşürme BAŞARISIZ — SKU={SKU}", item.ProductSKU);
                 failures.Add($"{item.ProductSKU}: {ex.Message}");
             }
+#pragma warning restore CA1031
         }
 
         await _unitOfWork.SaveChangesAsync(ct);

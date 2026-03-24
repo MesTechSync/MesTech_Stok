@@ -45,6 +45,8 @@ public class GetV5ReadinessCheckHandler
         // 1. ERP Entegrasyonu — en az 1 ERP provider bağlı mı?
         var erpProviders = _erpFactory.SupportedProviders;
         var erpConnected = false;
+        // Readiness probe: any failure means "provider not available" — broad catch is intentional
+#pragma warning disable CA1031 // Intentional broad catch — readiness check treats all failures as "unavailable"
         foreach (var provider in erpProviders)
         {
             try
@@ -58,6 +60,7 @@ public class GetV5ReadinessCheckHandler
             }
             catch (Exception ex) { _logger.LogDebug(ex, "ERP provider {Provider} not available", provider); }
         }
+#pragma warning restore CA1031
         features.Add(new V5FeatureCheckDto(
             "ERP Entegrasyonu",
             "En az bir ERP sağlayıcısı bağlı ve erişilebilir",
@@ -71,6 +74,8 @@ public class GetV5ReadinessCheckHandler
         {
             var provider = _fulfillmentFactory.Resolve(center);
             if (provider is null) continue;
+            // Readiness probe: any failure means "center not available"
+#pragma warning disable CA1031 // Intentional broad catch — availability probe treats all failures as "unavailable"
             try
             {
                 if (await provider.IsAvailableAsync(cancellationToken))
@@ -80,6 +85,7 @@ public class GetV5ReadinessCheckHandler
                 }
             }
             catch (Exception ex) { _logger.LogDebug(ex, "Fulfillment center {Center} not available", center); }
+#pragma warning restore CA1031
         }
         features.Add(new V5FeatureCheckDto(
             "Fulfillment Merkezi",
