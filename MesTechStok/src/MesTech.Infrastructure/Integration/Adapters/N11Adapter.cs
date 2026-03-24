@@ -7,6 +7,8 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.Integration.Adapters;
 
@@ -20,6 +22,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
+    private readonly ResiliencePipeline _retryPipeline;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
@@ -45,6 +48,26 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
     public N11Adapter(ILogger<N11Adapter> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        // NOT: SimpleSoapClient zaten Polly retry (2 attempt, exp backoff) iceriyor.
+        // Cift retry onlemek icin burada SADECE circuit breaker ekliyoruz.
+        _retryPipeline = new ResiliencePipelineBuilder()
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions
+            {
+                FailureRatio = 0.5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 5,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                ShouldHandle = new PredicateBuilder()
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogWarning("N11 circuit breaker OPENED for {Duration}s",
+                        args.BreakDuration.TotalSeconds);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     public string PlatformCode => nameof(PlatformType.N11);
@@ -85,7 +108,10 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            return await _soapClient!.SendAsync(url, soapAction, body, ct).ConfigureAwait(false);
+            return await _retryPipeline.ExecuteAsync(
+                async token => await _soapClient!.SendAsync(url, soapAction, body, token)
+                    .ConfigureAwait(false),
+                ct).ConfigureAwait(false);
         }
         finally
         {
@@ -205,7 +231,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var products = await FetchAllPagesAsync<Product>(
                 async (page, pageSize) =>
                 {
-                    var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize).ConfigureAwait(false);
+                    var body = N11SoapRequestBuilder.BuildGetProducts(_appKey!, _appSecret!, page, pageSize);
                     var url = _soapBaseUrl + ProductServicePath;
                     var response = await ThrottledSoapAsync(url, "GetProductList", body, ct).ConfigureAwait(false);
 
@@ -388,7 +414,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
                 async (page, pageSize) =>
                 {
                     var body = N11SoapRequestBuilder.BuildGetOrders(
-                        _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize).ConfigureAwait(false);
+                        _appKey!, _appSecret!, status: null, currentPage: page, pageSize: pageSize);
                     var url = _soapBaseUrl + OrderServicePath;
                     var response = await ThrottledSoapAsync(url, "DetailedOrderList", body, ct).ConfigureAwait(false);
 
@@ -662,7 +688,7 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             var claims = await FetchAllPagesAsync<ExternalClaimDto>(
                 async (page, pageSize) =>
                 {
-                    var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize).ConfigureAwait(false);
+                    var body = N11SoapRequestBuilder.BuildGetClaims(_appKey!, _appSecret!, page, pageSize);
                     var url = _soapBaseUrl + ClaimServicePath;
                     var response = await ThrottledSoapAsync(url, "GetClaims", body, ct).ConfigureAwait(false);
 
