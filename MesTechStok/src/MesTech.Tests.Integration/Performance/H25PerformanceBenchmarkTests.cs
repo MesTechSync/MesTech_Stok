@@ -170,7 +170,7 @@ public class H25PerformanceBenchmarkTests
         var stockTasks = Task.WhenAll(
             Enumerable.Range(0, 50).Select(i =>
                 orchestrator.HandleStockChangedAsync(new Domain.Events.StockChangedEvent(
-                    Guid.NewGuid(), $"SKU-MIX-{i:D3}",
+                    Guid.NewGuid(), Guid.NewGuid(), $"SKU-MIX-{i:D3}",
                     100, 100 + i, StockMovementType.StockIn, DateTime.UtcNow))));
 
         await Task.WhenAll(syncTask, orderTasks, stockTasks);

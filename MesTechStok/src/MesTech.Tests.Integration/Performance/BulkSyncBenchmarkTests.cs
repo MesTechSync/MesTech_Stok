@@ -230,9 +230,10 @@ public class BulkSyncBenchmarkTests
         var stockEvents = Enumerable.Range(0, 1000)
             .Select(i => new StockChangedEvent(
                 Guid.NewGuid(),
+                Guid.NewGuid(),
                 $"SKU-BULK-{i:D5}",
-                PreviousQuantity: 100,
-                NewQuantity: 100 + (i % 50),
+                100,
+                100 + (i % 50),
                 StockMovementType.StockIn,
                 DateTime.UtcNow))
             .ToList();
@@ -322,12 +323,12 @@ public class BulkSyncBenchmarkTests
 
         var stockTasks = Enumerable.Range(0, 100).Select(i =>
             orchestrator.HandleStockChangedAsync(new StockChangedEvent(
-                Guid.NewGuid(), $"SKU-CONC-{i:D3}", 100, 100 + i,
+                Guid.NewGuid(), Guid.NewGuid(), $"SKU-CONC-{i:D3}", 100, 100 + i,
                 StockMovementType.StockIn, DateTime.UtcNow)));
 
         var priceTasks = Enumerable.Range(0, 100).Select(i =>
             orchestrator.HandlePriceChangedAsync(new PriceChangedEvent(
-                Guid.NewGuid(), $"SKU-PRICE-{i:D3}", 100m, 100m + i,
+                Guid.NewGuid(), Guid.NewGuid(), $"SKU-PRICE-{i:D3}", 100m, 100m + i,
                 DateTime.UtcNow)));
 
         // All 3 operation types running simultaneously
