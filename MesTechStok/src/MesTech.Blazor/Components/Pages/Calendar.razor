@@ -3,6 +3,7 @@
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
+@inject ILogger<Calendar> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -282,7 +283,7 @@ else
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
       var today = DateTime.Today;
       currentMonth = today.Month;

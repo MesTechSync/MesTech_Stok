@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject MesTechApiClient ApiClient
+@inject ILogger<Reconciliation> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -151,7 +152,7 @@
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
       _items = GetDemoData();
     }

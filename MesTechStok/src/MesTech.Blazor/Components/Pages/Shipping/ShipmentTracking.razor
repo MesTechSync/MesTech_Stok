@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<ShipmentTracking> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -273,7 +274,7 @@ else if (trackingSearched && trackingResult is null)
         }
         catch (Exception apiEx)
         {
-            Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+            Logger.LogWarning(apiEx, "API error, falling back to demo data");
             _isDemoMode = true;
         }
 
@@ -316,7 +317,7 @@ else if (trackingSearched && trackingResult is null)
             }
             catch (Exception apiEx)
             {
-                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+                Logger.LogWarning(apiEx, "API error, falling back to demo data");
                 _isDemoMode = true;
             }
 

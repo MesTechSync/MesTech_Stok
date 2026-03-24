@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L
+@inject ILogger<FixedExpenses> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -264,7 +265,7 @@
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
       _expenses = GetDemoExpenses();
     }

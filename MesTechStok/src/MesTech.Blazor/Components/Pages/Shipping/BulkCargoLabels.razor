@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<BulkCargoLabels> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -145,7 +146,7 @@ else
             }
             catch (Exception apiEx)
             {
-                Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+                Logger.LogWarning(apiEx, "API error, falling back to demo data");
                 _isDemoMode = true;
             }
 

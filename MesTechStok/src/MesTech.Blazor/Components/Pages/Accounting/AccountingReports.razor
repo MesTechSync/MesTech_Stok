@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @inject MesTechApiClient ApiClient
 @inject NavigationManager Navigation
+@inject ILogger<AccountingReports> Logger
 
 <PageTitle>Muhasebe Raporlari</PageTitle>
 
@@ -176,7 +177,7 @@
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
       _reportRows = GetDemoData(_activeTab);
     }

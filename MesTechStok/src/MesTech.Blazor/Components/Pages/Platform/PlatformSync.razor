@@ -3,6 +3,7 @@
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
+@inject ILogger<PlatformSync> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -233,7 +234,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (PlatformSync): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             _isDemoMode = true;
             syncRows = GetDemoSyncRows();
         }
@@ -273,7 +274,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (SyncPlatform {sync.Platform}): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             // Simulate success in demo mode
             await Task.Delay(1500);
             sync.Durum = "Basarili";

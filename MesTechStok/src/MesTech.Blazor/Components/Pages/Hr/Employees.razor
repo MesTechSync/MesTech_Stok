@@ -1,6 +1,7 @@
 @page "/hr/calisanlar"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<Employees> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -138,7 +139,7 @@ else
         {
             _isDemoMode = true;
             _employees = GetDemoData();
-            Console.WriteLine($"API error, using demo mode: {ex.Message}");
+            Logger.LogWarning(ex, "API error, falling back to demo mode");
         }
         finally
         {

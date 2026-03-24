@@ -1,6 +1,7 @@
 @page "/cargo/settings"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<CargoSettings> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -137,7 +138,7 @@ else
       }
       catch (Exception apiEx)
       {
-        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        Logger.LogWarning(apiEx, "API error, falling back to demo data");
         _isDemoMode = true;
       }
 

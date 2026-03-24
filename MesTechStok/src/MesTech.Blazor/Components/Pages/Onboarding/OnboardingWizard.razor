@@ -3,6 +3,7 @@
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Nav
 @inject OnboardingService OnboardingService
+@inject ILogger<OnboardingWizard> Logger
 
 <div class="container py-4" style="max-width: 720px;">
 
@@ -466,7 +467,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Onboarding init error: {ex.Message}");
+            Logger.LogWarning(ex, "Onboarding init error");
         }
         finally
         {

@@ -3,6 +3,7 @@
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
+@inject ILogger<SystemHealth> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -273,7 +274,7 @@ else
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API fallback (SystemHealth): {ex.Message}");
+      Logger.LogWarning(ex, "API fallback, using demo data");
       _isDemoMode = true;
       dockerServices = GetDemoDockerServices();
       hangfireJobs = GetDemoHangfireJobs();

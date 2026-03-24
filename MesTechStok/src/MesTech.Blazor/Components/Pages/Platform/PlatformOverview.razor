@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<PlatformOverview> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -140,7 +141,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (PlatformOverview): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             _isDemoMode = true;
             platforms = GetDemoPlatforms();
         }

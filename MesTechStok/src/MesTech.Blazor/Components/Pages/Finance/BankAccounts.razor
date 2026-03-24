@@ -1,6 +1,7 @@
 @page "/finans/banka"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<BankAccounts> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -135,7 +136,7 @@ else
         {
             _isDemoMode = true;
             _accounts = GetDemoData();
-            Console.WriteLine($"API error, using demo mode: {ex.Message}");
+            Logger.LogWarning(ex, "API error, falling back to demo mode");
         }
         finally
         {

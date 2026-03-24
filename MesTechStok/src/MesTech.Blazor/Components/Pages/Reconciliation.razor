@@ -3,6 +3,7 @@
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
+@inject ILogger<Reconciliation> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -258,7 +259,7 @@
       }
       catch (Exception apiEx)
       {
-        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        Logger.LogWarning(apiEx, "API error, falling back to demo data");
         _isDemoMode = true;
       }
 
@@ -289,7 +290,7 @@
       }
       catch (Exception apiEx)
       {
-        Console.WriteLine($"API error, using demo data: {apiEx.Message}");
+        Logger.LogWarning(apiEx, "API error, falling back to demo data");
         _isDemoMode = true;
         await Task.Delay(1500);
       }

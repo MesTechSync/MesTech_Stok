@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<EInvoiceCreate> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -311,7 +312,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (CheckVkn): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             _isDemoMode = true;
             form.AliciUnvan = "Ornek Sirket A.S.";
             form.VergiDairesi = "Kadikoy";
@@ -343,7 +344,7 @@ else
             }
             catch (Exception apiEx)
             {
-                Console.WriteLine($"API fallback (EInvoiceCreate): {apiEx.Message}");
+                Logger.LogWarning(apiEx, "API fallback (EInvoiceCreate)");
                 _isDemoMode = true;
                 await Task.Delay(800); // simulate when API unavailable
             }

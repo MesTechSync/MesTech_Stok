@@ -8,6 +8,7 @@
 @inject ICurrentUserService CurrentUser
 @inject IStringLocalizer<Strings> L
 @inject MesTechApiClient ApiClient
+@inject ILogger<ProfitLoss> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -198,7 +199,7 @@ else if (data is not null)
         catch (Exception ex)
         {
             _isDemoMode = true;
-            Console.WriteLine($"MediatR error, using demo mode: {ex.Message}");
+            Logger.LogWarning(ex, "MediatR error, using demo mode");
             data = null;
         }
         finally

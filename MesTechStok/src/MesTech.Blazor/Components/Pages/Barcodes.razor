@@ -3,6 +3,7 @@
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
 @inject MesTechApiClient ApiClient
+@inject ILogger<Barcodes> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -313,7 +314,7 @@ else
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API error, using demo data: {ex.Message}");
+      Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
       LoadDemoData();
     }

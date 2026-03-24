@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<TenantDetail> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -273,7 +274,7 @@ else
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API fallback (TenantDetail): {ex.Message}");
+      Logger.LogWarning(ex, "API fallback, using demo data");
       _isDemoMode = true;
       tenant = GetDemoTenant();
       stores = GetDemoStores();

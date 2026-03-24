@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<EInvoiceList> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -193,7 +194,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (EInvoiceList): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             _isDemoMode = true;
             invoices = GetDemoData();
             totalCount = invoices.Count;

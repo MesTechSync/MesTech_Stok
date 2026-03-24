@@ -4,6 +4,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<EInvoiceDetail> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -301,7 +302,7 @@ else if (invoice is not null)
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"API fallback (EInvoiceDetail): {ex.Message}");
+            Logger.LogWarning(ex, "API fallback, using demo data");
             _isDemoMode = true;
 
             var kalemler = new List<InvoiceLineDto>

@@ -5,6 +5,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 @inject MesTechApiClient ApiClient
+@inject ILogger<Stores> Logger
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
@@ -277,7 +278,7 @@ else
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"API fallback (Stores): {ex.Message}");
+      Logger.LogWarning(ex, "API fallback, using demo data");
       _isDemoMode = true;
       stores = GetDemoStores();
       toplamMagaza = stores.Count;
