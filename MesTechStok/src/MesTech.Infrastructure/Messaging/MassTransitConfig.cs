@@ -48,6 +48,9 @@ public static class MassTransitConfig
             // Bildirim Consumer (İ-13: kayıt eksik düzeltildi)
             bus.AddConsumer<NotificationSentConsumer>();
 
+            // MESA Lead Scoring Consumer (DEV 6 — KÇ-22)
+            bus.AddConsumer<MesaLeadScoredConsumer>();
+
             // Dalga 9 — On Muhasebe & E-Fatura MESA Consumers
             bus.AddConsumer<AiEInvoiceDraftGeneratedConsumer>();
             bus.AddConsumer<AiErpReconciliationDoneConsumer>();
@@ -178,6 +181,14 @@ public static class MassTransitConfig
                     x.SetEntityName("mesa.ai.erp.reconciliation.done.v1"));
                 cfg.Message<BotEFaturaRequestedIntegrationEvent>(x =>
                     x.SetEntityName("mesa.bot.efatura.requested.v1"));
+
+                // Accounting: Bildirim sonucu exchange (consumer: NotificationSentConsumer)
+                cfg.Message<BotNotificationSentEvent>(x =>
+                    x.SetEntityName("mestech.mesa.bot.notification.sent.v1"));
+
+                // Accounting: Vergi taslagi hazır — MesTech -> MESA (publish)
+                cfg.Message<FinanceTaxPrepReadyEvent>(x =>
+                    x.SetEntityName("mestech.mesa.finance.tax-prep.ready.v1"));
 
                 // Exponential backoff retry policy — tüm consumer'lara uygulanır
                 cfg.UseMessageRetry(r => r.Exponential(
