@@ -216,6 +216,11 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogWarning("N11 SaveProduct basarisiz — SKU={SKU}, Status={Status}", product.SKU, status);
             return false;
         }
+        catch (System.Xml.XmlException xex)
+        {
+            _logger.LogError(xex, "N11 SaveProduct: platform gecersiz SOAP yaniti — SKU={SKU}", product.SKU);
+            return false;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "N11 SaveProduct hatasi — SKU={SKU}", product.SKU);
@@ -248,6 +253,11 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
             _logger.LogInformation("N11 PullProducts tamamlandi — {Count} urun cekildi", products.Count);
             return products.AsReadOnly();
         }
+        catch (System.Xml.XmlException xex)
+        {
+            _logger.LogError(xex, "N11 PullProducts: platform gecersiz SOAP yaniti");
+            return Array.Empty<Product>();
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "N11 PullProducts hatasi");
@@ -278,6 +288,11 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
 
             _logger.LogWarning("N11 StockUpdate basarisiz — ProductId={ProductId}, Status={Status}",
                 productId, status);
+            return false;
+        }
+        catch (System.Xml.XmlException xex)
+        {
+            _logger.LogError(xex, "N11 StockUpdate: platform gecersiz SOAP yaniti — ProductId={ProductId}", productId);
             return false;
         }
         catch (Exception ex)
