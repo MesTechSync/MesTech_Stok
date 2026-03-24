@@ -76,7 +76,7 @@ services:
         max-file: "3"
     command: >
       redis-server
-      --requirepass ${REDIS_PASSWORD:-mestech_redis_dev}
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu - .env dosyasini olusturun}
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
@@ -87,7 +87,7 @@ services:
     volumes:
       - mestech_redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-mestech_redis_dev}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}", "ping"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -228,7 +228,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=mestech_stok;Username=mestech_user;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
-      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:-mestech_redis_dev}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}"
       RabbitMQ__Host: "rabbitmq"
       RabbitMQ__Username: "${RABBITMQ_USER:?RABBITMQ_USER zorunlu}"
       RabbitMQ__Password: "${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu}"
