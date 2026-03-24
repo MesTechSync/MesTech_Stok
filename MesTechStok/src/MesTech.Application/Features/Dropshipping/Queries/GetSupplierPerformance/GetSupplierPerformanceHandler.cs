@@ -27,10 +27,8 @@ public class GetSupplierPerformanceHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        // Tüm aktif tedarikçileri al (tenant-agnostic performans görünümü)
-        // Not: Production'da tenant filtresi eklenebilir
-        var suppliers = await _supplierRepository.GetByTenantAsync(Guid.Empty, cancellationToken);
-        var allOrders = await _orderRepository.GetByTenantAsync(Guid.Empty, cancellationToken);
+        var suppliers = await _supplierRepository.GetByTenantAsync(request.TenantId, cancellationToken);
+        var allOrders = await _orderRepository.GetByTenantAsync(request.TenantId, cancellationToken);
 
         var from = request.From ?? DateTime.MinValue;
         var to = request.To ?? DateTime.MaxValue;

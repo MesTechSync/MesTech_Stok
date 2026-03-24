@@ -6,6 +6,7 @@ namespace MesTech.Application.Features.Dropshipping.Queries.GetSupplierPerforman
 /// Tedarikçi performans sorgusu — sipariş istatistikleri ve rating hesaplama.
 /// </summary>
 public record GetSupplierPerformanceQuery(
+    Guid TenantId,
     DateTime? From = null,
     DateTime? To = null
 ) : IRequest<List<SupplierPerformanceDto>>;

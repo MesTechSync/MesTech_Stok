@@ -36,15 +36,15 @@ public class GetSupplierPerformanceHandlerTests
         order2.MarkDelivered();
 
         _supplierRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipSupplier> { supplier });
 
         _orderRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipOrder> { order1, order2 });
 
         var handler = CreateHandler();
-        var query = new GetSupplierPerformanceQuery();
+        var query = new GetSupplierPerformanceQuery(tenantId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -63,16 +63,17 @@ public class GetSupplierPerformanceHandlerTests
     public async Task Handle_NoSuppliers_ShouldReturnEmptyList()
     {
         // Arrange
+        var tenantId = Guid.NewGuid();
         _supplierRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipSupplier>());
 
         _orderRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipOrder>());
 
         var handler = CreateHandler();
-        var query = new GetSupplierPerformanceQuery();
+        var query = new GetSupplierPerformanceQuery(tenantId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -85,20 +86,21 @@ public class GetSupplierPerformanceHandlerTests
     public async Task Handle_SupplierWithNoOrders_ShouldReturnZeroRating()
     {
         // Arrange
+        var tenantId = Guid.NewGuid();
         var supplier = DropshipSupplier.Create(
-            Guid.NewGuid(), "Empty Supplier", null,
+            tenantId, "Empty Supplier", null,
             DropshipMarkupType.FixedAmount, 5m);
 
         _supplierRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipSupplier> { supplier });
 
         _orderRepo
-            .Setup(r => r.GetByTenantAsync(Guid.Empty, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DropshipOrder>());
 
         var handler = CreateHandler();
-        var query = new GetSupplierPerformanceQuery();
+        var query = new GetSupplierPerformanceQuery(tenantId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);

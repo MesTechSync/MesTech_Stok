@@ -119,11 +119,11 @@ public static class DropshippingEndpoints
 
         // GET /api/v1/dropshipping/supplier-performance — tedarikçi performans raporu
         lifecycleGroup.MapGet("/supplier-performance", async (
-            DateTime? from, DateTime? to,
+            Guid tenantId, DateTime? from, DateTime? to,
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetSupplierPerformanceQuery(from, to), ct);
+                new GetSupplierPerformanceQuery(tenantId, from, to), ct);
             return Results.Ok(result);
         })
         .WithName("GetSupplierPerformance")
