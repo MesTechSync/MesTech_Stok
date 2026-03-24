@@ -5,6 +5,7 @@ namespace MesTech.Domain.Events;
 
 public record SupplierFeedSyncedEvent(
     Guid SupplierFeedId,
+    Guid TenantId,
     Guid SupplierId,
     int TotalProducts,
     int UpdatedProducts,

@@ -11,6 +11,7 @@ namespace MesTech.Domain.Events;
 public sealed class PlatformNotificationFailedEvent : IDomainEvent
 {
     public DateTime OccurredAt { get; } = DateTime.UtcNow;
+    public Guid TenantId { get; init; }
     public Guid OrderId { get; init; }
     public string PlatformCode { get; init; } = string.Empty;
     public string TrackingNumber { get; init; } = string.Empty;

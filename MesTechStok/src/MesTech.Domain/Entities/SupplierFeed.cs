@@ -88,7 +88,7 @@ public class SupplierFeed : BaseEntity, ITenantEntity
         LastSyncStatus = error != null ? FeedSyncStatus.PartiallyCompleted : FeedSyncStatus.Completed;
 
         RaiseDomainEvent(new SupplierFeedSyncedEvent(
-            Id, SupplierId, totalProducts, updatedProducts, deactivatedProducts,
+            Id, TenantId, SupplierId, totalProducts, updatedProducts, deactivatedProducts,
             LastSyncStatus, DateTime.UtcNow));
     }
 

@@ -4,6 +4,7 @@ namespace MesTech.Domain.Events.Crm;
 
 public record DealWonEvent(
     Guid DealId,
+    Guid TenantId,
     Guid? OrderId,
     decimal Amount,
     DateTime OccurredAt

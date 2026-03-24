@@ -101,7 +101,7 @@ public class NotificationSetting : BaseEntity, ITenantEntity
     public void MarkUpdated()
     {
         RaiseDomainEvent(new NotificationSettingsUpdatedEvent(
-            UserId, Channel, IsEnabled, DateTime.UtcNow));
+            UserId, TenantId, Channel, IsEnabled, DateTime.UtcNow));
     }
 
     private bool IsInQuietHours(TimeOnly now)

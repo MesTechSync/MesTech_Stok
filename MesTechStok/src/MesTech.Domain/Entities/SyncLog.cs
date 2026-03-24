@@ -34,7 +34,7 @@ public class SyncLog : BaseEntity
     {
         SyncStatus = Enums.SyncStatus.NotSynced;
         StartedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new SyncRequestedEvent(PlatformCode, Direction, EntityType, EntityId, DateTime.UtcNow));
+        RaiseDomainEvent(new SyncRequestedEvent(TenantId, PlatformCode, Direction, EntityType, EntityId, DateTime.UtcNow));
     }
 
     /// <summary>Sync hata ile bittiğinde çağrılır.</summary>
@@ -44,7 +44,7 @@ public class SyncLog : BaseEntity
         ErrorMessage = errorMessage;
         SyncStatus = SyncStatus.Failed;
         CompletedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new SyncErrorOccurredEvent(PlatformCode, "SyncFailure", errorMessage, DateTime.UtcNow));
+        RaiseDomainEvent(new SyncErrorOccurredEvent(TenantId, PlatformCode, "SyncFailure", errorMessage, DateTime.UtcNow));
     }
 
     /// <summary>Sync başarılı bittiğinde çağrılır.</summary>

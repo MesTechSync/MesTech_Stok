@@ -60,7 +60,7 @@ public class Deal : BaseEntity, ITenantEntity
         var fromStageId = StageId;
         StageId = newStageId;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new DealStageChangedEvent(Id, fromStageId, newStageId, DateTime.UtcNow));
+        RaiseDomainEvent(new DealStageChangedEvent(Id, TenantId, fromStageId, newStageId, DateTime.UtcNow));
     }
 
     public void MarkAsWon(Guid? orderId = null)
@@ -71,7 +71,7 @@ public class Deal : BaseEntity, ITenantEntity
         Status = DealStatus.Won;
         OrderId = orderId;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new DealWonEvent(Id, orderId, Amount, DateTime.UtcNow));
+        RaiseDomainEvent(new DealWonEvent(Id, TenantId, orderId, Amount, DateTime.UtcNow));
     }
 
     public void MarkAsLost(string reason)
@@ -83,7 +83,7 @@ public class Deal : BaseEntity, ITenantEntity
         Status = DealStatus.Lost;
         LostReason = reason;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new DealLostEvent(Id, reason, DateTime.UtcNow));
+        RaiseDomainEvent(new DealLostEvent(Id, TenantId, reason, DateTime.UtcNow));
     }
 
     public void LinkOrder(Guid orderId)

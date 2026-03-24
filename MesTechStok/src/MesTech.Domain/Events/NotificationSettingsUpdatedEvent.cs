@@ -8,6 +8,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record NotificationSettingsUpdatedEvent(
     Guid UserId,
+    Guid TenantId,
     NotificationChannel Channel,
     bool IsEnabled,
     DateTime OccurredAt

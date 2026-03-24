@@ -71,7 +71,7 @@ public class WorkTask : BaseEntity, ITenantEntity
         Status = WorkTaskStatus.Done;
         CompletedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new TaskCompletedEvent(Id, userId, DateTime.UtcNow));
+        RaiseDomainEvent(new TaskCompletedEvent(Id, TenantId, userId, DateTime.UtcNow));
     }
 
     public void AssignTo(Guid userId)
@@ -95,7 +95,7 @@ public class WorkTask : BaseEntity, ITenantEntity
         if (DueDate.HasValue && DueDate.Value < DateTime.UtcNow
             && Status is not (WorkTaskStatus.Done or WorkTaskStatus.Cancelled))
         {
-            RaiseDomainEvent(new TaskOverdueEvent(Id, DueDate.Value, DateTime.UtcNow));
+            RaiseDomainEvent(new TaskOverdueEvent(Id, TenantId, DueDate.Value, DateTime.UtcNow));
             return true;
         }
         return false;

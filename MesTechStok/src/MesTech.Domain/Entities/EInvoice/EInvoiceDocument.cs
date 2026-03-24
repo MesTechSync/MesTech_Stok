@@ -79,7 +79,7 @@ public class EInvoiceDocument : BaseEntity, ITenantEntity
             SellerVkn = sellerVkn, SellerTitle = sellerTitle, BuyerTitle = buyerTitle,
             ProviderId = providerId, Status = EInvoiceStatus.Draft, CreatedBy = createdBy
         };
-        doc.RaiseDomainEvent(new EInvoiceCreatedEvent(doc.Id, ettnNo, type, DateTime.UtcNow));
+        doc.RaiseDomainEvent(new EInvoiceCreatedEvent(doc.Id, doc.TenantId, ettnNo, type, DateTime.UtcNow));
         return doc;
     }
 
@@ -91,7 +91,7 @@ public class EInvoiceDocument : BaseEntity, ITenantEntity
         ProviderRef = providerRef;
         CreditUsed = creditUsed;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new EInvoiceSentEvent(Id, EttnNo, ProviderRef, DateTime.UtcNow));
+        RaiseDomainEvent(new EInvoiceSentEvent(Id, TenantId, EttnNo, ProviderRef, DateTime.UtcNow));
     }
 
     public void SetPdfUrl(string url)
@@ -111,7 +111,7 @@ public class EInvoiceDocument : BaseEntity, ITenantEntity
         Status = EInvoiceStatus.Cancelled;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = cancelledBy;
-        RaiseDomainEvent(new EInvoiceCancelledEvent(Id, EttnNo, reason, DateTime.UtcNow));
+        RaiseDomainEvent(new EInvoiceCancelledEvent(Id, TenantId, EttnNo, reason, DateTime.UtcNow));
     }
 
     public void AddLine(EInvoiceLine line)

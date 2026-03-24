@@ -67,7 +67,7 @@ public class CalendarEvent : BaseEntity, ITenantEntity
             RelatedWorkTaskId = relatedWorkTaskId,
             CreatedAt = DateTime.UtcNow
         };
-        ev.RaiseDomainEvent(new CalendarEventCreatedEvent(ev.Id, startAt, DateTime.UtcNow));
+        ev.RaiseDomainEvent(new CalendarEventCreatedEvent(ev.Id, ev.TenantId, startAt, DateTime.UtcNow));
         return ev;
     }
 

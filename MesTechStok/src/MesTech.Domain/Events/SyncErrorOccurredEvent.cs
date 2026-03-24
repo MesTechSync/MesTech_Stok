@@ -4,6 +4,7 @@ namespace MesTech.Domain.Events;
 
 /// <summary>Platform senkronizasyon hatasi olustu — MESA OS alarm sistemi tetikler.</summary>
 public record SyncErrorOccurredEvent(
+    Guid TenantId,
     string Platform,
     string ErrorType,
     string Message,

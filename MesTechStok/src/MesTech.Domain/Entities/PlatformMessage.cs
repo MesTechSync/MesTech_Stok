@@ -65,6 +65,6 @@ public class PlatformMessage : BaseEntity, ITenantEntity
     /// </summary>
     public void RaiseReceivedEvent()
     {
-        RaiseDomainEvent(new PlatformMessageReceivedEvent(Id, Platform, SenderName, DateTime.UtcNow));
+        RaiseDomainEvent(new PlatformMessageReceivedEvent(Id, TenantId, Platform, SenderName, DateTime.UtcNow));
     }
 }

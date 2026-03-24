@@ -84,7 +84,7 @@ public class Lead : BaseEntity, ITenantEntity
         ConvertedAt = DateTime.UtcNow;
         ConvertedToCrmContactId = contactId;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new LeadConvertedEvent(Id, contactId, DateTime.UtcNow));
+        RaiseDomainEvent(new LeadConvertedEvent(Id, TenantId, contactId, DateTime.UtcNow));
         return contactId;
     }
 }

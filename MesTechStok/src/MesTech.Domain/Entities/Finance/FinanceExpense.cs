@@ -66,7 +66,7 @@ public class FinanceExpense : BaseEntity, ITenantEntity
         ApprovedByUserId = approverUserId;
         ApprovedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new ExpenseApprovedEvent(Id, approverUserId, DateTime.UtcNow));
+        RaiseDomainEvent(new ExpenseApprovedEvent(Id, TenantId, approverUserId, DateTime.UtcNow));
     }
 
     public void Reject(string reason)
@@ -84,7 +84,7 @@ public class FinanceExpense : BaseEntity, ITenantEntity
             throw new InvalidOperationException("Only approved expenses can be marked as paid.");
         Status = ExpenseStatus.Paid;
         UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new ExpensePaidEvent(Id, bankAccountId, DateTime.UtcNow));
+        RaiseDomainEvent(new ExpensePaidEvent(Id, TenantId, bankAccountId, DateTime.UtcNow));
     }
 
     public void AttachDocument(Guid documentId)

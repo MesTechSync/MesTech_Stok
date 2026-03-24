@@ -46,7 +46,7 @@ public class Leave : BaseEntity, ITenantEntity
             throw new InvalidOperationException("Only pending leaves can be approved.");
         Status = LeaveStatus.Approved; ApprovedByUserId = approverUserId;
         ApprovedAt = DateTime.UtcNow; UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new LeaveApprovedEvent(Id, EmployeeId, DateTime.UtcNow));
+        RaiseDomainEvent(new LeaveApprovedEvent(Id, TenantId, EmployeeId, DateTime.UtcNow));
     }
 
     public void Reject(Guid approverUserId, string reason)
@@ -56,7 +56,7 @@ public class Leave : BaseEntity, ITenantEntity
             throw new InvalidOperationException("Only pending leaves can be rejected.");
         Status = LeaveStatus.Rejected; ApprovedByUserId = approverUserId;
         RejectionReason = reason; UpdatedAt = DateTime.UtcNow;
-        RaiseDomainEvent(new LeaveRejectedEvent(Id, EmployeeId, reason, DateTime.UtcNow));
+        RaiseDomainEvent(new LeaveRejectedEvent(Id, TenantId, EmployeeId, reason, DateTime.UtcNow));
     }
 
     public void Cancel()
