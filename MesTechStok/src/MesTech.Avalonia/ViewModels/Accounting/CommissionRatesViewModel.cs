@@ -25,6 +25,8 @@ public partial class CommissionRatesViewModel : ViewModelBase
         CommissionRates.Add(new("eBay", 13.0m, 0m, "01.01.2026", "31.12.2026"));
         CommissionRates.Add(new("Pazarama", 10.0m, 0m, "01.03.2026", "31.12.2026"));
         CommissionRates.Add(new("PTT AVM", 8.0m, 1.50m, "01.01.2026", "31.12.2026"));
+
+        IsEmpty = CommissionRates.Count == 0;
     }
 
     [RelayCommand]

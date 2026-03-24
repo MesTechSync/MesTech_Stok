@@ -41,6 +41,7 @@ public partial class TrialBalanceViewModel : ViewModelBase
         TotalCreditSumText = totalCredit.ToString("N2");
         DifferenceText = diff.ToString("N2");
         IsBalanced = Math.Abs(diff) < 0.01m;
+        IsEmpty = TrialBalanceLines.Count == 0;
         BalanceStatusText = IsBalanced
             ? $"Mizan dengeli — Borc = Alacak = {totalDebit:N2} TL"
             : $"UYARI: Mizan dengesiz! Fark: {diff:N2} TL";

@@ -28,6 +28,8 @@ public partial class JournalEntryListViewModel : ViewModelBase
         JournalEntries.Add(new("YEV-2026-002", DateTime.Now.AddDays(-2), "Hepsiburada komisyon kesintisi", "Komisyon", 189.50m, 189.50m));
         JournalEntries.Add(new("YEV-2026-003", DateTime.Now.AddDays(-1), "Yurtiçi Kargo gönderim ücreti", "Kargo", 45m, 45m));
         JournalEntries.Add(new("YEV-2026-004", DateTime.Now, "N11 iade ürün stok girişi", "İade", 890m, 890m));
+
+        IsEmpty = JournalEntries.Count == 0;
     }
 
     [RelayCommand]
