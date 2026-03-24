@@ -7,17 +7,14 @@ namespace MesTech.Avalonia.ViewModels;
 /// Login screen ViewModel — Username + Password + authentication.
 /// Production: authenticates via API. Debug: accepts demo credentials.
 /// </summary>
-public partial class LoginAvaloniaViewModel : ObservableObject
+public partial class LoginAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private string username = string.Empty;
     [ObservableProperty] private string password = string.Empty;
     [ObservableProperty] private bool isAuthenticated;
     [ObservableProperty] private string welcomeMessage = string.Empty;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

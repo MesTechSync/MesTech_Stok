@@ -7,15 +7,11 @@ using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class AccountingDashboardAvaloniaViewModel : ObservableObject
+public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private static readonly CultureInfo TrCulture = new("tr-TR");
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string totalRevenue = "0,00 TL";
     [ObservableProperty] private string totalExpense = "0,00 TL";
@@ -30,7 +26,7 @@ public partial class AccountingDashboardAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

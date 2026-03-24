@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Lot Ekleme ViewModel — urun lot kaydi: lot no, miktar, birim maliyet, tedarikci, SKT, depo.
 /// EMR-06 Gorev 4A: Form-based view for lot entry.
 /// </summary>
-public partial class StockLotAvaloniaViewModel : ObservableObject
+public partial class StockLotAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string saveStatus = string.Empty;
 
     // Form fields
@@ -40,7 +36,7 @@ public partial class StockLotAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

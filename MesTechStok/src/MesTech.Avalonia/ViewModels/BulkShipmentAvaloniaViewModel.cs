@@ -6,14 +6,10 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class BulkShipmentAvaloniaViewModel : ObservableObject
+public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private bool isSending;
     [ObservableProperty] private int selectedCount;
     [ObservableProperty] private int totalCount;
@@ -37,7 +33,7 @@ public partial class BulkShipmentAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

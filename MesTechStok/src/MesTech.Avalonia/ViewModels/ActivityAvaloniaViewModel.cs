@@ -5,14 +5,10 @@ using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class ActivityAvaloniaViewModel : ObservableObject
+public partial class ActivityAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string? selectedFilter;
     [ObservableProperty] private int totalCount;
@@ -25,7 +21,7 @@ public partial class ActivityAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

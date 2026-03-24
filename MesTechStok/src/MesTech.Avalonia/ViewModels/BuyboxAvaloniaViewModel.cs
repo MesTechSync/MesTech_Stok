@@ -10,21 +10,18 @@ namespace MesTech.Avalonia.ViewModels;
 /// Urun bazli buybox durumu, rakip fiyat karsilastirmasi.
 /// TODO(v2): Wire to IBuyboxService query via MediatR.
 /// </summary>
-public partial class BuyboxAvaloniaViewModel : ObservableObject
+public partial class BuyboxAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
     [ObservableProperty] private string _pageTitle = "Buybox Analizi";
-    [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private ObservableCollection<BuyboxItemViewModel> _items = new();
 
     public BuyboxAvaloniaViewModel(IMediator mediator) => _mediator = mediator;
 
-    [RelayCommand]
-    private async Task LoadDataAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async () =>
         {
             // TODO(v2): Wire to IBuyboxService query
             await Task.Delay(50); // Simulate async load
@@ -33,8 +30,7 @@ public partial class BuyboxAvaloniaViewModel : ObservableObject
                 new BuyboxItemViewModel { ProductName = "Örnek Ürün 1", OurPrice = 149.90m, CompetitorPrice = 159.90m, Status = "Kazanıyor" },
                 new BuyboxItemViewModel { ProductName = "Örnek Ürün 2", OurPrice = 299.90m, CompetitorPrice = 279.90m, Status = "Kaybediyor" },
             });
-        }
-        finally { IsLoading = false; }
+        }, "Buybox verisi yukleniyor");
     }
 }
 

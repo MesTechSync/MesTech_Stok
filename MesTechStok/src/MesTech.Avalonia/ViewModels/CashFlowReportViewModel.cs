@@ -15,7 +15,6 @@ public partial class CashFlowReportViewModel : ViewModelBase
 
     [ObservableProperty] private DateTimeOffset? _dateFrom = new DateTimeOffset(DateTime.Now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
     [ObservableProperty] private DateTimeOffset? _dateTo = DateTimeOffset.Now;
-    [ObservableProperty] private bool _isEmpty;
     [ObservableProperty] private string _totalInflowText = "0.00 TL";
     [ObservableProperty] private string _totalOutflowText = "0.00 TL";
     [ObservableProperty] private string _netFlowText = "0.00 TL";

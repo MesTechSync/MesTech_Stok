@@ -7,13 +7,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for HR Employees screen — Dalga 11.
 /// Will be wired to GetEmployeesPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class EmployeesAvaloniaViewModel : ObservableObject
+public partial class EmployeesAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Calisan yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

@@ -10,12 +10,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// EMR-06 Gorev 4E: Enhanced from basic DataGrid to full-featured inventory view.
 /// Will be wired to GetInventorySummaryQuery via MediatR when full migration starts.
 /// </summary>
-public partial class InventoryAvaloniaViewModel : ObservableObject
+public partial class InventoryAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int alarmCount;
@@ -40,7 +36,7 @@ public partial class InventoryAvaloniaViewModel : ObservableObject
     public ObservableCollection<InventoryItemDto> Items { get; } = [];
     private List<InventoryItemDto> _allItems = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

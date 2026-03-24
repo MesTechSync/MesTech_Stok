@@ -14,14 +14,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// Reuse score: 97% — single MessageBox line changed.
 /// Full migration: extract to MesTech.Presentation.Shared with IDialogService interface.
 /// </summary>
-public partial class KanbanAvaloniaViewModel : ObservableObject
+public partial class KanbanAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private readonly ITenantProvider _tenantProvider;
     private readonly IDialogService _dialog;
 
-    [ObservableProperty] private bool isLoading;
 
     public ObservableCollection<KanbanStageVm> Stages { get; } = [];
     public ObservableCollection<DealCardVm> AllDeals { get; } = [];
@@ -49,7 +48,7 @@ public partial class KanbanAvaloniaViewModel : ObservableObject
         Stages.Add(new KanbanStageVm { Name = "Kaybedildi",     Color = "#EF4444" });
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

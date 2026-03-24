@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Kritik stok alarm ViewModel — 3 seviye (Tukendi/Kritik/Dusuk) renk kodlu alarm paneli.
 /// I-06 Gorev 3: Aksiyon butonlari + filtre + MESA OS event entegrasyonu.
 /// </summary>
-public partial class StockAlertAvaloniaViewModel : ObservableObject
+public partial class StockAlertAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string currentFilter = "All";
 
     private List<StockAlertItemDto> _allAlerts = [];
@@ -38,7 +34,7 @@ public partial class StockAlertAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

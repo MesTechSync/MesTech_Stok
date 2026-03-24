@@ -9,16 +9,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Products list ViewModel for Avalonia — DataGrid with SKU, Ad, Fiyat, Stok, Platform, Durum.
 /// Includes Platform ComboBox filter + search text + multi-field smart search + grid/list toggle.
 /// </summary>
-public partial class ProductsAvaloniaViewModel : ObservableObject
+public partial class ProductsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedPlatform = "Tumu";
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     // GOREV 5: Grid/List toggle
@@ -48,7 +44,7 @@ public partial class ProductsAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

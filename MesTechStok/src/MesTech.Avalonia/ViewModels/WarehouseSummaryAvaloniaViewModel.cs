@@ -9,13 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Depo ozet kartlari ViewModel — N depo x kapasite cubugu x kritik urun sayisi.
 /// I-06 Gorev 6: Kapasite renkleri: &lt;50% yesil, 50-80% turuncu, &gt;80% kirmizi.
 /// </summary>
-public partial class WarehouseSummaryAvaloniaViewModel : ObservableObject
+public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private int totalWarehouses;
 
     public ObservableCollection<WarehouseSummaryCardDto> WarehouseCards { get; } = [];
@@ -25,7 +22,7 @@ public partial class WarehouseSummaryAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

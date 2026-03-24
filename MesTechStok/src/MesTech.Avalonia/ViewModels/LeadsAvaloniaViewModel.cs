@@ -14,7 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// Reuse score: 95% — only 2 lines changed (MessageBox -> IDialogService).
 /// Full migration: extract to MesTech.Presentation.Shared with IDialogService interface.
 /// </summary>
-public partial class LeadsAvaloniaViewModel : ObservableObject
+public partial class LeadsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
@@ -23,7 +23,6 @@ public partial class LeadsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string? selectedStatus;
     [ObservableProperty] private int totalCount;
-    [ObservableProperty] private bool isLoading;
 
     public ObservableCollection<LeadItemVm> Leads { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Iletisime Gecildi", "Nitelikli", "Donusturuldu", "Kaybedildi"];
@@ -36,7 +35,7 @@ public partial class LeadsAvaloniaViewModel : ObservableObject
         _dialog = dialog;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Platform Senkronizasyon Durumu ViewModel — platform bazli sync durumu + saglik gostergesi.
 /// </summary>
-public partial class PlatformSyncStatusAvaloniaViewModel : ObservableObject
+public partial class PlatformSyncStatusAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<PlatformSyncStatusItemDto> Platforms { get; } = [];
@@ -25,7 +21,7 @@ public partial class PlatformSyncStatusAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

@@ -7,13 +7,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for Document Manager screen — Dalga 11.
 /// Will be wired to GetDocumentsQuery via MediatR when full migration starts.
 /// </summary>
-public partial class DocumentsAvaloniaViewModel : ObservableObject
+public partial class DocumentsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Belge yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

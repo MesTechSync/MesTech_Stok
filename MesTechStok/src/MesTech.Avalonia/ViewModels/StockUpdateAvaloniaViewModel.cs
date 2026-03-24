@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stock Update ViewModel — DataGrid with SKU, Ad, Mevcut Stok, Yeni Stok, Platform.
 /// 10 demo items + Bulk update button. M1 Avalonia canlandirma — Beta Agent.
 /// </summary>
-public partial class StockUpdateAvaloniaViewModel : ObservableObject
+public partial class StockUpdateAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string updateStatus = string.Empty;
@@ -22,7 +18,7 @@ public partial class StockUpdateAvaloniaViewModel : ObservableObject
 
     private List<StockUpdateItemDto> _allItems = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

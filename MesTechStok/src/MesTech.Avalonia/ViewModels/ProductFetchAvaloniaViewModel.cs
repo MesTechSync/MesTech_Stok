@@ -7,14 +7,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Urun Cekme ViewModel — URL'den urun bilgisi cekme ve kaydetme.
 /// </summary>
-public partial class ProductFetchAvaloniaViewModel : ObservableObject
+public partial class ProductFetchAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string productUrl = string.Empty;
     [ObservableProperty] private bool productLoaded;

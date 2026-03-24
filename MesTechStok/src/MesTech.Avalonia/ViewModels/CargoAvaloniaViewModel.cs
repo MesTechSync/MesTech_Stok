@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Cargo tracking ViewModel — DataGrid with Takip No, Firma, Tarih, Durum, Alici.
 /// 10 demo cargo entries + cargo company filter. M1 Avalonia canlandirma — Beta Agent.
 /// </summary>
-public partial class CargoAvaloniaViewModel : ObservableObject
+public partial class CargoAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedCompany = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -27,7 +23,7 @@ public partial class CargoAvaloniaViewModel : ObservableObject
 
     private List<CargoItemDto> _allCargos = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

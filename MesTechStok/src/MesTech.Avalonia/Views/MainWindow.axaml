@@ -104,12 +104,10 @@
                                FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <Button Classes="icon-btn">
-                            ToolTip.Tip="Admin"
+                    <Button Classes="icon-btn" ToolTip.Tip="Bildirimler">
                         <PathIcon Data="{StaticResource IconNotification}" Width="18" Height="18"/>
                     </Button>
-                    <Button Classes="icon-btn">
-                            ToolTip.Tip="Admin"
+                    <Button Classes="icon-btn" ToolTip.Tip="Profil">
                         <PathIcon Data="{StaticResource IconPerson}" Width="18" Height="18"/>
                     </Button>
                     <TextBlock Text="Admin"
@@ -821,8 +819,7 @@
 
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
-                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout">
-                                    ToolTip.Tip="Cikis"
+                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Cikis">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
                                     <TextBlock Text="Çıkış"/>

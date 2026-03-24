@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Backup management ViewModel — MediatR hazır, handler oluşturulunca gerçek veriye geçecek.
 /// </summary>
-public partial class BackupAvaloniaViewModel : ObservableObject
+public partial class BackupAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
 
@@ -17,9 +17,6 @@ public partial class BackupAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isBackingUp;
     [ObservableProperty] private string backupMessage = string.Empty;
     [ObservableProperty] private int backupProgress;
@@ -37,7 +34,7 @@ public partial class BackupAvaloniaViewModel : ObservableObject
     // Backup history
     public ObservableCollection<BackupHistoryItem> BackupHistory { get; } = new();
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

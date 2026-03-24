@@ -13,7 +13,6 @@ public partial class StockValueReportViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool _isEmpty;
     [ObservableProperty] private string _totalStockValueText = "0.00 TL";
     [ObservableProperty] private string _totalSkuText = "0";
     [ObservableProperty] private string _averageTurnoverText = "0 gun";

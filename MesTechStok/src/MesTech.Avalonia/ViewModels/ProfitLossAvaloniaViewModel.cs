@@ -5,14 +5,10 @@ using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class ProfitLossAvaloniaViewModel : ObservableObject
+public partial class ProfitLossAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // KPI
     [ObservableProperty] private string totalRevenue = "0.00 TL";
@@ -37,7 +33,7 @@ public partial class ProfitLossAvaloniaViewModel : ObservableObject
             System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

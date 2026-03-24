@@ -15,7 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// Demo data'dan gerçek MediatR GetDashboardSummaryQuery'ye dönüştürüldü (EMR-03-v2 ALAN-D).
 /// İ-03 GÖREV 4: Auto-refresh (30s DispatcherTimer) + premium KPI card VMs + platform statuses + AI insight.
 /// </summary>
-public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
+public partial class DashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
@@ -36,11 +36,6 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string monthlyRevenue = "0 TL";
     [ObservableProperty] private string returnRate = "%0.0";
 
-    // L/E/E states
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string lastUpdated = "--:--";
 
     // Zarar uyarı (Chain 10 — PriceLossDetectedEvent)
@@ -110,7 +105,7 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
             _refreshTimer?.Stop();
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -242,7 +237,7 @@ public partial class DashboardAvaloniaViewModel : ObservableObject, IDisposable
         // Navigate to AI details or show dialog — placeholder for AI insight navigation
     }
 
-    public void Dispose()
+    protected override void OnDispose()
     {
         if (_refreshTimer is not null)
         {

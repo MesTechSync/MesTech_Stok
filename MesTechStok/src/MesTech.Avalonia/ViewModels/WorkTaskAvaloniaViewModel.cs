@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Gorevler ViewModel — gorev listesi + durum takibi.
 /// EMR-12: Enhanced from placeholder to functional view.
 /// </summary>
-public partial class WorkTaskAvaloniaViewModel : ObservableObject
+public partial class WorkTaskAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -28,7 +24,7 @@ public partial class WorkTaskAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

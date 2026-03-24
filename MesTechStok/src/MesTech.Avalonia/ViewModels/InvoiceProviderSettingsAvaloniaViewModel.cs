@@ -9,13 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// e-Fatura provider ayarlari ViewModel — MediatR ile gerçek provider durumu.
 /// </summary>
-public partial class InvoiceProviderSettingsAvaloniaViewModel : ObservableObject
+public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private string testingProvider = string.Empty;
 
     public InvoiceProviderSettingsAvaloniaViewModel(ISender mediator)
@@ -25,7 +22,7 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ObservableObject
 
     public ObservableCollection<ProviderCardItem> Providers { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

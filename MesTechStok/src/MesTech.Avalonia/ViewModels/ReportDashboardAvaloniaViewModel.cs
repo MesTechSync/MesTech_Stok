@@ -9,7 +9,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Report Dashboard ViewModel — MediatR ile gerçek rapor yönetimi.
 /// </summary>
-public partial class ReportDashboardAvaloniaViewModel : ObservableObject
+public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
 
@@ -18,9 +18,6 @@ public partial class ReportDashboardAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isGenerating;
     [ObservableProperty] private string generatingMessage = string.Empty;
     [ObservableProperty] private int progressPercent;
@@ -51,7 +48,7 @@ public partial class ReportDashboardAvaloniaViewModel : ObservableObject
     // Recent reports
     public ObservableCollection<RecentReportItem> RecentReports { get; } = new();
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

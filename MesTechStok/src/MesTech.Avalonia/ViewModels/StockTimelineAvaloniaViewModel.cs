@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stok hareket gecmisi timeline ViewModel — 5 hareket tipi x renk kodu.
 /// I-06 Gorev 5: Alim(yesil), Satis(kirmizi), Transfer(mavi), Iade(mor), Duzeltme(gri).
 /// </summary>
-public partial class StockTimelineAvaloniaViewModel : ObservableObject
+public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<StockTimelineItemDto> Movements { get; } = [];
@@ -26,7 +22,7 @@ public partial class StockTimelineAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Fatura listesi ViewModel — filtreleme, arama, sayfalama.
 /// DataGrid: InvoiceNumber, RecipientName, Type (badge), Status (badge), Amount, Platform, Date.
 /// </summary>
-public partial class InvoiceListAvaloniaViewModel : ObservableObject
+public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -42,7 +38,7 @@ public partial class InvoiceListAvaloniaViewModel : ObservableObject
     private List<InvoiceListItemDto> _allInvoices = [];
     private const int PageSize = 20;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

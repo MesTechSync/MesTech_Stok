@@ -9,13 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Barkod Islemleri ViewModel — USB HID wedge barkod okuma + urun karti + depo stok breakdown + hizli guncelleme.
 /// EMR-06 Gorev 4E: Enhanced from placeholder to functional view.
 /// </summary>
-public partial class BarcodeAvaloniaViewModel : ObservableObject
+public partial class BarcodeAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty = true;
     [ObservableProperty] private bool hasProduct;
 
@@ -60,7 +57,7 @@ public partial class BarcodeAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchText)) { IsEmpty = true; HasProduct = false; return; }
 

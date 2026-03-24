@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// ViewModel for Return List screen — I-05 Siparis/Kargo Celiklestirme.
 /// Displays return requests with status filtering and search.
 /// </summary>
-public partial class ReturnListAvaloniaViewModel : ObservableObject
+public partial class ReturnListAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private string searchText = string.Empty;
@@ -35,7 +31,7 @@ public partial class ReturnListAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

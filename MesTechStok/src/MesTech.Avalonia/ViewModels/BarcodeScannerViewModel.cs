@@ -9,11 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Barkod Tarama Modu ViewModel — USB HID wedge uyumlu, tara > aninda sonuc > aksiyon.
 /// I-06 Gorev 1: Enter tetiklemeli, &lt; 200ms sonuc hedefi, bulunan/bulunamayan sayaclari.
 /// </summary>
-public partial class BarcodeScannerViewModel : ObservableObject
+public partial class BarcodeScannerViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool isEmpty = true;
     [ObservableProperty] private string scanInput = string.Empty;
     [ObservableProperty] private int totalScanned;
@@ -30,7 +29,7 @@ public partial class BarcodeScannerViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsEmpty = ScanResults.Count == 0;
         return Task.CompletedTask;

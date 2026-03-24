@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Feed Onizleme ViewModel — tedarikci feed verilerini onizleme + dogrulama.
 /// </summary>
-public partial class FeedPreviewAvaloniaViewModel : ObservableObject
+public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string feedUrl = string.Empty;
     [ObservableProperty] private string feedFormat = "XML";

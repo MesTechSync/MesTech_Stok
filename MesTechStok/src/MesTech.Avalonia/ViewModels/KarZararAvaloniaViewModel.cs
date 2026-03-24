@@ -5,14 +5,10 @@ using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class KarZararAvaloniaViewModel : ObservableObject
+public partial class KarZararAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // KPI
     [ObservableProperty] private string totalRevenue = "0,00 TL";
@@ -38,7 +34,7 @@ public partial class KarZararAvaloniaViewModel : ObservableObject
         PeriodLabel = $"{months[_currentPeriod.Month]} {_currentPeriod.Year}";
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

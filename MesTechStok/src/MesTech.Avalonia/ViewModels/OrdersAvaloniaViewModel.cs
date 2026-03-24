@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Orders management ViewModel — DataGrid with 15 demo orders.
 /// Includes Status ComboBox filter + search text.
 /// </summary>
-public partial class OrdersAvaloniaViewModel : ObservableObject
+public partial class OrdersAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -27,7 +23,7 @@ public partial class OrdersAvaloniaViewModel : ObservableObject
 
     private List<OrderItemDto> _allOrders = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

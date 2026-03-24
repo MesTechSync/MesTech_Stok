@@ -10,12 +10,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Displays customer/supplier accounts with debit, credit and balance info.
 /// Will be wired to GetCariAccountsPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class CariHesaplarAvaloniaViewModel : ObservableObject
+public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     [ObservableProperty] private string selectedType = "Tumu";
@@ -29,7 +25,7 @@ public partial class CariHesaplarAvaloniaViewModel : ObservableObject
 
     private readonly List<CariHesapItemDto> _allItems = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

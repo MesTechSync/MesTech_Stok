@@ -7,16 +7,15 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for Marketplaces screen — Dalga 11.
 /// Will display 10+ platform adapters with sync status and configuration.
 /// </summary>
-public partial class MarketplacesAvaloniaViewModel : ObservableObject
+public partial class MarketplacesAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Pazaryeri yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int platformCount = 10;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> platforms = new();
     [ObservableProperty] private string? selectedPlatform;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

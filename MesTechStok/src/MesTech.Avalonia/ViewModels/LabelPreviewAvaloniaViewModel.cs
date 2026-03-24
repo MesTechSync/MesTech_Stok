@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// ViewModel for Label Preview screen — I-05 Siparis/Kargo Celiklestirme.
 /// Shows shipping label data with format selection and print/download.
 /// </summary>
-public partial class LabelPreviewAvaloniaViewModel : ObservableObject
+public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // Label data
     [ObservableProperty] private string trackingNumber = string.Empty;
@@ -39,7 +35,7 @@ public partial class LabelPreviewAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

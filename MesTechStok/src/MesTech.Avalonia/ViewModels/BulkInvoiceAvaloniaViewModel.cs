@@ -8,11 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Toplu fatura olusturma ViewModel.
 /// Faturalanmamis siparisleri secip toplu e-Fatura uretimi.
 /// </summary>
-public partial class BulkInvoiceAvaloniaViewModel : ObservableObject
+public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isProcessing;
     [ObservableProperty] private double progress;
     [ObservableProperty] private int selectedCount;
@@ -30,7 +27,7 @@ public partial class BulkInvoiceAvaloniaViewModel : ObservableObject
         "Sovos", "GIB Portal", "Foriba", "Logo e-Fatura"
     ];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

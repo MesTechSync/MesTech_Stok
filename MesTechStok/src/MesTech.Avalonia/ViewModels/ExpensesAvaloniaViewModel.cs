@@ -7,13 +7,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for Expenses screen — Dalga 11.
 /// Will be wired to GetExpensesPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class ExpensesAvaloniaViewModel : ObservableObject
+public partial class ExpensesAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Gider yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

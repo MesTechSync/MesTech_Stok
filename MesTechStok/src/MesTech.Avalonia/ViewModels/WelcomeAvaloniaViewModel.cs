@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Karsilama Ekrani ViewModel — logo + hosgeldin mesaji + son aktiviteler.
 /// EMR-12: Enhanced from placeholder to functional view.
 /// </summary>
-public partial class WelcomeAvaloniaViewModel : ObservableObject
+public partial class WelcomeAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string welcomeText = "Entegrator Stok Yonetim Sistemi";
     [ObservableProperty] private string totalProducts = "0";
@@ -30,7 +26,7 @@ public partial class WelcomeAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

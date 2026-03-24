@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Multi-Tenant Yonetimi ViewModel — tenant listesi + aktif tenant bilgisi.
 /// EMR-12: Enhanced from placeholder to functional view.
 /// </summary>
-public partial class MultiTenantAvaloniaViewModel : ObservableObject
+public partial class MultiTenantAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string activeTenantName = "MesTech Ana";
     [ObservableProperty] private string activeTenantId = "tenant-001";
@@ -28,7 +24,7 @@ public partial class MultiTenantAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

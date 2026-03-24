@@ -8,12 +8,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// 3-adimli fatura olusturma sihirbazi ViewModel.
 /// Step 1: Siparis secimi, Step 2: Fatura detaylari, Step 3: Onizleme ve onay.
 /// </summary>
-public partial class InvoiceCreateAvaloniaViewModel : ObservableObject
+public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
 {
     [ObservableProperty] private int currentStep = 1;
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
 
     // Step 1: Order selection
     public ObservableCollection<InvoiceOrderItemDto> Orders { get; } = [];
@@ -49,7 +46,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ObservableObject
     [ObservableProperty] private bool canGoNext = true;
     [ObservableProperty] private bool isConfirmStep;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

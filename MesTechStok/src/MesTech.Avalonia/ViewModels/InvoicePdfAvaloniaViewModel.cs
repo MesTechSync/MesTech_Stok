@@ -7,7 +7,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// Fatura PDF goruntuleme ViewModel.
 /// Avalonia native PDF goruntuleme desteklemiyor — placeholder + aksiyonlar.
 /// </summary>
-public partial class InvoicePdfAvaloniaViewModel : ObservableObject
+public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
 {
     [ObservableProperty] private string invoiceNumber = "MES2026000001";
     [ObservableProperty] private string recipientName = "Yilmaz Elektronik Ltd. Sti.";
@@ -16,10 +16,9 @@ public partial class InvoicePdfAvaloniaViewModel : ObservableObject
     [ObservableProperty] private DateTime invoiceDate = new(2026, 3, 17);
     [ObservableProperty] private string pdfUrl = string.Empty;
     [ObservableProperty] private bool hasPdf = true;
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string statusMessage = string.Empty;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

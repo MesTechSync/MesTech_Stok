@@ -12,14 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// DataGrid: ShipmentId, Provider, Status, ItemCount, CreatedDate, TrackingNumber.
 /// Filters: Provider, Status, DateRange. Uses GetFulfillmentOrdersQuery.
 /// </summary>
-public partial class FulfillmentInboundViewModel : ObservableObject
+public partial class FulfillmentInboundViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedProvider = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -46,7 +42,7 @@ public partial class FulfillmentInboundViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

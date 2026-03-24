@@ -10,7 +10,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// 4-step Import Wizard ViewModel for Avalonia.
 /// Steps: 1) File Selection  2) Preview  3) Column Mapping  4) Import Progress
 /// </summary>
-public partial class ImportProductsAvaloniaViewModel : ObservableObject
+public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
@@ -42,7 +42,6 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string stepTitle = "Adim 1/4 — Dosya Secimi";
 
     // Loading
-    [ObservableProperty] private bool isLoading;
 
     // Step 1: File Selection
     [ObservableProperty] private string selectedFilePath = string.Empty;
@@ -85,10 +84,10 @@ public partial class ImportProductsAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
         UpdateStepState();
-        return Task.CompletedTask;
+        await base.InitializeAsync();
     }
 
     [RelayCommand]

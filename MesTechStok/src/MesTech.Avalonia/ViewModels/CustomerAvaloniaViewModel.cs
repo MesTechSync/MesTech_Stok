@@ -9,12 +9,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Musteri yonetimi ViewModel — arama destekli DataGrid.
 /// Will be wired to GetCustomersPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class CustomerAvaloniaViewModel : ObservableObject
+public partial class CustomerAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -22,7 +18,7 @@ public partial class CustomerAvaloniaViewModel : ObservableObject
 
     public ObservableCollection<CustomerItemDto> Items { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

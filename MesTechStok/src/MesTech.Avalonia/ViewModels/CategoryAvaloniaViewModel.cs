@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Category management ViewModel — DataGrid with hierarchical categories.
 /// 12 demo categories with parent-child hierarchy (indented names).
 /// </summary>
-public partial class CategoryAvaloniaViewModel : ObservableObject
+public partial class CategoryAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -21,7 +17,7 @@ public partial class CategoryAvaloniaViewModel : ObservableObject
 
     private List<CategoryItemDto> _allCategories = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

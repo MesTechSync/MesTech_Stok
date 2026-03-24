@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Audit Log ViewModel — MediatR hazır, handler oluşturulunca gerçek veriye geçecek.
 /// </summary>
-public partial class AuditLogAvaloniaViewModel : ObservableObject
+public partial class AuditLogAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
 
@@ -17,10 +17,6 @@ public partial class AuditLogAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string exportMessage = string.Empty;
     [ObservableProperty] private bool isExported;
 
@@ -47,7 +43,7 @@ public partial class AuditLogAvaloniaViewModel : ObservableObject
 
     public ObservableCollection<AuditLogEntry> LogEntries { get; } = new();
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

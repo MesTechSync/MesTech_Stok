@@ -10,14 +10,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Shows return detail with timeline, approve/reject commands.
 /// Uses ReturnStatus and ReturnReason enums from Domain.
 /// </summary>
-public partial class ReturnDetailAvaloniaViewModel : ObservableObject
+public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // Return info
     [ObservableProperty] private string iadeNo = string.Empty;
@@ -47,7 +43,7 @@ public partial class ReturnDetailAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

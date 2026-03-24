@@ -13,15 +13,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Notification Settings ViewModel — channel selection, category matrix, quiet hours, digest mode.
 /// MediatR ile gerçek bildirim ayarları yönetimi.
 /// </summary>
-public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
+public partial class NotificationSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
     private Guid _tenantId;
     private Guid _userId;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isSaved;
     [ObservableProperty] private string testResult = string.Empty;
     [ObservableProperty] private bool isTestSent;
@@ -59,7 +56,7 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
         _userId = userId;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

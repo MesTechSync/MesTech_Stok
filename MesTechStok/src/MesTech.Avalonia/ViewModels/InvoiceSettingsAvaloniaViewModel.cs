@@ -5,14 +5,10 @@ using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class InvoiceSettingsAvaloniaViewModel : ObservableObject
+public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // E-Fatura
     [ObservableProperty] private string selectedProvider = "Sovos (Foriba)";
@@ -50,7 +46,7 @@ public partial class InvoiceSettingsAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

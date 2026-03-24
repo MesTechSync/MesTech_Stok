@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -26,10 +27,17 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     private string _errorMessage = string.Empty;
 
     [ObservableProperty]
+    private bool _isEmpty;
+
+    [ObservableProperty]
     private string _title = string.Empty;
 
     /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.</summary>
     public virtual async Task InitializeAsync() => await LoadAsync();
+
+    /// <summary>AXAML'dan bağlanabilen LoadData komutu. LoadAsync'i çağırır.</summary>
+    [RelayCommand]
+    private Task LoadDataAsync() => LoadAsync();
 
     /// <summary>Veri yükleme. Mevcut 124 ViewModel bu metodu kullanıyor.</summary>
     public virtual Task LoadAsync() => Task.CompletedTask;

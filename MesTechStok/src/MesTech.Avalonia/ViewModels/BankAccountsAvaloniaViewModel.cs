@@ -7,13 +7,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for Bank Accounts screen — Dalga 11.
 /// Will be wired to GetBankAccountsQuery via MediatR when full migration starts.
 /// </summary>
-public partial class BankAccountsAvaloniaViewModel : ObservableObject
+public partial class BankAccountsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Banka hesaplari ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

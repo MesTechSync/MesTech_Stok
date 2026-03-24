@@ -12,13 +12,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// Displays stock items with editable "Yeni Stok" column and bulk update action.
 /// Will be wired to BulkUpdateStockCommand via MediatR when full migration starts.
 /// </summary>
-public partial class StockMovementAvaloniaViewModel : ObservableObject, IDisposable
+public partial class StockMovementAvaloniaViewModel : ViewModelBase
 {
     private readonly PropertyChangedEventHandler _itemChangedHandler;
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int changedCount;
     [ObservableProperty] private string updateStatus = string.Empty;
@@ -30,7 +26,7 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject, IDisposa
         _itemChangedHandler = (_, _) => RecalculateChangedCount();
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -87,7 +83,7 @@ public partial class StockMovementAvaloniaViewModel : ObservableObject, IDisposa
             item.PropertyChanged -= _itemChangedHandler;
     }
 
-    public void Dispose()
+    protected override void OnDispose()
     {
         UnsubscribeItemEvents();
         Items.Clear();

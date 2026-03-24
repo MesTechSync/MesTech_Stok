@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Platform Sync ViewModel — DataGrid with Platform, Son Sync, Durum, Urun Sayisi, Siparis Sayisi.
 /// 10 platforms with per-row Sync button. M1 Avalonia canlandirma — Beta Agent.
 /// </summary>
-public partial class PlatformSyncAvaloniaViewModel : ObservableObject
+public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -21,7 +17,7 @@ public partial class PlatformSyncAvaloniaViewModel : ObservableObject
 
     private List<PlatformSyncItemDto> _allPlatforms = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

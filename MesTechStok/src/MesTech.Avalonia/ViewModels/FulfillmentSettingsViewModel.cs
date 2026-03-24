@@ -9,13 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Settings tabs for Amazon FBA and Hepsilojistik.
 /// Credential fields, connection test, auto-replenish toggle.
 /// </summary>
-public partial class FulfillmentSettingsViewModel : ObservableObject
+public partial class FulfillmentSettingsViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
 
     // Amazon FBA
     [ObservableProperty] private string fbaApiKey = string.Empty;
@@ -37,7 +34,7 @@ public partial class FulfillmentSettingsViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

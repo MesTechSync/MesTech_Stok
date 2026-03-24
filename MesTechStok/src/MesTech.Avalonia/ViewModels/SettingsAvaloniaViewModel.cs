@@ -7,11 +7,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Settings screen ViewModel — API configuration, notifications, theme selection.
 /// Tab-like sections: API Ayarlari, Bildirimler, Tema.
 /// </summary>
-public partial class SettingsAvaloniaViewModel : ObservableObject
+public partial class SettingsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private string appVersion = "MesTech Stok v10.0 — Avalonia PoC";
 
     // API settings
@@ -32,7 +29,7 @@ public partial class SettingsAvaloniaViewModel : ObservableObject
     // Save state
     [ObservableProperty] private bool isSaved;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

@@ -10,11 +10,9 @@ namespace MesTech.Avalonia.ViewModels.Orders;
 /// Sipariş Kanban Board ViewModel — Bitrix24 pattern.
 /// Yeni → Onaylandı → Hazırlanıyor → Kargoda → Teslim Edildi
 /// </summary>
-public partial class OrderKanbanViewModel : ObservableObject
+public partial class OrderKanbanViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string selectedPlatform = "Tümü";
-    public bool IsEmpty => !IsLoading && KanbanColumns.Count == 0;
 
     public ObservableCollection<string> PlatformFilters { get; } =
         ["Tümü", "Trendyol", "Hepsiburada", "N11", "Çiçeksepeti", "Pazarama"];
@@ -22,7 +20,7 @@ public partial class OrderKanbanViewModel : ObservableObject
     public ObservableCollection<KanbanColumnVm> KanbanColumns { get; } = [];
     public ObservableCollection<ColumnSummaryVm> ColumnSummaries { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try
@@ -98,7 +96,7 @@ public partial class OrderKanbanViewModel : ObservableObject
             ColumnSummaries.Add(new ColumnSummaryVm(name, brush, orders.Length));
         }
 
-        OnPropertyChanged(nameof(IsEmpty));
+        IsEmpty = KanbanColumns.Count == 0;
     }
 
     [RelayCommand]

@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// MainWindow ViewModel — sidebar navigation between views.
 /// Uses IViewModelFactory (proper DI) instead of raw IServiceProvider (ServiceLocator).
 /// </summary>
-public partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ViewModelBase
 {
     [ObservableProperty]
     private ObservableObject? currentView;

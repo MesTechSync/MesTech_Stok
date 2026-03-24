@@ -12,14 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// DataGrid: SKU, ProductName, FBA Qty, HepsiL Qty, Local Qty, Total, Status (color-coded).
 /// Tab per provider. Uses GetFulfillmentInventoryQuery per center.
 /// </summary>
-public partial class FulfillmentInventoryViewModel : ObservableObject
+public partial class FulfillmentInventoryViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedTab = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -39,7 +35,7 @@ public partial class FulfillmentInventoryViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

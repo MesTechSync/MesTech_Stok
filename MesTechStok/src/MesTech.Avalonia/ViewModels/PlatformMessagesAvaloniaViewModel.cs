@@ -10,15 +10,11 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class PlatformMessagesAvaloniaViewModel : ObservableObject
+public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     // Filter state
@@ -41,7 +37,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ObservableObject
         _dialog = dialog;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

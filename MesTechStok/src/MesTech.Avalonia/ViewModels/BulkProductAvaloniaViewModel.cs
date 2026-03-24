@@ -8,14 +8,11 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Toplu Urun Islemleri ViewModel — Import / Export / Toplu Guncelle.
 /// </summary>
-public partial class BulkProductAvaloniaViewModel : ObservableObject
+public partial class BulkProductAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
     // Common
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
 
     // Tab 1: Import
     [ObservableProperty] private string importFilePath = string.Empty;
@@ -71,7 +68,7 @@ public partial class BulkProductAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

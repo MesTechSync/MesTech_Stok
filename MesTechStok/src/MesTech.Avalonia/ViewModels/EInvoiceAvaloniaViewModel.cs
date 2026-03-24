@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// E-Invoice management ViewModel — DataGrid with No, Tarih, Alici, Tutar, Durum.
 /// 8 demo e-invoices + Create button. M1 Avalonia canlandirma — Beta Agent.
 /// </summary>
-public partial class EInvoiceAvaloniaViewModel : ObservableObject
+public partial class EInvoiceAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -21,7 +17,7 @@ public partial class EInvoiceAvaloniaViewModel : ObservableObject
 
     private List<EInvoiceItemDto> _allInvoices = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

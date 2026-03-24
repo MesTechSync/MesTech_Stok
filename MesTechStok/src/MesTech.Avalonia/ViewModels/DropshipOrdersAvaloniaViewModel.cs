@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Dropshipping Siparisler ViewModel — siparis DataGrid + durum filtre + tedarikci iletme.
 /// </summary>
-public partial class DropshipOrdersAvaloniaViewModel : ObservableObject
+public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedStatus = "Tumu";
 
@@ -29,7 +25,7 @@ public partial class DropshipOrdersAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

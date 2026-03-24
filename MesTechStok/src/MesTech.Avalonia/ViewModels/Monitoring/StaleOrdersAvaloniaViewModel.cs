@@ -9,9 +9,8 @@ namespace MesTech.Avalonia.ViewModels.Monitoring;
 /// 48+ saat gönderilmemiş siparişleri listeler.
 /// DEV 1'in GetStaleOrdersQuery endpoint'ine bağlanacak.
 /// </summary>
-public partial class StaleOrdersAvaloniaViewModel : ObservableObject
+public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -20,9 +19,8 @@ public partial class StaleOrdersAvaloniaViewModel : ObservableObject
     public int TotalStaleCount => StaleOrders.Count;
     public int Warning48hCount => StaleOrders.Count(o => o.ElapsedHours >= 48 && o.ElapsedHours < 72);
     public int Critical72hCount => StaleOrders.Count(o => o.ElapsedHours >= 72);
-    public bool IsEmpty => !IsLoading && StaleOrders.Count == 0;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try
@@ -40,7 +38,7 @@ public partial class StaleOrdersAvaloniaViewModel : ObservableObject
             OnPropertyChanged(nameof(TotalStaleCount));
             OnPropertyChanged(nameof(Warning48hCount));
             OnPropertyChanged(nameof(Critical72hCount));
-            OnPropertyChanged(nameof(IsEmpty));
+            IsEmpty = StaleOrders.Count == 0;
         }
         finally
         {

@@ -7,12 +7,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// ViewModel for Reports screen — Dalga 14/15.
 /// Provides date range selection and report generation with loading state.
 /// </summary>
-public partial class ReportsAvaloniaViewModel : ObservableObject
+public partial class ReportsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
     [ObservableProperty] private DateTimeOffset startDate = new(new DateTime(2026, 3, 1));
     [ObservableProperty] private DateTimeOffset endDate = new(new DateTime(2026, 3, 17));
@@ -34,7 +30,7 @@ public partial class ReportsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private string totalExpenses = "0 TL";
     [ObservableProperty] private string netProfit = "0 TL";
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

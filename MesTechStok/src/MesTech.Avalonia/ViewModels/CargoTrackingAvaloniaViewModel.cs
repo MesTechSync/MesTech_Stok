@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// ViewModel for Cargo Tracking screen — Dalga 14/15.
 /// Displays cargo shipments with firm-based filtering.
 /// </summary>
-public partial class CargoTrackingAvaloniaViewModel : ObservableObject
+public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedFirm = "Tümü";
 
@@ -29,7 +25,7 @@ public partial class CargoTrackingAvaloniaViewModel : ObservableObject
         "Sürat Kargo"
     ];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

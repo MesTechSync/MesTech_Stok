@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Kategori Eslestirme ViewModel — dual-tree ile lokal ve platform kategori eslestirme.
 /// AI otomatik eslestirme + sync + ilerleme takibi.
 /// </summary>
-public partial class CategoryMappingAvaloniaViewModel : ObservableObject
+public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     [ObservableProperty] private string selectedLocalCategory = string.Empty;
@@ -54,7 +50,7 @@ public partial class CategoryMappingAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

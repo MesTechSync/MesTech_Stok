@@ -6,14 +6,10 @@ using MesTech.Application.Features.Crm.Queries.GetCrmDashboard;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class CrmDashboardAvaloniaViewModel : ObservableObject
+public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // KPI metrics — mapped from CrmDashboardDto
     [ObservableProperty] private int totalCustomers;
@@ -34,7 +30,7 @@ public partial class CrmDashboardAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

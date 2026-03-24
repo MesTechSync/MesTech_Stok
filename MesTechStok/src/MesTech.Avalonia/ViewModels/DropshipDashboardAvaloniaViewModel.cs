@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Dropshipping Dashboard ViewModel — KPI kartlari + tedarikci performans + karli urunler + oto siparis.
 /// </summary>
-public partial class DropshipDashboardAvaloniaViewModel : ObservableObject
+public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // KPI values (original)
     [ObservableProperty] private int totalOrders;
@@ -45,7 +41,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

@@ -7,15 +7,14 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for Stock management screen — Dalga 10.
 /// Will be wired to GetStockSummaryQuery via MediatR when full migration starts.
 /// </summary>
-public partial class StockAvaloniaViewModel : ObservableObject
+public partial class StockAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Stok yonetimi ekrani — Dalga 10 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> stockItems = new();
     [ObservableProperty] private string? selectedStockItem;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

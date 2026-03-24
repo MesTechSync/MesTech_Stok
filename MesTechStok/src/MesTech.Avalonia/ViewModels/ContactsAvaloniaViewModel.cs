@@ -7,13 +7,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// Stub ViewModel for CRM Contacts screen — Dalga 11.
 /// Will be wired to GetContactsPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class ContactsAvaloniaViewModel : ObservableObject
+public partial class ContactsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private string summary = "Kisiler ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

@@ -9,14 +9,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Sistem Sagligi ViewModel — CPU, RAM, Disk kullanimi ve servis durum tablosu.
 /// EMR-12: Enhanced from placeholder to functional view.
 /// </summary>
-public partial class HealthAvaloniaViewModel : ObservableObject
+public partial class HealthAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // KPI metrics
     [ObservableProperty] private string lastUpdated = "--:--";
@@ -31,7 +27,7 @@ public partial class HealthAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

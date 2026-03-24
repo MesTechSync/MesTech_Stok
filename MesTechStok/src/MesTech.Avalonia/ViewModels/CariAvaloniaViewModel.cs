@@ -8,12 +8,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// Cari Hesap (Account) ViewModel — DataGrid with Ad, Tip, Borc, Alacak, Bakiye.
 /// 10 demo entries with Musteri/Tedarikci filter. M1 Avalonia canlandirma — Beta Agent.
 /// </summary>
-public partial class CariAvaloniaViewModel : ObservableObject
+public partial class CariAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -27,7 +23,7 @@ public partial class CariAvaloniaViewModel : ObservableObject
 
     private List<CariItemDto> _allAccounts = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

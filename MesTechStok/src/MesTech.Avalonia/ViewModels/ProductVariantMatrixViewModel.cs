@@ -9,7 +9,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// Variant Matrix Editor ViewModel — attribute groups with cartesian product generation.
 /// Manages Color×Size (or any attribute) variant combinations with stock, price, status.
 /// </summary>
-public partial class ProductVariantMatrixViewModel : ObservableObject
+public partial class ProductVariantMatrixViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
@@ -18,7 +18,6 @@ public partial class ProductVariantMatrixViewModel : ObservableObject
     [ObservableProperty] private string productSKU = "TRY-ELK-001";
 
     // Loading
-    [ObservableProperty] private bool isLoading;
 
     // Attribute management
     [ObservableProperty] private string newAttributeName = string.Empty;
@@ -57,7 +56,7 @@ public partial class ProductVariantMatrixViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         try

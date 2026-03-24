@@ -10,12 +10,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// DataGrid with No, Tarih, Musteri, Tutar, Durum, Tip columns + Type filter (e-Fatura/e-Arsiv).
 /// Will be wired to GetInvoicesPagedQuery via MediatR when full migration starts.
 /// </summary>
-public partial class InvoiceManagementAvaloniaViewModel : ObservableObject
+public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -29,7 +25,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ObservableObject
 
     private List<InvoiceMgmtItemDto> _allInvoices = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

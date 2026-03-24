@@ -7,11 +7,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Fatura raporlari ViewModel — donem secimi, KPI kartlari, platform dagilimi.
 /// </summary>
-public partial class InvoiceReportAvaloniaViewModel : ObservableObject
+public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
 
     // Period filter
     [ObservableProperty] private DateTimeOffset fromDate = new(new DateTime(2026, 3, 1));
@@ -31,7 +28,7 @@ public partial class InvoiceReportAvaloniaViewModel : ObservableObject
 
     public ObservableCollection<PlatformBreakdownDto> PlatformBreakdown { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

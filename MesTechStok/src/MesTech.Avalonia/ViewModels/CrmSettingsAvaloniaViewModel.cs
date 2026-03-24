@@ -5,7 +5,7 @@ using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
-public partial class CrmSettingsAvaloniaViewModel : ObservableObject
+public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IDialogService _dialog;
 
@@ -13,7 +13,6 @@ public partial class CrmSettingsAvaloniaViewModel : ObservableObject
     [ObservableProperty] private int messageCheckIntervalMinutes = 5;
     [ObservableProperty] private string newTemplateText = string.Empty;
     [ObservableProperty] private string? selectedTemplate;
-    [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool isSaving;
 
     public ObservableCollection<string> QuickReplyTemplates { get; } =
@@ -29,7 +28,7 @@ public partial class CrmSettingsAvaloniaViewModel : ObservableObject
         _dialog = dialog;
     }
 
-    public Task LoadAsync()
+    public override Task LoadAsync()
     {
         // Settings loaded from defaults — will integrate with IConfiguration in future
         return Task.CompletedTask;

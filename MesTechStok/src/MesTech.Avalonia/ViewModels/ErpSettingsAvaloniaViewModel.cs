@@ -10,14 +10,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// Provider secimi, dinamik form alanlari, baglanti testi, sync ayarlari, sync gecmisi.
 /// Desteklenen provider'lar: Yok, Parasut, Logo, Netsis, Nebim, BizimHesap.
 /// </summary>
-public partial class ErpSettingsAvaloniaViewModel : ObservableObject
+public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     // Provider selection
     [ObservableProperty] private string selectedErpProvider = "Yok";
@@ -92,7 +88,7 @@ public partial class ErpSettingsAvaloniaViewModel : ObservableObject
         OnPropertyChanged(nameof(IsProviderSelected));
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

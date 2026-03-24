@@ -9,17 +9,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// Displays marketplace sync status with per-row sync actions.
 /// Will be wired to GetPlatformSyncStatusQuery via MediatR when full migration starts.
 /// </summary>
-public partial class SyncStatusAvaloniaViewModel : ObservableObject
+public partial class SyncStatusAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<SyncStatusItemDto> Items { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

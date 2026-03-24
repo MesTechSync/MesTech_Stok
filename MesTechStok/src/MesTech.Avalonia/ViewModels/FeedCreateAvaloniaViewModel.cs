@@ -8,14 +8,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Feed Olusturma ViewModel — URL, format, sync araligi, fiyat markup, min marj, kolon eslestirme.
 /// </summary>
-public partial class FeedCreateAvaloniaViewModel : ObservableObject
+public partial class FeedCreateAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string feedName = string.Empty;
     [ObservableProperty] private string feedUrl = string.Empty;

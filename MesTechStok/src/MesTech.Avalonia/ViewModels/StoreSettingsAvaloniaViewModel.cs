@@ -7,14 +7,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// Magaza Ayarlari ViewModel — kimlik bilgileri, sync araligi, webhook, oto-sync toggle.
 /// </summary>
-public partial class StoreSettingsAvaloniaViewModel : ObservableObject
+public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
 
     [ObservableProperty] private string storeName = string.Empty;
     [ObservableProperty] private string platformName = string.Empty;
@@ -32,7 +28,7 @@ public partial class StoreSettingsAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

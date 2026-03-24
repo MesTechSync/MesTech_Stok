@@ -16,7 +16,6 @@ public partial class SalesAnalyticsViewModel : ViewModelBase
     [ObservableProperty] private DateTimeOffset? _dateFrom = new DateTimeOffset(DateTime.Now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
     [ObservableProperty] private DateTimeOffset? _dateTo = DateTimeOffset.Now;
     [ObservableProperty] private string? _selectedPlatform = "Tumu";
-    [ObservableProperty] private bool _isEmpty;
     [ObservableProperty] private string _totalSalesText = "0.00 TL";
     [ObservableProperty] private string _averageOrderText = "0.00 TL";
     [ObservableProperty] private string _orderCountText = "0";

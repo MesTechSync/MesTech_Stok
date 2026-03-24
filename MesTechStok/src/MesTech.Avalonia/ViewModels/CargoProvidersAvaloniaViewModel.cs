@@ -11,14 +11,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// ViewModel for Cargo Providers screen — I-05 Siparis/Kargo Celiklestirme.
 /// Displays all cargo provider cards with connection status and stats.
 /// </summary>
-public partial class CargoProvidersAvaloniaViewModel : ObservableObject
+public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int totalProviders;
     [ObservableProperty] private int connectedProviders;
 
@@ -29,7 +25,7 @@ public partial class CargoProvidersAvaloniaViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
