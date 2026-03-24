@@ -4,7 +4,9 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
@@ -17,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// OAuth2-like Bearer token auth (username/password → token), JSON payloads,
 /// Polly retry + circuit breaker.
 /// </summary>
-public class HepsiJetCargoAdapter : ICargoAdapter
+public class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<HepsiJetCargoAdapter> _logger;
@@ -373,6 +375,13 @@ public class HepsiJetCargoAdapter : ICargoAdapter
         {
             _rateLimitSemaphore.Release();
         }
+    }
+
+    // ── ICargoRateProvider ─────────────────────────────
+    public Task<CargoRateResult?> GetRateAsync(ShipmentRequest request, CancellationToken cancellationToken = default)
+    {
+        var rate = DesiBasedCargoRateCalculator.Calculate(Provider, request);
+        return Task.FromResult<CargoRateResult?>(rate);
     }
 
     private static CargoStatus MapHepsiJetStatus(string status) => status.ToLowerInvariant() switch

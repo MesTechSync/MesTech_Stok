@@ -2,7 +2,9 @@ using System.Security;
 using System.Xml.Linq;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Cargo;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Yurtici Kargo SOAP adaptoru.
 /// SimpleSoapClient uzerinden XML/SOAP istekleri gonderir.
 /// </summary>
-public class YurticiKargoAdapter : ICargoAdapter
+public class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<YurticiKargoAdapter> _logger;
@@ -282,6 +284,13 @@ public class YurticiKargoAdapter : ICargoAdapter
             Format = LabelFormat.Pdf,
             FileName = $"yk-label-{shipmentId}.pdf"
         };
+    }
+
+    // ── ICargoRateProvider ─────────────────────────────
+    public Task<CargoRateResult?> GetRateAsync(ShipmentRequest request, CancellationToken cancellationToken = default)
+    {
+        var rate = DesiBasedCargoRateCalculator.Calculate(Provider, request);
+        return Task.FromResult<CargoRateResult?>(rate);
     }
 
     // ── Helpers ─────────────────────────────────────────

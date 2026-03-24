@@ -202,8 +202,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Repositories.CategoryPlatformMappingRepository>();
         services.AddScoped<MesTech.Application.Interfaces.ICrmDashboardQueryService,
             MesTech.Infrastructure.Services.CrmDashboardQueryService>();
-        services.AddScoped<MesTech.Application.Interfaces.Cargo.ICargoRateProvider,
-            MesTech.Infrastructure.Integration.Cargo.NullCargoRateProvider>();
+        // ICargoRateProvider: 7 kargo adaptor dogrudan implement eder.
+        // CargoProviderSelector ve GetCargoComparisonHandler cast pattern ile erisir:
+        //   adapter is ICargoRateProvider rateProvider
+        // Standalone DI registration gereksiz — factory + cast yeterli.
 
         // Message Publisher (MassTransit wrapper)
         services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,

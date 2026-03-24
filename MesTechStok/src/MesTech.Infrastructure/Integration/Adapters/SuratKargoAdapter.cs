@@ -4,7 +4,9 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
@@ -16,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Surat Kargo REST adaptoru.
 /// Basic Auth, JSON payloads, Polly retry.
 /// </summary>
-public class SuratKargoAdapter : ICargoAdapter
+public class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SuratKargoAdapter> _logger;
@@ -318,6 +320,13 @@ public class SuratKargoAdapter : ICargoAdapter
         {
             _rateLimitSemaphore.Release();
         }
+    }
+
+    // ── ICargoRateProvider ─────────────────────────────
+    public Task<CargoRateResult?> GetRateAsync(ShipmentRequest request, CancellationToken cancellationToken = default)
+    {
+        var rate = DesiBasedCargoRateCalculator.Calculate(Provider, request);
+        return Task.FromResult<CargoRateResult?>(rate);
     }
 
     private static CargoStatus MapSuratStatus(string status) => status.ToLowerInvariant() switch

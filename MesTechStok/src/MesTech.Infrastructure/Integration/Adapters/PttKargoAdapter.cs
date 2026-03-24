@@ -2,7 +2,9 @@ using System.Security;
 using System.Xml.Linq;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Cargo;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -19,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Tracking WSDL: https://pttws.ptt.gov.tr/GonderiTakip/services/Sorgu?wsdl
 /// Auth: Username + Password + MusteriId (from credentials)
 /// </summary>
-public class PttKargoAdapter : ICargoAdapter
+public class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttKargoAdapter> _logger;
@@ -323,6 +325,13 @@ public class PttKargoAdapter : ICargoAdapter
         El("musteriId", SecurityElement.Escape(_musteriId)));
 
     private static XElement El(string name, string value) => new(name, value);
+
+    // ── ICargoRateProvider ─────────────────────────────
+    public Task<CargoRateResult?> GetRateAsync(ShipmentRequest request, CancellationToken cancellationToken = default)
+    {
+        var rate = DesiBasedCargoRateCalculator.Calculate(Provider, request);
+        return Task.FromResult<CargoRateResult?>(rate);
+    }
 
     private static CargoStatus MapPttStatus(string code) => code.ToUpperInvariant() switch
     {
