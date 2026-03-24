@@ -8,11 +8,11 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 /// Komisyon Oranları ViewModel — Zincir 6.
 /// Platform bazlı komisyon yönetimi. DEV 1'in CommissionRate entity'sine bağlanacak.
 /// </summary>
-public partial class CommissionRatesViewModel : ObservableObject
+public partial class CommissionRatesViewModel : ViewModelBase
 {
     public ObservableCollection<CommissionRateItem> CommissionRates { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         CommissionRates.Clear();
         await Task.Delay(150);
