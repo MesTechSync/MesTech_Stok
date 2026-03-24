@@ -91,6 +91,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+      start_period: 30s
     networks:
       - default
 
@@ -131,6 +132,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   mysql:
     image: mysql:8.0
@@ -168,6 +170,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   seq:
     image: datalust/seq:2024.1
@@ -283,6 +286,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   # ─────────────────────────────────────────
@@ -364,6 +368,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 30s
     networks:
       - default
 
