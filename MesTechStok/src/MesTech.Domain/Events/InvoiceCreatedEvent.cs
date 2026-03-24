@@ -6,6 +6,7 @@ namespace MesTech.Domain.Events;
 public record InvoiceCreatedEvent(
     Guid InvoiceId,
     Guid OrderId,
+    Guid TenantId,
     InvoiceType Type,
     decimal GrandTotal,
     DateTime OccurredAt

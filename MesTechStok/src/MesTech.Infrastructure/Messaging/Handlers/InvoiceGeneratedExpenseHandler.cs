@@ -42,7 +42,7 @@ public class InvoiceGeneratedExpenseHandler
 
         var expense = new Expense
         {
-            TenantId = Guid.Empty, // Will be resolved by invoice's TenantId via domain context
+            TenantId = e.TenantId,
             Description = $"Fatura gideri — Fatura #{e.InvoiceId:N} (Tip: {e.Type})",
             ExpenseType = ExpenseType.Diger,
             Date = e.OccurredAt,

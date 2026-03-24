@@ -163,7 +163,7 @@ public class Invoice : BaseEntity, ITenantEntity
             IsEInvoiceTaxpayer = type == InvoiceType.EFatura
         };
         invoice.RaiseDomainEvent(new InvoiceCreatedEvent(
-            invoice.Id, order.Id, type, order.TotalAmount, DateTime.UtcNow));
+            invoice.Id, order.Id, order.TenantId, type, order.TotalAmount, DateTime.UtcNow));
         return invoice;
     }
 

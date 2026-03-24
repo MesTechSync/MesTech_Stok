@@ -100,6 +100,7 @@ public class WebhookEventRouter
         {
             case "order.created":
                 var orderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
+                var orderTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
                 var platformOrderId = ExtractStringField(payload, "platformOrderId")
                     ?? ExtractStringField(payload, "id")
                     ?? "unknown";
@@ -108,7 +109,7 @@ public class WebhookEventRouter
                     ?? 0m;
 
                 await PublishAsync(new OrderReceivedEvent(
-                    orderId, platform, platformOrderId, totalAmount, now), ct);
+                    orderId, orderTenantId, platform, platformOrderId, totalAmount, now), ct);
                 break;
 
             case "order.cancelled":

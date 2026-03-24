@@ -41,7 +41,7 @@ public class OrderReceivedIncomeHandler
 
         var income = new Income
         {
-            TenantId = Guid.Empty, // Will be resolved by order's TenantId via domain context
+            TenantId = e.TenantId,
             Description = $"Satis geliri — {e.PlatformCode} #{e.PlatformOrderId}",
             IncomeType = IncomeType.Satis,
             Date = e.OccurredAt,

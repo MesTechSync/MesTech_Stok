@@ -142,6 +142,7 @@ public class Order : BaseEntity, ITenantEntity
 
         RaiseDomainEvent(new OrderReceivedEvent(
             Id,
+            TenantId,
             SourcePlatform?.ToString() ?? "Internal",
             ExternalOrderId ?? OrderNumber,
             TotalAmount,
