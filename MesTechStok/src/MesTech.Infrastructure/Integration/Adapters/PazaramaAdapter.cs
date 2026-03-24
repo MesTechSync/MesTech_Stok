@@ -179,7 +179,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct).ConfigureAwait(false);
+                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -243,7 +243,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/product/create").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/product/create");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -396,7 +396,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/product/updateStock").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/product/updateStock");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -434,7 +434,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/product/updatePrice").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/product/updatePrice");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -485,7 +485,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await ExecuteWithRetryAsync(
                 () =>
                 {
-                    var req = new HttpRequestMessage(HttpMethod.Post, "/order/getOrdersForApi").ConfigureAwait(false);
+                    var req = new HttpRequestMessage(HttpMethod.Post, "/order/getOrdersForApi");
                     req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     return req;
                 }, ct).ConfigureAwait(false);
@@ -589,7 +589,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -638,7 +638,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var stage1Response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(stage1Json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -670,7 +670,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var stage2Response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
                 req.Content = new StringContent(stage2Json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -716,7 +716,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await ExecuteWithRetryAsync(
                 () =>
                 {
-                    var req = new HttpRequestMessage(HttpMethod.Post, "/order/getRefund").ConfigureAwait(false);
+                    var req = new HttpRequestMessage(HttpMethod.Post, "/order/getRefund");
                     req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     return req;
                 }, ct).ConfigureAwait(false);
@@ -797,7 +797,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -835,7 +835,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -877,7 +877,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var response = await ExecuteWithRetryAsync(
             () =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/order/invoice-link").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/order/invoice-link");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -910,7 +910,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct).ConfigureAwait(false);
+            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -983,7 +983,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory().ConfigureAwait(false);
+                using var request = requestFactory();
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

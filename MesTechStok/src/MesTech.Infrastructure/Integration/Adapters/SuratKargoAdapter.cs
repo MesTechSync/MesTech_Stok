@@ -112,7 +112,7 @@ public class SuratKargoAdapter : ICargoAdapter
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct).ConfigureAwait(false);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -153,7 +153,7 @@ public class SuratKargoAdapter : ICargoAdapter
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var response = await ExecuteWithRetryAsync(() =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create").ConfigureAwait(false);
+                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct);
@@ -302,7 +302,7 @@ public class SuratKargoAdapter : ICargoAdapter
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory().ConfigureAwait(false);
+                using var request = requestFactory();
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

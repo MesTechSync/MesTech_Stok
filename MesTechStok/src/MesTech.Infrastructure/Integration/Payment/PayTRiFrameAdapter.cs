@@ -373,7 +373,7 @@ public class PayTRiFrameAdapter : IPaymentProvider
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory().ConfigureAwait(false);
+                using var request = requestFactory();
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

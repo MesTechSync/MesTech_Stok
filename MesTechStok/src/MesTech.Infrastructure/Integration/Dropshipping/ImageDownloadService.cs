@@ -114,7 +114,7 @@ public class ImageDownloadService(
 
         return await pipeline.ExecuteAsync(async cancelToken =>
         {
-            var client = httpClientFactory.CreateClient("ImageDownloader").ConfigureAwait(false);
+            var client = httpClientFactory.CreateClient("ImageDownloader");
             client.Timeout = timeout;
 
             using var response = await client

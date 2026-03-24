@@ -179,7 +179,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
             // Lightweight test: get current user info
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct).ConfigureAwait(false);
+                () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct);
 
             if (response.IsSuccessStatusCode)
             {
@@ -888,7 +888,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
-                using var request = requestFactory().ConfigureAwait(false);
+                using var request = requestFactory();
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
