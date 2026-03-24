@@ -76,8 +76,8 @@
                               MaxHeight="200"
                               Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="*" />
-                            <DataGridTextColumn Header="Miktar" Binding="{Binding Quantity}" Width="80" />
+                            <DataGridTextColumn Header="SKU" Binding="{ReflectionBinding Sku}" Width="*" />
+                            <DataGridTextColumn Header="Miktar" Binding="{ReflectionBinding Quantity}" Width="80" />
                         </DataGrid.Columns>
                     </DataGrid>
 
