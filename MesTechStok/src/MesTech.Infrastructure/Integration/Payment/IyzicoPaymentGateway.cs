@@ -129,14 +129,14 @@ public class IyzicoPaymentGateway : IPaymentGateway
             return $"sandbox-token-{Guid.NewGuid():N}"[..32];
 
         // iyzico card storage API
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return $"iyzico-token-{Guid.NewGuid():N}"[..32];
     }
 
     public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
         _logger.LogInformation("iyzico DeleteCard: token=***masked***");
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return true;
     }
 

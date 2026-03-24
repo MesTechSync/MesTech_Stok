@@ -113,14 +113,14 @@ public class StripePaymentGateway : IPaymentGateway
         if (!_options.IsConfigured)
             return $"pm_sandbox_{Guid.NewGuid():N}"[..28];
 
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return $"pm_{Guid.NewGuid():N}"[..28];
     }
 
     public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
         _logger.LogInformation("Stripe DeleteCard: token=***masked***");
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return true;
     }
 

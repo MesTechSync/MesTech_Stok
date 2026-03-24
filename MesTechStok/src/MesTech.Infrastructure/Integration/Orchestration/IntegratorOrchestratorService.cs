@@ -213,6 +213,6 @@ public class IntegratorOrchestratorService : IIntegratorOrchestrator
         // Product push requires full Product entity — log for now,
         // actual push will be handled by a MediatR handler that fetches
         // the full product from the repository.
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }
