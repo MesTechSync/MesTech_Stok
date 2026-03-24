@@ -37,7 +37,7 @@ public class StockValueReportViewModelTests
 
         _sut.WarehouseStocks.Should().NotBeEmpty();
         _sut.WarehouseStocks.Should().HaveCountGreaterThanOrEqualTo(3);
-        _sut.WarehouseStocks.Select(w => w.Name).Should().Contain("Ana Depo - Istanbul");
+        _sut.WarehouseStocks.Select(w => w.WarehouseName).Should().Contain("Ana Depo - Istanbul");
     }
 
     [Fact]
