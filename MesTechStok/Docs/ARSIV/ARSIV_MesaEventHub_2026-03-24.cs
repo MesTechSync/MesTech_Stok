@@ -1,3 +1,10 @@
+// ARŞİV: MesaEventHub.cs
+// Tarih: 2026-03-24
+// Neden: Program.cs'de MapHub kaydı yok, hiçbir yerden kullanılmıyor (dead code)
+// Kaynak: src/MesTech.Infrastructure/Messaging/Hubs/MesaEventHub.cs
+// Karar: V5 P2 Faz C audit sonucu arşivlendi. İhtiyaç halinde geri alınabilir.
+// MesaEventMessage record'u da bu Hub'a bağlıydı — başka yerde kullanılmıyor.
+
 using Microsoft.AspNetCore.SignalR;
 
 namespace MesTech.Infrastructure.Messaging.Hubs;
