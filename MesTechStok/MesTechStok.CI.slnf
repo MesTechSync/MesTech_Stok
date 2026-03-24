@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "MesTechStok.sln",
+    "projects": [
+      "src\\MesTechStok.Core\\MesTechStok.Core.csproj",
+      "src\\MesTech.Domain\\MesTech.Domain.csproj",
+      "src\\MesTech.Application\\MesTech.Application.csproj",
+      "src\\MesTech.Infrastructure\\MesTech.Infrastructure.csproj",
+      "src\\MesTech.Tests.Unit\\MesTech.Tests.Unit.csproj",
+      "src\\MesTech.Tests.Integration\\MesTech.Tests.Integration.csproj",
+      "src\\MesTech.Tests.Architecture\\MesTech.Tests.Architecture.csproj",
+      "src\\MesTech.WebApi\\MesTech.WebApi.csproj",
+      "src\\MesTech.Blazor\\MesTech.Blazor.csproj",
+      "src\\MesTech.Avalonia\\MesTech.Avalonia.csproj",
+      "tests\\MesTechStok.Avalonia.Tests\\MesTechStok.Avalonia.Tests.csproj",
+      "tests\\MesTech.Blazor.Tests\\MesTech.Blazor.Tests.csproj"
+    ]
+  }
+}
