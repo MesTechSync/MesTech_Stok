@@ -179,7 +179,7 @@ public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
             // Lightweight test: get current user info
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

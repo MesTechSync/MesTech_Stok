@@ -342,7 +342,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         while (!ct.IsCancellationRequested)
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}&offset={offset}"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}&offset={offset}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -477,7 +477,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/claims"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, "/claims"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -501,7 +501,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/approve"), ct);
+            () => new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/approve"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -553,7 +553,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/activate"), ct);
+            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/activate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -574,7 +574,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/deactivate"), ct);
+            () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/deactivate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -597,7 +597,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/listings/upload-status/{correlationId}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/listings/upload-status/{correlationId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -626,7 +626,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var url = $"/finance/commissions?startDate={start:yyyy-MM-dd}&endDate={end:yyyy-MM-dd}";
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, url), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -690,7 +690,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/packages/{packageId}/label"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/packages/{packageId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -715,7 +715,7 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, $"/transportation/tracking/{trackingNo}"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, $"/transportation/tracking/{trackingNo}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {

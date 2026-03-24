@@ -112,7 +112,7 @@ public class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -156,7 +156,7 @@ public class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

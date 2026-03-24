@@ -34,8 +34,9 @@ public class CrmOrderBridgeService : ICrmOrderBridgeService
         var deal = await _context.Set<Deal>()
             .Include(d => d.Contact)
             .FirstOrDefaultAsync(d => d.Id == dealId, ct)
-            .ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"Deal {dealId} not found.");
+            .ConfigureAwait(false);
+        if (deal is null)
+            throw new InvalidOperationException($"Deal {dealId} not found.");
 
         if (deal.Status != DealStatus.Won)
             throw new InvalidOperationException("Only won deals can create an order.");

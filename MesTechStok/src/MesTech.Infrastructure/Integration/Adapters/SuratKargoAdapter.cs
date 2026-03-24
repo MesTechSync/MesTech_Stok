@@ -114,7 +114,7 @@ public class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -158,7 +158,7 @@ public class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
-            }, ct);
+            }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

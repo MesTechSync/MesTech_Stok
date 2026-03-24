@@ -193,7 +193,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var path = $"/inventory?merchantSkus={skuParam}";
 
                 var response = await ExecuteWithRetryAsync(
-                    () => new HttpRequestMessage(HttpMethod.Get, path), ct);
+                    () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -264,7 +264,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             var path = $"/shipments/{Uri.EscapeDataString(shipmentId)}/status";
 
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, path), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -332,7 +332,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                            $"&page={page}&size={pageSize}";
 
                 var response = await ExecuteWithRetryAsync(
-                    () => new HttpRequestMessage(HttpMethod.Get, path), ct);
+                    () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -436,7 +436,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/inventory?limit=1"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/inventory?limit=1"), ct).ConfigureAwait(false);
 
             var available = response.IsSuccessStatusCode || (int)response.StatusCode < 500;
             _logger.LogInformation("[Hepsilojistik] IsAvailable: {Available} ({Status})",

@@ -179,7 +179,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct);
+                () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -910,7 +910,7 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct);
+            () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
