@@ -47,9 +47,7 @@ public partial class CreateInboundDialog : Window
     {
         if (active)
         {
-            indicator.Background = new DynamicResourceExtension("MesPrimaryBlue") is { } _
-                ? this.FindResource("MesPrimaryBlue") as IBrush ?? Brushes.DodgerBlue
-                : Brushes.DodgerBlue;
+            indicator.Background = this.FindResource("MesPrimaryBlue") as IBrush ?? Brushes.DodgerBlue;
         }
         else
         {

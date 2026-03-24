@@ -2,8 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using MesTech.Application.Features.Fulfillment.Queries;
-using MesTech.Domain.Enums;
+using MesTech.Application.DTOs.Fulfillment;
+using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentInventory;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -47,9 +47,9 @@ public partial class FulfillmentInventoryViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            var fbaInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.AmazonFBA, null));
-            var hepsiInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.Hepsilojistik, null));
-            var localInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.OwnWarehouse, null));
+            var fbaInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.AmazonFBA, Array.Empty<string>()));
+            var hepsiInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.Hepsilojistik, Array.Empty<string>()));
+            var localInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.OwnWarehouse, Array.Empty<string>()));
 
             // Merge by SKU
             var skuSet = new HashSet<string>();

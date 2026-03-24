@@ -74,16 +74,17 @@ public partial class NotificationSettingsAvaloniaViewModel : ObservableObject
             {
                 foreach (var setting in settings)
                 {
-                    var isEmail = setting.Channel == NotificationChannel.Email;
-                    var isTelegram = setting.Channel == NotificationChannel.Telegram;
-                    var isWhatsApp = setting.Channel == NotificationChannel.WhatsApp;
+                    var isEmail = setting.Channel == NotificationChannel.Email.ToString();
+                    var isTelegram = setting.Channel == NotificationChannel.Telegram.ToString();
+                    var isWhatsApp = setting.Channel == NotificationChannel.WhatsApp.ToString();
 
                     if (isEmail) IsEmailEnabled = setting.IsEnabled;
                     if (isTelegram) IsTelegramEnabled = setting.IsEnabled;
                     if (isWhatsApp) IsWhatsAppEnabled = setting.IsEnabled;
 
-                    if (!string.IsNullOrWhiteSpace(setting.ChannelAddress) && isEmail)
-                        EmailAddress = setting.ChannelAddress;
+                    // ChannelAddress PII — DTO'da yer almaz. Email adresi ayrı endpoint'ten gelir.
+                    if (isEmail && setting.IsEnabled)
+                        EmailAddress = "***@***.com"; // Placeholder — gerçek adres Settings API'den gelecek
                 }
             }
 

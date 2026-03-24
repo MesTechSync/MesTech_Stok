@@ -36,17 +36,17 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ObservableObject
             Providers.Clear();
             foreach (var p in providerStatuses)
             {
-                var statusColor = p.IsAvailable ? "#388E3C" : p.IsConfigured ? "#D32F2F" : "#F57C00";
-                var statusText = p.IsAvailable ? "Aktif" : p.IsConfigured ? "Hata" : "Yapilandirilmadi";
+                var statusColor = p.IsActive ? "#388E3C" : p.IsConfigured ? "#D32F2F" : "#F57C00";
+                var statusText = p.IsActive ? "Aktif" : p.IsConfigured ? "Hata" : "Yapilandirilmadi";
                 Providers.Add(new()
                 {
-                    Name = p.ProviderName,
+                    Name = p.Name,
                     Status = statusText,
                     StatusColor = statusColor,
-                    IntegrationType = p.IsAvailable ? "Gercek entegrasyon" : "Bekliyor",
+                    IntegrationType = p.IsActive ? "Gercek entegrasyon" : "Bekliyor",
                     SupportedTypes = "e-Fatura, e-Arsiv",
-                    LastTestResult = p.IsAvailable ? "Basarili" : "—",
-                    LastTestDate = p.IsAvailable ? DateTime.UtcNow : null
+                    LastTestResult = p.IsActive ? "Basarili" : "—",
+                    LastTestDate = p.IsActive ? DateTime.UtcNow : null
                 });
             }
         }
