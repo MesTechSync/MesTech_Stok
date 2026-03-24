@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 /// Mizan Raporu ViewModel — Chain 14 denge kontrolü.
 /// DEV 1'in GLAccount + JournalEntry sistemine bağlanacak.
 /// </summary>
-public partial class TrialBalanceViewModel : ObservableObject
+public partial class TrialBalanceViewModel : ViewModelBase
 {
     [ObservableProperty] private DateTimeOffset? asOfDate = DateTimeOffset.Now;
     [ObservableProperty] private string balanceStatusText = string.Empty;
@@ -19,7 +19,7 @@ public partial class TrialBalanceViewModel : ObservableObject
 
     public ObservableCollection<TrialBalanceLineItem> TrialBalanceLines { get; } = [];
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         TrialBalanceLines.Clear();
         await Task.Delay(200);
