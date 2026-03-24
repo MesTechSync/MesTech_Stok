@@ -15,7 +15,7 @@ public class GetFulfillmentDashboardHandler : IRequestHandler<GetFulfillmentDash
         _logger = logger;
     }
 
-    public async Task<FulfillmentDashboardDto> Handle(GetFulfillmentDashboardQuery request, CancellationToken ct)
+    public async Task<FulfillmentDashboardDto> Handle(GetFulfillmentDashboardQuery request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Fulfillment dashboard sorgulanıyor — TenantId={TenantId}", request.TenantId);
 

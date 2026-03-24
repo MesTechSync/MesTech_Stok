@@ -21,19 +21,19 @@ public class CloseAccountingPeriodHandler : IRequestHandler<CloseAccountingPerio
         _logger = logger;
     }
 
-    public async Task<Guid> Handle(CloseAccountingPeriodCommand request, CancellationToken ct)
+    public async Task<Guid> Handle(CloseAccountingPeriodCommand request, CancellationToken cancellationToken)
     {
         var period = await _repo.GetByYearMonthAsync(
-            request.TenantId, request.Year, request.Month, ct).ConfigureAwait(false);
+            request.TenantId, request.Year, request.Month, cancellationToken).ConfigureAwait(false);
 
         if (period is null)
         {
             period = AccountingPeriod.Create(request.TenantId, request.Year, request.Month);
-            await _repo.AddAsync(period, ct).ConfigureAwait(false);
+            await _repo.AddAsync(period, cancellationToken).ConfigureAwait(false);
         }
 
         period.Close(request.UserId);
-        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Muhasebe donemi kapatildi — {Year}/{Month}, TenantId={TenantId}, User={UserId}",

@@ -10,8 +10,8 @@ public class GetErpSyncLogsHandler : IRequestHandler<GetErpSyncLogsQuery, IReadO
 
     public GetErpSyncLogsHandler(IErpSyncLogRepository repo) => _repo = repo;
 
-    public async Task<IReadOnlyList<ErpSyncLog>> Handle(GetErpSyncLogsQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<ErpSyncLog>> Handle(GetErpSyncLogsQuery request, CancellationToken cancellationToken)
     {
-        return await _repo.GetByTenantPagedAsync(request.TenantId, request.Page, request.PageSize, ct);
+        return await _repo.GetByTenantPagedAsync(request.TenantId, request.Page, request.PageSize, cancellationToken);
     }
 }

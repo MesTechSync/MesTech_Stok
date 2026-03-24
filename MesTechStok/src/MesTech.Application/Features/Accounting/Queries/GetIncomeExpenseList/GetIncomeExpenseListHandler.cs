@@ -22,7 +22,7 @@ public class GetIncomeExpenseListHandler
     }
 
     public async Task<IncomeExpenseListResultDto> Handle(
-        GetIncomeExpenseListQuery request, CancellationToken ct)
+        GetIncomeExpenseListQuery request, CancellationToken cancellationToken)
     {
         var from = request.From ?? DateTime.MinValue;
         var to = request.To ?? DateTime.UtcNow;

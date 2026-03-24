@@ -22,7 +22,7 @@ public class GetIncomeExpenseSummaryHandler
     }
 
     public async Task<IncomeExpenseSummaryDto> Handle(
-        GetIncomeExpenseSummaryQuery request, CancellationToken ct)
+        GetIncomeExpenseSummaryQuery request, CancellationToken cancellationToken)
     {
         var from = request.From ?? DateTime.UtcNow.AddMonths(-1);
         var to = request.To ?? DateTime.UtcNow;

@@ -12,7 +12,7 @@ public class GetFulfillmentShipmentsHandler
         => _logger = logger;
 
     public Task<FulfillmentShipmentsResultDto> Handle(
-        GetFulfillmentShipmentsQuery request, CancellationToken ct)
+        GetFulfillmentShipmentsQuery request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Fulfillment shipments sorgulanıyor — Center={Center}, Status={Status}",
             request.Center, request.Status);

@@ -20,7 +20,7 @@ public class GetCashFlowTrendHandler : IRequestHandler<GetCashFlowTrendQuery, Ca
         _logger = logger;
     }
 
-    public async Task<CashFlowTrendDto> Handle(GetCashFlowTrendQuery request, CancellationToken ct)
+    public async Task<CashFlowTrendDto> Handle(GetCashFlowTrendQuery request, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
         var from = new DateTime(now.Year, now.Month, 1).AddMonths(-request.Months + 1);

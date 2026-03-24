@@ -15,10 +15,10 @@ public class GetErpDashboardHandler : IRequestHandler<GetErpDashboardQuery, ErpD
         _logger = logger;
     }
 
-    public async Task<ErpDashboardDto> Handle(GetErpDashboardQuery request, CancellationToken ct)
+    public async Task<ErpDashboardDto> Handle(GetErpDashboardQuery request, CancellationToken cancellationToken)
     {
         var today = DateTime.UtcNow.Date;
-        var pendingRetries = await _syncRepo.GetPendingRetriesAsync(request.TenantId, DateTime.UtcNow, ct);
+        var pendingRetries = await _syncRepo.GetPendingRetriesAsync(request.TenantId, DateTime.UtcNow, cancellationToken);
 
         return new ErpDashboardDto(
             ConnectedProviders: 0,

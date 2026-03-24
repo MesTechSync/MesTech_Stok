@@ -19,12 +19,12 @@ public class GetStaleOrdersQueryHandler
     }
 
     public async Task<IReadOnlyList<StaleOrderDto>> Handle(
-        GetStaleOrdersQuery request, CancellationToken ct)
+        GetStaleOrdersQuery request, CancellationToken cancellationToken)
     {
         var cutoff = DateTime.UtcNow - request.EffectiveThreshold;
 
         var staleOrders = await _orderRepo.GetStaleOrdersAsync(
-            request.TenantId, cutoff, ct).ConfigureAwait(false);
+            request.TenantId, cutoff, cancellationToken).ConfigureAwait(false);
 
         var result = staleOrders.Select(o => new StaleOrderDto(
             o.Id,

@@ -11,10 +11,10 @@ public class GetAccountingPeriodsHandler
     public GetAccountingPeriodsHandler(IAccountingPeriodRepository repo) => _repo = repo;
 
     public async Task<IReadOnlyList<AccountingPeriodDto>> Handle(
-        GetAccountingPeriodsQuery request, CancellationToken ct)
+        GetAccountingPeriodsQuery request, CancellationToken cancellationToken)
     {
         var periods = await _repo.GetByTenantAsync(
-            request.TenantId, request.Year, ct).ConfigureAwait(false);
+            request.TenantId, request.Year, cancellationToken).ConfigureAwait(false);
 
         return periods.Select(p => new AccountingPeriodDto(
             p.Id, p.Year, p.Month, p.StartDate, p.EndDate,
