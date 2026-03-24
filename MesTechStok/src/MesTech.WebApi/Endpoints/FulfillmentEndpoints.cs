@@ -2,7 +2,9 @@ using MediatR;
 using MesTech.Application.DTOs.Fulfillment;
 using MesTech.Application.Features.Fulfillment.Commands.CreateInboundShipment;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentInventory;
+using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentDashboard;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentOrders;
+using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -51,5 +53,28 @@ public static class FulfillmentEndpoints
         })
         .WithName("GetFulfillmentOrders")
         .WithSummary("Fulfillment sipariş listesi");
+
+        // GET /api/v1/fulfillment/dashboard — fulfillment dashboard özeti
+        group.MapGet("/dashboard", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetFulfillmentDashboardQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFulfillmentDashboard")
+        .WithSummary("Fulfillment dashboard — envanter, sevkiyat, bekleyen özeti");
+
+        // GET /api/v1/fulfillment/shipments — sevkiyat listesi
+        group.MapGet("/shipments", async (
+            Guid tenantId, string? center, string? status, int page, int pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetFulfillmentShipmentsQuery(tenantId, center, status, page, pageSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFulfillmentShipments")
+        .WithSummary("Fulfillment sevkiyat listesi (merkez + durum filtresi)");
     }
 }

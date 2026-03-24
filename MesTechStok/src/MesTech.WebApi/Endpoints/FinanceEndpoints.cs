@@ -1,4 +1,6 @@
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
 using MesTech.Application.Features.Finance.Commands.ApproveExpense;
 using MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 using MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
@@ -9,6 +11,8 @@ using MesTech.Application.Features.Finance.Commands.CreateExpense;
 using MesTech.Application.Features.Finance.Commands.RecordCashTransaction;
 using MesTech.Application.Features.Finance.Queries.GetCashRegisters;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
+using MesTech.Application.Queries.GetExpenses;
+using MesTech.Application.Queries.GetKarZarar;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -139,5 +143,57 @@ public static class FinanceEndpoints
         })
         .WithName("RecordCashTransaction")
         .WithSummary("Kasa hareketi kaydet (giriş/çıkış)");
+
+        // ─── GELIR/GIDER ENDPOINT'LERI [ENT-DEV6] ───
+
+        // GET /api/v1/finance/expenses/list — masraf listesi (filtreleme)
+        group.MapGet("/expenses/list", async (
+            DateTime? from, DateTime? to, int? type, Guid? tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetExpensesQuery(from, to,
+                    type.HasValue ? (MesTech.Domain.Enums.ExpenseType)type.Value : null,
+                    tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetExpenses")
+        .WithSummary("Masraf listesi (tarih + tip filtresi)");
+
+        // GET /api/v1/finance/income-expenses — gelir/gider listesi
+        group.MapGet("/income-expenses", async (
+            Guid tenantId, string? type, DateTime? from, DateTime? to, int page, int pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetIncomeExpenseListQuery(tenantId, type, from, to, page, pageSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetIncomeExpenseList")
+        .WithSummary("Gelir/gider listesi (sayfalanmış)");
+
+        // GET /api/v1/finance/income-expense-summary — gelir/gider özeti
+        group.MapGet("/income-expense-summary", async (
+            Guid tenantId, DateTime? from, DateTime? to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetIncomeExpenseSummaryQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetIncomeExpenseSummary")
+        .WithSummary("Gelir/gider özet raporu");
+
+        // GET /api/v1/finance/kar-zarar — kâr/zarar raporu
+        group.MapGet("/kar-zarar", async (
+            DateTime from, DateTime to, Guid? tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetKarZararQuery(from, to, tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetKarZarar")
+        .WithSummary("Kâr/zarar raporu (tarih aralığı)");
     }
 }

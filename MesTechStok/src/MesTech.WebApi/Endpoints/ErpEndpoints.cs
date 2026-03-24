@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Enums;
@@ -212,6 +213,17 @@ public static class ErpEndpoints
         })
         .WithName("GetErpSyncHistory")
         .WithSummary("ERP senkronizasyon geçmişi");
+
+        // GET /api/v1/erp/dashboard — ERP dashboard özeti
+        group.MapGet("/dashboard", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetErpDashboardQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetErpDashboard")
+        .WithSummary("ERP dashboard — bağlantı durumu, son sync, özet");
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────

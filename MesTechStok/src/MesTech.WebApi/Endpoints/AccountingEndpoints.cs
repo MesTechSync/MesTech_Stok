@@ -12,6 +12,10 @@ using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
 using MesTech.Application.Features.Accounting.Queries.GetSettlementBatches;
 using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
+using MesTech.Application.Features.Accounting.Commands.CreateChartOfAccount;
+using MesTech.Application.Features.Accounting.Commands.DeleteChartOfAccount;
+using MesTech.Application.Features.Accounting.Commands.UpdateChartOfAccount;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
 using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
 using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 using MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
@@ -531,6 +535,52 @@ public static class AccountingEndpoints
         })
         .WithName("ValidateBalanceSheet")
         .WithSummary("Bilanço doğrulama (aktif = pasif kontrolü)");
+
+        // POST /api/v1/accounting/chart-of-accounts — hesap planı oluştur
+        group.MapPost("/chart-of-accounts", async (
+            CreateChartOfAccountCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/chart-of-accounts/{id}", new { id });
+        })
+        .WithName("CreateChartOfAccount")
+        .WithSummary("Yeni hesap planı kalemi oluştur");
+
+        // PUT /api/v1/accounting/chart-of-accounts/{id} — hesap planı güncelle
+        group.MapPut("/chart-of-accounts/{id:guid}", async (
+            Guid id, UpdateChartOfAccountCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var updated = command with { Id = id };
+            var success = await mediator.Send(updated, ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("UpdateChartOfAccount")
+        .WithSummary("Hesap planı kalemini güncelle");
+
+        // DELETE /api/v1/accounting/chart-of-accounts/{id} — hesap planı sil
+        group.MapDelete("/chart-of-accounts/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var success = await mediator.Send(new DeleteChartOfAccountCommand(id), ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("DeleteChartOfAccount")
+        .WithSummary("Hesap planı kalemini sil");
+
+        // GET /api/v1/accounting/cash-flow-trend — nakit akış trendi
+        group.MapGet("/cash-flow-trend", async (
+            Guid tenantId, int months,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCashFlowTrendQuery(tenantId, months), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCashFlowTrend")
+        .WithSummary("Nakit akış trendi (aylık gelir/gider/net)");
 
         // GET /api/v1/accounting/validate-trial-balance — mizan doğrulama
         group.MapGet("/validate-trial-balance", async (

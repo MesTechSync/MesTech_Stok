@@ -4,6 +4,8 @@ using MesTech.Application.Commands.DeleteWarehouse;
 using MesTech.Application.Commands.UpdateWarehouse;
 using MesTech.Application.Queries.GetWarehouseById;
 using MesTech.Application.Queries.GetWarehouses;
+using MesTech.Application.Queries.GetWarehouseStock;
+using MesTech.Application.Queries.GetWarehouseSummary;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -84,6 +86,28 @@ public static class WarehouseEndpoints
         })
         .WithName("DeleteWarehouse")
         .WithSummary("Depo sil / pasife al");
+
+        // GET /api/v1/warehouses/{id}/stock — depo stok listesi
+        group.MapGet("/{id:guid}/stock", async (
+            Guid id, Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetWarehouseStockQuery(id, tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetWarehouseStock")
+        .WithSummary("Depo bazlı stok listesi");
+
+        // GET /api/v1/warehouses/summary — depo özet raporu
+        group.MapGet("/summary", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetWarehouseSummaryQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetWarehouseSummary")
+        .WithSummary("Tüm depoların özet raporu");
     }
 
     private record UpdateWarehouseRequest(
