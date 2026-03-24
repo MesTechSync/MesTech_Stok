@@ -10,6 +10,9 @@
 
 services:
   postgres:
+    image: pgvector/pgvector:pg17@sha256:4d015894147ed169e4d2b2e14505cb99333c868e75663f586c217ba786c800d1
+    cpus: 2.0
+    pids_limit: 200
     ports: !override
       # Host'a port ACMA — sadece Docker network uzerinden erisim
       []
@@ -25,6 +28,9 @@ services:
         max-file: "10"
 
   redis:
+    image: redis:7.4-alpine@sha256:4bfd9eca23339865dc14fe75f6d9ae643f714924623978dd2798f1a673b08f43
+    cpus: 1.0
+    pids_limit: 100
     ports: !override
       []
     command: >
@@ -43,6 +49,9 @@ services:
         max-file: "5"
 
   rabbitmq:
+    image: rabbitmq:3.13-management-alpine@sha256:3c498e636fd64462480c5f9ff842eb224ab84160a8ada1ded5375e9569e9230c
+    cpus: 1.0
+    pids_limit: 150
     ports: !override
       - "5672"
       - "127.0.0.1:15672:15672"
@@ -54,6 +63,9 @@ services:
     restart: always
 
   mysql:
+    image: mysql:8.0@sha256:ce4d5c5f9df534fb059e6826805ad7dc3cb431589d4d99cc0869f5ee766e0f47
+    cpus: 1.0
+    pids_limit: 150
     ports: !override
       []
     environment:
@@ -62,6 +74,9 @@ services:
     restart: always
 
   seq:
+    image: datalust/seq:2024.1@sha256:95b41ddda7bc31825bc9f7ba9331aab6daec13524c2992601c0ddd53129ad43c
+    cpus: 0.5
+    pids_limit: 100
     ports: !override
       - "5341"
       - "127.0.0.1:3580:80"
@@ -71,6 +86,8 @@ services:
     restart: always
 
   webapi:
+    cpus: 1.0
+    pids_limit: 150
     ports:
       - "${WEBAPI_PORT:-3100}:3100"
     environment:
@@ -84,6 +101,9 @@ services:
     restart: always
 
   minio:
+    image: minio/minio:RELEASE.2024-01-16T16-07-38Z@sha256:e18c64a852e81bb76d5be1c8d8318694adf18d0b517e49a96fc9402dbcdc396a
+    cpus: 1.0
+    pids_limit: 100
     ports: !override
       - "9000"
       - "127.0.0.1:9001:9001"
@@ -93,17 +113,26 @@ services:
     restart: always
 
   nginx:
+    image: nginx:1.25-alpine@sha256:721fa00bc549df26b3e67cc558ff176112d4ba69847537766f3c28e171d180e7
+    cpus: 0.5
+    pids_limit: 100
     ports:
       - "80:80"
       - "443:443"
     restart: always
 
   prometheus:
+    image: prom/prometheus:v2.51.0@sha256:3305cd2e483c13364c94ae4905368eb425c9fa804f8e523ee47d8bf4de9d87a2
+    cpus: 0.5
+    pids_limit: 100
     ports: !override
       - "127.0.0.1:3090:9090"
     restart: always
 
   grafana:
+    image: grafana/grafana:10.4.1@sha256:8b10c3744b8fede79af784d967911691d0e2d6e505512d1466ae1dbcaf745033
+    cpus: 0.5
+    pids_limit: 100
     ports: !override
       - "127.0.0.1:3000:3000"
     environment:
