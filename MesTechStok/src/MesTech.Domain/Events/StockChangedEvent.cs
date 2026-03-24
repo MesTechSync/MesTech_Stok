@@ -8,6 +8,7 @@ namespace MesTech.Domain.Events;
 /// </summary>
 public record StockChangedEvent(
     Guid ProductId,
+    Guid TenantId,
     string SKU,
     int PreviousQuantity,
     int NewQuantity,

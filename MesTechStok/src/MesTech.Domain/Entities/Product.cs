@@ -133,12 +133,12 @@ public class Product : BaseEntity, ITenantEntity
         LastStockUpdate = DateTime.UtcNow;
 
         RaiseDomainEvent(new StockChangedEvent(
-            Id, SKU, previousStock, Stock, movementType, DateTime.UtcNow));
+            Id, TenantId, SKU, previousStock, Stock, movementType, DateTime.UtcNow));
 
         if (IsLowStock() && previousStock > MinimumStock)
         {
             RaiseDomainEvent(new LowStockDetectedEvent(
-                Id, SKU, Stock, MinimumStock, DateTime.UtcNow));
+                Id, TenantId, SKU, Stock, MinimumStock, DateTime.UtcNow));
         }
 
         // Stok sıfıra düştüyse — platform pasife alma zinciri tetikle
@@ -167,7 +167,7 @@ public class Product : BaseEntity, ITenantEntity
         SalePrice = newSalePrice;
 
         RaiseDomainEvent(new PriceChangedEvent(
-            Id, SKU, oldPrice, newSalePrice, DateTime.UtcNow));
+            Id, TenantId, SKU, oldPrice, newSalePrice, DateTime.UtcNow));
 
         // Zarar kontrolü — satış fiyatı alışın altına düştüyse uyarı
         if (PurchasePrice > 0 && newSalePrice < PurchasePrice)
@@ -226,7 +226,7 @@ public class Product : BaseEntity, ITenantEntity
     /// </summary>
     public void MarkAsCreated()
     {
-        RaiseDomainEvent(new ProductCreatedEvent(Id, SKU, Name, SalePrice, DateTime.UtcNow));
+        RaiseDomainEvent(new ProductCreatedEvent(Id, TenantId, SKU, Name, SalePrice, DateTime.UtcNow));
     }
 
     /// <summary>
@@ -234,7 +234,7 @@ public class Product : BaseEntity, ITenantEntity
     /// </summary>
     public void MarkAsUpdated()
     {
-        RaiseDomainEvent(new ProductUpdatedEvent(Id, SKU, DateTime.UtcNow));
+        RaiseDomainEvent(new ProductUpdatedEvent(Id, TenantId, SKU, DateTime.UtcNow));
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ public class Product : BaseEntity, ITenantEntity
     /// </summary>
     public void ReportBuyboxLost(decimal competitorPrice, string competitorName)
     {
-        RaiseDomainEvent(new BuyboxLostEvent(Id, SKU, SalePrice, competitorPrice, competitorName, DateTime.UtcNow));
+        RaiseDomainEvent(new BuyboxLostEvent(Id, TenantId, SKU, SalePrice, competitorPrice, competitorName, DateTime.UtcNow));
     }
 
     public void UpdateAiPriceSnapshot(decimal recommendedPrice)

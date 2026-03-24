@@ -184,7 +184,7 @@ public class LoggerOnlyEventHandlerTests
     public async Task ProductUpdatedEventHandler_Completes()
     {
         var sut = new ProductUpdatedEventHandler(Mock.Of<ILogger<ProductUpdatedEventHandler>>());
-        var evt = new ProductUpdatedEvent(Guid.NewGuid(), "SKU-001", DateTime.UtcNow);
+        var evt = new ProductUpdatedEvent(Guid.NewGuid(), Guid.NewGuid(), "SKU-001", DateTime.UtcNow);
         await sut.HandleAsync(evt, CancellationToken.None);
     }
 

@@ -167,6 +167,7 @@ public sealed class FulfillmentStockSyncJob
 
                     domainEvents.Add(new StockChangedEvent(
                         ProductId: product.Id,
+                        TenantId: product.TenantId,
                         SKU: product.SKU!,
                         PreviousQuantity: previousTotal,
                         NewQuantity: newTotal,

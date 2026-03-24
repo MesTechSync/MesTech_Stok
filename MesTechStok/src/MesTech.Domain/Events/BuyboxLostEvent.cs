@@ -4,6 +4,7 @@ namespace MesTech.Domain.Events;
 
 public record BuyboxLostEvent(
     Guid ProductId,
+    Guid TenantId,
     string SKU,
     decimal CurrentPrice,
     decimal CompetitorPrice,

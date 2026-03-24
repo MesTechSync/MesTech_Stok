@@ -127,6 +127,7 @@ public class WebhookEventRouter
 
             case "product.created":
                 var createdProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
+                var createdTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
                 var createdSku = ExtractStringField(payload, "sku") ?? "unknown";
                 var createdName = ExtractStringField(payload, "name") ?? "Webhook Product";
                 var createdPrice = ExtractDecimalField(payload, "salePrice")
@@ -134,15 +135,16 @@ public class WebhookEventRouter
                     ?? 0m;
 
                 await PublishAsync(new ProductCreatedEvent(
-                    createdProductId, createdSku, createdName, createdPrice, now), ct);
+                    createdProductId, createdTenantId, createdSku, createdName, createdPrice, now), ct);
                 break;
 
             case "product.updated":
                 var updatedProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
+                var updatedTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
                 var updatedSku = ExtractStringField(payload, "sku") ?? "unknown";
 
                 await PublishAsync(new ProductUpdatedEvent(
-                    updatedProductId, updatedSku, now), ct);
+                    updatedProductId, updatedTenantId, updatedSku, now), ct);
                 break;
 
             case "return.created":
