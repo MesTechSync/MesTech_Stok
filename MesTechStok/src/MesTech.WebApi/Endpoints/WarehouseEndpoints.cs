@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Commands.CreateWarehouse;
 using MesTech.Application.Commands.DeleteWarehouse;
 using MesTech.Application.Commands.UpdateWarehouse;
+using MesTech.Application.Queries.GetWarehouseById;
 using MesTech.Application.Queries.GetWarehouses;
 
 namespace MesTech.WebApi.Endpoints;
@@ -27,16 +28,17 @@ public static class WarehouseEndpoints
         .WithSummary("Depo listesi (aktif/tümü filtresi)");
 
         // GET /api/v1/warehouses/{id} — depo detayı
-        // TODO: GetWarehouseByIdQuery handler not yet available
-        group.MapGet("/{id:guid}", (Guid id, CancellationToken ct) =>
-            Results.Ok(new
-            {
-                Message = "Warehouse detail endpoint — GetWarehouseByIdQuery handler not yet available",
-                WarehouseId = id,
-                Status = "not_implemented"
-            }))
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetWarehouseByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.NotFound(new { error = $"Warehouse {id} not found" });
+        })
         .WithName("GetWarehouseById")
-        .WithSummary("Depo detayı (TODO: GetWarehouseByIdQuery handler gerekli)");
+        .WithSummary("Depo detayı");
 
         // POST /api/v1/warehouses — yeni depo oluştur
         group.MapPost("/", async (

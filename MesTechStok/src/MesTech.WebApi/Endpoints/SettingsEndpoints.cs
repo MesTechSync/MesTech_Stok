@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
 using MesTech.Application.Features.Settings.Queries.GetProfileSettings;
@@ -27,15 +28,17 @@ public static class SettingsEndpoints
         .WithSummary("Kullanici profil ayarlari");
 
         // PUT /api/v1/settings/profile
-        // TODO: UpdateProfileSettingsCommand handler not yet available
-        group.MapPut("/profile", (object profile) => Results.Ok(new
+        group.MapPut("/profile", async (
+            UpdateProfileSettingsCommand command,
+            ISender sender, CancellationToken ct) =>
         {
-            success = false,
-            message = "UpdateProfileSettingsCommand handler not yet available",
-            status = "not_implemented"
-        }))
+            var success = await sender.Send(command, ct);
+            return success
+                ? Results.NoContent()
+                : Results.NotFound(new { error = "Tenant not found" });
+        })
         .WithName("UpdateSettingsProfile")
-        .WithSummary("Kullanici profil ayarlarini guncelle (TODO: handler gerekli)");
+        .WithSummary("Kullanici profil ayarlarini guncelle");
 
         // GET /api/v1/settings/credentials
         group.MapGet("/credentials", async (

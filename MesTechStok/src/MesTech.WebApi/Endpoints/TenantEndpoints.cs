@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Tenant.Commands.CreateTenant;
 using MesTech.Application.Features.Tenant.Commands.UpdateTenant;
 using MesTech.Application.Features.Tenant.Queries.GetTenant;
+using MesTech.Application.Features.Tenant.Queries.GetTenants;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -17,19 +18,16 @@ public static class TenantEndpoints
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/admin/tenants — kiracı listesi (admin)
-        // TODO: GetTenantsQuery (list all) handler not yet available — only GetTenantQuery (by ID) exists
-        group.MapGet("/", (int page = 1, int pageSize = 50) =>
-            Results.Ok(new
-            {
-                Message = "Tenant list endpoint — GetTenantsQuery (list) handler not yet available",
-                Page = page,
-                PageSize = pageSize,
-                Items = Array.Empty<object>(),
-                TotalCount = 0,
-                Status = "not_implemented"
-            }))
+        group.MapGet("/", async (
+            int page,
+            int pageSize,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetTenantsQuery(page, pageSize), ct);
+            return Results.Ok(result);
+        })
         .WithName("GetTenants")
-        .WithSummary("Kiracı listesi — admin only (TODO: GetTenantsQuery handler gerekli)");
+        .WithSummary("Kiracı listesi — admin only");
 
         // POST /api/v1/admin/tenants — yeni kiracı oluştur
         group.MapPost("/", async (
