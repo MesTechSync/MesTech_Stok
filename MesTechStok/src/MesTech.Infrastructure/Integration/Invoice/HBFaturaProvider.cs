@@ -4,6 +4,7 @@ using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -137,7 +138,7 @@ public class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCa
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("HBFatura IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("HBFatura IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -147,7 +148,7 @@ public class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCa
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("HBFatura taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber));
                 return false;
             }
 
@@ -158,7 +159,7 @@ public class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCa
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HBFatura taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "HBFatura taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

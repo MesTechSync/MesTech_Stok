@@ -6,6 +6,7 @@ using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 namespace MesTech.Infrastructure.Integration.Invoice;
 
@@ -137,7 +138,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("Parasut IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("Parasut IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -149,7 +150,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Parasut taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber));
                 return false;
             }
 
@@ -162,7 +163,7 @@ public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Parasut taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "Parasut taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

@@ -6,6 +6,7 @@ using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 namespace MesTech.Infrastructure.Integration.Invoice;
 
@@ -134,7 +135,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("Sovos IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("Sovos IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -145,7 +146,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             {
                 var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogWarning("Sovos taxpayer check returned {Status} for {TaxNumber} — {Error}",
-                    response.StatusCode, taxNumber, errorBody);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber), errorBody);
                 return false;
             }
 
@@ -157,7 +158,7 @@ public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Sovos taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "Sovos taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

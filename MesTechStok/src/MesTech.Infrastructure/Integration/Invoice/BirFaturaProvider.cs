@@ -3,6 +3,7 @@ using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -133,7 +134,7 @@ public class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoice
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("BirFatura IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("BirFatura IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -143,7 +144,7 @@ public class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoice
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("BirFatura taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber));
                 return false;
             }
 
@@ -154,7 +155,7 @@ public class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoice
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "BirFatura taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "BirFatura taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

@@ -2,6 +2,7 @@ using System.Text;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -233,7 +234,7 @@ public class GibPortalProvider : IInvoiceProvider
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("GibPortal IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("GibPortal IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -249,7 +250,7 @@ public class GibPortalProvider : IInvoiceProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "GibPortal IsEInvoiceTaxpayer exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "GibPortal IsEInvoiceTaxpayer exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

@@ -1,6 +1,7 @@
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -47,7 +48,7 @@ public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomi
             {
                 var isMukellef = await _gibService.IsEFaturaMukellefAsync(request.Customer.TaxNumber, ct).ConfigureAwait(false);
                 type = isMukellef ? InvoiceType.EFatura : InvoiceType.EArsiv;
-                _logger.LogInformation("Auto type detection via GibService: VKN={VKN} -> {Type}", request.Customer.TaxNumber, type);
+                _logger.LogInformation("Auto type detection via GibService: VKN={VKN} -> {Type}", PiiLogMaskHelper.MaskTaxNumber(request.Customer.TaxNumber), type);
             }
             else
             {

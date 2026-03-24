@@ -5,6 +5,7 @@ using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -138,7 +139,7 @@ public class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, I
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("TrendyolEFaturam IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("TrendyolEFaturam IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -148,7 +149,7 @@ public class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, I
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("TrendyolEFaturam taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber));
                 return false;
             }
 
@@ -159,7 +160,7 @@ public class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, I
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "TrendyolEFaturam taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "TrendyolEFaturam taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }

@@ -7,6 +7,7 @@ using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
@@ -141,7 +142,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
     public async Task<bool> IsEInvoiceTaxpayerAsync(string taxNumber, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("e-Logo IsEInvoiceTaxpayer check for {TaxNumber}", taxNumber);
+        _logger.LogInformation("e-Logo IsEInvoiceTaxpayer check for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
 
         try
         {
@@ -151,7 +152,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("e-Logo taxpayer check returned {Status} for {TaxNumber}",
-                    response.StatusCode, taxNumber);
+                    response.StatusCode, PiiLogMaskHelper.MaskTaxNumber(taxNumber));
                 return false;
             }
 
@@ -162,7 +163,7 @@ public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IInco
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "e-Logo taxpayer check exception for {TaxNumber}", taxNumber);
+            _logger.LogError(ex, "e-Logo taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
         }
     }
