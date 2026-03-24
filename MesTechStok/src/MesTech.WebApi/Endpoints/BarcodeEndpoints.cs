@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Commands.CreateBarcodeScanLog;
+using MesTech.Application.Queries.GetBarcodeScanLogs;
 using MesTech.Application.Queries.GetProductByBarcode;
 
 namespace MesTech.WebApi.Endpoints;
@@ -38,5 +39,17 @@ public static class BarcodeEndpoints
         })
         .WithName("CreateBarcodeScanLog")
         .WithSummary("Barkod tarama olayı kaydet");
+
+        // GET /api/v1/barcodes/scan-logs — barkod tarama geçmişi
+        group.MapGet("/scan-logs", async (
+            int page, int pageSize, string? barcode, string? source, bool? isValid,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetBarcodeScanLogsQuery(page, pageSize, barcode, source, isValid), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBarcodeScanLogs")
+        .WithSummary("Barkod tarama geçmişi (sayfalanmış)");
     }
 }

@@ -1,6 +1,8 @@
 using MediatR;
+using MesTech.Application.Commands.CreateCariHareket;
 using MesTech.Application.Commands.CreateCariHesap;
 using MesTech.Application.Commands.UpdateCariHesap;
+using MesTech.Application.Queries.GetCariHareketler;
 using MesTech.Application.Queries.GetCariHesaplar;
 using MesTech.Domain.Enums;
 
@@ -61,5 +63,29 @@ public static class CariHesapEndpoints
         })
         .WithName("UpdateCariHesap")
         .WithSummary("Cari hesap bilgilerini guncelle");
+
+        // GET /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hesap hareketleri
+        group.MapGet("/{id:guid}/hareketler", async (
+            Guid id, DateTime? from, DateTime? to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCariHareketlerQuery(id, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCariHareketler")
+        .WithSummary("Cari hesap hareketleri (tarih filtresi)");
+
+        // POST /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hareket oluştur
+        group.MapPost("/{id:guid}/hareketler", async (
+            Guid id, CreateCariHareketCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var updated = command with { CariHesapId = id };
+            var result = await mediator.Send(updated, ct);
+            return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}/hareketler/{result}", new { id = result });
+        })
+        .WithName("CreateCariHareket")
+        .WithSummary("Yeni cari hareket oluştur (borç/alacak)");
     }
 }
