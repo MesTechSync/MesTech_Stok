@@ -105,7 +105,7 @@ public class WebhookProcessor : IWebhookProcessor
     /// JSON payload'dan event type bilgisini cikarir.
     /// Farkli platformlar farkli field isimleri kullanir.
     /// </summary>
-    private static string ExtractEventType(string body, string platform)
+    private string ExtractEventType(string body, string platform)
     {
         try
         {
@@ -124,9 +124,9 @@ public class WebhookProcessor : IWebhookProcessor
                 resource.ValueKind == JsonValueKind.String)
                 return resource.GetString() ?? "unknown";
         }
-        catch
+        catch (JsonException ex)
         {
-            // Non-JSON body or parse error
+            _logger.LogDebug(ex, "Webhook body is not valid JSON for platform {Platform}", platform);
         }
 
         return "unknown";

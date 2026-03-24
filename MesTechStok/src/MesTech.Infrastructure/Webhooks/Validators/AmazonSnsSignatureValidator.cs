@@ -39,7 +39,7 @@ public sealed class AmazonSnsSignatureValidator : IWebhookSignatureValidator
             // Domain dogrulama gecti — tam RSA dogrulama production'da yapilacak
             return true;
         }
-        catch
+        catch (JsonException)
         {
             return false;
         }
