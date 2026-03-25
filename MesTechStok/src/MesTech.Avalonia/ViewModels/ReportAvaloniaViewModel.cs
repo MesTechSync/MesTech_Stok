@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -75,22 +76,26 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         HasReportResult = false;
         try
         {
-            await Task.Delay(500); // Will be replaced with MediatR query
+            var from = StartDate?.UtcDateTime ?? DateTime.UtcNow.AddMonths(-1);
+            var to = EndDate?.UtcDateTime ?? DateTime.UtcNow;
+
+            var report = await _mediator.Send(new GetCashFlowReportQuery(Guid.Empty, from, to));
 
             ReportItems.Clear();
-            var items = new List<ReportItemDto>
+            foreach (var entry in report.Entries)
             {
-                new() { Date = "19.03.2026", Reference = "ORD-28341", Description = "Trendyol siparis - Elektronik", Category = "Satis", AmountFormatted = "4.520,00 TL" },
-                new() { Date = "18.03.2026", Reference = "ORD-28290", Description = "Hepsiburada siparis - Ev Yasam", Category = "Satis", AmountFormatted = "2.180,00 TL" },
-                new() { Date = "17.03.2026", Reference = "ORD-28245", Description = "N11 siparis - Aksesuar", Category = "Satis", AmountFormatted = "1.240,00 TL" },
-                new() { Date = "16.03.2026", Reference = "ORD-28198", Description = "Amazon siparis - Kitap", Category = "Satis", AmountFormatted = "3.890,00 TL" },
-                new() { Date = "15.03.2026", Reference = "ORD-28150", Description = "Trendyol siparis - Giyim", Category = "Satis", AmountFormatted = "1.650,00 TL" },
-            };
-            foreach (var item in items)
-                ReportItems.Add(item);
+                ReportItems.Add(new ReportItemDto
+                {
+                    Date = entry.EntryDate.ToString("dd.MM.yyyy"),
+                    Reference = entry.Id.ToString("N")[..8].ToUpperInvariant(),
+                    Description = entry.Description ?? entry.Category ?? string.Empty,
+                    Category = entry.Category ?? entry.Direction,
+                    AmountFormatted = $"{entry.Amount:N2} TL"
+                });
+            }
 
             TotalCount = ReportItems.Count;
-            TotalAmount = "13.480,00 TL";
+            TotalAmount = $"{report.NetFlow:N2} TL";
             HasReportResult = true;
             IsEmpty = ReportItems.Count == 0;
         }

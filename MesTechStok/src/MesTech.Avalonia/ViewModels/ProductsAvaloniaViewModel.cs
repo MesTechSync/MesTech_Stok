@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -52,21 +53,23 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var result = await _mediator.Send(new GetTopProductsQuery(Guid.Empty, 50));
 
-            _allProducts =
-            [
-                new() { SKU = "TRY-ELK-001", Name = "Samsung Galaxy S24 Ultra", Price = 64999.00m, Stock = 45, Platform = "Trendyol", Status = "Aktif", Barcode = "8806095380001", Description = "256GB, Titanium Violet", ImageUrl = "", MinimumStock = 10, IsActive = true, SalePrice = 59999.00m, VariantSKU = "TRY-ELK-001-VLT", VariantBarcode = "8806095380002" },
-                new() { SKU = "HB-BLG-002", Name = "Apple MacBook Air M3", Price = 54999.00m, Stock = 12, Platform = "Hepsiburada", Status = "Aktif", Barcode = "0194253943518", Description = "15 inc, 16GB RAM, 512GB SSD", ImageUrl = "", MinimumStock = 5, IsActive = true, SalePrice = 54999.00m, VariantSKU = "HB-BLG-002-GRY", VariantBarcode = "0194253943525" },
-                new() { SKU = "N11-AKS-003", Name = "Sony WH-1000XM5 Kulaklik", Price = 11499.00m, Stock = 78, Platform = "N11", Status = "Aktif", Barcode = "4548736132610", Description = "Kablosuz, Gurultu Onleyici, 30 saat pil", ImageUrl = "", MinimumStock = 15, IsActive = true, SalePrice = 9999.00m, VariantSKU = "", VariantBarcode = "" },
-                new() { SKU = "TRY-AKS-004", Name = "Logitech MX Master 3S Mouse", Price = 3299.00m, Stock = 156, Platform = "Trendyol", Status = "Aktif", Barcode = "5099206101203", Description = "Ergonomik, 8K DPI, USB-C", ImageUrl = "", MinimumStock = 20, IsActive = true, SalePrice = 3299.00m, VariantSKU = "TRY-AKS-004-BLK", VariantBarcode = "5099206101210" },
-                new() { SKU = "CS-MNT-005", Name = "Dell U2723QE 4K Monitor", Price = 18799.00m, Stock = 8, Platform = "Ciceksepeti", Status = "Dusuk Stok", Barcode = "5397184505106", Description = "27 inc IPS, USB-C Hub, HDR400", ImageUrl = "", MinimumStock = 10, IsActive = true, SalePrice = 16999.00m, VariantSKU = "", VariantBarcode = "" },
-                new() { SKU = "AMZ-GYM-006", Name = "Dyson V15 Detect Supurge", Price = 28990.00m, Stock = 23, Platform = "Amazon", Status = "Aktif", Barcode = "5025155072530", Description = "Lazer toz algilama, LCD ekran", ImageUrl = "", MinimumStock = 5, IsActive = true, SalePrice = 28990.00m, VariantSKU = "", VariantBarcode = "" },
-                new() { SKU = "OC-EV-007", Name = "Philips Airfryer XXL", Price = 7499.00m, Stock = 0, Platform = "OpenCart", Status = "Tukendi", Barcode = "8710103940951", Description = "7.3L, Dijital, RapidAir", ImageUrl = "", MinimumStock = 10, IsActive = false, SalePrice = 6499.00m, VariantSKU = "", VariantBarcode = "" },
-                new() { SKU = "TRY-GYM-008", Name = "Karaca Hatir Turk Kahve Makinesi", Price = 2199.00m, Stock = 340, Platform = "Trendyol", Status = "Aktif", Barcode = "8680214001234", Description = "5 fincan, Turk kahvesi, sut kopu", ImageUrl = "", MinimumStock = 30, IsActive = true, SalePrice = 2199.00m, VariantSKU = "TRY-GYM-008-RED", VariantBarcode = "8680214001241" },
-                new() { SKU = "HB-KSA-009", Name = "Vestel 55 inc 4K Smart TV", Price = 22499.00m, Stock = 5, Platform = "Hepsiburada", Status = "Dusuk Stok", Barcode = "8698902183456", Description = "VIDAA, Dolby Vision, HDR10+", ImageUrl = "", MinimumStock = 8, IsActive = true, SalePrice = 19999.00m, VariantSKU = "", VariantBarcode = "" },
-                new() { SKU = "N11-SPR-010", Name = "Nike Air Max 270 Ayakkabi", Price = 4599.00m, Stock = 67, Platform = "N11", Status = "Aktif", Barcode = "0193654692810", Description = "Erkek, Siyah/Beyaz, Air yastik", ImageUrl = "", MinimumStock = 20, IsActive = true, SalePrice = 3999.00m, VariantSKU = "N11-SPR-010-42", VariantBarcode = "0193654692827" },
-            ];
+            _allProducts = result.Select(dto => new ProductItemDto
+            {
+                SKU = dto.SKU,
+                Name = dto.Name,
+                Price = dto.Revenue > 0 && dto.SoldQuantity > 0
+                    ? Math.Round(dto.Revenue / dto.SoldQuantity, 2)
+                    : 0m,
+                SalePrice = dto.Revenue > 0 && dto.SoldQuantity > 0
+                    ? Math.Round(dto.Revenue / dto.SoldQuantity, 2)
+                    : 0m,
+                Stock = dto.SoldQuantity,
+                Platform = string.Empty,
+                Status = "Aktif",
+                IsActive = true
+            }).ToList();
 
             ApplyFilters();
         }

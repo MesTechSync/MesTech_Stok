@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Tasks.Queries.GetProjects;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -30,13 +31,25 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            var result = await _mediator.Send(new GetProjectsQuery(Guid.Empty));
+
             Projects.Clear();
-            Projects.Add(new ProjectItemVm { Id = Guid.NewGuid(), Name = "MesTech v2.0 Migration", Status = "Devam Ediyor", StartDate = DateTime.Now.AddMonths(-2), EndDate = DateTime.Now.AddMonths(1), Progress = 65, Manager = "Fatih I." });
-            Projects.Add(new ProjectItemVm { Id = Guid.NewGuid(), Name = "Trendyol Entegrasyonu", Status = "Tamamlandi", StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(-1), Progress = 100, Manager = "Mehmet C." });
-            Projects.Add(new ProjectItemVm { Id = Guid.NewGuid(), Name = "MESA AI Modulu", Status = "Devam Ediyor", StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(2), Progress = 35, Manager = "Ali K." });
-            Projects.Add(new ProjectItemVm { Id = Guid.NewGuid(), Name = "Mobil Uygulama", Status = "Planlandi", StartDate = DateTime.Now.AddMonths(1), EndDate = DateTime.Now.AddMonths(4), Progress = 0, Manager = "Zeynep A." });
-            Projects.Add(new ProjectItemVm { Id = Guid.NewGuid(), Name = "Muhasebe Modulu", Status = "Devam Ediyor", StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(1), Progress = 50, Manager = "Ayse K." });
+            foreach (var dto in result)
+            {
+                var progress = dto.TaskCount > 0
+                    ? (int)Math.Round((double)dto.CompletedTaskCount / dto.TaskCount * 100)
+                    : 0;
+
+                Projects.Add(new ProjectItemVm
+                {
+                    Id = dto.Id,
+                    Name = dto.Name,
+                    Status = dto.Status,
+                    StartDate = dto.DueDate?.AddMonths(-3) ?? DateTime.Now,
+                    EndDate = dto.DueDate,
+                    Progress = progress
+                });
+            }
             TotalCount = Projects.Count;
             IsEmpty = Projects.Count == 0;
         }
