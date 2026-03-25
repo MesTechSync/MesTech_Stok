@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
 public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
@@ -869,6 +869,88 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         CargoProvider.Sendeo => 10,
         _ => 0
     };
+
+    // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var payload = new
+            {
+                url = callbackUrl,
+                event_type = "TYPE_ALL"
+            };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/v1/webhook/register");
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            request.Headers.Add(ClientIdHeader, _clientId);
+            request.Headers.Add(ApiKeyHeader, _apiKey);
+
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ozon RegisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ozon RegisterWebhook exception");
+            return false;
+        }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/v1/webhook/unregister");
+            request.Headers.Add(ClientIdHeader, _clientId);
+            request.Headers.Add(ApiKeyHeader, _apiKey);
+
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ozon UnregisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ozon UnregisterWebhook exception");
+            return false;
+        }
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
+
+        _logger.LogInformation(
+            "OzonAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
+            eventType, payload.Length);
+
+        return Task.CompletedTask;
+    }
 
     // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check

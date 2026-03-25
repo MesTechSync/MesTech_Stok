@@ -24,7 +24,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Price: PUT /api/product/price
 /// </summary>
 public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter,
-    IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
@@ -1162,6 +1162,90 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     }
 
     // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                callbackUrl,
+                eventTypes = new[] { "ORDER_CREATED", "ORDER_UPDATED", "RETURN_CREATED", "SHIPMENT_UPDATED" }
+            };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/api/webhook/register");
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("PttAVM RegisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PttAVM RegisterWebhook exception");
+            return false;
+        }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUrl}/api/webhook/unregister");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("PttAVM UnregisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PttAVM UnregisterWebhook exception");
+            return false;
+        }
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+
+        _logger.LogInformation(
+            "PttAvmAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
+            eventType, payload.Length);
+
+        return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
@@ -1186,4 +1270,5 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             return false;
         }
     }
+
 }
