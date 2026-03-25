@@ -247,3 +247,35 @@ WooCommerce            ✅   ✅   —    —    —    —    2/6
 3/6:     Shopify
 2/6:     Ozon, PttAvm, OpenCart, WooCommerce
 ```
+
+---
+
+## TUR 8 — 2026-03-25 (v3.5 — Adapter Derinleştirme)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 19 | Shopify+WooCommerce+Ozon | Settlement+Claim+Invoice (3/6→6/6, 2/6→5/6, 2/6→5/6) | 6f9ab7cc |
+| 20 | PttAvm+OpenCart | Settlement+Claim+Invoice+Shipment (2/6→5/6, 2/6→5/6) | bfb54240 |
+
+### MÜHENDİS DELTA
+| Metrik | TUR 7 | TUR 8 | DELTA |
+|--------|-------|-------|-------|
+| 6/6 TAM | 7 | 8 (+Shopify) | +1 |
+| 5/6 | 1 | 4 (AmazonEU,Ozon,PttAvm,OpenCart,WooC) | +3 |
+| Toplam capability | 64 | 76 | +12 |
+
+### FİNAL SKOR (TUR 8 SONU)
+```
+6/6: Trendyol, HB, N11, ÇS, Pazarama, AmazonTR, eBay, Shopify (8)
+5/6: AmazonEU, Ozon, PttAvm, OpenCart, WooCommerce (5)
+```
+
+### KÜMÜLATİF DEV 3 (8 tur, 20+ commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| 6/6 TAM adapter | 1 | 8 | +7 |
+| 5/6 adapter | 0 | 5 | +5 |
+| Toplam capability | 22 | 76 | **+54** |
+| Ortalama skor | 1.7/6 | 5.5/6 | +3.8 |
