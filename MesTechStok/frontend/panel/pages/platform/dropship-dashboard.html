@@ -213,6 +213,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" crossorigin="anonymous"></script>
   <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-api.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -826,7 +827,7 @@
 
     async function saveSetting(key, value) {
       try {
-        await fetch(API_BASE + '/settings', {
+        await mestechApi.request(API_BASE + '/settings', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [key]: value })
@@ -857,13 +858,7 @@
       });
 
       try {
-        var response = await fetch(API_BASE + '/settings', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(settings)
-        });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
+        await mestechApi.put(API_BASE + '/settings', settings);
         showAlert('Ayarlar basariyla kaydedildi.', 'success');
 
       } catch (error) {
@@ -1062,9 +1057,7 @@
 
       try {
         // Load supplier performance
-        var perfResponse = await fetch(API_BASE + '/supplier-performance');
-        if (!perfResponse.ok) throw new Error('HTTP ' + perfResponse.status);
-        var perfData = await perfResponse.json();
+        var perfData = await mestechApi.get(API_BASE + '/supplier-performance');
 
         // Render KPI from aggregated data
         var kpiData = {

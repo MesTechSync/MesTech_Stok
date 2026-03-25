@@ -265,6 +265,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" crossorigin="anonymous"></script>
   <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-api.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -977,9 +978,7 @@
     // ========================================
     async function loadDashboardData() {
       try {
-        var response = await fetch(API_BASE + '/summary');
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var data = await response.json();
+        var data = await mestechApi.get('/summary');
 
         updateKpiCards(data);
         renderRecentOrders(data.recentOrders || []);
@@ -1009,9 +1008,7 @@
 
     async function loadSalesTrend(days) {
       try {
-        var response = await fetch(API_BASE + '/sales-trend?days=' + days);
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var data = await response.json();
+        var data = await mestechApi.get('/sales-trend?days=' + days);
         renderSalesTrendChart(data);
       } catch (error) {
         console.error('Satis trendi yukleme hatasi:', error);

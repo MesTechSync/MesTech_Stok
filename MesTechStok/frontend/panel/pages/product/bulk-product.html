@@ -231,6 +231,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" crossorigin="anonymous"></script>
   <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-api.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -695,13 +696,10 @@
       formData.append('file', selectedFile);
 
       try {
-        var response = await fetch(API_BASE + '/validate', {
+        validatedData = await mestechApi.request(API_BASE + '/validate', {
           method: 'POST',
           body: formData
         });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        validatedData = await response.json();
 
         // Show column mapping
         var mappingText = document.getElementById('column-mapping-text');
@@ -810,17 +808,15 @@
       progressEl.classList.add('active');
 
       try {
-        var response = await fetch(API_BASE + '/import', {
+        var resultPromise = mestechApi.request(API_BASE + '/import', {
           method: 'POST',
           body: formData
         });
 
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-
         // Simulate progress (real implementation would use SSE/WebSocket)
         await simulateProgress();
 
-        var result = await response.json();
+        var result = await resultPromise;
         showImportResult(result);
 
       } catch (error) {
@@ -894,9 +890,7 @@
       if (stockStatus) params.append('stockStatus', stockStatus);
 
       try {
-        var response = await fetch(API_BASE + '/export/count?' + params.toString());
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var data = await response.json();
+        var data = await mestechApi.get(API_BASE + '/export/count?' + params.toString());
         document.getElementById('export-product-count').textContent = String(data.count || 0);
       } catch (error) {
         console.error('Export count hatasi:', error);
@@ -974,9 +968,7 @@
       wrapper.appendChild(spinner);
 
       try {
-        var response = await fetch('/api/v1/products?page=1&pageSize=50');
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var data = await response.json();
+        var data = await mestechApi.get('/api/v1/products?page=1&pageSize=50');
         productList = data.items || data || [];
         renderProductTable(productList);
       } catch (error) {
@@ -1193,18 +1185,11 @@
       btn.appendChild(document.createTextNode('Uygulanıyor...'));
 
       try {
-        var response = await fetch(API_BASE + '/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        var result = await mestechApi.post(API_BASE + '/update', {
             action: action,
             value: value,
             productIds: Array.from(selectedProductIds)
-          })
         });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var result = await response.json();
 
         showAlert(
           (result.updatedCount || 0) + ' urun basariyla guncellendi.',

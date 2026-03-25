@@ -274,6 +274,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" crossorigin="anonymous"></script>
   <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-api.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -613,9 +614,7 @@
       showLoadingState('platform-tree');
 
       try {
-        var response = await fetch(API_BASE + '?platform=' + encodeURIComponent(platform));
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var data = await response.json();
+        var data = await mestechApi.get(API_BASE + '?platform=' + encodeURIComponent(platform));
 
         mestechCategories = data.mestechCategories || [];
         platformCategories = data.platformCategories || [];
@@ -669,17 +668,11 @@
       btn.textContent = 'Eslestiriliyor...';
 
       try {
-        var response = await fetch(API_BASE, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        await mestechApi.post(API_BASE, {
             platform: platform,
             mestechCategoryId: selectedMestechId,
             platformCategoryId: selectedPlatformId
-          })
         });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
 
         selectedMestechId = null;
         selectedPlatformId = null;
@@ -716,14 +709,7 @@
       btn.appendChild(document.createTextNode('AI calisiyor...'));
 
       try {
-        var response = await fetch(API_BASE + '/auto-map', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ platform: platform })
-        });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        var result = await response.json();
+        var result = await mestechApi.post(API_BASE + '/auto-map', { platform: platform });
 
         var msg = (result.mappedCount || 0) + ' kategori otomatik eslestirildi.';
         showAlert(msg, 'success');
@@ -758,13 +744,7 @@
       btn.appendChild(document.createTextNode('Senkronize ediliyor...'));
 
       try {
-        var response = await fetch(API_BASE + '/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ platform: platform })
-        });
-
-        if (!response.ok) throw new Error('HTTP ' + response.status);
+        await mestechApi.post(API_BASE + '/sync', { platform: platform });
         showAlert('Kategoriler basariyla senkronize edildi.', 'success');
 
         await loadMappings();
