@@ -32,7 +32,7 @@
                          Text="{Binding SearchText}" />
                 <ComboBox Width="160" PlaceholderText="Durum"
                           ItemsSource="{Binding StatusOptions}"
-                          SelectedItem="{Binding SelectedStatus}" />
+                          SelectedItem="{Binding SelectedStatus}"  AutomationProperties.Name="Durum"/>
             </StackPanel>
         </Border>
 

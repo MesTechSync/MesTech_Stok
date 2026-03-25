@@ -208,7 +208,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <TextBlock Text="Toplu Fiyat:" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
                 <ComboBox Width="160" ItemsSource="{Binding PriceUpdateModes}"
-                          SelectedItem="{Binding SelectedPriceUpdateMode}" />
+                          SelectedItem="{Binding SelectedPriceUpdateMode}"  AutomationProperties.Name="Toplu Fiyat:"/>
                 <TextBox Width="120" Text="{Binding PriceUpdateValue}"
                          Watermark="Deger" AutomationProperties.Name="Deger" Padding="8,6" />
                 <Button Content="Uygula" Command="{Binding ApplyBulkPriceCommand}"

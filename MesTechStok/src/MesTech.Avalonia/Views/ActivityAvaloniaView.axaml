@@ -30,7 +30,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox Width="160" PlaceholderText="Aktivite tipi"
                           ItemsSource="{Binding FilterOptions}"
-                          SelectedItem="{Binding SelectedFilter}" />
+                          SelectedItem="{Binding SelectedFilter}"  AutomationProperties.Name="Aktivite tipi"/>
             </StackPanel>
         </Border>
 

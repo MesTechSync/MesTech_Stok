@@ -71,7 +71,7 @@
                     </Button>
                     <ComboBox Width="180"
                               ItemsSource="{Binding Platforms}"
-                              SelectedItem="{Binding SelectedPlatform}" />
+                              SelectedItem="{Binding SelectedPlatform}"  AutomationProperties.Name="&#x2B1C;"/>
                     <!-- Search match indicator -->
                     <TextBlock Text="{Binding SearchMatchInfo}"
                                VerticalAlignment="Center"

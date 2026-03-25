@@ -32,19 +32,19 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="E-Fatura Saglayici" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding InvoiceProviders}"
-                                      SelectedItem="{Binding SelectedProvider}" Width="300" />
+                                      SelectedItem="{Binding SelectedProvider}" Width="300"  AutomationProperties.Name="E-Fatura Saglayici"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Fatura mukellefiyeti aktif"
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEInvoiceActive}"
-                                          OnContent="Evet" OffContent="Hayir" />
+                                          OnContent="Evet" OffContent="Hayir"  AutomationProperties.Name="E-Fatura mukellefiyeti aktif"/>
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="E-Arsiv fatura otomatik olustur"
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCreateEArchive}"
-                                          OnContent="Acik" OffContent="Kapali" />
+                                          OnContent="Acik" OffContent="Kapali"  AutomationProperties.Name="E-Arsiv fatura otomatik olustur"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -94,7 +94,7 @@
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding NextInvoiceNumber}"
                                           Minimum="1" FormatString="N0" Width="160"
-                                          HorizontalAlignment="Left" />
+                                          HorizontalAlignment="Left"  AutomationProperties.Name="Sonraki Numara:"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -110,13 +110,13 @@
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                             <NumericUpDown Grid.Column="1" Value="{Binding DefaultVatRate}"
                                           Minimum="0" Maximum="100" FormatString="N0" Width="160"
-                                          HorizontalAlignment="Left" />
+                                          HorizontalAlignment="Left"  AutomationProperties.Name="Varsayilan KDV Orani (%):"/>
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Fiyatlar KDV dahil gosterilsin"
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding PricesIncludeVat}"
-                                          OnContent="Evet" OffContent="Hayir" />
+                                          OnContent="Evet" OffContent="Hayir"  AutomationProperties.Name="Fiyatlar KDV dahil gosterilsin"/>
                         </Grid>
                     </StackPanel>
                 </Border>

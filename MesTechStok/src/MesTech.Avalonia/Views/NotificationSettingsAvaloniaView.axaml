@@ -67,7 +67,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsInAppEnabled}"
-                                          OnContent="" OffContent="" IsEnabled="False" />
+                                          OnContent="" OffContent="" IsEnabled="False"  AutomationProperties.Name="Anlık bildirimler uygulama icerisinde gosterilir"/>
                         </Grid>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -80,7 +80,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Onemli bildirimler e-posta adresinize gonderilir"/>
                         </Grid>
 
                         <!-- Email Address (shown when email enabled) -->
@@ -102,7 +102,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTelegramEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Telegram bot uzerinden anlık bildirimler"/>
                         </Grid>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -115,7 +115,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsWhatsAppEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="WhatsApp Business API ile bildirimler"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -194,7 +194,7 @@
                             <TextBlock Grid.Column="0" Text="Sessiz saatleri etkinlestir" FontSize="{StaticResource FontSizeBody}"
                                        Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsQuietHoursEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Sessiz saatleri etkinlestir"/>
                         </Grid>
 
                         <StackPanel Orientation="Horizontal" Spacing="16"

@@ -15,7 +15,7 @@
                 <DatePicker SelectedDate="{Binding ToDate}" />
                 <ComboBox ItemsSource="{Binding SourceTypes}"
                           SelectedItem="{Binding SelectedSourceType}"
-                          PlaceholderText="Kaynak Tipi" Width="140" />
+                          PlaceholderText="Kaynak Tipi" Width="140"  AutomationProperties.Name="Kaynak Tipi"/>
                 <Button Content="Filtrele" Command="{Binding FilterCommand}"
                         ToolTip.Tip="Filtrele"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"

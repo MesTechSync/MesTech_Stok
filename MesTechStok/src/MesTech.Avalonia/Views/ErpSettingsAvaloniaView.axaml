@@ -44,7 +44,7 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <ComboBox ItemsSource="{Binding ErpProviders}"
                                   SelectedItem="{Binding SelectedErpProvider}"
-                                  Width="300"/>
+                                  Width="300" AutomationProperties.Name="ERP Saglayici Secimi"/>
 
                         <!-- Connection Status Indicator -->
                         <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding IsProviderSelected}">
@@ -215,7 +215,7 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding ParasutSandbox}"
-                                          OnContent="Acik" OffContent="Kapali"/>
+                                          OnContent="Acik" OffContent="Kapali" AutomationProperties.Name="Sandbox Modu"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -234,7 +234,7 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncStock}"
-                                          OnContent="Acik" OffContent="Kapali"/>
+                                          OnContent="Acik" OffContent="Kapali" AutomationProperties.Name="Otomatik stok senkronizasyonu"/>
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="Fatura otomatik aktarimi"
@@ -242,7 +242,7 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoSyncInvoice}"
-                                          OnContent="Acik" OffContent="Kapali"/>
+                                          OnContent="Acik" OffContent="Kapali" AutomationProperties.Name="Fatura otomatik aktarimi"/>
                         </Grid>
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Stok senk. araligi (dk):"
@@ -251,7 +251,7 @@
                                        VerticalAlignment="Center"/>
                             <NumericUpDown Grid.Column="1" Value="{Binding StockSyncPeriodMinutes}"
                                           Minimum="5" Maximum="1440" FormatString="N0" Width="160"
-                                          HorizontalAlignment="Left"/>
+                                          HorizontalAlignment="Left" AutomationProperties.Name="Stok senk. araligi (dk):"/>
                         </Grid>
                         <Grid ColumnDefinitions="200,*">
                             <TextBlock Grid.Column="0" Text="Fiyat senk. araligi (dk):"
@@ -260,7 +260,7 @@
                                        VerticalAlignment="Center"/>
                             <NumericUpDown Grid.Column="1" Value="{Binding PriceSyncPeriodMinutes}"
                                           Minimum="5" Maximum="1440" FormatString="N0" Width="160"
-                                          HorizontalAlignment="Left"/>
+                                          HorizontalAlignment="Left" AutomationProperties.Name="Fiyat senk. araligi (dk):"/>
                         </Grid>
                     </StackPanel>
                 </Border>

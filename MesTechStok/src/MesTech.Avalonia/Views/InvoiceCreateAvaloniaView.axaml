@@ -112,21 +112,21 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <ComboBox ItemsSource="{Binding InvoiceTypes}"
                                       SelectedItem="{Binding SelectedType}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch" AutomationProperties.Name="Fatura Tipi"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Provider" FontSize="{StaticResource FontSizeSmall}"
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <ComboBox ItemsSource="{Binding Providers}"
                                       SelectedItem="{Binding SelectedProvider}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch" AutomationProperties.Name="Provider"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
                             <TextBlock Text="KDV Orani (%)" FontSize="{StaticResource FontSizeSmall}"
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <ComboBox ItemsSource="{Binding KdvRates}"
                                       SelectedItem="{Binding KdvRate}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch" AutomationProperties.Name="KDV Orani (%)"/>
                         </StackPanel>
 
                         <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>

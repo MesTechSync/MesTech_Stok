@@ -104,7 +104,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEmailEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Siparis ve stok uyarilari e-posta ile gonderilir"/>
                         </Grid>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -117,7 +117,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSmsEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Kritik stok uyarilari SMS ile gonderilir"/>
                         </Grid>
 
                         <Border Height="1" Background="{DynamicResource MesBgMist}" />
@@ -130,7 +130,7 @@
                                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsPushEnabled}"
-                                          OnContent="" OffContent="" />
+                                          OnContent="" OffContent=""  AutomationProperties.Name="Push Bildirimleri"/>
                         </Grid>
                     </StackPanel>
                 </Border>

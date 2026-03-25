@@ -34,13 +34,13 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="180" ItemsSource="{Binding Warehouses}"
-                              SelectedItem="{Binding SelectedWarehouse}" />
+                              SelectedItem="{Binding SelectedWarehouse}"  AutomationProperties.Name="Depo:"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="Raf:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="120" ItemsSource="{Binding Shelves}"
                               SelectedItem="{Binding SelectedShelf}"
-                              PlaceholderText="Tumu" />
+                              PlaceholderText="Tumu"  AutomationProperties.Name="Tumu"/>
                 </StackPanel>
                 <TextBox Width="280" Watermark="SKU veya urun adi ara..." AutomationProperties.Name="SKU veya urun adi ara..."
                          Text="{Binding SearchText}" />

@@ -35,7 +35,7 @@
                            VerticalAlignment="Center" />
                 <ComboBox Width="180"
                           ItemsSource="{Binding StatusFilters}"
-                          SelectedItem="{Binding SelectedStatus}" />
+                          SelectedItem="{Binding SelectedStatus}"  AutomationProperties.Name="Durum:"/>
                 <TextBox Width="250" Watermark="Iade No / Siparis No / Musteri ara..." AutomationProperties.Name="Iade No / Siparis No / Musteri ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>

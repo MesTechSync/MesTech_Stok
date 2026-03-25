@@ -37,7 +37,7 @@
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedSourceWarehouse}"
                                   PlaceholderText="Kaynak depo secin..."
-                                  HorizontalAlignment="Stretch" />
+                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Kaynak depo secin..."/>
                     </StackPanel>
 
                     <!-- Hedef Depo -->
@@ -46,7 +46,7 @@
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedTargetWarehouse}"
                                   PlaceholderText="Hedef depo secin..."
-                                  HorizontalAlignment="Stretch" />
+                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Hedef depo secin..."/>
                     </StackPanel>
 
                     <!-- Urun Secimi -->
@@ -80,7 +80,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Transfer Miktari" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <NumericUpDown Value="{Binding TransferQuantity}" Minimum="0"
-                                       FormatString="N0" />
+                                       FormatString="N0"  AutomationProperties.Name="Transfer Miktari"/>
                     </StackPanel>
 
                     <!-- Stok Bilgisi -->

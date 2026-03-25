@@ -46,7 +46,7 @@
                            Foreground="{DynamicResource TextSecondaryBrush}"/>
                 <DatePicker SelectedDate="{Binding ToDate}" Width="160" AutomationProperties.Name="Bitis:" />
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
-                          SelectedItem="{Binding SelectedPlatform}"/>
+                          SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Bitis:"/>
                 <Button Command="{Binding RefreshCommand}" Background="Transparent"
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">

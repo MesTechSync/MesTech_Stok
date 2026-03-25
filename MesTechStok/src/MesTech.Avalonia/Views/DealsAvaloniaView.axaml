@@ -36,7 +36,7 @@
                          Text="{Binding SearchText}" />
                 <ComboBox Width="160" PlaceholderText="Asama"
                           ItemsSource="{Binding StageOptions}"
-                          SelectedItem="{Binding SelectedStage}" />
+                          SelectedItem="{Binding SelectedStage}"  AutomationProperties.Name="Asama"/>
             </StackPanel>
         </Border>
 

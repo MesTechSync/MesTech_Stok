@@ -60,12 +60,12 @@
                         <StackPanel Grid.Column="0" Spacing="4">
                             <TextBlock Text="Miktar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding Quantity}" Minimum="0"
-                                           FormatString="N0" />
+                                           FormatString="N0"  AutomationProperties.Name="Miktar"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="4">
                             <TextBlock Text="Birim Maliyet (TL)" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <NumericUpDown Value="{Binding UnitCost}" Minimum="0"
-                                           FormatString="N2" Increment="0.01" />
+                                           FormatString="N2" Increment="0.01"  AutomationProperties.Name="Birim Maliyet (TL)"/>
                         </StackPanel>
                     </Grid>
 
@@ -75,14 +75,14 @@
                         <ComboBox ItemsSource="{Binding Suppliers}"
                                   SelectedItem="{Binding SelectedSupplier}"
                                   PlaceholderText="Tedarikci secin..."
-                                  HorizontalAlignment="Stretch" />
+                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Tedarikci secin..."/>
                     </StackPanel>
 
                     <!-- Son Kullanma Tarihi -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Son Kullanma Tarihi (opsiyonel)" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                         <DatePicker SelectedDate="{Binding ExpiryDate}"
-                                    HorizontalAlignment="Stretch" />
+                                    HorizontalAlignment="Stretch"  AutomationProperties.Name="Son Kullanma Tarihi (opsiyonel)"/>
                     </StackPanel>
 
                     <!-- Depo -->
@@ -91,7 +91,7 @@
                         <ComboBox ItemsSource="{Binding Warehouses}"
                                   SelectedItem="{Binding SelectedWarehouse}"
                                   PlaceholderText="Depo secin..."
-                                  HorizontalAlignment="Stretch" />
+                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Depo secin..."/>
                     </StackPanel>
 
                     <!-- Kaydet -->

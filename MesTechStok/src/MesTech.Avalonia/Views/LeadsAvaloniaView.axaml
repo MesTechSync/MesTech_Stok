@@ -45,9 +45,9 @@
                          Text="{Binding SearchText}" />
                 <ComboBox Width="140" PlaceholderText="Durum"
                           ItemsSource="{Binding StatusOptions}"
-                          SelectedItem="{Binding SelectedStatus}" />
+                          SelectedItem="{Binding SelectedStatus}"  AutomationProperties.Name="Durum"/>
                 <ComboBox Width="160" PlaceholderText="Kaynak"
-                          ItemsSource="{Binding SourceOptions}" />
+                          ItemsSource="{Binding SourceOptions}"  AutomationProperties.Name="Kaynak"/>
             </StackPanel>
         </Border>
 

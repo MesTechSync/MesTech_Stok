@@ -16,7 +16,7 @@
                            FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformFilters}"
                           SelectedItem="{Binding SelectedPlatform}"
-                          PlaceholderText="Tum Platformlar" Width="160" Margin="8,0" />
+                          PlaceholderText="Tum Platformlar" Width="160" Margin="8,0"  AutomationProperties.Name="Tum Platformlar"/>
                 <Button Grid.Column="2" Content="Yenile" Command="{Binding RefreshCommand}"
                         ToolTip.Tip="Yenile"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"

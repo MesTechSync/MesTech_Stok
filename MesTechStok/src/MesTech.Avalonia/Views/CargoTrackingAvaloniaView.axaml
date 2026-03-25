@@ -35,7 +35,7 @@
                            VerticalAlignment="Center" />
                 <ComboBox Width="200"
                           ItemsSource="{Binding Firms}"
-                          SelectedItem="{Binding SelectedFirm}" />
+                          SelectedItem="{Binding SelectedFirm}"  AutomationProperties.Name="Kargo Firma:"/>
             </StackPanel>
         </Border>
 

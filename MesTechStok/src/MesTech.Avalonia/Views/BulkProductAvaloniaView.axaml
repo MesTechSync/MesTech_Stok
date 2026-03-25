@@ -162,19 +162,19 @@
                                         <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportPlatformList}"
                                                   SelectedItem="{Binding SelectedExportPlatform}"
-                                                  HorizontalAlignment="Stretch" />
+                                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Platform"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="4,0,4,0">
                                         <TextBlock Text="Kategori" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportCategoryList}"
                                                   SelectedItem="{Binding SelectedExportCategory}"
-                                                  HorizontalAlignment="Stretch" />
+                                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Kategori"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4" Margin="8,0,0,0">
                                         <TextBlock Text="Stok Durumu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding ExportStockFilterList}"
                                                   SelectedItem="{Binding SelectedExportStockFilter}"
-                                                  HorizontalAlignment="Stretch" />
+                                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Stok Durumu"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -239,7 +239,7 @@
                                         <TextBlock Text="Islem Turu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                                         <ComboBox ItemsSource="{Binding BulkActionList}"
                                                   SelectedItem="{Binding SelectedBulkAction}"
-                                                  HorizontalAlignment="Stretch" />
+                                                  HorizontalAlignment="Stretch"  AutomationProperties.Name="Islem Turu"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
                                         <TextBlock Text="Deger" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />

@@ -37,13 +37,13 @@
                     <TextBlock Text="Kullanici" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                     <ComboBox Width="180"
                               ItemsSource="{Binding Users}"
-                              SelectedItem="{Binding SelectedUser}" />
+                              SelectedItem="{Binding SelectedUser}"  AutomationProperties.Name="Kullanici"/>
                 </StackPanel>
                 <StackPanel Spacing="4">
                     <TextBlock Text="Islem Tipi" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
                     <ComboBox Width="140"
                               ItemsSource="{Binding ActionTypes}"
-                              SelectedItem="{Binding SelectedAction}" />
+                              SelectedItem="{Binding SelectedAction}"  AutomationProperties.Name="Islem Tipi"/>
                 </StackPanel>
                 <StackPanel Spacing="4">
                     <TextBlock Text="Baslangic" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />

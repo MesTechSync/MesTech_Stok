@@ -38,7 +38,7 @@
                 <TextBlock Text="Platform:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
                 <ComboBox ItemsSource="{Binding PlatformOptions}" SelectedItem="{Binding SelectedPlatform}"
-                          Width="180" />
+                          Width="180"  AutomationProperties.Name="Platform:"/>
                 <Button Content="Filtrele" ToolTip.Tip="Satis verilerini filtrele"
                         Command="{Binding FilterCommand}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"

@@ -36,7 +36,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Format" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <ComboBox ItemsSource="{Binding FormatOptions}"
-                                      SelectedItem="{Binding SelectedFormat}" Width="160" />
+                                      SelectedItem="{Binding SelectedFormat}" Width="160"  AutomationProperties.Name="Format"/>
                         </StackPanel>
 
                         <StackPanel Spacing="4">

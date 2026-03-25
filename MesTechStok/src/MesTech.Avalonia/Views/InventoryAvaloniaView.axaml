@@ -80,7 +80,7 @@
                     <TextBlock Text="Depo:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextSlate}" />
                     <ComboBox Width="180" ItemsSource="{Binding WarehouseFilter}"
                               SelectedItem="{Binding SelectedWarehouse}"
-                              PlaceholderText="Tum Depolar" />
+                              PlaceholderText="Tum Depolar"  AutomationProperties.Name="Tum Depolar"/>
                 </StackPanel>
             </StackPanel>
         </Border>

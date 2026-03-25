@@ -30,10 +30,10 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox Width="160" PlaceholderText="Durum"
                           ItemsSource="{Binding StatusFilters}"
-                          SelectedItem="{Binding SelectedStatusFilter}" />
+                          SelectedItem="{Binding SelectedStatusFilter}"  AutomationProperties.Name="Durum"/>
                 <ComboBox Width="160" PlaceholderText="Platform"
                           ItemsSource="{Binding PlatformFilters}"
-                          SelectedItem="{Binding SelectedPlatformFilter}" />
+                          SelectedItem="{Binding SelectedPlatformFilter}"  AutomationProperties.Name="Platform"/>
             </StackPanel>
         </Border>
 

@@ -35,7 +35,7 @@
                            VerticalAlignment="Center" />
                 <ComboBox Width="180"
                           ItemsSource="{Binding TypeOptions}"
-                          SelectedItem="{Binding SelectedType}" />
+                          SelectedItem="{Binding SelectedType}"  AutomationProperties.Name="Tip:"/>
             </StackPanel>
         </Border>
 

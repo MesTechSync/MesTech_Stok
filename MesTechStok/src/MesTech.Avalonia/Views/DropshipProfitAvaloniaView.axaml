@@ -28,7 +28,7 @@
                 <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
                 <DatePicker SelectedDate="{Binding StartDate}"  AutomationProperties.Name="Tarih Aralığı:" />
                 <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
-                <DatePicker SelectedDate="{Binding EndDate}" />
+                <DatePicker SelectedDate="{Binding EndDate}"  AutomationProperties.Name="Tarih Aralığı:"/>
             </StackPanel>
         </Border>
 

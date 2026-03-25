@@ -32,7 +32,7 @@
                          Text="{Binding SearchText}" />
                 <ComboBox Width="120" PlaceholderText="Tip"
                           ItemsSource="{Binding TypeOptions}"
-                          SelectedItem="{Binding SelectedType}" />
+                          SelectedItem="{Binding SelectedType}"  AutomationProperties.Name="Tip"/>
             </StackPanel>
         </Border>
 

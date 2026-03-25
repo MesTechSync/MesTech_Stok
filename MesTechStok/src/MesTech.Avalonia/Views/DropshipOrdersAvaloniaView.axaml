@@ -33,7 +33,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Durum:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
                 <ComboBox ItemsSource="{Binding StatusOptions}"
-                          SelectedItem="{Binding SelectedStatus}" Width="200" />
+                          SelectedItem="{Binding SelectedStatus}" Width="200"  AutomationProperties.Name="Durum:"/>
             </StackPanel>
         </Border>
 

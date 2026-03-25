@@ -125,13 +125,13 @@
                            VerticalAlignment="Center" Margin="0,0,16,0" />
                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoOrderEnabled}"
                               OnContent="Aktif" OffContent="Pasif"
-                              VerticalAlignment="Center" Margin="0,0,16,0" />
+                              VerticalAlignment="Center" Margin="0,0,16,0"  AutomationProperties.Name="Otomatik Siparis Ayarlari"/>
                 <TextBlock Grid.Column="2" Text="Min. Stok Esigi:"
                            FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <NumericUpDown Grid.Column="3" Value="{Binding AutoOrderThreshold}"
                                Minimum="1" Maximum="999" Width="120"
-                               VerticalAlignment="Center" Margin="0,0,16,0" />
+                               VerticalAlignment="Center" Margin="0,0,16,0"  AutomationProperties.Name="Min. Stok Esigi:"/>
                 <Button Grid.Column="5" Content="Ayarlari Kaydet"
                         ToolTip.Tip="Ayarlari Kaydet"
                         Command="{Binding SaveAutoOrderSettingsCommand}"

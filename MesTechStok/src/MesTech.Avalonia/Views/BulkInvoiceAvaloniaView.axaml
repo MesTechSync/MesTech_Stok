@@ -34,7 +34,7 @@
                            Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
                 <ComboBox Grid.Column="3" Width="160"
                           ItemsSource="{Binding Providers}"
-                          SelectedItem="{Binding SelectedProvider}"/>
+                          SelectedItem="{Binding SelectedProvider}" AutomationProperties.Name="Provider:"/>
                 <Button Grid.Column="4" Content="Toplu Fatura Olustur"
                         ToolTip.Tip="Toplu Fatura Olustur"
                         Command="{Binding ProcessBulkCommand}"

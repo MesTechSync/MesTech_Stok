@@ -102,7 +102,7 @@
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding ReportTypes}"
                                           SelectedItem="{Binding SelectedReportType}"
-                                          HorizontalAlignment="Stretch" />
+                                          HorizontalAlignment="Stretch"  AutomationProperties.Name="Rapor Turu"/>
                             </StackPanel>
 
                             <!-- Platform Filter -->
@@ -111,7 +111,7 @@
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <ComboBox ItemsSource="{Binding Platforms}"
                                           SelectedItem="{Binding SelectedPlatform}"
-                                          HorizontalAlignment="Stretch" />
+                                          HorizontalAlignment="Stretch"  AutomationProperties.Name="Platform"/>
                             </StackPanel>
 
                             <!-- Start Date -->

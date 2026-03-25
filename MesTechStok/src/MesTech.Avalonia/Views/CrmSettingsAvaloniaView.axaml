@@ -54,7 +54,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <NumericUpDown Value="{Binding MessageCheckIntervalMinutes}"
                                            Minimum="1" Maximum="60" Increment="1"
-                                           Width="120" />
+                                           Width="120"  AutomationProperties.Name="Mesaj Kontrol Araligi"/>
                             <TextBlock Text="dakika" VerticalAlignment="Center"
                                        FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
                         </StackPanel>
