@@ -175,3 +175,50 @@ Settlement parser'ı olan tüm adapter'lar artık ISettlementCapable. Durum: DEV
 1. Trendyol: 6/6 TAM ✅
 2. N11: 5/6, Ciceksepeti: 5/6, Pazarama: 5/6
 3. HB: 4/6, AmazonTR: 4/6, eBay: 4/6
+
+---
+
+## TUR 6 — 2026-03-25 (KEŞİF — Invoice + Webhook)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 16 | HB+ÇS+AmazonTR+eBay | IInvoiceCapableAdapter | 085e5546 |
+| 17 | HB+N11+eBay | IWebhookCapableAdapter | e0d6bc0d |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| IInvoiceCapable | 3 | 7 | +4 ✅ |
+| IWebhookCapable | 4 | 7 | +3 ✅ |
+| 6/6 TAM adapter | 1 | 5 | +4 ✅ |
+
+### FİNAL CAPABILITY MATRİSİ
+```
+Adapter                Ord  Shp  Stl  Clm  Inv  Whk  SKOR
+Trendyol               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Hepsiburada            ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+N11                    ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Ciceksepeti            ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+eBay                   ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Pazarama               ✅   ✅   ✅   ✅   ✅   —    5/6
+AmazonTR               ✅   ✅   ✅   ✅   ✅   —    5/6
+AmazonEU               ✅   ✅   —    —    —    —    2/6
+Ozon                   ✅   ✅   —    —    —    —    2/6
+PttAvm                 ✅   ✅   —    —    —    —    2/6
+OpenCart               ✅   —    ✅   —    —    —    2/6
+Shopify                ✅   ✅   —    —    —    ✅   3/6
+WooCommerce            ✅   ✅   —    —    —    —    2/6
+```
+
+### KÜMÜLATİF DEV 3 (6 tur, 17+1 commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| IShipmentCapable | 7 | 12 | +5 |
+| ISettlementCapable | 2 | 8 | +6 |
+| IClaimCapable | 3 | 7 | +4 |
+| IInvoiceCapable | 3 | 7 | +4 |
+| IWebhookCapable | 4 | 7 | +3 |
+| 6/6 TAM adapter | 1 | 5 | +4 |
+| Toplam capability | 22 | 56 | +34 |
