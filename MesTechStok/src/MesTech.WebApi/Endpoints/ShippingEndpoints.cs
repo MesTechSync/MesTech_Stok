@@ -61,7 +61,7 @@ public static class ShippingEndpoints
                 new CargoPerformanceReportQuery(tenantId, startDate, endDate), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCargoComparison")
+        .WithName("GetShippingPerformanceComparison")
         .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)");
 
         // GET /api/v1/shipping/track/{trackingNumber} — basit kargo takip (tüm sağlayıcıları dener)
