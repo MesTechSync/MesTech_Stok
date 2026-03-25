@@ -23,6 +23,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
 {
     private readonly ILogger<N11Adapter> _logger;
     private readonly ResiliencePipeline _retryPipeline;
+    private readonly IHttpClientFactory _httpClientFactory;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
@@ -45,9 +46,10 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
     private const string SettlementServicePath = "/ws/SettlementService.wsdl";
     private const string BrandServicePath = "/ws/BrandService.wsdl";
 
-    public N11Adapter(ILogger<N11Adapter> logger)
+    public N11Adapter(ILogger<N11Adapter> logger, IHttpClientFactory httpClientFactory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
         // NOT: SimpleSoapClient zaten Polly retry (2 attempt, exp backoff) iceriyor.
         // Cift retry onlemek icin burada SADECE circuit breaker ekliyoruz.
@@ -1183,7 +1185,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             if (string.IsNullOrEmpty(_soapBaseUrl)) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            using var http = new System.Net.Http.HttpClient();
+            using var http = _httpClientFactory.CreateClient("N11Ping");
             var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
