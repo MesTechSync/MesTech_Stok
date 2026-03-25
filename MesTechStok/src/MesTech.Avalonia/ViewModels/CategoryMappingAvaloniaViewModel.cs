@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.CategoryMapping.Queries.GetCategoryMappings;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -58,100 +59,29 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
-
-            // Legacy flat data
-            LocalCategories.Clear();
-            LocalCategories.Add(new CategoryNodeDto { Name = "Elektronik", Id = "L1" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "  Telefon", Id = "L1.1" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "  Bilgisayar", Id = "L1.2" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "Giyim", Id = "L2" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "  Erkek", Id = "L2.1" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "  Kadin", Id = "L2.2" });
-            LocalCategories.Add(new CategoryNodeDto { Name = "Ev & Yasam", Id = "L3" });
-
-            // Tree data for enhanced view
-            LocalCategoryTree.Clear();
-            LocalCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Elektronik", Id = "L1", StatusColor = "#4CAF50", StatusText = "[eslesmis]",
-                Children = [
-                    new() { Name = "Telefon", Id = "L1.1", StatusColor = "#4CAF50", StatusText = "[eslesmis]" },
-                    new() { Name = "Bilgisayar", Id = "L1.2", StatusColor = "#4CAF50", StatusText = "[eslesmis]" },
-                    new() { Name = "Tablet", Id = "L1.3", StatusColor = "#FF6F00", StatusText = "[AI onerisi]" },
-                    new() { Name = "Aksesuar", Id = "L1.4", StatusColor = "#E53935", StatusText = "[eslesmemis]" },
-                ]
-            });
-            LocalCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Giyim", Id = "L2", StatusColor = "#4CAF50", StatusText = "[eslesmis]",
-                Children = [
-                    new() { Name = "Erkek", Id = "L2.1", StatusColor = "#4CAF50", StatusText = "[eslesmis]" },
-                    new() { Name = "Kadin", Id = "L2.2", StatusColor = "#4CAF50", StatusText = "[eslesmis]" },
-                    new() { Name = "Cocuk", Id = "L2.3", StatusColor = "#E53935", StatusText = "[eslesmemis]" },
-                ]
-            });
-            LocalCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Ev & Yasam", Id = "L3", StatusColor = "#FF6F00", StatusText = "[AI onerisi]",
-                Children = [
-                    new() { Name = "Mobilya", Id = "L3.1", StatusColor = "#E53935", StatusText = "[eslesmemis]" },
-                    new() { Name = "Dekorasyon", Id = "L3.2", StatusColor = "#FF6F00", StatusText = "[AI onerisi]" },
-                ]
-            });
-
-            PlatformCategories.Clear();
-            PlatformCategories.Add(new CategoryNodeDto { Name = "Elektronik", Id = "P1" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "  Cep Telefonu", Id = "P1.1" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "  Dizustu Bilgisayar", Id = "P1.2" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "Moda", Id = "P2" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "  Erkek Giyim", Id = "P2.1" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "  Kadin Giyim", Id = "P2.2" });
-            PlatformCategories.Add(new CategoryNodeDto { Name = "Ev & Dekorasyon", Id = "P3" });
-
-            PlatformCategoryTree.Clear();
-            PlatformCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Elektronik", Id = "P1",
-                Children = [
-                    new() { Name = "Cep Telefonu", Id = "P1.1" },
-                    new() { Name = "Dizustu Bilgisayar", Id = "P1.2" },
-                    new() { Name = "Tablet Bilgisayar", Id = "P1.3" },
-                    new() { Name = "Telefon Aksesuarlari", Id = "P1.4" },
-                ]
-            });
-            PlatformCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Moda", Id = "P2",
-                Children = [
-                    new() { Name = "Erkek Giyim", Id = "P2.1" },
-                    new() { Name = "Kadin Giyim", Id = "P2.2" },
-                    new() { Name = "Cocuk Giyim", Id = "P2.3" },
-                ]
-            });
-            PlatformCategoryTree.Add(new CategoryTreeNodeDto
-            {
-                Name = "Ev & Dekorasyon", Id = "P3",
-                Children = [
-                    new() { Name = "Mobilya", Id = "P3.1" },
-                    new() { Name = "Ev Dekorasyon", Id = "P3.2" },
-                ]
-            });
+            var result = await _mediator.Send(new GetCategoryMappingsQuery(Guid.Empty));
 
             Mappings.Clear();
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Telefon", PlatformCategory = "Cep Telefonu", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "Manuel" });
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Bilgisayar", PlatformCategory = "Dizustu Bilgisayar", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "Manuel" });
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Erkek", PlatformCategory = "Erkek Giyim", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "AI" });
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Kadin", PlatformCategory = "Kadin Giyim", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "AI" });
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Elektronik", PlatformCategory = "Elektronik", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "Manuel" });
-            Mappings.Add(new CategoryMappingItemDto { LocalCategory = "Giyim", PlatformCategory = "Moda", Platform = "Trendyol", StatusLabel = "Eslesmis", Source = "AI" });
+            foreach (var m in result)
+            {
+                Mappings.Add(new CategoryMappingItemDto
+                {
+                    LocalCategory = m.InternalCategoryName,
+                    PlatformCategory = m.PlatformCategoryName ?? string.Empty,
+                    Platform = SelectedPlatform,
+                    StatusLabel = m.IsMapped ? "Eslesmis" : "Eslesmemis",
+                    Source = "Manuel"
+                });
+            }
 
             TotalCount = Mappings.Count;
-            MappedCount = 7;
-            UnmappedCount = 3;
-            AiSuggestionCount = 3;
-            MappingPercentage = 78.0;
-            LastSyncText = "Son sync: 5 dk once";
+            MappedCount = Mappings.Count(x => x.StatusLabel == "Eslesmis");
+            UnmappedCount = Mappings.Count(x => x.StatusLabel == "Eslesmemis");
+            AiSuggestionCount = 0;
+            MappingPercentage = TotalCount > 0
+                ? MappedCount * 100.0 / TotalCount
+                : 0;
+            LastSyncText = $"Son sync: {DateTime.Now:HH:mm}";
             IsEmpty = TotalCount == 0;
         }
         catch (Exception ex)
