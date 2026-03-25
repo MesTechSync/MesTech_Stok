@@ -577,6 +577,29 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<INotificationHandler<DomainEventNotification<LedgerPostedEvent>>,
             AnomalyCheckHandler>();
 
+        // ── Application EventHandler DI Registration ──
+        // 52 Application handler interface+class tanımlı ama dispatch zincirine bağlı DEĞİLDİ.
+        // Bridge handler'lar DomainEventNotification<T> → Application interface çağırır.
+        // Kritik iş zincirleri:
+        services.AddScoped<Application.EventHandlers.IOrderPlacedEventHandler,
+            Application.EventHandlers.OrderPlacedStockDeductionHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderConfirmedRevenueHandler,
+            Application.EventHandlers.OrderConfirmedRevenueHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnApprovedStockRestorationHandler,
+            Application.EventHandlers.ReturnApprovedStockRestorationHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnJournalReversalHandler,
+            Application.EventHandlers.ReturnJournalReversalHandler>();
+        services.AddScoped<Application.EventHandlers.IShipmentCostRecordedEventHandler,
+            Application.EventHandlers.ShipmentCostRecordedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IZeroStockEventHandler,
+            Application.EventHandlers.ZeroStockDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceLossEventHandler,
+            Application.EventHandlers.PriceLossDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IStaleOrderEventHandler,
+            Application.EventHandlers.StaleOrderDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCancelledEventHandler,
+            Application.EventHandlers.OrderCancelledEventHandler>();
+
         return services;
     }
 }
