@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -29,19 +30,22 @@ public partial class PlatformSyncStatusAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(250);
+            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(Guid.Empty));
 
             Platforms.Clear();
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Trendyol", PlatformColor = "#FF6F00", StoreCount = 2, LastSync = "19.03.2026 14:30", LastSuccess = "19.03.2026 14:30", ErrorsToday = 0, HealthStatus = "Saglikli" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Hepsiburada", PlatformColor = "#FF6000", StoreCount = 1, LastSync = "19.03.2026 14:25", LastSuccess = "19.03.2026 14:25", ErrorsToday = 1, HealthStatus = "Saglikli" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "N11", PlatformColor = "#0B2441", StoreCount = 1, LastSync = "19.03.2026 14:20", LastSuccess = "19.03.2026 14:20", ErrorsToday = 0, HealthStatus = "Saglikli" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Ciceksepeti", PlatformColor = "#F27A1A", StoreCount = 1, LastSync = "18.03.2026 22:00", LastSuccess = "18.03.2026 20:00", ErrorsToday = 5, HealthStatus = "Uyari" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Amazon", PlatformColor = "#FF9900", StoreCount = 1, LastSync = "19.03.2026 11:30", LastSuccess = "19.03.2026 11:30", ErrorsToday = 0, HealthStatus = "Saglikli" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "eBay", PlatformColor = "#E53238", StoreCount = 0, LastSync = "-", LastSuccess = "-", ErrorsToday = 0, HealthStatus = "Pasif" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Shopify", PlatformColor = "#96BF48", StoreCount = 1, LastSync = "19.03.2026 14:00", LastSuccess = "19.03.2026 14:00", ErrorsToday = 0, HealthStatus = "Saglikli" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "WooCommerce", PlatformColor = "#96588A", StoreCount = 1, LastSync = "19.03.2026 13:30", LastSuccess = "19.03.2026 13:30", ErrorsToday = 2, HealthStatus = "Uyari" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "Pazarama", PlatformColor = "#00B8D4", StoreCount = 0, LastSync = "-", LastSuccess = "-", ErrorsToday = 0, HealthStatus = "Pasif" });
-            Platforms.Add(new PlatformSyncStatusItemDto { Platform = "PttAVM", PlatformColor = "#FFD600", StoreCount = 1, LastSync = "19.03.2026 12:00", LastSuccess = "19.03.2026 12:00", ErrorsToday = 0, HealthStatus = "Saglikli" });
+            foreach (var dto in result)
+            {
+                Platforms.Add(new PlatformSyncStatusItemDto
+                {
+                    Platform = dto.PlatformName,
+                    PlatformColor = dto.HealthColor,
+                    StoreCount = dto.StoreCount,
+                    LastSync = dto.LastSyncAt.HasValue ? dto.LastSyncAt.Value.ToString("dd.MM.yyyy HH:mm") : "-",
+                    LastSuccess = dto.LastSuccessAt.HasValue ? dto.LastSuccessAt.Value.ToString("dd.MM.yyyy HH:mm") : "-",
+                    ErrorsToday = dto.ErrorCountToday,
+                    HealthStatus = dto.HealthStatus
+                });
+            }
 
             TotalCount = Platforms.Count;
             IsEmpty = TotalCount == 0;

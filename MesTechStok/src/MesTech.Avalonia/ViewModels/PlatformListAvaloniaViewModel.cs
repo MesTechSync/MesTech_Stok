@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformList;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -29,22 +30,19 @@ public partial class PlatformListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200);
+            var result = await _mediator.Send(new GetPlatformListQuery(Guid.Empty));
 
             Platforms.Clear();
-            Platforms.Add(new PlatformCardDto { Name = "Trendyol", Color = "#FF6F00", StoreCount = 2, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "Hepsiburada", Color = "#FF6000", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "N11", Color = "#0B2441", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "Ciceksepeti", Color = "#F27A1A", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "Amazon", Color = "#FF9900", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "eBay", Color = "#E53238", StoreCount = 0, IsActive = false });
-            Platforms.Add(new PlatformCardDto { Name = "Shopify", Color = "#96BF48", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "WooCommerce", Color = "#96588A", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "Pazarama", Color = "#00B8D4", StoreCount = 0, IsActive = false });
-            Platforms.Add(new PlatformCardDto { Name = "PttAVM", Color = "#FFD600", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "OpenCart", Color = "#23A8E0", StoreCount = 1, IsActive = true });
-            Platforms.Add(new PlatformCardDto { Name = "Ozon", Color = "#005BFF", StoreCount = 0, IsActive = false });
-            Platforms.Add(new PlatformCardDto { Name = "Etsy", Color = "#F1641E", StoreCount = 0, IsActive = false });
+            foreach (var dto in result)
+            {
+                Platforms.Add(new PlatformCardDto
+                {
+                    Name = dto.Name,
+                    Color = dto.LogoColor,
+                    StoreCount = dto.StoreCount,
+                    IsActive = dto.ActiveStoreCount > 0 || dto.AdapterAvailable
+                });
+            }
 
             TotalCount = Platforms.Count;
             IsEmpty = TotalCount == 0;

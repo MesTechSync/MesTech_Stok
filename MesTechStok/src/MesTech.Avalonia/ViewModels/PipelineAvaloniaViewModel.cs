@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -28,16 +29,29 @@ public partial class PipelineAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            var board = await _mediator.Send(new GetPipelineKanbanQuery(Guid.Empty, Guid.Empty));
+
             Stages.Clear();
+            decimal grandTotal = board.Stages.SelectMany(s => s.Deals).Sum(d => d.Amount);
 
-            Stages.Add(new PipelineStageVm { Name = "Ilk Iletisim", DealCount = 8, Amount = "120.000 TL", Percentage = 30, Color = "#3B82F6" });
-            Stages.Add(new PipelineStageVm { Name = "Teklif Verildi", DealCount = 5, Amount = "89.000 TL", Percentage = 22, Color = "#F59E0B" });
-            Stages.Add(new PipelineStageVm { Name = "Muzakere", DealCount = 3, Amount = "67.000 TL", Percentage = 16, Color = "#8B5CF6" });
-            Stages.Add(new PipelineStageVm { Name = "Kazanildi", DealCount = 4, Amount = "145.000 TL", Percentage = 32, Color = "#10B981" });
+            foreach (var stageDto in board.Stages.OrderBy(s => s.Position))
+            {
+                var pct = grandTotal > 0
+                    ? (int)Math.Round(stageDto.TotalAmount / grandTotal * 100)
+                    : 0;
 
-            TotalCount = 20;
-            TotalValue = "421.000 TL";
+                Stages.Add(new PipelineStageVm
+                {
+                    Name = stageDto.Name,
+                    DealCount = stageDto.Deals.Count,
+                    Amount = $"{stageDto.TotalAmount:N0} TL",
+                    Percentage = pct,
+                    Color = stageDto.Color ?? "#3B82F6"
+                });
+            }
+
+            TotalCount = board.Stages.SelectMany(s => s.Deals).Count();
+            TotalValue = $"{grandTotal:N0} TL";
             IsEmpty = Stages.Count == 0;
         }
         catch (Exception ex)
