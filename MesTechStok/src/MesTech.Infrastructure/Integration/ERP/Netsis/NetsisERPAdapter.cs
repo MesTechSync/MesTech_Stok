@@ -26,7 +26,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Netsis;
 ///   - GET  /cariler      (account balances)
 ///   - GET  /ping         (health check)
 /// </summary>
-public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable, IErpBankCapable
+public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable, IErpBankCapable, IErpPriceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
@@ -1065,5 +1065,89 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             Encoding.UTF8.GetBytes($"{username}:{password}"));
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Basic", encoded);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpPriceCapable — Netsis fiyat yetkinligi
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<List<ErpPriceItem>> GetProductPricesAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("[NetsisERPAdapter] GetProductPricesAsync");
+
+#pragma warning disable CA1031
+        try
+        {
+            SetBasicAuthHeader();
+            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NetsisERPAdapter] GetProductPrices — HTTP {Status}: {Error}",
+                    (int)response.StatusCode, errorBody);
+                return [];
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var json = JsonDocument.Parse(body);
+            var items = new List<ErpPriceItem>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var code = item.TryGetProperty("stokKod", out var sk) ? sk.GetString() ?? string.Empty : string.Empty;
+                var name = item.TryGetProperty("stokAd", out var sa) ? sa.GetString() ?? string.Empty : string.Empty;
+                var purchasePrice = item.TryGetProperty("alisFiyat", out var af) ? af.GetDecimal() : 0m;
+                var salePrice = item.TryGetProperty("satisFiyat", out var sf) ? sf.GetDecimal() : 0m;
+                var listPrice = item.TryGetProperty("listeFiyat", out var lf) ? (decimal?)lf.GetDecimal() : null;
+                var currency = item.TryGetProperty("dovizKod", out var dk) ? dk.GetString() ?? "TRY" : "TRY";
+
+                items.Add(new ErpPriceItem(code, name, purchasePrice, salePrice, listPrice, currency));
+            }
+
+            _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} price items", items.Count);
+            return items;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NetsisERPAdapter] GetProductPricesAsync exception");
+            return [];
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <inheritdoc />
+    public async Task<ErpPriceItem?> GetPriceByCodeAsync(string productCode, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(productCode);
+
+#pragma warning disable CA1031
+        try
+        {
+            SetBasicAuthHeader();
+            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var item = JsonDocument.Parse(body).RootElement;
+
+            var code = item.TryGetProperty("stokKod", out var sk) ? sk.GetString() ?? productCode : productCode;
+            var name = item.TryGetProperty("stokAd", out var sa) ? sa.GetString() ?? string.Empty : string.Empty;
+            var purchasePrice = item.TryGetProperty("alisFiyat", out var af) ? af.GetDecimal() : 0m;
+            var salePrice = item.TryGetProperty("satisFiyat", out var sf) ? sf.GetDecimal() : 0m;
+            var listPrice = item.TryGetProperty("listeFiyat", out var lf) ? (decimal?)lf.GetDecimal() : null;
+            var currency = item.TryGetProperty("dovizKod", out var dk) ? dk.GetString() ?? "TRY" : "TRY";
+
+            return new ErpPriceItem(code, name, purchasePrice, salePrice, listPrice, currency);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NetsisERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
+            return null;
+        }
+#pragma warning restore CA1031
     }
 }
