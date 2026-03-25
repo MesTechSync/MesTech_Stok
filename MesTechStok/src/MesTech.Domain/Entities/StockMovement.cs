@@ -84,6 +84,10 @@ public sealed class StockMovement : BaseEntity, ITenantEntity
 
     public void MarkAsReversed(Guid reversalMovementId)
     {
+        if (reversalMovementId == Guid.Empty)
+            throw new ArgumentException("Reversal movement ID cannot be empty.", nameof(reversalMovementId));
+        if (IsReversed)
+            throw new InvalidOperationException("Stock movement is already reversed.");
         IsReversed = true;
         ReversalMovementId = reversalMovementId;
     }
