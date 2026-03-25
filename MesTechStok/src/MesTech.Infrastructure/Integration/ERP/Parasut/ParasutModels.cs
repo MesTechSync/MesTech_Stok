@@ -213,6 +213,19 @@ internal sealed class ParasutResponseAttributes
 
     [JsonPropertyName("unit")]
     public string? Unit { get; set; }
+
+    // Price attributes
+    [JsonPropertyName("buying_price")]
+    public string? BuyingPrice { get; set; }
+
+    [JsonPropertyName("selling_price")]
+    public string? SellingPrice { get; set; }
+
+    [JsonPropertyName("list_price")]
+    public string? ListPrice { get; set; }
+
+    [JsonPropertyName("currency")]
+    public string? Currency { get; set; }
 }
 
 /// <summary>

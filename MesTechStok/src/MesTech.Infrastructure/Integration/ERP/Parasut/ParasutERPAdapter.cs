@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Parasut;
 /// JSON:API format (application/vnd.api+json).
 /// OAuth2 Client Credentials authentication via <see cref="ParasutTokenService"/>.
 /// </summary>
-public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpBankCapable
+public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpBankCapable, IErpPriceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ParasutTokenService _tokenService;
@@ -700,5 +700,74 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
         return success
             ? ErpPaymentResult.Ok(erpId ?? "")
             : ErpPaymentResult.Failed(error ?? "Unknown error");
+    }
+
+    // ── IErpPriceCapable ──────────────────────────────────────────
+
+    async Task<List<ErpPriceItem>> IErpPriceCapable.GetProductPricesAsync(CancellationToken ct)
+    {
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+        var url = $"{BaseUrl}/products?page[size]=250";
+        var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] GetProductPrices failed: {Status} — {Error}",
+                (int)response.StatusCode, errorBody);
+            return new List<ErpPriceItem>();
+        }
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(json, JsonOptions);
+        if (parsed?.Data is null || parsed.Data.Count == 0)
+            return new List<ErpPriceItem>();
+
+        var results = new List<ErpPriceItem>();
+        foreach (var item in parsed.Data)
+        {
+            var attr = item.Attributes;
+            _ = decimal.TryParse(attr?.BuyingPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var purchasePrice);
+            _ = decimal.TryParse(attr?.SellingPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var salePrice);
+            _ = decimal.TryParse(attr?.ListPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var listPrice);
+
+            results.Add(new ErpPriceItem(
+                ProductCode: attr?.Code ?? item.Id ?? "",
+                ProductName: attr?.Name ?? "",
+                PurchasePrice: purchasePrice,
+                SalePrice: salePrice,
+                ListPrice: listPrice > 0 ? listPrice : null,
+                CurrencyCode: attr?.Currency ?? "TRY"));
+        }
+
+        _logger.LogInformation("[ParasutERPAdapter] GetProductPrices: {Count} products", results.Count);
+        return results;
+    }
+
+    async Task<ErpPriceItem?> IErpPriceCapable.GetPriceByCodeAsync(string productCode, CancellationToken ct)
+    {
+        await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+        var url = $"{BaseUrl}/products?filter[code]={Uri.EscapeDataString(productCode)}";
+        var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(json, JsonOptions);
+        var item = parsed?.Data?.FirstOrDefault();
+        if (item?.Attributes is null)
+            return null;
+
+        var attr = item.Attributes;
+        _ = decimal.TryParse(attr.BuyingPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var purchasePrice);
+        _ = decimal.TryParse(attr.SellingPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var salePrice);
+        _ = decimal.TryParse(attr.ListPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var listPrice);
+
+        return new ErpPriceItem(
+            ProductCode: attr.Code ?? item.Id ?? "",
+            ProductName: attr.Name ?? "",
+            PurchasePrice: purchasePrice,
+            SalePrice: salePrice,
+            ListPrice: listPrice > 0 ? listPrice : null,
+            CurrencyCode: attr.Currency ?? "TRY");
     }
 }
