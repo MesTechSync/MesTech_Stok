@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -41,31 +42,70 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var period = _currentPeriod.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
+            var result = await _mediator.Send(new GetProfitReportQuery(Guid.Empty, period));
 
-            var revenue = 125480m;
-            var expenses = 87320m;
-            var profit = revenue - expenses;
-            var margin = revenue > 0 ? profit / revenue * 100 : 0;
-
-            TotalRevenue = $"{revenue:N2} TL";
-            TotalExpenses = $"{expenses:N2} TL";
-            NetProfit = $"{profit:N2} TL";
-            ProfitMarginText = $"%{margin:N1}";
-
-            LineItems.Clear();
-            var items = new List<ProfitLossLineItemDto>
+            if (result is not null)
             {
-                new() { Name = "Domestic Sales", Type = "Revenue", AmountFormatted = "98,240.00 TL", PercentFormatted = "%78.3" },
-                new() { Name = "Marketplace Sales", Type = "Revenue", AmountFormatted = "27,240.00 TL", PercentFormatted = "%21.7" },
-                new() { Name = "Cost of Goods Sold", Type = "Expense", AmountFormatted = "-52,400.00 TL", PercentFormatted = "%60.0" },
-                new() { Name = "Shipping Costs", Type = "Expense", AmountFormatted = "-12,680.00 TL", PercentFormatted = "%14.5" },
-                new() { Name = "Marketplace Commissions", Type = "Expense", AmountFormatted = "-8,740.00 TL", PercentFormatted = "%10.0" },
-                new() { Name = "General Admin Expenses", Type = "Expense", AmountFormatted = "-9,200.00 TL", PercentFormatted = "%10.5" },
-                new() { Name = "Personnel Expenses", Type = "Expense", AmountFormatted = "-4,300.00 TL", PercentFormatted = "%4.9" },
-            };
-            foreach (var item in items)
-                LineItems.Add(item);
+                var expenses = result.TotalCost + result.TotalCommission + result.TotalCargo + result.TotalTax;
+                TotalRevenue = $"{result.TotalRevenue:N2} TL";
+                TotalExpenses = $"{expenses:N2} TL";
+                NetProfit = $"{result.NetProfit:N2} TL";
+                ProfitMarginText = $"%{result.ProfitMargin:N1}";
+
+                LineItems.Clear();
+                LineItems.Add(new ProfitLossLineItemDto
+                {
+                    Name = "Total Revenue",
+                    Type = "Revenue",
+                    AmountFormatted = $"{result.TotalRevenue:N2} TL",
+                    PercentFormatted = "%100.0"
+                });
+                LineItems.Add(new ProfitLossLineItemDto
+                {
+                    Name = "Cost of Goods Sold",
+                    Type = "Expense",
+                    AmountFormatted = $"-{result.TotalCost:N2} TL",
+                    PercentFormatted = result.TotalRevenue > 0
+                        ? $"%{result.TotalCost / result.TotalRevenue * 100:N1}"
+                        : "%0.0"
+                });
+                LineItems.Add(new ProfitLossLineItemDto
+                {
+                    Name = "Marketplace Commissions",
+                    Type = "Expense",
+                    AmountFormatted = $"-{result.TotalCommission:N2} TL",
+                    PercentFormatted = result.TotalRevenue > 0
+                        ? $"%{result.TotalCommission / result.TotalRevenue * 100:N1}"
+                        : "%0.0"
+                });
+                LineItems.Add(new ProfitLossLineItemDto
+                {
+                    Name = "Shipping Costs",
+                    Type = "Expense",
+                    AmountFormatted = $"-{result.TotalCargo:N2} TL",
+                    PercentFormatted = result.TotalRevenue > 0
+                        ? $"%{result.TotalCargo / result.TotalRevenue * 100:N1}"
+                        : "%0.0"
+                });
+                LineItems.Add(new ProfitLossLineItemDto
+                {
+                    Name = "Tax",
+                    Type = "Expense",
+                    AmountFormatted = $"-{result.TotalTax:N2} TL",
+                    PercentFormatted = result.TotalRevenue > 0
+                        ? $"%{result.TotalTax / result.TotalRevenue * 100:N1}"
+                        : "%0.0"
+                });
+            }
+            else
+            {
+                TotalRevenue = "0.00 TL";
+                TotalExpenses = "0.00 TL";
+                NetProfit = "0.00 TL";
+                ProfitMarginText = "%0.0";
+                LineItems.Clear();
+            }
 
             IsEmpty = LineItems.Count == 0;
         }
