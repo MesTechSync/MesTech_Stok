@@ -696,6 +696,15 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IPlatformMessageReceivedEventHandler,
             Application.EventHandlers.PlatformMessageReceivedEventHandler>();
 
+        // Batch 4 — Muhasebe GL handler'lar (repo-enriched bridges)
+        services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,
+            Application.EventHandlers.InvoiceApprovedGLHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceCancelledReversalHandler,
+            Application.EventHandlers.InvoiceCancelledReversalHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderShippedCostHandler,
+            Application.EventHandlers.OrderShippedCostHandler>();
+        // CommissionChargedGLHandler: PARKED — CommissionChargedEvent yok.
+
         return services;
     }
 }
