@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
@@ -48,10 +49,10 @@ public sealed class ReturnJournalReversalHandler : IReturnJournalReversalHandler
             $"RET-{returnRequestId.ToString()[..8]}");
 
         // BORÇ: 610 Satıştan İadeler (gelir azalışı)
-        entry.AddLine(Guid.NewGuid(), totalRefundAmount, 0, "610 Satıştan İadeler");
+        entry.AddLine(AccountingConstants.Account610SalesReturns, totalRefundAmount, 0, "610 Satıştan İadeler");
 
         // ALACAK: 120 Alıcılar (müşteri borcundan düşer)
-        entry.AddLine(Guid.NewGuid(), 0, totalRefundAmount, "120 Alıcılar — iade kesintisi");
+        entry.AddLine(AccountingConstants.Account120Receivables, 0, totalRefundAmount, "120 Alıcılar — iade kesintisi");
 
         entry.Validate();
         entry.Post();
