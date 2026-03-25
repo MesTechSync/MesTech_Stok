@@ -79,7 +79,7 @@ var circuitBreakerPolicy = HttpPolicyExtensions
 
 builder.Services.AddHttpClient<MesTechApiClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:3100");
+    client.BaseAddress = new Uri(builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
 .AddPolicyHandler(retryPolicy)
