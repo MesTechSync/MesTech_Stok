@@ -104,6 +104,12 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void SetFinancials(decimal subTotal, decimal taxTotal, decimal grandTotal)
     {
+        if (subTotal < 0)
+            throw new ArgumentOutOfRangeException(nameof(subTotal), "SubTotal cannot be negative.");
+        if (taxTotal < 0)
+            throw new ArgumentOutOfRangeException(nameof(taxTotal), "TaxTotal cannot be negative.");
+        if (grandTotal < 0)
+            throw new ArgumentOutOfRangeException(nameof(grandTotal), "GrandTotal cannot be negative.");
         SubTotal = subTotal;
         TaxTotal = taxTotal;
         GrandTotal = grandTotal;
@@ -111,6 +117,8 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkAsSent(string? gibInvoiceId, string? pdfUrl)
     {
+        if (Status is not (InvoiceStatus.Queued or InvoiceStatus.Draft))
+            throw new BusinessRuleException("InvoiceRule", $"Cannot send invoice in {Status} status.");
         Status = InvoiceStatus.Sent;
         GibInvoiceId = gibInvoiceId;
         PdfUrl = pdfUrl;
@@ -120,6 +128,8 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkAsAccepted()
     {
+        if (Status != InvoiceStatus.Sent)
+            throw new BusinessRuleException("InvoiceRule", $"Cannot accept invoice in {Status} status. Only Sent invoices can be accepted.");
         Status = InvoiceStatus.Accepted;
         AcceptedAt = DateTime.UtcNow;
         RaiseDomainEvent(new InvoiceAcceptedEvent(Id, TenantId, InvoiceNumber, GrandTotal, DateTime.UtcNow));
@@ -127,6 +137,8 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkAsRejected()
     {
+        if (Status != InvoiceStatus.Sent)
+            throw new BusinessRuleException("InvoiceRule", $"Cannot reject invoice in {Status} status. Only Sent invoices can be rejected.");
         Status = InvoiceStatus.Rejected;
         RaiseDomainEvent(new InvoiceRejectedEvent(Id, TenantId, InvoiceNumber, DateTime.UtcNow));
     }
@@ -227,6 +239,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkParasutSynced(string salesInvoiceId, string? eInvoiceId)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(salesInvoiceId);
         ParasutSalesInvoiceId = salesInvoiceId;
         ParasutEInvoiceId = eInvoiceId;
         ParasutSyncStatus = SyncStatus.Synced;
@@ -236,12 +249,14 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkParasutFailed(string error)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(error);
         ParasutSyncStatus = SyncStatus.Failed;
         ParasutSyncError = error.Length > 500 ? error[..500] : error;
     }
 
     public void Sign(string signedBy, SignatureType signatureType)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(signedBy);
         SignatureStatus = SignatureStatus.Signed;
         SignedAt = DateTime.UtcNow;
         SignedBy = signedBy;
@@ -250,6 +265,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void UpdateGibStatus(string status, string? envelopeId = null)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(status);
         GibStatus = status;
         GibStatusDate = DateTime.UtcNow;
         if (envelopeId != null) GibEnvelopeId = envelopeId;
