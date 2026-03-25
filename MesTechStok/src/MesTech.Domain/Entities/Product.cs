@@ -245,6 +245,7 @@ public sealed class Product : BaseEntity, ITenantEntity
     /// </summary>
     public void ReportBuyboxLost(decimal competitorPrice, string competitorName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(competitorName);
         RaiseDomainEvent(new BuyboxLostEvent(Id, TenantId, SKU, SalePrice, competitorPrice, competitorName, DateTime.UtcNow));
     }
 

@@ -70,6 +70,10 @@ public sealed class Warehouse : BaseEntity, ITenantEntity
 
     public void UpdateCosts(decimal? monthlyCost, decimal? costPerSquareMeter)
     {
+        if (monthlyCost < 0)
+            throw new ArgumentOutOfRangeException(nameof(monthlyCost), "Aylık maliyet negatif olamaz.");
+        if (costPerSquareMeter < 0)
+            throw new ArgumentOutOfRangeException(nameof(costPerSquareMeter), "Birim maliyet negatif olamaz.");
         MonthlyCost = monthlyCost;
         CostPerSquareMeter = costPerSquareMeter;
     }

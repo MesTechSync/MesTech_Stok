@@ -54,6 +54,8 @@ public sealed class Supplier : BaseEntity, ITenantEntity
 
     public void RecordPayment(decimal amount)
     {
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Ödeme tutarı pozitif olmalı.");
         CurrentBalance -= amount;
         LastPaymentDate = DateTime.UtcNow;
     }

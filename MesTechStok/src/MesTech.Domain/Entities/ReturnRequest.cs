@@ -49,6 +49,7 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
 
     public void AddLine(ReturnRequestLine line)
     {
+        ArgumentNullException.ThrowIfNull(line);
         _lines.Add(line);
         RefundAmount = _lines.Sum(l => l.RefundAmount);
     }
@@ -103,6 +104,7 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
 
     public void SetCargoInfo(string trackingNumber, CargoProvider provider)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(trackingNumber);
         TrackingNumber = trackingNumber;
         CargoProvider = provider;
         Status = ReturnStatus.InTransit;
@@ -116,6 +118,8 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
         string customerName,
         string? reasonDetail = null)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
+
         var request = new ReturnRequest
         {
             OrderId = orderId,
