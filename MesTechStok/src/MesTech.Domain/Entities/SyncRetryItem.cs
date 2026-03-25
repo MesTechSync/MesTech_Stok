@@ -29,6 +29,8 @@ public sealed class SyncRetryItem : BaseEntity, ITenantEntity
 
     public void IncrementRetry(string error, string category)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(error);
+        ArgumentException.ThrowIfNullOrWhiteSpace(category);
         RetryCount++;
         LastError = error;
         ErrorCategory = category;

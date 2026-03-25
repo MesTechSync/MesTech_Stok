@@ -40,6 +40,7 @@ public sealed class SyncLog : BaseEntity
     /// <summary>Sync hata ile bittiğinde çağrılır.</summary>
     public void MarkAsFailed(string errorMessage)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(errorMessage);
         IsSuccess = false;
         ErrorMessage = errorMessage;
         SyncStatus = SyncStatus.Failed;
@@ -50,6 +51,10 @@ public sealed class SyncLog : BaseEntity
     /// <summary>Sync başarılı bittiğinde çağrılır.</summary>
     public void MarkAsCompleted(int processed, int failed)
     {
+        if (processed < 0)
+            throw new ArgumentOutOfRangeException(nameof(processed), "Processed count cannot be negative.");
+        if (failed < 0)
+            throw new ArgumentOutOfRangeException(nameof(failed), "Failed count cannot be negative.");
         IsSuccess = failed == 0;
         ItemsProcessed = processed;
         ItemsFailed = failed;

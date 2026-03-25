@@ -80,6 +80,12 @@ public sealed class SupplierFeed : BaseEntity, ITenantEntity
 
     public void RecordSyncResult(int totalProducts, int updatedProducts, int deactivatedProducts, string? error = null)
     {
+        if (totalProducts < 0)
+            throw new ArgumentOutOfRangeException(nameof(totalProducts), "Total products cannot be negative.");
+        if (updatedProducts < 0)
+            throw new ArgumentOutOfRangeException(nameof(updatedProducts), "Updated products cannot be negative.");
+        if (deactivatedProducts < 0)
+            throw new ArgumentOutOfRangeException(nameof(deactivatedProducts), "Deactivated products cannot be negative.");
         LastSyncAt = DateTime.UtcNow;
         LastSyncProductCount = totalProducts;
         LastSyncUpdatedCount = updatedProducts;
