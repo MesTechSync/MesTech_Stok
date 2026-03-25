@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -32,14 +33,21 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetOrderListQuery(Guid.Empty));
 
             Orders.Clear();
-            Orders.Add(new OrderListItemDto { OrderNumber = "SIP-1042", CustomerName = "Ahmet Yilmaz", Platform = "Trendyol", OrderDate = "19.03.2026", TotalAmount = 55599.79m, Status = "Hazirlaniyor" });
-            Orders.Add(new OrderListItemDto { OrderNumber = "SIP-1041", CustomerName = "Fatma Demir", Platform = "Hepsiburada", OrderDate = "18.03.2026", TotalAmount = 8499.00m, Status = "Kargoya Verildi" });
-            Orders.Add(new OrderListItemDto { OrderNumber = "SIP-1040", CustomerName = "Mehmet Kaya", Platform = "N11", OrderDate = "18.03.2026", TotalAmount = 42999.00m, Status = "Teslim Edildi" });
-            Orders.Add(new OrderListItemDto { OrderNumber = "SIP-1039", CustomerName = "Ayse Ozturk", Platform = "Trendyol", OrderDate = "17.03.2026", TotalAmount = 1299.90m, Status = "Teslim Edildi" });
-            Orders.Add(new OrderListItemDto { OrderNumber = "SIP-1038", CustomerName = "Ali Celik", Platform = "Ciceksepeti", OrderDate = "17.03.2026", TotalAmount = 3450.00m, Status = "Iptal" });
+            foreach (var item in result)
+            {
+                Orders.Add(new OrderListItemDto
+                {
+                    OrderNumber = item.OrderNumber,
+                    CustomerName = item.CustomerName ?? string.Empty,
+                    Platform = item.SourcePlatform ?? string.Empty,
+                    OrderDate = item.OrderDate.ToString("dd.MM.yyyy"),
+                    TotalAmount = item.TotalAmount,
+                    Status = item.Status
+                });
+            }
 
             TotalCount = Orders.Count;
             IsEmpty = TotalCount == 0;
