@@ -34,7 +34,7 @@
                                VerticalAlignment="Center" />
                     <ToggleSwitch IsChecked="{Binding IsAutoRefreshEnabled}"
                                   OnContent="Canli" OffContent="Durdur"
-                                  VerticalAlignment="Center" />
+                                  VerticalAlignment="Center"  AutomationProperties.Name="Acik/Kapali"/>
                     <Button Command="{Binding RefreshCommand}"
                             ToolTip.Tip="Yenile"
                             Background="Transparent" BorderThickness="1"

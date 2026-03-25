@@ -185,7 +185,7 @@
                                         <ComboBox Grid.Column="2"
                                                   ItemsSource="{Binding $parent[ItemsControl].((vm:ImportProductsAvaloniaViewModel)DataContext).TargetFields}"
                                                   SelectedItem="{Binding TargetField}"
-                                                  Padding="8,6" />
+                                                  Padding="8,6"  AutomationProperties.Name="Secim yapiniz"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

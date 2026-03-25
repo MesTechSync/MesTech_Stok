@@ -60,13 +60,13 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
-                          Width="160" />
+                          Width="160"  AutomationProperties.Name="Platform seciniz"/>
                 <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
-                          Width="160" />
+                          Width="160"  AutomationProperties.Name="Category seciniz"/>
                 <TextBox Width="220" Watermark="Urun adi ara..." AutomationProperties.Name="Urun adi ara..."
                          Text="{Binding SearchText}" />
-                <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
-                <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                <DatePicker SelectedDate="{Binding StartDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
             </StackPanel>
         </Border>
 

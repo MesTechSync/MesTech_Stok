@@ -37,11 +37,11 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding TypeFilters}" SelectedItem="{Binding SelectedTypeFilter}"
-                          Width="130" ToolTip.Tip="Tur filtresi" />
+                          Width="130" ToolTip.Tip="Tur filtresi"  AutomationProperties.Name="Type filter seciniz"/>
                 <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
-                          Width="160" ToolTip.Tip="Kategori filtresi" />
-                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi" />
-                <DatePicker SelectedDate="{Binding DateTo}" Width="140" ToolTip.Tip="Bitis tarihi" />
+                          Width="160" ToolTip.Tip="Kategori filtresi"  AutomationProperties.Name="Category seciniz"/>
+                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding DateTo}" Width="140" ToolTip.Tip="Bitis tarihi"  AutomationProperties.Name="Tarih seciniz"/>
                 <TextBox Width="220" Watermark="Arama..." AutomationProperties.Name="Arama"
                          Text="{Binding SearchText}" ToolTip.Tip="Aciklama veya platform ara" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"

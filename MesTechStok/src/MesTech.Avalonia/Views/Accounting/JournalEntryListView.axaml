@@ -10,9 +10,9 @@
         <Border Grid.Row="0" Padding="12" Background="{DynamicResource SurfaceCardBrush}"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <DatePicker SelectedDate="{Binding FromDate}" />
+                <DatePicker SelectedDate="{Binding FromDate}"  AutomationProperties.Name="Tarih seciniz"/>
                 <TextBlock Text="-" VerticalAlignment="Center" Foreground="{DynamicResource MesSlateGray}" />
-                <DatePicker SelectedDate="{Binding ToDate}" />
+                <DatePicker SelectedDate="{Binding ToDate}"  AutomationProperties.Name="Tarih seciniz"/>
                 <ComboBox ItemsSource="{Binding SourceTypes}"
                           SelectedItem="{Binding SelectedSourceType}"
                           PlaceholderText="Kaynak Tipi" Width="140"  AutomationProperties.Name="Kaynak Tipi"/>

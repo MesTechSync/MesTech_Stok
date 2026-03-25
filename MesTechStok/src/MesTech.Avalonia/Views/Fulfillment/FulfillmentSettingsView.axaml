@@ -71,7 +71,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <ToggleSwitch IsChecked="{Binding FbaAutoReplenish}"
                                           OnContent="Otomatik Stok Yenileme: ACIK"
-                                          OffContent="Otomatik Stok Yenileme: KAPALI" />
+                                          OffContent="Otomatik Stok Yenileme: KAPALI"  AutomationProperties.Name="Acik/Kapali"/>
                         </StackPanel>
 
                         <Button Content="Baglanti Test Et" ToolTip.Tip="Amazon FBA baglantisini test et"

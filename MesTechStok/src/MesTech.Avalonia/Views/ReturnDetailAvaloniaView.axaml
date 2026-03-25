@@ -109,7 +109,7 @@
                                     Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" />
                             <ComboBox Width="200"
                                       ItemsSource="{Binding RejectReasons}"
-                                      SelectedItem="{Binding SelectedRejectReason}" />
+                                      SelectedItem="{Binding SelectedRejectReason}"  AutomationProperties.Name="Reject reason seciniz"/>
                             <Button Content="Reddet" Command="{Binding RejectCommand}"
                                     ToolTip.Tip="Reddet"
                                     Background="{DynamicResource MesRedBright}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"

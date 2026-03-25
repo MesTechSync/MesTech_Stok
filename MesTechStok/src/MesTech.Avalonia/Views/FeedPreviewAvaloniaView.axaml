@@ -21,7 +21,7 @@
                 <TextBox Width="500" Watermark="Feed URL giriniz..." AutomationProperties.Name="Feed URL giriniz..."
                          Text="{Binding FeedUrl}" Padding="10,8" />
                 <ComboBox ItemsSource="{Binding FormatOptions}"
-                          SelectedItem="{Binding FeedFormat}" Width="100" />
+                          SelectedItem="{Binding FeedFormat}" Width="100"  AutomationProperties.Name="Format options"/>
                 <Button Content="Çek" Command="{Binding PreviewFeedCommand}"
                         ToolTip.Tip="Cek"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"

@@ -38,7 +38,7 @@
                          HorizontalAlignment="Left" />
                 <ComboBox ItemsSource="{Binding Companies}"
                           SelectedItem="{Binding SelectedCompany}"
-                          MinWidth="180" />
+                          MinWidth="180"  AutomationProperties.Name="Company seciniz"/>
             </StackPanel>
         </Border>
 

@@ -60,9 +60,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding PeriodTypes}" SelectedItem="{Binding SelectedPeriodType}"
-                          Width="140" />
-                <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
-                <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                          Width="140"  AutomationProperties.Name="Period type seciniz"/>
+                <DatePicker SelectedDate="{Binding StartDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
                 <TextBox Width="220" Watermark="Aciklama ara..." AutomationProperties.Name="Aciklama ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>

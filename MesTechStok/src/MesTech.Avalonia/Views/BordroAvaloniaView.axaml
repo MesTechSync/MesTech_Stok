@@ -60,9 +60,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}"
-                          Width="140" />
+                          Width="140"  AutomationProperties.Name="Month seciniz"/>
                 <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}"
-                          Width="100" />
+                          Width="100"  AutomationProperties.Name="Year seciniz"/>
                 <TextBox Width="220" Watermark="Personel ara..." AutomationProperties.Name="Personel ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>

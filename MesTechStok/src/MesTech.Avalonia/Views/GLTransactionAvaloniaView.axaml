@@ -35,11 +35,11 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}"
-                          Width="220" />
+                          Width="220"  AutomationProperties.Name="Account seciniz"/>
                 <TextBox Width="200" Watermark="Fis no veya aciklama ara..." AutomationProperties.Name="Fis no veya aciklama ara..."
                          Text="{Binding SearchText}" />
-                <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
-                <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                <DatePicker SelectedDate="{Binding StartDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
             </StackPanel>
         </Border>
 

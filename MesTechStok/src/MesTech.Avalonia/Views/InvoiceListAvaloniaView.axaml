@@ -37,11 +37,11 @@
                 <TextBox Width="260" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
                          Text="{Binding SearchText}" FontSize="{StaticResource FontSizeBody}"/>
                 <ComboBox Width="140" ItemsSource="{Binding InvoiceTypes}"
-                          SelectedItem="{Binding SelectedType}"/>
+                          SelectedItem="{Binding SelectedType}" AutomationProperties.Name="Type seciniz"/>
                 <ComboBox Width="140" ItemsSource="{Binding StatusList}"
-                          SelectedItem="{Binding SelectedStatus}"/>
+                          SelectedItem="{Binding SelectedStatus}" AutomationProperties.Name="Status seciniz"/>
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
-                          SelectedItem="{Binding SelectedPlatform}"/>
+                          SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Platform seciniz"/>
                 <Button Command="{Binding RefreshCommand}" Background="Transparent"
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">

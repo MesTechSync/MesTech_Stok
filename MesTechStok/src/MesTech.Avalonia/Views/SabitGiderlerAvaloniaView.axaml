@@ -65,9 +65,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
-                          Width="180" />
+                          Width="180"  AutomationProperties.Name="Category seciniz"/>
                 <ComboBox ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}"
-                          Width="140" />
+                          Width="140"  AutomationProperties.Name="Period seciniz"/>
                 <TextBox Width="220" Watermark="Gider adi ara..." AutomationProperties.Name="Gider adi ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>

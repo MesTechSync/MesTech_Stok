@@ -26,7 +26,7 @@
                 </StackPanel>
                 <ComboBox Grid.Column="1" Width="180" Margin="0,0,12,0"
                           ItemsSource="{Binding Providers}"
-                          SelectedItem="{Binding SelectedProvider}" />
+                          SelectedItem="{Binding SelectedProvider}"  AutomationProperties.Name="Provider seciniz"/>
                 <Button Grid.Column="2" Content="Gonder"
                         ToolTip.Tip="Gonder"
                         Command="{Binding SendBulkCommand}"

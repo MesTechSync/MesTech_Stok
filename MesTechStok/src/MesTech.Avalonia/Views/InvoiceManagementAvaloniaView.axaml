@@ -40,7 +40,7 @@
                          Text="{Binding SearchText}" />
                 <ComboBox Width="160"
                           ItemsSource="{Binding InvoiceTypes}"
-                          SelectedItem="{Binding SelectedType}" />
+                          SelectedItem="{Binding SelectedType}"  AutomationProperties.Name="Type seciniz"/>
             </StackPanel>
         </Border>
 

@@ -60,11 +60,11 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}"
-                          Width="140" />
+                          Width="140"  AutomationProperties.Name="Month seciniz"/>
                 <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}"
-                          Width="100" />
+                          Width="100"  AutomationProperties.Name="Year seciniz"/>
                 <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}"
-                          Width="160" />
+                          Width="160"  AutomationProperties.Name="Status filter seciniz"/>
             </StackPanel>
         </Border>
 

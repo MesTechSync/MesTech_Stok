@@ -73,9 +73,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
-                          Width="180" />
+                          Width="180"  AutomationProperties.Name="Platform seciniz"/>
                 <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
-                          Width="180" />
+                          Width="180"  AutomationProperties.Name="Category seciniz"/>
                 <TextBox Width="220" Watermark="Kategori ara..." AutomationProperties.Name="Kategori ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>

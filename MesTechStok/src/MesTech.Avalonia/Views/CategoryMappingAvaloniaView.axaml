@@ -21,7 +21,7 @@
                     </Border>
                 </StackPanel>
                 <ComboBox Grid.Column="1" ItemsSource="{Binding PlatformList}"
-                          SelectedItem="{Binding SelectedPlatform}" Width="160" Margin="0,0,12,0" />
+                          SelectedItem="{Binding SelectedPlatform}" Width="160" Margin="0,0,12,0"  AutomationProperties.Name="Platform seciniz"/>
                 <Button Grid.Column="2" Content="Sync"
                         ToolTip.Tip="Sync"
                         Command="{Binding SyncPlatformCategoriesCommand}"

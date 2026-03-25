@@ -67,11 +67,11 @@
                 <TextBox Width="220" Watermark="Aciklama ara..." AutomationProperties.Name="Aciklama ara..."
                          Text="{Binding SearchText}" />
                 <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
-                          Width="160" />
+                          Width="160"  AutomationProperties.Name="Category seciniz"/>
                 <ComboBox ItemsSource="{Binding TypeFilters}" SelectedItem="{Binding SelectedTypeFilter}"
-                          Width="120" />
-                <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
-                <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                          Width="120"  AutomationProperties.Name="Type filter seciniz"/>
+                <DatePicker SelectedDate="{Binding StartDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="140"  AutomationProperties.Name="Tarih seciniz"/>
             </StackPanel>
         </Border>
 

@@ -38,7 +38,7 @@
                          HorizontalAlignment="Left" />
                 <ComboBox ItemsSource="{Binding AccountTypes}"
                           SelectedItem="{Binding SelectedType}"
-                          MinWidth="160" />
+                          MinWidth="160"  AutomationProperties.Name="Type seciniz"/>
             </StackPanel>
         </Border>
 

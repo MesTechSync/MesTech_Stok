@@ -41,12 +41,12 @@
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <ComboBox ItemsSource="{Binding Providers}"
                           SelectedItem="{Binding SelectedProvider}"
-                          MinWidth="180" />
+                          MinWidth="180"  AutomationProperties.Name="Provider seciniz"/>
                 <ComboBox ItemsSource="{Binding Statuses}"
                           SelectedItem="{Binding SelectedStatus}"
-                          MinWidth="160" />
-                <DatePicker SelectedDate="{Binding DateFrom}" MinWidth="140" />
-                <DatePicker SelectedDate="{Binding DateTo}" MinWidth="140" />
+                          MinWidth="160"  AutomationProperties.Name="Status seciniz"/>
+                <DatePicker SelectedDate="{Binding DateFrom}" MinWidth="140"  AutomationProperties.Name="Tarih seciniz"/>
+                <DatePicker SelectedDate="{Binding DateTo}" MinWidth="140"  AutomationProperties.Name="Tarih seciniz"/>
                 <TextBox Width="220" Watermark="Shipment ID ara..."
                          AutomationProperties.Name="Shipment ID ara..."
                          Text="{Binding SearchText}" HorizontalAlignment="Left" />

@@ -22,7 +22,7 @@
                 </StackPanel>
                 <ComboBox Grid.Column="1" Width="100" Margin="0,0,8,0"
                           ItemsSource="{Binding Formats}"
-                          SelectedItem="{Binding SelectedFormat}" />
+                          SelectedItem="{Binding SelectedFormat}"  AutomationProperties.Name="Format seciniz"/>
                 <Button Grid.Column="2" Content="Yazdir"
                         ToolTip.Tip="Yazdir"
                         Command="{Binding PrintCommand}"

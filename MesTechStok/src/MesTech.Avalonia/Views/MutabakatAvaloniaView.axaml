@@ -69,9 +69,9 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ComboBox ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}"
-                          Width="220" />
+                          Width="220"  AutomationProperties.Name="Source seciniz"/>
                 <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}"
-                          Width="160" />
+                          Width="160"  AutomationProperties.Name="Status filter seciniz"/>
                 <TextBox Width="200" Watermark="Aciklama veya referans ara..." AutomationProperties.Name="Aciklama veya referans ara..."
                          Text="{Binding SearchText}" />
             </StackPanel>
