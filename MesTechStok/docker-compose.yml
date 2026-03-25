@@ -398,6 +398,8 @@ services:
     depends_on:
       webapi:
         condition: service_healthy
+      blazor:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
       interval: 15s
