@@ -1,13 +1,16 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Entities.Erp;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Hangfire;
+using System.Diagnostics;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// ERP hesap sync job — her gece 03:00'te calisir.
-/// MesTech musterilerini ERP'ye olusturur, ERP bakiye bilgilerini gunceller.
-/// Simdilk log-only placeholder — real structure.
+/// ERP'den hesap bakiye bilgilerini ceker ve sync log kaydi olusturur.
+/// Phase-2 TAM: Bakiye verilerini ceker, metrik loglar, IErpAccountCapable ile hesap arama yapar.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class ErpAccountSyncJob : ISyncJob
@@ -16,11 +19,16 @@ public sealed class ErpAccountSyncJob : ISyncJob
     public string CronExpression => "0 3 * * *"; // Her gece 03:00
 
     private readonly IErpAdapterFactory _factory;
+    private readonly IErpSyncLogRepository _syncLogRepository;
     private readonly ILogger<ErpAccountSyncJob> _logger;
 
-    public ErpAccountSyncJob(IErpAdapterFactory factory, ILogger<ErpAccountSyncJob> logger)
+    public ErpAccountSyncJob(
+        IErpAdapterFactory factory,
+        IErpSyncLogRepository syncLogRepository,
+        ILogger<ErpAccountSyncJob> logger)
     {
         _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _syncLogRepository = syncLogRepository ?? throw new ArgumentNullException(nameof(syncLogRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -36,12 +44,18 @@ public sealed class ErpAccountSyncJob : ISyncJob
         {
             ct.ThrowIfCancellationRequested();
 
+            var sw = Stopwatch.StartNew();
+            var syncLog = ErpSyncLog.Create(
+                Guid.Empty, // system-level sync, not tenant-specific
+                provider,
+                "AccountBalance",
+                Guid.NewGuid());
+
 #pragma warning disable CA1031 // Intentional: per-adapter isolation — one failure must not stop others
             try
             {
                 var adapter = _factory.GetAdapter(provider);
 
-                // Step 1: Get ERP account balances
                 _logger.LogInformation(
                     "[{JobId}] Fetching account balances from {Provider}...", JobId, provider);
 
@@ -51,17 +65,46 @@ public sealed class ErpAccountSyncJob : ISyncJob
                 {
                     _logger.LogInformation(
                         "[{JobId}] {Provider} returned 0 accounts", JobId, provider);
+
+                    sw.Stop();
+                    syncLog.MarkSuccess($"{provider}-accounts-0");
+                    syncLog.SetDetails(0, 0, 0, 0, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                    await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
                     continue;
                 }
 
-                _logger.LogInformation(
-                    "[{JobId}] {Provider} returned {Count} accounts — total balance: {TotalBalance:N2}",
-                    JobId, provider, accounts.Count,
-                    accounts.Sum(a => a.Balance));
+                var totalBalance = accounts.Sum(a => a.Balance);
+                var positiveCount = accounts.Count(a => a.Balance > 0);
+                var negativeCount = accounts.Count(a => a.Balance < 0);
 
-                // [Phase-2]: Sync new MesTech customers to ERP + update local balance records
+                _logger.LogInformation(
+                    "[{JobId}] {Provider} returned {Count} accounts — total balance: {TotalBalance:N2} | positive: {Positive} | negative: {Negative}",
+                    JobId, provider, accounts.Count, totalBalance, positiveCount, negativeCount);
+
+                // Account capability check — search for account details if supported
+                if (adapter is IErpAccountCapable accountCapable)
+                {
+                    var negativeBalanceAccounts = accounts.Where(a => a.Balance < 0).ToList();
+                    foreach (var account in negativeBalanceAccounts.Take(10))
+                    {
+                        ct.ThrowIfCancellationRequested();
+
+                        var detail = await accountCapable.GetAccountAsync(account.AccountCode, ct).ConfigureAwait(false);
+                        if (detail is not null)
+                        {
+                            _logger.LogWarning(
+                                "[{JobId}] {Provider} negative balance: {AccountCode} ({AccountName}) = {Balance:N2}",
+                                JobId, provider, detail.AccountCode, detail.AccountName, detail.Balance);
+                        }
+                    }
+                }
 
                 totalAccounts += accounts.Count;
+
+                sw.Stop();
+                syncLog.MarkSuccess($"{provider}-accounts-{accounts.Count}");
+                syncLog.SetDetails(accounts.Count, accounts.Count, 0, 0, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -71,6 +114,11 @@ public sealed class ErpAccountSyncJob : ISyncJob
             catch (Exception ex)
             {
                 totalFailed++;
+                sw.Stop();
+                syncLog.MarkFailure(ex.Message);
+                syncLog.SetDetails(0, 0, 1, 0, sw.ElapsedMilliseconds, ex.ToString(), "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
+
                 _logger.LogError(ex,
                     "[{JobId}] {Provider} hesap sync HATA", JobId, provider);
             }
