@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 
@@ -47,5 +48,15 @@ public partial class ImageDialog : Window
     private void OnClose(object? sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            Close();
+            e.Handled = true;
+        }
+        base.OnKeyDown(e);
     }
 }

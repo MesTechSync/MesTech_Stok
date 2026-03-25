@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 
 namespace MesTech.Avalonia.Dialogs;
@@ -54,5 +55,16 @@ public partial class InputDialog : Window
     {
         Result = false;
         Close();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            Result = false;
+            Close();
+            e.Handled = true;
+        }
+        base.OnKeyDown(e);
     }
 }

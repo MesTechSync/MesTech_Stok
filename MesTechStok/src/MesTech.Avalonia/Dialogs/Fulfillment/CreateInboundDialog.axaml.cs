@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 
@@ -111,6 +112,17 @@ public partial class CreateInboundDialog : Window
     {
         Result = false;
         Close();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            Result = false;
+            Close();
+            e.Handled = true;
+        }
+        base.OnKeyDown(e);
     }
 }
 

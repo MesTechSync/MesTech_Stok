@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 
@@ -42,5 +43,15 @@ public partial class InfoDialog : Window
     private void OnOk(object? sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            Close();
+            e.Handled = true;
+        }
+        base.OnKeyDown(e);
     }
 }
