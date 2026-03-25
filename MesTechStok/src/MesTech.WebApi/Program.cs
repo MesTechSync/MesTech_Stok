@@ -285,6 +285,8 @@ AccountingEndpoints.Map(app);
 DropshippingEndpoints.Map(app);
 NotificationEndpoints.Map(app);
 ShippingEndpoints.Map(app);
+ShipmentEndpoints.Map(app);
+CargoEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
 SeedEndpoints.Map(app);
