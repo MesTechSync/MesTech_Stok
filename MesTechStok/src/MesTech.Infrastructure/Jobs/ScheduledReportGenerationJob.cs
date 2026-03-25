@@ -1,3 +1,4 @@
+using MesTech.Domain.Constants;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -97,7 +98,7 @@ public sealed class ScheduledReportGenerationJob : IAccountingJob
             // InApp bildirim olustur (tum tenant kullanicilari icin — basit baslangic olarak system user)
             var notification = UserNotification.Create(
                 tenantId: tenantId,
-                userId: Guid.Empty, // System-level notification — tum kullanicilar gorecek
+                userId: DomainConstants.SystemUserId, // System-level notification — tum kullanicilar gorecek
                 title: definition.Title,
                 message: $"{definition.Message} ({DateTime.UtcNow:yyyy-MM-dd HH:mm})",
                 category: definition.Category,
