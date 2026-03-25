@@ -33,6 +33,7 @@
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
     <ProjectReference Include="..\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
     <ProjectReference Include="..\MesTechStok.Core\MesTechStok.Core.csproj" />
+    <ProjectReference Include="..\MesTech.WebApi\MesTech.WebApi.csproj" />
     <!-- Desktop arşivde — WPF build hataları test projesini blokluyor -->
     <!-- <ProjectReference Include="..\MesTechStok.Desktop\MesTechStok.Desktop.csproj" /> -->
   </ItemGroup>
