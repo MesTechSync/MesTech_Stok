@@ -188,7 +188,7 @@ public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainE
             "[MESA Bridge] InvoiceSent yakalandi: InvoiceId={InvoiceId}", e.InvoiceId);
 
         var mesaEvent = new MesaInvoiceGeneratedEvent(
-            e.InvoiceId, Guid.Empty, e.GibInvoiceId ?? string.Empty,
+            e.InvoiceId, e.OrderId, e.GibInvoiceId ?? string.Empty,
             "EFatura", null, null, null, 0m, e.PdfUrl,
             _tenantProvider.GetCurrentTenantId(),
             e.OccurredAt);

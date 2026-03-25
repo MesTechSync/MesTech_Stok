@@ -123,7 +123,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
         GibInvoiceId = gibInvoiceId;
         PdfUrl = pdfUrl;
         SentAt = DateTime.UtcNow;
-        RaiseDomainEvent(new InvoiceSentEvent(Id, TenantId, gibInvoiceId, pdfUrl, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceSentEvent(Id, TenantId, OrderId, gibInvoiceId, pdfUrl, DateTime.UtcNow));
     }
 
     public void MarkAsAccepted()

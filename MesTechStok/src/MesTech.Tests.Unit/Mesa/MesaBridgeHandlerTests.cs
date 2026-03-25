@@ -229,7 +229,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<InvoiceGeneratedBridgeHandler>>().Object);
 
         var domainEvent = new InvoiceSentEvent(
-            Guid.NewGuid(), Guid.NewGuid(), "GIB-2026-001", "https://example.com/invoice.pdf", DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "GIB-2026-001", "https://example.com/invoice.pdf", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<InvoiceSentEvent>(domainEvent),
