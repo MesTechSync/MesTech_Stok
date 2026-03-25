@@ -94,17 +94,18 @@ public static class ErpEndpoints
                     testedAt = DateTime.UtcNow
                 });
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
-                return Results.BadRequest(new { error = ex.Message });
+                return Results.BadRequest(new { error = "Gecersiz ERP provider parametresi." });
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "ERP connection test failed for {Provider}", provider);
                 return Results.Ok(new
                 {
                     provider = provider.ToString(),
                     connected = false,
-                    error = ex.Message,
+                    error = "Baglanti testi basarisiz — detaylar server log'unda.",
                     testedAt = DateTime.UtcNow
                 });
             }
@@ -153,12 +154,13 @@ public static class ErpEndpoints
                 }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "ERP stock sync failed for {Provider}", provider);
                     results.Add(new
                     {
                         provider = provider.ToString(),
                         success = false,
                         itemCount = 0,
-                        reason = ex.Message
+                        reason = "Stok senkronizasyonu basarisiz — detaylar server log'unda."
                     });
                 }
 #pragma warning restore CA1031
@@ -197,12 +199,13 @@ public static class ErpEndpoints
                 }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "ERP account sync failed for {Provider}", provider);
                     results.Add(new
                     {
                         provider = provider.ToString(),
                         success = false,
                         accountCount = 0,
-                        reason = ex.Message
+                        reason = "Hesap senkronizasyonu basarisiz — detaylar server log'unda."
                     });
                 }
 #pragma warning restore CA1031

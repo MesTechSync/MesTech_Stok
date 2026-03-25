@@ -34,9 +34,9 @@ public static class InvoiceEndpoints
                 var result = await adapter.CreateInvoiceAsync(request.Invoice, ct);
                 return Results.Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem("Fatura olusturma basarisiz — lutfen tekrar deneyin veya destek ile iletisime gecin.");
             }
         })
         .WithName("CreateInvoiceViaAdapter")
