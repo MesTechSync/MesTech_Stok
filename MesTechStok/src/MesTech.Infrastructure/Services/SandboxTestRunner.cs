@@ -69,7 +69,7 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
         try
         {
             // Step 1: Ping — lightweight reachability check (no credentials needed)
-            connectionOk = await TestPingAsync(adapter, platform, ct);
+            connectionOk = await TestPingAsync(adapter, platform, ct).ConfigureAwait(false);
 
             if (!connectionOk)
             {
@@ -79,10 +79,10 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
             }
 
             // Step 2: Auth — TestConnectionAsync with empty credentials (sandbox should accept or reject gracefully)
-            authOk = await TestAuthAsync(adapter, platform, ct);
+            authOk = await TestAuthAsync(adapter, platform, ct).ConfigureAwait(false);
 
             // Step 3: Data — lightweight data call (GetCategoriesAsync)
-            dataOk = await TestDataAsync(adapter, platform, ct);
+            dataOk = await TestDataAsync(adapter, platform, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -126,7 +126,7 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
         foreach (var adapter in adapters)
         {
             ct.ThrowIfCancellationRequested();
-            var result = await TestAdapterAsync(adapter.PlatformCode, ct);
+            var result = await TestAdapterAsync(adapter.PlatformCode, ct).ConfigureAwait(false);
             results.Add(result);
         }
 
@@ -155,7 +155,7 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(OperationTimeout);
 
-            var reachable = await pingable.PingAsync(cts.Token);
+            var reachable = await pingable.PingAsync(cts.Token).ConfigureAwait(false);
             _logger.LogDebug("Ping for {Platform}: {Result}", platform, reachable ? "OK" : "FAIL");
             return reachable;
         }
@@ -179,7 +179,7 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
 
             // Empty credentials — sandbox should respond (even with auth error).
             // No real credentials are passed from code — user-secrets only.
-            var result = await adapter.TestConnectionAsync(new Dictionary<string, string>(), cts.Token);
+            var result = await adapter.TestConnectionAsync(new Dictionary<string, string>(), cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug(
                 "Auth test for {Platform}: Success={Success}, StatusCode={StatusCode}",
@@ -206,7 +206,7 @@ public sealed class SandboxTestRunner : ISandboxTestRunner
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(OperationTimeout);
 
-            var categories = await adapter.GetCategoriesAsync(cts.Token);
+            var categories = await adapter.GetCategoriesAsync(cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug(
                 "Data test for {Platform}: returned {Count} categories",

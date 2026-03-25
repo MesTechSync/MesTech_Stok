@@ -17,19 +17,19 @@ public sealed class CsvExportService : ICsvExportService
     public async Task<Stream> ExportProductsAsync(IEnumerable<ProductExportDto> products, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(products);
-        return await Task.Run(() => BuildProductsCsv(products), ct);
+        return await Task.Run(() => BuildProductsCsv(products), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportStockAsync(IEnumerable<StockExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildStockCsv(items), ct);
+        return await Task.Run(() => BuildStockCsv(items), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportPricesAsync(IEnumerable<PriceExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildPricesCsv(items), ct);
+        return await Task.Run(() => BuildPricesCsv(items), ct).ConfigureAwait(false);
     }
 
     private static MemoryStream BuildProductsCsv(IEnumerable<ProductExportDto> products)

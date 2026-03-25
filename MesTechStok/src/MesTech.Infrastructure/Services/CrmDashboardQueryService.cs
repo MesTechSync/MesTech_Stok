@@ -18,24 +18,24 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
         var dto = new CrmDashboardDto
         {
             TotalCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId, ct),
+                .CountAsync(c => c.TenantId == tenantId, ct).ConfigureAwait(false),
             ActiveCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId && c.IsActive, ct),
+                .CountAsync(c => c.TenantId == tenantId && c.IsActive, ct).ConfigureAwait(false),
             VipCustomers = await _db.Customers
-                .CountAsync(c => c.TenantId == tenantId && c.IsVip, ct),
+                .CountAsync(c => c.TenantId == tenantId && c.IsVip, ct).ConfigureAwait(false),
             TotalSuppliers = await _db.Suppliers
-                .CountAsync(s => s.TenantId == tenantId, ct),
+                .CountAsync(s => s.TenantId == tenantId, ct).ConfigureAwait(false),
             TotalLeads = await _db.Leads
-                .CountAsync(l => l.TenantId == tenantId, ct),
+                .CountAsync(l => l.TenantId == tenantId, ct).ConfigureAwait(false),
             OpenDeals = await _db.Deals
-                .CountAsync(d => d.TenantId == tenantId && d.Status == DealStatus.Open, ct),
+                .CountAsync(d => d.TenantId == tenantId && d.Status == DealStatus.Open, ct).ConfigureAwait(false),
             PipelineValue = await _db.Deals
                 .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open)
-                .SumAsync(d => d.Amount, ct),
+                .SumAsync(d => d.Amount, ct).ConfigureAwait(false),
             UnreadMessages = await _db.PlatformMessages
-                .CountAsync(m => m.TenantId == tenantId && m.Status == MessageStatus.Unread, ct),
+                .CountAsync(m => m.TenantId == tenantId && m.Status == MessageStatus.Unread, ct).ConfigureAwait(false),
             TotalMessages = await _db.PlatformMessages
-                .CountAsync(m => m.TenantId == tenantId, ct),
+                .CountAsync(m => m.TenantId == tenantId, ct).ConfigureAwait(false),
         };
 
         dto.StageSummaries = await _db.PipelineStages
@@ -49,7 +49,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
                     .Where(d => d.StageId == s.Id && d.TenantId == tenantId)
                     .Sum(d => d.Amount)
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         dto.RecentActivities = await _db.Activities
             .Where(a => a.TenantId == tenantId)
@@ -62,7 +62,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
                 Subject = a.Subject,
                 OccurredAt = a.CreatedAt
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return dto;
     }
@@ -79,7 +79,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
             query = query.Where(c => EF.Functions.ILike(c.Name, $"%{searchTerm}%")
                                   || (c.Email != null && EF.Functions.ILike(c.Email, $"%{searchTerm}%")));
 
-        var totalCount = await query.CountAsync(ct);
+        var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .OrderBy(c => c.Name)
             .Skip((page - 1) * pageSize).Take(pageSize)
@@ -95,7 +95,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
                 CurrentBalance = c.CurrentBalance,
                 LastOrderDate = c.LastOrderDate
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return (items, totalCount);
     }
@@ -111,7 +111,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
         if (!string.IsNullOrWhiteSpace(searchTerm))
             query = query.Where(s => EF.Functions.ILike(s.Name, $"%{searchTerm}%"));
 
-        var totalCount = await query.CountAsync(ct);
+        var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .OrderBy(s => s.Name)
             .Skip((page - 1) * pageSize).Take(pageSize)
@@ -126,7 +126,7 @@ public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
                 IsPreferred = s.IsPreferred,
                 CurrentBalance = s.CurrentBalance
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return (items, totalCount);
     }

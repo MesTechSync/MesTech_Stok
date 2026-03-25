@@ -16,25 +16,25 @@ public sealed class ExcelExportService : IExcelExportService
     public async Task<Stream> ExportProductsAsync(IEnumerable<ProductExportDto> products, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(products);
-        return await Task.Run(() => BuildProductsExcel(products), ct);
+        return await Task.Run(() => BuildProductsExcel(products), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportOrdersAsync(IEnumerable<OrderExportDto> orders, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(orders);
-        return await Task.Run(() => BuildOrdersExcel(orders), ct);
+        return await Task.Run(() => BuildOrdersExcel(orders), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportStockAsync(IEnumerable<StockExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildStockExcel(items), ct);
+        return await Task.Run(() => BuildStockExcel(items), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportProfitabilityAsync(IEnumerable<ProfitabilityExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildProfitabilityExcel(items), ct);
+        return await Task.Run(() => BuildProfitabilityExcel(items), ct).ConfigureAwait(false);
     }
 
     private static MemoryStream BuildProductsExcel(IEnumerable<ProductExportDto> products)

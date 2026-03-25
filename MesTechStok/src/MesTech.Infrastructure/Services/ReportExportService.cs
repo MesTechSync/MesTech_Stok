@@ -32,7 +32,7 @@ public sealed class ReportExportService : IReportExportService
         ArgumentNullException.ThrowIfNull(data);
         ArgumentException.ThrowIfNullOrWhiteSpace(sheetName);
 
-        return await Task.Run(() => BuildExcel(data, sheetName), ct);
+        return await Task.Run(() => BuildExcel(data, sheetName), ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -41,7 +41,7 @@ public sealed class ReportExportService : IReportExportService
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        return await Task.Run(() => BuildCsv(data), ct);
+        return await Task.Run(() => BuildCsv(data), ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -51,7 +51,7 @@ public sealed class ReportExportService : IReportExportService
         ArgumentNullException.ThrowIfNull(data);
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
-        return await Task.Run(() => BuildPdf(data, title), ct);
+        return await Task.Run(() => BuildPdf(data, title), ct).ConfigureAwait(false);
     }
 
     private static byte[] BuildPdf<T>(IEnumerable<T> data, string title)

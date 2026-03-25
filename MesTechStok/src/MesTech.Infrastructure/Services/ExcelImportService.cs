@@ -15,19 +15,19 @@ public sealed class ExcelImportService : IExcelImportService
     public async Task<XmlImportResult> ImportProductsAsync(Stream excelStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(excelStream);
-        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Products), ct);
+        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Products), ct).ConfigureAwait(false);
     }
 
     public async Task<XmlImportResult> ImportStockAsync(Stream excelStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(excelStream);
-        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Stock), ct);
+        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Stock), ct).ConfigureAwait(false);
     }
 
     public async Task<XmlImportResult> ImportPricesAsync(Stream excelStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(excelStream);
-        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Prices), ct);
+        return await Task.Run(() => ParseExcel(excelStream, ImportMode.Prices), ct).ConfigureAwait(false);
     }
 
     private enum ImportMode { Products, Stock, Prices }

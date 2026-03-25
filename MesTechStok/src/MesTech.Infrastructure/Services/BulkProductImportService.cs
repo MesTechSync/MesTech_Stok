@@ -169,7 +169,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             var existingSkus = await _dbContext.Set<Product>()
                 .AsNoTracking()
                 .Select(p => new { p.SKU, p.Id })
-                .ToDictionaryAsync(p => p.SKU, p => p.Id, cancellationToken);
+                .ToDictionaryAsync(p => p.SKU, p => p.Id, cancellationToken).ConfigureAwait(false);
 
             for (var row = 2; row <= lastRow; row++)
             {
@@ -201,7 +201,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (options.UpdateExisting)
                         {
                             var product = await _dbContext.Set<Product>()
-                                .FirstAsync(p => p.Id == existingId, cancellationToken);
+                                .FirstAsync(p => p.Id == existingId, cancellationToken).ConfigureAwait(false);
                             MapRowToProduct(ws, row, headerMap, product, options);
                             product.UpdatedAt = DateTime.UtcNow;
                             updatedCount++;
@@ -218,7 +218,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         MapRowToProduct(ws, row, headerMap, product, options);
                         product.CreatedAt = DateTime.UtcNow;
                         product.UpdatedAt = DateTime.UtcNow;
-                        await _dbContext.Set<Product>().AddAsync(product, cancellationToken);
+                        await _dbContext.Set<Product>().AddAsync(product, cancellationToken).ConfigureAwait(false);
                         existingSkus[product.SKU] = product.Id;
                         importedCount++;
                     }
@@ -226,7 +226,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                     batchCount++;
                     if (batchCount >= BatchSize)
                     {
-                        await _dbContext.SaveChangesAsync(cancellationToken);
+                        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                         batchCount = 0;
 
                         // Report progress every batch (100 rows)
@@ -234,7 +234,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (_progressReporter != null)
                         {
                             await _progressReporter.ReportProgressAsync(
-                                importId, processed, totalRows, errors.Count, cancellationToken);
+                                importId, processed, totalRows, errors.Count, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -256,7 +256,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             // Final batch
             if (batchCount > 0)
             {
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             sw.Stop();
@@ -265,7 +265,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             if (_progressReporter != null)
             {
                 await _progressReporter.ReportCompletedAsync(
-                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, cancellationToken);
+                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, cancellationToken).ConfigureAwait(false);
             }
 
             var status = errors.Count > 0 ? ImportStatus.CompletedWithErrors : ImportStatus.Completed;
@@ -297,7 +297,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
 
         var products = await query
             .OrderBy(p => p.SKU)
-            .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
 
         using var workbook = new XLWorkbook();
         var ws = workbook.Worksheets.Add("Ürünler");

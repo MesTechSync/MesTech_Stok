@@ -17,12 +17,12 @@ public sealed class StockSplitService : IStockSplitService
         => await _context.ProductWarehouseStocks
             .Where(s => s.ProductId == productId)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<int> GetTotalAvailableAsync(Guid productId, CancellationToken ct = default)
         => await _context.ProductWarehouseStocks
             .Where(s => s.ProductId == productId)
-            .SumAsync(s => s.AvailableQuantity, ct);
+            .SumAsync(s => s.AvailableQuantity, ct).ConfigureAwait(false);
 
     public async Task UpdateFulfillmentStockAsync(
         Guid productId,
@@ -33,7 +33,7 @@ public sealed class StockSplitService : IStockSplitService
         var centerName = center.ToString();
         var existing = await _context.ProductWarehouseStocks
             .FirstOrDefaultAsync(
-                s => s.ProductId == productId && s.FulfillmentCenter == centerName, ct);
+                s => s.ProductId == productId && s.FulfillmentCenter == centerName, ct).ConfigureAwait(false);
 
         if (existing is not null)
         {
@@ -43,9 +43,9 @@ public sealed class StockSplitService : IStockSplitService
         {
             var stock = ProductWarehouseStock.Create(productId, Guid.NewGuid(), centerName);
             stock.UpdateStock(quantity, 0, 0);
-            await _context.ProductWarehouseStocks.AddAsync(stock, ct);
+            await _context.ProductWarehouseStocks.AddAsync(stock, ct).ConfigureAwait(false);
         }
 
-        await _context.SaveChangesAsync(ct);
+        await _context.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }
