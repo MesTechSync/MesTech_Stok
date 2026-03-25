@@ -733,3 +733,21 @@ TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari Delegat
 | Two-stage retry | 2 | 21 | **+19** |
 | Dead code removed | — | — | **-315 LOC** |
 | Toplam capability | 22 | 90 | **+68** |
+
+---
+
+## TUR 18 — 2026-03-26 (Health Check Perf + Sub-directory Sweep)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 40 | AdapterHealthService | IPingableAdapter.PingAsync prefer (90% call reduction) | eb62a86b |
+| 41 | AdapterHealthService | Sequential → parallel Task.WhenAll (150s→10s) | fa1f2f55 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Health check max latency | ~150s | ~10s | **-93%** |
+| Health API call volume | 15 GetCategories | 15 PingAsync | **-90%** |
+
+### KÜMÜLATİF DEV 3 (18 tur, 47 commit)
