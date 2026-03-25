@@ -561,6 +561,7 @@ public static class IntegrationServiceRegistration
         services.AddScoped<IyzicoPaymentGateway>();
         services.AddScoped<StripePaymentGateway>();
         services.AddScoped<IPaymentGateway>(sp => sp.GetRequiredService<IyzicoPaymentGateway>());
+        services.AddSingleton<Application.Interfaces.IPaymentWebhookSecretProvider, Services.PaymentWebhookSecretProvider>();
 
         // Dalga 10 C-01: Shopify — X-Shopify-Access-Token, cursor pagination, HMAC-SHA256 webhooks
         if (configuration is not null)

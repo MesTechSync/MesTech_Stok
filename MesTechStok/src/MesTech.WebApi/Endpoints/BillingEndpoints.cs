@@ -3,6 +3,7 @@ using MesTech.Application.Features.Billing.Commands.CancelSubscription;
 using MesTech.Application.Features.Billing.Commands.ChangeSubscriptionPlan;
 using MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
 using MesTech.Application.Features.Billing.Commands.CreateSubscription;
+using MesTech.Application.Features.Billing.Commands.ProcessPaymentWebhook;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionUsage;
@@ -112,5 +113,32 @@ public static class BillingEndpoints
         })
         .WithName("GetSubscriptionUsage")
         .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)");
+
+        // POST /api/v1/billing/webhooks/{provider} — payment webhook receiver
+        group.MapPost("/webhooks/{provider}", async (
+            string provider,
+            HttpContext httpContext,
+            ISender mediator,
+            CancellationToken ct = default) =>
+        {
+            using var reader = new StreamReader(httpContext.Request.Body);
+            var body = await reader.ReadToEndAsync(ct);
+
+            if (string.IsNullOrWhiteSpace(body))
+                return Results.BadRequest(new { error = "Empty webhook body" });
+
+            var signature = httpContext.Request.Headers["Stripe-Signature"].FirstOrDefault()
+                         ?? httpContext.Request.Headers["X-Webhook-Signature"].FirstOrDefault();
+
+            var result = await mediator.Send(
+                new ProcessPaymentWebhookCommand(provider, body, signature), ct);
+
+            return result.Success
+                ? Results.Ok(new { status = "accepted", result.EventType, result.SubscriptionId })
+                : Results.UnprocessableEntity(new { status = "rejected", result.Error });
+        })
+        .WithName("ProcessPaymentWebhook")
+        .WithSummary("Payment provider webhook receiver (Stripe/Iyzico)")
+        .AllowAnonymous(); // Webhook'lar JWT olmadan gelir
     }
 }
