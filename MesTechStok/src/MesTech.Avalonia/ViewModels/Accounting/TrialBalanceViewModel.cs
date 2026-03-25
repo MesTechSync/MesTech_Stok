@@ -21,30 +21,33 @@ public partial class TrialBalanceViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        TrialBalanceLines.Clear();
-        await Task.Delay(200);
+        await SafeExecuteAsync(async () =>
+        {
+            TrialBalanceLines.Clear();
+            await Task.Delay(200);
 
-        TrialBalanceLines.Add(new("100", "Kasa", 45_000m, 38_500m));
-        TrialBalanceLines.Add(new("102", "Bankalar", 128_750m, 95_200m));
-        TrialBalanceLines.Add(new("120", "Alıcılar", 67_300m, 52_100m));
-        TrialBalanceLines.Add(new("153", "Ticari Mallar", 89_400m, 71_600m));
-        TrialBalanceLines.Add(new("320", "Satıcılar", 42_800m, 56_300m));
-        TrialBalanceLines.Add(new("600", "Yurtiçi Satışlar", 0m, 185_750m));
-        TrialBalanceLines.Add(new("621", "SMM", 142_100m, 0m));
-        TrialBalanceLines.Add(new("770", "Genel Yönetim Gid.", 15_200m, 0m));
+            TrialBalanceLines.Add(new("100", "Kasa", 45_000m, 38_500m));
+            TrialBalanceLines.Add(new("102", "Bankalar", 128_750m, 95_200m));
+            TrialBalanceLines.Add(new("120", "Alıcılar", 67_300m, 52_100m));
+            TrialBalanceLines.Add(new("153", "Ticari Mallar", 89_400m, 71_600m));
+            TrialBalanceLines.Add(new("320", "Satıcılar", 42_800m, 56_300m));
+            TrialBalanceLines.Add(new("600", "Yurtiçi Satışlar", 0m, 185_750m));
+            TrialBalanceLines.Add(new("621", "SMM", 142_100m, 0m));
+            TrialBalanceLines.Add(new("770", "Genel Yönetim Gid.", 15_200m, 0m));
 
-        var totalDebit = TrialBalanceLines.Sum(l => l.TotalDebit);
-        var totalCredit = TrialBalanceLines.Sum(l => l.TotalCredit);
-        var diff = totalDebit - totalCredit;
+            var totalDebit = TrialBalanceLines.Sum(l => l.TotalDebit);
+            var totalCredit = TrialBalanceLines.Sum(l => l.TotalCredit);
+            var diff = totalDebit - totalCredit;
 
-        TotalDebitSumText = totalDebit.ToString("N2");
-        TotalCreditSumText = totalCredit.ToString("N2");
-        DifferenceText = diff.ToString("N2");
-        IsBalanced = Math.Abs(diff) < 0.01m;
-        IsEmpty = TrialBalanceLines.Count == 0;
-        BalanceStatusText = IsBalanced
-            ? $"Mizan dengeli — Borc = Alacak = {totalDebit:N2} TL"
-            : $"UYARI: Mizan dengesiz! Fark: {diff:N2} TL";
+            TotalDebitSumText = totalDebit.ToString("N2");
+            TotalCreditSumText = totalCredit.ToString("N2");
+            DifferenceText = diff.ToString("N2");
+            IsBalanced = Math.Abs(diff) < 0.01m;
+            IsEmpty = TrialBalanceLines.Count == 0;
+            BalanceStatusText = IsBalanced
+                ? $"Mizan dengeli — Borc = Alacak = {totalDebit:N2} TL"
+                : $"UYARI: Mizan dengesiz! Fark: {diff:N2} TL";
+        }, "Mizan raporu yuklenemedi");
     }
 
     [RelayCommand]

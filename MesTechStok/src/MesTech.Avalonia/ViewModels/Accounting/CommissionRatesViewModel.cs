@@ -14,19 +14,22 @@ public partial class CommissionRatesViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        CommissionRates.Clear();
-        await Task.Delay(150);
+        await SafeExecuteAsync(async () =>
+        {
+            CommissionRates.Clear();
+            await Task.Delay(150);
 
-        CommissionRates.Add(new("Trendyol", 15.0m, 0m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("Hepsiburada", 12.5m, 2.50m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("N11", 14.0m, 0m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("Çiçeksepeti", 18.0m, 3.00m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("Amazon TR", 15.0m, 5.00m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("eBay", 13.0m, 0m, "01.01.2026", "31.12.2026"));
-        CommissionRates.Add(new("Pazarama", 10.0m, 0m, "01.03.2026", "31.12.2026"));
-        CommissionRates.Add(new("PTT AVM", 8.0m, 1.50m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("Trendyol", 15.0m, 0m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("Hepsiburada", 12.5m, 2.50m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("N11", 14.0m, 0m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("Çiçeksepeti", 18.0m, 3.00m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("Amazon TR", 15.0m, 5.00m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("eBay", 13.0m, 0m, "01.01.2026", "31.12.2026"));
+            CommissionRates.Add(new("Pazarama", 10.0m, 0m, "01.03.2026", "31.12.2026"));
+            CommissionRates.Add(new("PTT AVM", 8.0m, 1.50m, "01.01.2026", "31.12.2026"));
 
-        IsEmpty = CommissionRates.Count == 0;
+            IsEmpty = CommissionRates.Count == 0;
+        }, "Komisyon oranları");
     }
 
     [RelayCommand]

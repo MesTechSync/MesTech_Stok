@@ -21,15 +21,18 @@ public partial class JournalEntryListViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        JournalEntries.Clear();
-        await Task.Delay(150); // Simulate — MediatR Send kullanılacak
+        await SafeExecuteAsync(async () =>
+        {
+            JournalEntries.Clear();
+            await Task.Delay(150); // Simulate — MediatR Send kullanılacak
 
-        JournalEntries.Add(new("YEV-2026-001", DateTime.Now.AddDays(-3), "Trendyol sipariş #SIP-0041 satış kaydı", "Satış", 2450m, 2450m));
-        JournalEntries.Add(new("YEV-2026-002", DateTime.Now.AddDays(-2), "Hepsiburada komisyon kesintisi", "Komisyon", 189.50m, 189.50m));
-        JournalEntries.Add(new("YEV-2026-003", DateTime.Now.AddDays(-1), "Yurtiçi Kargo gönderim ücreti", "Kargo", 45m, 45m));
-        JournalEntries.Add(new("YEV-2026-004", DateTime.Now, "N11 iade ürün stok girişi", "İade", 890m, 890m));
+            JournalEntries.Add(new("YEV-2026-001", DateTime.Now.AddDays(-3), "Trendyol sipariş #SIP-0041 satış kaydı", "Satış", 2450m, 2450m));
+            JournalEntries.Add(new("YEV-2026-002", DateTime.Now.AddDays(-2), "Hepsiburada komisyon kesintisi", "Komisyon", 189.50m, 189.50m));
+            JournalEntries.Add(new("YEV-2026-003", DateTime.Now.AddDays(-1), "Yurtiçi Kargo gönderim ücreti", "Kargo", 45m, 45m));
+            JournalEntries.Add(new("YEV-2026-004", DateTime.Now, "N11 iade ürün stok girişi", "İade", 890m, 890m));
 
-        IsEmpty = JournalEntries.Count == 0;
+            IsEmpty = JournalEntries.Count == 0;
+        }, "Yevmiye defteri");
     }
 
     [RelayCommand]
