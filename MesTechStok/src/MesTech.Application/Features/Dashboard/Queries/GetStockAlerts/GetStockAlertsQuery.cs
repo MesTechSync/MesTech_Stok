@@ -1,12 +1,17 @@
+using MesTech.Application.Behaviors;
 using MediatR;
 
 namespace MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
 
 /// <summary>
 /// Dusuk stok uyari sorgusu — stok <= minThreshold olan urunler.
+/// Cache: 5 dakika (stok değişiminde invalidate edilir).
 /// </summary>
 public record GetStockAlertsQuery(Guid TenantId)
-    : IRequest<IReadOnlyList<StockAlertDto>>;
+    : IRequest<IReadOnlyList<StockAlertDto>>, ICacheableQuery
+{
+    public string CacheKey => $"StockAlerts_{TenantId}";
+}
 
 /// <summary>
 /// Stok uyari kalem DTO.
