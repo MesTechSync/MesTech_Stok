@@ -600,6 +600,78 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IOrderCancelledEventHandler,
             Application.EventHandlers.OrderCancelledEventHandler>();
 
+        // Batch 2 — DIRECT event handlers (event'i doğrudan alan)
+        services.AddScoped<Application.EventHandlers.IOrderReceivedEventHandler,
+            Application.EventHandlers.OrderReceivedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderShippedEventHandler,
+            Application.EventHandlers.OrderShippedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnCreatedEventHandler,
+            Application.EventHandlers.ReturnCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnResolvedEventHandler,
+            Application.EventHandlers.ReturnResolvedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IProductCreatedEventHandler,
+            Application.EventHandlers.ProductCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IProductUpdatedEventHandler,
+            Application.EventHandlers.ProductUpdatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceChangedEventHandler,
+            Application.EventHandlers.PriceChangedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IStockCriticalEventHandler,
+            Application.EventHandlers.StockCriticalEventHandler>();
+        services.AddScoped<Application.EventHandlers.IBuyboxLostEventHandler,
+            Application.EventHandlers.BuyboxLostEventHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceApprovedEventHandler,
+            Application.EventHandlers.InvoiceApprovedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceGeneratedForERPEventHandler,
+            Application.EventHandlers.InvoiceGeneratedForERPEventHandler>();
+        services.AddScoped<Application.EventHandlers.IBaBsRecordCreatedEventHandler,
+            Application.EventHandlers.BaBsRecordCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IBankStatementImportedEventHandler,
+            Application.EventHandlers.BankStatementImportedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ICashTransactionRecordedEventHandler,
+            Application.EventHandlers.CashTransactionRecordedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IExpenseCreatedEventHandler,
+            Application.EventHandlers.ExpenseCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IExpensePaidEventHandler,
+            Application.EventHandlers.ExpensePaidEventHandler>();
+        services.AddScoped<Application.EventHandlers.IFixedAssetCreatedEventHandler,
+            Application.EventHandlers.FixedAssetCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IProfitReportGeneratedEventHandler,
+            Application.EventHandlers.ProfitReportGeneratedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IReconciliationCompletedEventHandler,
+            Application.EventHandlers.ReconciliationCompletedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IReconciliationMatchedEventHandler,
+            Application.EventHandlers.ReconciliationMatchedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ITaxWithholdingComputedEventHandler,
+            Application.EventHandlers.TaxWithholdingComputedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IDailySummaryGeneratedEventHandler,
+            Application.EventHandlers.DailySummaryGeneratedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ISyncRequestedEventHandler,
+            Application.EventHandlers.SyncRequestedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ISyncErrorOccurredEventHandler,
+            Application.EventHandlers.SyncErrorOccurredEventHandler>();
+        services.AddScoped<Application.EventHandlers.ISupplierFeedSyncedEventHandler,
+            Application.EventHandlers.SupplierFeedSyncedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IPlatformNotificationFailedEventHandler,
+            Application.EventHandlers.PlatformNotificationFailedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IDealLostEventHandler,
+            Application.EventHandlers.DealLostEventHandler>();
+        services.AddScoped<Application.EventHandlers.IDealStageChangedEventHandler,
+            Application.EventHandlers.DealStageChangedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IDealWonEventHandler,
+            Application.EventHandlers.DealWonEventHandler>();
+        services.AddScoped<Application.EventHandlers.ILeadConvertedEventHandler,
+            Application.EventHandlers.LeadConvertedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ILeaveApprovedEventHandler,
+            Application.EventHandlers.LeaveApprovedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IDocumentUploadedEventHandler,
+            Application.EventHandlers.DocumentUploadedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ICalendarEventCreatedEventHandler,
+            Application.EventHandlers.CalendarEventCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ITaskCompletedEventHandler,
+            Application.EventHandlers.TaskCompletedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ITaskOverdueEventHandler,
+            Application.EventHandlers.TaskOverdueEventHandler>();
+
         return services;
     }
 }
