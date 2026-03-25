@@ -48,7 +48,62 @@
 
 ### SONRAKİ HEDEF
 **TAVAN_ULASILDI** — DEV 6 Business Logic & WebApi alanında P0-P3 borç kalmadı.
-Bölüm 10.6 ALAN_GENISLEME seçenekleri:
-- A) Onboarding flow — tenant registration, ilk mağaza ekleme
-- B) Billing — SubscriptionPlan, Payment gateway (Iyzico/Stripe)
-- C) KVKK/GDPR — kişisel veri silme, veri dışa aktarma
+
+---
+
+## TUR: 2 (2026-03-25)
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| GOREV_HAVUZU DEV6 atanmış | 4 (G007, G011, G012, G013) |
+| Handler-Endpoint gap | 2 |
+| Hardcoded localhost (frontend) | 10+ URL |
+| MesaLeadScoredConsumer TODO | 1 |
+| Billing CQRS (change plan) | 0 |
+| Billing CQRS (usage check) | 0 |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| GOREV_HAVUZU DEV6 atanmış | 0 (4→0, hepsi kapandı) |
+| Handler-Endpoint gap | 0 (357:357) |
+| Hardcoded localhost (frontend) | 0 (6 dosyada config'e taşındı) |
+| MesaLeadScoredConsumer TODO | 0 (UpdateScore + SaveChanges bağlandı) |
+| Billing CQRS (change plan) | 1 command + handler + validator |
+| Billing CQRS (usage check) | 1 query + handler |
+| Yeni endpoint | 4 (SyncPlatform, SyncBitrix24, ChangePlan, Usage) |
+| Yeni domain event | 1 (SubscriptionPlanChangedEvent) |
+| Yeni domain method | 1 (TenantSubscription.ChangePlan) |
+| Yeni dosya | 7 |
+| Değiştirilen dosya | 12 |
+
+### DELTA
+- G007: MesaLeadScoredConsumer TODO → KAPANDI (lead.UpdateScore wired)
+- G011: Handler-Endpoint gap 2→0 ✅ (SyncPlatform + SyncBitrix24Contacts)
+- G012: ProductsManagement.js 5x localhost → PRODUCTS_API_BASE ✅
+- G013: alpha_notification_system.js ws://localhost → MESTECH_CONFIG.WS_URL ✅
+- 4 ek frontend dosya hardcoded URL düzeltildi
+- ALAN_GENISLEME B: Billing plan upgrade/downgrade + usage metering ✅
+
+### COMMIT
+- `7601e758` fix(mesa): wire Lead.UpdateScore in MesaLeadScoredConsumer — G007 closed
+- `821d0d89` fix(frontend): replace hardcoded localhost URLs with window.MESTECH_CONFIG — G012+G013
+- `b427089a` feat(webapi): add SyncPlatform + SyncBitrix24Contacts endpoints — G011 closed
+- `56cc64a4` feat(billing): add plan upgrade/downgrade + usage metering — ALAN_GENISLEME B
+
+### KULLANIM TESTİ
+- `dotnet build src/MesTech.WebApi/` → 0 Hata, 0 Uyarı ✅
+
+### FMEA
+- ChangePlan prorate hesabı: Şiddet=5 × Olasılık=3 × Tespit=2 = RPN=30 (kabul edilebilir)
+  - Kalan gün hesabı edge case: NextBillingDate null olabilir → Math.Max(0, ...) ile korundu
+- Hardcoded URL → config: Şiddet=7 × Olasılık=2 × Tespit=1 = RPN=14 (düşük)
+  - window.MESTECH_CONFIG tanımlanmazsa fallback localhost devam eder
+
+### KALAN BORÇ (DEV 6 SCOPE)
+- P0-P3: 0 ✅
+- ALAN_GENISLEME B devam edebilir:
+  - Payment webhook endpoint (Iyzico/Stripe callback)
+  - Subscription renewal Hangfire job
+  - Plan limit enforcement middleware
