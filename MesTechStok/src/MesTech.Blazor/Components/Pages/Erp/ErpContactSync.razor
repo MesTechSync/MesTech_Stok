@@ -106,7 +106,7 @@ else
             Logger.LogError(ex, "Cari hesap sync yuklenirken hata");
             errorMessage = "Cari hesap senkronizasyon verileri yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static string GetColor(string s) => s switch { "Senkron" => "success", "Bekliyor" => "warning", "Hata" => "danger", _ => "secondary" };

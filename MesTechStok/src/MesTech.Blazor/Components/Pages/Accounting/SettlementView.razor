@@ -170,7 +170,7 @@ else
             filteredSettlements = [.. allSettlements];
             RecalcKpis();
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static List<Settlement> GetDemoData() =>

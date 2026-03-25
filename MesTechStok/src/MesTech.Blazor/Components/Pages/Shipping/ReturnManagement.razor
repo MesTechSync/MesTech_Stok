@@ -183,7 +183,7 @@ else
             filteredReturns = [.. allReturns];
         }
         catch (Exception ex) { errorMessage = $"Sayfa yuklenirken hata: {ex.Message}"; }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static List<ReturnItem> GetDemoReturns() =>

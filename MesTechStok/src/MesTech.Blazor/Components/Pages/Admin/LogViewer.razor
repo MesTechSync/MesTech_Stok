@@ -151,7 +151,7 @@ else
             allLogs = GetDemoLogs();
             filteredLogs = [.. allLogs];
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static List<LogEntry> GetDemoLogs()

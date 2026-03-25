@@ -138,7 +138,7 @@ else
             Logger.LogError(ex, "Gelir/gider verileri yuklenirken hata");
             errorMessage = "Gelir/gider verileri yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private record IncomeExpenseItem(string Description, decimal Amount);

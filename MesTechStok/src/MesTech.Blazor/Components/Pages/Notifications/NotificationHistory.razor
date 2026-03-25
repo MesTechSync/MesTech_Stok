@@ -111,7 +111,7 @@ else
             Logger.LogError(ex, "Bildirimler yuklenirken hata");
             errorMessage = "Bildirim gecmisi yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static string GetIcon(string type) => type switch { "Siparis" => "fa-shopping-bag", "Stok" => "fa-boxes", "Sistem" => "fa-server", "Odeme" => "fa-credit-card", _ => "fa-bell" };

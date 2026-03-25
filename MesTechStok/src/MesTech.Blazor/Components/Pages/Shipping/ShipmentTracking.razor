@@ -255,6 +255,7 @@ else if (trackingSearched && trackingResult is null)
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 

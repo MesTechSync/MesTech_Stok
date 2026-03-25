@@ -137,7 +137,7 @@ else
             Logger.LogError(ex, "Platform satis raporu yuklenirken hata");
             errorMessage = "Platform satis raporu yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private void ExportReport()

@@ -98,7 +98,7 @@ else
             Logger.LogError(ex, "Feed verileri yuklenirken hata");
             errorMessage = "Feed verileri yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static List<FeedItem> GetDemoData() => new()

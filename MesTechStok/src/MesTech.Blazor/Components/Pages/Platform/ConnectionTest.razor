@@ -139,7 +139,7 @@ else
             _isDemoMode = true;
             platforms = GetDemoPlatforms();
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static List<PlatformInfo> GetDemoPlatforms() =>

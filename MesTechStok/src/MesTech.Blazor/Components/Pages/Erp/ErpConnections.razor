@@ -100,7 +100,7 @@ else
             Logger.LogError(ex, "ERP baglantilari yuklenirken hata");
             errorMessage = "ERP baglanti verileri yuklenirken bir hata olustu.";
         }
-        finally { isLoading = false; }
+        finally { isLoading = false; StateHasChanged(); }
     }
 
     private static string GetStatusColor(string s) => s switch { "Aktif" => "success", "Pasif" => "secondary", "Hata" => "danger", _ => "info" };
