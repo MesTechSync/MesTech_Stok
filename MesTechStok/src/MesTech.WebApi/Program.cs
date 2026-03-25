@@ -208,6 +208,22 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Production startup validation — fail fast on missing critical config (KEŞİF-DEV6-T15)
+if (app.Environment.IsProduction())
+{
+    var connStr = app.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connStr))
+        throw new InvalidOperationException(
+            "STARTUP BLOCKED: ConnectionStrings:DefaultConnection is empty. " +
+            "Set via environment variable or user-secrets before deploying to production.");
+
+    var jwtSecret = app.Configuration["Jwt:Secret"];
+    if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Contains("CHANGE", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException(
+            "STARTUP BLOCKED: Jwt:Secret is placeholder or empty. " +
+            "Set a secure 32+ character secret via user-secrets before deploying to production.");
+}
+
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
 if (app.Environment.IsProduction())
 {
