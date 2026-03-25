@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.ERP.BizimHesap;
 /// Auth: API Key in "X-BizimHesap-ApiKey" header via <see cref="BizimHesapApiClient"/>.
 /// Simpler than Logo/Parasut — standard REST with JSON (not JSON:API).
 /// </summary>
-public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpPriceCapable
+public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpPriceCapable, IErpWaybillCapable, IErpBankCapable
 {
     private readonly BizimHesapApiClient _apiClient;
     private readonly ILogger<BizimHesapERPAdapter> _logger;
@@ -739,6 +739,151 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
         {
             _logger.LogError(ex, "[BizimHesapERPAdapter] GetPriceByCode exception for {Code}", productCode);
             return null;
+        }
+    }
+
+    // ── IErpWaybillCapable ────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    async Task<ErpWaybillResult> IErpWaybillCapable.CreateWaybillAsync(ErpWaybillRequest request, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[BizimHesapERPAdapter] CreateWaybill — Customer:{Customer}", request.CustomerCode);
+
+        try
+        {
+            var payload = new
+            {
+                customerCode = request.CustomerCode,
+                shippingAddress = request.ShippingAddress,
+                cargoFirm = request.CargoFirm,
+                trackingNumber = request.TrackingNumber,
+                date = DateTime.Today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                lines = request.Lines.Select(l => new
+                {
+                    productCode = l.ProductCode,
+                    quantity = l.Quantity,
+                    unitCode = l.UnitCode
+                }).ToArray()
+            };
+
+            var response = await _apiClient.PostJsonAsync("api/v1/waybills", payload, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await _apiClient.DeserializeResponseAsync<BizimHesapWaybillResponse>(response, ct).ConfigureAwait(false);
+                var number = result?.WaybillNumber ?? string.Empty;
+                _logger.LogInformation("[BizimHesapERPAdapter] Waybill created — Number:{Number}", number);
+                return ErpWaybillResult.Ok(number, DateTime.Today);
+            }
+
+            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
+            _logger.LogWarning("[BizimHesapERPAdapter] CreateWaybill failed: {Status} — {Error}", response.StatusCode, errorBody);
+            return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {errorBody[..Math.Min(100, errorBody.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] CreateWaybill exception");
+            return ErpWaybillResult.Failed(ex.Message);
+        }
+    }
+
+    /// <inheritdoc/>
+    async Task<ErpWaybillResult?> IErpWaybillCapable.GetWaybillAsync(string waybillNumber, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(waybillNumber);
+
+        try
+        {
+            var response = await _apiClient.GetAsync($"api/v1/waybills/{Uri.EscapeDataString(waybillNumber)}", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var result = await _apiClient.DeserializeResponseAsync<BizimHesapWaybillResponse>(response, ct).ConfigureAwait(false);
+            if (result is null) return null;
+
+            return ErpWaybillResult.Ok(
+                result.WaybillNumber ?? waybillNumber,
+                result.WaybillDate ?? DateTime.Today);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] GetWaybill exception — Number:{Number}", waybillNumber);
+            return null;
+        }
+    }
+
+    // ── IErpBankCapable ───────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    async Task<List<ErpBankTransaction>> IErpBankCapable.GetTransactionsAsync(DateTime from, DateTime to, CancellationToken ct)
+    {
+        _logger.LogInformation("[BizimHesapERPAdapter] GetTransactions — From:{From} To:{To}", from, to);
+
+        try
+        {
+            var fromStr = from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            var toStr = to.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            var response = await _apiClient.GetAsync($"api/v1/bank-transactions?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
+                _logger.LogWarning("[BizimHesapERPAdapter] GetTransactions failed: {Status} — {Error}", response.StatusCode, errorBody);
+                return [];
+            }
+
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapBankTransactionResponse>>(response, ct).ConfigureAwait(false);
+            if (items is null) return [];
+
+            return items.Select(t => new ErpBankTransaction(
+                t.TransactionDate,
+                t.Amount,
+                t.Description ?? string.Empty,
+                t.TransactionType ?? "OTHER",
+                t.Reference)).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] GetTransactions exception");
+            return [];
+        }
+    }
+
+    /// <inheritdoc/>
+    async Task<ErpPaymentResult> IErpBankCapable.RecordPaymentAsync(ErpPaymentRequest request, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[BizimHesapERPAdapter] RecordPayment — Account:{Account} Amount:{Amount}",
+            request.AccountCode, request.Amount);
+
+        try
+        {
+            var payload = new
+            {
+                accountCode = request.AccountCode,
+                amount = request.Amount,
+                paymentType = request.PaymentType,
+                dueDate = request.DueDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                description = request.Description
+            };
+
+            var response = await _apiClient.PostJsonAsync("api/v1/payments", payload, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await _apiClient.DeserializeResponseAsync<BizimHesapPaymentResponse>(response, ct).ConfigureAwait(false);
+                return ErpPaymentResult.Ok(result?.Reference ?? string.Empty);
+            }
+
+            var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
+            return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}: {errorBody[..Math.Min(100, errorBody.Length)]}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] RecordPayment exception");
+            return ErpPaymentResult.Failed(ex.Message);
         }
     }
 }

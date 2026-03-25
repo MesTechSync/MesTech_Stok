@@ -275,3 +275,45 @@ internal sealed class BizimHesapStockItemResponse
     [JsonPropertyName("unitCost")]
     public string? UnitCost { get; set; }
 }
+
+/// <summary>
+/// Waybill response from BizimHesap API.
+/// </summary>
+internal sealed class BizimHesapWaybillResponse
+{
+    [JsonPropertyName("waybillNumber")]
+    public string? WaybillNumber { get; set; }
+
+    [JsonPropertyName("waybillDate")]
+    public DateTime? WaybillDate { get; set; }
+}
+
+/// <summary>
+/// Bank transaction response from BizimHesap API.
+/// </summary>
+internal sealed class BizimHesapBankTransactionResponse
+{
+    [JsonPropertyName("transactionDate")]
+    public DateTime TransactionDate { get; set; }
+
+    [JsonPropertyName("amount")]
+    public decimal Amount { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("transactionType")]
+    public string? TransactionType { get; set; }
+
+    [JsonPropertyName("reference")]
+    public string? Reference { get; set; }
+}
+
+/// <summary>
+/// Payment response from BizimHesap API.
+/// </summary>
+internal sealed class BizimHesapPaymentResponse
+{
+    [JsonPropertyName("reference")]
+    public string? Reference { get; set; }
+}
