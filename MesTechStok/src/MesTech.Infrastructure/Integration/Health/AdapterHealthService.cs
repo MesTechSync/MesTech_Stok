@@ -24,18 +24,13 @@ public sealed class AdapterHealthService
 
     public async Task<AdapterHealthReport> CheckAllAdaptersAsync(CancellationToken ct = default)
     {
-        var results = new List<AdapterHealthResult>();
-
-        foreach (var adapter in _adapters)
-        {
-            var result = await CheckSingleAdapterAsync(adapter, ct).ConfigureAwait(false);
-            results.Add(result);
-        }
+        var tasks = _adapters.Select(a => CheckSingleAdapterAsync(a, ct));
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return new AdapterHealthReport
         {
             CheckedAt = DateTime.UtcNow,
-            TotalAdapters = results.Count,
+            TotalAdapters = results.Length,
             HealthyCount = results.Count(r => r.IsHealthy),
             UnhealthyCount = results.Count(r => !r.IsHealthy),
             Adapters = results
