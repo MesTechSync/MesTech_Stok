@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -7,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// <summary>
 /// ERP fiyat sync job — gunluk 4 kez calisir (06:00, 12:00, 18:00, 23:00).
 /// ERP'den urun fiyatlarini ceker ve MesTech'e gunceller.
-/// Simdilk log-only placeholder — real structure.
+/// Phase-2 TAM: IErpPriceCapable adapter'lardan fiyat ceker, SKU eslestirip Product.UpdatePrice cagirir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class ErpPriceSyncJob : ISyncJob
@@ -16,11 +17,16 @@ public sealed class ErpPriceSyncJob : ISyncJob
     public string CronExpression => "0 6,12,18,23 * * *"; // Gunluk 4x
 
     private readonly IErpAdapterFactory _factory;
+    private readonly IProductRepository _productRepository;
     private readonly ILogger<ErpPriceSyncJob> _logger;
 
-    public ErpPriceSyncJob(IErpAdapterFactory factory, ILogger<ErpPriceSyncJob> logger)
+    public ErpPriceSyncJob(
+        IErpAdapterFactory factory,
+        IProductRepository productRepository,
+        ILogger<ErpPriceSyncJob> logger)
     {
         _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -29,7 +35,8 @@ public sealed class ErpPriceSyncJob : ISyncJob
         _logger.LogInformation("[{JobId}] ERP fiyat sync basliyor...", JobId);
 
         var providers = _factory.SupportedProviders;
-        var totalProcessed = 0;
+        var totalUpdated = 0;
+        var totalSkipped = 0;
         var totalFailed = 0;
 
         foreach (var provider in providers)
@@ -41,7 +48,14 @@ public sealed class ErpPriceSyncJob : ISyncJob
             {
                 var adapter = _factory.GetAdapter(provider);
 
-                // Ping to verify connectivity before price sync
+                if (adapter is not IErpPriceCapable priceCapable)
+                {
+                    _logger.LogDebug(
+                        "[{JobId}] {Provider} does not implement IErpPriceCapable, skipping",
+                        JobId, provider);
+                    continue;
+                }
+
                 var isAlive = await adapter.PingAsync(ct).ConfigureAwait(false);
                 if (!isAlive)
                 {
@@ -50,13 +64,44 @@ public sealed class ErpPriceSyncJob : ISyncJob
                     continue;
                 }
 
-                // [Phase-2]: Implement price fetch from ERP
-                // Phase 2: adapter.GetProductPricesAsync() → update MesTech prices
-                _logger.LogInformation(
-                    "[{JobId}] {Provider} connected — price sync placeholder (Phase 2)",
-                    JobId, provider);
+                var erpPrices = await priceCapable.GetProductPricesAsync(ct).ConfigureAwait(false);
+                if (erpPrices.Count == 0)
+                {
+                    _logger.LogInformation(
+                        "[{JobId}] {Provider} returned 0 price items", JobId, provider);
+                    continue;
+                }
 
-                totalProcessed++;
+                foreach (var priceItem in erpPrices)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    var product = await _productRepository.GetBySKUAsync(priceItem.ProductCode).ConfigureAwait(false);
+                    if (product is null)
+                    {
+                        totalSkipped++;
+                        continue;
+                    }
+
+                    if (product.SalePrice == priceItem.SalePrice && product.PurchasePrice == priceItem.PurchasePrice)
+                    {
+                        totalSkipped++;
+                        continue;
+                    }
+
+                    product.PurchasePrice = priceItem.PurchasePrice;
+                    product.UpdatePrice(priceItem.SalePrice);
+
+                    if (priceItem.ListPrice.HasValue)
+                        product.ListPrice = priceItem.ListPrice.Value;
+
+                    await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                    totalUpdated++;
+                }
+
+                _logger.LogInformation(
+                    "[{JobId}] {Provider} price sync: {Count} items fetched, {Updated} updated, {Skipped} skipped",
+                    JobId, provider, erpPrices.Count, totalUpdated, totalSkipped);
             }
             catch (OperationCanceledException)
             {
@@ -73,9 +118,7 @@ public sealed class ErpPriceSyncJob : ISyncJob
         }
 
         _logger.LogInformation(
-            "[{JobId}] ERP fiyat sync tamamlandi: {Processed} providers processed, {Failed} failed",
-            JobId, totalProcessed, totalFailed);
-
-        await Task.CompletedTask.ConfigureAwait(false);
+            "[{JobId}] ERP fiyat sync tamamlandi: {Updated} updated, {Skipped} skipped, {Failed} failed",
+            JobId, totalUpdated, totalSkipped, totalFailed);
     }
 }
