@@ -55,7 +55,7 @@ public class AmazonEuWebhookTests
     public void PlatformCode_IsAmazonEU()
     {
         var adapter = CreateAdapter();
-        adapter.PlatformCode.Should().Be("AmazonEU");
+        adapter.PlatformCode.Should().Be("AmazonEu");
     }
 
     private sealed class FakeHandler : HttpMessageHandler
