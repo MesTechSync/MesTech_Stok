@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using MediatR;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Application.Features.System.Queries.GetBackupHistory;
@@ -37,5 +38,22 @@ public static class SystemEndpoints
         })
         .WithName("GetBackupHistory")
         .WithSummary("Yedekleme geçmişi (son N kayıt)");
+
+        // GET /api/v1/system/rate-limit-status — API kota durumu
+        group.MapGet("/rate-limit-status", (HttpContext httpContext) =>
+        {
+            var rateLimitFeature = httpContext.Features
+                .Get<RateLimitLease>();
+
+            return Results.Ok(new
+            {
+                Limit = 100,
+                WindowSeconds = 60,
+                Policy = "PerApiKey",
+                Description = "100 request per minute per API key"
+            });
+        })
+        .WithName("GetRateLimitStatus")
+        .WithSummary("API rate limit kota bilgisi");
     }
 }

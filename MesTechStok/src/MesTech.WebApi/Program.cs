@@ -73,6 +73,21 @@ builder.Services.AddScoped<ITenantProvider, ApiTenantProvider>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, ct) =>
+    {
+        context.HttpContext.Response.Headers["X-RateLimit-Limit"] = "100";
+        context.HttpContext.Response.Headers["X-RateLimit-Remaining"] = "0";
+        context.HttpContext.Response.Headers["Retry-After"] = "60";
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/problem+json";
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            type = "https://tools.ietf.org/html/rfc6585#section-4",
+            title = "Too Many Requests",
+            status = 429,
+            detail = "API rate limit exceeded. 100 requests per minute per API key."
+        }, ct);
+    };
     options.AddPolicy("PerApiKey", context =>
     {
         var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault() ?? "anonymous";
