@@ -296,6 +296,67 @@ public sealed class ProductUpdatedBridgeHandler
     }
 }
 
+/// <summary>
+/// ProductActivatedEvent → Ürün aktif loglama.
+/// Platform'larda ürün satışa açılır.
+/// </summary>
+public sealed class ProductActivatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ProductActivatedEvent>>
+{
+    private readonly ILogger<ProductActivatedBridgeHandler> _logger;
+
+    public ProductActivatedBridgeHandler(ILogger<ProductActivatedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<ProductActivatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ProductActivated — ProductId={ProductId}, SKU={SKU}",
+            e.ProductId, e.SKU);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// ProductDeactivatedEvent → Ürün pasif loglama.
+/// Platform'larda ürün satıştan çekilir.
+/// </summary>
+public sealed class ProductDeactivatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ProductDeactivatedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<ProductDeactivatedBridgeHandler> _logger;
+
+    public ProductDeactivatedBridgeHandler(IMediator mediator, ILogger<ProductDeactivatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<ProductDeactivatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogWarning(
+            "[Event] ProductDeactivated — ProductId={ProductId}, SKU={SKU}",
+            e.ProductId, e.SKU);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "product-deactivated",
+                Content: $"Ürün pasife alındı: {e.SKU}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ProductDeactivated bildirim gönderilemedi — {ProductId}", e.ProductId);
+        }
+    }
+}
+
 #endregion
 
 #region Abonelik

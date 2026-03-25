@@ -121,11 +121,13 @@ public sealed class Invoice : BaseEntity, ITenantEntity
     {
         Status = InvoiceStatus.Accepted;
         AcceptedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new InvoiceAcceptedEvent(Id, TenantId, InvoiceNumber, GrandTotal, DateTime.UtcNow));
     }
 
     public void MarkAsRejected()
     {
         Status = InvoiceStatus.Rejected;
+        RaiseDomainEvent(new InvoiceRejectedEvent(Id, TenantId, InvoiceNumber, DateTime.UtcNow));
     }
 
     public string? CancellationReason { get; private set; }

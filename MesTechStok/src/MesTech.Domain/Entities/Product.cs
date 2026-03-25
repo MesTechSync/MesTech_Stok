@@ -206,12 +206,14 @@ public sealed class Product : BaseEntity, ITenantEntity
     {
         IsActive = true;
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ProductActivatedEvent(Id, TenantId, SKU, DateTime.UtcNow));
     }
 
     public void Deactivate()
     {
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ProductDeactivatedEvent(Id, TenantId, SKU, DateTime.UtcNow));
     }
 
     public decimal ProfitMargin => SalePrice > 0 && PurchasePrice > 0

@@ -122,3 +122,78 @@ public sealed class InvoiceApprovedLogHandler : INotificationHandler<DomainEvent
         }
     }
 }
+
+/// <summary>
+/// InvoiceAcceptedEvent handler — fatura kabul loglama + bildirim dispatch.
+/// </summary>
+public sealed class InvoiceAcceptedLogHandler : INotificationHandler<DomainEventNotification<InvoiceAcceptedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<InvoiceAcceptedLogHandler> _logger;
+
+    public InvoiceAcceptedLogHandler(IMediator mediator, ILogger<InvoiceAcceptedLogHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<InvoiceAcceptedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] InvoiceAccepted — InvoiceId={InvoiceId}, Number={Number}, Total={Total}",
+            e.InvoiceId, e.InvoiceNumber, e.GrandTotal);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "invoice-accepted",
+                Content: $"Fatura kabul edildi: {e.InvoiceNumber}\n" +
+                         $"Toplam: {e.GrandTotal:C}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "InvoiceAccepted bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
+        }
+    }
+}
+
+/// <summary>
+/// InvoiceRejectedEvent handler — fatura red loglama + bildirim dispatch.
+/// </summary>
+public sealed class InvoiceRejectedLogHandler : INotificationHandler<DomainEventNotification<InvoiceRejectedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<InvoiceRejectedLogHandler> _logger;
+
+    public InvoiceRejectedLogHandler(IMediator mediator, ILogger<InvoiceRejectedLogHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<InvoiceRejectedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogWarning(
+            "[Event] InvoiceRejected — InvoiceId={InvoiceId}, Number={Number}",
+            e.InvoiceId, e.InvoiceNumber);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "invoice-rejected",
+                Content: $"Fatura reddedildi: {e.InvoiceNumber}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "InvoiceRejected bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
+        }
+    }
+}
