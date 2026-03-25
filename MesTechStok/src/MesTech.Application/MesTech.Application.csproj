@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="MediatR" />
