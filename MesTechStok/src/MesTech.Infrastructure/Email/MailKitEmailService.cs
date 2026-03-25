@@ -42,7 +42,7 @@ public sealed class MailKitEmailService : IEmailService
 
     // Mustache-style placeholder pattern: {{key}}
     private static readonly Regex PlaceholderRegex = new(
-        @"\{\{(\w+)\}\}", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+        @"\{\{(?<key>\w+)\}\}", RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(1));
 
     public MailKitEmailService(
         IOptions<SmtpSettings> settings,
@@ -122,7 +122,7 @@ public sealed class MailKitEmailService : IEmailService
     {
         return PlaceholderRegex.Replace(template, match =>
         {
-            var key = match.Groups[1].Value;
+            var key = match.Groups["key"].Value;
             return placeholders.TryGetValue(key, out var value)
                 ? value
                 : match.Value; // Bilinmeyen placeholder oldugu gibi kalir
