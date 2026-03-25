@@ -582,9 +582,10 @@ public static class InfrastructureServiceRegistration
             AnomalyCheckHandler>();
 
         // ── Application EventHandler DI Registration ──
-        // 52 Application handler interface+class tanımlı ama dispatch zincirine bağlı DEĞİLDİ.
-        // Bridge handler'lar DomainEventNotification<T> → Application interface çağırır.
-        // Kritik iş zincirleri:
+        // G020 TUR 7: 50 log-only handler kaldırıldı. Kalan 10 handler gerçek iş yapıyor.
+        // OrphanEventBridgeHandlers tüm event loglama + notification işini üstlenir.
+
+        // Kritik iş zincirleri (stok/muhasebe/return):
         services.AddScoped<Application.EventHandlers.IOrderPlacedEventHandler,
             Application.EventHandlers.OrderPlacedStockDeductionHandler>();
         services.AddScoped<Application.EventHandlers.IOrderConfirmedRevenueHandler,
@@ -593,114 +594,10 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.ReturnApprovedStockRestorationHandler>();
         services.AddScoped<Application.EventHandlers.IReturnJournalReversalHandler,
             Application.EventHandlers.ReturnJournalReversalHandler>();
-        services.AddScoped<Application.EventHandlers.IShipmentCostRecordedEventHandler,
-            Application.EventHandlers.ShipmentCostRecordedEventHandler>();
         services.AddScoped<Application.EventHandlers.IZeroStockEventHandler,
             Application.EventHandlers.ZeroStockDetectedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IPriceLossEventHandler,
-            Application.EventHandlers.PriceLossDetectedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IStaleOrderEventHandler,
-            Application.EventHandlers.StaleOrderDetectedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IOrderCancelledEventHandler,
-            Application.EventHandlers.OrderCancelledEventHandler>();
 
-        // Batch 2 — DIRECT event handlers (event'i doğrudan alan)
-        services.AddScoped<Application.EventHandlers.IOrderReceivedEventHandler,
-            Application.EventHandlers.OrderReceivedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IOrderShippedEventHandler,
-            Application.EventHandlers.OrderShippedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IReturnCreatedEventHandler,
-            Application.EventHandlers.ReturnCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IReturnResolvedEventHandler,
-            Application.EventHandlers.ReturnResolvedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IProductCreatedEventHandler,
-            Application.EventHandlers.ProductCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IProductUpdatedEventHandler,
-            Application.EventHandlers.ProductUpdatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IPriceChangedEventHandler,
-            Application.EventHandlers.PriceChangedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IStockCriticalEventHandler,
-            Application.EventHandlers.StockCriticalEventHandler>();
-        services.AddScoped<Application.EventHandlers.IBuyboxLostEventHandler,
-            Application.EventHandlers.BuyboxLostEventHandler>();
-        services.AddScoped<Application.EventHandlers.IInvoiceApprovedEventHandler,
-            Application.EventHandlers.InvoiceApprovedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IInvoiceGeneratedForERPEventHandler,
-            Application.EventHandlers.InvoiceGeneratedForERPEventHandler>();
-        services.AddScoped<Application.EventHandlers.IBaBsRecordCreatedEventHandler,
-            Application.EventHandlers.BaBsRecordCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IBankStatementImportedEventHandler,
-            Application.EventHandlers.BankStatementImportedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ICashTransactionRecordedEventHandler,
-            Application.EventHandlers.CashTransactionRecordedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IExpenseCreatedEventHandler,
-            Application.EventHandlers.ExpenseCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IExpensePaidEventHandler,
-            Application.EventHandlers.ExpensePaidEventHandler>();
-        services.AddScoped<Application.EventHandlers.IFixedAssetCreatedEventHandler,
-            Application.EventHandlers.FixedAssetCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IProfitReportGeneratedEventHandler,
-            Application.EventHandlers.ProfitReportGeneratedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IReconciliationCompletedEventHandler,
-            Application.EventHandlers.ReconciliationCompletedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IReconciliationMatchedEventHandler,
-            Application.EventHandlers.ReconciliationMatchedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ITaxWithholdingComputedEventHandler,
-            Application.EventHandlers.TaxWithholdingComputedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IDailySummaryGeneratedEventHandler,
-            Application.EventHandlers.DailySummaryGeneratedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ISyncRequestedEventHandler,
-            Application.EventHandlers.SyncRequestedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ISyncErrorOccurredEventHandler,
-            Application.EventHandlers.SyncErrorOccurredEventHandler>();
-        services.AddScoped<Application.EventHandlers.ISupplierFeedSyncedEventHandler,
-            Application.EventHandlers.SupplierFeedSyncedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IPlatformNotificationFailedEventHandler,
-            Application.EventHandlers.PlatformNotificationFailedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IDealLostEventHandler,
-            Application.EventHandlers.DealLostEventHandler>();
-        services.AddScoped<Application.EventHandlers.IDealStageChangedEventHandler,
-            Application.EventHandlers.DealStageChangedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IDealWonEventHandler,
-            Application.EventHandlers.DealWonEventHandler>();
-        services.AddScoped<Application.EventHandlers.ILeadConvertedEventHandler,
-            Application.EventHandlers.LeadConvertedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ILeaveApprovedEventHandler,
-            Application.EventHandlers.LeaveApprovedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IDocumentUploadedEventHandler,
-            Application.EventHandlers.DocumentUploadedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ICalendarEventCreatedEventHandler,
-            Application.EventHandlers.CalendarEventCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ITaskCompletedEventHandler,
-            Application.EventHandlers.TaskCompletedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ITaskOverdueEventHandler,
-            Application.EventHandlers.TaskOverdueEventHandler>();
-
-        // Batch 3 — PARAMS event handlers (event property'lerinden parametre çekilen)
-        services.AddScoped<Application.EventHandlers.IEInvoiceCancelledEventHandler,
-            Application.EventHandlers.EInvoiceCancelledEventHandler>();
-        services.AddScoped<Application.EventHandlers.IEInvoiceCreatedEventHandler,
-            Application.EventHandlers.EInvoiceCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IEInvoiceSentEventHandler,
-            Application.EventHandlers.EInvoiceSentEventHandler>();
-        services.AddScoped<Application.EventHandlers.IExpenseApprovedEventHandler,
-            Application.EventHandlers.ExpenseApprovedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ILeaveRejectedEventHandler,
-            Application.EventHandlers.LeaveRejectedEventHandler>();
-        services.AddScoped<Application.EventHandlers.INotificationSettingsUpdatedEventHandler,
-            Application.EventHandlers.NotificationSettingsUpdatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IOnboardingCompletedEventHandler,
-            Application.EventHandlers.OnboardingCompletedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IPaymentFailedEventHandler,
-            Application.EventHandlers.PaymentFailedEventHandler>();
-        services.AddScoped<Application.EventHandlers.ISubscriptionCancelledEventHandler,
-            Application.EventHandlers.SubscriptionCancelledEventHandler>();
-        services.AddScoped<Application.EventHandlers.ISubscriptionCreatedEventHandler,
-            Application.EventHandlers.SubscriptionCreatedEventHandler>();
-        services.AddScoped<Application.EventHandlers.IPlatformMessageReceivedEventHandler,
-            Application.EventHandlers.PlatformMessageReceivedEventHandler>();
-
-        // Batch 4 — Muhasebe GL handler'lar (repo-enriched bridges)
+        // Muhasebe GL handler'lar (repo-enriched bridges):
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,
             Application.EventHandlers.InvoiceApprovedGLHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceCancelledReversalHandler,
