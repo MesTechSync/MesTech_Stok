@@ -500,3 +500,54 @@ Durum: **ALAN OLGUN — KATMAN 2 TEKNOLOJİ KEŞFİ YAPILACAK**
 ### KARAR
 Webhook güvenlik katmanı tamamlandı — 15/15 platform imza doğrulaması mevcut.
 Durum: **GÜVENLİK KATMANI TAM**
+
+---
+
+## TUR 13 — 2026-03-25 (Bölüm 6 Katman 4: Rate-Limit Resilience)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| Retry-After header parsing | 2/15 (Trendyol + Bitrix24 only) |
+| 429 handling | 4/15 (Trendyol, Bitrix24, OpenCart, Etsy) |
+| Shopify 429 handling | **YOK** (leaky bucket 40 req/s) |
+| Guid.Empty | ~47 (tümü guard clause veya overload fallback — DOĞRU pattern) |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 29 | EtsyAdapter | Two-stage retry: 429 Retry-After + 5xx backoff | 2ff275a8 |
+| 30 | ShopifyAdapter | Missing 429 handling + Retry-After parsing | 351159a2 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Retry-After parsing | 2 | 4 | +2 ✅ |
+| Two-stage retry (429+5xx) | 2 | 4 | +2 ✅ |
+| Shopify 429 handling | 0 | 1 | +1 ✅ (KRİTİK) |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| Shopify rate limit → request drop | 8 | 7 | 3 | 168 | FIX |
+| Etsy aggressive retry on 429 | 5 | 5 | 4 | 100 | FIX |
+
+### KÜMÜLATİF DEV 3 (13 tur, 31 commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | -8 |
+| Silent stub | 8 | 0 | -8 |
+| Thread-safety risk | 2 | 0 | -2 |
+| new HttpClient() | 1 | 0 | -1 |
+| Webhook validator | 8 | 14 | **+6** |
+| Retry-After parsing | 2 | 4 | +2 |
+| Toplam capability | 22 | 90 | **+68** |
+
+### KARAR
+Etsy + Shopify artık Retry-After header'ını parse ediyor. Shopify 429 eksikliği KRİTİK fix'ti.
+Sonraki turda: eBay, Ozon, Amazon retry'ları da two-stage yapılabilir ama öncelik düşük
+(mevcut exponential backoff yeterli, 429 yakalanıyor).
+Durum: **RATE-LIMIT RESILIENCE İYİLEŞTİRİLDİ**
