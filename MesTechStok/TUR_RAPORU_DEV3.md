@@ -74,4 +74,33 @@
 
 ### KARAR
 DEV 3 alanı temiz. Kalan borçlar DEV 1 bağımlı (Domain değişikliği gerekiyor).
-Durum: **KEŞİF FAZINA GEÇ** veya **DEV DEĞİŞTİR**
+Durum: **KEŞİF FAZINA GEÇTİ**
+
+---
+
+## TUR 3 — 2026-03-25 (KEŞİF FAZI)
+
+### BİLİM ADAMI — CAPABILITY GAP ANALİZİ
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| IShipmentCapable gap | 5 (Trendyol, AmazonTr, AmazonEu, Ozon, PttAvm — SupportsShipment=true ama interface yok) |
+| Orphan event | 0 |
+| PII sızıntı | 0 |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 7 | TrendyolAdapter.cs | IShipmentCapableAdapter + SendShipmentAsync | e56f31f6 |
+| 8 | AmazonTrAdapter.cs + AmazonEuAdapter.cs | IShipmentCapableAdapter + SP-API feed | 22007bee |
+| 9 | OzonAdapter.cs + PttAvmAdapter.cs | IShipmentCapableAdapter | bf50a103 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| IShipmentCapable adapter | 7 | 12 | +5 ✅ |
+| SupportsShipment=true w/o interface | 5 | 0 | -5 ✅ |
+
+### KARAR
+Tüm `SupportsShipment => true` adapter'lar artık `IShipmentCapableAdapter` implemente ediyor.
+Sonraki hedef: ISettlementCapable gap (HB, ÇS, Ozon, PttAvm, Shopify, WooCommerce eksik) veya başka DEV.
