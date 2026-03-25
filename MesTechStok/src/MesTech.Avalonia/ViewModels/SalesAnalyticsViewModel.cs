@@ -75,8 +75,9 @@ public partial class SalesAnalyticsViewModel : ViewModelBase
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
 
+    /// <summary>FilterCommand — used by "Filtrele" button in filter bar. Alias for Filter.</summary>
     [RelayCommand]
-    private async Task FilterAsync() => await LoadAsync();
+    private async Task Filter() => await LoadAsync();
 
     [RelayCommand]
     private void ExportExcel()
