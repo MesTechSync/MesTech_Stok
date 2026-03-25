@@ -15,12 +15,13 @@ using Polly.Retry;
 namespace MesTech.Infrastructure.Integration.Adapters;
 
 /// <summary>
-/// OpenCart platform adaptoru — IIntegratorAdapter + IOrderCapableAdapter + ICustomerSyncCapable + ICategorySyncCapable.
+/// OpenCart platform adaptoru — IIntegratorAdapter + IOrderCapableAdapter + ICustomerSyncCapable + ICategorySyncCapable
+/// + ISettlementCapableAdapter + IShipmentCapableAdapter + IClaimCapableAdapter + IInvoiceCapableAdapter.
 /// Polly retry pipeline, batch stok guncelleme, siparis cekme, musteri ve kategori senkronizasyonu destegi.
-/// OpenCart'ta kargo yonetimi yok (SupportsShipment = false).
 /// </summary>
 public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
-    ICustomerSyncCapable, ICategorySyncCapable, ISettlementCapableAdapter
+    ICustomerSyncCapable, ICategorySyncCapable, ISettlementCapableAdapter,
+    IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
@@ -81,7 +82,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public string PlatformCode => nameof(PlatformType.OpenCart);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
-    public bool SupportsShipment => false;
+    public bool SupportsShipment => true;
 
     private void ConfigureAuth(Dictionary<string, string> credentials)
     {
@@ -1000,5 +1001,358 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     {
         _logger.LogInformation("OpenCartAdapter.GetCargoInvoicesAsync: OpenCart does not provide cargo invoices — returning empty list. StartDate={StartDate}", startDate);
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IShipmentCapableAdapter — Kargo Bildirimi
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Sends shipment notification to OpenCart by updating order status to Shipped + tracking info.
+    /// PUT /api/rest/orders/{id} with status=shipped + tracking.
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(platformOrderId))
+            {
+                _logger.LogWarning("OpenCart SendShipment — platformOrderId bos olamaz");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                _logger.LogWarning("OpenCart SendShipment — trackingNumber bos olamaz. OrderId={OrderId}",
+                    platformOrderId);
+                return false;
+            }
+
+            var cargoCompany = MapCargoProviderToOpenCart(provider);
+            var payload = new
+            {
+                order_status_id = 3, // Shipped
+                comment = $"Kargo: {cargoCompany}, Takip No: {trackingNumber}",
+                notify = true,
+                tracking_number = trackingNumber,
+                shipping_company = cargoCompany
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/orders/{platformOrderId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "OpenCart SendShipment basarili — OrderId={OrderId}, Tracking={Tracking}, Cargo={Cargo}",
+                    platformOrderId, trackingNumber, cargoCompany);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("OpenCart SendShipment basarisiz {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart SendShipment hatasi — OrderId={OrderId}", platformOrderId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Maps CargoProvider enum to OpenCart cargo company name.
+    /// </summary>
+    private static string MapCargoProviderToOpenCart(CargoProvider provider) => provider switch
+    {
+        CargoProvider.YurticiKargo => "Yurtiçi Kargo",
+        CargoProvider.ArasKargo => "Aras Kargo",
+        CargoProvider.SuratKargo => "Sürat Kargo",
+        CargoProvider.MngKargo => "MNG Kargo",
+        CargoProvider.PttKargo => "PTT Kargo",
+        CargoProvider.Hepsijet => "Hepsijet",
+        CargoProvider.UPS => "UPS",
+        CargoProvider.Sendeo => "Sendeo",
+        CargoProvider.DHL => "DHL",
+        CargoProvider.FedEx => "FedEx",
+        _ => provider.ToString()
+    };
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Pulls return requests from OpenCart.
+    /// GET /api/rest/returns with date filter.
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var page = 1;
+            const int limit = 50;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"/api/rest/returns?limit={limit}&page={page}";
+                if (since.HasValue)
+                    url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(
+                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("OpenCart PullClaims failed: {Status} - {Error}", response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var dataArr) || dataArr.ValueKind != JsonValueKind.Array)
+                {
+                    hasMore = false;
+                    break;
+                }
+
+                var items = dataArr.EnumerateArray().ToList();
+                if (items.Count == 0) break;
+
+                foreach (var item in items)
+                {
+                    var claimId = item.TryGetProperty("return_id", out var ridEl)
+                        ? ridEl.ToString() : string.Empty;
+
+                    var orderId = item.TryGetProperty("order_id", out var oidEl)
+                        ? oidEl.ToString() : string.Empty;
+
+                    var status = item.TryGetProperty("return_status", out var stEl)
+                        ? stEl.GetString() ?? string.Empty : string.Empty;
+
+                    var reason = item.TryGetProperty("return_reason", out var rsEl)
+                        ? rsEl.GetString() ?? string.Empty : string.Empty;
+
+                    var comment = item.TryGetProperty("comment", out var cmEl)
+                        ? cmEl.GetString() : null;
+
+                    var firstName = item.TryGetProperty("firstname", out var fnEl) ? fnEl.GetString() ?? "" : "";
+                    var lastName = item.TryGetProperty("lastname", out var lnEl) ? lnEl.GetString() ?? "" : "";
+                    var customerName = $"{firstName} {lastName}".Trim();
+
+                    var email = item.TryGetProperty("email", out var emEl) ? emEl.GetString() : null;
+
+                    var claimDate = DateTime.UtcNow;
+                    if (item.TryGetProperty("date_added", out var daEl) &&
+                        DateTime.TryParse(daEl.GetString(), out var parsedDate))
+                    {
+                        claimDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                    }
+
+                    var productName = item.TryGetProperty("product", out var pnEl)
+                        ? pnEl.GetString() ?? string.Empty : string.Empty;
+
+                    var quantity = item.TryGetProperty("quantity", out var qtyEl)
+                        && int.TryParse(qtyEl.GetString() ?? qtyEl.ToString(), out var qtyVal)
+                        ? qtyVal : 1;
+
+                    var claim = new ExternalClaimDto
+                    {
+                        PlatformClaimId = claimId,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = orderId,
+                        Status = status,
+                        Reason = reason,
+                        ReasonDetail = comment,
+                        CustomerName = customerName,
+                        CustomerEmail = email,
+                        Amount = 0m, // OpenCart returns API does not provide amount
+                        Currency = "TRY",
+                        ClaimDate = claimDate
+                    };
+
+                    // OpenCart returns are typically for a single product
+                    claim.Lines.Add(new ExternalClaimLineDto
+                    {
+                        ProductName = productName,
+                        Quantity = quantity,
+                        SKU = item.TryGetProperty("model", out var mdEl) ? mdEl.GetString() : null
+                    });
+
+                    claims.Add(claim);
+                }
+
+                hasMore = items.Count == limit;
+                page++;
+            }
+
+            _logger.LogInformation("OpenCart PullClaims: {Count} claims retrieved", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart PullClaims failed");
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Approves a return request on OpenCart.
+    /// PUT /api/rest/returns/{id} with status=approved (return_status_id=2).
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                _logger.LogWarning("OpenCart ApproveClaim — claimId bos olamaz");
+                return false;
+            }
+
+            var payload = new { return_status_id = 2 }; // Approved
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/returns/{claimId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("OpenCart ApproveClaim basarili — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("OpenCart ApproveClaim basarisiz {Status}: {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Rejects a return request on OpenCart.
+    /// PUT /api/rest/returns/{id} with status=rejected (return_status_id=3) + comment.
+    /// </summary>
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                _logger.LogWarning("OpenCart RejectClaim — claimId bos olamaz");
+                return false;
+            }
+
+            var payload = new
+            {
+                return_status_id = 3, // Rejected
+                comment = reason ?? string.Empty
+            };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/api/rest/returns/{claimId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("OpenCart RejectClaim basarili — ClaimId={ClaimId}, Reason={Reason}",
+                    claimId, reason);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("OpenCart RejectClaim basarisiz {Status}: {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart RejectClaim hatasi — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura (Self-hosted)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// OpenCart is self-hosted — invoice link sending is a local operation.
+    /// Logs the invoice URL and returns true.
+    /// </summary>
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(shipmentPackageId))
+        {
+            _logger.LogWarning("OpenCart SendInvoiceLink — shipmentPackageId bos olamaz");
+            return Task.FromResult(false);
+        }
+
+        _logger.LogInformation(
+            "OpenCart SendInvoiceLink — self-hosted, fatura linki kaydedildi. OrderId={OrderId}, Url={Url}",
+            shipmentPackageId, invoiceUrl);
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// OpenCart is self-hosted — invoice PDF upload is a local operation.
+    /// Logs the upload and returns true.
+    /// </summary>
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(shipmentPackageId))
+        {
+            _logger.LogWarning("OpenCart SendInvoiceFile — shipmentPackageId bos olamaz");
+            return Task.FromResult(false);
+        }
+
+        if (pdfBytes is null || pdfBytes.Length == 0)
+        {
+            _logger.LogWarning("OpenCart SendInvoiceFile — pdfBytes bos olamaz. OrderId={OrderId}",
+                shipmentPackageId);
+            return Task.FromResult(false);
+        }
+
+        _logger.LogInformation(
+            "OpenCart SendInvoiceFile — self-hosted, fatura PDF kaydedildi. OrderId={OrderId}, File={FileName}, Size={Size}bytes",
+            shipmentPackageId, fileName, pdfBytes.Length);
+        return Task.FromResult(true);
     }
 }

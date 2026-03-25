@@ -23,7 +23,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Stock: PUT /api/product/stock
 /// Price: PUT /api/product/price
 /// </summary>
-public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
+public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter,
+    IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
@@ -734,6 +735,431 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         CargoProvider.FedEx => "FedEx",
         _ => provider.ToString()
     };
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter — Cari Hesap
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Pulls settlement data from PTT AVM.
+    /// GET /api/settlement?startDate={start}&amp;endDate={end}
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "PttAVM",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "TRY"
+            };
+
+            var startStr = startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var endStr = endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var url = $"{_baseUrl}/api/settlement?startDate={startStr}&endDate={endStr}";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM GetSettlement failed: {Status} - {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (doc.RootElement.TryGetProperty("data", out var dataArr) && dataArr.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in dataArr.EnumerateArray())
+                {
+                    var orderNumber = item.TryGetProperty("orderNumber", out var onEl)
+                        ? onEl.GetString() : null;
+
+                    var txType = item.TryGetProperty("transactionType", out var ttEl)
+                        ? ttEl.GetString() ?? "SALE" : "SALE";
+
+                    var amount = 0m;
+                    if (item.TryGetProperty("amount", out var amtEl))
+                        decimal.TryParse(amtEl.GetRawText(), NumberStyles.Any, CultureInfo.InvariantCulture, out amount);
+
+                    decimal? commission = null;
+                    if (item.TryGetProperty("commission", out var comEl))
+                    {
+                        if (decimal.TryParse(comEl.GetRawText(), NumberStyles.Any, CultureInfo.InvariantCulture, out var comVal))
+                            commission = comVal;
+                    }
+
+                    var txDate = DateTime.UtcNow;
+                    if (item.TryGetProperty("transactionDate", out var tdEl) &&
+                        DateTime.TryParse(tdEl.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var parsedTxDate))
+                    {
+                        txDate = parsedTxDate;
+                    }
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderNumber,
+                        TransactionType = txType,
+                        Amount = amount,
+                        CommissionAmount = commission,
+                        TransactionDate = txDate
+                    });
+
+                    if (txType == "SALE")
+                    {
+                        settlement.TotalSales += amount;
+                        settlement.TotalCommission += commission ?? 0m;
+                    }
+                    else if (txType == "RETURN")
+                    {
+                        settlement.TotalReturnDeduction += amount;
+                    }
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("PttAVM GetSettlement: {LineCount} lines, Net={Net} TRY",
+                settlement.Lines.Count, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("PttAvmAdapter.GetCargoInvoicesAsync: PttAVM does not expose cargo invoices — returning empty list. StartDate={StartDate}", startDate);
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Pulls return/claim requests from PTT AVM.
+    /// GET /api/return-requests?startDate={since}
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
+            var sinceStr = sinceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var url = $"{_baseUrl}/api/return-requests?startDate={sinceStr}";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM PullClaims failed: {Status} - {Error}", response.StatusCode, error);
+                return claims.AsReadOnly();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (!doc.RootElement.TryGetProperty("data", out var dataArr) || dataArr.ValueKind != JsonValueKind.Array)
+                return claims.AsReadOnly();
+
+            foreach (var item in dataArr.EnumerateArray())
+            {
+                var claimId = item.TryGetProperty("returnRequestId", out var crIdEl)
+                    ? crIdEl.GetString() ?? string.Empty : string.Empty;
+
+                var orderNumber = item.TryGetProperty("orderNumber", out var onEl)
+                    ? onEl.GetString() ?? string.Empty : string.Empty;
+
+                var status = item.TryGetProperty("status", out var stEl)
+                    ? stEl.GetString() ?? string.Empty : string.Empty;
+
+                var reason = item.TryGetProperty("reason", out var rsEl)
+                    ? rsEl.GetString() ?? string.Empty : string.Empty;
+
+                var reasonDetail = item.TryGetProperty("reasonDetail", out var rdEl)
+                    ? rdEl.GetString() : null;
+
+                var customerName = item.TryGetProperty("customerName", out var cnEl)
+                    ? cnEl.GetString() ?? string.Empty : string.Empty;
+
+                var amount = 0m;
+                if (item.TryGetProperty("amount", out var amtEl))
+                    decimal.TryParse(amtEl.GetRawText(), NumberStyles.Any, CultureInfo.InvariantCulture, out amount);
+
+                var claimDate = DateTime.UtcNow;
+                if (item.TryGetProperty("requestDate", out var cdEl) &&
+                    DateTime.TryParse(cdEl.GetString(), CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind, out var parsedClaimDate))
+                {
+                    claimDate = parsedClaimDate;
+                }
+
+                var claim = new ExternalClaimDto
+                {
+                    PlatformClaimId = claimId,
+                    PlatformCode = PlatformCode,
+                    OrderNumber = orderNumber,
+                    Status = status,
+                    Reason = reason,
+                    ReasonDetail = reasonDetail,
+                    CustomerName = customerName,
+                    Amount = amount,
+                    Currency = "TRY",
+                    ClaimDate = claimDate
+                };
+
+                // Parse line items if available
+                if (item.TryGetProperty("lines", out var linesArr) && linesArr.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var lineEl in linesArr.EnumerateArray())
+                    {
+                        claim.Lines.Add(new ExternalClaimLineDto
+                        {
+                            SKU = lineEl.TryGetProperty("sku", out var skuEl) ? skuEl.GetString() : null,
+                            Barcode = lineEl.TryGetProperty("barcode", out var bcEl) ? bcEl.GetString() : null,
+                            ProductName = lineEl.TryGetProperty("productName", out var pnEl)
+                                ? pnEl.GetString() ?? string.Empty : string.Empty,
+                            Quantity = lineEl.TryGetProperty("quantity", out var qtyEl)
+                                ? qtyEl.GetInt32() : 1,
+                            UnitPrice = lineEl.TryGetProperty("unitPrice", out var upEl)
+                                && decimal.TryParse(upEl.GetRawText(), NumberStyles.Any, CultureInfo.InvariantCulture, out var upVal)
+                                ? upVal : 0m
+                        });
+                    }
+                }
+
+                claims.Add(claim);
+            }
+
+            _logger.LogInformation("PttAVM PullClaims: {Count} claims retrieved", claims.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM PullClaims failed");
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Approves a return request on PTT AVM.
+    /// PUT /api/return-requests/{id}/approve
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                _logger.LogWarning("PttAVM ApproveClaim — claimId bos olamaz");
+                return false;
+            }
+
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var url = $"{_baseUrl}/api/return-requests/{claimId}/approve";
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PutAsync(url, null, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("PttAVM ApproveClaim basarili — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("PttAVM ApproveClaim basarisiz {Status}: {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Rejects a return request on PTT AVM.
+    /// PUT /api/return-requests/{id}/reject with reason body.
+    /// </summary>
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                _logger.LogWarning("PttAVM RejectClaim — claimId bos olamaz");
+                return false;
+            }
+
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new { reason };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/return-requests/{claimId}/reject";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("PttAVM RejectClaim basarili — ClaimId={ClaimId}, Reason={Reason}",
+                    claimId, reason);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("PttAVM RejectClaim basarisiz {Status}: {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM RejectClaim hatasi — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderimi
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Sends an invoice link for an order on PTT AVM.
+    /// POST /api/orders/{id}/invoice with invoiceUrl body.
+    /// </summary>
+    public async Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(shipmentPackageId))
+            {
+                _logger.LogWarning("PttAVM SendInvoiceLink — shipmentPackageId bos olamaz");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(invoiceUrl))
+            {
+                _logger.LogWarning("PttAVM SendInvoiceLink — invoiceUrl bos olamaz. PackageId={PackageId}",
+                    shipmentPackageId);
+                return false;
+            }
+
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new { invoiceUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "PttAVM SendInvoiceLink basarili — PackageId={PackageId}, Url={Url}",
+                    shipmentPackageId, invoiceUrl);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("PttAVM SendInvoiceLink basarisiz {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM SendInvoiceLink hatasi — PackageId={PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Uploads invoice PDF file for an order on PTT AVM.
+    /// POST /api/orders/{id}/invoice-upload with multipart/form-data.
+    /// </summary>
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(shipmentPackageId))
+            {
+                _logger.LogWarning("PttAVM SendInvoiceFile — shipmentPackageId bos olamaz");
+                return false;
+            }
+
+            if (pdfBytes is null || pdfBytes.Length == 0)
+            {
+                _logger.LogWarning("PttAVM SendInvoiceFile — pdfBytes bos olamaz. PackageId={PackageId}",
+                    shipmentPackageId);
+                return false;
+            }
+
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            using var formContent = new MultipartFormDataContent();
+            var fileContent = new ByteArrayContent(pdfBytes);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+            formContent.Add(fileContent, "file", fileName ?? "invoice.pdf");
+
+            var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice-upload";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PostAsync(url, formContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "PttAVM SendInvoiceFile basarili — PackageId={PackageId}, File={FileName}, Size={Size}bytes",
+                    shipmentPackageId, fileName, pdfBytes.Length);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("PttAVM SendInvoiceFile basarisiz {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM SendInvoiceFile hatasi — PackageId={PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
 
     // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
