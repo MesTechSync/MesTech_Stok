@@ -56,6 +56,8 @@ public class ParasutERPAdapterTests
         _sut = new ParasutERPAdapter(
             _httpClient,
             _tokenService,
+            new Mock<MesTech.Domain.Interfaces.IOrderRepository>().Object,
+            new Mock<MesTech.Domain.Interfaces.IInvoiceRepository>().Object,
             new Mock<ILogger<ParasutERPAdapter>>().Object);
     }
 

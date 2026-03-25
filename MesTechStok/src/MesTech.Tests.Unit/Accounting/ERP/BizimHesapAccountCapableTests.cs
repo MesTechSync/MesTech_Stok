@@ -44,6 +44,8 @@ public class BizimHesapAccountCapableTests
 
         _sut = new BizimHesapERPAdapter(
             apiClient,
+            new Mock<MesTech.Domain.Interfaces.IOrderRepository>().Object,
+            new Mock<MesTech.Domain.Interfaces.IInvoiceRepository>().Object,
             new Mock<ILogger<BizimHesapERPAdapter>>().Object);
     }
 

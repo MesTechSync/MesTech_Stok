@@ -3,6 +3,7 @@ using MesTech.Application.Interfaces.Erp;
 using MesTech.Infrastructure.Integration.ERP.BizimHesap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 
 namespace MesTech.Tests.Unit.Infrastructure.Erp;
@@ -32,6 +33,8 @@ public class BizimHesapCapabilityTests
 
         return new BizimHesapERPAdapter(
             apiClient,
+            new Mock<MesTech.Domain.Interfaces.IOrderRepository>().Object,
+            new Mock<MesTech.Domain.Interfaces.IInvoiceRepository>().Object,
             NullLogger<BizimHesapERPAdapter>.Instance);
     }
 

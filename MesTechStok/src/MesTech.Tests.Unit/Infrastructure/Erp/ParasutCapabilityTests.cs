@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace MesTech.Tests.Unit.Infrastructure.Erp;
@@ -37,6 +38,8 @@ public class ParasutCapabilityTests
         return new ParasutERPAdapter(
             httpClient,
             tokenService,
+            new Mock<MesTech.Domain.Interfaces.IOrderRepository>().Object,
+            new Mock<MesTech.Domain.Interfaces.IInvoiceRepository>().Object,
             NullLogger<ParasutERPAdapter>.Instance);
     }
 
