@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -46,14 +47,14 @@ public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
 
         // Cift kayit: Borc = Alacak
         // BORC: 120 Alicilar (musteri bize borclu)
-        entry.AddLine(new Guid("00000120-0000-0000-0000-000000000000"), grandTotal, 0, $"120 Alicilar — Fatura #{invoiceNumber}");
+        entry.AddLine(AccountingConstants.Account120Receivables, grandTotal, 0, $"120 Alicilar — Fatura #{invoiceNumber}");
 
         // ALACAK: 600 Satislar (gelir)
-        entry.AddLine(new Guid("00000600-0000-0000-0000-000000000000"), 0, netAmount, $"600 Yurtici Satislar — Fatura #{invoiceNumber}");
+        entry.AddLine(AccountingConstants.Account600DomesticSales, 0, netAmount, $"600 Yurtici Satislar — Fatura #{invoiceNumber}");
 
         // ALACAK: 391 KDV (devlete borc)
         if (taxAmount > 0)
-            entry.AddLine(new Guid("00000391-0000-0000-0000-000000000000"), 0, taxAmount, $"391 Hesaplanan KDV — Fatura #{invoiceNumber}");
+            entry.AddLine(AccountingConstants.Account391VatPayable, 0, taxAmount, $"391 Hesaplanan KDV — Fatura #{invoiceNumber}");
 
         entry.Validate();
         entry.Post();

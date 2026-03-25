@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
@@ -75,13 +76,10 @@ public sealed class ReturnApprovedHandler : IReturnApprovedHandler
 
             // BORC: 610 Satistan Iadeler (gelir azalisi)
             // AccountId deterministic: tenantId-based seed for chart-of-accounts lookup
-            var accountSalesReturn = new Guid("00000610-0000-0000-0000-000000000000");
-            var accountReceivables = new Guid("00000120-0000-0000-0000-000000000000");
-
-            entry.AddLine(accountSalesReturn, totalRefund, 0, "610 Satistan Iadeler");
+            entry.AddLine(AccountingConstants.Account610SalesReturns, totalRefund, 0, "610 Satistan Iadeler");
 
             // ALACAK: 120 Alicilar (musteri borcundan duser)
-            entry.AddLine(accountReceivables, 0, totalRefund, "120 Alicilar — iade kesintisi");
+            entry.AddLine(AccountingConstants.Account120Receivables, 0, totalRefund, "120 Alicilar — iade kesintisi");
 
             entry.Validate();
             entry.Post();
