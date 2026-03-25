@@ -52,6 +52,16 @@ public sealed class AdapterHealthService
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(10));
 
+            // Prefer IPingableAdapter.PingAsync (lightweight HEAD) over GetCategoriesAsync (heavy API call)
+            if (adapter is IPingableAdapter pingable)
+            {
+                var isReachable = await pingable.PingAsync(cts.Token).ConfigureAwait(false);
+                sw.Stop();
+                return new AdapterHealthResult(
+                    adapter.PlatformCode, isReachable, sw.ElapsedMilliseconds,
+                    isReachable ? "OK — ping reachable" : "Unreachable");
+            }
+
             var categories = await adapter.GetCategoriesAsync(cts.Token).ConfigureAwait(false);
             sw.Stop();
 
