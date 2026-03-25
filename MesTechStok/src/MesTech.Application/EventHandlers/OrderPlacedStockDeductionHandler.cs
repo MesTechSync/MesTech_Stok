@@ -46,6 +46,11 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             return;
         }
 
+        // Batch query — N+1 yerine tek SQL (WHERE Id IN (...))
+        var productIds = order.OrderItems.Select(i => i.ProductId).Distinct().ToList();
+        var products = await _productRepo.GetByIdsAsync(productIds, ct);
+        var productMap = products.ToDictionary(p => p.Id);
+
         var failures = new List<string>();
 
         foreach (var item in order.OrderItems)
@@ -54,8 +59,7 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 #pragma warning disable CA1031 // Intentional broad catch — per-item resilience in order processing loop
             try
             {
-                var product = await _productRepo.GetByIdAsync(item.ProductId);
-                if (product is null)
+                if (!productMap.TryGetValue(item.ProductId, out var product))
                 {
                     _logger.LogWarning("Product {ProductId} bulunamadı — SKU={SKU}",
                         item.ProductId, item.ProductSKU);
