@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Avalonia.Services;
+using MesTech.Application.Features.Crm.Queries.GetLeads;
 using global::MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -40,12 +41,27 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // Same MediatR pipeline as WPF — GetLeadsQuery
-            await Task.Delay(10);
+            var status = SelectedStatus == "Tumu" ? null : SelectedStatus;
+            var result = await _mediator.Send(new GetLeadsQuery(
+                _currentUser.TenantId,
+                Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null));
+
             Leads.Clear();
-            Leads.Add(new LeadItemVm { Id = Guid.NewGuid(), FullName = "Ahmet Yilmaz", Company = "ABC Ltd", Email = "ahmet@abc.com", Phone = "0532 123 45 67", Status = "Yeni", Source = "Web", CreatedAt = DateTime.Now.AddDays(-3) });
-            Leads.Add(new LeadItemVm { Id = Guid.NewGuid(), FullName = "Fatma Demir", Company = "XYZ AS", Email = "fatma@xyz.com", Phone = "0541 987 65 43", Status = "Iletisime Gecildi", Source = "Referans", CreatedAt = DateTime.Now.AddDays(-7) });
-            TotalCount = Leads.Count;
+            foreach (var lead in result.Items)
+            {
+                Leads.Add(new LeadItemVm
+                {
+                    Id = lead.Id,
+                    FullName = lead.FullName,
+                    Company = lead.Company,
+                    Email = lead.Email,
+                    Phone = lead.Phone,
+                    Status = lead.Status,
+                    Source = lead.Source,
+                    CreatedAt = lead.CreatedAt
+                });
+            }
+            TotalCount = result.TotalCount;
         }
         finally { IsLoading = false; }
     }

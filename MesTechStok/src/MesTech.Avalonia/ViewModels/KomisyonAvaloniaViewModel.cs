@@ -1,7 +1,8 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -44,22 +45,23 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetCommissionSummaryQuery(
+                Guid.Empty, DateTime.UtcNow.AddMonths(-3), DateTime.UtcNow));
 
-            TrendyolAvgRate = "%12.5";
-            HepsiburadaAvgRate = "%15.0";
-            CiceksepetiAvgRate = "%18.0";
-            N11AvgRate = "%11.0";
+            _allItems = result.ByPlatform.Select(p => new CommissionItemDto
+            {
+                Platform = p.Platform,
+                Category = "-",
+                RateFormatted = $"%{p.AverageRate:F1}",
+                FixedFeeFormatted = $"{p.TotalCommission:N2} TL",
+                ValidFrom = DateTime.UtcNow.ToString("dd.MM.yyyy")
+            }).ToList();
 
-            _allItems =
-            [
-                new() { Platform = "Trendyol", Category = "Giyim", RateFormatted = "%12.0", FixedFeeFormatted = "0,00 TL", ValidFrom = "01.01.2026" },
-                new() { Platform = "Trendyol", Category = "Elektronik", RateFormatted = "%9.5", FixedFeeFormatted = "0,00 TL", ValidFrom = "01.01.2026" },
-                new() { Platform = "Hepsiburada", Category = "Giyim", RateFormatted = "%15.0", FixedFeeFormatted = "3,00 TL", ValidFrom = "01.01.2026" },
-                new() { Platform = "Hepsiburada", Category = "Elektronik", RateFormatted = "%11.0", FixedFeeFormatted = "3,00 TL", ValidFrom = "01.01.2026" },
-                new() { Platform = "Ciceksepeti", Category = "Kozmetik", RateFormatted = "%18.0", FixedFeeFormatted = "5,00 TL", ValidFrom = "15.02.2026" },
-                new() { Platform = "N11", Category = "Ev & Yasam", RateFormatted = "%11.0", FixedFeeFormatted = "2,50 TL", ValidFrom = "01.03.2026" },
-            ];
+            var lookup = result.ByPlatform.ToDictionary(p => p.Platform.ToLowerInvariant(), p => p.AverageRate);
+            TrendyolAvgRate = lookup.TryGetValue("trendyol", out var tr) ? $"%{tr:F1}" : "%0.0";
+            HepsiburadaAvgRate = lookup.TryGetValue("hepsiburada", out var hb) ? $"%{hb:F1}" : "%0.0";
+            CiceksepetiAvgRate = lookup.TryGetValue("ciceksepeti", out var cs) ? $"%{cs:F1}" : "%0.0";
+            N11AvgRate = lookup.TryGetValue("n11", out var n11) ? $"%{n11:F1}" : "%0.0";
 
             ApplyFilters();
         }
