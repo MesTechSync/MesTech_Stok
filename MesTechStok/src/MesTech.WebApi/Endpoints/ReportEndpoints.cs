@@ -303,6 +303,88 @@ public static class ReportEndpoints
         })
         .WithName("ExportProfitabilityReport")
         .WithSummary("Kârlılık raporu export — PDF, Excel veya CSV");
+
+        // ─── V6 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
+
+        // GET /api/v1/reports/fulfillment-cost/export — fulfillment maliyet export
+        group.MapGet("/fulfillment-cost/export", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            string format = "pdf",
+            int? center = null,
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var centerFilter = center.HasValue
+                ? (MesTech.Application.DTOs.Fulfillment.FulfillmentCenter?)center.Value
+                : null;
+            var report = await mediator.Send(
+                new FulfillmentCostReportQuery(tenantId, startDate, endDate, centerFilter), ct);
+            return await ExportResult(exportService, report.Centers, "Fulfillment Maliyet Raporu", format, ct);
+        })
+        .WithName("ExportFulfillmentCostReport")
+        .WithSummary("Fulfillment maliyet raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/cargo-performance/export — kargo performans export
+        group.MapGet("/cargo-performance/export", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            string format = "pdf",
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new CargoPerformanceReportQuery(tenantId, startDate, endDate), ct);
+            return await ExportResult(exportService, report, "Kargo Performans Raporu", format, ct);
+        })
+        .WithName("ExportCargoPerformanceReport")
+        .WithSummary("Kargo performans raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/inventory-valuation/export — envanter değerleme export
+        group.MapGet("/inventory-valuation/export", async (
+            Guid tenantId, string format = "pdf",
+            Guid? categoryFilter = null,
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new InventoryValuationReportQuery(tenantId, categoryFilter), ct);
+            return await ExportResult(exportService, report, "Envanter Degerleme Raporu", format, ct);
+        })
+        .WithName("ExportInventoryValuationReport")
+        .WithSummary("Envanter değerleme raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/stock-turnover/export — stok devir hızı export
+        group.MapGet("/stock-turnover/export", async (
+            Guid tenantId, DateTime startDate, DateTime endDate,
+            string format = "pdf",
+            Guid? categoryFilter = null,
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new StockTurnoverReportQuery(tenantId, startDate, endDate, categoryFilter), ct);
+            return await ExportResult(exportService, report, "Stok Devir Hizi Raporu", format, ct);
+        })
+        .WithName("ExportStockTurnoverReport")
+        .WithSummary("Stok devir hızı raporu export — PDF, Excel veya CSV");
+
+        // GET /api/v1/reports/erp-reconciliation/export — ERP mutabakat export
+        group.MapGet("/erp-reconciliation/export", async (
+            Guid tenantId, ErpProvider erpProvider,
+            string format = "pdf",
+            ISender mediator = default!,
+            IReportExportService exportService = default!,
+            CancellationToken ct = default) =>
+        {
+            var report = await mediator.Send(
+                new ErpReconciliationReportQuery(tenantId, erpProvider), ct);
+            return await ExportResult(exportService, report.UnmatchedItems, "ERP Mutabakat Raporu", format, ct);
+        })
+        .WithName("ExportErpReconciliationReport")
+        .WithSummary("ERP mutabakat raporu export — PDF, Excel veya CSV");
     }
 
     private static async Task<IResult> ExportResult<T>(
