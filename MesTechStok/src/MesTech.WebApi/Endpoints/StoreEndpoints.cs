@@ -41,7 +41,8 @@ public static class StoreEndpoints
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("CreateStore")
-        .WithSummary("Yeni mağaza oluştur — admin only");
+        .WithSummary("Yeni mağaza oluştur — admin only")
+        .AddEndpointFilter<Filters.StorePlanLimitFilter>();
 
         // POST /api/v1/admin/stores/{id}/test-connection — mağaza API bağlantı testi
         group.MapPost("/{id:guid}/test-connection", async (

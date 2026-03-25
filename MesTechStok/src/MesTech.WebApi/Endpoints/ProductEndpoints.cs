@@ -6,6 +6,7 @@ using MesTech.Application.Commands.UpdateProductImage;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductById;
 using MesTech.Application.Queries.GetProductDbStatus;
+using MesTech.WebApi.Filters;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -56,8 +57,10 @@ public static class ProductEndpoints
         })
         .WithName("CreateProduct")
         .WithSummary("Yeni ürün oluştur")
+        .AddEndpointFilter<ProductPlanLimitFilter>()
         .Produces(201)
         .Produces(400)
+        .Produces(403)
         .Produces(429);
 
         // PUT /api/v1/products/{id} — update an existing product
