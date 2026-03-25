@@ -419,3 +419,30 @@ Alan genişleme seçenekleri:
 | GOREV kapatılan | **7** |
 | Cross-DEV görev | **12** |
 | Alan genişleme | **3/3 TAMAMLANDI** |
+
+---
+
+## TUR: 9 (2026-03-26) — ONBOARDING VIEW TAMAMLANDI
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| OnboardingWizardView.axaml | 1 (188 LOC, 7-step AXAML wizard) |
+| G019 | KAPANDI — ViewModel (TUR 8) + View (TUR 9) TAM |
+| G025 | KAPANDI — DEV 6 view'ı da yazdı |
+| G026 cross-DEV | 1 (DEV1 StockMovement entity fix) |
+
+### COMMIT
+- `5903a8e9` feat(avalonia): add OnboardingWizardView.axaml — 7-step wizard UI G019
+
+### DEV 6 FİNAL — 9 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **27** |
+| Yeni endpoint | **11** |
+| Yeni ViewModel + View | **1+1** |
+| Silinen LOC | **-2240** |
+| GOREV kapatılan | **9** (G007,G011,G012,G013,G019,G020,G025 + alan genişleme) |
+| Cross-DEV görev | **13** |
+| Alan genişleme | **3/3 TAMAMLANDI** |
+| Build error | **0** |
