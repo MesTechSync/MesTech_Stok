@@ -98,6 +98,17 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0
         });
     });
+    // Stricter rate limit for auth endpoints — 20 req/min per IP (brute force defense layer)
+    options.AddPolicy("AuthRateLimit", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 20,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
 });
 
 // ProblemDetails — RFC 7807 compliant error responses (A-M2-06)

@@ -16,7 +16,7 @@ public static class AuthEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/auth").WithTags("Auth");
+        var group = app.MapGroup("/api/v1/auth").WithTags("Auth").RequireRateLimiting("AuthRateLimit");
 
         // POST /api/v1/auth/login — authenticate user and return JWT
         group.MapPost("/login", async (
