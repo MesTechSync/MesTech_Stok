@@ -120,7 +120,11 @@ builder.Services.AddHealthChecks()
             return factory.CreateConnectionAsync().GetAwaiter().GetResult();
         },
         name: "rabbitmq",
-        tags: new[] { "messaging", "ready" });
+        tags: new[] { "messaging", "ready" })
+    .AddUrlGroup(
+        new Uri($"{builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100"}/health"),
+        name: "webapi",
+        tags: new[] { "api", "ready" });
 
 // ── Response Compression (Blazor Server JS bundles + SignalR) ──
 builder.Services.AddResponseCompression(options =>

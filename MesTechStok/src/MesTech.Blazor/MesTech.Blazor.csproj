@@ -27,6 +27,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" />
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" />
     <!-- Polly resilience — retry + circuit breaker for API calls -->
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Polly.Extensions.Http" />
