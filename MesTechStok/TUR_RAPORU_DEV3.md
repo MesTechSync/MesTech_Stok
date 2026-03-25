@@ -750,4 +750,29 @@ TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari Delegat
 | Health check max latency | ~150s | ~10s | **-93%** |
 | Health API call volume | 15 GetCategories | 15 PingAsync | **-90%** |
 
-### KÜMÜLATİF DEV 3 (18 tur, 47 commit)
+---
+
+## TUR 19 — 2026-03-26 (Messaging Deep Dive + CT Propagation)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Messaging subdirs | Mesa(37), Handlers(14), Filters(2), Endpoints(1), Root(12) |
+| Duplicate consumers | 0 ✅ |
+| Orphan events | 0 (21 pub / 20 consumer — Fault<T> built-in) ✅ |
+| async void | 0 ✅ |
+| Empty catch (Messaging) | 0 ✅ |
+| IntegrationEventPublisher CT | **6/6 methods missing CT** |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 42 | IntegrationEventPublisher | 6 method CancellationToken propagation | cf06a9ac |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Publisher CT propagation | 0/6 | 6/6 | **+6** ✅ |
+| Graceful shutdown risk | 6 methods | 0 | **-6** ✅ |
+
+### KÜMÜLATİF DEV 3 (19 tur, 49 commit)
