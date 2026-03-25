@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// LWA OAuth2, Catalog, Orders, Feeds (XDocument), RDT, Notifications.
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
-public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
+public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -644,6 +644,84 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingab
             "AmazonTrAdapter.UpdateOrderStatusAsync — not supported. Package={PackageId} Status={Status}",
             packageId, status);
         return Task.FromResult(false);
+    }
+
+    // ═══════════════════════════════════════════
+    // IShipmentCapableAdapter — Kargo Bildirimi
+    // ═══════════════════════════════════════════
+
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var carrierCode = provider switch
+        {
+            CargoProvider.YurticiKargo => "Yurtici Kargo",
+            CargoProvider.ArasKargo => "Aras Kargo",
+            CargoProvider.SuratKargo => "Surat Kargo",
+            CargoProvider.MngKargo => "MNG Kargo",
+            CargoProvider.PttKargo => "PTT Posta",
+            CargoProvider.UPS => "UPS",
+            CargoProvider.DHL => "DHL",
+            CargoProvider.FedEx => "FedEx",
+            _ => provider.ToString()
+        };
+
+        _logger.LogInformation(
+            "AmazonTrAdapter.SendShipmentAsync: OrderId={OrderId} Tracking={Tracking} Carrier={Carrier}",
+            platformOrderId, trackingNumber, carrierCode);
+
+        try
+        {
+            // Amazon SP-API: POST /orders/v0/orders/{orderId}/shipment/confirm
+            // Uses OrderFulfillment feed (POST_ORDER_FULFILLMENT_DATA)
+            var feedXml = BuildShipmentConfirmFeed(platformOrderId, trackingNumber, carrierCode);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(feedXml, Encoding.UTF8, "text/xml");
+                    return await _httpClient.PostAsync(
+                        new Uri("/feeds/2021-06-30/feeds", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("AmazonTr SendShipment failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("AmazonTr SendShipment OK: OrderId={OrderId}", platformOrderId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AmazonTr SendShipment exception: OrderId={OrderId}", platformOrderId);
+            return false;
+        }
+    }
+
+    private static string BuildShipmentConfirmFeed(string orderId, string trackingNumber, string carrierCode)
+    {
+        var xsi = System.Xml.Linq.XNamespace.Get("http://www.w3.org/2001/XMLSchema-instance");
+        var doc = new System.Xml.Linq.XDocument(
+            new System.Xml.Linq.XElement("AmazonEnvelope",
+                new System.Xml.Linq.XAttribute(xsi + "noNamespaceSchemaLocation", "amzn-envelope.xsd"),
+                new System.Xml.Linq.XElement("Header",
+                    new System.Xml.Linq.XElement("DocumentVersion", "1.01"),
+                    new System.Xml.Linq.XElement("MerchantIdentifier", "MERCHANT")),
+                new System.Xml.Linq.XElement("MessageType", "OrderFulfillment"),
+                new System.Xml.Linq.XElement("Message",
+                    new System.Xml.Linq.XElement("MessageID", "1"),
+                    new System.Xml.Linq.XElement("OrderFulfillment",
+                        new System.Xml.Linq.XElement("AmazonOrderID", orderId),
+                        new System.Xml.Linq.XElement("FulfillmentDate", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")),
+                        new System.Xml.Linq.XElement("FulfillmentData",
+                            new System.Xml.Linq.XElement("CarrierName", carrierCode),
+                            new System.Xml.Linq.XElement("ShipperTrackingNumber", trackingNumber))))));
+        return doc.ToString();
     }
 
     // ═══════════════════════════════════════════
