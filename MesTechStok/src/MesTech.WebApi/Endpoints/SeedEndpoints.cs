@@ -51,7 +51,9 @@ public static class SeedEndpoints
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Seed failed");
             }
-        });
+        })
+        .WithName("SeedDemoData")
+        .WithSummary("Demo tenant + örnek veri oluştur (sadece Development)");
 
         // POST /api/seed/ahmet-bey — 14-step realistic end-to-end demo scenario (A-M3-03)
         group.MapPost("/seed/ahmet-bey", async (
@@ -87,7 +89,9 @@ public static class SeedEndpoints
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Ahmet Bey seed failed");
             }
-        });
+        })
+        .WithName("SeedAhmetBeyDemo")
+        .WithSummary("Ahmet Bey 14 adımlı gerçekçi demo senaryosu (sadece Development)");
     }
 
     // ── Response Records ──

@@ -28,7 +28,9 @@ public static class ErpEndpoints
                 .ToList();
 
             return Results.Ok(new { providers, count = providers.Count });
-        });
+        })
+        .WithName("GetErpProviders")
+        .WithSummary("Kayıtlı ERP sağlayıcı listesi");
 
         // GET /api/v1/erp/status — ping all registered ERP adapters
         group.MapGet("/status", async (IErpAdapterFactory factory, ILoggerFactory loggerFactory, CancellationToken ct) =>
@@ -63,7 +65,9 @@ public static class ErpEndpoints
             }
 
             return Results.Ok(new { statuses, timestamp = DateTime.UtcNow });
-        });
+        })
+        .WithName("GetErpStatus")
+        .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu");
 
         // POST /api/v1/erp/test-connection — test connection to a specific ERP provider
         group.MapPost("/test-connection", async (
@@ -105,7 +109,9 @@ public static class ErpEndpoints
                 });
             }
 #pragma warning restore CA1031
-        });
+        })
+        .WithName("TestErpConnection")
+        .WithSummary("Belirli ERP sağlayıcısına bağlantı testi");
 
         // POST /api/v1/erp/sync/stock — trigger manual ERP stock sync
         group.MapPost("/sync/stock", async (
@@ -159,7 +165,9 @@ public static class ErpEndpoints
             }
 
             return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
-        });
+        })
+        .WithName("SyncErpStock")
+        .WithSummary("Manuel ERP stok senkronizasyonu tetikle");
 
         // POST /api/v1/erp/sync/accounts — trigger manual ERP account sync
         group.MapPost("/sync/accounts", async (
@@ -201,7 +209,9 @@ public static class ErpEndpoints
             }
 
             return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
-        });
+        })
+        .WithName("SyncErpAccounts")
+        .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle");
 
         // GET /api/v1/erp/sync/history — ERP senkronizasyon geçmişi
         group.MapGet("/sync/history", async (

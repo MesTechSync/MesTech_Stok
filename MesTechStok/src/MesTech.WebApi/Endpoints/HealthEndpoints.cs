@@ -29,7 +29,10 @@ public static class HealthEndpoints
 
             var statusCode = report.Status == HealthStatus.Healthy ? 200 : 503;
             return Results.Json(result, statusCode: statusCode);
-        });
+        })
+        .WithName("HealthCheck")
+        .WithSummary("Sistem sağlık durumu — PostgreSQL, Redis, RabbitMQ, MinIO")
+        .WithTags("Health");
 
         // GET /metrics — Prometheus text format (no auth — bypass path)
         app.MapGet("/metrics", async (CancellationToken ct) =>
@@ -38,6 +41,9 @@ public static class HealthEndpoints
             await Metrics.DefaultRegistry.CollectAndExportAsTextAsync(stream, ct);
             var metricsText = System.Text.Encoding.UTF8.GetString(stream.ToArray());
             return Results.Text(metricsText, "text/plain; version=0.0.4; charset=utf-8");
-        });
+        })
+        .WithName("PrometheusMetrics")
+        .WithSummary("Prometheus metrikleri — text/plain format")
+        .WithTags("Health");
     }
 }

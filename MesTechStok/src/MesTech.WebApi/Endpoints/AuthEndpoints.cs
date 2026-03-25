@@ -3,6 +3,8 @@ using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Options;
 
+#pragma warning disable CA1031 // Intentional: login failure must return structured response
+
 namespace MesTech.WebApi.Endpoints;
 
 /// <summary>
@@ -22,8 +24,10 @@ public static class AuthEndpoints
             IJwtTokenService jwtService,
             BruteForceProtectionService bruteForce,
             IOptions<JwtTokenOptions> jwtOptions,
+            ILoggerFactory loggerFactory,
             HttpContext httpContext) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
             {
                 return Results.BadRequest(new LoginResponse(
@@ -82,6 +86,7 @@ public static class AuthEndpoints
             }
             catch (Exception ex)
             {
+                logger.LogWarning(ex, "Login failed for user {UserName} from IP {IP}", request.UserName, ip);
                 var failure = await bruteForce.RecordFailureAsync(request.UserName, ip);
 
                 if (failure.IsNowLocked)
@@ -101,7 +106,9 @@ public static class AuthEndpoints
                     LockedUntilUtc: null),
                     statusCode: StatusCodes.Status401Unauthorized);
             }
-        });
+        })
+        .WithName("Login")
+        .WithSummary("JWT token ile kimlik doğrulama — brute force korumalı");
 
         // POST /api/v1/auth/validate — validate an existing JWT token
         group.MapPost("/validate", (ValidateTokenRequest request, IJwtTokenService jwtService) =>
@@ -117,7 +124,9 @@ public static class AuthEndpoints
                 userId = valid ? userId : (Guid?)null,
                 tenantId = valid ? tenantId : (Guid?)null
             });
-        });
+        })
+        .WithName("ValidateToken")
+        .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId");
     }
 
     // ── Request / Response Records ──

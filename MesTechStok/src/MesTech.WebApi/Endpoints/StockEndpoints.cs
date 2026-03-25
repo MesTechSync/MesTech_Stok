@@ -28,14 +28,18 @@ public static class StockEndpoints
             var result = await mediator.Send(
                 new GetStockMovementsQuery(productId, from, to), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetStockMovements")
+        .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)");
 
         // GET /api/v1/stock/value — total inventory value
         group.MapGet("/value", async (ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetInventoryValueQuery(), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetInventoryValue")
+        .WithSummary("Toplam envanter değeri");
 
         // POST /api/v1/stock/add — add stock to a product
         group.MapPost("/add", async (AddStockCommand command, ISender mediator, CancellationToken ct) =>
@@ -44,7 +48,9 @@ public static class StockEndpoints
             return result.IsSuccess
                 ? Results.Ok(result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("AddStock")
+        .WithSummary("Ürüne stok girişi");
 
         // POST /api/v1/stock/remove — remove stock from a product
         group.MapPost("/remove", async (RemoveStockCommand command, ISender mediator, CancellationToken ct) =>
@@ -53,7 +59,9 @@ public static class StockEndpoints
             return result.IsSuccess
                 ? Results.Ok(result)
                 : Results.BadRequest(new { result.ErrorMessage });
-        });
+        })
+        .WithName("RemoveStock")
+        .WithSummary("Üründen stok çıkışı");
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
         group.MapGet("/inventory", async (
