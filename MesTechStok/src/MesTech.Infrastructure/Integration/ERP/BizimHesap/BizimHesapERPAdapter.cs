@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.ERP.BizimHesap;
 /// Auth: API Key in "X-BizimHesap-ApiKey" header via <see cref="BizimHesapApiClient"/>.
 /// Simpler than Logo/Parasut — standard REST with JSON (not JSON:API).
 /// </summary>
-public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable
+public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpPriceCapable
 {
     private readonly BizimHesapApiClient _apiClient;
     private readonly ILogger<BizimHesapERPAdapter> _logger;
@@ -673,6 +673,72 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
         {
             _logger.LogError(ex, "[BizimHesapERPAdapter] UpdateStock exception for {Code}", productCode);
             return false;
+        }
+    }
+
+    // ── IErpPriceCapable ──────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    async Task<List<ErpPriceItem>> IErpPriceCapable.GetProductPricesAsync(CancellationToken ct)
+    {
+        _logger.LogInformation("[BizimHesapERPAdapter] Getting all product prices");
+
+        try
+        {
+            var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await BizimHesapApiClient.ReadErrorBodyAsync(response, ct).ConfigureAwait(false);
+                _logger.LogWarning("[BizimHesapERPAdapter] GetProductPrices failed: {Status} — {Error}", response.StatusCode, errorBody);
+                return [];
+            }
+
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapPriceItemResponse>>(response, ct).ConfigureAwait(false);
+            if (items is null) return [];
+
+            return items.Select(p => new ErpPriceItem(
+                p.Code ?? string.Empty,
+                p.Name ?? string.Empty,
+                p.PurchasePrice,
+                p.SalePrice,
+                p.ListPrice,
+                p.CurrencyCode ?? "TRY")).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] GetProductPrices exception");
+            return [];
+        }
+    }
+
+    /// <inheritdoc/>
+    async Task<ErpPriceItem?> IErpPriceCapable.GetPriceByCodeAsync(string productCode, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(productCode);
+
+        try
+        {
+            var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var item = await _apiClient.DeserializeResponseAsync<BizimHesapPriceItemResponse>(response, ct).ConfigureAwait(false);
+            if (item is null) return null;
+
+            return new ErpPriceItem(
+                item.Code ?? productCode,
+                item.Name ?? string.Empty,
+                item.PurchasePrice,
+                item.SalePrice,
+                item.ListPrice,
+                item.CurrencyCode ?? "TRY");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] GetPriceByCode exception for {Code}", productCode);
+            return null;
         }
     }
 }

@@ -229,6 +229,30 @@ internal sealed class BizimHesapContactResponse
 }
 
 /// <summary>
+/// Price item response from BizimHesap API (GET /api/v1/stock-items — includes price fields).
+/// </summary>
+internal sealed class BizimHesapPriceItemResponse
+{
+    [JsonPropertyName("code")]
+    public string? Code { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("purchasePrice")]
+    public decimal PurchasePrice { get; set; }
+
+    [JsonPropertyName("salePrice")]
+    public decimal SalePrice { get; set; }
+
+    [JsonPropertyName("listPrice")]
+    public decimal? ListPrice { get; set; }
+
+    [JsonPropertyName("currencyCode")]
+    public string? CurrencyCode { get; set; }
+}
+
+/// <summary>
 /// Stock item response from BizimHesap API (GET /api/v1/stock-items).
 /// </summary>
 internal sealed class BizimHesapStockItemResponse
