@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetShipmentCosts;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -35,13 +36,21 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetShipmentCostsQuery(Guid.Empty));
 
             Shipments.Clear();
-            Shipments.Add(new ShipmentItemDto { TrackingNumber = "TR1234567890", OrderNumber = "SIP-1042", CarrierName = "Aras Kargo", RecipientName = "Ahmet Yilmaz", Status = "Hazirlaniyor", ShipDate = "19.03.2026" });
-            Shipments.Add(new ShipmentItemDto { TrackingNumber = "TR1234567891", OrderNumber = "SIP-1041", CarrierName = "Yurtici Kargo", RecipientName = "Fatma Demir", Status = "Yolda", ShipDate = "18.03.2026" });
-            Shipments.Add(new ShipmentItemDto { TrackingNumber = "TR1234567892", OrderNumber = "SIP-1040", CarrierName = "Surat Kargo", RecipientName = "Mehmet Kaya", Status = "Teslim Edildi", ShipDate = "17.03.2026" });
-            Shipments.Add(new ShipmentItemDto { TrackingNumber = "TR1234567893", OrderNumber = "SIP-1039", CarrierName = "Aras Kargo", RecipientName = "Ayse Ozturk", Status = "Teslim Edildi", ShipDate = "16.03.2026" });
+            foreach (var s in result)
+            {
+                Shipments.Add(new ShipmentItemDto
+                {
+                    TrackingNumber = s.TrackingNumber ?? s.Id.ToString("N")[..12].ToUpper(),
+                    OrderNumber = s.OrderId.ToString("N")[..8].ToUpper(),
+                    CarrierName = s.Provider.ToString(),
+                    RecipientName = string.Empty,
+                    Status = s.IsChargedToCustomer ? "Teslim Edildi" : "Hazirlaniyor",
+                    ShipDate = s.ShippedAt.ToString("dd.MM.yyyy")
+                });
+            }
 
             TotalCount = Shipments.Count;
             DeliveredCount = Shipments.Count(s => s.Status == "Teslim Edildi");
