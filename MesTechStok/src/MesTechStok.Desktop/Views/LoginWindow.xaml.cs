@@ -15,7 +15,7 @@ namespace MesTechStok.Desktop.Views;
 /// </summary>
 public partial class LoginWindow : Window
 {
-    private readonly IAuthService _authService;
+    private readonly MesTechStok.Desktop.Services.IAuthService _authService;
     private bool _isLoggingIn = false;
     public string? TargetModule { get; set; }
 
@@ -24,7 +24,7 @@ public partial class LoginWindow : Window
         InitializeComponent();
 
         // Get AuthService from DI container - Fixed static access
-        _authService = App.Services!.GetRequiredService<IAuthService>();
+        _authService = App.Services!.GetRequiredService<MesTechStok.Desktop.Services.IAuthService>();
 
         // Setup events
         this.KeyDown += LoginWindow_KeyDown;

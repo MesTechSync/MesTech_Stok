@@ -627,7 +627,7 @@ namespace MesTechStok.Desktop.Views
             try
             {
                 var sp = MesTechStok.Desktop.App.Services;
-                var auth = sp?.GetService<IAuthService>();
+                var auth = sp?.GetService<MesTechStok.Desktop.Services.IAuthService>();
                 if (auth == null) return "anonymous";
                 var user = await auth.GetCurrentUserAsync();
                 return user?.Username ?? "anonymous";

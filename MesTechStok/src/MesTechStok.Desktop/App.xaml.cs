@@ -18,7 +18,7 @@ using System.Windows.Interop;
 
 // ALPHA TEAM FIX: Core services integration
 using MesTechStok.Core.Services.Abstract;
-// using MesTechStok.Core.Services.Concrete; // Temporarily commented - namespace not found
+using MesTechStok.Core.Services.Concrete;
 using MesTechStok.Core.Data;
 using MesTechStok.Core.Integrations.OpenCart;
 
@@ -416,7 +416,8 @@ public partial class App : Application
         Log.Information("DI registered: IMobileWarehouseService -> MockMobileWarehouseService (Desktop)");
 
         // FAZ 1 GÖREV 1.1: Authentication Service
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<MesTechStok.Desktop.Services.IAuthService, MesTechStok.Desktop.Services.AuthService>();
+        services.AddScoped<MesTechStok.Core.Services.Abstract.IAuthService, MesTechStok.Desktop.Services.AuthService>();
 
         // Enhanced Logging Service
         services.AddScoped<MesTechStok.Core.Services.Abstract.ILoggingService, MesTechStok.Core.Services.Concrete.LoggingService>();
