@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -33,19 +34,18 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
+            var result = await _mediator.Send(new GetDropshipOrdersQuery(Guid.Empty));
 
-            _allOrders =
-            [
-                new() { OrderId = "DS-2026-001", Customer = "Ahmet Yilmaz", Supplier = "ABC Elektronik", Status = "Kargoda", CustomerPrice = 64_999m, SupplierPrice = 52_000m, NetProfit = 12_999m },
-                new() { OrderId = "DS-2026-002", Customer = "Zeynep Kaya", Supplier = "XYZ Bilisim", Status = "Yeni", CustomerPrice = 11_499m, SupplierPrice = 8_500m, NetProfit = 2_999m },
-                new() { OrderId = "DS-2026-003", Customer = "Murat Demir", Supplier = "ABC Elektronik", Status = "Tedarikçiye İletildi", CustomerPrice = 3_299m, SupplierPrice = 2_400m, NetProfit = 899m },
-                new() { OrderId = "DS-2026-004", Customer = "Elif Can", Supplier = "Guney Aksesuar", Status = "Teslim Edildi", CustomerPrice = 18_799m, SupplierPrice = 14_200m, NetProfit = 4_599m },
-                new() { OrderId = "DS-2026-005", Customer = "Burak Ozturk", Supplier = "Delta Depo", Status = "İptal", CustomerPrice = 7_499m, SupplierPrice = 5_800m, NetProfit = 0m },
-                new() { OrderId = "DS-2026-006", Customer = "Selin Arslan", Supplier = "ABC Elektronik", Status = "Kargoda", CustomerPrice = 28_990m, SupplierPrice = 22_500m, NetProfit = 6_490m },
-                new() { OrderId = "DS-2026-007", Customer = "Omer Yildiz", Supplier = "XYZ Bilisim", Status = "Yeni", CustomerPrice = 2_199m, SupplierPrice = 1_600m, NetProfit = 599m },
-                new() { OrderId = "DS-2026-008", Customer = "Ayse Celik", Supplier = "Guney Aksesuar", Status = "Teslim Edildi", CustomerPrice = 4_599m, SupplierPrice = 3_200m, NetProfit = 1_399m },
-            ];
+            _allOrders = result.Select(o => new DropshipOrderItemDto
+            {
+                OrderId = o.SupplierOrderRef ?? o.Id.ToString("N")[..8].ToUpper(),
+                Customer = string.Empty,
+                Supplier = o.DropshipSupplierId.ToString("N")[..8],
+                Status = o.Status,
+                CustomerPrice = 0m,
+                SupplierPrice = 0m,
+                NetProfit = 0m
+            }).ToList();
 
             ApplyFilters();
         }
