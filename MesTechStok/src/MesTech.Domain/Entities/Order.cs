@@ -155,6 +155,12 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void SetFinancials(decimal subTotal, decimal taxAmount, decimal totalAmount)
     {
+        if (subTotal < 0)
+            throw new ArgumentOutOfRangeException(nameof(subTotal), "SubTotal cannot be negative.");
+        if (taxAmount < 0)
+            throw new ArgumentOutOfRangeException(nameof(taxAmount), "TaxAmount cannot be negative.");
+        if (totalAmount < 0)
+            throw new ArgumentOutOfRangeException(nameof(totalAmount), "TotalAmount cannot be negative.");
         SubTotal = subTotal;
         TaxAmount = taxAmount;
         TotalAmount = totalAmount;
@@ -167,12 +173,18 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void SetCommission(decimal? rate, decimal? amount)
     {
+        if (rate.HasValue && rate.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(rate), "Commission rate cannot be negative.");
+        if (amount.HasValue && amount.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Commission amount cannot be negative.");
         CommissionRate = rate;
         CommissionAmount = amount;
     }
 
     public void SetCargoExpense(decimal amount)
     {
+        if (amount < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Cargo expense cannot be negative.");
         CargoExpenseAmount = amount;
     }
 
@@ -184,6 +196,8 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void ScheduleAutoShipment(DateTime scheduledAt)
     {
+        if (scheduledAt < DateTime.UtcNow.AddMinutes(-1))
+            throw new ArgumentOutOfRangeException(nameof(scheduledAt), "Scheduled time cannot be in the past.");
         AutoShipmentScheduledAt = scheduledAt;
     }
 
