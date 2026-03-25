@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -204,16 +205,16 @@ namespace MesTechStok.Desktop.Views
         {
             try
             {
-                Console.WriteLine($"[DEBUG] ReloadExistingImagesAsync START - ProductId: {productId}");
+                Debug.WriteLine($"[DEBUG] ReloadExistingImagesAsync START - ProductId: {productId}");
 
                 var dbItem = await GetProductService().GetProductByIdAsync(productId);
                 if (dbItem == null)
                 {
-                    Console.WriteLine("[DEBUG] ReloadExistingImagesAsync - Product not found in DB");
+                    Debug.WriteLine("[DEBUG] ReloadExistingImagesAsync - Product not found in DB");
                     return;
                 }
 
-                Console.WriteLine($"[DEBUG] Product found - ImageUrl: '{dbItem.ImageUrl}', AdditionalImageUrls: '{dbItem.AdditionalImageUrls}'");
+                Debug.WriteLine($"[DEBUG] Product found - ImageUrl: '{dbItem.ImageUrl}', AdditionalImageUrls: '{dbItem.AdditionalImageUrls}'");
 
                 _imageFiles.Clear();
 
@@ -221,7 +222,7 @@ namespace MesTechStok.Desktop.Views
                 if (!string.IsNullOrWhiteSpace(dbItem.ImageUrl))
                 {
                     var cleanImageUrl = dbItem.ImageUrl.Trim();
-                    Console.WriteLine($"[DEBUG] Adding main image: {cleanImageUrl}");
+                    Debug.WriteLine($"[DEBUG] Adding main image: {cleanImageUrl}");
                     _imageFiles.Add(cleanImageUrl);
                 }
 
@@ -233,16 +234,16 @@ namespace MesTechStok.Desktop.Views
                         .Where(p => !string.IsNullOrWhiteSpace(p))
                         .ToArray();
 
-                    Console.WriteLine($"[DEBUG] Adding {parts.Length} additional images: [{string.Join(", ", parts)}]");
+                    Debug.WriteLine($"[DEBUG] Adding {parts.Length} additional images: [{string.Join(", ", parts)}]");
                     _imageFiles.AddRange(parts);
                 }
 
-                Console.WriteLine($"[DEBUG] Total images loaded: {_imageFiles.Count}");
+                Debug.WriteLine($"[DEBUG] Total images loaded: {_imageFiles.Count}");
 
                 // UI'ı güncelle
                 ImageList.ItemsSource = null;
                 var bitmapList = ToBitmapList(_imageFiles).ToList();
-                Console.WriteLine($"[DEBUG] Successfully created {bitmapList.Count} bitmap objects");
+                Debug.WriteLine($"[DEBUG] Successfully created {bitmapList.Count} bitmap objects");
 
                 ImageList.ItemsSource = bitmapList;
                 _coverIndex = _imageFiles.Count > 0 ? 0 : -1;
@@ -252,7 +253,7 @@ namespace MesTechStok.Desktop.Views
                 try
                 {
                     NoImagesHint.Visibility = ImageList.HasItems ? Visibility.Collapsed : Visibility.Visible;
-                    Console.WriteLine($"[DEBUG] NoImagesHint visibility set to: {NoImagesHint.Visibility}");
+                    Debug.WriteLine($"[DEBUG] NoImagesHint visibility set to: {NoImagesHint.Visibility}");
                 }
                 catch (Exception ex)
                 {
@@ -262,19 +263,19 @@ namespace MesTechStok.Desktop.Views
                 try
                 {
                     ImageCountText.Text = $" ({_imageFiles.Count})";
-                    Console.WriteLine($"[DEBUG] ImageCountText updated to: {ImageCountText.Text}");
+                    Debug.WriteLine($"[DEBUG] ImageCountText updated to: {ImageCountText.Text}");
                 }
                 catch (Exception ex)
                 {
                     GlobalLogger.Instance.LogError($"[ProductUploadPopup] ReloadImages SetImageCountText failed: {ex.Message}");
                 }
 
-                Console.WriteLine("[DEBUG] ReloadExistingImagesAsync COMPLETED successfully");
+                Debug.WriteLine("[DEBUG] ReloadExistingImagesAsync COMPLETED successfully");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] ReloadExistingImagesAsync failed: {ex.Message}");
-                Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+                Debug.WriteLine($"[ERROR] ReloadExistingImagesAsync failed: {ex.Message}");
+                Debug.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
                 MesTechStok.Desktop.Utils.ToastManager.ShowError($"Ürün resimleri yüklenirken hata: {ex.Message}", "Resim Yükleme");
             }
         }
@@ -396,7 +397,7 @@ namespace MesTechStok.Desktop.Views
                 var userName = await GetCurrentUsernameAsync();
 
                 // DEBUG LOG: Save işlemi başlangıcı
-                Console.WriteLine($"[DEBUG] ProductUploadPopup Save Start - EditingId: {_editingProductId}, ImageCount: {_imageFiles.Count}");
+                Debug.WriteLine($"[DEBUG] ProductUploadPopup Save Start - EditingId: {_editingProductId}, ImageCount: {_imageFiles.Count}");
 
                 MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogAudit("PRODUCT_SAVE_START",
                     $"corrId={CorrelationContext.CurrentId} user={userName} mode={(_editingProductId.HasValue ? "edit" : (draft ? "draft" : "add"))}",
@@ -431,12 +432,12 @@ namespace MesTechStok.Desktop.Views
                 var allImages = _imageFiles.ToList();
 
                 // DEBUG LOG: Image handling
-                Console.WriteLine($"[DEBUG] Image processing - AllImages.Count: {allImages.Count}, CoverIndex: {_coverIndex}");
+                Debug.WriteLine($"[DEBUG] Image processing - AllImages.Count: {allImages.Count}, CoverIndex: {_coverIndex}");
                 if (allImages.Count > 0)
                 {
                     foreach (var img in allImages.Select((path, idx) => new { Path = path, Index = idx }))
                     {
-                        Console.WriteLine($"[DEBUG] Image {img.Index}: {img.Path}");
+                        Debug.WriteLine($"[DEBUG] Image {img.Index}: {img.Path}");
                     }
                 }
 
@@ -448,8 +449,8 @@ namespace MesTechStok.Desktop.Views
                 }
 
                 // DEBUG LOG: Final paths
-                Console.WriteLine($"[DEBUG] CoverPath: {coverPath}");
-                Console.WriteLine($"[DEBUG] AdditionalPaths: {additionalPaths}");
+                Debug.WriteLine($"[DEBUG] CoverPath: {coverPath}");
+                Debug.WriteLine($"[DEBUG] AdditionalPaths: {additionalPaths}");
 
                 var item = new ProductItem
                 {
@@ -1675,17 +1676,17 @@ namespace MesTechStok.Desktop.Views
             {
                 if (string.IsNullOrWhiteSpace(path)) return null;
 
-                Console.WriteLine($"[DEBUG] TryCreateBitmap - Processing path: '{path}'");
+                Debug.WriteLine($"[DEBUG] TryCreateBitmap - Processing path: '{path}'");
                 Uri? uri = null;
 
                 if (Uri.TryCreate(path, UriKind.Absolute, out var abs))
                 {
                     uri = abs;
-                    Console.WriteLine($"[DEBUG] Created absolute URI: {uri}");
+                    Debug.WriteLine($"[DEBUG] Created absolute URI: {uri}");
                 }
                 else
                 {
-                    Console.WriteLine($"[DEBUG] Path is not absolute, trying to resolve...");
+                    Debug.WriteLine($"[DEBUG] Path is not absolute, trying to resolve...");
 
                     // Göreli yol ise uygulama diziniyle birleştir
                     var baseDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -1693,7 +1694,7 @@ namespace MesTechStok.Desktop.Views
                     if (System.IO.File.Exists(combined))
                     {
                         uri = new Uri(combined, UriKind.Absolute);
-                        Console.WriteLine($"[DEBUG] Found file in base directory: {combined}");
+                        Debug.WriteLine($"[DEBUG] Found file in base directory: {combined}");
                     }
                     else if (_editingProductId.HasValue)
                     {
@@ -1706,16 +1707,16 @@ namespace MesTechStok.Desktop.Views
                             if (System.IO.File.Exists(inProd))
                             {
                                 uri = new Uri(inProd, UriKind.Absolute);
-                                Console.WriteLine($"[DEBUG] Found file in product folder: {inProd}");
+                                Debug.WriteLine($"[DEBUG] Found file in product folder: {inProd}");
                             }
                             else
                             {
-                                Console.WriteLine($"[DEBUG] File not found in product folder: {inProd}");
+                                Debug.WriteLine($"[DEBUG] File not found in product folder: {inProd}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"[DEBUG] Error checking product folder: {ex.Message}");
+                            Debug.WriteLine($"[DEBUG] Error checking product folder: {ex.Message}");
                         }
                     }
 
@@ -1723,13 +1724,13 @@ namespace MesTechStok.Desktop.Views
                     if (uri == null && System.IO.File.Exists(path))
                     {
                         uri = new Uri(System.IO.Path.GetFullPath(path), UriKind.Absolute);
-                        Console.WriteLine($"[DEBUG] Using direct file path: {path}");
+                        Debug.WriteLine($"[DEBUG] Using direct file path: {path}");
                     }
                 }
 
                 if (uri == null)
                 {
-                    Console.WriteLine($"[DEBUG] Could not resolve URI for path: {path}");
+                    Debug.WriteLine($"[DEBUG] Could not resolve URI for path: {path}");
                     return null;
                 }
 
@@ -1740,12 +1741,12 @@ namespace MesTechStok.Desktop.Views
                 bmp.EndInit();
                 bmp.Freeze();
 
-                Console.WriteLine($"[DEBUG] Successfully created BitmapImage for: {uri}");
+                Debug.WriteLine($"[DEBUG] Successfully created BitmapImage for: {uri}");
                 return bmp;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[DEBUG] TryCreateBitmap failed for '{path}': {ex.Message}");
+                Debug.WriteLine($"[DEBUG] TryCreateBitmap failed for '{path}': {ex.Message}");
                 return null;
             }
         }
