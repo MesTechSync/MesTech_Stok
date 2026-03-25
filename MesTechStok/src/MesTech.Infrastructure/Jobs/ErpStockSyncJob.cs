@@ -1,8 +1,10 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
+using System.Diagnostics;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -11,6 +13,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// IErpStockCapable implement eden tum ERP adapter'lardan stok seviyelerini ceker
 /// ve MesTech urunlerinin stok miktarlarini gunceller.
 /// Phase-2 TAM: SKU eslestirip Product.AdjustStock cagirir (delta bazli).
+/// ErpSyncLog ile her provider icin sync sonucu kaydedilir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class ErpStockSyncJob : ISyncJob
@@ -20,15 +23,18 @@ public sealed class ErpStockSyncJob : ISyncJob
 
     private readonly IErpAdapterFactory _factory;
     private readonly IProductRepository _productRepository;
+    private readonly IErpSyncLogRepository _syncLogRepository;
     private readonly ILogger<ErpStockSyncJob> _logger;
 
     public ErpStockSyncJob(
         IErpAdapterFactory factory,
         IProductRepository productRepository,
+        IErpSyncLogRepository syncLogRepository,
         ILogger<ErpStockSyncJob> logger)
     {
         _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _syncLogRepository = syncLogRepository ?? throw new ArgumentNullException(nameof(syncLogRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -44,6 +50,11 @@ public sealed class ErpStockSyncJob : ISyncJob
         foreach (var provider in providers)
         {
             ct.ThrowIfCancellationRequested();
+
+            var sw = Stopwatch.StartNew();
+            var syncLog = ErpSyncLog.Create(Guid.Empty, provider, "StockSync", Guid.NewGuid());
+            var providerUpdated = 0;
+            var providerSkipped = 0;
 
 #pragma warning disable CA1031 // Intentional: per-adapter isolation — one failure must not stop others
             try
@@ -67,6 +78,10 @@ public sealed class ErpStockSyncJob : ISyncJob
                 {
                     _logger.LogInformation(
                         "[{JobId}] {Provider} returned 0 stock items", JobId, provider);
+                    sw.Stop();
+                    syncLog.MarkSuccess($"{provider}-stock-0");
+                    syncLog.SetDetails(0, 0, 0, 0, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                    await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
                     continue;
                 }
 
@@ -77,14 +92,14 @@ public sealed class ErpStockSyncJob : ISyncJob
                     var product = await _productRepository.GetBySKUAsync(stockItem.ProductCode).ConfigureAwait(false);
                     if (product is null)
                     {
-                        totalSkipped++;
+                        providerSkipped++;
                         continue;
                     }
 
                     var delta = stockItem.Quantity - product.Stock;
                     if (delta == 0)
                     {
-                        totalSkipped++;
+                        providerSkipped++;
                         continue;
                     }
 
@@ -92,12 +107,20 @@ public sealed class ErpStockSyncJob : ISyncJob
                     product.AdjustStock(delta, movementType, $"ERP sync ({provider})");
 
                     await _productRepository.UpdateAsync(product).ConfigureAwait(false);
-                    totalUpdated++;
+                    providerUpdated++;
                 }
+
+                totalUpdated += providerUpdated;
+                totalSkipped += providerSkipped;
+
+                sw.Stop();
+                syncLog.MarkSuccess($"{provider}-stock-{stockItems.Count}");
+                syncLog.SetDetails(stockItems.Count, providerUpdated, 0, providerSkipped, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
 
                 _logger.LogInformation(
                     "[{JobId}] {Provider} stock sync: {Count} items fetched, {Updated} updated, {Skipped} skipped",
-                    JobId, provider, stockItems.Count, totalUpdated, totalSkipped);
+                    JobId, provider, stockItems.Count, providerUpdated, providerSkipped);
             }
             catch (OperationCanceledException)
             {
@@ -107,6 +130,11 @@ public sealed class ErpStockSyncJob : ISyncJob
             catch (Exception ex)
             {
                 totalFailed++;
+                sw.Stop();
+                syncLog.MarkFailure(ex.Message);
+                syncLog.SetDetails(0, 0, 1, 0, sw.ElapsedMilliseconds, ex.ToString(), "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
+
                 _logger.LogError(ex,
                     "[{JobId}] {Provider} stok sync HATA", JobId, provider);
             }
