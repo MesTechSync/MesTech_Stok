@@ -247,3 +247,52 @@ Billing ALAN_GENISLEME **TAMAMLANDI** — 5 katmanlı SaaS billing stack.
 Alan genişleme seçenekleri:
 - A) Onboarding flow — tenant registration
 - C) KVKK/GDPR — kişisel veri silme/dışa aktarma
+
+---
+
+## TUR: 5 (2026-03-25) — BUYBOX + KVKK/GDPR
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| Buybox endpoint | 0 |
+| KVKK ExportPersonalData | STUB (sadece tenant adı) |
+| KvkkAuditLog entity | 0 |
+| KVKK audit endpoint | 0 |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| Buybox endpoint | 3 (positions, lost, analyze) |
+| KVKK ExportPersonalData | TAM (tenant+users+stores+orders+products JSON) |
+| KvkkAuditLog entity | 1 (6 operation type, 10-year retention) |
+| KVKK audit endpoint | 1 (GET /admin/system/kvkk/audit-logs) |
+| IKvkkAuditLogRepository | 1 interface + 1 implementation |
+| Yeni dosya | 6 |
+| Değiştirilen dosya | 4 |
+
+### DELTA
+- Buybox: 0→3 endpoint ✅ (IBuyboxService bağlandı)
+- KVKK Export: STUB→TAM ✅ (5 veri kaynağı: tenant, users, stores, orders, products)
+- KvkkAuditLog: 0→1 entity ✅ (yasal saklama 10 yıl)
+- Cross-DEV: G020 (DEV1 StockValuation), G021 (DEV5 KVKK test)
+
+### COMMIT
+- `6bb4674c` feat(webapi): add Buybox endpoints — G016 partial
+- `2bdda3e0` feat(kvkk): GDPR compliance — audit log + full data export + query
+- `ee0b26ec` docs(v6): G016 DEVAM, G020+G021 cross-DEV eklendi
+
+### FMEA
+- KVKK veri export: Şiddet=9 × Olasılık=2 × Tespit=2 = RPN=36
+  - Korunma: JSON export structured, tüm PII alanları dahil, audit log zorunlu
+- Buybox fiyat analizi: Şiddet=3 × Olasılık=3 × Tespit=1 = RPN=9 (düşük)
+
+### ALAN_GENISLEME DURUMU
+| Alan | Durum |
+|------|-------|
+| B) Billing | ✅ TAMAMLANDI (TUR 2-3) |
+| C) KVKK/GDPR | ✅ TAMAMLANDI (TUR 5) |
+| A) Onboarding | BEKLİYOR |
+
+### SONRAKİ HEDEF
+- A) Onboarding flow — tenant registration, ilk mağaza ekleme
