@@ -653,4 +653,51 @@ Bitrix24              ✅    ✅   ✅   Retry-After (own pattern)
 | Webhook validator | 8 | 14 | **+6** |
 | Two-stage retry | 2 | 14 | **+12** |
 | Retry-After parsing | 2 | 14 | **+12** |
+| ERP resilience | 0 | 5 | **+5** |
 | Toplam capability | 22 | 90 | **+68** |
+
+---
+
+## TUR 16 — 2026-03-26 (ERP Resilience + Kargo Two-Stage Retry)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| ERP adapter resilience (retry+CB) | **0/5** → KRİTİK GAP |
+| Kargo adapter 429 handling | **0/7** |
+| Options IValidateOptions | 0 |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 36 | 5 ERP adapter | ResiliencePipeline (429+5xx+CB) — 0→5 | 31ddae6c |
+| 37 | 7 kargo adapter | Two-stage retry (429 Retry-After) | b094fda0 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| ERP resilience | 0 | 5 | **+5** ✅ (KRİTİK) |
+| Kargo two-stage retry | 0 | 7 | **+7** ✅ |
+| Total resilient adapters | 16 | 28 | **+12** ✅ |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| ERP API failure → muhasebe sync loss | 9 | 6 | 3 | 162 | FIX |
+| Kargo API 429 → shipment sync break | 5 | 3 | 4 | 60 | FIX |
+
+### KÜMÜLATİF DEV 3 (16 tur, 39 commit)
+| Metrik | Başlangıç | Final | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | **-25** |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | **-8** |
+| Silent stub | 8 | 0 | **-8** |
+| Thread-safety risk | 2 | 0 | **-2** |
+| new HttpClient() | 1 | 0 | **-1** |
+| Webhook validator | 8 | 14 | **+6** |
+| Two-stage retry | 2 | 21 | **+19** |
+| Retry-After parsing | 2 | 21 | **+19** |
+| ERP resilience | 0 | 5 | **+5** |
+| Toplam capability | 22 | 90 | **+68** |
+| Total resilient adapters | 16 | 28 | **+12** |
