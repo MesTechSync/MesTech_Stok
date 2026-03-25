@@ -35,16 +35,9 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200);
-
-            StoreName = "Ana Magaza - Trendyol";
-            PlatformName = "Trendyol";
-            ApiKey = "[API Key from user-secrets]";
-            ApiSecret = "****";
-            SellerId = "123456";
-            WebhookUrl = "https://api.mestech.com/webhooks/trendyol";
-            SyncIntervalMinutes = 30;
-            AutoSyncEnabled = true;
+            // TODO: Replace with _mediator.Send(new GetStoreSettingsQuery()) when handler ready
+            await Task.Delay(100);
+            IsEmpty = true;
         }
         catch (Exception ex)
         {
@@ -65,7 +58,8 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
         SaveSuccess = false;
         try
         {
-            await Task.Delay(500);
+            // TODO: Replace with _mediator.Send(new UpdateStoreSettingsCommand(...)) when handler ready
+            await Task.Delay(100);
             SaveSuccess = true;
         }
         catch (Exception ex)
