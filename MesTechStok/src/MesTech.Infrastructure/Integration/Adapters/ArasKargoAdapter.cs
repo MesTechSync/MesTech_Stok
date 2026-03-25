@@ -1,4 +1,5 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Sentry;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -32,6 +33,7 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
     public ArasKargoAdapter(HttpClient httpClient, ILogger<ArasKargoAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
@@ -42,6 +44,27 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
         };
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            // HTTP 429 rate-limit retry
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(3));
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(3));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[ArasKargo] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            // Server error retry — exponential backoff for 5xx
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = 3,
@@ -117,8 +140,9 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogWarning(ex, "[ArasKargoAdapter] IsAvailableAsync health check exception");
             _logger.LogWarning(ex, "[ArasKargoAdapter] IsAvailableAsync health check failed");
             return false;
         }

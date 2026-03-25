@@ -48,6 +48,27 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         };
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            // HTTP 429 rate-limit retry
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(3));
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(3));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[HepsiJetCargo] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            // Server error retry — exponential backoff for 5xx
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = 3,
