@@ -134,4 +134,75 @@ public class CreateStoreHandlerTests
             r => r.DeleteAsync(It.IsAny<Store>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // 3. Connection test exception fırlatırsa rollback
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public async Task CreateStore_TestConnectionThrows_RollbacksAndReturnsError()
+    {
+        var adapterMock = new Mock<IIntegratorAdapter>();
+        adapterMock
+            .Setup(a => a.TestConnectionAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Network timeout"));
+
+        _adapterFactoryMock
+            .Setup(f => f.Resolve(PlatformType.Trendyol))
+            .Returns(adapterMock.Object);
+
+        _encryptionMock.Setup(e => e.Encrypt(It.IsAny<string>())).Returns("enc");
+
+        var command = new CreateStoreCommand(
+            _tenantId, "Timeout Store", PlatformType.Trendyol,
+            new Dictionary<string, string> { ["ApiKey"] = "key" });
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Network timeout");
+        _storeRepoMock.Verify(
+            r => r.DeleteAsync(It.IsAny<Store>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 4. Adapter yoksa (bilinmeyen platform) store yine oluşur
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public async Task CreateStore_NoAdapterForPlatform_CreatesStoreWithoutTest()
+    {
+        _adapterFactoryMock
+            .Setup(f => f.Resolve(It.IsAny<PlatformType>()))
+            .Returns((IIntegratorAdapter?)null);
+
+        _encryptionMock.Setup(e => e.Encrypt(It.IsAny<string>())).Returns("enc");
+
+        var command = new CreateStoreCommand(
+            _tenantId, "Custom Platform", PlatformType.Trendyol,
+            new Dictionary<string, string> { ["Token"] = "abc" });
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.StoreId.Should().NotBeNull();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 5. Boş store name red edilmeli
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public async Task CreateStore_EmptyStoreName_ReturnsFailure()
+    {
+        var command = new CreateStoreCommand(
+            _tenantId, "", PlatformType.Trendyol,
+            new Dictionary<string, string> { ["ApiKey"] = "key" });
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Store name");
+    }
 }
