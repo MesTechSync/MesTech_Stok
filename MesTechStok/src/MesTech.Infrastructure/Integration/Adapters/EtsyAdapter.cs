@@ -27,7 +27,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// UpdatePrice  → PUT /v3/application/listings/{listingId} (price field)
 /// Categories   → GET /v3/application/seller-taxonomy/nodes
 /// </summary>
-public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EtsyAdapter> _logger;
@@ -1008,6 +1008,64 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // ── IInvoiceCapableAdapter ──
     public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
     public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
+
+    // ── IWebhookCapableAdapter ──
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/application/shops/{_shopId}/webhooks")
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(new { url = callbackUrl, events = new[] { "receipt_created", "receipt_updated" } }, _jsonOptions),
+                    Encoding.UTF8, "application/json")
+            };
+            request.Headers.Add("x-api-key", _accessToken);
+            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Etsy RegisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) { _logger.LogError(ex, "Etsy RegisterWebhook exception"); return false; }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/application/shops/{_shopId}/webhooks");
+            request.Headers.Add("x-api-key", _accessToken);
+            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Etsy UnregisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) { _logger.LogError(ex, "Etsy UnregisterWebhook exception"); return false; }
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
+        _logger.LogInformation("EtsyAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
+        return Task.CompletedTask;
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

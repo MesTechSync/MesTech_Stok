@@ -24,7 +24,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;
@@ -748,4 +748,71 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // ── IInvoiceCapableAdapter ──
     public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
     public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
+
+    // ── IWebhookCapableAdapter ──
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var payload = JsonSerializer.Serialize(new
+            {
+                callback_url = callbackUrl,
+                event_types = new[] { "ORDER_CREATED", "ORDER_UPDATED", "RETURN_CREATED" }
+            }, _jsonOptions);
+
+            var response = await ThrottledExecuteAsync(
+                async c => await _httpClient.PostAsync(
+                    $"{ApiBase}/merchants/webhooks",
+                    new StringContent(payload, Encoding.UTF8, "application/json"), c).ConfigureAwait(false),
+                ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Zalando RegisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) { _logger.LogError(ex, "Zalando RegisterWebhook exception"); return false; }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await ThrottledExecuteAsync(
+                async c => await _httpClient.DeleteAsync($"{ApiBase}/merchants/webhooks", c).ConfigureAwait(false),
+                ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Zalando UnregisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) { _logger.LogError(ex, "Zalando UnregisterWebhook exception"); return false; }
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var eventType = doc.RootElement.TryGetProperty("event_type", out var et) ? et.GetString() : "unknown";
+        _logger.LogInformation("ZalandoAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
+        return Task.CompletedTask;
+    }
 }
