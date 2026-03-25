@@ -75,6 +75,31 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         };
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            // HTTP 429 rate-limit retry — Shopify leaky bucket (40 req/s, Retry-After header)
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } retryResponse
+                        && retryResponse.Headers.RetryAfter is { } retryAfter)
+                    {
+                        var delay = retryAfter.Delta ?? TimeSpan.FromSeconds(2);
+                        return new ValueTask<TimeSpan?>(delay);
+                    }
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(2));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "[ShopifyAdapter] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            // Server error retry — exponential backoff for 5xx
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = 3,
