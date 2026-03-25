@@ -21,7 +21,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// x-api-key auth, Polly retry, SemaphoreSlim rate limiting.
 /// </summary>
 public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
-    IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter
+    IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter,
+    IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
@@ -1012,6 +1013,88 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         }
 
         return lines;
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("CiceksepetiAdapter.SendInvoiceLinkAsync: Package={PackageId}", shipmentPackageId);
+
+        try
+        {
+            var payload = new { invoiceUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post,
+                        $"/api/v1/orders/{shipmentPackageId}/invoice");
+                    req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ciceksepeti SendInvoiceLink failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Ciceksepeti SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ciceksepeti SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("CiceksepetiAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName}",
+            shipmentPackageId, fileName);
+
+        try
+        {
+            using var formContent = new MultipartFormDataContent();
+            formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
+            formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
+
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post,
+                        $"/api/v1/orders/{shipmentPackageId}/invoice-upload");
+                    req.Content = formContent;
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ciceksepeti SendInvoiceFile failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Ciceksepeti SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ciceksepeti SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
+            return false;
+        }
     }
 
     // ── HTTP helper ─────────────────────────────────────

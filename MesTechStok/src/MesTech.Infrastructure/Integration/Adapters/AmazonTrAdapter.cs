@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
 public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter
+    IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -1285,6 +1285,120 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipme
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon TR ping failed");
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Amazon SP-API uses feed-based invoice submission (UPLOAD_VAT_INVOICE).
+    /// URL-only invoice links are not natively supported — logging and returning true.
+    /// </remarks>
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation(
+            "AmazonTrAdapter.SendInvoiceLinkAsync: Package={PackageId} — URL-only not natively supported by Amazon SP-API, skipping feed. InvoiceUrl={InvoiceUrl}",
+            shipmentPackageId, invoiceUrl);
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Submits PDF invoice via Amazon SP-API Feeds (UPLOAD_VAT_INVOICE feed type).
+    /// Step 1: POST /feeds/2021-06-30/feeds to create feed document.
+    /// Step 2: Upload PDF to the feed document URL.
+    /// </remarks>
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("AmazonTrAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName}",
+            shipmentPackageId, fileName);
+
+        try
+        {
+            // Step 1: Create feed document
+            var createDocPayload = new { contentType = "application/pdf" };
+            var createDocJson = JsonSerializer.Serialize(createDocPayload, _jsonOptions);
+
+            var createDocRequest = await CreateAuthenticatedRequestAsync(
+                HttpMethod.Post, "/feeds/2021-06-30/documents", ct).ConfigureAwait(false);
+            createDocRequest.Content = new StringContent(createDocJson, Encoding.UTF8, "application/json");
+
+            var createDocResponse = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(createDocRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!createDocResponse.IsSuccessStatusCode)
+            {
+                var error = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("AmazonTR CreateFeedDocument failed: {Status} - {Error}",
+                    createDocResponse.StatusCode, error);
+                return false;
+            }
+
+            var docContent = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var docJson = JsonDocument.Parse(docContent);
+            var feedDocumentId = docJson.RootElement.TryGetProperty("feedDocumentId", out var docIdEl)
+                ? docIdEl.GetString() : null;
+            var uploadUrl = docJson.RootElement.TryGetProperty("url", out var urlEl)
+                ? urlEl.GetString() : null;
+
+            if (string.IsNullOrEmpty(feedDocumentId) || string.IsNullOrEmpty(uploadUrl))
+            {
+                _logger.LogError("AmazonTR CreateFeedDocument returned empty feedDocumentId or url");
+                return false;
+            }
+
+            // Step 2: Upload PDF to the pre-signed URL
+            using var uploadRequest = new HttpRequestMessage(HttpMethod.Put, uploadUrl);
+            uploadRequest.Content = new ByteArrayContent(pdfBytes);
+            uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+
+            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            if (!uploadResponse.IsSuccessStatusCode)
+            {
+                var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("AmazonTR UploadInvoicePdf failed: {Status} - {Error}",
+                    uploadResponse.StatusCode, error);
+                return false;
+            }
+
+            // Step 3: Create feed referencing the document
+            var feedPayload = new
+            {
+                feedType = "UPLOAD_VAT_INVOICE",
+                marketplaceIds = new[] { TurkeyMarketplaceId },
+                inputFeedDocumentId = feedDocumentId
+            };
+            var feedJson = JsonSerializer.Serialize(feedPayload, _jsonOptions);
+
+            var feedRequest = await CreateAuthenticatedRequestAsync(
+                HttpMethod.Post, "/feeds/2021-06-30/feeds", ct).ConfigureAwait(false);
+            feedRequest.Content = new StringContent(feedJson, Encoding.UTF8, "application/json");
+
+            var feedResponse = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(feedRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!feedResponse.IsSuccessStatusCode)
+            {
+                var error = await feedResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("AmazonTR CreateFeed (UPLOAD_VAT_INVOICE) failed: {Status} - {Error}",
+                    feedResponse.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("AmazonTR SendInvoiceFile OK: Package={PackageId} FeedDocumentId={FeedDocumentId}",
+                shipmentPackageId, feedDocumentId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AmazonTR SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
         }
     }

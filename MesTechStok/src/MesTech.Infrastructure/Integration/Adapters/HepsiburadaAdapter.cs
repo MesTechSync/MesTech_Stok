@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
 public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
@@ -956,6 +956,88 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         }
 
         return lines;
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("HepsiburadaAdapter.SendInvoiceLinkAsync: Package={PackageId}", shipmentPackageId);
+
+        try
+        {
+            var payload = new { invoiceUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post,
+                        $"/api/orders/{shipmentPackageId}/invoice-link");
+                    req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Hepsiburada SendInvoiceLink failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Hepsiburada SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Hepsiburada SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("HepsiburadaAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName}",
+            shipmentPackageId, fileName);
+
+        try
+        {
+            using var formContent = new MultipartFormDataContent();
+            formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
+            formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
+
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post,
+                        $"/api/orders/{shipmentPackageId}/invoice");
+                    req.Content = formContent;
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Hepsiburada SendInvoiceFile failed: {Status} - {Error}",
+                    response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Hepsiburada SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Hepsiburada SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
+            return false;
+        }
     }
 
     // ── HTTP helper ─────────────────────────────────────

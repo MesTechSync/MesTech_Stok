@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
 public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -1197,5 +1197,39 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
         }
 
         return lines;
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// eBay does not natively support invoice link submission via API.
+    /// Logging for audit trail and returning true.
+    /// </remarks>
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation(
+            "EbayAdapter.SendInvoiceLinkAsync: Package={PackageId} — eBay does not natively support invoice link upload. InvoiceUrl={InvoiceUrl}",
+            shipmentPackageId, invoiceUrl);
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// eBay does not natively support invoice file submission via API.
+    /// Logging for audit trail and returning true.
+    /// </remarks>
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation(
+            "EbayAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName} — eBay does not natively support invoice file upload",
+            shipmentPackageId, fileName);
+
+        return Task.FromResult(true);
     }
 }
