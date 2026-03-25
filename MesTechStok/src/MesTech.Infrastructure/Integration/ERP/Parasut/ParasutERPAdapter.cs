@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Parasut;
 /// JSON:API format (application/vnd.api+json).
 /// OAuth2 Client Credentials authentication via <see cref="ParasutTokenService"/>.
 /// </summary>
-public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpBankCapable, IErpPriceCapable
+public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpBankCapable, IErpPriceCapable, IErpWaybillCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ParasutTokenService _tokenService;
@@ -769,5 +769,99 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAcc
             SalePrice: salePrice,
             ListPrice: listPrice > 0 ? listPrice : null,
             CurrencyCode: attr.Currency ?? "TRY");
+    }
+
+    // ── IErpWaybillCapable ────────────────────────────────────────────
+
+    async Task<ErpWaybillResult> IErpWaybillCapable.CreateWaybillAsync(ErpWaybillRequest request, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[ParasutERPAdapter] CreateWaybill — Customer:{Customer}", request.CustomerCode);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                data = new
+                {
+                    type = "shipment_documents",
+                    attributes = new
+                    {
+                        contact_id = request.CustomerCode,
+                        shipping_address = request.ShippingAddress,
+                        cargo_company = request.CargoFirm,
+                        tracking_number = request.TrackingNumber,
+                        issue_date = DateTime.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    },
+                    relationships = new
+                    {
+                        details = new
+                        {
+                            data = request.Lines.Select(l => new
+                            {
+                                type = "shipment_document_details",
+                                attributes = new
+                                {
+                                    product_id = l.ProductCode,
+                                    quantity = l.Quantity,
+                                    unit = l.UnitCode
+                                }
+                            }).ToArray()
+                        }
+                    }
+                }
+            };
+
+            var json = JsonSerializer.Serialize(payload, JsonOptions);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/vnd.api+json");
+            var response = await _httpClient.PostAsync($"{BaseUrl}/shipment_documents", content, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var parsed = JsonSerializer.Deserialize<ParasutJsonApiResponse>(body, JsonOptions);
+                var waybillNumber = parsed?.Data?.Id ?? string.Empty;
+                _logger.LogInformation("[ParasutERPAdapter] Waybill created — ID:{Id}", waybillNumber);
+                return ErpWaybillResult.Ok(waybillNumber, DateTime.Today);
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[ParasutERPAdapter] CreateWaybill failed: {Status} — {Error}", response.StatusCode, errorBody);
+            return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ParasutERPAdapter] CreateWaybill exception");
+            return ErpWaybillResult.Failed(ex.Message);
+        }
+    }
+
+    async Task<ErpWaybillResult?> IErpWaybillCapable.GetWaybillAsync(string waybillNumber, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(waybillNumber);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/shipment_documents/{waybillNumber}", ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var parsed = JsonSerializer.Deserialize<ParasutJsonApiResponse>(body, JsonOptions);
+            var id = parsed?.Data?.Id ?? waybillNumber;
+            var issueDate = parsed?.Data?.Attributes?.IssueDate;
+            var date = !string.IsNullOrEmpty(issueDate) && DateTime.TryParse(issueDate, out var dt) ? dt : DateTime.Today;
+
+            return ErpWaybillResult.Ok(id, date);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ParasutERPAdapter] GetWaybill exception — Number:{Number}", waybillNumber);
+            return null;
+        }
     }
 }
