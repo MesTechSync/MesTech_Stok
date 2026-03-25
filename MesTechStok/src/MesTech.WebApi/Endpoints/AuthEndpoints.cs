@@ -25,7 +25,8 @@ public static class AuthEndpoints
             BruteForceProtectionService bruteForce,
             IOptions<JwtTokenOptions> jwtOptions,
             ILoggerFactory loggerFactory,
-            HttpContext httpContext) =>
+            HttpContext httpContext,
+            CancellationToken ct) =>
         {
             var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
